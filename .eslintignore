@@ -1,0 +1,7 @@
+# .gitignore
+node_modules
+tsconfig.tsbuildinfo
+.env
+
+# additional ignores
+src/types/graphql.ts

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "target": "es2016",
+    "lib": ["esnext"],
+    "module": "CommonJS",
+    "rootDir": ".",
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "importsNotUsedAsValues": "error",
+    "skipLibCheck": true,
+    "experimentalDecorators": true
+  }
+}

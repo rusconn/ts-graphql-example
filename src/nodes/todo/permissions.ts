@@ -1,0 +1,64 @@
+import { chain, race, rule } from "graphql-shield";
+
+import type {
+  Context,
+  QueryTodosArgs,
+  QueryTodoArgs,
+  MutationCreateTodoArgs,
+  MutationUpdateTodoArgs,
+  MutationDeleteTodoArgs,
+  ResolversParentTypes,
+} from "@/types";
+import { permissionError, isAdmin, isAuthenticated } from "@/utils";
+
+type QueryOrUpdateOrDeleteTodosArgs =
+  | QueryTodoArgs
+  | MutationUpdateTodoArgs
+  | MutationDeleteTodoArgs;
+type Parent = ResolversParentTypes["Todo"];
+
+const isTodosOwner = rule({ cache: "strict" })(
+  (_, { userId }: QueryTodosArgs, { logger, user }: Context) => {
+    logger.debug("todo isTodosOwner called");
+    return userId === user.id || permissionError;
+  }
+);
+
+const isTodoOwner = rule({ cache: "strict" })(
+  async (
+    _,
+    { id }: QueryOrUpdateOrDeleteTodosArgs,
+    { logger, user, dataSources: { todoAPI } }: Context
+  ) => {
+    logger.debug("todo isTodoOwner called");
+    const todo = await todoAPI.get(id);
+    return (todo != null && todo.userId === user.id) || permissionError;
+  }
+);
+
+const isMine = rule({ cache: "strict" })(
+  (_, { userId }: MutationCreateTodoArgs, { logger, user }: Context) => {
+    logger.debug("todo isMine called");
+    return userId === user.id || permissionError;
+  }
+);
+
+const isSelf = rule({ cache: "strict" })(({ userId }: Parent, _, { logger, user }: Context) => {
+  logger.debug("todo isSelf called");
+  return userId === user.id || permissionError;
+});
+
+export const permissions = {
+  Query: {
+    todos: race(isAdmin, chain(isAuthenticated, isTodosOwner)),
+    todo: race(isAdmin, chain(isAuthenticated, isTodoOwner)),
+  },
+  Mutation: {
+    createTodo: race(isAdmin, chain(isAuthenticated, isMine)),
+    updateTodo: race(isAdmin, chain(isAuthenticated, isTodoOwner)),
+    deleteTodo: race(isAdmin, chain(isAuthenticated, isTodoOwner)),
+  },
+  Todo: {
+    user: race(isAdmin, isSelf),
+  },
+};

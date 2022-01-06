@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  app:
+    image: rusconn/apollo-prisma-test
+    build:
+      context: .devcontainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

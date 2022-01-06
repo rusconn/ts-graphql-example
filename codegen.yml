@@ -1,0 +1,32 @@
+scalars: &scalars
+  DateTime: "@/types#DateTime"
+  NonEmptyString: "@/types#NonEmptyString"
+  PositiveInt: "@/types#PositiveInt"
+
+typescript: &typescript
+  # デフォルト値は non-optional としたいが、つられてリゾルバも non-optional になるので出来ない:
+  # https://github.com/dotansimha/graphql-code-generator/issues/7005
+  # avoidOptionals:
+  #   defaultValue: true
+  # null を指定する場合と、指定しない(=undefined)場合がある
+  inputMaybeValue: T | null | undefined
+  scalars: *scalars
+  useTypeImports: true
+
+typescript-resolvers: &typescript-resolvers
+  useIndexSignature: true
+  contextType: "@/types#Context"
+  mapperTypeSuffix: Model
+  mappers:
+    User: "@prisma/client#User"
+    Todo: "@prisma/client#Todo"
+
+schema: http://localhost:4000/graphql
+generates:
+  src/types/graphql.ts:
+    plugins:
+      - typescript
+      - typescript-resolvers
+    config:
+      <<: *typescript
+      <<: *typescript-resolvers
