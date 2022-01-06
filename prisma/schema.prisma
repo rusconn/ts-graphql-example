@@ -1,0 +1,48 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["extendedIndexes"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Todo {
+  id          String     @id @default(uuid()) @db.VarChar(255)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  title       String     @db.VarChar(255)
+  description String     @default("")
+  status      TodoStatus @default(PENDING)
+  userId      String     @db.VarChar(255)
+  user        User       @relation(fields: userId, references: id, onDelete: Cascade)
+
+  @@index(userId)
+  @@index([createdAt(sort: Desc), id])
+  @@index([updatedAt(sort: Desc), id])
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @db.VarChar(255)
+  token     String   @unique @default(uuid()) @db.VarChar(255)
+  role      Role     @default(USER)
+  todos     Todo[]
+
+  @@index([createdAt(sort: Desc), id])
+  @@index([updatedAt(sort: Desc), id])
+}
+
+enum TodoStatus {
+  DONE
+  PENDING
+}
+
+enum Role {
+  ADMIN
+  USER
+  GUEST
+}
