@@ -14,6 +14,10 @@ typescript-resolvers: &typescript-resolvers
     User: "@/types#ResolverUser"
     Todo: "@/types#ResolverTodo"
 
+typescript-operations: &typescript-operations
+  onlyOperationTypes: true
+  skipTypename: true
+
 schema: http://localhost:4000/graphql
 generates:
   src/types/graphql.ts:
@@ -23,3 +27,12 @@ generates:
     config:
       <<: *typescript
       <<: *typescript-resolvers
+  tests/integration/types/graphql.ts:
+    documents:
+      - tests/integration/**/*.ts
+    plugins:
+      - typescript
+      - typescript-operations
+    config:
+      <<: *typescript
+      <<: *typescript-operations
