@@ -8,7 +8,8 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "it/*": ["tests/integration/*"]
     },
     "isolatedModules": true,
     "esModuleInterop": true,

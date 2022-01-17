@@ -1,5 +1,6 @@
-const validNodeEnvs = ["development", "production"] as const;
-type NodeEnv = typeof validNodeEnvs[number];
+const validNodeEnvs = ["development", "test", "production"] as const;
+
+export type NodeEnv = typeof validNodeEnvs[number];
 
 export const getEnvsWithValidation = () => {
   const { MAX_DEPTH, MAX_COST, ALERT_COST, NODE_ENV } = process.env;
