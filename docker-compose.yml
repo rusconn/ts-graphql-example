@@ -10,6 +10,7 @@ services:
       - .:/app:cached
       - node_modules:/app/node_modules
       - yarn-cache:/usr/local/share/.cache/yarn/v6
+      - jest-cache:/tmp/jest_0
     tty: true
     ports:
       - 4000:4000
@@ -31,4 +32,5 @@ services:
 volumes:
   node_modules:
   yarn-cache:
+  jest-cache:
   postgres:
