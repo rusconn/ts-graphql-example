@@ -10,10 +10,9 @@ typescript: &typescript
 typescript-resolvers: &typescript-resolvers
   useIndexSignature: true
   contextType: "@/types#Context"
-  mapperTypeSuffix: Model
   mappers:
-    User: "@prisma/client#User"
-    Todo: "@prisma/client#Todo"
+    User: "@/types#ResolverUser"
+    Todo: "@/types#ResolverTodo"
 
 schema: http://localhost:4000/graphql
 generates:

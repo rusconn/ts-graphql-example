@@ -16,7 +16,8 @@ const isDev = nodeEnv === "development";
 const prisma = makePrismaClient(isDev);
 
 const server = new ApolloServer({
-  schema: applyMiddleware(schema, ...middlewares),
+  // 型パラメータを指定しないと型エラーになる。解決方法が不明。
+  schema: applyMiddleware<unknown>(schema, ...middlewares),
   context: async ({ req }) => {
     const { query } = req.body as { query: string | undefined };
 
@@ -41,7 +42,7 @@ const server = new ApolloServer({
 
       user = maybeUser;
     } else {
-      user = { id: "GuestId", role: "GUEST" };
+      user = { id: 0, role: "GUEST" };
     }
 
     return { logger, user } as Omit<Context, "dataSources">;

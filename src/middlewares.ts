@@ -29,6 +29,4 @@ const permissionAndErrorMiddleware = shield(permissions, {
   },
 });
 
-const validationMiddleware = shield(validations);
-
-export const middlewares = [validationMiddleware, permissionAndErrorMiddleware];
+export const middlewares = [validations, permissionAndErrorMiddleware];

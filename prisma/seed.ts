@@ -19,9 +19,9 @@ const createUsers = () => {
 };
 
 const createTodos = ([_adminId, userId1, userId2, _userId3]: User["id"][]) => {
-  const todo1 = ["hoge todo 1", "hoge desc 1", userId1];
-  const todo2 = ["piyo todo 1", "piyo desc 1", userId2];
-  const todo3 = ["piyo todo 2", "piyo desc 2", userId2];
+  const todo1 = ["hoge todo 1", "hoge desc 1", userId1] as const;
+  const todo2 = ["piyo todo 1", "piyo desc 1", userId2] as const;
+  const todo3 = ["piyo todo 2", "piyo desc 2", userId2] as const;
 
   const todos = [todo1, todo2, todo3].map(([title, description, userId]) => ({
     title,
