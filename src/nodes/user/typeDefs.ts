@@ -2,7 +2,17 @@ import { gql } from "apollo-server";
 
 export const typeDefs = gql`
   type Query {
-    users(option: UsersOption! = { order: DESC, first: 10 }): UsersResult!
+    users(
+      "default: 10, max: 30"
+      first: Int
+      after: String
+      "max: 30"
+      last: Int
+      before: String
+      "default: DESC"
+      order: SortDirection
+    ): UserConnection!
+
     user(id: ID!): User
   }
 
@@ -14,6 +24,17 @@ export const typeDefs = gql`
     deleteUser(id: ID!): User
   }
 
+  type UserConnection {
+    totalCount: Int!
+    pageInfo: PageInfo!
+    edges: [UserEdge!]!
+  }
+
+  type UserEdge {
+    node: User!
+    cursor: String!
+  }
+
   type User implements Node {
     id: ID!
     createdAt: DateTime!
@@ -21,25 +42,22 @@ export const typeDefs = gql`
     name: NonEmptyString!
     token: NonEmptyString!
     role: Role!
-    todos(option: TodosOption! = { order: DESC, first: 20 }): TodosResult!
+    todos(
+      "default: 20, max: 50"
+      first: Int
+      after: String
+      "max: 50"
+      last: Int
+      before: String
+      "default: DESC"
+      order: SortDirection
+    ): TodoConnection!
   }
 
   enum Role {
     ADMIN
     USER
     GUEST
-  }
-
-  type UsersResult {
-    users: [User!]!
-    cursor: NonEmptyString
-  }
-
-  input UsersOption {
-    order: UsersOrder! = DESC
-    "30まで"
-    first: PositiveInt! = 10
-    cursor: NonEmptyString
   }
 
   input CreateUserInput {
@@ -50,10 +68,5 @@ export const typeDefs = gql`
   input UpdateUserInput {
     "100文字まで"
     name: NonEmptyString!
-  }
-
-  enum UsersOrder {
-    ASC
-    DESC
   }
 `;

@@ -1,37 +1,62 @@
 import type { Todo, User } from "@prisma/client";
+import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
-import { CreateTodoInput, TodosOption, TodosOrder, UpdateTodoInput } from "@/types";
-import { nonEmptyString, positiveInt } from "@/utils";
+import {
+  CreateTodoInput,
+  QueryTodosArgs,
+  SortDirection,
+  UpdateTodoInput,
+  UserTodosArgs,
+} from "@/types";
 import { PrismaDataSource } from "./abstracts";
 import { catchPrismaError } from "./decorators";
+import { ValidationError, NotFoundError, DataSourceError } from "./errors";
 
 export class TodoAPI extends PrismaDataSource {
+  getsUserTodos(id: User["id"], args: UserTodosArgs) {
+    return this.getsByUserId({ ...args, userId: id });
+  }
+
+  async getsByUserId(args: QueryTodosArgs) {
+    try {
+      return await this.getsByUserIdCore(args);
+    } catch (e) {
+      // 多分 findManyCursorConnection のバリデーションエラー
+      if (!(e instanceof DataSourceError) && e instanceof Error) {
+        throw new ValidationError(e.message, e);
+      }
+
+      throw e;
+    }
+  }
+
   @catchPrismaError
-  async getsByUserId(id: User["id"], { order, first, cursor }: TodosOption) {
-    // codegen の設定を変更できたら不要 codegen.yml 参照
-    const defaultedOrder = order ?? TodosOrder.Desc;
-    const defaultedFirst = first ?? positiveInt(20);
+  private getsByUserIdCore({ userId, order, ...paginationArgs }: QueryTodosArgs) {
+    const defaultedPaginationArgs =
+      paginationArgs.first == null && paginationArgs.last == null
+        ? { ...paginationArgs, first: 20 }
+        : paginationArgs;
 
-    const direction = defaultedOrder === TodosOrder.Desc ? "desc" : "asc";
+    const direction = order === SortDirection.Asc ? "asc" : "desc";
 
-    // prisma の型が間違っているので正しい型に直している
-    // https://github.com/prisma/prisma/issues/10687
-    const todos = (await this.prisma.user.findUnique({ where: { id } }).todos({
-      take: (defaultedFirst as number) + 1,
-      cursor: cursor ? { id: cursor } : undefined,
-      orderBy: [{ updatedAt: direction }, { id: direction }],
-    })) as Todo[] | null;
+    return findManyCursorConnection(
+      async args => {
+        // prisma の型が間違っている
+        // https://github.com/prisma/prisma/issues/10687
+        const todos = (await this.prisma.user.findUnique({ where: { id: userId } }).todos({
+          ...args,
+          orderBy: [{ createdAt: direction }, { id: direction }],
+        })) as Todo[] | null;
 
-    if (!todos) {
-      return null;
-    }
+        if (!todos) {
+          throw new NotFoundError("user not found");
+        }
 
-    if (todos.length <= defaultedFirst) {
-      return { todos };
-    }
-
-    const nextTodo = todos.pop() as Todo;
-    return { todos, cursor: nonEmptyString(nextTodo.id) };
+        return todos;
+      },
+      () => this.prisma.todo.count({ where: { userId } }),
+      defaultedPaginationArgs
+    );
   }
 
   // get のパラメタライズだと non-null に出来ない

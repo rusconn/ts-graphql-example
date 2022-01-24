@@ -3,6 +3,15 @@ import { gql } from "apollo-server";
 
 import * as nodes from "@/nodes";
 
+const cursorConnectionsTypeDef = gql`
+  type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+  }
+`;
+
 const errorTypeDef = gql`
   enum ErrorCode {
     BAD_USER_INPUT
@@ -12,4 +21,17 @@ const errorTypeDef = gql`
   }
 `;
 
-export const typeDefs = [errorTypeDef, ...scalars.typeDefs, ...nodes.typeDefs];
+const sortDirectionTypeDef = gql`
+  enum SortDirection {
+    ASC
+    DESC
+  }
+`;
+
+export const typeDefs = [
+  cursorConnectionsTypeDef,
+  errorTypeDef,
+  sortDirectionTypeDef,
+  ...scalars.typeDefs,
+  ...nodes.typeDefs,
+];

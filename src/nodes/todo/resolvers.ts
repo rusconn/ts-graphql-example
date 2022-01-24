@@ -1,13 +1,25 @@
 import { UserInputError } from "apollo-server";
 
 import type { Resolvers } from "@/types";
-import { NotFoundError } from "@/datasources";
+import * as DataSource from "@/datasources";
 import { BaseError } from "@/errors";
 
 export const resolvers: Resolvers = {
   Query: {
-    todos: (_, { userId, option }, { dataSources: { todoAPI } }) => {
-      return todoAPI.getsByUserId(userId, option);
+    todos: async (_, args, { dataSources: { todoAPI } }) => {
+      try {
+        return await todoAPI.getsByUserId(args);
+      } catch (e) {
+        if (e instanceof DataSource.ValidationError) {
+          throw new UserInputError(e.message, { thrown: e });
+        }
+
+        if (e instanceof DataSource.NotFoundError) {
+          throw new UserInputError("Not found", { thrown: e });
+        }
+
+        throw e;
+      }
     },
     todo: (_, { id }, { dataSources: { todoAPI } }) => {
       return todoAPI.get(id);
@@ -21,7 +33,7 @@ export const resolvers: Resolvers = {
       try {
         return await todoAPI.update(id, input);
       } catch (e) {
-        if (e instanceof NotFoundError) {
+        if (e instanceof DataSource.NotFoundError) {
           throw new UserInputError("Not found", { thrown: e });
         }
 
@@ -32,7 +44,7 @@ export const resolvers: Resolvers = {
       try {
         return await todoAPI.delete(id);
       } catch (e) {
-        if (e instanceof NotFoundError) {
+        if (e instanceof DataSource.NotFoundError) {
           throw new UserInputError("Not found", { thrown: e });
         }
 

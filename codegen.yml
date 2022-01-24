@@ -1,7 +1,6 @@
 scalars: &scalars
   DateTime: "@/types#DateTime"
   NonEmptyString: "@/types#NonEmptyString"
-  PositiveInt: "@/types#PositiveInt"
 
 typescript: &typescript
   # デフォルト値は non-optional としたいが、つられてリゾルバも non-optional になるので出来ない:
