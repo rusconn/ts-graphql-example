@@ -1,6 +1,5 @@
 import type { DateTime } from '@/types';
 import type { NonEmptyString } from '@/types';
-import type { PositiveInt } from '@/types';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import type { User as UserModel, Todo as TodoModel } from '@prisma/client';
 import type { Context } from '@/types';
@@ -135,7 +134,7 @@ export type Scalars = {
   /** Floats that will have a value greater than 0. */
   PositiveFloat: any;
   /** Integers that will have a value greater than 0. */
-  PositiveInt: PositiveInt;
+  PositiveInt: any;
   /** A field whose value conforms to the standard postal code formats for United States, United Kingdom, Germany, Canada, France, Italy, Australia, Netherlands, Spain, Denmark, Sweden, Belgium, India, Austria, Portugal, Switzerland or Luxembourg. */
   PostalCode: any;
   /** A field whose value is a CSS RGB color: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#rgb()_and_rgba(). */

@@ -3,12 +3,8 @@ import { inputRule } from "graphql-shield";
 const todos = inputRule()(
   yup =>
     yup.object({
-      option: yup
-        .object({
-          first: yup.number().integer().max(50),
-        })
-        .optional()
-        .nullable(),
+      first: yup.number().integer().max(50).optional().nullable(),
+      last: yup.number().integer().max(50).optional().nullable(),
     }),
   {
     abortEarly: false,

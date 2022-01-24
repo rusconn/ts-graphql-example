@@ -1,31 +1,43 @@
 import type { User } from "@prisma/client";
+import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
-import { CreateUserInput, UpdateUserInput, UsersOption, UsersOrder } from "@/types";
-import { nonEmptyString, positiveInt } from "@/utils";
+import { CreateUserInput, QueryUsersArgs, SortDirection, UpdateUserInput } from "@/types";
 import { PrismaDataSource } from "./abstracts";
 import { catchPrismaError } from "./decorators";
+import { DataSourceError, ValidationError } from "./errors";
 
 export class UserAPI extends PrismaDataSource {
-  @catchPrismaError
-  async gets({ order, first, cursor }: UsersOption) {
-    // codegen の設定を変更できたら不要 codegen.yml 参照
-    const defaultedOrder = order ?? UsersOrder.Desc;
-    const defaultedFirst = first ?? positiveInt(10);
+  async gets(args: QueryUsersArgs) {
+    try {
+      return await this.getsCore(args);
+    } catch (e) {
+      // 多分 findManyCursorConnection のバリデーションエラー
+      if (!(e instanceof DataSourceError) && e instanceof Error) {
+        throw new ValidationError(e.message, e);
+      }
 
-    const direction = defaultedOrder === UsersOrder.Desc ? "desc" : "asc";
-
-    const users = await this.prisma.user.findMany({
-      take: (defaultedFirst as number) + 1,
-      cursor: cursor ? { id: cursor } : undefined,
-      orderBy: [{ createdAt: direction }, { id: direction }],
-    });
-
-    if (users.length <= defaultedFirst) {
-      return { users };
+      throw e;
     }
+  }
 
-    const nextUser = users.pop() as User;
-    return { users, cursor: nonEmptyString(nextUser.id) };
+  @catchPrismaError
+  private getsCore({ order, ...paginationArgs }: QueryUsersArgs) {
+    const defaultedPaginationArgs =
+      paginationArgs.first == null && paginationArgs.last == null
+        ? { ...paginationArgs, first: 10 }
+        : paginationArgs;
+
+    const direction = order === SortDirection.Asc ? "asc" : "desc";
+
+    return findManyCursorConnection(
+      args =>
+        this.prisma.user.findMany({
+          ...args,
+          orderBy: [{ createdAt: direction }, { id: direction }],
+        }),
+      () => this.prisma.user.count(),
+      defaultedPaginationArgs
+    );
   }
 
   // get のパラメタライズだと non-null に出来ない

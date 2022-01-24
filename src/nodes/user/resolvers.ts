@@ -1,13 +1,20 @@
 import { UserInputError } from "apollo-server";
 
 import type { Resolvers } from "@/types";
-import { NotFoundError } from "@/datasources";
-import { BaseError } from "@/errors";
+import * as DataSource from "@/datasources";
 
 export const resolvers: Resolvers = {
   Query: {
-    users: (_, { option }, { dataSources: { userAPI } }) => {
-      return userAPI.gets(option);
+    users: async (_, args, { dataSources: { userAPI } }) => {
+      try {
+        return await userAPI.gets(args);
+      } catch (e) {
+        if (e instanceof DataSource.ValidationError) {
+          throw new UserInputError(e.message, { thrown: e });
+        }
+
+        throw e;
+      }
     },
     user: (_, { id }, { dataSources: { userAPI } }) => {
       return userAPI.get(id);
@@ -21,7 +28,7 @@ export const resolvers: Resolvers = {
       try {
         return await userAPI.update(id, input);
       } catch (e) {
-        if (e instanceof NotFoundError) {
+        if (e instanceof DataSource.NotFoundError) {
           throw new UserInputError("Not found", { thrown: e });
         }
 
@@ -32,7 +39,7 @@ export const resolvers: Resolvers = {
       try {
         return await userAPI.delete(id);
       } catch (e) {
-        if (e instanceof NotFoundError) {
+        if (e instanceof DataSource.NotFoundError) {
           throw new UserInputError("Not found", { thrown: e });
         }
 
@@ -41,14 +48,8 @@ export const resolvers: Resolvers = {
     },
   },
   User: {
-    todos: async ({ id }, { option }, { dataSources: { todoAPI } }) => {
-      const todosResult = await todoAPI.getsByUserId(id, option);
-
-      if (!todosResult) {
-        throw new BaseError(`User.todos failed: parent.id": ${id}`);
-      }
-
-      return todosResult;
+    todos: ({ id }, args, { dataSources: { todoAPI } }) => {
+      return todoAPI.getsUserTodos(id, args);
     },
   },
 };
