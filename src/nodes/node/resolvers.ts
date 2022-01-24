@@ -1,15 +1,21 @@
 import type { Resolvers } from "@/types";
+import { fromNodeId } from "@/utils";
 
 export const resolvers: Resolvers = {
   Query: {
-    node: async (_, { id }, { dataSources }) => {
-      const apis = Object.values(dataSources);
+    node: (_, { id }, { dataSources: { todoAPI, userAPI } }) => {
+      const { type } = fromNodeId(id);
 
-      try {
-        const nodePromises = apis.map(api => api.getRejectOnNotFound(id));
-        return await Promise.any(nodePromises);
-      } catch {
-        return null;
+      switch (type) {
+        case "Todo": {
+          return todoAPI.get(id);
+        }
+        case "User": {
+          return userAPI.get(id);
+        }
+        default: {
+          return null;
+        }
       }
     },
   },

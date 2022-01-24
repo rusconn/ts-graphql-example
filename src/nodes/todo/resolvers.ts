@@ -54,7 +54,7 @@ export const resolvers: Resolvers = {
   },
   Todo: {
     user: async ({ userId }, _, { dataSources: { userAPI } }) => {
-      const user = await userAPI.get(userId);
+      const user = await userAPI.getByDbId(userId);
 
       if (!user) {
         throw new BaseError(`Todo.user failed: parent.userId": ${userId}`);

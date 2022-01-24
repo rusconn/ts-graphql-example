@@ -9,7 +9,7 @@ import type {
   MutationDeleteTodoArgs,
   ResolversParentTypes,
 } from "@/types";
-import { permissionError, isAdmin, isAuthenticated } from "@/utils";
+import { permissionError, isAdmin, toUserId, isAuthenticated } from "@/utils";
 
 type QueryOrUpdateOrDeleteTodosArgs =
   | QueryTodoArgs
@@ -18,8 +18,9 @@ type QueryOrUpdateOrDeleteTodosArgs =
 type Parent = ResolversParentTypes["Todo"];
 
 const isTodosOwner = rule({ cache: "strict" })(
-  (_, { userId }: QueryTodosArgs, { logger, user }: Context) => {
+  (_, { userId: nodeId }: QueryTodosArgs, { logger, user }: Context) => {
     logger.debug("todo isTodosOwner called");
+    const userId = toUserId(nodeId);
     return userId === user.id || permissionError;
   }
 );
@@ -37,8 +38,9 @@ const isTodoOwner = rule({ cache: "strict" })(
 );
 
 const isMine = rule({ cache: "strict" })(
-  (_, { userId }: MutationCreateTodoArgs, { logger, user }: Context) => {
+  (_, { userId: nodeId }: MutationCreateTodoArgs, { logger, user }: Context) => {
     logger.debug("todo isMine called");
+    const userId = toUserId(nodeId);
     return userId === user.id || permissionError;
   }
 );

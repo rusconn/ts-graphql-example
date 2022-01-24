@@ -48,3 +48,13 @@ ORM
   - スキーマを定義するだけで型付きのクライアントが手に入る
 - バッチリクエストをサポートしている
   - GraphQL の文脈で頻出の N+1 問題を解決する
+
+## 設計記録
+
+### node interface と ID フォーマット
+
+[Relay の GraphQL Server Specification](https://relay.dev/docs/guides/graphql-server-specification/) を満たすため、node interface を用意した。
+
+node interface は他のクエリとは異なり、どのタイプを返すべきなのかが分からない。  
+無工夫だと全タイプの可能性を考慮したデータ取得をする必要があり、データソースによっては非効率となる。  
+これを避ける為、ID へタイプを表すプレフィックスを付加することにした。
