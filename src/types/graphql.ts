@@ -1,8 +1,7 @@
 import type { DateTime } from '@/types';
 import type { NonEmptyString } from '@/types';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import type { User as UserModel, Todo as TodoModel } from '@prisma/client';
-import type { Context } from '@/types';
+import type { ResolverUser, ResolverTodo, Context } from '@/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -521,7 +520,7 @@ export type ResolversTypes = ResolversObject<{
   String: ResolverTypeWrapper<Scalars['String']>;
   Time: ResolverTypeWrapper<Scalars['Time']>;
   Timestamp: ResolverTypeWrapper<Scalars['Timestamp']>;
-  Todo: ResolverTypeWrapper<TodoModel>;
+  Todo: ResolverTypeWrapper<ResolverTodo>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges'> & { edges: Array<ResolversTypes['TodoEdge']> }>;
   TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node: ResolversTypes['Todo'] }>;
   TodoOrder: TodoOrder;
@@ -534,7 +533,7 @@ export type ResolversTypes = ResolversObject<{
   UnsignedInt: ResolverTypeWrapper<Scalars['UnsignedInt']>;
   UpdateTodoInput: UpdateTodoInput;
   UpdateUserInput: UpdateUserInput;
-  User: ResolverTypeWrapper<UserModel>;
+  User: ResolverTypeWrapper<ResolverUser>;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges'> & { edges: Array<ResolversTypes['UserEdge']> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: ResolversTypes['User'] }>;
   UserOrder: UserOrder;
@@ -601,7 +600,7 @@ export type ResolversParentTypes = ResolversObject<{
   String: Scalars['String'];
   Time: Scalars['Time'];
   Timestamp: Scalars['Timestamp'];
-  Todo: TodoModel;
+  Todo: ResolverTodo;
   TodoConnection: Omit<TodoConnection, 'edges'> & { edges: Array<ResolversParentTypes['TodoEdge']> };
   TodoEdge: Omit<TodoEdge, 'node'> & { node: ResolversParentTypes['Todo'] };
   TodoOrder: TodoOrder;
@@ -612,7 +611,7 @@ export type ResolversParentTypes = ResolversObject<{
   UnsignedInt: Scalars['UnsignedInt'];
   UpdateTodoInput: UpdateTodoInput;
   UpdateUserInput: UpdateUserInput;
-  User: UserModel;
+  User: ResolverUser;
   UserConnection: Omit<UserConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserEdge']> };
   UserEdge: Omit<UserEdge, 'node'> & { node: ResolversParentTypes['User'] };
   UserOrder: UserOrder;

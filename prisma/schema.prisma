@@ -9,22 +9,21 @@ datasource db {
 }
 
 model Todo {
-  id          String     @id @default(uuid()) @db.VarChar(255)
+  id          Int        @id @default(autoincrement())
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   title       String     @db.VarChar(255)
   description String     @default("")
   status      TodoStatus @default(PENDING)
-  userId      String     @db.VarChar(255)
+  userId      Int
   user        User       @relation(fields: userId, references: id, onDelete: Cascade)
 
   @@index(userId)
-  @@index([createdAt(sort: Desc), id])
   @@index([updatedAt(sort: Desc), id])
 }
 
 model User {
-  id        String   @id @default(uuid()) @db.VarChar(255)
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String   @db.VarChar(255)
@@ -32,7 +31,6 @@ model User {
   role      Role     @default(USER)
   todos     Todo[]
 
-  @@index([createdAt(sort: Desc), id])
   @@index([updatedAt(sort: Desc), id])
 }
 

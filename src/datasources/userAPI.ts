@@ -1,7 +1,8 @@
-import type { User } from "@prisma/client";
+import type * as Prisma from "@prisma/client";
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
-import { CreateUserInput, QueryUsersArgs, SortDirection, UpdateUserInput } from "@/types";
+import { CreateUserInput, QueryUsersArgs, SortDirection, UpdateUserInput, User } from "@/types";
+import { toUserNodeId, toUserId, mapConnectionIds } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
 import { catchPrismaError } from "./decorators";
 import { DataSourceError, ValidationError } from "./errors";
@@ -21,7 +22,7 @@ export class UserAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  private getsCore({ order, ...paginationArgs }: QueryUsersArgs) {
+  private async getsCore({ order, ...paginationArgs }: QueryUsersArgs) {
     const defaultedPaginationArgs =
       paginationArgs.first == null && paginationArgs.last == null
         ? { ...paginationArgs, first: 10 }
@@ -29,40 +30,53 @@ export class UserAPI extends PrismaDataSource {
 
     const direction = order === SortDirection.Asc ? "asc" : "desc";
 
-    return findManyCursorConnection(
+    const result = await findManyCursorConnection<Prisma.User, Pick<Prisma.User, "id">>(
       args =>
         this.prisma.user.findMany({
           ...args,
-          orderBy: [{ createdAt: direction }, { id: direction }],
+          orderBy: [{ id: direction }],
         }),
       () => this.prisma.user.count(),
-      defaultedPaginationArgs
+      defaultedPaginationArgs,
+      {
+        getCursor: record => ({ id: record.id }),
+        encodeCursor: ({ id }) => toUserNodeId(id),
+        decodeCursor: cursor => ({ id: toUserId(cursor) }),
+      }
     );
-  }
 
-  // get のパラメタライズだと non-null に出来ない
-  @catchPrismaError
-  getRejectOnNotFound(id: User["id"]) {
-    return this.prisma.user.findUnique({ where: { id }, rejectOnNotFound: true });
+    return mapConnectionIds(result, toUserNodeId);
   }
 
   @catchPrismaError
-  get(id: User["id"]) {
-    return this.prisma.user.findUnique({ where: { id } });
+  get(nodeId: User["id"]) {
+    const id = toUserId(nodeId);
+    return this.getByDbId(id);
   }
 
   @catchPrismaError
-  create(input: CreateUserInput) {
-    return this.prisma.user.create({ data: input });
+  async getByDbId(id: Prisma.User["id"]) {
+    const result = await this.prisma.user.findUnique({ where: { id } });
+    return result && { ...result, id: toUserNodeId(result.id) };
   }
 
   @catchPrismaError
-  update(id: User["id"], input: UpdateUserInput) {
-    return this.prisma.user.update({ where: { id }, data: input });
+  async create(input: CreateUserInput) {
+    const result = await this.prisma.user.create({ data: input });
+    return { ...result, id: toUserNodeId(result.id) };
   }
 
   @catchPrismaError
-  delete(id: User["id"]) {
-    return this.prisma.user.delete({ where: { id } });
+  async update(nodeId: User["id"], input: UpdateUserInput) {
+    const id = toUserId(nodeId);
+    const result = await this.prisma.user.update({ where: { id }, data: input });
+    return { ...result, id: toUserNodeId(result.id) };
+  }
+
+  @catchPrismaError
+  async delete(nodeId: User["id"]) {
+    const id = toUserId(nodeId);
+    const result = await this.prisma.user.delete({ where: { id } });
+    return { ...result, id: toUserNodeId(result.id) };
   }
 }

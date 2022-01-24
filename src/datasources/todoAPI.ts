@@ -1,13 +1,16 @@
-import type { Todo, User } from "@prisma/client";
+import type * as Prisma from "@prisma/client";
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
 import {
   CreateTodoInput,
   QueryTodosArgs,
   SortDirection,
+  Todo,
   UpdateTodoInput,
+  User,
   UserTodosArgs,
 } from "@/types";
+import { mapConnectionIds, toTodoId, toTodoNodeId, toUserId } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
 import { catchPrismaError } from "./decorators";
 import { ValidationError, NotFoundError, DataSourceError } from "./errors";
@@ -17,9 +20,11 @@ export class TodoAPI extends PrismaDataSource {
     return this.getsByUserId({ ...args, userId: id });
   }
 
-  async getsByUserId(args: QueryTodosArgs) {
+  async getsByUserId({ userId: nodeId, ...rest }: QueryTodosArgs) {
+    const id = toUserId(nodeId);
+
     try {
-      return await this.getsByUserIdCore(args);
+      return await this.getsByUserIdCore(id, rest);
     } catch (e) {
       // 多分 findManyCursorConnection のバリデーションエラー
       if (!(e instanceof DataSourceError) && e instanceof Error) {
@@ -31,7 +36,10 @@ export class TodoAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  private getsByUserIdCore({ userId, order, ...paginationArgs }: QueryTodosArgs) {
+  private async getsByUserIdCore(
+    userId: Prisma.User["id"],
+    { order, ...paginationArgs }: Omit<QueryTodosArgs, "userId">
+  ) {
     const defaultedPaginationArgs =
       paginationArgs.first == null && paginationArgs.last == null
         ? { ...paginationArgs, first: 20 }
@@ -39,14 +47,14 @@ export class TodoAPI extends PrismaDataSource {
 
     const direction = order === SortDirection.Asc ? "asc" : "desc";
 
-    return findManyCursorConnection(
+    const result = await findManyCursorConnection<Prisma.Todo, Pick<Prisma.Todo, "id">>(
       async args => {
         // prisma の型が間違っている
         // https://github.com/prisma/prisma/issues/10687
         const todos = (await this.prisma.user.findUnique({ where: { id: userId } }).todos({
           ...args,
-          orderBy: [{ createdAt: direction }, { id: direction }],
-        })) as Todo[] | null;
+          orderBy: [{ updatedAt: direction }, { id: direction }],
+        })) as Prisma.Todo[] | null;
 
         if (!todos) {
           throw new NotFoundError("user not found");
@@ -55,33 +63,42 @@ export class TodoAPI extends PrismaDataSource {
         return todos;
       },
       () => this.prisma.todo.count({ where: { userId } }),
-      defaultedPaginationArgs
+      defaultedPaginationArgs,
+      {
+        getCursor: record => ({ id: record.id }),
+        encodeCursor: ({ id }) => toTodoNodeId(id),
+        decodeCursor: cursor => ({ id: toTodoId(cursor) }),
+      }
     );
-  }
 
-  // get のパラメタライズだと non-null に出来ない
-  @catchPrismaError
-  getRejectOnNotFound(id: User["id"]) {
-    return this.prisma.todo.findUnique({ where: { id }, rejectOnNotFound: true });
+    return mapConnectionIds(result, toTodoNodeId);
   }
 
   @catchPrismaError
-  get(id: Todo["id"]) {
-    return this.prisma.todo.findUnique({ where: { id } });
+  async get(nodeId: Todo["id"]) {
+    const id = toTodoId(nodeId);
+    const result = await this.prisma.todo.findUnique({ where: { id } });
+    return result && { ...result, id: toTodoNodeId(result.id) };
   }
 
   @catchPrismaError
-  create(userId: User["id"], input: CreateTodoInput) {
-    return this.prisma.todo.create({ data: { ...input, userId } });
+  async create(nodeId: User["id"], input: CreateTodoInput) {
+    const id = toUserId(nodeId);
+    const result = await this.prisma.todo.create({ data: { ...input, userId: id } });
+    return { ...result, id: toTodoNodeId(result.id) };
   }
 
   @catchPrismaError
-  update(id: Todo["id"], input: UpdateTodoInput) {
-    return this.prisma.todo.update({ where: { id }, data: input });
+  async update(nodeId: Todo["id"], input: UpdateTodoInput) {
+    const id = toTodoId(nodeId);
+    const result = await this.prisma.todo.update({ where: { id }, data: input });
+    return { ...result, id: toTodoNodeId(result.id) };
   }
 
   @catchPrismaError
-  delete(id: Todo["id"]) {
-    return this.prisma.todo.delete({ where: { id } });
+  async delete(nodeId: Todo["id"]) {
+    const id = toTodoId(nodeId);
+    const result = await this.prisma.todo.delete({ where: { id } });
+    return { ...result, id: toTodoNodeId(result.id) };
   }
 }
