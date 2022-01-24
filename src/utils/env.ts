@@ -4,7 +4,7 @@ type NodeEnv = typeof validNodeEnvs[number];
 export const getEnvsWithValidation = () => {
   const { MAX_DEPTH, MAX_COST, ALERT_COST, NODE_ENV } = process.env;
 
-  const maxDepth = Number(MAX_DEPTH ?? "5");
+  const maxDepth = Number(MAX_DEPTH ?? "10");
   const maxCost = Number(MAX_COST ?? "10000");
   const alertCost = Number(ALERT_COST ?? "5000");
 

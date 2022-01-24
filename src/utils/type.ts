@@ -1,4 +1,4 @@
-import type { DateTime, NonEmptyString, PositiveInt } from "@/types";
+import type { DateTime, NonEmptyString } from "@/types";
 
 export function dateTime(x: string): DateTime {
   if (!isDateTime(x)) {
@@ -20,15 +20,4 @@ export function nonEmptyString(x: string): NonEmptyString {
 
 export const isNonEmptyString = (x: string): x is NonEmptyString => {
   return x.length !== 0;
-};
-
-export function positiveInt(x: number): PositiveInt {
-  if (!isPositiveInt(x)) {
-    throw new TypeError(`invalid value passed: ${x}`);
-  }
-  return x;
-}
-
-export const isPositiveInt = (x: number): x is PositiveInt => {
-  return x > 0;
 };
