@@ -1,21 +1,32 @@
-import type { Resolvers } from "@/types";
+import { ApolloError } from "apollo-server";
+
+import { ErrorCode, Resolvers } from "@/types";
+import * as DataSource from "@/datasources";
 import { fromNodeId } from "@/utils";
 
 export const resolvers: Resolvers = {
   Query: {
-    node: (_, { id }, { dataSources: { todoAPI, userAPI } }) => {
+    node: async (_, { id }, { dataSources: { todoAPI, userAPI } }) => {
       const { type } = fromNodeId(id);
 
-      switch (type) {
-        case "Todo": {
-          return todoAPI.get(id);
+      try {
+        switch (type) {
+          case "Todo": {
+            return await todoAPI.get(id);
+          }
+          case "User": {
+            return await userAPI.get(id);
+          }
+          default: {
+            return null;
+          }
         }
-        case "User": {
-          return userAPI.get(id);
+      } catch (e) {
+        if (e instanceof DataSource.NotFoundError) {
+          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
         }
-        default: {
-          return null;
-        }
+
+        throw e;
       }
     },
   },

@@ -17,6 +17,7 @@ const errorTypeDef = gql`
     BAD_USER_INPUT
     AUTHENTICATION_ERROR
     FORBIDDEN
+    NOT_FOUND
     INTERNAL_SERVER_ERROR
   }
 `;

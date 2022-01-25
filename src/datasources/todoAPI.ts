@@ -83,7 +83,12 @@ export class TodoAPI extends PrismaDataSource {
   async get(nodeId: Todo["id"]) {
     const id = toTodoId(nodeId);
     const result = await this.prisma.todo.findUnique({ where: { id } });
-    return result && { ...result, id: toTodoNodeId(result.id) };
+
+    if (!result) {
+      throw new NotFoundError("Not found");
+    }
+
+    return { ...result, id: toTodoNodeId(result.id) };
   }
 
   @catchPrismaError
