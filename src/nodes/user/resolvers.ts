@@ -1,6 +1,6 @@
-import { UserInputError } from "apollo-server";
+import { ApolloError, UserInputError } from "apollo-server";
 
-import type { Resolvers } from "@/types";
+import { ErrorCode, Resolvers } from "@/types";
 import * as DataSource from "@/datasources";
 
 export const resolvers: Resolvers = {
@@ -16,8 +16,16 @@ export const resolvers: Resolvers = {
         throw e;
       }
     },
-    user: (_, { id }, { dataSources: { userAPI } }) => {
-      return userAPI.get(id);
+    user: async (_, { id }, { dataSources: { userAPI } }) => {
+      try {
+        return await userAPI.get(id);
+      } catch (e) {
+        if (e instanceof DataSource.NotFoundError) {
+          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
+        }
+
+        throw e;
+      }
     },
   },
   Mutation: {
@@ -29,7 +37,7 @@ export const resolvers: Resolvers = {
         return await userAPI.update(id, input);
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
-          throw new UserInputError("Not found", { thrown: e });
+          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
         }
 
         throw e;
@@ -40,7 +48,7 @@ export const resolvers: Resolvers = {
         return await userAPI.delete(id);
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
-          throw new UserInputError("Not found", { thrown: e });
+          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
         }
 
         throw e;

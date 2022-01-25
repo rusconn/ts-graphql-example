@@ -9,6 +9,7 @@ import type {
   MutationDeleteTodoArgs,
   ResolversParentTypes,
 } from "@/types";
+import * as DataSource from "@/datasources";
 import { permissionError, isAdmin, toUserId, isAuthenticated } from "@/utils";
 
 type QueryOrUpdateOrDeleteTodosArgs =
@@ -32,8 +33,20 @@ const isTodoOwner = rule({ cache: "strict" })(
     { logger, user, dataSources: { todoAPI } }: Context
   ) => {
     logger.debug("todo isTodoOwner called");
-    const todo = await todoAPI.get(id);
-    return (todo != null && todo.userId === user.id) || permissionError;
+
+    let todo;
+
+    try {
+      todo = await todoAPI.get(id);
+    } catch (e) {
+      if (e instanceof DataSource.NotFoundError) {
+        return false;
+      }
+
+      throw e;
+    }
+
+    return todo.userId === user.id || permissionError;
   }
 );
 

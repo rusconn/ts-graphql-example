@@ -1,6 +1,7 @@
 import { chain, race, rule } from "graphql-shield";
 
 import type { Context, QueryNodeArgs } from "@/types";
+import * as DataSource from "@/datasources";
 import { permissionError, isAdmin, isAuthenticated, fromNodeId } from "@/utils";
 
 const isOwner = rule({ cache: "strict" })(
@@ -9,20 +10,25 @@ const isOwner = rule({ cache: "strict" })(
 
     const { type, id } = fromNodeId(nodeId);
 
-    switch (type) {
-      case "Todo": {
-        const node = await dataSources.todoAPI.get(nodeId);
-        if (!node) return permissionError;
-        return node.userId === user.id || permissionError;
+    try {
+      switch (type) {
+        case "Todo": {
+          const node = await dataSources.todoAPI.get(nodeId);
+          return node.userId === user.id || permissionError;
+        }
+        case "User": {
+          return id === user.id || permissionError;
+        }
+        default: {
+          return false;
+        }
       }
-      case "User": {
-        const node = await dataSources.userAPI.get(nodeId);
-        if (!node) return permissionError;
-        return id === user.id || permissionError;
-      }
-      default: {
+    } catch (e) {
+      if (e instanceof DataSource.NotFoundError) {
         return false;
       }
+
+      throw e;
     }
   }
 );

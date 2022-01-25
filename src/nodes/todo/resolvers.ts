@@ -1,8 +1,7 @@
-import { UserInputError } from "apollo-server";
+import { ApolloError, UserInputError } from "apollo-server";
 
-import type { Resolvers } from "@/types";
+import { ErrorCode, Resolvers } from "@/types";
 import * as DataSource from "@/datasources";
-import { BaseError } from "@/errors";
 
 export const resolvers: Resolvers = {
   Query: {
@@ -15,14 +14,22 @@ export const resolvers: Resolvers = {
         }
 
         if (e instanceof DataSource.NotFoundError) {
-          throw new UserInputError("Not found", { thrown: e });
+          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
         }
 
         throw e;
       }
     },
-    todo: (_, { id }, { dataSources: { todoAPI } }) => {
-      return todoAPI.get(id);
+    todo: async (_, { id }, { dataSources: { todoAPI } }) => {
+      try {
+        return await todoAPI.get(id);
+      } catch (e) {
+        if (e instanceof DataSource.NotFoundError) {
+          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
+        }
+
+        throw e;
+      }
     },
   },
   Mutation: {
@@ -34,7 +41,7 @@ export const resolvers: Resolvers = {
         return await todoAPI.update(id, input);
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
-          throw new UserInputError("Not found", { thrown: e });
+          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
         }
 
         throw e;
@@ -45,7 +52,7 @@ export const resolvers: Resolvers = {
         return await todoAPI.delete(id);
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
-          throw new UserInputError("Not found", { thrown: e });
+          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
         }
 
         throw e;
@@ -54,13 +61,15 @@ export const resolvers: Resolvers = {
   },
   Todo: {
     user: async ({ userId }, _, { dataSources: { userAPI } }) => {
-      const user = await userAPI.getByDbId(userId);
+      try {
+        return await userAPI.getByDbId(userId);
+      } catch (e) {
+        if (e instanceof DataSource.NotFoundError) {
+          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
+        }
 
-      if (!user) {
-        throw new BaseError(`Todo.user failed: parent.userId": ${userId}`);
+        throw e;
       }
-
-      return user;
     },
   },
 };
