@@ -12,7 +12,7 @@ import {
 import { toUserNodeId, toUserId, mapConnectionIds } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
 import { catchPrismaError } from "./decorators";
-import { DataSourceError, ValidationError } from "./errors";
+import { DataSourceError, NotFoundError, ValidationError } from "./errors";
 
 export class UserAPI extends PrismaDataSource {
   async gets(args: QueryUsersArgs) {
@@ -68,7 +68,12 @@ export class UserAPI extends PrismaDataSource {
   @catchPrismaError
   async getByDbId(id: Prisma.User["id"]) {
     const result = await this.prisma.user.findUnique({ where: { id } });
-    return result && { ...result, id: toUserNodeId(result.id) };
+
+    if (!result) {
+      throw new NotFoundError("Not found");
+    }
+
+    return { ...result, id: toUserNodeId(result.id) };
   }
 
   @catchPrismaError
