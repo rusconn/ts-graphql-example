@@ -10,8 +10,7 @@ export const typeDefs = gql`
       "max: 50"
       last: Int
       before: String
-      "default: DESC"
-      order: SortDirection
+      orderBy: TodoOrder
     ): TodoConnection
 
     todo(id: ID!): Todo
@@ -47,6 +46,16 @@ export const typeDefs = gql`
   enum TodoStatus {
     DONE
     PENDING
+  }
+
+  input TodoOrder {
+    field: TodoOrderField!
+    direction: OrderDirection!
+  }
+
+  enum TodoOrderField {
+    CREATED_AT
+    UPDATED_AT
   }
 
   input CreateTodoInput {

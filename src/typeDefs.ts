@@ -21,8 +21,8 @@ const errorTypeDef = gql`
   }
 `;
 
-const sortDirectionTypeDef = gql`
-  enum SortDirection {
+const orderDirectionTypeDef = gql`
+  enum OrderDirection {
     ASC
     DESC
   }
@@ -31,7 +31,7 @@ const sortDirectionTypeDef = gql`
 export const typeDefs = [
   cursorConnectionsTypeDef,
   errorTypeDef,
-  sortDirectionTypeDef,
+  orderDirectionTypeDef,
   ...scalars.typeDefs,
   ...nodes.typeDefs,
 ];
