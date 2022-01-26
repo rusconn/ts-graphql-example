@@ -3,9 +3,10 @@ import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection
 
 import {
   CreateTodoInput,
+  OrderDirection,
   QueryTodosArgs,
-  SortDirection,
   Todo,
+  TodoOrderField,
   UpdateTodoInput,
   User,
   UserTodosArgs,
@@ -38,14 +39,15 @@ export class TodoAPI extends PrismaDataSource {
   @catchPrismaError
   private async getsByUserIdCore(
     userId: Prisma.User["id"],
-    { order, ...paginationArgs }: Omit<QueryTodosArgs, "userId">
+    { orderBy, ...paginationArgs }: Omit<QueryTodosArgs, "userId">
   ) {
     const defaultedPaginationArgs =
       paginationArgs.first == null && paginationArgs.last == null
         ? { ...paginationArgs, first: 20 }
         : paginationArgs;
 
-    const direction = order === SortDirection.Asc ? "asc" : "desc";
+    const { field, direction } = orderBy ?? {};
+    const directionToUse = direction === OrderDirection.Asc ? "asc" : "desc";
 
     const result = await findManyCursorConnection<Prisma.Todo, Pick<Prisma.Todo, "id">>(
       async args => {
@@ -53,7 +55,10 @@ export class TodoAPI extends PrismaDataSource {
         // https://github.com/prisma/prisma/issues/10687
         const todos = (await this.prisma.user.findUnique({ where: { id: userId } }).todos({
           ...args,
-          orderBy: [{ updatedAt: direction }, { id: direction }],
+          orderBy:
+            field === TodoOrderField.CreatedAt
+              ? { id: directionToUse }
+              : [{ updatedAt: directionToUse }, { id: directionToUse }],
         })) as Prisma.Todo[] | null;
 
         if (!todos) {

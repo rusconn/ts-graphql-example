@@ -9,8 +9,7 @@ export const typeDefs = gql`
       "max: 30"
       last: Int
       before: String
-      "default: DESC"
-      order: SortDirection
+      orderBy: UserOrder
     ): UserConnection!
 
     user(id: ID!): User
@@ -49,8 +48,7 @@ export const typeDefs = gql`
       "max: 50"
       last: Int
       before: String
-      "default: DESC"
-      order: SortDirection
+      orderBy: TodoOrder
     ): TodoConnection!
   }
 
@@ -58,6 +56,16 @@ export const typeDefs = gql`
     ADMIN
     USER
     GUEST
+  }
+
+  input UserOrder {
+    field: UserOrderField!
+    direction: OrderDirection!
+  }
+
+  enum UserOrderField {
+    CREATED_AT
+    UPDATED_AT
   }
 
   input CreateUserInput {
