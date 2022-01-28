@@ -324,3 +324,8 @@ export type UsersQueryVariables = Exact<{
 
 
 export type UsersQuery = { users: { totalCount: number, pageInfo: { startCursor?: string | null | undefined, endCursor?: string | null | undefined, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string } }> } };
+
+export type ViewerQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ViewerQuery = { viewer: { id: string } };

@@ -5,6 +5,9 @@ import * as DataSource from "@/datasources";
 
 export const resolvers: Resolvers = {
   Query: {
+    viewer: (_, __, { dataSources: { userAPI }, user }) => {
+      return userAPI.getByDbId(user.id);
+    },
     users: async (_, args, { dataSources: { userAPI } }) => {
       try {
         return await userAPI.gets(args);
