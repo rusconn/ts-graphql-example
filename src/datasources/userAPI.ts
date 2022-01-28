@@ -43,9 +43,9 @@ export class UserAPI extends PrismaDataSource {
         this.prisma.user.findMany({
           ...args,
           orderBy:
-            field === UserOrderField.CreatedAt
-              ? { id: directionToUse }
-              : [{ updatedAt: directionToUse }, { id: directionToUse }],
+            field === UserOrderField.UpdatedAt
+              ? [{ updatedAt: directionToUse }, { id: directionToUse }]
+              : { id: directionToUse },
         }),
       () => this.prisma.user.count(),
       defaultedPaginationArgs,
