@@ -2,6 +2,7 @@ import { gql } from "apollo-server";
 
 export const typeDefs = gql`
   type Query {
+    viewer: User!
     users(
       "default: 10, max: 30"
       first: Int

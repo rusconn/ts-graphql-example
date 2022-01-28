@@ -7,7 +7,7 @@ import type {
   MutationDeleteUserArgs,
   ResolversParentTypes,
 } from "@/types";
-import { permissionError, isAdmin, isGuest, toUserId } from "@/utils";
+import { permissionError, isAdmin, isGuest, toUserId, isAuthenticated } from "@/utils";
 
 type QueryOrUpdateOrDeleteArgs = QueryUserArgs | MutationUpdateUserArgs | MutationDeleteUserArgs;
 type Parent = ResolversParentTypes["User"];
@@ -30,6 +30,7 @@ const isOwner = rule({ cache: "strict" })(
 
 export const permissions = {
   Query: {
+    viewer: isAuthenticated,
     users: isAdmin,
     user: race(isAdmin, chain(isAuthenticated, isSelf)),
   },
