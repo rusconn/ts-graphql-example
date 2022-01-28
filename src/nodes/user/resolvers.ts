@@ -56,8 +56,16 @@ export const resolvers: Resolvers = {
     },
   },
   User: {
-    todos: ({ id }, args, { dataSources: { todoAPI } }) => {
-      return todoAPI.getsUserTodos(id, args);
+    todos: async ({ id }, args, { dataSources: { todoAPI } }) => {
+      try {
+        return await todoAPI.getsUserTodos(id, args);
+      } catch (e) {
+        if (e instanceof DataSource.ValidationError) {
+          throw new UserInputError(e.message, { thrown: e });
+        }
+
+        throw e;
+      }
     },
   },
 };
