@@ -11,7 +11,7 @@
     "generate": "graphql-codegen",
     "fix": "run-s fix:*",
     "fix:typecheck": "tsc --noEmit",
-    "fix:lint": "eslint . --fix --ext '.js,.ts'",
+    "fix:lint": "eslint . --cache --fix --ext '.js,.ts'",
     "fix:format": "prettier --write './**/*.{js,ts,json,yml,md}'",
     "prepare": "husky install"
   },
