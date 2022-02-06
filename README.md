@@ -24,6 +24,8 @@ Apollo Server と Prisma を使って GraphQL API を作る。
   - 設計ミスでは？
 - Relay の仕様を学んでおくと良さそうに感じた
   - ベストプラクティス感がある
+- update 系 mutation の入力は nullable 推奨
+  - non-nullable だと後からフィールドを追加しにくい
 
 ### Apollo Server
 

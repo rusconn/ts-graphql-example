@@ -160,6 +160,28 @@ describe("validation", () => {
       expect(data?.updateUser).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
     });
+
+    test("null name should cause bad input error", async () => {
+      const { data, errors } = await executeMutation({
+        variables: { id: toUserNodeId(admin.id), input: { name: null } },
+      });
+
+      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+      expect(data?.updateUser).toBeFalsy();
+      expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
+    });
+
+    test("absent name should not cause bad input error", async () => {
+      const { data, errors } = await executeMutation({
+        variables: { id: toUserNodeId(admin.id), input: {} },
+      });
+
+      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+      expect(data?.updateUser).not.toBeFalsy();
+      expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
+    });
   });
 });
 
@@ -183,6 +205,30 @@ describe("logic", () => {
     const maybeUser = await prisma.user.findUnique({ where: { id: toUserId(data.updateUser.id) } });
 
     expect(maybeUser?.name).toBe(name);
+  });
+
+  it("should not update fields if the field is absent", async () => {
+    const before = await prisma.user.findUnique({ where: { id: admin.id } });
+
+    if (!before) {
+      throw new Error("user not found");
+    }
+
+    const { data } = await executeMutation({
+      variables: { id: toUserNodeId(admin.id), input: {} },
+    });
+
+    if (!data || !data.updateUser) {
+      throw new Error("operation failed");
+    }
+
+    const after = await prisma.user.findUnique({ where: { id: toUserId(data.updateUser.id) } });
+
+    if (!after) {
+      throw new Error("user not found");
+    }
+
+    expect(before.name).toBe(after.name);
   });
 
   it("should update updatedAt", async () => {

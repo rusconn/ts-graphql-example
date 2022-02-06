@@ -99,9 +99,18 @@ export class TodoAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  async update(nodeId: Todo["id"], input: UpdateTodoInput) {
+  async update(nodeId: Todo["id"], { title, description, status }: UpdateTodoInput) {
     const id = toTodoId(nodeId);
-    const result = await this.prisma.todo.update({ where: { id }, data: input });
+
+    const result = await this.prisma.todo.update({
+      where: { id },
+      data: {
+        title: title ?? undefined,
+        description: description ?? undefined,
+        status: status ?? undefined,
+      },
+    });
+
     return { ...result, id: toTodoNodeId(result.id) };
   }
 

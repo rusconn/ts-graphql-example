@@ -18,6 +18,8 @@ export const typeDefs = gql`
 
   type Mutation {
     createUser(input: CreateUserInput!): User
+
+    "指定したフィールドのみ更新する"
     updateUser(id: ID!, input: UpdateUserInput!): User
 
     "紐づくリソースは全て削除される"
@@ -75,7 +77,7 @@ export const typeDefs = gql`
   }
 
   input UpdateUserInput {
-    "100文字まで"
-    name: NonEmptyString!
+    "100文字まで、null は入力エラー"
+    name: NonEmptyString
   }
 `;
