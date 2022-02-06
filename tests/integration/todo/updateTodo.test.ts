@@ -18,7 +18,7 @@ import {
 } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer, nonEmptyString, toTodoNodeId } from "@/utils";
+import { getEnvsWithValidation, makeServer, nonEmptyString, toTodoId, toTodoNodeId } from "@/utils";
 import { ErrorCode, TodoStatus, User } from "@/types";
 
 const envs = getEnvsWithValidation();
@@ -202,6 +202,42 @@ describe("validation", () => {
       expect(data?.updateTodo).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
     });
+
+    const validPartialInputs = [
+      { description: "", status: TodoStatus.Done },
+      { status: TodoStatus.Done, title: nonEmptyString("x") },
+      { title: nonEmptyString("x"), description: "" },
+    ];
+
+    const invalidPartialInputs = [{ title: null }, { description: null }, { status: null }];
+
+    test.each(validPartialInputs)(
+      "field absence should not cause bad input error: %s",
+      async input => {
+        const { data, errors } = await executeMutation({
+          variables: { input, id: toTodoNodeId(adminTodo1.id) },
+        });
+
+        const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+        expect(data?.updateTodo).not.toBeFalsy();
+        expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
+      }
+    );
+
+    test.each(invalidPartialInputs)(
+      "some fields should cause bad input error if null: %s",
+      async input => {
+        const { data, errors } = await executeMutation({
+          variables: { input, id: toTodoNodeId(adminTodo1.id) },
+        });
+
+        const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+        expect(data?.updateTodo).toBeFalsy();
+        expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
+      }
+    );
   });
 });
 
@@ -228,6 +264,32 @@ describe("logic", () => {
     expect(maybeUser?.title).toBe(input.title);
     expect(maybeUser?.description).toBe(input.description);
     expect(maybeUser?.status).toBe(input.status);
+  });
+
+  it("should not update fields if the field is absent", async () => {
+    const before = await prisma.todo.findUnique({ where: { id: adminTodo1.id } });
+
+    if (!before) {
+      throw new Error("todo not found");
+    }
+
+    const { data } = await executeMutation({
+      variables: { id: toTodoNodeId(adminTodo1.id), input: {} },
+    });
+
+    if (!data || !data.updateTodo) {
+      throw new Error("operation failed");
+    }
+
+    const after = await prisma.todo.findUnique({ where: { id: toTodoId(data.updateTodo.id) } });
+
+    if (!after) {
+      throw new Error("user not found");
+    }
+
+    expect(before.title).toBe(after.title);
+    expect(before.description).toBe(after.description);
+    expect(before.status).toBe(after.status);
   });
 
   it("should update updatedAt", async () => {

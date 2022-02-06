@@ -205,16 +205,17 @@ export enum TodoStatus {
 }
 
 export type UpdateTodoInput = {
-  /** 5000文字まで */
-  description: Scalars['String'];
-  status: TodoStatus;
-  /** 100文字まで */
-  title: Scalars['NonEmptyString'];
+  /** 5000文字まで、null は入力エラー */
+  description?: InputMaybe<Scalars['String']>;
+  /** null は入力エラー */
+  status?: InputMaybe<TodoStatus>;
+  /** 100文字まで、null は入力エラー */
+  title?: InputMaybe<Scalars['NonEmptyString']>;
 };
 
 export type UpdateUserInput = {
-  /** 100文字まで */
-  name: Scalars['NonEmptyString'];
+  /** 100文字まで、null は入力エラー */
+  name?: InputMaybe<Scalars['NonEmptyString']>;
 };
 
 export type UserOrder = {
