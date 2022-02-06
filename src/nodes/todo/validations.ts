@@ -78,14 +78,26 @@ export const validations = {
       info: any
     ) => {
       const {
-        input: { title, description },
+        input: { title, description, status },
       } = args;
 
-      if ([...title].length > 100) {
+      if (title === null) {
+        throw new UserInputError("`title` must be not null");
+      }
+
+      if (description === null) {
+        throw new UserInputError("`description` must be not null");
+      }
+
+      if (status === null) {
+        throw new UserInputError("`status` must be not null");
+      }
+
+      if (title && [...title].length > 100) {
         throw new UserInputError("`title` must be up to 100 characters");
       }
 
-      if ([...description].length > 5000) {
+      if (description && [...description].length > 5000) {
         throw new UserInputError("`description` must be up to 5000 characters");
       }
 

@@ -58,7 +58,13 @@ export const validations = {
       context: any,
       info: any
     ) => {
-      if ([...args.input.name].length > 100) {
+      const { name } = args.input;
+
+      if (name === null) {
+        throw new UserInputError("`name` must be not null");
+      }
+
+      if (name && [...name].length > 100) {
         throw new UserInputError("`name` must be up to 100 characteres");
       }
 

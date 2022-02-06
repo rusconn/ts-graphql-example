@@ -83,9 +83,14 @@ export class UserAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  async update(nodeId: User["id"], input: UpdateUserInput) {
+  async update(nodeId: User["id"], { name }: UpdateUserInput) {
     const id = toUserId(nodeId);
-    const result = await this.prisma.user.update({ where: { id }, data: input });
+
+    const result = await this.prisma.user.update({
+      where: { id },
+      data: { name: name ?? undefined },
+    });
+
     return { ...result, id: toUserNodeId(result.id) };
   }
 
