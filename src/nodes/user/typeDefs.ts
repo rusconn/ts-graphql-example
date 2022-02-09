@@ -1,10 +1,11 @@
 import { gql } from "apollo-server";
 
-import { makeCursorConnections } from "@/utils";
+import { makeOrderOptions, makeCursorConnections } from "@/utils";
 import { userType } from "@/types";
 
 export const typeDefs = gql`
   ${makeCursorConnections(userType, { totalCount: "Int!" })}
+  ${makeOrderOptions(userType)}
 
   type Query {
     viewer: User!
@@ -53,16 +54,6 @@ export const typeDefs = gql`
     ADMIN
     USER
     GUEST
-  }
-
-  input UserOrder {
-    field: UserOrderField!
-    direction: OrderDirection!
-  }
-
-  enum UserOrderField {
-    CREATED_AT
-    UPDATED_AT
   }
 
   input CreateUserInput {
