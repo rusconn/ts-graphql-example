@@ -1,10 +1,11 @@
 import { gql } from "apollo-server";
 
-import { makeCursorConnections } from "@/utils";
+import { makeOrderOptions, makeCursorConnections } from "@/utils";
 import { todoType } from "@/types";
 
 export const typeDefs = gql`
   ${makeCursorConnections(todoType, { totalCount: "Int!" })}
+  ${makeOrderOptions(todoType)}
 
   type Query {
     todos(
@@ -42,16 +43,6 @@ export const typeDefs = gql`
   enum TodoStatus {
     DONE
     PENDING
-  }
-
-  input TodoOrder {
-    field: TodoOrderField!
-    direction: OrderDirection!
-  }
-
-  enum TodoOrderField {
-    CREATED_AT
-    UPDATED_AT
   }
 
   input CreateTodoInput {
