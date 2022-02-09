@@ -1,6 +1,11 @@
 import { gql } from "apollo-server";
 
+import { makeCursorConnections } from "@/utils";
+import { todoType } from "@/types";
+
 export const typeDefs = gql`
+  ${makeCursorConnections(todoType, { totalCount: "Int!" })}
+
   type Query {
     todos(
       userId: ID!
@@ -22,17 +27,6 @@ export const typeDefs = gql`
     "指定したフィールドのみ更新する"
     updateTodo(id: ID!, input: UpdateTodoInput!): Todo
     deleteTodo(id: ID!): Todo
-  }
-
-  type TodoConnection {
-    totalCount: Int!
-    pageInfo: PageInfo!
-    edges: [TodoEdge!]!
-  }
-
-  type TodoEdge {
-    node: Todo!
-    cursor: String!
   }
 
   type Todo implements Node {
