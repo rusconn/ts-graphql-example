@@ -1,6 +1,11 @@
 import { gql } from "apollo-server";
 
+import { makeCursorConnections } from "@/utils";
+import { userType } from "@/types";
+
 export const typeDefs = gql`
+  ${makeCursorConnections(userType, { totalCount: "Int!" })}
+
   type Query {
     viewer: User!
     users(
@@ -24,17 +29,6 @@ export const typeDefs = gql`
 
     "紐づくリソースは全て削除される"
     deleteUser(id: ID!): User
-  }
-
-  type UserConnection {
-    totalCount: Int!
-    pageInfo: PageInfo!
-    edges: [UserEdge!]!
-  }
-
-  type UserEdge {
-    node: User!
-    cursor: String!
   }
 
   type User implements Node {
