@@ -1,4 +1,4 @@
-import * as scalars from "graphql-scalars";
+import { NonEmptyStringTypeDefinition, DateTimeTypeDefinition } from "graphql-scalars";
 import { gql } from "apollo-server";
 
 import * as nodes from "@/nodes";
@@ -29,10 +29,12 @@ const orderDirectionTypeDef = gql`
   }
 `;
 
+const scalarTypeDefs = [NonEmptyStringTypeDefinition, DateTimeTypeDefinition];
+
 export const typeDefs = [
   cursorConnectionsTypeDef,
   errorTypeDef,
   orderDirectionTypeDef,
-  ...scalars.typeDefs,
+  ...scalarTypeDefs,
   ...nodes.typeDefs,
 ];
