@@ -1,5 +1,10 @@
-import * as scalars from "graphql-scalars";
+import { NonEmptyStringResolver, DateTimeResolver } from "graphql-scalars";
 
 import * as nodes from "@/nodes";
 
-export const resolvers = { ...scalars.resolvers, ...nodes.resolvers };
+const scalarResolvers = {
+  NonEmptyString: NonEmptyStringResolver,
+  DateTime: DateTimeResolver,
+};
+
+export const resolvers = { ...scalarResolvers, ...nodes.resolvers };
