@@ -28,6 +28,9 @@ export const typeDefs = gql`
     "指定したフィールドのみ更新する"
     updateTodo(id: ID!, input: UpdateTodoInput!): Todo
     deleteTodo(id: ID!): Todo
+
+    completeTodo(id: ID!): Todo
+    uncompleteTodo(id: ID!): Todo
   }
 
   type Todo implements Node {
