@@ -44,15 +44,22 @@ export enum ErrorCode {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  completeTodo?: Maybe<Todo>;
   createTodo?: Maybe<Todo>;
   createUser?: Maybe<User>;
   deleteTodo?: Maybe<Todo>;
   /** 紐づくリソースは全て削除される */
   deleteUser?: Maybe<User>;
+  uncompleteTodo?: Maybe<Todo>;
   /** 指定したフィールドのみ更新する */
   updateTodo?: Maybe<Todo>;
   /** 指定したフィールドのみ更新する */
   updateUser?: Maybe<User>;
+};
+
+
+export type MutationCompleteTodoArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -73,6 +80,11 @@ export type MutationDeleteTodoArgs = {
 
 
 export type MutationDeleteUserArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationUncompleteTodoArgs = {
   id: Scalars['ID'];
 };
 
@@ -382,10 +394,12 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 }
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  completeTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
   createTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'input' | 'userId'>>;
   createUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
   deleteTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, 'id'>>;
   deleteUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
+  uncompleteTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUncompleteTodoArgs, 'id'>>;
   updateTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUpdateTodoArgs, 'id' | 'input'>>;
   updateUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id' | 'input'>>;
 }>;

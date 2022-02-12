@@ -3,8 +3,10 @@
 import { UserInputError } from "apollo-server";
 
 import type {
+  MutationCompleteTodoArgs,
   MutationCreateTodoArgs,
   MutationDeleteTodoArgs,
+  MutationUncompleteTodoArgs,
   MutationUpdateTodoArgs,
   QueryTodoArgs,
   QueryTodosArgs,
@@ -113,6 +115,36 @@ export const validations = {
       resolve: any,
       parent: any,
       args: MutationDeleteTodoArgs,
+      context: any,
+      info: any
+    ) => {
+      try {
+        assertIsTodoNodeId(args.id);
+      } catch (e) {
+        throw new UserInputError("invalid `id`", { thrown: e });
+      }
+
+      return resolve(parent, args, context, info);
+    },
+    completeTodo: (
+      resolve: any,
+      parent: any,
+      args: MutationCompleteTodoArgs,
+      context: any,
+      info: any
+    ) => {
+      try {
+        assertIsTodoNodeId(args.id);
+      } catch (e) {
+        throw new UserInputError("invalid `id`", { thrown: e });
+      }
+
+      return resolve(parent, args, context, info);
+    },
+    uncompleteTodo: (
+      resolve: any,
+      parent: any,
+      args: MutationUncompleteTodoArgs,
       context: any,
       info: any
     ) => {

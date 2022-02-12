@@ -1,6 +1,6 @@
 import { ApolloError, UserInputError } from "apollo-server";
 
-import { ErrorCode, Resolvers } from "@/types";
+import { ErrorCode, Resolvers, TodoStatus } from "@/types";
 import * as DataSource from "@/datasources";
 
 export const resolvers: Resolvers = {
@@ -50,6 +50,28 @@ export const resolvers: Resolvers = {
     deleteTodo: async (_, { id }, { dataSources: { todoAPI } }) => {
       try {
         return await todoAPI.delete(id);
+      } catch (e) {
+        if (e instanceof DataSource.NotFoundError) {
+          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
+        }
+
+        throw e;
+      }
+    },
+    completeTodo: async (_, { id }, { dataSources: { todoAPI } }) => {
+      try {
+        return await todoAPI.update(id, { status: TodoStatus.Done });
+      } catch (e) {
+        if (e instanceof DataSource.NotFoundError) {
+          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
+        }
+
+        throw e;
+      }
+    },
+    uncompleteTodo: async (_, { id }, { dataSources: { todoAPI } }) => {
+      try {
+        return await todoAPI.update(id, { status: TodoStatus.Pending });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });

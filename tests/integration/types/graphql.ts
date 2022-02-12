@@ -95,6 +95,13 @@ export type NodeQueryVariables = Exact<{
 
 export type NodeQuery = { node?: { title: NonEmptyString, id: string } | { name: NonEmptyString, id: string } | null | undefined };
 
+export type CompleteTodoMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type CompleteTodoMutation = { completeTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null | undefined };
+
 export type CreateTodoMutationVariables = Exact<{
   userId: Scalars['ID'];
   input: CreateTodoInput;
@@ -129,6 +136,13 @@ export type TodosQueryVariables = Exact<{
 
 
 export type TodosQuery = { todos?: { totalCount: number, pageInfo: { startCursor?: string | null | undefined, endCursor?: string | null | undefined, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString } }> } | null | undefined };
+
+export type UncompleteTodoMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type UncompleteTodoMutation = { uncompleteTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null | undefined };
 
 export type UpdateTodoMutationVariables = Exact<{
   id: Scalars['ID'];
