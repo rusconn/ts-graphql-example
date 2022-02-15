@@ -1,4 +1,5 @@
 import type * as Prisma from "@prisma/client";
+import type { GraphQLResolveInfo } from "graphql";
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
 import {
@@ -15,9 +16,9 @@ import { catchPrismaError } from "./decorators";
 import { DataSourceError, NotFoundError, ValidationError } from "./errors";
 
 export class UserAPI extends PrismaDataSource {
-  async gets(args: QueryUsersArgs) {
+  async gets(args: QueryUsersArgs, info: GraphQLResolveInfo) {
     try {
-      return await this.getsCore(args);
+      return await this.getsCore(args, info);
     } catch (e) {
       // 多分 findManyCursorConnection のバリデーションエラー
       if (!(e instanceof DataSourceError) && e instanceof Error) {
@@ -29,7 +30,7 @@ export class UserAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  private async getsCore({ orderBy, ...paginationArgs }: QueryUsersArgs) {
+  private async getsCore({ orderBy, ...paginationArgs }: QueryUsersArgs, info: GraphQLResolveInfo) {
     const defaultedPaginationArgs =
       paginationArgs.first == null && paginationArgs.last == null
         ? { ...paginationArgs, first: 10 }
@@ -53,6 +54,7 @@ export class UserAPI extends PrismaDataSource {
         getCursor: record => ({ id: record.id }),
         encodeCursor: ({ id }) => toUserNodeId(id),
         decodeCursor: cursor => ({ id: toUserId(cursor) }),
+        resolveInfo: info,
       }
     );
 

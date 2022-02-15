@@ -1,4 +1,5 @@
 import type * as Prisma from "@prisma/client";
+import type { GraphQLResolveInfo } from "graphql";
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
 import {
@@ -17,15 +18,15 @@ import { catchPrismaError } from "./decorators";
 import { ValidationError, NotFoundError, DataSourceError } from "./errors";
 
 export class TodoAPI extends PrismaDataSource {
-  getsUserTodos(id: User["id"], args: UserTodosArgs) {
-    return this.getsByUserId({ ...args, userId: id });
+  getsUserTodos(id: User["id"], args: UserTodosArgs, info: GraphQLResolveInfo) {
+    return this.getsByUserId({ ...args, userId: id }, info);
   }
 
-  async getsByUserId({ userId: nodeId, ...rest }: QueryTodosArgs) {
+  async getsByUserId({ userId: nodeId, ...rest }: QueryTodosArgs, info: GraphQLResolveInfo) {
     const id = toUserId(nodeId);
 
     try {
-      return await this.getsByUserIdCore(id, rest);
+      return await this.getsByUserIdCore(id, rest, info);
     } catch (e) {
       // 多分 findManyCursorConnection のバリデーションエラー
       if (!(e instanceof DataSourceError) && e instanceof Error) {
@@ -39,7 +40,8 @@ export class TodoAPI extends PrismaDataSource {
   @catchPrismaError
   private async getsByUserIdCore(
     userId: Prisma.User["id"],
-    { orderBy, ...paginationArgs }: Omit<QueryTodosArgs, "userId">
+    { orderBy, ...paginationArgs }: Omit<QueryTodosArgs, "userId">,
+    info: GraphQLResolveInfo
   ) {
     const defaultedPaginationArgs =
       paginationArgs.first == null && paginationArgs.last == null
@@ -73,6 +75,7 @@ export class TodoAPI extends PrismaDataSource {
         getCursor: record => ({ id: record.id }),
         encodeCursor: ({ id }) => toTodoNodeId(id),
         decodeCursor: cursor => ({ id: toTodoId(cursor) }),
+        resolveInfo: info,
       }
     );
 

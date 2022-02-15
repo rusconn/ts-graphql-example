@@ -5,9 +5,9 @@ import * as DataSource from "@/datasources";
 
 export const resolvers: Resolvers = {
   Query: {
-    todos: async (_, args, { dataSources: { todoAPI } }) => {
+    todos: async (_, args, { dataSources: { todoAPI } }, info) => {
       try {
-        return await todoAPI.getsByUserId(args);
+        return await todoAPI.getsByUserId(args, info);
       } catch (e) {
         if (e instanceof DataSource.ValidationError) {
           throw new UserInputError(e.message, { thrown: e });
