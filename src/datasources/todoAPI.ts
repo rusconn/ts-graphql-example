@@ -51,11 +51,13 @@ export class TodoAPI extends PrismaDataSource {
     const { field, direction } = orderBy ?? {};
     const directionToUse = direction === OrderDirection.Asc ? "asc" : "desc";
 
+    const userPromise = this.prisma.user.findUnique({ where: { id: userId } });
+
     const result = await findManyCursorConnection<Prisma.Todo, Pick<Prisma.Todo, "id">>(
       async args => {
         // prisma の型が間違っている
         // https://github.com/prisma/prisma/issues/10687
-        const todos = (await this.prisma.user.findUnique({ where: { id: userId } }).todos({
+        const todos = (await userPromise.todos({
           ...args,
           orderBy:
             field === TodoOrderField.CreatedAt
@@ -69,7 +71,15 @@ export class TodoAPI extends PrismaDataSource {
 
         return todos;
       },
-      () => this.prisma.todo.count({ where: { userId } }),
+      async () => {
+        const todos = (await userPromise.todos()) as Prisma.Todo[] | null;
+
+        if (!todos) {
+          throw new NotFoundError("user not found");
+        }
+
+        return todos.length;
+      },
       defaultedPaginationArgs,
       {
         getCursor: record => ({ id: record.id }),
