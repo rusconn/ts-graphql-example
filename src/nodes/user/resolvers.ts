@@ -8,9 +8,9 @@ export const resolvers: Resolvers = {
     viewer: (_, __, { dataSources: { userAPI }, user }) => {
       return userAPI.getByDbId(user.id);
     },
-    users: async (_, args, { dataSources: { userAPI } }) => {
+    users: async (_, args, { dataSources: { userAPI } }, info) => {
       try {
-        return await userAPI.gets(args);
+        return await userAPI.gets(args, info);
       } catch (e) {
         if (e instanceof DataSource.ValidationError) {
           throw new UserInputError(e.message, { thrown: e });
@@ -59,9 +59,9 @@ export const resolvers: Resolvers = {
     },
   },
   User: {
-    todos: async ({ id }, args, { dataSources: { todoAPI } }) => {
+    todos: async ({ id }, args, { dataSources: { todoAPI } }, info) => {
       try {
-        return await todoAPI.getsUserTodos(id, args);
+        return await todoAPI.getsUserTodos(id, args, info);
       } catch (e) {
         if (e instanceof DataSource.ValidationError) {
           throw new UserInputError(e.message, { thrown: e });
