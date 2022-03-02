@@ -16,4 +16,8 @@ export const makeContext = ({ query, token }: MakeContextParams) =>
     },
   } as ExpressContext);
 
-export const clearTables = () => Promise.all([prisma.todo.deleteMany(), prisma.user.deleteMany()]);
+// Promise.all() だとたまにデッドロックが発生するので直列実行
+export const clearTables = async () => {
+  await prisma.todo.deleteMany();
+  await prisma.user.deleteMany();
+};
