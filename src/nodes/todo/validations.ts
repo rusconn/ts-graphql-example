@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return */
-
 import { UserInputError } from "apollo-server";
 
 import type {
