@@ -1,7 +1,5 @@
 import { UserInputError } from "apollo-server";
 
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return */
-
 import type { QueryNodeArgs } from "@/types";
 import { assertIsNodeId } from "@/utils";
 
