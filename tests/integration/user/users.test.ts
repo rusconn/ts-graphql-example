@@ -194,58 +194,6 @@ describe("order of items", () => {
 });
 
 describe("pagination", () => {
-  describe("pageInfo", () => {
-    const makeExpected = (
-      hasNextPage: boolean,
-      hasPreviousPage: boolean,
-      startId: number | null,
-      endId: number | null
-    ) => ({
-      hasNextPage,
-      hasPreviousPage,
-      startCursor: startId && toUserNodeId(startId),
-      endCursor: endId && toUserNodeId(endId),
-    });
-
-    const table = [
-      [{ first: 1 }, makeExpected(true, false, 1, 1)],
-      [{ first: 2 }, makeExpected(true, false, 1, 2)],
-      [{ first: 3 }, makeExpected(false, false, 1, 3)],
-      [{ first: 4 }, makeExpected(false, false, 1, 3)],
-      [{ last: 1 }, makeExpected(false, true, 3, 3)],
-      [{ last: 2 }, makeExpected(false, true, 2, 3)],
-      [{ last: 3 }, makeExpected(false, false, 1, 3)],
-      [{ last: 4 }, makeExpected(false, false, 1, 3)],
-
-      [{ first: 1, after: toUserNodeId(1) }, makeExpected(true, true, 2, 2)],
-      [{ first: 1, after: toUserNodeId(2) }, makeExpected(false, true, 3, 3)],
-      [{ first: 1, after: toUserNodeId(3) }, makeExpected(false, true, null, null)],
-
-      [{ first: 2, after: toUserNodeId(1) }, makeExpected(false, true, 2, 3)],
-      [{ first: 2, after: toUserNodeId(2) }, makeExpected(false, true, 3, 3)],
-      [{ first: 3, after: toUserNodeId(3) }, makeExpected(false, true, null, null)],
-
-      [{ last: 1, before: toUserNodeId(3) }, makeExpected(true, true, 2, 2)],
-      [{ last: 1, before: toUserNodeId(2) }, makeExpected(true, false, 1, 1)],
-      [{ last: 1, before: toUserNodeId(1) }, makeExpected(true, false, null, null)],
-
-      [{ last: 2, before: toUserNodeId(3) }, makeExpected(true, false, 1, 2)],
-      [{ last: 2, before: toUserNodeId(2) }, makeExpected(true, false, 1, 1)],
-      [{ last: 3, before: toUserNodeId(1) }, makeExpected(true, false, null, null)],
-    ] as const;
-
-    test.each(table)("pageInfo %o %o", async (variables, expected) => {
-      const { data } = await executeQuery({
-        variables: {
-          ...variables,
-          orderBy: { field: UserOrderField.CreatedAt, direction: OrderDirection.Asc },
-        },
-      });
-
-      expect(data?.users.pageInfo).toEqual(expected);
-    });
-  });
-
   it("should not works by default", async () => {
     const first = numSeed - 1;
 
