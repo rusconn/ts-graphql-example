@@ -13,8 +13,8 @@ services:
       - jest-cache:/tmp/jest_0
     tty: true
     ports:
-      - 4000:4000
-      - 5555:5555
+      - ${APP_PORT:-4000}:4000
+      - ${STUDIO_PORT:-5555}:5555
     depends_on:
       - db
 
@@ -27,7 +27,7 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - ${DB_PORT:-5432}:5432
 
 volumes:
   node_modules:
