@@ -232,59 +232,6 @@ describe("order of items", () => {
 });
 
 describe("pagination", () => {
-  describe("pageInfo", () => {
-    const makeExpected = (
-      hasNextPage: boolean,
-      hasPreviousPage: boolean,
-      startId: number | null,
-      endId: number | null
-    ) => ({
-      hasNextPage,
-      hasPreviousPage,
-      startCursor: startId && toTodoNodeId(startId),
-      endCursor: endId && toTodoNodeId(endId),
-    });
-
-    const table = [
-      [{ first: 1 }, makeExpected(true, false, 1, 1)],
-      [{ first: 2 }, makeExpected(true, false, 1, 2)],
-      [{ first: 3 }, makeExpected(false, false, 1, 3)],
-      [{ first: 4 }, makeExpected(false, false, 1, 3)],
-      [{ last: 1 }, makeExpected(false, true, 3, 3)],
-      [{ last: 2 }, makeExpected(false, true, 2, 3)],
-      [{ last: 3 }, makeExpected(false, false, 1, 3)],
-      [{ last: 4 }, makeExpected(false, false, 1, 3)],
-
-      [{ first: 1, after: toTodoNodeId(1) }, makeExpected(true, true, 2, 2)],
-      [{ first: 1, after: toTodoNodeId(2) }, makeExpected(false, true, 3, 3)],
-      [{ first: 1, after: toTodoNodeId(3) }, makeExpected(false, true, null, null)],
-
-      [{ first: 2, after: toTodoNodeId(1) }, makeExpected(false, true, 2, 3)],
-      [{ first: 2, after: toTodoNodeId(2) }, makeExpected(false, true, 3, 3)],
-      [{ first: 3, after: toTodoNodeId(3) }, makeExpected(false, true, null, null)],
-
-      [{ last: 1, before: toTodoNodeId(3) }, makeExpected(true, true, 2, 2)],
-      [{ last: 1, before: toTodoNodeId(2) }, makeExpected(true, false, 1, 1)],
-      [{ last: 1, before: toTodoNodeId(1) }, makeExpected(true, false, null, null)],
-
-      [{ last: 2, before: toTodoNodeId(3) }, makeExpected(true, false, 1, 2)],
-      [{ last: 2, before: toTodoNodeId(2) }, makeExpected(true, false, 1, 1)],
-      [{ last: 3, before: toTodoNodeId(1) }, makeExpected(true, false, null, null)],
-    ] as const;
-
-    test.each(table)("pageInfo %o %o", async (variables, expected) => {
-      const { data } = await executeQuery({
-        variables: {
-          ...variables,
-          orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Asc },
-          userId: toUserNodeId(admin.id),
-        },
-      });
-
-      expect(data?.todos?.pageInfo).toEqual(expected);
-    });
-  });
-
   it("should not works by default", async () => {
     const first = numSeedTodos - 1;
 
