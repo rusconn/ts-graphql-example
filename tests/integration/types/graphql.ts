@@ -91,14 +91,14 @@ export type NodeQueryVariables = Exact<{
 }>;
 
 
-export type NodeQuery = { node?: { title: NonEmptyString, id: string } | { name: NonEmptyString, id: string } | null | undefined };
+export type NodeQuery = { node?: { title: NonEmptyString, id: string } | { name: NonEmptyString, id: string } | null };
 
 export type CompleteTodoMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type CompleteTodoMutation = { completeTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null | undefined };
+export type CompleteTodoMutation = { completeTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
 export type CreateTodoMutationVariables = Exact<{
   userId: Scalars['ID'];
@@ -106,14 +106,14 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { createTodo?: { id: string, title: NonEmptyString, description: string, status: TodoStatus } | null | undefined };
+export type CreateTodoMutation = { createTodo?: { id: string, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
 export type DeleteTodoMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type DeleteTodoMutation = { deleteTodo?: { id: string } | null | undefined };
+export type DeleteTodoMutation = { deleteTodo?: { id: string } | null };
 
 export type TodoQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -121,7 +121,7 @@ export type TodoQueryVariables = Exact<{
 }>;
 
 
-export type TodoQuery = { todo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, role: Role, token: NonEmptyString } } | null | undefined };
+export type TodoQuery = { todo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, role: Role, token: NonEmptyString } } | null };
 
 export type TodosQueryVariables = Exact<{
   userId: Scalars['ID'];
@@ -133,14 +133,14 @@ export type TodosQueryVariables = Exact<{
 }>;
 
 
-export type TodosQuery = { todos?: { totalCount: number, pageInfo: { startCursor?: string | null | undefined, endCursor?: string | null | undefined, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString } }> } | null | undefined };
+export type TodosQuery = { todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString } }> } | null };
 
 export type UncompleteTodoMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type UncompleteTodoMutation = { uncompleteTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null | undefined };
+export type UncompleteTodoMutation = { uncompleteTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
 export type UpdateTodoMutationVariables = Exact<{
   id: Scalars['ID'];
@@ -148,21 +148,21 @@ export type UpdateTodoMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodoMutation = { updateTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null | undefined };
+export type UpdateTodoMutation = { updateTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
 export type CreateUserMutationVariables = Exact<{
   input: CreateUserInput;
 }>;
 
 
-export type CreateUserMutation = { createUser?: { id: string, name: NonEmptyString } | null | undefined };
+export type CreateUserMutation = { createUser?: { id: string, name: NonEmptyString } | null };
 
 export type DeleteUserMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type DeleteUserMutation = { deleteUser?: { id: string } | null | undefined };
+export type DeleteUserMutation = { deleteUser?: { id: string } | null };
 
 export type UpdateUserMutationVariables = Exact<{
   id: Scalars['ID'];
@@ -170,7 +170,7 @@ export type UpdateUserMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserMutation = { updateUser?: { id: string, name: NonEmptyString, updatedAt: DateTime } | null | undefined };
+export type UpdateUserMutation = { updateUser?: { id: string, name: NonEmptyString, updatedAt: DateTime } | null };
 
 export type UserQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -185,7 +185,7 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, token?: NonEmptyString, role?: Role, todos?: { totalCount: number, pageInfo: { startCursor?: string | null | undefined, endCursor?: string | null | undefined, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString, status: TodoStatus } }> } } | null | undefined };
+export type UserQuery = { user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, token?: NonEmptyString, role?: Role, todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString, status: TodoStatus } }> } } | null };
 
 export type UsersQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']>;
@@ -196,7 +196,7 @@ export type UsersQueryVariables = Exact<{
 }>;
 
 
-export type UsersQuery = { users: { totalCount: number, pageInfo: { startCursor?: string | null | undefined, endCursor?: string | null | undefined, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string } }> } };
+export type UsersQuery = { users: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string } }> } };
 
 export type ViewerQueryVariables = Exact<{ [key: string]: never; }>;
 
