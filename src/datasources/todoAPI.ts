@@ -48,8 +48,12 @@ export class TodoAPI extends PrismaDataSource {
         ? { ...paginationArgs, first: 20 }
         : paginationArgs;
 
-    const { field, direction } = orderBy ?? {};
-    const directionToUse = direction === OrderDirection.Asc ? "asc" : "desc";
+    const directionToUse = orderBy?.direction === OrderDirection.Asc ? "asc" : "desc";
+
+    const orderByToUse: Exclude<Prisma.Prisma.TodoFindManyArgs["orderBy"], undefined> =
+      orderBy?.field === TodoOrderField.CreatedAt
+        ? { id: directionToUse }
+        : [{ updatedAt: directionToUse }, { id: directionToUse }];
 
     const userPromise = this.prisma.user.findUnique({ where: { id: userId } });
 
@@ -57,13 +61,9 @@ export class TodoAPI extends PrismaDataSource {
       async args => {
         // prisma の型が間違っている
         // https://github.com/prisma/prisma/issues/10687
-        const todos = (await userPromise.todos({
-          ...args,
-          orderBy:
-            field === TodoOrderField.CreatedAt
-              ? { id: directionToUse }
-              : [{ updatedAt: directionToUse }, { id: directionToUse }],
-        })) as Prisma.Todo[] | null;
+        const todos = (await userPromise.todos({ ...args, orderBy: orderByToUse })) as
+          | Prisma.Todo[]
+          | null;
 
         if (!todos) {
           throw new NotFoundError("user not found");
