@@ -22,8 +22,7 @@ type MakeServerParams = {
 
 export const makeServer = ({ maxDepth, maxCost, alertCost, nodeEnv, prisma }: MakeServerParams) =>
   new ApolloServer({
-    // 型パラメータを指定しないと型エラーになる。解決方法が不明。
-    schema: applyMiddleware<unknown>(schema, ...middlewares),
+    schema: applyMiddleware(schema, ...middlewares),
     context: async ({ req }) => {
       const { query } = req.body as { query: string | undefined };
 

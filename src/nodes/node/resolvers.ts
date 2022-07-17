@@ -3,19 +3,22 @@ import { ApolloError } from "apollo-server";
 import { ErrorCode, Resolvers } from "@/types";
 import * as DataSource from "@/datasources";
 import { fromNodeId } from "@/utils";
+import { validations } from "./validations";
 
 export const resolvers: Resolvers = {
   Query: {
-    node: async (_, { id }, { dataSources: { todoAPI, userAPI } }) => {
-      const { type } = fromNodeId(id);
+    node: async (_, args, { dataSources: { todoAPI, userAPI } }) => {
+      validations.Query.node(args);
+
+      const { type } = fromNodeId(args.id);
 
       try {
         switch (type) {
           case "Todo": {
-            return await todoAPI.get({ nodeId: id });
+            return await todoAPI.get({ nodeId: args.id });
           }
           case "User": {
-            return await userAPI.get({ nodeId: id });
+            return await userAPI.get({ nodeId: args.id });
           }
           default: {
             return null;
