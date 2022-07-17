@@ -36,18 +36,15 @@ export class UserAPI extends PrismaDataSource {
         ? { ...paginationArgs, first: 10 }
         : paginationArgs;
 
-    const { field, direction } = orderBy ?? {};
-    const directionToUse = direction === OrderDirection.Asc ? "asc" : "desc";
+    const directionToUse = orderBy?.direction === OrderDirection.Asc ? "asc" : "desc";
+
+    const orderByToUse: Exclude<Prisma.Prisma.UserFindManyArgs["orderBy"], undefined> =
+      orderBy?.field === UserOrderField.UpdatedAt
+        ? [{ updatedAt: directionToUse }, { id: directionToUse }]
+        : { id: directionToUse };
 
     const result = await findManyCursorConnection<Prisma.User, Pick<Prisma.User, "id">>(
-      args =>
-        this.prisma.user.findMany({
-          ...args,
-          orderBy:
-            field === UserOrderField.UpdatedAt
-              ? [{ updatedAt: directionToUse }, { id: directionToUse }]
-              : { id: directionToUse },
-        }),
+      args => this.prisma.user.findMany({ ...args, orderBy: orderByToUse }),
       () => this.prisma.user.count(),
       defaultedPaginationArgs,
       {
