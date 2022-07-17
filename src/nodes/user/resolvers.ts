@@ -2,6 +2,7 @@ import { ApolloError, UserInputError } from "apollo-server";
 
 import { ErrorCode, Resolvers } from "@/types";
 import * as DataSource from "@/datasources";
+import { validations } from "./validations";
 
 export const resolvers: Resolvers = {
   Query: {
@@ -9,6 +10,8 @@ export const resolvers: Resolvers = {
       return userAPI.getByDbId({ id: user.id });
     },
     users: async (_, args, { dataSources: { userAPI } }, info) => {
+      validations.Query.users(args);
+
       try {
         return await userAPI.gets({ ...args, info });
       } catch (e) {
@@ -19,9 +22,11 @@ export const resolvers: Resolvers = {
         throw e;
       }
     },
-    user: async (_, { id }, { dataSources: { userAPI } }) => {
+    user: async (_, args, { dataSources: { userAPI } }) => {
+      validations.Query.user(args);
+
       try {
-        return await userAPI.get({ nodeId: id });
+        return await userAPI.get({ nodeId: args.id });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
@@ -32,12 +37,16 @@ export const resolvers: Resolvers = {
     },
   },
   Mutation: {
-    createUser: (_, { input }, { dataSources: { userAPI } }) => {
-      return userAPI.create(input);
+    createUser: (_, args, { dataSources: { userAPI } }) => {
+      validations.Mutation.createUser(args);
+
+      return userAPI.create(args.input);
     },
-    updateUser: async (_, { id, input }, { dataSources: { userAPI } }) => {
+    updateUser: async (_, args, { dataSources: { userAPI } }) => {
+      validations.Mutation.updateUser(args);
+
       try {
-        return await userAPI.update({ nodeId: id, ...input });
+        return await userAPI.update({ nodeId: args.id, ...args.input });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
@@ -46,9 +55,11 @@ export const resolvers: Resolvers = {
         throw e;
       }
     },
-    deleteUser: async (_, { id }, { dataSources: { userAPI } }) => {
+    deleteUser: async (_, args, { dataSources: { userAPI } }) => {
+      validations.Mutation.deleteUser(args);
+
       try {
-        return await userAPI.delete({ nodeId: id });
+        return await userAPI.delete({ nodeId: args.id });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
@@ -60,6 +71,8 @@ export const resolvers: Resolvers = {
   },
   User: {
     todos: async ({ id }, args, { dataSources: { todoAPI } }, info) => {
+      validations.User.todos(args);
+
       try {
         return await todoAPI.getsUserTodos({ nodeId: id, ...args, info });
       } catch (e) {

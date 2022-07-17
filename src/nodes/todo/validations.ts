@@ -13,7 +13,7 @@ import { assertIsTodoNodeId, assertIsUserNodeId } from "@/utils";
 
 export const validations = {
   Query: {
-    todos: (resolve: any, parent: any, args: QueryTodosArgs, context: any, info: any) => {
+    todos: (args: QueryTodosArgs) => {
       const { first, last, userId } = args;
 
       if (first && first > 50) {
@@ -29,30 +29,18 @@ export const validations = {
       } catch (e) {
         throw new UserInputError("invalid `userId`", { thrown: e });
       }
-
-      return resolve(parent, args, context, info);
     },
-    todo: (resolve: any, parent: any, args: QueryTodoArgs, context: any, info: any) => {
+    todo: (args: QueryTodoArgs) => {
       try {
         assertIsTodoNodeId(args.id);
       } catch (e) {
         throw new UserInputError("invalid `id`", { thrown: e });
       }
-
-      return resolve(parent, args, context, info);
     },
   },
   Mutation: {
-    createTodo: (
-      resolve: any,
-      parent: any,
-      args: MutationCreateTodoArgs,
-      context: any,
-      info: any
-    ) => {
-      const {
-        input: { title, description },
-      } = args;
+    createTodo: (args: MutationCreateTodoArgs) => {
+      const { title, description } = args.input;
 
       if ([...title].length > 100) {
         throw new UserInputError("`title` must be up to 100 characters");
@@ -67,19 +55,9 @@ export const validations = {
       } catch (e) {
         throw new UserInputError("invalid `userId`", { thrown: e });
       }
-
-      return resolve(parent, args, context, info);
     },
-    updateTodo: (
-      resolve: any,
-      parent: any,
-      args: MutationUpdateTodoArgs,
-      context: any,
-      info: any
-    ) => {
-      const {
-        input: { title, description, status },
-      } = args;
+    updateTodo: (args: MutationUpdateTodoArgs) => {
+      const { title, description, status } = args.input;
 
       if (title === null) {
         throw new UserInputError("`title` must be not null");
@@ -106,53 +84,27 @@ export const validations = {
       } catch (e) {
         throw new UserInputError("invalid `id`", { thrown: e });
       }
-
-      return resolve(parent, args, context, info);
     },
-    deleteTodo: (
-      resolve: any,
-      parent: any,
-      args: MutationDeleteTodoArgs,
-      context: any,
-      info: any
-    ) => {
+    deleteTodo: (args: MutationDeleteTodoArgs) => {
       try {
         assertIsTodoNodeId(args.id);
       } catch (e) {
         throw new UserInputError("invalid `id`", { thrown: e });
       }
-
-      return resolve(parent, args, context, info);
     },
-    completeTodo: (
-      resolve: any,
-      parent: any,
-      args: MutationCompleteTodoArgs,
-      context: any,
-      info: any
-    ) => {
+    completeTodo: (args: MutationCompleteTodoArgs) => {
       try {
         assertIsTodoNodeId(args.id);
       } catch (e) {
         throw new UserInputError("invalid `id`", { thrown: e });
       }
-
-      return resolve(parent, args, context, info);
     },
-    uncompleteTodo: (
-      resolve: any,
-      parent: any,
-      args: MutationUncompleteTodoArgs,
-      context: any,
-      info: any
-    ) => {
+    uncompleteTodo: (args: MutationUncompleteTodoArgs) => {
       try {
         assertIsTodoNodeId(args.id);
       } catch (e) {
         throw new UserInputError("invalid `id`", { thrown: e });
       }
-
-      return resolve(parent, args, context, info);
     },
   },
 };

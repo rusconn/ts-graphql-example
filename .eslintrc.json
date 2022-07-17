@@ -28,14 +28,5 @@
       "error",
       { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
     ]
-  },
-  "overrides": [
-    {
-      "files": ["src/**/validations.ts"],
-      "rules": {
-        "@typescript-eslint/no-unsafe-call": "off",
-        "@typescript-eslint/no-unsafe-return": "off"
-      }
-    }
-  ]
+  }
 }

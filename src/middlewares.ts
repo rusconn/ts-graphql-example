@@ -3,7 +3,6 @@ import { ApolloError } from "apollo-server";
 
 import { ErrorCode } from "@/types";
 import { permissions } from "@/permissions";
-import { validations } from "@/validations";
 
 const permissionAndErrorMiddleware = shield(permissions, {
   // 想定外の例外を拾ってログ可能にする
@@ -29,4 +28,4 @@ const permissionAndErrorMiddleware = shield(permissions, {
   },
 });
 
-export const middlewares = [validations, permissionAndErrorMiddleware];
+export const middlewares = [permissionAndErrorMiddleware];
