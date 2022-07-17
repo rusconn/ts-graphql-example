@@ -34,7 +34,7 @@
     "graphql-validation-complexity": "^0.4.2",
     "lodash": "^4.17.21",
     "pino": "^7.6.2",
-    "prisma": "^3.7.0"
+    "prisma": "3.7.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.8.0",
