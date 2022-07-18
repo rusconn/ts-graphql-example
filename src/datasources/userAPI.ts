@@ -33,7 +33,7 @@ export type CreateUserParams = {
 
 export type UpdateUserParams = {
   nodeId: User["id"];
-  name?: User["name"] | null; // TODO: | null を消す
+  name?: User["name"];
 };
 
 export type DeleteUserParams = {
@@ -112,7 +112,7 @@ export class UserAPI extends PrismaDataSource {
 
     const result = await this.prisma.user.update({
       where: { id },
-      data: { name: data.name ?? undefined }, // TODO: ?? undefined を消す
+      data,
     });
 
     return { ...result, id: toUserNodeId(result.id) };

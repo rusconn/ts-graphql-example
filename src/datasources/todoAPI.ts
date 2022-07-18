@@ -32,9 +32,9 @@ export type CreateTodoParams = {
 
 export type UpdateTodoParams = {
   nodeId: Todo["id"];
-  title?: Todo["title"] | null; // TODO: | null を消す
-  description?: Todo["description"] | null; // TODO: | null を消す
-  status?: Todo["status"] | null; // TODO: | null を消す
+  title?: Todo["title"];
+  description?: Todo["description"];
+  status?: Todo["status"];
 };
 
 export type DeleteTodoParams = {
@@ -128,16 +128,12 @@ export class TodoAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  async update({ nodeId, title, description, status }: UpdateTodoParams) {
+  async update({ nodeId, ...data }: UpdateTodoParams) {
     const id = toTodoId(nodeId);
 
     const result = await this.prisma.todo.update({
       where: { id },
-      data: {
-        title: title ?? undefined, // TODO: ?? undefined を消す
-        description: description ?? undefined, // TODO: ?? undefined を消す
-        status: status ?? undefined, // TODO: ?? undefined を消す
-      },
+      data,
     });
 
     return { ...result, id: toTodoNodeId(result.id) };
