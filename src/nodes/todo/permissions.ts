@@ -29,7 +29,7 @@ const isTodosOwner = rule({ cache: "strict" })(
 const isTodoOwner = rule({ cache: "strict" })(
   async (
     _,
-    { id }: QueryOrUpdateOrDeleteTodosArgs,
+    { id: nodeId }: QueryOrUpdateOrDeleteTodosArgs,
     { logger, user, dataSources: { todoAPI } }: Context
   ) => {
     logger.debug("todo isTodoOwner called");
@@ -37,7 +37,7 @@ const isTodoOwner = rule({ cache: "strict" })(
     let todo;
 
     try {
-      todo = await todoAPI.get(id);
+      todo = await todoAPI.get({ nodeId });
     } catch (e) {
       if (e instanceof DataSource.NotFoundError) {
         return false;

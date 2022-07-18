@@ -13,7 +13,7 @@ const isOwner = rule({ cache: "strict" })(
     try {
       switch (type) {
         case "Todo": {
-          const node = await dataSources.todoAPI.get(nodeId);
+          const node = await dataSources.todoAPI.get({ nodeId });
           return node.userId === user.id || permissionError;
         }
         case "User": {

@@ -1,32 +1,50 @@
 import type * as Prisma from "@prisma/client";
 import type { GraphQLResolveInfo } from "graphql";
-import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
-
 import {
-  CreateTodoInput,
-  OrderDirection,
-  QueryTodosArgs,
-  Todo,
-  TodoOrderField,
-  UpdateTodoInput,
-  User,
-  UserTodosArgs,
-} from "@/types";
+  ConnectionArguments,
+  findManyCursorConnection,
+} from "@devoxa/prisma-relay-cursor-connection";
+
+import { OrderDirection, Todo, TodoOrderField, User } from "@/types";
 import { mapConnectionIds, toTodoId, toTodoNodeId, toUserId } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
 import { catchPrismaError } from "./decorators";
 import { ValidationError, NotFoundError, DataSourceError } from "./errors";
 
+export type GetUserTodosParams = ConnectionArguments & {
+  nodeId: User["id"];
+  orderBy?: {
+    field: TodoOrderField;
+    direction: OrderDirection;
+  } | null;
+  info: GraphQLResolveInfo;
+};
+
+export type GetTodoParams = {
+  nodeId: Todo["id"];
+};
+
+export type CreateTodoParams = {
+  nodeId: User["id"];
+  title: Todo["title"];
+  description: Todo["description"];
+};
+
+export type UpdateTodoParams = {
+  nodeId: Todo["id"];
+  title?: Todo["title"] | null; // TODO: | null を消す
+  description?: Todo["description"] | null; // TODO: | null を消す
+  status?: Todo["status"] | null; // TODO: | null を消す
+};
+
+export type DeleteTodoParams = {
+  nodeId: Todo["id"];
+};
+
 export class TodoAPI extends PrismaDataSource {
-  getsUserTodos(id: User["id"], args: UserTodosArgs, info: GraphQLResolveInfo) {
-    return this.getsByUserId({ ...args, userId: id }, info);
-  }
-
-  async getsByUserId({ userId: nodeId, ...rest }: QueryTodosArgs, info: GraphQLResolveInfo) {
-    const id = toUserId(nodeId);
-
+  async getsUserTodos(params: GetUserTodosParams) {
     try {
-      return await this.getsByUserIdCore(id, rest, info);
+      return await this.getsByUserIdCore(params);
     } catch (e) {
       // 多分 findManyCursorConnection のバリデーションエラー
       if (!(e instanceof DataSourceError) && e instanceof Error) {
@@ -38,11 +56,7 @@ export class TodoAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  private async getsByUserIdCore(
-    userId: Prisma.User["id"],
-    { orderBy, ...paginationArgs }: Omit<QueryTodosArgs, "userId">,
-    info: GraphQLResolveInfo
-  ) {
+  private async getsByUserIdCore({ nodeId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
     const defaultedPaginationArgs =
       paginationArgs.first == null && paginationArgs.last == null
         ? { ...paginationArgs, first: 20 }
@@ -55,7 +69,9 @@ export class TodoAPI extends PrismaDataSource {
         ? { id: directionToUse }
         : [{ updatedAt: directionToUse }, { id: directionToUse }];
 
-    const userPromise = this.prisma.user.findUnique({ where: { id: userId } });
+    const userPromise = this.prisma.user.findUnique({
+      where: { id: toUserId(nodeId) },
+    });
 
     const result = await findManyCursorConnection<Prisma.Todo, Pick<Prisma.Todo, "id">>(
       async args => {
@@ -93,7 +109,7 @@ export class TodoAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  async get(nodeId: Todo["id"]) {
+  async get({ nodeId }: GetTodoParams) {
     const id = toTodoId(nodeId);
     const result = await this.prisma.todo.findUnique({ where: { id } });
 
@@ -105,22 +121,22 @@ export class TodoAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  async create(nodeId: User["id"], input: CreateTodoInput) {
+  async create({ nodeId, ...data }: CreateTodoParams) {
     const id = toUserId(nodeId);
-    const result = await this.prisma.todo.create({ data: { ...input, userId: id } });
+    const result = await this.prisma.todo.create({ data: { ...data, userId: id } });
     return { ...result, id: toTodoNodeId(result.id) };
   }
 
   @catchPrismaError
-  async update(nodeId: Todo["id"], { title, description, status }: UpdateTodoInput) {
+  async update({ nodeId, title, description, status }: UpdateTodoParams) {
     const id = toTodoId(nodeId);
 
     const result = await this.prisma.todo.update({
       where: { id },
       data: {
-        title: title ?? undefined,
-        description: description ?? undefined,
-        status: status ?? undefined,
+        title: title ?? undefined, // TODO: ?? undefined を消す
+        description: description ?? undefined, // TODO: ?? undefined を消す
+        status: status ?? undefined, // TODO: ?? undefined を消す
       },
     });
 
@@ -128,7 +144,7 @@ export class TodoAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  async delete(nodeId: Todo["id"]) {
+  async delete({ nodeId }: DeleteTodoParams) {
     const id = toTodoId(nodeId);
     const result = await this.prisma.todo.delete({ where: { id } });
     return { ...result, id: toTodoNodeId(result.id) };

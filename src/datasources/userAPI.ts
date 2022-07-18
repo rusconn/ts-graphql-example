@@ -1,24 +1,49 @@
 import type * as Prisma from "@prisma/client";
 import type { GraphQLResolveInfo } from "graphql";
-import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
-
 import {
-  CreateUserInput,
-  OrderDirection,
-  QueryUsersArgs,
-  UpdateUserInput,
-  User,
-  UserOrderField,
-} from "@/types";
+  ConnectionArguments,
+  findManyCursorConnection,
+} from "@devoxa/prisma-relay-cursor-connection";
+
+import { OrderDirection, User, UserOrderField } from "@/types";
 import { toUserNodeId, toUserId, mapConnectionIds } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
 import { catchPrismaError } from "./decorators";
 import { DataSourceError, NotFoundError, ValidationError } from "./errors";
 
+export type GetUsersParams = ConnectionArguments & {
+  orderBy?: {
+    field: UserOrderField;
+    direction: OrderDirection;
+  } | null;
+  info: GraphQLResolveInfo;
+};
+
+export type GetUserParams = {
+  nodeId: User["id"];
+};
+
+export type GetUserByDbIdParams = {
+  id: Prisma.User["id"];
+};
+
+export type CreateUserParams = {
+  name: User["name"];
+};
+
+export type UpdateUserParams = {
+  nodeId: User["id"];
+  name?: User["name"] | null; // TODO: | null を消す
+};
+
+export type DeleteUserParams = {
+  nodeId: User["id"];
+};
+
 export class UserAPI extends PrismaDataSource {
-  async gets(args: QueryUsersArgs, info: GraphQLResolveInfo) {
+  async gets(params: GetUsersParams) {
     try {
-      return await this.getsCore(args, info);
+      return await this.getsCore(params);
     } catch (e) {
       // 多分 findManyCursorConnection のバリデーションエラー
       if (!(e instanceof DataSourceError) && e instanceof Error) {
@@ -30,7 +55,7 @@ export class UserAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  private async getsCore({ orderBy, ...paginationArgs }: QueryUsersArgs, info: GraphQLResolveInfo) {
+  private async getsCore({ info, orderBy, ...paginationArgs }: GetUsersParams) {
     const defaultedPaginationArgs =
       paginationArgs.first == null && paginationArgs.last == null
         ? { ...paginationArgs, first: 10 }
@@ -59,13 +84,13 @@ export class UserAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  get(nodeId: User["id"]) {
+  get({ nodeId }: GetUserParams) {
     const id = toUserId(nodeId);
-    return this.getByDbId(id);
+    return this.getByDbId({ id });
   }
 
   @catchPrismaError
-  async getByDbId(id: Prisma.User["id"]) {
+  async getByDbId({ id }: GetUserByDbIdParams) {
     const result = await this.prisma.user.findUnique({ where: { id } });
 
     if (!result) {
@@ -76,25 +101,25 @@ export class UserAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  async create(input: CreateUserInput) {
-    const result = await this.prisma.user.create({ data: input });
+  async create(data: CreateUserParams) {
+    const result = await this.prisma.user.create({ data });
     return { ...result, id: toUserNodeId(result.id) };
   }
 
   @catchPrismaError
-  async update(nodeId: User["id"], { name }: UpdateUserInput) {
+  async update({ nodeId, ...data }: UpdateUserParams) {
     const id = toUserId(nodeId);
 
     const result = await this.prisma.user.update({
       where: { id },
-      data: { name: name ?? undefined },
+      data: { name: data.name ?? undefined }, // TODO: ?? undefined を消す
     });
 
     return { ...result, id: toUserNodeId(result.id) };
   }
 
   @catchPrismaError
-  async delete(nodeId: User["id"]) {
+  async delete({ nodeId }: DeleteUserParams) {
     const id = toUserId(nodeId);
     const result = await this.prisma.user.delete({ where: { id } });
     return { ...result, id: toUserNodeId(result.id) };

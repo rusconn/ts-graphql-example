@@ -6,11 +6,11 @@ import * as DataSource from "@/datasources";
 export const resolvers: Resolvers = {
   Query: {
     viewer: (_, __, { dataSources: { userAPI }, user }) => {
-      return userAPI.getByDbId(user.id);
+      return userAPI.getByDbId({ id: user.id });
     },
     users: async (_, args, { dataSources: { userAPI } }, info) => {
       try {
-        return await userAPI.gets(args, info);
+        return await userAPI.gets({ ...args, info });
       } catch (e) {
         if (e instanceof DataSource.ValidationError) {
           throw new UserInputError(e.message, { thrown: e });
@@ -21,7 +21,7 @@ export const resolvers: Resolvers = {
     },
     user: async (_, { id }, { dataSources: { userAPI } }) => {
       try {
-        return await userAPI.get(id);
+        return await userAPI.get({ nodeId: id });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
@@ -37,7 +37,7 @@ export const resolvers: Resolvers = {
     },
     updateUser: async (_, { id, input }, { dataSources: { userAPI } }) => {
       try {
-        return await userAPI.update(id, input);
+        return await userAPI.update({ nodeId: id, ...input });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
@@ -48,7 +48,7 @@ export const resolvers: Resolvers = {
     },
     deleteUser: async (_, { id }, { dataSources: { userAPI } }) => {
       try {
-        return await userAPI.delete(id);
+        return await userAPI.delete({ nodeId: id });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
@@ -61,7 +61,7 @@ export const resolvers: Resolvers = {
   User: {
     todos: async ({ id }, args, { dataSources: { todoAPI } }, info) => {
       try {
-        return await todoAPI.getsUserTodos(id, args, info);
+        return await todoAPI.getsUserTodos({ nodeId: id, ...args, info });
       } catch (e) {
         if (e instanceof DataSource.ValidationError) {
           throw new UserInputError(e.message, { thrown: e });
