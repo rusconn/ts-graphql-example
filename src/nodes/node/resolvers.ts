@@ -3,14 +3,14 @@ import { ApolloError } from "apollo-server";
 import { ErrorCode, Resolvers } from "@/types";
 import * as DataSource from "@/datasources";
 import { fromNodeId } from "@/utils";
-import { validations } from "./validations";
+import { parsers } from "./parsers";
 
 export const resolvers: Resolvers = {
   Query: {
     node: async (_, args, { dataSources: { todoAPI, userAPI } }) => {
-      validations.Query.node(args);
+      const parsed = parsers.Query.node(args);
 
-      const { type } = fromNodeId(args.id);
+      const { type } = fromNodeId(parsed.nodeId);
 
       try {
         switch (type) {
