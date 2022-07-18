@@ -12,10 +12,10 @@ export const resolvers: Resolvers = {
       try {
         switch (type) {
           case "Todo": {
-            return await todoAPI.get(id);
+            return await todoAPI.get({ nodeId: id });
           }
           case "User": {
-            return await userAPI.get(id);
+            return await userAPI.get({ nodeId: id });
           }
           default: {
             return null;

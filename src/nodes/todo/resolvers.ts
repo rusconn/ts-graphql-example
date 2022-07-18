@@ -7,7 +7,7 @@ export const resolvers: Resolvers = {
   Query: {
     todos: async (_, args, { dataSources: { todoAPI } }, info) => {
       try {
-        return await todoAPI.getsByUserId(args, info);
+        return await todoAPI.getsUserTodos({ nodeId: args.userId, ...args, info });
       } catch (e) {
         if (e instanceof DataSource.ValidationError) {
           throw new UserInputError(e.message, { thrown: e });
@@ -22,7 +22,7 @@ export const resolvers: Resolvers = {
     },
     todo: async (_, { id }, { dataSources: { todoAPI } }) => {
       try {
-        return await todoAPI.get(id);
+        return await todoAPI.get({ nodeId: id });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
@@ -33,12 +33,12 @@ export const resolvers: Resolvers = {
     },
   },
   Mutation: {
-    createTodo: (_, { userId, input }, { dataSources: { todoAPI } }) => {
-      return todoAPI.create(userId, input);
+    createTodo: (_, args, { dataSources: { todoAPI } }) => {
+      return todoAPI.create({ nodeId: args.userId, ...args.input });
     },
     updateTodo: async (_, { id, input }, { dataSources: { todoAPI } }) => {
       try {
-        return await todoAPI.update(id, input);
+        return await todoAPI.update({ nodeId: id, ...input });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
@@ -49,7 +49,7 @@ export const resolvers: Resolvers = {
     },
     deleteTodo: async (_, { id }, { dataSources: { todoAPI } }) => {
       try {
-        return await todoAPI.delete(id);
+        return await todoAPI.delete({ nodeId: id });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
@@ -60,7 +60,7 @@ export const resolvers: Resolvers = {
     },
     completeTodo: async (_, { id }, { dataSources: { todoAPI } }) => {
       try {
-        return await todoAPI.update(id, { status: TodoStatus.Done });
+        return await todoAPI.update({ nodeId: id, status: TodoStatus.Done });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
@@ -71,7 +71,7 @@ export const resolvers: Resolvers = {
     },
     uncompleteTodo: async (_, { id }, { dataSources: { todoAPI } }) => {
       try {
-        return await todoAPI.update(id, { status: TodoStatus.Pending });
+        return await todoAPI.update({ nodeId: id, status: TodoStatus.Pending });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
@@ -84,7 +84,7 @@ export const resolvers: Resolvers = {
   Todo: {
     user: async ({ userId }, _, { dataSources: { userAPI } }) => {
       try {
-        return await userAPI.getByDbId(userId);
+        return await userAPI.getByDbId({ id: userId });
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
