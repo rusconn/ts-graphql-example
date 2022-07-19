@@ -1,5 +1,4 @@
-import { UserInputError } from "apollo-server";
-
+import { ParseError } from "@/errors";
 import type {
   MutationCreateUserArgs,
   MutationDeleteUserArgs,
@@ -18,18 +17,22 @@ export const parsers = {
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 
       if (first && first > 30) {
-        throw new UserInputError("`first` must be up to 30");
+        throw new ParseError("`first` must be up to 30");
       }
 
       if (last && last > 30) {
-        throw new UserInputError("`last` must be up to 30");
+        throw new ParseError("`last` must be up to 30");
       }
 
       if (before) {
         try {
           assertIsUserNodeId(before);
         } catch (e) {
-          throw new UserInputError("invalid `before`", { thrown: e });
+          if (e instanceof Error) {
+            throw new ParseError("invalid `before`", e);
+          }
+
+          throw e;
         }
       }
 
@@ -37,7 +40,11 @@ export const parsers = {
         try {
           assertIsUserNodeId(after);
         } catch (e) {
-          throw new UserInputError("invalid `after`", { thrown: e });
+          if (e instanceof Error) {
+            throw new ParseError("invalid `after`", e);
+          }
+
+          throw e;
         }
       }
 
@@ -49,7 +56,11 @@ export const parsers = {
       try {
         assertIsUserNodeId(id);
       } catch (e) {
-        throw new UserInputError("invalid `id`", { thrown: e });
+        if (e instanceof Error) {
+          throw new ParseError("invalid `id`", e);
+        }
+
+        throw e;
       }
 
       return { nodeId: id };
@@ -60,7 +71,7 @@ export const parsers = {
       const { name } = args.input;
 
       if ([...name].length > 100) {
-        throw new UserInputError("`name` must be up to 100 characteres");
+        throw new ParseError("`name` must be up to 100 characteres");
       }
 
       return { name };
@@ -72,17 +83,21 @@ export const parsers = {
       } = args;
 
       if (name === null) {
-        throw new UserInputError("`name` must be not null");
+        throw new ParseError("`name` must be not null");
       }
 
       if (name && [...name].length > 100) {
-        throw new UserInputError("`name` must be up to 100 characteres");
+        throw new ParseError("`name` must be up to 100 characteres");
       }
 
       try {
         assertIsUserNodeId(args.id);
       } catch (e) {
-        throw new UserInputError("invalid `userId`", { thrown: e });
+        if (e instanceof Error) {
+          throw new ParseError("invalid `userId`", e);
+        }
+
+        throw e;
       }
 
       return { nodeId: id, name };
@@ -93,7 +108,11 @@ export const parsers = {
       try {
         assertIsUserNodeId(id);
       } catch (e) {
-        throw new UserInputError("invalid `userId`", { thrown: e });
+        if (e instanceof Error) {
+          throw new ParseError("invalid `userId`", e);
+        }
+
+        throw e;
       }
 
       return { nodeId: id };
@@ -106,18 +125,22 @@ export const parsers = {
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 
       if (first && first > 50) {
-        throw new UserInputError("`first` must be up to 50");
+        throw new ParseError("`first` must be up to 50");
       }
 
       if (last && last > 50) {
-        throw new UserInputError("`last` must be up to 50");
+        throw new ParseError("`last` must be up to 50");
       }
 
       if (before) {
         try {
           assertIsTodoNodeId(before);
         } catch (e) {
-          throw new UserInputError("invalid `before`", { thrown: e });
+          if (e instanceof Error) {
+            throw new ParseError("invalid `before`", e);
+          }
+
+          throw e;
         }
       }
 
@@ -125,7 +148,11 @@ export const parsers = {
         try {
           assertIsTodoNodeId(after);
         } catch (e) {
-          throw new UserInputError("invalid `after`", { thrown: e });
+          if (e instanceof Error) {
+            throw new ParseError("invalid `after`", e);
+          }
+
+          throw e;
         }
       }
 

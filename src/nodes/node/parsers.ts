@@ -1,5 +1,4 @@
-import { UserInputError } from "apollo-server";
-
+import { ParseError } from "@/errors";
 import type { QueryNodeArgs } from "@/types";
 import { assertIsNodeId } from "@/utils";
 
@@ -11,7 +10,7 @@ export const parsers = {
       try {
         assertIsNodeId(id);
       } catch (e) {
-        throw new UserInputError("invalid `id`", { thrown: e });
+        throw new ParseError("invalid `id`");
       }
 
       return { nodeId: id };

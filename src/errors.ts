@@ -7,3 +7,5 @@ export class BaseError extends ExtensibleCustomError {
     return { name: this.name, stack: this.stack };
   }
 }
+
+export class ParseError extends BaseError {}
