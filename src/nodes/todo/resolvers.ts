@@ -1,4 +1,5 @@
 import { Resolvers, TodoStatus } from "@/types";
+import { toUserNodeId } from "@/utils";
 import { parsers } from "./parsers";
 
 export const resolvers: Resolvers = {
@@ -43,7 +44,7 @@ export const resolvers: Resolvers = {
   },
   Todo: {
     user: ({ userId }, _, { dataSources: { userAPI } }) => {
-      return userAPI.getByDbId({ id: userId });
+      return userAPI.get({ nodeId: toUserNodeId(userId) });
     },
   },
 };

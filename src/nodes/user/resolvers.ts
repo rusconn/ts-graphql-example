@@ -1,10 +1,11 @@
 import type { Resolvers } from "@/types";
+import { toUserNodeId } from "@/utils";
 import { parsers } from "./parsers";
 
 export const resolvers: Resolvers = {
   Query: {
     viewer: (_, __, { dataSources: { userAPI }, user }) => {
-      return userAPI.getByDbId({ id: user.id });
+      return userAPI.get({ nodeId: toUserNodeId(user.id) });
     },
     users: (_, args, { dataSources: { userAPI } }, info) => {
       const parsed = parsers.Query.users(args);
