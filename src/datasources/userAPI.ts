@@ -5,17 +5,14 @@ import {
   findManyCursorConnection,
 } from "@devoxa/prisma-relay-cursor-connection";
 
-import { OrderDirection, User, UserOrderField } from "@/types";
+import type { User } from "@/types";
 import { toUserNodeId, toUserId, mapConnectionIds } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
 import { catchPrismaError } from "./decorators";
 import { NotFoundError } from "./errors";
 
 export type GetUsersParams = ConnectionArguments & {
-  orderBy?: {
-    field: UserOrderField;
-    direction: OrderDirection;
-  } | null;
+  orderBy: Exclude<Prisma.Prisma.UserFindManyArgs["orderBy"], undefined>;
   info: GraphQLResolveInfo;
 };
 
@@ -43,22 +40,10 @@ export type DeleteUserParams = {
 export class UserAPI extends PrismaDataSource {
   @catchPrismaError
   async gets({ info, orderBy, ...paginationArgs }: GetUsersParams) {
-    const defaultedPaginationArgs =
-      paginationArgs.first == null && paginationArgs.last == null
-        ? { ...paginationArgs, first: 10 }
-        : paginationArgs;
-
-    const directionToUse = orderBy?.direction === OrderDirection.Asc ? "asc" : "desc";
-
-    const orderByToUse: Exclude<Prisma.Prisma.UserFindManyArgs["orderBy"], undefined> =
-      orderBy?.field === UserOrderField.UpdatedAt
-        ? [{ updatedAt: directionToUse }, { id: directionToUse }]
-        : { id: directionToUse };
-
     const result = await findManyCursorConnection<Prisma.User, Pick<Prisma.User, "id">>(
-      args => this.prisma.user.findMany({ ...args, orderBy: orderByToUse }),
+      args => this.prisma.user.findMany({ ...args, orderBy }),
       () => this.prisma.user.count(),
-      defaultedPaginationArgs,
+      paginationArgs,
       {
         getCursor: record => ({ id: record.id }),
         encodeCursor: ({ id }) => toUserNodeId(id),

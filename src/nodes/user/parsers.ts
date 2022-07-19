@@ -1,17 +1,28 @@
-import { ParseError } from "@/errors";
 import type {
+  CreateUserParams,
+  DeleteUserParams,
+  GetUserParams,
+  GetUsersParams,
+  GetUserTodosParams,
+  UpdateUserParams,
+} from "@/datasources";
+import { ParseError } from "@/errors";
+import {
   MutationCreateUserArgs,
   MutationDeleteUserArgs,
   MutationUpdateUserArgs,
+  OrderDirection,
   QueryUserArgs,
   QueryUsersArgs,
+  TodoOrderField,
+  UserOrderField,
   UserTodosArgs,
 } from "@/types";
 import { assertIsTodoNodeId, assertIsUserNodeId, parseConnectionArgs } from "@/utils";
 
 export const parsers = {
   Query: {
-    users: (args: QueryUsersArgs) => {
+    users: (args: QueryUsersArgs): Omit<GetUsersParams, "info"> => {
       const { orderBy, ...connectionArgs } = args;
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
@@ -48,9 +59,21 @@ export const parsers = {
         }
       }
 
-      return { first, last, before, after, orderBy };
+      const defaultedConnectionArgs =
+        first == null && last == null
+          ? { first: 10, last, before, after }
+          : { first, last, before, after };
+
+      const directionToUse = orderBy?.direction === OrderDirection.Asc ? "asc" : "desc";
+
+      const orderByToUse =
+        orderBy?.field === UserOrderField.UpdatedAt
+          ? [{ updatedAt: directionToUse } as const, { id: directionToUse } as const]
+          : ({ id: directionToUse } as const);
+
+      return { ...defaultedConnectionArgs, orderBy: orderByToUse };
     },
-    user: (args: QueryUserArgs) => {
+    user: (args: QueryUserArgs): GetUserParams => {
       const { id } = args;
 
       try {
@@ -67,7 +90,7 @@ export const parsers = {
     },
   },
   Mutation: {
-    createUser: (args: MutationCreateUserArgs) => {
+    createUser: (args: MutationCreateUserArgs): CreateUserParams => {
       const { name } = args.input;
 
       if ([...name].length > 100) {
@@ -76,7 +99,7 @@ export const parsers = {
 
       return { name };
     },
-    updateUser: (args: MutationUpdateUserArgs) => {
+    updateUser: (args: MutationUpdateUserArgs): UpdateUserParams => {
       const {
         id,
         input: { name },
@@ -102,7 +125,7 @@ export const parsers = {
 
       return { nodeId: id, name };
     },
-    deleteUser: (args: MutationDeleteUserArgs) => {
+    deleteUser: (args: MutationDeleteUserArgs): DeleteUserParams => {
       const { id } = args;
 
       try {
@@ -119,7 +142,7 @@ export const parsers = {
     },
   },
   User: {
-    todos: (args: UserTodosArgs) => {
+    todos: (args: UserTodosArgs): Omit<GetUserTodosParams, "nodeId" | "info"> => {
       const { orderBy, ...connectionArgs } = args;
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
@@ -156,7 +179,19 @@ export const parsers = {
         }
       }
 
-      return { first, last, before, after, orderBy };
+      const defaultedConnectionArgs =
+        first == null && last == null
+          ? { first: 20, last, before, after }
+          : { first, last, before, after };
+
+      const directionToUse = orderBy?.direction === OrderDirection.Asc ? "asc" : "desc";
+
+      const orderByToUse =
+        orderBy?.field === TodoOrderField.CreatedAt
+          ? ({ id: directionToUse } as const)
+          : [{ updatedAt: directionToUse } as const, { id: directionToUse } as const];
+
+      return { ...defaultedConnectionArgs, orderBy: orderByToUse };
     },
   },
 };
