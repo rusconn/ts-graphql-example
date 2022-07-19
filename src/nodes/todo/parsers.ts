@@ -1,18 +1,27 @@
-import { ParseError } from "@/errors";
 import type {
+  CreateTodoParams,
+  DeleteTodoParams,
+  GetTodoParams,
+  GetUserTodosParams,
+  UpdateTodoParams,
+} from "@/datasources";
+import { ParseError } from "@/errors";
+import {
   MutationCompleteTodoArgs,
   MutationCreateTodoArgs,
   MutationDeleteTodoArgs,
   MutationUncompleteTodoArgs,
   MutationUpdateTodoArgs,
+  OrderDirection,
   QueryTodoArgs,
   QueryTodosArgs,
+  TodoOrderField,
 } from "@/types";
 import { assertIsTodoNodeId, assertIsUserNodeId, parseConnectionArgs } from "@/utils";
 
 export const parsers = {
   Query: {
-    todos: (args: QueryTodosArgs) => {
+    todos: (args: QueryTodosArgs): Omit<GetUserTodosParams, "info"> => {
       const { userId, orderBy, ...connectionArgs } = args;
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
@@ -59,9 +68,21 @@ export const parsers = {
         throw e;
       }
 
-      return { first, last, before, after, nodeId: userId, orderBy };
+      const defaultedConnectionArgs =
+        first == null && last == null
+          ? { first: 20, last, before, after }
+          : { first, last, before, after };
+
+      const directionToUse = orderBy?.direction === OrderDirection.Asc ? "asc" : "desc";
+
+      const orderByToUse =
+        orderBy?.field === TodoOrderField.CreatedAt
+          ? ({ id: directionToUse } as const)
+          : [{ updatedAt: directionToUse } as const, { id: directionToUse } as const];
+
+      return { ...defaultedConnectionArgs, nodeId: userId, orderBy: orderByToUse };
     },
-    todo: (args: QueryTodoArgs) => {
+    todo: (args: QueryTodoArgs): GetTodoParams => {
       const { id } = args;
 
       try {
@@ -77,7 +98,7 @@ export const parsers = {
     },
   },
   Mutation: {
-    createTodo: (args: MutationCreateTodoArgs) => {
+    createTodo: (args: MutationCreateTodoArgs): CreateTodoParams => {
       const {
         userId,
         input: { title, description },
@@ -102,7 +123,7 @@ export const parsers = {
 
       return { nodeId: userId, title, description };
     },
-    updateTodo: (args: MutationUpdateTodoArgs) => {
+    updateTodo: (args: MutationUpdateTodoArgs): UpdateTodoParams => {
       const {
         id,
         input: { title, description, status },
@@ -139,7 +160,7 @@ export const parsers = {
 
       return { nodeId: id, title, description, status };
     },
-    deleteTodo: (args: MutationDeleteTodoArgs) => {
+    deleteTodo: (args: MutationDeleteTodoArgs): DeleteTodoParams => {
       const { id } = args;
 
       try {
@@ -153,7 +174,7 @@ export const parsers = {
 
       return { nodeId: id };
     },
-    completeTodo: (args: MutationCompleteTodoArgs) => {
+    completeTodo: (args: MutationCompleteTodoArgs): UpdateTodoParams => {
       const { id } = args;
 
       try {
@@ -167,7 +188,7 @@ export const parsers = {
 
       return { nodeId: id };
     },
-    uncompleteTodo: (args: MutationUncompleteTodoArgs) => {
+    uncompleteTodo: (args: MutationUncompleteTodoArgs): UpdateTodoParams => {
       const { id } = args;
 
       try {

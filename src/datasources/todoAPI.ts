@@ -5,7 +5,7 @@ import {
   findManyCursorConnection,
 } from "@devoxa/prisma-relay-cursor-connection";
 
-import { OrderDirection, Todo, TodoOrderField, User } from "@/types";
+import type { Todo, User } from "@/types";
 import { mapConnectionIds, toTodoId, toTodoNodeId, toUserId } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
 import { catchPrismaError } from "./decorators";
@@ -13,10 +13,7 @@ import { NotFoundError } from "./errors";
 
 export type GetUserTodosParams = ConnectionArguments & {
   nodeId: User["id"];
-  orderBy?: {
-    field: TodoOrderField;
-    direction: OrderDirection;
-  } | null;
+  orderBy: Exclude<Prisma.Prisma.TodoFindManyArgs["orderBy"], undefined>;
   info: GraphQLResolveInfo;
 };
 
@@ -44,18 +41,6 @@ export type DeleteTodoParams = {
 export class TodoAPI extends PrismaDataSource {
   @catchPrismaError
   async getsUserTodos({ nodeId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
-    const defaultedPaginationArgs =
-      paginationArgs.first == null && paginationArgs.last == null
-        ? { ...paginationArgs, first: 20 }
-        : paginationArgs;
-
-    const directionToUse = orderBy?.direction === OrderDirection.Asc ? "asc" : "desc";
-
-    const orderByToUse: Exclude<Prisma.Prisma.TodoFindManyArgs["orderBy"], undefined> =
-      orderBy?.field === TodoOrderField.CreatedAt
-        ? { id: directionToUse }
-        : [{ updatedAt: directionToUse }, { id: directionToUse }];
-
     const userPromise = this.prisma.user.findUnique({
       where: { id: toUserId(nodeId) },
     });
@@ -64,9 +49,7 @@ export class TodoAPI extends PrismaDataSource {
       async args => {
         // prisma の型が間違っている
         // https://github.com/prisma/prisma/issues/10687
-        const todos = (await userPromise.todos({ ...args, orderBy: orderByToUse })) as
-          | Prisma.Todo[]
-          | null;
+        const todos = (await userPromise.todos({ ...args, orderBy })) as Prisma.Todo[] | null;
 
         if (!todos) {
           throw new NotFoundError("user not found");
@@ -83,7 +66,7 @@ export class TodoAPI extends PrismaDataSource {
 
         return todos.length;
       },
-      defaultedPaginationArgs,
+      paginationArgs,
       {
         getCursor: record => ({ id: record.id }),
         encodeCursor: ({ id }) => toTodoNodeId(id),
