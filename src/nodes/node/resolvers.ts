@@ -1,35 +1,24 @@
-import { ApolloError } from "apollo-server";
-
-import { ErrorCode, Resolvers } from "@/types";
-import * as DataSource from "@/datasources";
+import type { Resolvers } from "@/types";
 import { fromNodeId } from "@/utils";
 import { parsers } from "./parsers";
 
 export const resolvers: Resolvers = {
   Query: {
-    node: async (_, args, { dataSources: { todoAPI, userAPI } }) => {
+    node: (_, args, { dataSources: { todoAPI, userAPI } }) => {
       const parsed = parsers.Query.node(args);
 
       const { type } = fromNodeId(parsed.nodeId);
 
-      try {
-        switch (type) {
-          case "Todo": {
-            return await todoAPI.get({ nodeId: args.id });
-          }
-          case "User": {
-            return await userAPI.get({ nodeId: args.id });
-          }
-          default: {
-            return null;
-          }
+      switch (type) {
+        case "Todo": {
+          return todoAPI.get({ nodeId: args.id });
         }
-      } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
-          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
+        case "User": {
+          return userAPI.get({ nodeId: args.id });
         }
-
-        throw e;
+        default: {
+          return null;
+        }
       }
     },
   },
