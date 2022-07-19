@@ -9,7 +9,7 @@ import { OrderDirection, User, UserOrderField } from "@/types";
 import { toUserNodeId, toUserId, mapConnectionIds } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
 import { catchPrismaError } from "./decorators";
-import { DataSourceError, NotFoundError, ValidationError } from "./errors";
+import { NotFoundError } from "./errors";
 
 export type GetUsersParams = ConnectionArguments & {
   orderBy?: {
@@ -41,21 +41,8 @@ export type DeleteUserParams = {
 };
 
 export class UserAPI extends PrismaDataSource {
-  async gets(params: GetUsersParams) {
-    try {
-      return await this.getsCore(params);
-    } catch (e) {
-      // 多分 findManyCursorConnection のバリデーションエラー
-      if (!(e instanceof DataSourceError) && e instanceof Error) {
-        throw new ValidationError(e.message, e);
-      }
-
-      throw e;
-    }
-  }
-
   @catchPrismaError
-  private async getsCore({ info, orderBy, ...paginationArgs }: GetUsersParams) {
+  async gets({ info, orderBy, ...paginationArgs }: GetUsersParams) {
     const defaultedPaginationArgs =
       paginationArgs.first == null && paginationArgs.last == null
         ? { ...paginationArgs, first: 10 }

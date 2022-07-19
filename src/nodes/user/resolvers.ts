@@ -1,4 +1,4 @@
-import { ApolloError, UserInputError } from "apollo-server";
+import { ApolloError } from "apollo-server";
 
 import { ErrorCode, Resolvers } from "@/types";
 import * as DataSource from "@/datasources";
@@ -9,18 +9,10 @@ export const resolvers: Resolvers = {
     viewer: (_, __, { dataSources: { userAPI }, user }) => {
       return userAPI.getByDbId({ id: user.id });
     },
-    users: async (_, args, { dataSources: { userAPI } }, info) => {
+    users: (_, args, { dataSources: { userAPI } }, info) => {
       const parsed = parsers.Query.users(args);
 
-      try {
-        return await userAPI.gets({ ...parsed, info });
-      } catch (e) {
-        if (e instanceof DataSource.ValidationError) {
-          throw new UserInputError(e.message, { thrown: e });
-        }
-
-        throw e;
-      }
+      return userAPI.gets({ ...parsed, info });
     },
     user: async (_, args, { dataSources: { userAPI } }) => {
       const parsed = parsers.Query.user(args);
@@ -70,18 +62,10 @@ export const resolvers: Resolvers = {
     },
   },
   User: {
-    todos: async ({ id }, args, { dataSources: { todoAPI } }, info) => {
+    todos: ({ id }, args, { dataSources: { todoAPI } }, info) => {
       const parsed = parsers.User.todos(args);
 
-      try {
-        return await todoAPI.getsUserTodos({ nodeId: id, ...parsed, info });
-      } catch (e) {
-        if (e instanceof DataSource.ValidationError) {
-          throw new UserInputError(e.message, { thrown: e });
-        }
-
-        throw e;
-      }
+      return todoAPI.getsUserTodos({ nodeId: id, ...parsed, info });
     },
   },
 };

@@ -4,4 +4,3 @@ export class DataSourceError extends BaseError {}
 
 export class InputTooLongError extends DataSourceError {}
 export class NotFoundError extends DataSourceError {}
-export class ValidationError extends DataSourceError {}
