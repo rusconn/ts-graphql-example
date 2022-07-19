@@ -1,5 +1,4 @@
-import { UserInputError } from "apollo-server";
-
+import { ParseError } from "@/errors";
 import type {
   MutationCompleteTodoArgs,
   MutationCreateTodoArgs,
@@ -19,18 +18,22 @@ export const parsers = {
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 
       if (first && first > 50) {
-        throw new UserInputError("`first` must be up to 50");
+        throw new ParseError("`first` must be up to 50");
       }
 
       if (last && last > 50) {
-        throw new UserInputError("`last` must be up to 50");
+        throw new ParseError("`last` must be up to 50");
       }
 
       if (before) {
         try {
           assertIsTodoNodeId(before);
         } catch (e) {
-          throw new UserInputError("invalid `before`", { thrown: e });
+          if (e instanceof Error) {
+            throw new ParseError("invalid `before`", e);
+          }
+
+          throw e;
         }
       }
 
@@ -38,14 +41,22 @@ export const parsers = {
         try {
           assertIsTodoNodeId(after);
         } catch (e) {
-          throw new UserInputError("invalid `after`", { thrown: e });
+          if (e instanceof Error) {
+            throw new ParseError("invalid `after`", e);
+          }
+
+          throw e;
         }
       }
 
       try {
         assertIsUserNodeId(userId);
       } catch (e) {
-        throw new UserInputError("invalid `userId`", { thrown: e });
+        if (e instanceof Error) {
+          throw new ParseError("invalid `userId`", e);
+        }
+
+        throw e;
       }
 
       return { first, last, before, after, nodeId: userId, orderBy };
@@ -56,7 +67,10 @@ export const parsers = {
       try {
         assertIsTodoNodeId(args.id);
       } catch (e) {
-        throw new UserInputError("invalid `id`", { thrown: e });
+        if (e instanceof Error) {
+          throw new ParseError("invalid `id`", e);
+        }
+        throw e;
       }
 
       return { nodeId: id };
@@ -70,17 +84,20 @@ export const parsers = {
       } = args;
 
       if ([...title].length > 100) {
-        throw new UserInputError("`title` must be up to 100 characters");
+        throw new ParseError("`title` must be up to 100 characters");
       }
 
       if ([...description].length > 5000) {
-        throw new UserInputError("`description` must be up to 5000 characters");
+        throw new ParseError("`description` must be up to 5000 characters");
       }
 
       try {
         assertIsUserNodeId(userId);
       } catch (e) {
-        throw new UserInputError("invalid `userId`", { thrown: e });
+        if (e instanceof Error) {
+          throw new ParseError("invalid `userId`", e);
+        }
+        throw e;
       }
 
       return { nodeId: userId, title, description };
@@ -92,29 +109,32 @@ export const parsers = {
       } = args;
 
       if (title === null) {
-        throw new UserInputError("`title` must be not null");
+        throw new ParseError("`title` must be not null");
       }
 
       if (description === null) {
-        throw new UserInputError("`description` must be not null");
+        throw new ParseError("`description` must be not null");
       }
 
       if (status === null) {
-        throw new UserInputError("`status` must be not null");
+        throw new ParseError("`status` must be not null");
       }
 
       if (title && [...title].length > 100) {
-        throw new UserInputError("`title` must be up to 100 characters");
+        throw new ParseError("`title` must be up to 100 characters");
       }
 
       if (description && [...description].length > 5000) {
-        throw new UserInputError("`description` must be up to 5000 characters");
+        throw new ParseError("`description` must be up to 5000 characters");
       }
 
       try {
         assertIsTodoNodeId(id);
       } catch (e) {
-        throw new UserInputError("invalid `id`", { thrown: e });
+        if (e instanceof Error) {
+          throw new ParseError("invalid `id`", e);
+        }
+        throw e;
       }
 
       return { nodeId: id, title, description, status };
@@ -125,7 +145,10 @@ export const parsers = {
       try {
         assertIsTodoNodeId(id);
       } catch (e) {
-        throw new UserInputError("invalid `id`", { thrown: e });
+        if (e instanceof Error) {
+          throw new ParseError("invalid `id`", e);
+        }
+        throw e;
       }
 
       return { nodeId: id };
@@ -136,7 +159,10 @@ export const parsers = {
       try {
         assertIsTodoNodeId(args.id);
       } catch (e) {
-        throw new UserInputError("invalid `id`", { thrown: e });
+        if (e instanceof Error) {
+          throw new ParseError("invalid `id`", e);
+        }
+        throw e;
       }
 
       return { nodeId: id };
@@ -147,7 +173,10 @@ export const parsers = {
       try {
         assertIsTodoNodeId(args.id);
       } catch (e) {
-        throw new UserInputError("invalid `id`", { thrown: e });
+        if (e instanceof Error) {
+          throw new ParseError("invalid `id`", e);
+        }
+        throw e;
       }
 
       return { nodeId: id };
