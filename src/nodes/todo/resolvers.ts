@@ -1,36 +1,17 @@
-import { ApolloError } from "apollo-server";
-
-import { ErrorCode, Resolvers, TodoStatus } from "@/types";
-import * as DataSource from "@/datasources";
+import { Resolvers, TodoStatus } from "@/types";
 import { parsers } from "./parsers";
 
 export const resolvers: Resolvers = {
   Query: {
-    todos: async (_, args, { dataSources: { todoAPI } }, info) => {
+    todos: (_, args, { dataSources: { todoAPI } }, info) => {
       const parsed = parsers.Query.todos(args);
 
-      try {
-        return await todoAPI.getsUserTodos({ ...parsed, info });
-      } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
-          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
-        }
-
-        throw e;
-      }
+      return todoAPI.getsUserTodos({ ...parsed, info });
     },
-    todo: async (_, args, { dataSources: { todoAPI } }) => {
+    todo: (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Query.todo(args);
 
-      try {
-        return await todoAPI.get(parsed);
-      } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
-          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
-        }
-
-        throw e;
-      }
+      return todoAPI.get(parsed);
     },
   },
   Mutation: {
@@ -39,70 +20,30 @@ export const resolvers: Resolvers = {
 
       return todoAPI.create(parsed);
     },
-    updateTodo: async (_, args, { dataSources: { todoAPI } }) => {
+    updateTodo: (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.updateTodo(args);
 
-      try {
-        return await todoAPI.update(parsed);
-      } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
-          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
-        }
-
-        throw e;
-      }
+      return todoAPI.update(parsed);
     },
-    deleteTodo: async (_, args, { dataSources: { todoAPI } }) => {
+    deleteTodo: (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.deleteTodo(args);
 
-      try {
-        return await todoAPI.delete(parsed);
-      } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
-          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
-        }
-
-        throw e;
-      }
+      return todoAPI.delete(parsed);
     },
-    completeTodo: async (_, args, { dataSources: { todoAPI } }) => {
+    completeTodo: (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.completeTodo(args);
 
-      try {
-        return await todoAPI.update({ ...parsed, status: TodoStatus.Done });
-      } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
-          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
-        }
-
-        throw e;
-      }
+      return todoAPI.update({ ...parsed, status: TodoStatus.Done });
     },
-    uncompleteTodo: async (_, args, { dataSources: { todoAPI } }) => {
+    uncompleteTodo: (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.uncompleteTodo(args);
 
-      try {
-        return await todoAPI.update({ ...parsed, status: TodoStatus.Pending });
-      } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
-          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
-        }
-
-        throw e;
-      }
+      return todoAPI.update({ ...parsed, status: TodoStatus.Pending });
     },
   },
   Todo: {
-    user: async ({ userId }, _, { dataSources: { userAPI } }) => {
-      try {
-        return await userAPI.getByDbId({ id: userId });
-      } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
-          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
-        }
-
-        throw e;
-      }
+    user: ({ userId }, _, { dataSources: { userAPI } }) => {
+      return userAPI.getByDbId({ id: userId });
     },
   },
 };

@@ -1,7 +1,4 @@
-import { ApolloError } from "apollo-server";
-
-import { ErrorCode, Resolvers } from "@/types";
-import * as DataSource from "@/datasources";
+import type { Resolvers } from "@/types";
 import { parsers } from "./parsers";
 
 export const resolvers: Resolvers = {
@@ -14,18 +11,10 @@ export const resolvers: Resolvers = {
 
       return userAPI.gets({ ...parsed, info });
     },
-    user: async (_, args, { dataSources: { userAPI } }) => {
+    user: (_, args, { dataSources: { userAPI } }) => {
       const parsed = parsers.Query.user(args);
 
-      try {
-        return await userAPI.get(parsed);
-      } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
-          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
-        }
-
-        throw e;
-      }
+      return userAPI.get(parsed);
     },
   },
   Mutation: {
@@ -34,31 +23,15 @@ export const resolvers: Resolvers = {
 
       return userAPI.create(parsed);
     },
-    updateUser: async (_, args, { dataSources: { userAPI } }) => {
+    updateUser: (_, args, { dataSources: { userAPI } }) => {
       const parsed = parsers.Mutation.updateUser(args);
 
-      try {
-        return await userAPI.update(parsed);
-      } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
-          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
-        }
-
-        throw e;
-      }
+      return userAPI.update(parsed);
     },
-    deleteUser: async (_, args, { dataSources: { userAPI } }) => {
+    deleteUser: (_, args, { dataSources: { userAPI } }) => {
       const parsed = parsers.Mutation.deleteUser(args);
 
-      try {
-        return await userAPI.delete(parsed);
-      } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
-          throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
-        }
-
-        throw e;
-      }
+      return userAPI.delete(parsed);
     },
   },
   User: {
