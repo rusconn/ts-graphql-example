@@ -1,6 +1,6 @@
 import pino, { LoggerOptions, stdTimeFunctions } from "pino";
 import pretty from "pino-pretty"; // eslint-disable-line
-import cuid from "cuid";
+import { nanoid } from "nanoid";
 
 import type { NodeEnv } from "./env";
 
@@ -23,5 +23,5 @@ export const makeLogger = (nodeEnv: NodeEnv) => {
 
   const level = isDev ? "debug" : "info";
 
-  return pino(options).child({ requestId: cuid() }, { level });
+  return pino(options).child({ requestId: nanoid() }, { level });
 };
