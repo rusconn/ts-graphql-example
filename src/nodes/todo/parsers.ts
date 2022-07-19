@@ -9,12 +9,14 @@ import type {
   QueryTodoArgs,
   QueryTodosArgs,
 } from "@/types";
-import { assertIsTodoNodeId, assertIsUserNodeId } from "@/utils";
+import { assertIsTodoNodeId, assertIsUserNodeId, parseConnectionArgs } from "@/utils";
 
 export const parsers = {
   Query: {
     todos: (args: QueryTodosArgs) => {
-      const { first, last, userId, ...rest } = args;
+      const { userId, orderBy, ...connectionArgs } = args;
+
+      const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 
       if (first && first > 50) {
         throw new UserInputError("`first` must be up to 50");
@@ -24,13 +26,29 @@ export const parsers = {
         throw new UserInputError("`last` must be up to 50");
       }
 
+      if (before) {
+        try {
+          assertIsTodoNodeId(before);
+        } catch (e) {
+          throw new UserInputError("invalid `before`", { thrown: e });
+        }
+      }
+
+      if (after) {
+        try {
+          assertIsTodoNodeId(after);
+        } catch (e) {
+          throw new UserInputError("invalid `after`", { thrown: e });
+        }
+      }
+
       try {
         assertIsUserNodeId(userId);
       } catch (e) {
         throw new UserInputError("invalid `userId`", { thrown: e });
       }
 
-      return { first, last, nodeId: userId, ...rest };
+      return { first, last, before, after, nodeId: userId, orderBy };
     },
     todo: (args: QueryTodoArgs) => {
       const { id } = args;

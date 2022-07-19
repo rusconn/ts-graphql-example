@@ -9,7 +9,7 @@ import { OrderDirection, Todo, TodoOrderField, User } from "@/types";
 import { mapConnectionIds, toTodoId, toTodoNodeId, toUserId } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
 import { catchPrismaError } from "./decorators";
-import { ValidationError, NotFoundError, DataSourceError } from "./errors";
+import { NotFoundError } from "./errors";
 
 export type GetUserTodosParams = ConnectionArguments & {
   nodeId: User["id"];
@@ -42,21 +42,8 @@ export type DeleteTodoParams = {
 };
 
 export class TodoAPI extends PrismaDataSource {
-  async getsUserTodos(params: GetUserTodosParams) {
-    try {
-      return await this.getsByUserIdCore(params);
-    } catch (e) {
-      // 多分 findManyCursorConnection のバリデーションエラー
-      if (!(e instanceof DataSourceError) && e instanceof Error) {
-        throw new ValidationError(e.message, e);
-      }
-
-      throw e;
-    }
-  }
-
   @catchPrismaError
-  private async getsByUserIdCore({ nodeId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
+  async getsUserTodos({ nodeId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
     const defaultedPaginationArgs =
       paginationArgs.first == null && paginationArgs.last == null
         ? { ...paginationArgs, first: 20 }

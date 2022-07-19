@@ -1,4 +1,4 @@
-import { ApolloError, UserInputError } from "apollo-server";
+import { ApolloError } from "apollo-server";
 
 import { ErrorCode, Resolvers, TodoStatus } from "@/types";
 import * as DataSource from "@/datasources";
@@ -12,10 +12,6 @@ export const resolvers: Resolvers = {
       try {
         return await todoAPI.getsUserTodos({ ...parsed, info });
       } catch (e) {
-        if (e instanceof DataSource.ValidationError) {
-          throw new UserInputError(e.message, { thrown: e });
-        }
-
         if (e instanceof DataSource.NotFoundError) {
           throw new ApolloError("Not found", ErrorCode.NotFound, { thrown: e });
         }

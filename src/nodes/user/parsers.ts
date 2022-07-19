@@ -8,12 +8,14 @@ import type {
   QueryUsersArgs,
   UserTodosArgs,
 } from "@/types";
-import { assertIsUserNodeId } from "@/utils";
+import { assertIsTodoNodeId, assertIsUserNodeId, parseConnectionArgs } from "@/utils";
 
 export const parsers = {
   Query: {
     users: (args: QueryUsersArgs) => {
-      const { first, last, ...rest } = args;
+      const { orderBy, ...connectionArgs } = args;
+
+      const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 
       if (first && first > 30) {
         throw new UserInputError("`first` must be up to 30");
@@ -23,7 +25,23 @@ export const parsers = {
         throw new UserInputError("`last` must be up to 30");
       }
 
-      return { first, last, ...rest };
+      if (before) {
+        try {
+          assertIsUserNodeId(before);
+        } catch (e) {
+          throw new UserInputError("invalid `before`", { thrown: e });
+        }
+      }
+
+      if (after) {
+        try {
+          assertIsUserNodeId(after);
+        } catch (e) {
+          throw new UserInputError("invalid `after`", { thrown: e });
+        }
+      }
+
+      return { first, last, before, after, orderBy };
     },
     user: (args: QueryUserArgs) => {
       const { id } = args;
@@ -83,7 +101,9 @@ export const parsers = {
   },
   User: {
     todos: (args: UserTodosArgs) => {
-      const { first, last, ...rest } = args;
+      const { orderBy, ...connectionArgs } = args;
+
+      const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 
       if (first && first > 50) {
         throw new UserInputError("`first` must be up to 50");
@@ -93,7 +113,23 @@ export const parsers = {
         throw new UserInputError("`last` must be up to 50");
       }
 
-      return { first, last, ...rest };
+      if (before) {
+        try {
+          assertIsTodoNodeId(before);
+        } catch (e) {
+          throw new UserInputError("invalid `before`", { thrown: e });
+        }
+      }
+
+      if (after) {
+        try {
+          assertIsTodoNodeId(after);
+        } catch (e) {
+          throw new UserInputError("invalid `after`", { thrown: e });
+        }
+      }
+
+      return { first, last, before, after, orderBy };
     },
   },
 };
