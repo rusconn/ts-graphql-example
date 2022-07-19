@@ -20,10 +20,6 @@ export type GetUserParams = {
   nodeId: User["id"];
 };
 
-export type GetUserByDbIdParams = {
-  id: Prisma.User["id"];
-};
-
 export type CreateUserParams = {
   name: User["name"];
 };
@@ -56,13 +52,8 @@ export class UserAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  get({ nodeId }: GetUserParams) {
+  async get({ nodeId }: GetUserParams) {
     const id = toUserId(nodeId);
-    return this.getByDbId({ id });
-  }
-
-  @catchPrismaError
-  async getByDbId({ id }: GetUserByDbIdParams) {
     const result = await this.prisma.user.findUnique({ where: { id } });
 
     if (!result) {
