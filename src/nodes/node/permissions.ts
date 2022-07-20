@@ -2,26 +2,20 @@ import { chain, race, rule } from "graphql-shield";
 
 import type { Context, QueryNodeArgs } from "@/types";
 import * as DataSource from "@/datasources";
-import { permissionError, isAdmin, isAuthenticated, fromId } from "@/utils";
+import { permissionError, isAdmin, isAuthenticated, isUserId, isTodoId } from "@/utils";
 
 const isOwner = rule({ cache: "strict" })(
   async (_, { id }: QueryNodeArgs, { logger, user, dataSources }: Context) => {
     logger.debug("node isOwner called");
 
-    const { type } = fromId(id);
-
     try {
-      switch (type) {
-        case "Todo": {
-          const node = await dataSources.todoAPI.get({ id });
-          return node.userId === user.id || permissionError;
-        }
-        case "User": {
-          return id === user.id || permissionError;
-        }
-        default: {
-          return false;
-        }
+      if (isUserId(id)) {
+        return id === user.id || permissionError;
+      }
+
+      if (isTodoId(id)) {
+        const todo = await dataSources.todoAPI.get({ id });
+        return todo.userId === user.id || permissionError;
       }
     } catch (e) {
       if (e instanceof DataSource.NotFoundError) {
@@ -30,6 +24,8 @@ const isOwner = rule({ cache: "strict" })(
 
       throw e;
     }
+
+    return false;
   }
 );
 

@@ -1,5 +1,5 @@
 import type { Resolvers } from "@/types";
-import { fromId } from "@/utils";
+import { isTodoId, isUserId } from "@/utils";
 import { parsers } from "./parsers";
 
 export const resolvers: Resolvers = {
@@ -7,19 +7,15 @@ export const resolvers: Resolvers = {
     node: (_, args, { dataSources: { todoAPI, userAPI } }) => {
       const parsed = parsers.Query.node(args);
 
-      const { type } = fromId(parsed.id);
-
-      switch (type) {
-        case "Todo": {
-          return todoAPI.get({ id: parsed.id });
-        }
-        case "User": {
-          return userAPI.get({ id: parsed.id });
-        }
-        default: {
-          return null;
-        }
+      if (isUserId(parsed.id)) {
+        return userAPI.get({ id: parsed.id });
       }
+
+      if (isTodoId(parsed.id)) {
+        return todoAPI.get({ id: parsed.id });
+      }
+
+      return null;
     },
   },
   Node: {

@@ -18,7 +18,7 @@ import {
   UserOrderField,
   UserTodosArgs,
 } from "@/types";
-import { assertIsTodoId, assertIsUserId, parseConnectionArgs } from "@/utils";
+import { isTodoId, isUserId, parseConnectionArgs } from "@/utils";
 
 export const parsers = {
   Query: {
@@ -35,28 +35,12 @@ export const parsers = {
         throw new ParseError("`last` must be up to 30");
       }
 
-      if (before) {
-        try {
-          assertIsUserId(before);
-        } catch (e) {
-          if (e instanceof Error) {
-            throw new ParseError("invalid `before`", e);
-          }
-
-          throw e;
-        }
+      if (before && !isUserId(before)) {
+        throw new ParseError("invalid `before`");
       }
 
-      if (after) {
-        try {
-          assertIsUserId(after);
-        } catch (e) {
-          if (e instanceof Error) {
-            throw new ParseError("invalid `after`", e);
-          }
-
-          throw e;
-        }
+      if (after && !isUserId(after)) {
+        throw new ParseError("invalid `after`");
       }
 
       const defaultedConnectionArgs =
@@ -76,14 +60,8 @@ export const parsers = {
     user: (args: QueryUserArgs): GetUserParams => {
       const { id } = args;
 
-      try {
-        assertIsUserId(id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError("invalid `id`", e);
-        }
-
-        throw e;
+      if (!isUserId(id)) {
+        throw new ParseError("invalid `id`");
       }
 
       return { id };
@@ -113,14 +91,8 @@ export const parsers = {
         throw new ParseError("`name` must be up to 100 characteres");
       }
 
-      try {
-        assertIsUserId(args.id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError("invalid `userId`", e);
-        }
-
-        throw e;
+      if (!isUserId(id)) {
+        throw new ParseError("invalid `id`");
       }
 
       return { id, name };
@@ -128,14 +100,8 @@ export const parsers = {
     deleteUser: (args: MutationDeleteUserArgs): DeleteUserParams => {
       const { id } = args;
 
-      try {
-        assertIsUserId(id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError("invalid `userId`", e);
-        }
-
-        throw e;
+      if (!isUserId(id)) {
+        throw new ParseError("invalid `id`");
       }
 
       return { id };
@@ -155,28 +121,12 @@ export const parsers = {
         throw new ParseError("`last` must be up to 50");
       }
 
-      if (before) {
-        try {
-          assertIsTodoId(before);
-        } catch (e) {
-          if (e instanceof Error) {
-            throw new ParseError("invalid `before`", e);
-          }
-
-          throw e;
-        }
+      if (before && !isTodoId(before)) {
+        throw new ParseError("invalid `before`");
       }
 
-      if (after) {
-        try {
-          assertIsTodoId(after);
-        } catch (e) {
-          if (e instanceof Error) {
-            throw new ParseError("invalid `after`", e);
-          }
-
-          throw e;
-        }
+      if (after && !isTodoId(after)) {
+        throw new ParseError("invalid `after`");
       }
 
       const defaultedConnectionArgs =

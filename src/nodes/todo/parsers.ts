@@ -17,7 +17,7 @@ import {
   QueryTodosArgs,
   TodoOrderField,
 } from "@/types";
-import { assertIsTodoId, assertIsUserId, parseConnectionArgs } from "@/utils";
+import { isTodoId, isUserId, parseConnectionArgs } from "@/utils";
 
 export const parsers = {
   Query: {
@@ -34,38 +34,16 @@ export const parsers = {
         throw new ParseError("`last` must be up to 50");
       }
 
-      if (before) {
-        try {
-          assertIsTodoId(before);
-        } catch (e) {
-          if (e instanceof Error) {
-            throw new ParseError("invalid `before`", e);
-          }
-
-          throw e;
-        }
+      if (before && !isTodoId(before)) {
+        throw new ParseError("invalid `before`");
       }
 
-      if (after) {
-        try {
-          assertIsTodoId(after);
-        } catch (e) {
-          if (e instanceof Error) {
-            throw new ParseError("invalid `after`", e);
-          }
-
-          throw e;
-        }
+      if (after && !isTodoId(after)) {
+        throw new ParseError("invalid `after`");
       }
 
-      try {
-        assertIsUserId(userId);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError("invalid `userId`", e);
-        }
-
-        throw e;
+      if (!isUserId(userId)) {
+        throw new ParseError("invalid `userId`");
       }
 
       const defaultedConnectionArgs =
@@ -85,13 +63,8 @@ export const parsers = {
     todo: (args: QueryTodoArgs): GetTodoParams => {
       const { id } = args;
 
-      try {
-        assertIsTodoId(args.id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError("invalid `id`", e);
-        }
-        throw e;
+      if (!isTodoId(id)) {
+        throw new ParseError("invalid `id`");
       }
 
       return { id };
@@ -112,13 +85,8 @@ export const parsers = {
         throw new ParseError("`description` must be up to 5000 characters");
       }
 
-      try {
-        assertIsUserId(userId);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError("invalid `userId`", e);
-        }
-        throw e;
+      if (!isUserId(userId)) {
+        throw new ParseError("invalid `userId`");
       }
 
       return { userId, title, description };
@@ -149,13 +117,8 @@ export const parsers = {
         throw new ParseError("`description` must be up to 5000 characters");
       }
 
-      try {
-        assertIsTodoId(id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError("invalid `id`", e);
-        }
-        throw e;
+      if (!isTodoId(id)) {
+        throw new ParseError("invalid `id`");
       }
 
       return { id, title, description, status };
@@ -163,13 +126,8 @@ export const parsers = {
     deleteTodo: (args: MutationDeleteTodoArgs): DeleteTodoParams => {
       const { id } = args;
 
-      try {
-        assertIsTodoId(id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError("invalid `id`", e);
-        }
-        throw e;
+      if (!isTodoId(id)) {
+        throw new ParseError("invalid `id`");
       }
 
       return { id };
@@ -177,13 +135,8 @@ export const parsers = {
     completeTodo: (args: MutationCompleteTodoArgs): UpdateTodoParams => {
       const { id } = args;
 
-      try {
-        assertIsTodoId(args.id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError("invalid `id`", e);
-        }
-        throw e;
+      if (!isTodoId(id)) {
+        throw new ParseError("invalid `id`");
       }
 
       return { id };
@@ -191,13 +144,8 @@ export const parsers = {
     uncompleteTodo: (args: MutationUncompleteTodoArgs): UpdateTodoParams => {
       const { id } = args;
 
-      try {
-        assertIsTodoId(args.id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError("invalid `id`", e);
-        }
-        throw e;
+      if (!isTodoId(id)) {
+        throw new ParseError("invalid `id`");
       }
 
       return { id };

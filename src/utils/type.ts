@@ -1,4 +1,4 @@
-import { DateTime, NodeType, nodeTypes, NonEmptyString } from "@/types";
+import type { DateTime, NonEmptyString } from "@/types";
 
 export function dateTime(x: string): DateTime {
   if (!isDateTime(x)) {
@@ -20,8 +20,4 @@ export function nonEmptyString(x: string): NonEmptyString {
 
 export const isNonEmptyString = (x: string): x is NonEmptyString => {
   return x.length !== 0;
-};
-
-export const isValidNodeType = (str: string): str is NodeType => {
-  return nodeTypes.includes(str as NodeType);
 };
