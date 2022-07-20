@@ -25,6 +25,7 @@ export const makeCursorConnections = (
   type ${type}Connection {
     pageInfo: PageInfo!
     edges: [${type}Edge!]!
+    nodes: [${type}!]!
     ${toFieldLines(additionalConnectionFields)}
   }
 
