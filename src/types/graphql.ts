@@ -1,5 +1,5 @@
-import type { DateTime } from '@/types';
-import type { NonEmptyString } from '@/types';
+import type { DateTime } from '@/utils';
+import type { NonEmptyString } from '@/utils';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import type { User as UserModel, Todo as TodoModel } from '@prisma/client';
 import type { Context } from '@/types';

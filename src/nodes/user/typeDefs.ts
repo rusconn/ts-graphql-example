@@ -1,11 +1,10 @@
 import { gql } from "apollo-server";
 
 import { makeOrderOptions, makeCursorConnections } from "@/utils";
-import { userType } from "@/types";
 
 export const typeDefs = gql`
-  ${makeCursorConnections(userType, { totalCount: "Int!" })}
-  ${makeOrderOptions(userType)}
+  ${makeCursorConnections("User", { totalCount: "Int!" })}
+  ${makeOrderOptions("User")}
 
   type Query {
     viewer: User!
