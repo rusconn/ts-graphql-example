@@ -10,7 +10,7 @@ import type {
   ResolversParentTypes,
 } from "@/types";
 import * as DataSource from "@/datasources";
-import { permissionError, isAdmin, toUserId, isAuthenticated } from "@/utils";
+import { permissionError, isAdmin, isAuthenticated } from "@/utils";
 
 type QueryOrUpdateOrDeleteTodosArgs =
   | QueryTodoArgs
@@ -19,9 +19,8 @@ type QueryOrUpdateOrDeleteTodosArgs =
 type Parent = ResolversParentTypes["Todo"];
 
 const isTodosOwner = rule({ cache: "strict" })(
-  (_, { userId: nodeId }: QueryTodosArgs, { logger, user }: Context) => {
+  (_, { userId }: QueryTodosArgs, { logger, user }: Context) => {
     logger.debug("todo isTodosOwner called");
-    const userId = toUserId(nodeId);
     return userId === user.id || permissionError;
   }
 );
@@ -29,7 +28,7 @@ const isTodosOwner = rule({ cache: "strict" })(
 const isTodoOwner = rule({ cache: "strict" })(
   async (
     _,
-    { id: nodeId }: QueryOrUpdateOrDeleteTodosArgs,
+    { id }: QueryOrUpdateOrDeleteTodosArgs,
     { logger, user, dataSources: { todoAPI } }: Context
   ) => {
     logger.debug("todo isTodoOwner called");
@@ -37,7 +36,7 @@ const isTodoOwner = rule({ cache: "strict" })(
     let todo;
 
     try {
-      todo = await todoAPI.get({ nodeId });
+      todo = await todoAPI.get({ id });
     } catch (e) {
       if (e instanceof DataSource.NotFoundError) {
         return false;
@@ -51,9 +50,8 @@ const isTodoOwner = rule({ cache: "strict" })(
 );
 
 const isMine = rule({ cache: "strict" })(
-  (_, { userId: nodeId }: MutationCreateTodoArgs, { logger, user }: Context) => {
+  (_, { userId }: MutationCreateTodoArgs, { logger, user }: Context) => {
     logger.debug("todo isMine called");
-    const userId = toUserId(nodeId);
     return userId === user.id || permissionError;
   }
 );

@@ -10,9 +10,10 @@ typescript: &typescript
 typescript-resolvers: &typescript-resolvers
   useIndexSignature: true
   contextType: "@/types#Context"
+  mapperTypeSuffix: Model
   mappers:
-    User: "@/types#ResolverUser"
-    Todo: "@/types#ResolverTodo"
+    User: "@prisma/client#User"
+    Todo: "@prisma/client#Todo"
 
 typescript-operations: &typescript-operations
   onlyOperationTypes: true

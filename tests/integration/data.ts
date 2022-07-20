@@ -1,12 +1,10 @@
 import { Role } from "@prisma/client";
 
 import { TodoStatus } from "@/types";
-import { nonEmptyString, toTodoNodeId, toUserNodeId } from "@/utils";
-
-const SERIAL_MAX = 2 ** 31 - 1;
+import { nonEmptyString } from "@/utils";
 
 export const admin = {
-  id: SERIAL_MAX - 100,
+  id: "User:a4kxogX92Wxe-kbUfDRX7",
   name: nonEmptyString("Admin"),
   role: Role.ADMIN,
   token: nonEmptyString("admin token"),
@@ -15,7 +13,7 @@ export const admin = {
 } as const;
 
 export const alice = {
-  id: admin.id + 1,
+  id: "User:bYzHPCFPTkTPHNbCBkh8H",
   name: nonEmptyString("Alice"),
   role: Role.USER,
   token: nonEmptyString("alice token"),
@@ -24,7 +22,7 @@ export const alice = {
 } as const;
 
 export const bob = {
-  id: alice.id + 1,
+  id: "User:cuEgH4iyoMMm6CzhWLR9S",
   name: nonEmptyString("Bob"),
   role: Role.USER,
   token: nonEmptyString("bob token"),
@@ -33,7 +31,7 @@ export const bob = {
 } as const;
 
 export const guest = {
-  id: bob.id + 1,
+  id: "User:d9QWU0PPanh9HAWqdYRLx",
   name: nonEmptyString("Guest"),
   role: Role.GUEST,
   token: undefined,
@@ -42,7 +40,7 @@ export const guest = {
 } as const;
 
 export const adminTodo1 = {
-  id: SERIAL_MAX - 100,
+  id: "Todo:aHbtLGE7ANe1CSDbnhZQZ",
   title: nonEmptyString("admin todo 1"),
   createdAt: new Date(1),
   updatedAt: new Date(6),
@@ -52,7 +50,7 @@ export const adminTodo1 = {
 } as const;
 
 export const adminTodo2 = {
-  id: adminTodo1.id + 1,
+  id: "Todo:bJKfvOLA7kyPS1DE5qngJ",
   title: nonEmptyString("admin todo 2"),
   createdAt: new Date(2),
   updatedAt: new Date(2),
@@ -62,7 +60,7 @@ export const adminTodo2 = {
 } as const;
 
 export const adminTodo3 = {
-  id: adminTodo2.id + 1,
+  id: "Todo:c6ppdu7LgOwAPMUtAQpmW",
   title: nonEmptyString("admin todo 3"),
   createdAt: new Date(3),
   updatedAt: new Date(3),
@@ -72,7 +70,7 @@ export const adminTodo3 = {
 } as const;
 
 export const aliceTodo = {
-  id: adminTodo3.id + 1,
+  id: "Todo:dL1raaT3gqDLeP8CSkX5N",
   title: nonEmptyString("alice todo"),
   createdAt: new Date(4),
   updatedAt: new Date(4),
@@ -82,7 +80,7 @@ export const aliceTodo = {
 } as const;
 
 export const bobTodo = {
-  id: aliceTodo.id + 1,
+  id: "Todo:enXlHLmZgwGeu9v0TNrFP",
   title: nonEmptyString("bob todo"),
   createdAt: new Date(5),
   updatedAt: new Date(5),
@@ -91,41 +89,30 @@ export const bobTodo = {
   userId: bob.id,
 } as const;
 
-export const validUserNodeIds = [admin, alice, bob].map(({ id }) => toUserNodeId(id));
+export const validUserIds = [admin, alice, bob].map(({ id }) => id);
 
-export const validTodoNodeIds = [adminTodo1, adminTodo2, adminTodo3].map(({ id }) =>
-  toTodoNodeId(id)
-);
+export const validTodoIds = [adminTodo1, adminTodo2, adminTodo3].map(({ id }) => id);
 
-export const validNodeIds = [...validUserNodeIds, ...validTodoNodeIds];
+export const validIds = [...validUserIds, ...validTodoIds];
 
-export const invalidUserNodeIds = [
-  "User:0",
-  "User:-1",
-  "Usr:1",
-  "User1",
-  "User:a",
-  "1",
-  ":1",
-  "1:User",
+export const invalidUserIds = [
+  "Usr:a4kxogX92Wxe-kbUfDRX7",
+  "Usera4kxogX92Wxe-kbUfDRX7",
+  "a4kxogX92Wxe-kbUfDRX7",
+  ":a4kxogX92Wxe-kbUfDRX7",
+  "a4kxogX92Wxe-kbUfDRX7:User",
   "",
-  validTodoNodeIds[0],
+  validTodoIds[0],
 ] as const;
 
-export const invalidTodoNodeIds = [
-  "Todo:0",
-  "Todo:-1",
-  "Too:1",
-  "Todo1",
-  "Todo:a",
-  "1",
-  ":1",
-  "1:Todo",
+export const invalidTodoIds = [
+  "Too:aHbtLGE7ANe1CSDbnhZQZ",
+  "TodoaHbtLGE7ANe1CSDbnhZQZ",
+  "aHbtLGE7ANe1CSDbnhZQZ",
+  ":aHbtLGE7ANe1CSDbnhZQZ",
+  "aHbtLGE7ANe1CSDbnhZQZ:Todo",
   "",
-  validUserNodeIds[0],
+  validUserIds[0],
 ] as const;
 
-export const invalidNodeIds = [
-  ...invalidUserNodeIds.slice(0, -1),
-  ...invalidTodoNodeIds.slice(0, -1),
-];
+export const invalidIds = [...invalidUserIds.slice(0, -1), ...invalidTodoIds.slice(0, -1)];

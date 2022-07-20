@@ -6,7 +6,7 @@ import { admin, alice, bob, guest } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { Role } from "@prisma/client";
-import { getEnvsWithValidation, makeServer, nonEmptyString, toUserId } from "@/utils";
+import { getEnvsWithValidation, makeServer, nonEmptyString } from "@/utils";
 import { ErrorCode, User } from "@/types";
 
 const envs = getEnvsWithValidation();
@@ -136,7 +136,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await prisma.user.findUnique({ where: { id: toUserId(data.createUser.id) } });
+    const maybeUser = await prisma.user.findUnique({ where: { id: data.createUser.id } });
 
     expect(maybeUser?.name).toBe(name);
   });
@@ -150,7 +150,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await prisma.user.findUnique({ where: { id: toUserId(data.createUser.id) } });
+    const maybeUser = await prisma.user.findUnique({ where: { id: data.createUser.id } });
 
     expect(maybeUser?.role).toBe(Role.USER);
   });

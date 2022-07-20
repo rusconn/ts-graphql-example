@@ -13,12 +13,12 @@ import {
   bob,
   bobTodo,
   guest,
-  invalidTodoNodeIds,
-  validTodoNodeIds,
+  invalidTodoIds,
+  validTodoIds,
 } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer, nonEmptyString, toTodoId, toTodoNodeId } from "@/utils";
+import { getEnvsWithValidation, makeServer, nonEmptyString } from "@/utils";
 import { ErrorCode, TodoStatus, User } from "@/types";
 
 const envs = getEnvsWithValidation();
@@ -97,7 +97,7 @@ describe("authorization", () => {
   test.each(allowedPatterns)("allowed %o %o", async ({ token }, { id }) => {
     const { data, errors } = await executeMutation({
       token,
-      variables: { input, id: toTodoNodeId(id) },
+      variables: { input, id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -109,7 +109,7 @@ describe("authorization", () => {
   test.each(notAllowedPatterns)("not allowed %o %o", async ({ token }, { id }) => {
     const { data, errors } = await executeMutation({
       token,
-      variables: { input, id: toTodoNodeId(id) },
+      variables: { input, id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -129,7 +129,7 @@ describe("validation", () => {
 
     const input = { title: nonEmptyString("foo"), description: "", status: TodoStatus.Done };
 
-    test.each(validTodoNodeIds)("valid %s", async id => {
+    test.each(validTodoIds)("valid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -137,7 +137,7 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
     });
 
-    test.each(invalidTodoNodeIds)("invalid %s", async id => {
+    test.each(invalidTodoIds)("invalid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -183,7 +183,7 @@ describe("validation", () => {
 
     test.each(valids)("valid %s", async input => {
       const { data, errors } = await executeMutation({
-        variables: { input, id: toTodoNodeId(adminTodo1.id) },
+        variables: { input, id: adminTodo1.id },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -194,7 +194,7 @@ describe("validation", () => {
 
     test.each(invalids)("invalid %s", async input => {
       const { data, errors } = await executeMutation({
-        variables: { input, id: toTodoNodeId(adminTodo1.id) },
+        variables: { input, id: adminTodo1.id },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -215,7 +215,7 @@ describe("validation", () => {
       "field absence should not cause bad input error: %s",
       async input => {
         const { data, errors } = await executeMutation({
-          variables: { input, id: toTodoNodeId(adminTodo1.id) },
+          variables: { input, id: adminTodo1.id },
         });
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -229,7 +229,7 @@ describe("validation", () => {
       "some fields should cause bad input error if null: %s",
       async input => {
         const { data, errors } = await executeMutation({
-          variables: { input, id: toTodoNodeId(adminTodo1.id) },
+          variables: { input, id: adminTodo1.id },
         });
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -252,7 +252,7 @@ describe("logic", () => {
     const input = { title: nonEmptyString("bar"), description: "baz", status: TodoStatus.Done };
 
     const { data } = await executeMutation({
-      variables: { id: toTodoNodeId(adminTodo1.id), input },
+      variables: { id: adminTodo1.id, input },
     });
 
     if (!data || !data.updateTodo) {
@@ -274,14 +274,14 @@ describe("logic", () => {
     }
 
     const { data } = await executeMutation({
-      variables: { id: toTodoNodeId(adminTodo1.id), input: {} },
+      variables: { id: adminTodo1.id, input: {} },
     });
 
     if (!data || !data.updateTodo) {
       throw new Error("operation failed");
     }
 
-    const after = await prisma.todo.findUnique({ where: { id: toTodoId(data.updateTodo.id) } });
+    const after = await prisma.todo.findUnique({ where: { id: data.updateTodo.id } });
 
     if (!after) {
       throw new Error("user not found");
@@ -302,7 +302,7 @@ describe("logic", () => {
     const input = { title: nonEmptyString("bar"), description: "baz", status: TodoStatus.Done };
 
     const { data } = await executeMutation({
-      variables: { id: toTodoNodeId(adminTodo1.id), input },
+      variables: { id: adminTodo1.id, input },
     });
 
     if (!data || !data.updateTodo) {
@@ -331,7 +331,7 @@ describe("logic", () => {
     const input = { title: nonEmptyString("bar"), description: "baz", status: TodoStatus.Done };
 
     const { data } = await executeMutation({
-      variables: { id: toTodoNodeId(adminTodo1.id), input },
+      variables: { id: adminTodo1.id, input },
     });
 
     if (!data || !data.updateTodo) {

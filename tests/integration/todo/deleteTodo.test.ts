@@ -12,12 +12,12 @@ import {
   bob,
   bobTodo,
   guest,
-  invalidTodoNodeIds,
-  validTodoNodeIds,
+  invalidTodoIds,
+  validTodoIds,
 } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer, nonEmptyString, toTodoNodeId } from "@/utils";
+import { getEnvsWithValidation, makeServer, nonEmptyString } from "@/utils";
 import { ErrorCode, User } from "@/types";
 
 const envs = getEnvsWithValidation();
@@ -92,7 +92,7 @@ describe("authorization", () => {
   test.each(allowedPatterns)("allowed %o %o", async ({ token }, { id }) => {
     const { data, errors } = await executeMutation({
       token,
-      variables: { ...variables, id: toTodoNodeId(id) },
+      variables: { ...variables, id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -104,7 +104,7 @@ describe("authorization", () => {
   test.each(notAllowedPatterns)("not allowed %o %o", async ({ token }, { id }) => {
     const { data, errors } = await executeMutation({
       token,
-      variables: { ...variables, id: toTodoNodeId(id) },
+      variables: { ...variables, id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -128,14 +128,14 @@ describe("validation", () => {
       await seedTodos();
     });
 
-    test.each(validTodoNodeIds)("valid %s", async id => {
+    test.each(validTodoIds)("valid %s", async id => {
       const { errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
     });
 
-    test.each(invalidTodoNodeIds)("invalid %s", async id => {
+    test.each(invalidTodoIds)("invalid %s", async id => {
       const { errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -158,7 +158,7 @@ describe("logic", () => {
   });
 
   it("should delete todo", async () => {
-    const { data } = await executeMutation({ variables: { id: toTodoNodeId(adminTodo1.id) } });
+    const { data } = await executeMutation({ variables: { id: adminTodo1.id } });
 
     if (!data || !data.deleteTodo) {
       throw new Error("operation failed");
@@ -172,7 +172,7 @@ describe("logic", () => {
   it("should not delete others", async () => {
     const before = await prisma.todo.count();
 
-    const { data } = await executeMutation({ variables: { id: toTodoNodeId(adminTodo1.id) } });
+    const { data } = await executeMutation({ variables: { id: adminTodo1.id } });
 
     if (!data || !data.deleteTodo) {
       throw new Error("operation failed");

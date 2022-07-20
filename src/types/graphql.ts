@@ -1,7 +1,8 @@
 import type { DateTime } from '@/types';
 import type { NonEmptyString } from '@/types';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import type { ResolverUser, ResolverTodo, Context } from '@/types';
+import type { User as UserModel, Todo as TodoModel } from '@prisma/client';
+import type { Context } from '@/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -346,7 +347,7 @@ export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   Role: Role;
   String: ResolverTypeWrapper<Scalars['String']>;
-  Todo: ResolverTypeWrapper<ResolverTodo>;
+  Todo: ResolverTypeWrapper<TodoModel>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges'> & { edges: Array<ResolversTypes['TodoEdge']> }>;
   TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node: ResolversTypes['Todo'] }>;
   TodoOrder: TodoOrder;
@@ -354,7 +355,7 @@ export type ResolversTypes = ResolversObject<{
   TodoStatus: TodoStatus;
   UpdateTodoInput: UpdateTodoInput;
   UpdateUserInput: UpdateUserInput;
-  User: ResolverTypeWrapper<ResolverUser>;
+  User: ResolverTypeWrapper<UserModel>;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges'> & { edges: Array<ResolversTypes['UserEdge']> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: ResolversTypes['User'] }>;
   UserOrder: UserOrder;
@@ -375,13 +376,13 @@ export type ResolversParentTypes = ResolversObject<{
   PageInfo: PageInfo;
   Query: {};
   String: Scalars['String'];
-  Todo: ResolverTodo;
+  Todo: TodoModel;
   TodoConnection: Omit<TodoConnection, 'edges'> & { edges: Array<ResolversParentTypes['TodoEdge']> };
   TodoEdge: Omit<TodoEdge, 'node'> & { node: ResolversParentTypes['Todo'] };
   TodoOrder: TodoOrder;
   UpdateTodoInput: UpdateTodoInput;
   UpdateUserInput: UpdateUserInput;
-  User: ResolverUser;
+  User: UserModel;
   UserConnection: Omit<UserConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserEdge']> };
   UserEdge: Omit<UserEdge, 'node'> & { node: ResolversParentTypes['User'] };
   UserOrder: UserOrder;

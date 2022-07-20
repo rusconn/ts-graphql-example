@@ -18,7 +18,7 @@ import {
   UserOrderField,
   UserTodosArgs,
 } from "@/types";
-import { assertIsTodoNodeId, assertIsUserNodeId, parseConnectionArgs } from "@/utils";
+import { assertIsTodoId, assertIsUserId, parseConnectionArgs } from "@/utils";
 
 export const parsers = {
   Query: {
@@ -37,7 +37,7 @@ export const parsers = {
 
       if (before) {
         try {
-          assertIsUserNodeId(before);
+          assertIsUserId(before);
         } catch (e) {
           if (e instanceof Error) {
             throw new ParseError("invalid `before`", e);
@@ -49,7 +49,7 @@ export const parsers = {
 
       if (after) {
         try {
-          assertIsUserNodeId(after);
+          assertIsUserId(after);
         } catch (e) {
           if (e instanceof Error) {
             throw new ParseError("invalid `after`", e);
@@ -69,7 +69,7 @@ export const parsers = {
       const orderByToUse =
         orderBy?.field === UserOrderField.UpdatedAt
           ? [{ updatedAt: directionToUse } as const, { id: directionToUse } as const]
-          : ({ id: directionToUse } as const);
+          : [{ createdAt: directionToUse } as const, { id: directionToUse } as const];
 
       return { ...defaultedConnectionArgs, orderBy: orderByToUse };
     },
@@ -77,7 +77,7 @@ export const parsers = {
       const { id } = args;
 
       try {
-        assertIsUserNodeId(id);
+        assertIsUserId(id);
       } catch (e) {
         if (e instanceof Error) {
           throw new ParseError("invalid `id`", e);
@@ -86,7 +86,7 @@ export const parsers = {
         throw e;
       }
 
-      return { nodeId: id };
+      return { id };
     },
   },
   Mutation: {
@@ -114,7 +114,7 @@ export const parsers = {
       }
 
       try {
-        assertIsUserNodeId(args.id);
+        assertIsUserId(args.id);
       } catch (e) {
         if (e instanceof Error) {
           throw new ParseError("invalid `userId`", e);
@@ -123,13 +123,13 @@ export const parsers = {
         throw e;
       }
 
-      return { nodeId: id, name };
+      return { id, name };
     },
     deleteUser: (args: MutationDeleteUserArgs): DeleteUserParams => {
       const { id } = args;
 
       try {
-        assertIsUserNodeId(id);
+        assertIsUserId(id);
       } catch (e) {
         if (e instanceof Error) {
           throw new ParseError("invalid `userId`", e);
@@ -138,11 +138,11 @@ export const parsers = {
         throw e;
       }
 
-      return { nodeId: id };
+      return { id };
     },
   },
   User: {
-    todos: (args: UserTodosArgs): Omit<GetUserTodosParams, "nodeId" | "info"> => {
+    todos: (args: UserTodosArgs): Omit<GetUserTodosParams, "userId" | "info"> => {
       const { orderBy, ...connectionArgs } = args;
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
@@ -157,7 +157,7 @@ export const parsers = {
 
       if (before) {
         try {
-          assertIsTodoNodeId(before);
+          assertIsTodoId(before);
         } catch (e) {
           if (e instanceof Error) {
             throw new ParseError("invalid `before`", e);
@@ -169,7 +169,7 @@ export const parsers = {
 
       if (after) {
         try {
-          assertIsTodoNodeId(after);
+          assertIsTodoId(after);
         } catch (e) {
           if (e instanceof Error) {
             throw new ParseError("invalid `after`", e);
@@ -188,7 +188,7 @@ export const parsers = {
 
       const orderByToUse =
         orderBy?.field === TodoOrderField.CreatedAt
-          ? ({ id: directionToUse } as const)
+          ? [{ createdAt: directionToUse } as const, { id: directionToUse } as const]
           : [{ updatedAt: directionToUse } as const, { id: directionToUse } as const];
 
       return { ...defaultedConnectionArgs, orderBy: orderByToUse };

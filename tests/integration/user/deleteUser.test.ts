@@ -10,12 +10,12 @@ import {
   alice,
   bob,
   guest,
-  invalidUserNodeIds,
-  validUserNodeIds,
+  invalidUserIds,
+  validUserIds,
 } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer, nonEmptyString, toUserId, toUserNodeId } from "@/utils";
+import { getEnvsWithValidation, makeServer, nonEmptyString } from "@/utils";
 import { ErrorCode, User } from "@/types";
 
 const envs = getEnvsWithValidation();
@@ -87,7 +87,7 @@ describe("authorization", () => {
   test.each(allowedPatterns)("allowed %o %o", async ({ token }, { id }) => {
     const { data, errors } = await executeMutation({
       token,
-      variables: { ...variables, id: toUserNodeId(id) },
+      variables: { ...variables, id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -99,7 +99,7 @@ describe("authorization", () => {
   test.each(notAllowedPatterns)("not allowed %o %o", async ({ token }, { id }) => {
     const { data, errors } = await executeMutation({
       token,
-      variables: { ...variables, id: toUserNodeId(id) },
+      variables: { ...variables, id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -121,7 +121,7 @@ describe("validation", () => {
       await seedUsers();
     });
 
-    test.each(validUserNodeIds)("valid %s", async id => {
+    test.each(validUserIds)("valid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -129,7 +129,7 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
     });
 
-    test.each(invalidUserNodeIds)("invalid %s", async id => {
+    test.each(invalidUserIds)("invalid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -151,13 +151,13 @@ describe("logic", () => {
   });
 
   it("should delete user", async () => {
-    const { data } = await executeMutation({ variables: { id: toUserNodeId(bob.id) } });
+    const { data } = await executeMutation({ variables: { id: bob.id } });
 
     if (!data || !data.deleteUser) {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await prisma.user.findUnique({ where: { id: toUserId(data.deleteUser.id) } });
+    const maybeUser = await prisma.user.findUnique({ where: { id: data.deleteUser.id } });
 
     expect(maybeUser).toBeNull();
   });
@@ -165,13 +165,13 @@ describe("logic", () => {
   it("should not delete others", async () => {
     const before = await prisma.user.count();
 
-    const { data } = await executeMutation({ variables: { id: toUserNodeId(bob.id) } });
+    const { data } = await executeMutation({ variables: { id: bob.id } });
 
     if (!data || !data.deleteUser) {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await prisma.user.findUnique({ where: { id: toUserId(data.deleteUser.id) } });
+    const maybeUser = await prisma.user.findUnique({ where: { id: data.deleteUser.id } });
 
     const after = await prisma.user.count();
 
@@ -182,9 +182,9 @@ describe("logic", () => {
   it("should delete his resources", async () => {
     await seedAdminTodos();
 
-    const before = await prisma.todo.count({ where: { id: admin.id } });
+    const before = await prisma.todo.count({ where: { userId: admin.id } });
 
-    const { data } = await executeMutation({ variables: { id: toUserNodeId(admin.id) } });
+    const { data } = await executeMutation({ variables: { id: admin.id } });
 
     if (!data || !data.deleteUser) {
       throw new Error("operation failed");

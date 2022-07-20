@@ -17,7 +17,7 @@ import {
   QueryTodosArgs,
   TodoOrderField,
 } from "@/types";
-import { assertIsTodoNodeId, assertIsUserNodeId, parseConnectionArgs } from "@/utils";
+import { assertIsTodoId, assertIsUserId, parseConnectionArgs } from "@/utils";
 
 export const parsers = {
   Query: {
@@ -36,7 +36,7 @@ export const parsers = {
 
       if (before) {
         try {
-          assertIsTodoNodeId(before);
+          assertIsTodoId(before);
         } catch (e) {
           if (e instanceof Error) {
             throw new ParseError("invalid `before`", e);
@@ -48,7 +48,7 @@ export const parsers = {
 
       if (after) {
         try {
-          assertIsTodoNodeId(after);
+          assertIsTodoId(after);
         } catch (e) {
           if (e instanceof Error) {
             throw new ParseError("invalid `after`", e);
@@ -59,7 +59,7 @@ export const parsers = {
       }
 
       try {
-        assertIsUserNodeId(userId);
+        assertIsUserId(userId);
       } catch (e) {
         if (e instanceof Error) {
           throw new ParseError("invalid `userId`", e);
@@ -77,16 +77,16 @@ export const parsers = {
 
       const orderByToUse =
         orderBy?.field === TodoOrderField.CreatedAt
-          ? ({ id: directionToUse } as const)
+          ? [{ createdAt: directionToUse } as const, { id: directionToUse } as const]
           : [{ updatedAt: directionToUse } as const, { id: directionToUse } as const];
 
-      return { ...defaultedConnectionArgs, nodeId: userId, orderBy: orderByToUse };
+      return { ...defaultedConnectionArgs, userId, orderBy: orderByToUse };
     },
     todo: (args: QueryTodoArgs): GetTodoParams => {
       const { id } = args;
 
       try {
-        assertIsTodoNodeId(args.id);
+        assertIsTodoId(args.id);
       } catch (e) {
         if (e instanceof Error) {
           throw new ParseError("invalid `id`", e);
@@ -94,7 +94,7 @@ export const parsers = {
         throw e;
       }
 
-      return { nodeId: id };
+      return { id };
     },
   },
   Mutation: {
@@ -113,7 +113,7 @@ export const parsers = {
       }
 
       try {
-        assertIsUserNodeId(userId);
+        assertIsUserId(userId);
       } catch (e) {
         if (e instanceof Error) {
           throw new ParseError("invalid `userId`", e);
@@ -121,7 +121,7 @@ export const parsers = {
         throw e;
       }
 
-      return { nodeId: userId, title, description };
+      return { userId, title, description };
     },
     updateTodo: (args: MutationUpdateTodoArgs): UpdateTodoParams => {
       const {
@@ -150,7 +150,7 @@ export const parsers = {
       }
 
       try {
-        assertIsTodoNodeId(id);
+        assertIsTodoId(id);
       } catch (e) {
         if (e instanceof Error) {
           throw new ParseError("invalid `id`", e);
@@ -158,13 +158,13 @@ export const parsers = {
         throw e;
       }
 
-      return { nodeId: id, title, description, status };
+      return { id, title, description, status };
     },
     deleteTodo: (args: MutationDeleteTodoArgs): DeleteTodoParams => {
       const { id } = args;
 
       try {
-        assertIsTodoNodeId(id);
+        assertIsTodoId(id);
       } catch (e) {
         if (e instanceof Error) {
           throw new ParseError("invalid `id`", e);
@@ -172,13 +172,13 @@ export const parsers = {
         throw e;
       }
 
-      return { nodeId: id };
+      return { id };
     },
     completeTodo: (args: MutationCompleteTodoArgs): UpdateTodoParams => {
       const { id } = args;
 
       try {
-        assertIsTodoNodeId(args.id);
+        assertIsTodoId(args.id);
       } catch (e) {
         if (e instanceof Error) {
           throw new ParseError("invalid `id`", e);
@@ -186,13 +186,13 @@ export const parsers = {
         throw e;
       }
 
-      return { nodeId: id };
+      return { id };
     },
     uncompleteTodo: (args: MutationUncompleteTodoArgs): UpdateTodoParams => {
       const { id } = args;
 
       try {
-        assertIsTodoNodeId(args.id);
+        assertIsTodoId(args.id);
       } catch (e) {
         if (e instanceof Error) {
           throw new ParseError("invalid `id`", e);
@@ -200,7 +200,7 @@ export const parsers = {
         throw e;
       }
 
-      return { nodeId: id };
+      return { id };
     },
   },
 };

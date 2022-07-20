@@ -13,12 +13,12 @@ import {
   guest,
   aliceTodo,
   bobTodo,
-  validNodeIds,
-  invalidNodeIds,
+  validIds,
+  invalidIds,
 } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer, toTodoNodeId, toUserNodeId } from "@/utils";
+import { getEnvsWithValidation, makeServer, todoId, userId } from "@/utils";
 import { ErrorCode, User } from "@/types";
 
 const envs = getEnvsWithValidation();
@@ -89,7 +89,7 @@ describe("authorization", () => {
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async ({ token }, { id }) => {
-      const { data, errors } = await executeQuery({ token, variables: { id: toUserNodeId(id) } });
+      const { data, errors } = await executeQuery({ token, variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.node).not.toBeFalsy();
@@ -97,7 +97,7 @@ describe("authorization", () => {
     });
 
     test.each(notAllowedPatterns)("not allowed %o", async ({ token }, { id }) => {
-      const { data, errors } = await executeQuery({ token, variables: { id: toUserNodeId(id) } });
+      const { data, errors } = await executeQuery({ token, variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.node).toBeFalsy();
@@ -119,7 +119,7 @@ describe("authorization", () => {
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async ({ token }, { id }) => {
-      const { data, errors } = await executeQuery({ token, variables: { id: toTodoNodeId(id) } });
+      const { data, errors } = await executeQuery({ token, variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.node).not.toBeFalsy();
@@ -127,7 +127,7 @@ describe("authorization", () => {
     });
 
     test.each(notAllowedPatterns)("not allowed %o", async ({ token }, { id }) => {
-      const { data, errors } = await executeQuery({ token, variables: { id: toTodoNodeId(id) } });
+      const { data, errors } = await executeQuery({ token, variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.node).toBeFalsy();
@@ -138,7 +138,7 @@ describe("authorization", () => {
 
 describe("validation", () => {
   describe("$id", () => {
-    test.each(validNodeIds)("valid %s", async id => {
+    test.each(validIds)("valid %s", async id => {
       const { data, errors } = await executeQuery({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -146,7 +146,7 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
     });
 
-    test.each(invalidNodeIds)("invalid %s", async id => {
+    test.each(invalidIds)("invalid %s", async id => {
       const { data, errors } = await executeQuery({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -158,13 +158,13 @@ describe("validation", () => {
 
 describe("query user", () => {
   it("should return item correctly", async () => {
-    const { data } = await executeQuery({ variables: { id: toUserNodeId(admin.id) } });
+    const { data } = await executeQuery({ variables: { id: admin.id } });
 
-    expect(data?.node).toEqual({ ...pick(admin, ["name"]), id: toUserNodeId(admin.id) });
+    expect(data?.node).toEqual({ ...pick(admin, ["name"]), id: admin.id });
   });
 
   it("should return not found error if not found", async () => {
-    const { data, errors } = await executeQuery({ variables: { id: toUserNodeId(100) } });
+    const { data, errors } = await executeQuery({ variables: { id: userId() } });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -175,13 +175,13 @@ describe("query user", () => {
 
 describe("query todo", () => {
   it("should return item correctly", async () => {
-    const { data } = await executeQuery({ variables: { id: toTodoNodeId(adminTodo1.id) } });
+    const { data } = await executeQuery({ variables: { id: adminTodo1.id } });
 
-    expect(data?.node).toEqual({ ...pick(adminTodo1, ["title"]), id: toTodoNodeId(adminTodo1.id) });
+    expect(data?.node).toEqual({ ...pick(adminTodo1, ["title"]), id: adminTodo1.id });
   });
 
   it("should return not found error if not found", async () => {
-    const { data, errors } = await executeQuery({ variables: { id: toTodoNodeId(100) } });
+    const { data, errors } = await executeQuery({ variables: { id: todoId() } });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
