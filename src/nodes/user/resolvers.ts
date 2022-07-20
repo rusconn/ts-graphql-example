@@ -1,11 +1,10 @@
 import type { Resolvers } from "@/types";
-import { toUserNodeId } from "@/utils";
 import { parsers } from "./parsers";
 
 export const resolvers: Resolvers = {
   Query: {
     viewer: (_, __, { dataSources: { userAPI }, user }) => {
-      return userAPI.get({ nodeId: toUserNodeId(user.id) });
+      return userAPI.get({ id: user.id });
     },
     users: (_, args, { dataSources: { userAPI } }, info) => {
       const parsed = parsers.Query.users(args);
@@ -39,7 +38,7 @@ export const resolvers: Resolvers = {
     todos: ({ id }, args, { dataSources: { todoAPI } }, info) => {
       const parsed = parsers.User.todos(args);
 
-      return todoAPI.getsUserTodos({ nodeId: id, ...parsed, info });
+      return todoAPI.getsUserTodos({ userId: id, ...parsed, info });
     },
   },
 };

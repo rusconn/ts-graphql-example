@@ -3,10 +3,10 @@ import omit from "lodash/omit";
 import { gql } from "apollo-server";
 
 import type { UpdateUserMutation, UpdateUserMutationVariables } from "it/types";
-import { admin, alice, bob, guest, invalidUserNodeIds, validUserNodeIds } from "it/data";
+import { admin, alice, bob, guest, invalidUserIds, validUserIds } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer, nonEmptyString, toUserId, toUserNodeId } from "@/utils";
+import { getEnvsWithValidation, makeServer, nonEmptyString } from "@/utils";
 import { ErrorCode, User } from "@/types";
 
 const envs = getEnvsWithValidation();
@@ -77,7 +77,7 @@ describe("authorization", () => {
   test.each(allowedPatterns)("allowed %o %o", async ({ token }, { id }) => {
     const { data, errors } = await executeMutation({
       token,
-      variables: { input, id: toUserNodeId(id) },
+      variables: { input, id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -89,7 +89,7 @@ describe("authorization", () => {
   test.each(notAllowedPatterns)("not allowed %o %o", async ({ token }, { id }) => {
     const { data, errors } = await executeMutation({
       token,
-      variables: { input, id: toUserNodeId(id) },
+      variables: { input, id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -108,7 +108,7 @@ describe("validation", () => {
 
     const input = { name: nonEmptyString("foo") };
 
-    test.each(validUserNodeIds)("valid %s", async id => {
+    test.each(validUserIds)("valid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -116,7 +116,7 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
     });
 
-    test.each(invalidUserNodeIds)("invalid %s", async id => {
+    test.each(invalidUserIds)("invalid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -141,7 +141,7 @@ describe("validation", () => {
 
     test.each(valids)("valid %s", async name => {
       const { data, errors } = await executeMutation({
-        variables: { id: toUserNodeId(admin.id), input: { name: nonEmptyString(name) } },
+        variables: { id: admin.id, input: { name: nonEmptyString(name) } },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -152,7 +152,7 @@ describe("validation", () => {
 
     test.each(invalids)("invalid %s", async name => {
       const { data, errors } = await executeMutation({
-        variables: { id: toUserNodeId(admin.id), input: { name: nonEmptyString(name) } },
+        variables: { id: admin.id, input: { name: nonEmptyString(name) } },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -163,7 +163,7 @@ describe("validation", () => {
 
     test("null name should cause bad input error", async () => {
       const { data, errors } = await executeMutation({
-        variables: { id: toUserNodeId(admin.id), input: { name: null } },
+        variables: { id: admin.id, input: { name: null } },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -174,7 +174,7 @@ describe("validation", () => {
 
     test("absent name should not cause bad input error", async () => {
       const { data, errors } = await executeMutation({
-        variables: { id: toUserNodeId(admin.id), input: {} },
+        variables: { id: admin.id, input: {} },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -195,14 +195,14 @@ describe("logic", () => {
     const name = nonEmptyString("foo");
 
     const { data } = await executeMutation({
-      variables: { id: toUserNodeId(admin.id), input: { name } },
+      variables: { id: admin.id, input: { name } },
     });
 
     if (!data || !data.updateUser) {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await prisma.user.findUnique({ where: { id: toUserId(data.updateUser.id) } });
+    const maybeUser = await prisma.user.findUnique({ where: { id: data.updateUser.id } });
 
     expect(maybeUser?.name).toBe(name);
   });
@@ -215,14 +215,14 @@ describe("logic", () => {
     }
 
     const { data } = await executeMutation({
-      variables: { id: toUserNodeId(admin.id), input: {} },
+      variables: { id: admin.id, input: {} },
     });
 
     if (!data || !data.updateUser) {
       throw new Error("operation failed");
     }
 
-    const after = await prisma.user.findUnique({ where: { id: toUserId(data.updateUser.id) } });
+    const after = await prisma.user.findUnique({ where: { id: data.updateUser.id } });
 
     if (!after) {
       throw new Error("user not found");
@@ -239,7 +239,7 @@ describe("logic", () => {
     }
 
     const { data } = await executeMutation({
-      variables: { id: toUserNodeId(admin.id), input: { name: nonEmptyString("bar") } },
+      variables: { id: admin.id, input: { name: nonEmptyString("bar") } },
     });
 
     if (!data || !data.updateUser) {
@@ -266,7 +266,7 @@ describe("logic", () => {
     }
 
     const { data } = await executeMutation({
-      variables: { id: toUserNodeId(admin.id), input: { name: nonEmptyString("baz") } },
+      variables: { id: admin.id, input: { name: nonEmptyString("baz") } },
     });
 
     if (!data || !data.updateUser) {

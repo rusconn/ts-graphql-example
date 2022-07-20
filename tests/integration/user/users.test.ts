@@ -6,7 +6,7 @@ import type { UsersQuery, UsersQueryVariables } from "it/types";
 import { admin, alice, bob, guest } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer, toUserId, toUserNodeId } from "@/utils";
+import { getEnvsWithValidation, makeServer, userId } from "@/utils";
 import { ErrorCode, User, OrderDirection, UserOrderField } from "@/types";
 
 const envs = getEnvsWithValidation();
@@ -96,8 +96,8 @@ describe("validation", () => {
     {},
     { first: firstMax },
     { last: lastMax },
-    { first: 1, after: toUserNodeId(admin.id) },
-    { last: 1, before: toUserNodeId(bob.id) },
+    { first: 1, after: admin.id },
+    { last: 1, before: bob.id },
   ];
 
   const invalids = [
@@ -108,8 +108,8 @@ describe("validation", () => {
     { first: firstMax + 1 },
     { last: lastMax + 1 },
     { first: 1, last: 1 },
-    { first: 1, before: toUserNodeId(admin.id) },
-    { last: 1, after: toUserNodeId(bob.id) },
+    { first: 1, before: admin.id },
+    { last: 1, after: bob.id },
   ];
 
   test.each(valids)("valid %o", async variables => {
@@ -138,7 +138,10 @@ describe("number of items", () => {
   it("should be 10 by default", async () => {
     const numDefault = 10;
     const numAdditionals = numDefault - numSeed + 1;
-    const additionals = range(numAdditionals).map(x => ({ name: `${x}` }));
+    const additionals = range(numAdditionals).map(x => ({
+      id: userId(),
+      name: `${x}`,
+    }));
     await prisma.user.createMany({ data: additionals });
 
     const numUsers = await prisma.user.count();
@@ -186,7 +189,7 @@ describe("order of items", () => {
 
   test.each(patterns)("%o, %o", async (variables, expectedUsers) => {
     const { data } = await executeQuery({ variables });
-    const ids = data?.users.edges.map(({ node }) => node.id).map(toUserId);
+    const ids = data?.users.edges.map(({ node }) => node.id);
     const expectedIds = expectedUsers.map(({ id }) => id);
 
     expect(ids).toStrictEqual(expectedIds);

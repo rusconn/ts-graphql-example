@@ -47,7 +47,7 @@ export const makeServer = ({ maxDepth, maxCost, alertCost, nodeEnv, prisma }: Ma
 
         user = maybeUser;
       } else {
-        user = { id: 0, role: "GUEST" };
+        user = { id: "GUEST_DUMMY_ID", role: "GUEST" };
       }
 
       return { logger, user } as Omit<Context, "dataSources">;

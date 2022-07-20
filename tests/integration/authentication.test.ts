@@ -3,7 +3,7 @@ import { ApolloError } from "apollo-server";
 import { prisma } from "it/prisma";
 import { admin, alice, bob } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
-import { getEnvsWithValidation, makeServer, toUserNodeId } from "@/utils";
+import { getEnvsWithValidation, makeServer } from "@/utils";
 import { ErrorCode } from "@/types";
 
 const envs = getEnvsWithValidation();
@@ -40,10 +40,7 @@ test("api should accept valid token", async () => {
   const query = `query($id: ID!) { user(id: $id) { id } }`;
 
   const executions = [admin, alice].map(({ id, token }) =>
-    server.executeOperation(
-      { query, variables: { id: toUserNodeId(id) } },
-      makeContext({ query, token })
-    )
+    server.executeOperation({ query, variables: { id } }, makeContext({ query, token }))
   );
 
   const [res1, res2] = await Promise.all(executions);

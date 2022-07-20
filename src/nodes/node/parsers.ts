@@ -1,6 +1,6 @@
 import { ParseError } from "@/errors";
 import type { QueryNodeArgs } from "@/types";
-import { assertIsNodeId } from "@/utils";
+import { assertIsId } from "@/utils";
 
 export const parsers = {
   Query: {
@@ -8,12 +8,12 @@ export const parsers = {
       const { id } = args;
 
       try {
-        assertIsNodeId(id);
+        assertIsId(id);
       } catch (e) {
         throw new ParseError("invalid `id`");
       }
 
-      return { nodeId: id };
+      return { id };
     },
   },
 };

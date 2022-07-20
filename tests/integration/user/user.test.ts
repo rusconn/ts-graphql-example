@@ -11,12 +11,12 @@ import {
   adminTodo2,
   adminTodo3,
   guest,
-  validUserNodeIds,
-  invalidUserNodeIds,
+  validUserIds,
+  invalidUserIds,
 } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer, toTodoId, toTodoNodeId, toUserNodeId } from "@/utils";
+import { getEnvsWithValidation, makeServer, userId } from "@/utils";
 import { ErrorCode, OrderDirection, TodoOrderField, User } from "@/types";
 
 const envs = getEnvsWithValidation();
@@ -118,7 +118,7 @@ describe("authorization", () => {
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async ({ token }, { id }) => {
-      const { data, errors } = await executeQuery({ token, variables: { id: toUserNodeId(id) } });
+      const { data, errors } = await executeQuery({ token, variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.user).not.toBeFalsy();
@@ -126,7 +126,7 @@ describe("authorization", () => {
     });
 
     test.each(notAllowedPatterns)("not allowed %o", async ({ token }, { id }) => {
-      const { data, errors } = await executeQuery({ token, variables: { id: toUserNodeId(id) } });
+      const { data, errors } = await executeQuery({ token, variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.user).toBeFalsy();
@@ -152,7 +152,7 @@ describe("authorization", () => {
     test.each(allowedPatterns)("allowed %o", async ({ token }, { id }, options) => {
       const { data, errors } = await executeQuery({
         token,
-        variables: { id: toUserNodeId(id), ...options },
+        variables: { id, ...options },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -164,7 +164,7 @@ describe("authorization", () => {
     test.each(notAllowedPatterns)("not allowed %o", async ({ token }, { id }, options) => {
       const { data, errors } = await executeQuery({
         token,
-        variables: { id: toUserNodeId(id), ...options },
+        variables: { id, ...options },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -177,7 +177,7 @@ describe("authorization", () => {
 
 describe("validation", () => {
   describe("$id", () => {
-    test.each(validUserNodeIds)("valid %s", async id => {
+    test.each(validUserIds)("valid %s", async id => {
       const { data, errors } = await executeQuery({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -185,7 +185,7 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
     });
 
-    test.each(invalidUserNodeIds)("invalid %s", async id => {
+    test.each(invalidUserIds)("invalid %s", async id => {
       const { data, errors } = await executeQuery({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -202,8 +202,8 @@ describe("validation", () => {
       {},
       { first: firstMax },
       { last: lastMax },
-      { first: 1, after: toTodoNodeId(adminTodo1.id) },
-      { last: 1, before: toTodoNodeId(adminTodo3.id) },
+      { first: 1, after: adminTodo1.id },
+      { last: 1, before: adminTodo3.id },
     ];
 
     const invalids = [
@@ -214,13 +214,13 @@ describe("validation", () => {
       { first: firstMax + 1 },
       { last: lastMax + 1 },
       { first: 1, last: 1 },
-      { first: 1, before: toTodoNodeId(adminTodo1.id) },
-      { last: 1, after: toTodoNodeId(adminTodo3.id) },
+      { first: 1, before: adminTodo1.id },
+      { last: 1, after: adminTodo3.id },
     ];
 
     test.each(valids)("valid %o", async variables => {
       const { data, errors } = await executeQuery({
-        variables: { ...variables, id: toUserNodeId(admin.id), includeTodos: true },
+        variables: { ...variables, id: admin.id, includeTodos: true },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -231,7 +231,7 @@ describe("validation", () => {
 
     test.each(invalids)("invalid %o", async variables => {
       const { data, errors } = await executeQuery({
-        variables: { ...variables, id: toUserNodeId(admin.id), includeTodos: true },
+        variables: { ...variables, id: admin.id, includeTodos: true },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -245,14 +245,14 @@ describe("validation", () => {
 describe("query without other nodes", () => {
   it("should return item correctly", async () => {
     const { data } = await executeQuery({
-      variables: { id: toUserNodeId(admin.id), includeToken: true, includeRole: true },
+      variables: { id: admin.id, includeToken: true, includeRole: true },
     });
 
-    expect(data?.user).toEqual({ ...admin, id: toUserNodeId(admin.id) });
+    expect(data?.user).toEqual(admin);
   });
 
   it("should return not found error if not found", async () => {
-    const { data, errors } = await executeQuery({ variables: { id: toUserNodeId(100) } });
+    const { data, errors } = await executeQuery({ variables: { id: userId() } });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -275,7 +275,7 @@ describe("query other nodes: todos", () => {
 
       // id が衝突しないようにしている
       const additionals = range(numAdditionals).map(x => ({
-        id: x + numSeedTodos + 1,
+        id: userId(),
         title: `${x}`,
         userId: admin.id,
       }));
@@ -283,7 +283,7 @@ describe("query other nodes: todos", () => {
       await prisma.todo.createMany({ data: additionals });
 
       const { data } = await executeQuery({
-        variables: { id: toUserNodeId(admin.id), includeTodos: true },
+        variables: { id: admin.id, includeTodos: true },
       });
 
       const numTodos = await prisma.todo.count();
@@ -296,7 +296,7 @@ describe("query other nodes: todos", () => {
       const first = numSeedTodos - 1;
 
       const { data } = await executeQuery({
-        variables: { id: toUserNodeId(admin.id), includeTodos: true, first },
+        variables: { id: admin.id, includeTodos: true, first },
       });
 
       expect(data?.user?.todos?.edges).toHaveLength(first);
@@ -326,10 +326,10 @@ describe("query other nodes: todos", () => {
 
     test.each(patterns)("%o %o", async (variables, expectedTodos) => {
       const { data } = await executeQuery({
-        variables: { ...variables, id: toUserNodeId(admin.id), includeTodos: true },
+        variables: { ...variables, id: admin.id, includeTodos: true },
       });
 
-      const ids = data?.user?.todos?.edges.map(({ node }) => node.id).map(toTodoId);
+      const ids = data?.user?.todos?.edges.map(({ node }) => node.id);
       const expectedIds = expectedTodos.map(({ id }) => id);
 
       expect(ids).toStrictEqual(expectedIds);
@@ -341,7 +341,7 @@ describe("query other nodes: todos", () => {
       const first = numSeedTodos - 1;
 
       const makeExecution = () =>
-        executeQuery({ variables: { id: toUserNodeId(admin.id), includeTodos: true, first } });
+        executeQuery({ variables: { id: admin.id, includeTodos: true, first } });
 
       const { data: data1 } = await makeExecution();
       const { data: data2 } = await makeExecution();

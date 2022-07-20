@@ -13,11 +13,12 @@ model Todo {
   title       String     @db.VarChar(255)
   description String     @default("")
   status      TodoStatus @default(PENDING)
-  id          Int        @id @default(autoincrement())
-  userId      Int
+  id          String     @id @db.VarChar(255)
+  userId      String     @db.VarChar(255)
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([createdAt(sort: Desc), id])
   @@index([updatedAt(sort: Desc), id])
 }
 
@@ -27,9 +28,10 @@ model User {
   name      String   @db.VarChar(255)
   token     String   @unique @default(uuid()) @db.VarChar(255)
   role      Role     @default(USER)
-  id        Int      @id @default(autoincrement())
+  id        String   @id @db.VarChar(255)
   todos     Todo[]
 
+  @@index([createdAt(sort: Desc), id])
   @@index([updatedAt(sort: Desc), id])
 }
 
