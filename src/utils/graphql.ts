@@ -1,7 +1,7 @@
 import { DocumentNode, getOperationAST } from "graphql";
 import { gql } from "apollo-server";
 
-import type { NodeType } from "@/types";
+import type { Type } from "./ids";
 
 // https://spectrum.chat/apollo/apollo-server/how-to-detect-introspection-query~432197c6-549a-467d-bdca-9083a98406aa
 // https://github.com/justinlevi/typorm-issue/blob/eb92b31a581f963707abdea26c49c9893fdb9a86/src/plugins/apolloServerRequestLogger.ts#L18
@@ -18,7 +18,7 @@ export const isIntrospectionQuery = (query: string | DocumentNode) => {
 };
 
 export const makeCursorConnections = (
-  type: NodeType,
+  type: Type,
   additionalConnectionFields: Record<string, string> = {},
   additionalEdgeFields: Record<string, string> = {}
 ) => `
@@ -36,7 +36,7 @@ export const makeCursorConnections = (
 `;
 
 export const makeOrderOptions = (
-  type: NodeType,
+  type: Type,
   additionaOrderFields: Record<string, string> = {},
   additionalOrderFieldFields: Record<string, string> = {}
 ) => `

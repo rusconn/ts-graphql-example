@@ -1,4 +1,5 @@
-import type { DateTime, NonEmptyString } from "@/types";
+export type DateTime = string & { __brand: "DateTime" };
+export type NonEmptyString = string & { __brand: "NonEmptyString" };
 
 export function dateTime(x: string): DateTime {
   if (!isDateTime(x)) {

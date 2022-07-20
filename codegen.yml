@@ -1,6 +1,6 @@
 scalars: &scalars
-  DateTime: "@/types#DateTime"
-  NonEmptyString: "@/types#NonEmptyString"
+  DateTime: "@/utils#DateTime"
+  NonEmptyString: "@/utils#NonEmptyString"
 
 typescript: &typescript
   inputMaybeValue: T | null | undefined # null を指定する場合と、指定しない(=undefined)場合がある

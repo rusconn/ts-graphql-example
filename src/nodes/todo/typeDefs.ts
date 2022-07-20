@@ -1,11 +1,10 @@
 import { gql } from "apollo-server";
 
 import { makeOrderOptions, makeCursorConnections } from "@/utils";
-import { todoType } from "@/types";
 
 export const typeDefs = gql`
-  ${makeCursorConnections(todoType, { totalCount: "Int!" })}
-  ${makeOrderOptions(todoType)}
+  ${makeCursorConnections("Todo", { totalCount: "Int!" })}
+  ${makeOrderOptions("Todo")}
 
   type Query {
     todos(
