@@ -8,7 +8,6 @@ import {
 import type { Todo, User } from "@/types";
 import { todoId } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
-import { catchPrismaError } from "./decorators";
 import { NotFoundError } from "./errors";
 
 export type GetUserTodosParams = ConnectionArguments & {
@@ -39,7 +38,6 @@ export type DeleteTodoParams = {
 };
 
 export class TodoAPI extends PrismaDataSource {
-  @catchPrismaError
   async getsUserTodos({ userId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
     const userPromise = this.prisma.user.findUnique({
       where: { id: userId },
@@ -71,7 +69,6 @@ export class TodoAPI extends PrismaDataSource {
     );
   }
 
-  @catchPrismaError
   async get({ id }: GetTodoParams) {
     const result = await this.prisma.todo.findUnique({ where: { id } });
 
@@ -82,17 +79,14 @@ export class TodoAPI extends PrismaDataSource {
     return result;
   }
 
-  @catchPrismaError
   async create({ userId, ...data }: CreateTodoParams) {
     return this.prisma.todo.create({ data: { id: todoId(), ...data, userId } });
   }
 
-  @catchPrismaError
   async update({ id, ...data }: UpdateTodoParams) {
     return this.prisma.todo.update({ where: { id }, data });
   }
 
-  @catchPrismaError
   async delete({ id }: DeleteTodoParams) {
     return this.prisma.todo.delete({ where: { id } });
   }
