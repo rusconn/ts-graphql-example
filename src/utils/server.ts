@@ -82,8 +82,15 @@ export const makeServer = ({ maxDepth, maxCost, alertCost, nodeEnv, prisma }: Ma
 
       return response;
     },
-    // 例外情報はクライアントに渡さない
-    formatError: error => omit(error, "extensions.thrown"),
+    formatError: error => {
+      // message で内部実装がバレ得るのでマスクする
+      if (error.message.startsWith("Context creation failed: ")) {
+        return { ...error, message: "Some errors occurred" };
+      }
+
+      // 内部の例外情報はクライアントに渡さない
+      return omit(error, "extensions.thrown");
+    },
     // デフォルトでは in-memory なので、スケールアウトする場合は外部のキャッシュを指定する
     cache: undefined,
     // requestId を埋め込みたいのでコンテキストにセットしている
