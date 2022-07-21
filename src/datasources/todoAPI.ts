@@ -40,7 +40,7 @@ export type DeleteTodoParams = {
 
 export class TodoAPI extends PrismaDataSource {
   @catchPrismaError
-  getsUserTodos({ userId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
+  async getsUserTodos({ userId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
     const userPromise = this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -83,17 +83,17 @@ export class TodoAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  create({ userId, ...data }: CreateTodoParams) {
+  async create({ userId, ...data }: CreateTodoParams) {
     return this.prisma.todo.create({ data: { id: todoId(), ...data, userId } });
   }
 
   @catchPrismaError
-  update({ id, ...data }: UpdateTodoParams) {
+  async update({ id, ...data }: UpdateTodoParams) {
     return this.prisma.todo.update({ where: { id }, data });
   }
 
   @catchPrismaError
-  delete({ id }: DeleteTodoParams) {
+  async delete({ id }: DeleteTodoParams) {
     return this.prisma.todo.delete({ where: { id } });
   }
 }

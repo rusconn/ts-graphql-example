@@ -35,7 +35,7 @@ export type DeleteUserParams = {
 
 export class UserAPI extends PrismaDataSource {
   @catchPrismaError
-  gets({ info, orderBy, ...paginationArgs }: GetUsersParams) {
+  async gets({ info, orderBy, ...paginationArgs }: GetUsersParams) {
     return findManyCursorConnection<Prisma.User>(
       args => this.prisma.user.findMany({ ...args, orderBy }),
       () => this.prisma.user.count(),
@@ -56,17 +56,17 @@ export class UserAPI extends PrismaDataSource {
   }
 
   @catchPrismaError
-  create(data: CreateUserParams) {
+  async create(data: CreateUserParams) {
     return this.prisma.user.create({ data: { id: userId(), ...data } });
   }
 
   @catchPrismaError
-  update({ id, ...data }: UpdateUserParams) {
+  async update({ id, ...data }: UpdateUserParams) {
     return this.prisma.user.update({ where: { id }, data });
   }
 
   @catchPrismaError
-  delete({ id }: DeleteUserParams) {
+  async delete({ id }: DeleteUserParams) {
     return this.prisma.user.delete({ where: { id } });
   }
 }
