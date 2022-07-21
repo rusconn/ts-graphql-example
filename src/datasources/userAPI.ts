@@ -8,7 +8,6 @@ import {
 import type { User } from "@/types";
 import { userId } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
-import { catchPrismaError } from "./decorators";
 import { NotFoundError } from "./errors";
 
 export type GetUsersParams = ConnectionArguments & {
@@ -34,7 +33,6 @@ export type DeleteUserParams = {
 };
 
 export class UserAPI extends PrismaDataSource {
-  @catchPrismaError
   async gets({ info, orderBy, ...paginationArgs }: GetUsersParams) {
     return findManyCursorConnection<Prisma.User>(
       args => this.prisma.user.findMany({ ...args, orderBy }),
@@ -44,7 +42,6 @@ export class UserAPI extends PrismaDataSource {
     );
   }
 
-  @catchPrismaError
   async get({ id }: GetUserParams) {
     const result = await this.prisma.user.findUnique({ where: { id } });
 
@@ -55,17 +52,14 @@ export class UserAPI extends PrismaDataSource {
     return result;
   }
 
-  @catchPrismaError
   async create(data: CreateUserParams) {
     return this.prisma.user.create({ data: { id: userId(), ...data } });
   }
 
-  @catchPrismaError
   async update({ id, ...data }: UpdateUserParams) {
     return this.prisma.user.update({ where: { id }, data });
   }
 
-  @catchPrismaError
   async delete({ id }: DeleteUserParams) {
     return this.prisma.user.delete({ where: { id } });
   }
