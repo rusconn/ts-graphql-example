@@ -12,7 +12,6 @@
     "pretest": "DB_NAME=testdb yarn migrate:reset",
     "test": "NODE_ENV=test DB_NAME=testdb jest -i --silent",
     "seed": "yarn ts prisma/seed.ts",
-    "studio": "prisma studio",
     "generate": "prisma generate",
     "ts": "ts-node-dev -r tsconfig-paths/register --transpile-only",
     "codegen": "graphql-codegen",
