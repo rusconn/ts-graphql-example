@@ -2,7 +2,9 @@ version: "3.8"
 
 services:
   app:
-    image: node:16.16.0-bullseye-slim
+    image: apollo-prisma-test-dev-app:1.0.0
+    build:
+      context: dockerfiles/dev/app
     working_dir: /app
     environment:
       - NODE_ENV=development
