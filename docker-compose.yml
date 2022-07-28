@@ -16,8 +16,23 @@ services:
     command: sh -c "yarn && yarn setup && yarn start"
     ports:
       - ${APP_PORT:-4000}:4000
+    depends_on:
+      - db
+
+  studio:
+    image: apollo-prisma-test-dev-studio:1.0.0
+    build:
+      context: dockerfiles/dev/studio
+    working_dir: /studio
+    volumes:
+      - .:/studio:cached
+      - node_modules:/studio/node_modules
+    # アプリコンテナのprismaを使うので待つ
+    command: sh -c "wait-for-it app:4000 --timeout=0 -- yarn studio"
+    ports:
       - ${STUDIO_PORT:-5555}:5555
     depends_on:
+      - app
       - db
 
   db:
