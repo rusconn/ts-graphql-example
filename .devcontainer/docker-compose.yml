@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   app:
-    image: rusconn/apollo-prisma-test
+    image: rusconn/apollo-prisma-test-dev-app:1.0.0
     build:
       context: .devcontainer
     volumes:
