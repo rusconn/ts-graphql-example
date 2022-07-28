@@ -24,6 +24,6 @@
     "graphql.vscode-graphql",
     "prisma.prisma"
   ],
-  "runServices": ["app", "db"],
+  "runServices": ["app", "studio", "db"],
   "shutdownAction": "stopCompose"
 }
