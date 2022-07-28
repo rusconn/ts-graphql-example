@@ -25,7 +25,8 @@ services:
       context: dockerfiles/dev/studio
     working_dir: /studio
     volumes:
-      - .:/studio:cached
+      - ./prisma:/studio/prisma
+      - ./.env:/studio/.env
       - node_modules:/studio/node_modules
     # アプリコンテナのprismaを使うので待つ
     command: sh -c "wait-for-it app:4000 --timeout=0 -- npx prisma studio"
