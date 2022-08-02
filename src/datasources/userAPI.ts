@@ -8,7 +8,6 @@ import {
 import type { User } from "@/types";
 import { userId } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
-import { NotFoundError } from "./errors";
 
 export type GetUsersParams = ConnectionArguments & {
   orderBy: Exclude<Prisma.Prisma.UserFindManyArgs["orderBy"], undefined>;
@@ -43,13 +42,7 @@ export class UserAPI extends PrismaDataSource {
   }
 
   async get({ id }: GetUserParams) {
-    const result = await this.prisma.user.findUnique({ where: { id } });
-
-    if (!result) {
-      throw new NotFoundError("Not found");
-    }
-
-    return result;
+    return this.prisma.user.findUniqueOrThrow({ where: { id } });
   }
 
   async create(data: CreateUserParams) {

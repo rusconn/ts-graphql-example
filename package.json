@@ -25,7 +25,7 @@
   "dependencies": {
     "@devoxa/prisma-relay-cursor-connection": "^2.1.0",
     "@graphql-tools/schema": "^8.5.0",
-    "@prisma/client": "4.0.0",
+    "@prisma/client": "4.1.1",
     "apollo-datasource": "^3.3.2",
     "apollo-server": "^3.10.0",
     "extensible-custom-error": "^0.0.7",
@@ -38,7 +38,7 @@
     "lodash": "^4.17.21",
     "nanoid": "^3.3.4",
     "pino": "^8.1.0",
-    "prisma": "4.0.0"
+    "prisma": "4.1.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.8.1",
