@@ -8,7 +8,6 @@ import {
 import type { Todo, User } from "@/types";
 import { todoId } from "@/utils";
 import { PrismaDataSource } from "./abstracts";
-import { NotFoundError } from "./errors";
 
 export type GetUserTodosParams = ConnectionArguments & {
   userId: User["id"];
@@ -39,44 +38,20 @@ export type DeleteTodoParams = {
 
 export class TodoAPI extends PrismaDataSource {
   async getsUserTodos({ userId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
-    const userPromise = this.prisma.user.findUnique({
+    const userPromise = this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
     });
 
     return findManyCursorConnection<Prisma.Todo, Pick<Prisma.Todo, "id">>(
-      async args => {
-        // prisma の型が間違っている
-        // https://github.com/prisma/prisma/issues/10687
-        const todos = (await userPromise.todos({ ...args, orderBy })) as Prisma.Todo[] | null;
-
-        if (!todos) {
-          throw new NotFoundError("user not found");
-        }
-
-        return todos;
-      },
-      async () => {
-        const todos = (await userPromise.todos()) as Prisma.Todo[] | null;
-
-        if (!todos) {
-          throw new NotFoundError("user not found");
-        }
-
-        return todos.length;
-      },
+      async args => userPromise.todos({ ...args, orderBy }),
+      async () => (await userPromise.todos()).length,
       paginationArgs,
       { resolveInfo: info }
     );
   }
 
   async get({ id }: GetTodoParams) {
-    const result = await this.prisma.todo.findUnique({ where: { id } });
-
-    if (!result) {
-      throw new NotFoundError("Not found");
-    }
-
-    return result;
+    return this.prisma.todo.findUniqueOrThrow({ where: { id } });
   }
 
   async create({ userId, ...data }: CreateTodoParams) {

@@ -1,5 +1,6 @@
 import { shield } from "graphql-shield";
 import { ApolloError, UserInputError } from "apollo-server";
+import { Prisma } from "@prisma/client";
 
 import * as DataSource from "@/datasources";
 import { ErrorCode } from "@/types";
@@ -13,6 +14,11 @@ const permissionAndErrorMiddleware = shield(permissions, {
     // 想定通りの例外が起きた
     if (thrown instanceof ParseError) {
       throw new UserInputError(thrown.message, { thrown });
+    }
+
+    // Prisma の throw 系は Prisma のミドルウェアで拾えない？のでここで拾う
+    if (thrown instanceof Prisma.NotFoundError) {
+      throw new ApolloError("Not found", ErrorCode.NotFound, { thrown });
     }
 
     // 想定通りの例外が起きた
