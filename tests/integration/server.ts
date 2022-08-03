@@ -1,7 +1,7 @@
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer } from "@/utils";
+import { parseEnvVars, makeServer } from "@/utils";
 
-const envs = getEnvsWithValidation();
+const envs = parseEnvVars(process.env);
 
 /**
  * テスト用のサーバインスタンス
