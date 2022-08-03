@@ -6,11 +6,9 @@ import type { UpdateUserMutation, UpdateUserMutationVariables } from "it/types";
 import { admin, alice, bob, guest, invalidUserIds, validUserIds } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer, nonEmptyString } from "@/utils";
+import { server } from "it/server";
+import { nonEmptyString } from "@/utils";
 import { ErrorCode, User } from "@/types";
-
-const envs = getEnvsWithValidation();
-const server = makeServer({ ...envs, prisma });
 
 const seedUsers = () => prisma.user.createMany({ data: [admin, alice, bob] });
 
