@@ -6,11 +6,9 @@ import type { TodosQuery, TodosQueryVariables } from "it/types";
 import { admin, adminTodo1, adminTodo2, adminTodo3, alice, bob, guest } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer, todoId } from "@/utils";
+import { server } from "it/server";
+import { todoId } from "@/utils";
 import { ErrorCode, User, OrderDirection, TodoOrderField } from "@/types";
-
-const envs = getEnvsWithValidation();
-const server = makeServer({ ...envs, prisma });
 
 const users = [admin, alice, bob];
 const todos = [adminTodo1, adminTodo2, adminTodo3];

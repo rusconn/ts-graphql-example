@@ -5,11 +5,8 @@ import type { ViewerQuery } from "it/types";
 import { admin, alice, bob, guest } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { getEnvsWithValidation, makeServer } from "@/utils";
+import { server } from "it/server";
 import { ErrorCode, User } from "@/types";
-
-const envs = getEnvsWithValidation();
-const server = makeServer({ ...envs, prisma });
 
 const users = [admin, alice, bob];
 

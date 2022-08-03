@@ -3,11 +3,8 @@ import { ApolloError } from "apollo-server";
 import { prisma } from "it/prisma";
 import { admin, alice, bob } from "it/data";
 import { makeContext, clearTables } from "it/helpers";
-import { getEnvsWithValidation, makeServer } from "@/utils";
+import { server } from "it/server";
 import { ErrorCode } from "@/types";
-
-const envs = getEnvsWithValidation();
-const server = makeServer({ ...envs, prisma });
 
 const seedUsers = () => prisma.user.createMany({ data: [admin, alice, bob] });
 
