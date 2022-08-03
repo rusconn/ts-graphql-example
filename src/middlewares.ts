@@ -8,8 +8,8 @@ import { permissions } from "@/permissions";
 import { ParseError } from "./errors";
 
 const permissionAndErrorMiddleware = shield(permissions, {
-  // 想定外の例外を拾ってログ可能にする
-  // 埋め込んだ情報は Apollo Server の設定でレスポンスから除外すること
+  // 各種例外を拾ってハンドリングする
+  // ログの為に埋め込んだ内部情報は Apollo Server の設定でレスポンスから除外すること
   fallbackError: (thrown, _parent, _args, _context, _info) => {
     // 想定通りの例外が起きた
     if (thrown instanceof ParseError) {
