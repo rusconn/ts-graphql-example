@@ -65,17 +65,16 @@ export const makeServer = ({ maxDepth, maxCost, alertCost, nodeEnv, prisma }: Ma
         },
       }),
     ],
-    // 脆弱性対策: https://qiita.com/tnishi97/items/9fb9b2e69689fbfb52e3
     formatResponse: (response, requestContext) => {
+      // 脆弱性対策: https://qiita.com/tnishi97/items/9fb9b2e69689fbfb52e3
       if (requestContext.response?.http) {
-        const headersForSecurity = {
-          "Cache-Control": "no-store", // キャッシュ漏洩
-          "X-Content-Type-Options": "nosniff", // XSS
-          "X-Frame-Options": "DENY", // クリックジャッキング
-          "Strict-Transport-Security": "max-age=31536000; includeSubdomains", // https
-        };
+        const headersForSecurity = new Map<string, string>()
+          .set("Cache-Control", "no-store") // キャッシュ漏洩
+          .set("X-Content-Type-Options", "nosniff") // XSS
+          .set("X-Frame-Options", "DENY") // クリックジャッキング
+          .set("Strict-Transport-Security", "max-age=31536000; includeSubdomains"); // https
 
-        for (const [key, value] of Object.entries(headersForSecurity)) {
+        for (const [key, value] of headersForSecurity) {
           requestContext.response.http.headers.set(key, value);
         }
       }
