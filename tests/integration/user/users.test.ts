@@ -2,13 +2,12 @@ import { gql } from "graphql-tag";
 import range from "lodash/range";
 
 import type { UsersQuery, UsersQueryVariables } from "it/types";
-import { defaultContext } from "it/context";
 import { admin, alice, bob, guest } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { server } from "it/server";
+import { executeSingleResultOperation } from "it/server";
 import { userId } from "@/utils";
-import { ErrorCode, OrderDirection, UserOrderField, Context } from "@/types";
+import { ErrorCode, OrderDirection, UserOrderField } from "@/types";
 
 const users = [admin, alice, bob];
 
@@ -36,30 +35,7 @@ const query = gql`
   }
 `;
 
-type ExecuteQueryParams = {
-  user?: Context["user"];
-  variables?: UsersQueryVariables;
-};
-
-/**
- * user のデフォルトは admin
- * @param params user の上書きや variables の指定に使う
- */
-const executeQuery = async (params: ExecuteQueryParams) => {
-  const user = params.user ?? admin;
-  const { variables } = params;
-
-  const res = await server.executeOperation<UsersQuery>(
-    { query, variables },
-    { contextValue: { ...defaultContext, user } }
-  );
-
-  if (res.body.kind !== "single") {
-    throw new Error("not single");
-  }
-
-  return res.body.singleResult;
-};
+const executeQuery = executeSingleResultOperation(query)<UsersQuery, UsersQueryVariables>;
 
 beforeAll(async () => {
   await clearTables();
