@@ -3,10 +3,8 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   // これがあると速くなる
-  globals: {
-    "ts-jest": {
-      isolatedModules: true,
-    },
+  transform: {
+    "^.+\\.tsx?$": ["ts-jest", { isolatedModules: true }],
   },
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
