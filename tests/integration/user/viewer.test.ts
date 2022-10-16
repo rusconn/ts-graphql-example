@@ -1,12 +1,12 @@
-import type { GraphQLFormattedError } from "graphql";
-import { gql } from "apollo-server";
+import { gql } from "graphql-tag";
 
 import type { ViewerQuery } from "it/types";
+import { defaultContext } from "it/context";
 import { admin, alice, bob, guest } from "it/data";
-import { makeContext, clearTables } from "it/helpers";
+import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { server } from "it/server";
-import { ErrorCode, User } from "@/types";
+import { Context, ErrorCode } from "@/types";
 
 const users = [admin, alice, bob];
 
@@ -20,26 +20,27 @@ const query = gql`
   }
 `;
 
-type ResponseType = {
-  data?: ViewerQuery | null;
-  errors?: ReadonlyArray<GraphQLFormattedError>;
-};
-
 type ExecuteQueryParams = {
-  token?: User["token"];
+  user?: Context["user"];
 };
 
 /**
- * token のデフォルトは admin.token
- * @param params token の上書きや variables の指定に使う
+ * user のデフォルトは admin
+ * @param params user の上書きや variables の指定に使う
  */
-const executeQuery = (params: ExecuteQueryParams) => {
-  const token = "token" in params ? params.token : admin.token;
+const executeQuery = async (params: ExecuteQueryParams) => {
+  const user = params.user ?? admin;
 
-  return server.executeOperation(
-    { query, variables: {} },
-    makeContext({ query, token })
-  ) as Promise<ResponseType>;
+  const res = await server.executeOperation<ViewerQuery>(
+    { query },
+    { contextValue: { ...defaultContext, user } }
+  );
+
+  if (res.body.kind !== "single") {
+    throw new Error("not single");
+  }
+
+  return res.body.singleResult;
 };
 
 beforeAll(async () => {
@@ -51,16 +52,16 @@ describe("authorization", () => {
   const alloweds = [admin, alice, bob];
   const notAlloweds = [guest];
 
-  test.each(alloweds)("allowed %o", async ({ token }) => {
-    const { data, errors } = await executeQuery({ token });
+  test.each(alloweds)("allowed %o", async user => {
+    const { data, errors } = await executeQuery({ user });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.viewer).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.Forbidden]));
   });
 
-  test.each(notAlloweds)("not allowed %o", async ({ token }) => {
-    const { data, errors } = await executeQuery({ token });
+  test.each(notAlloweds)("not allowed %o", async user => {
+    const { data, errors } = await executeQuery({ user });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.viewer).toBeFalsy();

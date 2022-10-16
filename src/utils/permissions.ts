@@ -1,7 +1,7 @@
+import { GraphQLError } from "graphql";
 import { rule } from "graphql-shield";
-import { ForbiddenError } from "apollo-server";
 
-import type { Context } from "@/types";
+import { Context, ErrorCode } from "@/types";
 
 export const isAdmin = rule({ cache: "contextual" })((_, __, { logger, user }: Context) => {
   logger.debug("isAdmin called");
@@ -25,4 +25,6 @@ export const isAuthenticated = rule({ cache: "contextual" })((_, __, { logger, u
 
 // graphql-shield がデフォルトで INTERNAL_SERVER_ERROR を返してしまうので用意している
 // https://github.com/maticzav/graphql-shield/issues/1176
-export const permissionError = new ForbiddenError("Forbidden");
+export const permissionError = new GraphQLError("Forbidden", {
+  extensions: { code: ErrorCode.Forbidden },
+});

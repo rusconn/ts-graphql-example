@@ -1,14 +1,14 @@
-import type { GraphQLFormattedError } from "graphql";
-import { gql } from "apollo-server";
+import { gql } from "graphql-tag";
 
 import type { CreateTodoMutation, CreateTodoMutationVariables } from "it/types";
+import { defaultContext } from "it/context";
 import { admin, alice, bob, guest, invalidUserIds, validUserIds } from "it/data";
-import { makeContext, clearTables } from "it/helpers";
+import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { server } from "it/server";
 import { TodoStatus } from "@prisma/client";
 import { nonEmptyString } from "@/utils";
-import { ErrorCode, User } from "@/types";
+import { Context, ErrorCode } from "@/types";
 
 const seedUsers = () => prisma.user.createMany({ data: [admin, alice, bob] });
 
@@ -23,28 +23,29 @@ const query = gql`
   }
 `;
 
-type ResponseType = {
-  data?: CreateTodoMutation | null;
-  errors?: ReadonlyArray<GraphQLFormattedError>;
-};
-
 type ExecuteQueryParams = {
-  token?: User["token"];
+  user?: Context["user"];
   variables: CreateTodoMutationVariables;
 };
 
 /**
- * token のデフォルトは admin.token
- * @param params token の上書きや variables の指定に使う
+ * user のデフォルトは admin
+ * @param params user の上書きや variables の指定に使う
  */
-const executeMutation = (params: ExecuteQueryParams) => {
-  const token = "token" in params ? params.token : admin.token;
+const executeMutation = async (params: ExecuteQueryParams) => {
+  const user = params.user ?? admin;
   const { variables } = params;
 
-  return server.executeOperation(
+  const res = await server.executeOperation<CreateTodoMutation>(
     { query, variables },
-    makeContext({ query, token })
-  ) as Promise<ResponseType>;
+    { contextValue: { ...defaultContext, user } }
+  );
+
+  if (res.body.kind !== "single") {
+    throw new Error("not single");
+  }
+
+  return res.body.singleResult;
 };
 
 beforeAll(async () => {
@@ -72,9 +73,9 @@ describe("authorization", () => {
     [guest, alice],
   ] as const;
 
-  test.each(allowedPatterns)("allowed %o %o", async ({ token }, { id }) => {
+  test.each(allowedPatterns)("allowed %o %o", async (user, { id }) => {
     const { data, errors } = await executeMutation({
-      token,
+      user,
       variables: { ...variables, userId: id },
     });
 
@@ -84,9 +85,9 @@ describe("authorization", () => {
     expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowedPatterns)("not allowed %o %o", async ({ token }, { id }) => {
+  test.each(notAllowedPatterns)("not allowed %o %o", async (user, { id }) => {
     const { data, errors } = await executeMutation({
-      token,
+      user,
       variables: { ...variables, userId: id },
     });
 

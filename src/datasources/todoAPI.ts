@@ -7,7 +7,6 @@ import {
 
 import type { Todo, User } from "@/types";
 import { todoId } from "@/utils";
-import { PrismaDataSource } from "./abstracts";
 
 export type GetUserTodosParams = ConnectionArguments & {
   userId: User["id"];
@@ -36,7 +35,9 @@ export type DeleteTodoParams = {
   id: Todo["id"];
 };
 
-export class TodoAPI extends PrismaDataSource {
+export class TodoAPI {
+  constructor(private prisma: Prisma.PrismaClient) {}
+
   async getsUserTodos({ userId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
     const userPromise = this.prisma.user.findUniqueOrThrow({
       where: { id: userId },

@@ -1,4 +1,3 @@
-import { prisma } from "it/prisma";
 import { parseEnvVars, makeServer } from "@/utils";
 
 const envs = parseEnvVars(process.env);
@@ -11,4 +10,4 @@ const envs = parseEnvVars(process.env);
  * 注意: サーバのインメモリキャッシュを使う場合はキャッシュを共有することになる。
  * 他のテストケースで発生したキャッシュの影響を受けたくない場合は別途サーバインスタンスを作成すること。
  */
-export const server = makeServer({ ...envs, prisma });
+export const server = makeServer(envs);

@@ -1,61 +1,23 @@
-import type { PrismaClient } from "@prisma/client";
+import { ApolloServer } from "@apollo/server";
 import omit from "lodash/omit";
 import depthLimit from "graphql-depth-limit";
 import { applyMiddleware } from "graphql-middleware";
 import { createComplexityLimitRule } from "graphql-validation-complexity";
-import { ApolloError, ApolloServer } from "apollo-server";
 
-import { Context, ErrorCode } from "@/types";
-import { TodoAPI, UserAPI } from "@/datasources";
+import type { Context } from "@/types";
 import { middlewares } from "@/middlewares";
-import { plugins } from "@/plugins";
 import { schema } from "@/schema";
-import { isIntrospectionQuery, makeLogger, NodeEnv } from "@/utils";
+import { isIntrospectionQuery } from "./graphql";
 
 type MakeServerParams = {
   maxDepth: number;
   maxCost: number;
   alertCost: number;
-  nodeEnv: NodeEnv;
-  prisma: PrismaClient;
 };
 
-export const makeServer = ({ maxDepth, maxCost, alertCost, nodeEnv, prisma }: MakeServerParams) =>
-  new ApolloServer({
+export const makeServer = ({ maxDepth, maxCost, alertCost }: MakeServerParams) =>
+  new ApolloServer<Context>({
     schema: applyMiddleware(schema, ...middlewares),
-    context: async ({ req }) => {
-      const { query } = req.body as { query: string | undefined };
-
-      if (query && isIntrospectionQuery(query)) {
-        return {};
-      }
-
-      const logger = makeLogger(nodeEnv);
-      const token = req.headers.authorization?.replace("Bearer ", "");
-
-      let user;
-
-      if (token) {
-        const maybeUser = await prisma.user.findUnique({ where: { token } });
-
-        if (!maybeUser) {
-          // AuthenticationError を使わないのは code をカスタムする為
-          // AuthenticationError だと code が UNAUTHENTICATED になる
-          // この API は認証なしでもゲストとして使えるので、UNAUTHENTICATED だと意味がおかしい
-          throw new ApolloError("Authentication error", ErrorCode.AuthenticationError);
-        }
-
-        user = maybeUser;
-      } else {
-        user = { id: "GUEST_DUMMY_ID", role: "GUEST" };
-      }
-
-      return { logger, user } as Omit<Context, "dataSources">;
-    },
-    dataSources: () => ({
-      todoAPI: new TodoAPI(prisma),
-      userAPI: new UserAPI(prisma),
-    }),
     validationRules: [
       depthLimit(maxDepth),
       createComplexityLimitRule(maxCost, {
@@ -65,22 +27,6 @@ export const makeServer = ({ maxDepth, maxCost, alertCost, nodeEnv, prisma }: Ma
         },
       }),
     ],
-    formatResponse: (response, requestContext) => {
-      // 脆弱性対策: https://qiita.com/tnishi97/items/9fb9b2e69689fbfb52e3
-      if (requestContext.response?.http) {
-        const headersForSecurity = new Map<string, string>()
-          .set("Cache-Control", "no-store") // キャッシュ漏洩
-          .set("X-Content-Type-Options", "nosniff") // XSS
-          .set("X-Frame-Options", "DENY") // クリックジャッキング
-          .set("Strict-Transport-Security", "max-age=31536000; includeSubdomains"); // https
-
-        for (const [key, value] of headersForSecurity) {
-          requestContext.response.http.headers.set(key, value);
-        }
-      }
-
-      return response;
-    },
     formatError: error => {
       // message で内部実装がバレ得るのでマスクする
       if (error.message.startsWith("Context creation failed: ")) {
@@ -94,5 +40,35 @@ export const makeServer = ({ maxDepth, maxCost, alertCost, nodeEnv, prisma }: Ma
     cache: undefined,
     // requestId を埋め込みたいのでコンテキストにセットしている
     logger: undefined,
-    plugins,
+    plugins: [
+      {
+        async requestDidStart({ contextValue, request }) {
+          const { logger, user } = contextValue;
+          const { query, variables } = request;
+
+          if (query && !isIntrospectionQuery(query)) {
+            logger.info({ userId: user.id, query, variables }, "request info");
+          }
+
+          return {
+            didEncounterErrors: async ({ contextValue: context, errors }) => {
+              for (const error of errors) {
+                context.logger.error(error, "error info");
+              }
+            },
+            async willSendResponse({ response }) {
+              // 脆弱性対策: https://qiita.com/tnishi97/items/9fb9b2e69689fbfb52e3
+              const headersForSecurity = new Map<string, string>()
+                .set("X-Content-Type-Options", "nosniff") // XSS
+                .set("X-Frame-Options", "DENY") // クリックジャッキング
+                .set("Strict-Transport-Security", "max-age=31536000; includeSubdomains"); // https
+
+              for (const [key, value] of headersForSecurity) {
+                response.http.headers.set(key, value);
+              }
+            },
+          };
+        },
+      },
+    ],
   });
