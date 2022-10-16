@@ -1,5 +1,5 @@
 import { NonEmptyStringTypeDefinition, DateTimeTypeDefinition } from "graphql-scalars";
-import { gql } from "apollo-server";
+import { gql } from "graphql-tag";
 
 import * as nodes from "@/nodes";
 

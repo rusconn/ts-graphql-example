@@ -1,14 +1,14 @@
-import type { GraphQLFormattedError } from "graphql";
+import { gql } from "graphql-tag";
 import range from "lodash/range";
-import { gql } from "apollo-server";
 
 import type { TodosQuery, TodosQueryVariables } from "it/types";
+import { defaultContext } from "it/context";
 import { admin, adminTodo1, adminTodo2, adminTodo3, alice, bob, guest } from "it/data";
-import { makeContext, clearTables } from "it/helpers";
+import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { server } from "it/server";
 import { todoId } from "@/utils";
-import { ErrorCode, User, OrderDirection, TodoOrderField } from "@/types";
+import { Context, ErrorCode, OrderDirection, TodoOrderField } from "@/types";
 
 const users = [admin, alice, bob];
 const todos = [adminTodo1, adminTodo2, adminTodo3];
@@ -53,28 +53,29 @@ const query = gql`
   }
 `;
 
-type ResponseType = {
-  data?: TodosQuery | null;
-  errors?: ReadonlyArray<GraphQLFormattedError>;
-};
-
 type ExecuteQueryParams = {
-  token?: User["token"];
+  user?: Context["user"];
   variables?: TodosQueryVariables;
 };
 
 /**
- * token のデフォルトは admin.token
- * @param params token の上書きや variables の指定に使う
+ * user のデフォルトは admin
+ * @param params user の上書きや variables の指定に使う
  */
-const executeQuery = (params: ExecuteQueryParams) => {
-  const token = params && "token" in params ? params.token : admin.token;
-  const variables = params?.variables;
+const executeQuery = async (params: ExecuteQueryParams) => {
+  const user = params.user ?? admin;
+  const { variables } = params;
 
-  return server.executeOperation(
+  const res = await server.executeOperation<TodosQuery>(
     { query, variables },
-    makeContext({ query, token })
-  ) as Promise<ResponseType>;
+    { contextValue: { ...defaultContext, user } }
+  );
+
+  if (res.body.kind !== "single") {
+    throw new Error("not single");
+  }
+
+  return res.body.singleResult;
 };
 
 beforeAll(async () => {
@@ -97,16 +98,16 @@ describe("authorization", () => {
     [guest, alice],
   ] as const;
 
-  test.each(allowedPatterns)("allowed %s", async ({ token }, { id }) => {
-    const { data, errors } = await executeQuery({ token, variables: { userId: id } });
+  test.each(allowedPatterns)("allowed %s", async (user, { id }) => {
+    const { data, errors } = await executeQuery({ user, variables: { userId: id } });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.todos).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowedPatterns)("not allowed %s", async ({ token }, { id }) => {
-    const { data, errors } = await executeQuery({ token, variables: { userId: id } });
+  test.each(notAllowedPatterns)("not allowed %s", async (user, { id }) => {
+    const { data, errors } = await executeQuery({ user, variables: { userId: id } });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.todos).toBeFalsy();

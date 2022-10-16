@@ -1,5 +1,5 @@
+import { GraphQLError } from "graphql";
 import { shield } from "graphql-shield";
-import { ApolloError, UserInputError } from "apollo-server";
 import { Prisma } from "@prisma/client";
 
 import * as DataSource from "@/datasources";
@@ -13,35 +13,44 @@ const permissionAndErrorMiddleware = shield(permissions, {
   fallbackError: (thrown, _parent, _args, _context, _info) => {
     // 想定通りの例外が起きた
     if (thrown instanceof ParseError) {
-      throw new UserInputError(thrown.message, { thrown });
+      throw new GraphQLError(thrown.message, {
+        originalError: thrown,
+        extensions: { code: ErrorCode.BadUserInput },
+      });
     }
 
     // Prisma の throw 系は Prisma のミドルウェアで拾えない？のでここで拾う
     if (thrown instanceof Prisma.NotFoundError) {
-      throw new ApolloError("Not found", ErrorCode.NotFound, { thrown });
+      throw new GraphQLError("Not found", {
+        originalError: thrown,
+        extensions: { code: ErrorCode.NotFound },
+      });
     }
 
     // 想定通りの例外が起きた
     if (thrown instanceof DataSource.NotFoundError) {
-      throw new ApolloError("Not found", ErrorCode.NotFound, { thrown });
+      throw new GraphQLError("Not found", {
+        originalError: thrown,
+        extensions: { code: ErrorCode.NotFound },
+      });
     }
 
     // その他想定通りの例外が起きた
-    if (thrown instanceof ApolloError) {
+    if (thrown instanceof GraphQLError) {
       return thrown;
     }
 
     // 想定外の例外が起きた
     if (thrown instanceof Error) {
-      return new ApolloError("Internal server error", ErrorCode.InternalServerError, {
-        // オブジェクトにしないと pino のログが {} に化ける
-        thrown: { name: thrown.name, stack: thrown.stack },
+      return new GraphQLError("Internal server error", {
+        originalError: thrown,
+        extensions: { code: ErrorCode.InternalServerError },
       });
     }
 
     // エラーでは無いものが投げられた
-    return new ApolloError("Internal server error", ErrorCode.InternalServerError, {
-      thrown,
+    return new GraphQLError("Internal server error", {
+      extensions: { code: ErrorCode.InternalServerError, thrown },
     });
   },
 });

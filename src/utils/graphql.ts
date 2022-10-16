@@ -1,5 +1,5 @@
 import { DocumentNode, getOperationAST } from "graphql";
-import { gql } from "apollo-server";
+import { gql } from "graphql-tag";
 
 import type { Type } from "./ids";
 

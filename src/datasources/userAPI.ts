@@ -7,7 +7,6 @@ import {
 
 import type { User } from "@/types";
 import { userId } from "@/utils";
-import { PrismaDataSource } from "./abstracts";
 
 export type GetUsersParams = ConnectionArguments & {
   orderBy: Exclude<Prisma.Prisma.UserFindManyArgs["orderBy"], undefined>;
@@ -31,7 +30,9 @@ export type DeleteUserParams = {
   id: User["id"];
 };
 
-export class UserAPI extends PrismaDataSource {
+export class UserAPI {
+  constructor(private prisma: Prisma.PrismaClient) {}
+
   async gets({ info, orderBy, ...paginationArgs }: GetUsersParams) {
     return findManyCursorConnection<Prisma.User>(
       args => this.prisma.user.findMany({ ...args, orderBy }),

@@ -1,14 +1,14 @@
-import type { GraphQLFormattedError } from "graphql";
+import { gql } from "graphql-tag";
 import range from "lodash/range";
-import { gql } from "apollo-server";
 
 import type { UsersQuery, UsersQueryVariables } from "it/types";
+import { defaultContext } from "it/context";
 import { admin, alice, bob, guest } from "it/data";
-import { makeContext, clearTables } from "it/helpers";
+import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { server } from "it/server";
 import { userId } from "@/utils";
-import { ErrorCode, User, OrderDirection, UserOrderField } from "@/types";
+import { ErrorCode, OrderDirection, UserOrderField, Context } from "@/types";
 
 const users = [admin, alice, bob];
 
@@ -36,28 +36,29 @@ const query = gql`
   }
 `;
 
-type ResponseType = {
-  data?: UsersQuery | null;
-  errors?: ReadonlyArray<GraphQLFormattedError>;
-};
-
 type ExecuteQueryParams = {
-  token?: User["token"];
+  user?: Context["user"];
   variables?: UsersQueryVariables;
 };
 
 /**
- * token のデフォルトは admin.token
- * @param params token の上書きや variables の指定に使う
+ * user のデフォルトは admin
+ * @param params user の上書きや variables の指定に使う
  */
-const executeQuery = (params?: ExecuteQueryParams) => {
-  const token = params && "token" in params ? params.token : admin.token;
-  const variables = params?.variables;
+const executeQuery = async (params: ExecuteQueryParams) => {
+  const user = params.user ?? admin;
+  const { variables } = params;
 
-  return server.executeOperation(
+  const res = await server.executeOperation<UsersQuery>(
     { query, variables },
-    makeContext({ query, token })
-  ) as Promise<ResponseType>;
+    { contextValue: { ...defaultContext, user } }
+  );
+
+  if (res.body.kind !== "single") {
+    throw new Error("not single");
+  }
+
+  return res.body.singleResult;
 };
 
 beforeAll(async () => {
@@ -69,16 +70,16 @@ describe("authorization", () => {
   const alloweds = [admin];
   const notAlloweds = [alice, bob, guest];
 
-  test.each(alloweds)("allowed %s", async ({ token }) => {
-    const { data, errors } = await executeQuery({ token });
+  test.each(alloweds)("allowed %s", async user => {
+    const { data, errors } = await executeQuery({ user });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.users).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.Forbidden]));
   });
 
-  test.each(notAlloweds)("not allowed %s", async ({ token }) => {
-    const { data, errors } = await executeQuery({ token });
+  test.each(notAlloweds)("not allowed %s", async user => {
+    const { data, errors } = await executeQuery({ user });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.users).toBeFalsy();
@@ -143,7 +144,7 @@ describe("number of items", () => {
     await prisma.user.createMany({ data: additionals });
 
     const numUsers = await prisma.user.count();
-    const { data } = await executeQuery();
+    const { data } = await executeQuery({});
 
     expect(numUsers).toBe(numDefault + 1);
     expect(data?.users.edges).toHaveLength(numDefault);
