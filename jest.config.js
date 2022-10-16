@@ -1,10 +1,7 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
-  preset: "ts-jest",
   testEnvironment: "node",
-  // これがあると速くなる
   transform: {
-    "^.+\\.tsx?$": ["ts-jest", { isolatedModules: true }],
+    "^.+\\.ts$": ["@swc/jest"],
   },
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
