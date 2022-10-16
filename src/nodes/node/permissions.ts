@@ -5,9 +5,7 @@ import * as DataSource from "@/datasources";
 import { permissionError, isAdmin, isAuthenticated, isUserId, isTodoId } from "@/utils";
 
 const isOwner = rule({ cache: "strict" })(
-  async (_, { id }: QueryNodeArgs, { logger, user, dataSources }: Context) => {
-    logger.debug("node isOwner called");
-
+  async (_, { id }: QueryNodeArgs, { user, dataSources }: Context) => {
     try {
       if (isUserId(id)) {
         return id === user.id || permissionError;

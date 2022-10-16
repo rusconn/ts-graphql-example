@@ -19,8 +19,7 @@ type QueryOrUpdateOrDeleteTodosArgs =
 type Parent = ResolversParentTypes["Todo"];
 
 const isTodosOwner = rule({ cache: "strict" })(
-  (_, { userId }: QueryTodosArgs, { logger, user }: Context) => {
-    logger.debug("todo isTodosOwner called");
+  (_, { userId }: QueryTodosArgs, { user }: Context) => {
     return userId === user.id || permissionError;
   }
 );
@@ -29,10 +28,8 @@ const isTodoOwner = rule({ cache: "strict" })(
   async (
     _,
     { id }: QueryOrUpdateOrDeleteTodosArgs,
-    { logger, user, dataSources: { todoAPI } }: Context
+    { user, dataSources: { todoAPI } }: Context
   ) => {
-    logger.debug("todo isTodoOwner called");
-
     let todo;
 
     try {
@@ -50,14 +47,12 @@ const isTodoOwner = rule({ cache: "strict" })(
 );
 
 const isMine = rule({ cache: "strict" })(
-  (_, { userId }: MutationCreateTodoArgs, { logger, user }: Context) => {
-    logger.debug("todo isMine called");
+  (_, { userId }: MutationCreateTodoArgs, { user }: Context) => {
     return userId === user.id || permissionError;
   }
 );
 
-const isSelf = rule({ cache: "strict" })(({ userId }: Parent, _, { logger, user }: Context) => {
-  logger.debug("todo isSelf called");
+const isSelf = rule({ cache: "strict" })(({ userId }: Parent, _, { user }: Context) => {
   return userId === user.id || permissionError;
 });
 

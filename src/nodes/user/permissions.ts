@@ -13,14 +13,12 @@ type QueryOrUpdateOrDeleteArgs = QueryUserArgs | MutationUpdateUserArgs | Mutati
 type Parent = ResolversParentTypes["User"];
 
 const isSelf = rule({ cache: "strict" })(
-  (_, { id }: QueryOrUpdateOrDeleteArgs, { logger, user }: Context) => {
-    logger.debug("user isSelf called");
+  (_, { id }: QueryOrUpdateOrDeleteArgs, { user }: Context) => {
     return id === user.id || permissionError;
   }
 );
 
-const isOwner = rule({ cache: "strict" })(({ id }: Parent, _, { logger, user }: Context) => {
-  logger.debug("user isOwner called");
+const isOwner = rule({ cache: "strict" })(({ id }: Parent, _, { user }: Context) => {
   return id === user.id || permissionError;
 });
 
