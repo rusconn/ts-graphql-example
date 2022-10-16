@@ -2,7 +2,6 @@ import { gql } from "graphql-tag";
 import omit from "lodash/omit";
 
 import type { UncompleteTodoMutation, UncompleteTodoMutationVariables } from "it/types";
-import { defaultContext } from "it/context";
 import {
   admin,
   adminTodo1,
@@ -18,8 +17,8 @@ import {
 } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { server } from "it/server";
-import { Context, ErrorCode, TodoStatus } from "@/types";
+import { executeSingleResultOperation } from "it/server";
+import { ErrorCode, TodoStatus } from "@/types";
 
 const users = [admin, alice, bob];
 const todos = [adminTodo1, adminTodo2, adminTodo3, aliceTodo, bobTodo];
@@ -45,30 +44,10 @@ const query = gql`
   }
 `;
 
-type ExecuteQueryParams = {
-  user?: Context["user"];
-  variables: UncompleteTodoMutationVariables;
-};
-
-/**
- * user のデフォルトは admin
- * @param params user の上書きや variables の指定に使う
- */
-const executeMutation = async (params: ExecuteQueryParams) => {
-  const user = params.user ?? admin;
-  const { variables } = params;
-
-  const res = await server.executeOperation<UncompleteTodoMutation>(
-    { query, variables },
-    { contextValue: { ...defaultContext, user } }
-  );
-
-  if (res.body.kind !== "single") {
-    throw new Error("not single");
-  }
-
-  return res.body.singleResult;
-};
+const executeMutation = executeSingleResultOperation(query)<
+  UncompleteTodoMutation,
+  UncompleteTodoMutationVariables
+>;
 
 beforeAll(async () => {
   await clearTables();

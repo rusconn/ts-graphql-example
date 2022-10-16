@@ -2,7 +2,6 @@ import { gql } from "graphql-tag";
 import omit from "lodash/omit";
 
 import type { TodoQuery, TodoQueryVariables } from "it/types";
-import { defaultContext } from "it/context";
 import {
   admin,
   alice,
@@ -18,9 +17,9 @@ import {
 } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { server } from "it/server";
+import { executeSingleResultOperation } from "it/server";
 import { todoId } from "@/utils";
-import { Context, ErrorCode } from "@/types";
+import { ErrorCode } from "@/types";
 
 const users = [admin, alice, bob];
 const todos = [adminTodo1, adminTodo2, adminTodo3, aliceTodo, bobTodo];
@@ -49,30 +48,7 @@ const query = gql`
   }
 `;
 
-type ExecuteQueryParams = {
-  user?: Context["user"];
-  variables: TodoQueryVariables;
-};
-
-/**
- * user のデフォルトは admin
- * @param params user の上書きや variables の指定に使う
- */
-const executeQuery = async (params: ExecuteQueryParams) => {
-  const user = params.user ?? admin;
-  const { variables } = params;
-
-  const res = await server.executeOperation<TodoQuery>(
-    { query, variables },
-    { contextValue: { ...defaultContext, user } }
-  );
-
-  if (res.body.kind !== "single") {
-    throw new Error("not single");
-  }
-
-  return res.body.singleResult;
-};
+const executeQuery = executeSingleResultOperation(query)<TodoQuery, TodoQueryVariables>;
 
 beforeAll(async () => {
   await clearTables();

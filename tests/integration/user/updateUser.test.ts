@@ -2,13 +2,12 @@ import { gql } from "graphql-tag";
 import omit from "lodash/omit";
 
 import type { UpdateUserMutation, UpdateUserMutationVariables } from "it/types";
-import { defaultContext } from "it/context";
 import { admin, alice, bob, guest, invalidUserIds, validUserIds } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
-import { server } from "it/server";
+import { executeSingleResultOperation } from "it/server";
 import { nonEmptyString } from "@/utils";
-import { Context, ErrorCode } from "@/types";
+import { ErrorCode } from "@/types";
 
 const seedUsers = () => prisma.user.createMany({ data: [admin, alice, bob] });
 
@@ -22,30 +21,10 @@ const query = gql`
   }
 `;
 
-type ExecuteQueryParams = {
-  user?: Context["user"];
-  variables: UpdateUserMutationVariables;
-};
-
-/**
- * user のデフォルトは admin
- * @param params user の上書きや variables の指定に使う
- */
-const executeMutation = async (params: ExecuteQueryParams) => {
-  const user = params.user ?? admin;
-  const { variables } = params;
-
-  const res = await server.executeOperation<UpdateUserMutation>(
-    { query, variables },
-    { contextValue: { ...defaultContext, user } }
-  );
-
-  if (res.body.kind !== "single") {
-    throw new Error("not single");
-  }
-
-  return res.body.singleResult;
-};
+const executeMutation = executeSingleResultOperation(query)<
+  UpdateUserMutation,
+  UpdateUserMutationVariables
+>;
 
 beforeAll(async () => {
   await clearTables();
