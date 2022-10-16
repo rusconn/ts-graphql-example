@@ -3,23 +3,19 @@ import { rule } from "graphql-shield";
 
 import { Context, ErrorCode } from "@/types";
 
-export const isAdmin = rule({ cache: "contextual" })((_, __, { logger, user }: Context) => {
-  logger.debug("isAdmin called");
+export const isAdmin = rule({ cache: "contextual" })((_, __, { user }: Context) => {
   return user.role === "ADMIN" || permissionError;
 });
 
-export const isUser = rule({ cache: "contextual" })((_, __, { logger, user }: Context) => {
-  logger.debug("isUser called");
+export const isUser = rule({ cache: "contextual" })((_, __, { user }: Context) => {
   return user.role === "USER" || permissionError;
 });
 
-export const isGuest = rule({ cache: "contextual" })((_, __, { logger, user }: Context) => {
-  logger.debug("isGuest called");
+export const isGuest = rule({ cache: "contextual" })((_, __, { user }: Context) => {
   return user.role === "GUEST" || permissionError;
 });
 
-export const isAuthenticated = rule({ cache: "contextual" })((_, __, { logger, user }: Context) => {
-  logger.debug("isAuthenticated called");
+export const isAuthenticated = rule({ cache: "contextual" })((_, __, { user }: Context) => {
   return user.role !== "GUEST" || permissionError;
 });
 

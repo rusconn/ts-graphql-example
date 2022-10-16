@@ -19,9 +19,7 @@ export const resolvers: Resolvers = {
     },
   },
   Node: {
-    __resolveType: (node, { logger }) => {
-      logger.debug({ node }, "node resolved");
-
+    __resolveType: node => {
       if ("title" in node) {
         return "Todo";
       }
