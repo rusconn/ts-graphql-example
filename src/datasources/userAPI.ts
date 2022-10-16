@@ -1,15 +1,14 @@
-import type * as Prisma from "@prisma/client";
+import type { Prisma, PrismaClient, User } from "@prisma/client";
 import type { GraphQLResolveInfo } from "graphql";
 import {
   ConnectionArguments,
   findManyCursorConnection,
 } from "@devoxa/prisma-relay-cursor-connection";
 
-import type { User } from "@/types";
 import { userId } from "@/utils";
 
 export type GetUsersParams = ConnectionArguments & {
-  orderBy: Exclude<Prisma.Prisma.UserFindManyArgs["orderBy"], undefined>;
+  orderBy: Exclude<Prisma.UserFindManyArgs["orderBy"], undefined>;
   info: GraphQLResolveInfo;
 };
 
@@ -31,10 +30,10 @@ export type DeleteUserParams = {
 };
 
 export class UserAPI {
-  constructor(private prisma: Prisma.PrismaClient) {}
+  constructor(private prisma: PrismaClient) {}
 
   async gets({ info, orderBy, ...paginationArgs }: GetUsersParams) {
-    return findManyCursorConnection<Prisma.User>(
+    return findManyCursorConnection<User>(
       args => this.prisma.user.findMany({ ...args, orderBy }),
       () => this.prisma.user.count(),
       paginationArgs,

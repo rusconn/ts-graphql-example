@@ -1,16 +1,15 @@
-import type * as Prisma from "@prisma/client";
+import type { Prisma, PrismaClient, User, Todo } from "@prisma/client";
 import type { GraphQLResolveInfo } from "graphql";
 import {
   ConnectionArguments,
   findManyCursorConnection,
 } from "@devoxa/prisma-relay-cursor-connection";
 
-import type { Todo, User } from "@/types";
 import { todoId } from "@/utils";
 
 export type GetUserTodosParams = ConnectionArguments & {
   userId: User["id"];
-  orderBy: Exclude<Prisma.Prisma.TodoFindManyArgs["orderBy"], undefined>;
+  orderBy: Exclude<Prisma.TodoFindManyArgs["orderBy"], undefined>;
   info: GraphQLResolveInfo;
 };
 
@@ -36,14 +35,14 @@ export type DeleteTodoParams = {
 };
 
 export class TodoAPI {
-  constructor(private prisma: Prisma.PrismaClient) {}
+  constructor(private prisma: PrismaClient) {}
 
   async getsUserTodos({ userId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
     const userPromise = this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
     });
 
-    return findManyCursorConnection<Prisma.Todo, Pick<Prisma.Todo, "id">>(
+    return findManyCursorConnection<Todo, Pick<Todo, "id">>(
       async args => userPromise.todos({ ...args, orderBy }),
       async () => (await userPromise.todos()).length,
       paginationArgs,
