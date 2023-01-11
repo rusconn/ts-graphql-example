@@ -1,6 +1,5 @@
 import { GraphQLError } from "graphql";
 import { shield } from "graphql-shield";
-import { Prisma } from "@prisma/client";
 
 import * as DataSource from "@/datasources";
 import { ErrorCode } from "@/types";
@@ -16,14 +15,6 @@ const permissionAndErrorMiddleware = shield(permissions, {
       throw new GraphQLError(thrown.message, {
         originalError: thrown,
         extensions: { code: ErrorCode.BadUserInput },
-      });
-    }
-
-    // Prisma の throw 系は Prisma のミドルウェアで拾えない？のでここで拾う
-    if (thrown instanceof Prisma.NotFoundError) {
-      throw new GraphQLError("Not found", {
-        originalError: thrown,
-        extensions: { code: ErrorCode.NotFound },
       });
     }
 
