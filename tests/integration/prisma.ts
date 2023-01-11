@@ -1,4 +1,4 @@
-import { makePrismaClient } from "@/utils";
+import { makePrismaClient } from "@/server/utils";
 
 /**
  * テスト用の Prisma クライアント

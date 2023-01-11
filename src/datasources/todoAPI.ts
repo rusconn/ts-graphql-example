@@ -5,7 +5,7 @@ import {
   findManyCursorConnection,
 } from "@devoxa/prisma-relay-cursor-connection";
 
-import { todoId } from "@/utils";
+import { todoId } from "@/ids";
 
 export type GetUserTodosParams = ConnectionArguments & {
   userId: User["id"];

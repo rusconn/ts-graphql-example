@@ -2,8 +2,8 @@ import type { DocumentNode } from "graphql";
 
 import { defaultContext } from "it/context";
 import { admin } from "it/data";
-import type { Context } from "@/types";
-import { parseEnvVars, makeServer } from "@/utils";
+import type { Context } from "@/server/types";
+import { parseEnvVars, makeServer } from "@/server/utils";
 
 const envs = parseEnvVars(process.env);
 

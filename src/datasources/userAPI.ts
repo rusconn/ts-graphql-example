@@ -5,7 +5,7 @@ import {
   findManyCursorConnection,
 } from "@devoxa/prisma-relay-cursor-connection";
 
-import { userId } from "@/utils";
+import { userId } from "@/ids";
 
 export type GetUsersParams = ConnectionArguments & {
   orderBy: Exclude<Prisma.UserFindManyArgs["orderBy"], undefined>;

@@ -1,12 +1,10 @@
-import { Role } from "@prisma/client";
-
-import { TodoStatus } from "@/types";
-import { nonEmptyString } from "@/utils";
+import { Graph } from "@/graphql/types";
+import { nonEmptyString } from "@/graphql/utils";
 
 export const admin = {
   id: "User:a4kxogX92Wxe-kbUfDRX7",
   name: nonEmptyString("Admin"),
-  role: Role.ADMIN,
+  role: Graph.Role.Admin,
   token: nonEmptyString("admin token"),
   createdAt: new Date(0),
   updatedAt: new Date(3),
@@ -15,7 +13,7 @@ export const admin = {
 export const alice = {
   id: "User:bYzHPCFPTkTPHNbCBkh8H",
   name: nonEmptyString("Alice"),
-  role: Role.USER,
+  role: Graph.Role.User,
   token: nonEmptyString("alice token"),
   createdAt: new Date(1),
   updatedAt: new Date(1),
@@ -24,7 +22,7 @@ export const alice = {
 export const bob = {
   id: "User:cuEgH4iyoMMm6CzhWLR9S",
   name: nonEmptyString("Bob"),
-  role: Role.USER,
+  role: Graph.Role.User,
   token: nonEmptyString("bob token"),
   createdAt: new Date(2),
   updatedAt: new Date(2),
@@ -33,7 +31,7 @@ export const bob = {
 export const guest = {
   id: "User:d9QWU0PPanh9HAWqdYRLx",
   name: nonEmptyString("Guest"),
-  role: Role.GUEST,
+  role: Graph.Role.Guest,
   token: undefined,
   createdAt: undefined,
   updatedAt: undefined,
@@ -45,7 +43,7 @@ export const adminTodo1 = {
   createdAt: new Date(1),
   updatedAt: new Date(6),
   description: "admin todo 1",
-  status: TodoStatus.Pending,
+  status: Graph.TodoStatus.Pending,
   userId: admin.id,
 } as const;
 
@@ -55,7 +53,7 @@ export const adminTodo2 = {
   createdAt: new Date(2),
   updatedAt: new Date(2),
   description: "admin todo 2",
-  status: TodoStatus.Pending,
+  status: Graph.TodoStatus.Pending,
   userId: admin.id,
 } as const;
 
@@ -65,7 +63,7 @@ export const adminTodo3 = {
   createdAt: new Date(3),
   updatedAt: new Date(3),
   description: "admin todo 3",
-  status: TodoStatus.Pending,
+  status: Graph.TodoStatus.Pending,
   userId: admin.id,
 } as const;
 
@@ -75,7 +73,7 @@ export const aliceTodo = {
   createdAt: new Date(4),
   updatedAt: new Date(4),
   description: "alice todo 1",
-  status: TodoStatus.Pending,
+  status: Graph.TodoStatus.Pending,
   userId: alice.id,
 } as const;
 
@@ -85,7 +83,7 @@ export const bobTodo = {
   createdAt: new Date(5),
   updatedAt: new Date(5),
   description: "bob todo 1",
-  status: TodoStatus.Pending,
+  status: Graph.TodoStatus.Pending,
   userId: bob.id,
 } as const;
 
