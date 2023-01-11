@@ -1,18 +1,23 @@
+import { toSchemaUser, toSchemaTodo } from "@/adapters";
 import type { Resolvers } from "@/types";
 import { isTodoId, isUserId } from "@/utils";
 import { parsers } from "./parsers";
 
 export const resolvers: Resolvers = {
   Query: {
-    node: (_, args, { dataSources: { todoAPI, userAPI } }) => {
+    node: async (_, args, { dataSources: { todoAPI, userAPI } }) => {
       const parsed = parsers.Query.node(args);
 
       if (isUserId(parsed.id)) {
-        return userAPI.get({ id: parsed.id });
+        const user = await userAPI.get({ id: parsed.id });
+
+        return toSchemaUser(user);
       }
 
       if (isTodoId(parsed.id)) {
-        return todoAPI.get({ id: parsed.id });
+        const todo = await todoAPI.get({ id: parsed.id });
+
+        return toSchemaTodo(todo);
       }
 
       return null;

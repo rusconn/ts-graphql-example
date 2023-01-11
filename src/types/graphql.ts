@@ -1,7 +1,7 @@
 import type { DateTime } from '@/utils';
 import type { NonEmptyString } from '@/utils';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import type { User as UserModel, Todo as TodoModel } from '@prisma/client';
+import type { User as UserMapped, Todo as TodoMapped } from '@/types/mappers';
 import type { Context } from '@/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null | undefined;
@@ -349,7 +349,7 @@ export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   Role: Role;
   String: ResolverTypeWrapper<Scalars['String']>;
-  Todo: ResolverTypeWrapper<TodoModel>;
+  Todo: ResolverTypeWrapper<TodoMapped>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['TodoEdge']>, nodes: Array<ResolversTypes['Todo']> }>;
   TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node: ResolversTypes['Todo'] }>;
   TodoOrder: TodoOrder;
@@ -357,7 +357,7 @@ export type ResolversTypes = ResolversObject<{
   TodoStatus: TodoStatus;
   UpdateTodoInput: UpdateTodoInput;
   UpdateUserInput: UpdateUserInput;
-  User: ResolverTypeWrapper<UserModel>;
+  User: ResolverTypeWrapper<UserMapped>;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['UserEdge']>, nodes: Array<ResolversTypes['User']> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: ResolversTypes['User'] }>;
   UserOrder: UserOrder;
@@ -378,13 +378,13 @@ export type ResolversParentTypes = ResolversObject<{
   PageInfo: PageInfo;
   Query: {};
   String: Scalars['String'];
-  Todo: TodoModel;
+  Todo: TodoMapped;
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['TodoEdge']>, nodes: Array<ResolversParentTypes['Todo']> };
   TodoEdge: Omit<TodoEdge, 'node'> & { node: ResolversParentTypes['Todo'] };
   TodoOrder: TodoOrder;
   UpdateTodoInput: UpdateTodoInput;
   UpdateUserInput: UpdateUserInput;
-  User: UserModel;
+  User: UserMapped;
   UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['UserEdge']>, nodes: Array<ResolversParentTypes['User']> };
   UserEdge: Omit<UserEdge, 'node'> & { node: ResolversParentTypes['User'] };
   UserOrder: UserOrder;

@@ -10,10 +10,10 @@ typescript: &typescript
 typescript-resolvers: &typescript-resolvers
   useIndexSignature: true
   contextType: "@/types#Context"
-  mapperTypeSuffix: Model
+  mapperTypeSuffix: Mapped # prefix がなかったため suffix
   mappers:
-    User: "@prisma/client#User"
-    Todo: "@prisma/client#Todo"
+    User: "@/types/mappers#User"
+    Todo: "@/types/mappers#Todo"
 
 typescript-operations: &typescript-operations
   onlyOperationTypes: true
