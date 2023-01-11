@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient, User, Todo } from "@prisma/client";
+import { Prisma, PrismaClient, User, Todo, TodoStatus } from "@prisma/client";
 import type { GraphQLResolveInfo } from "graphql";
 import {
   ConnectionArguments,
@@ -34,6 +34,14 @@ export type DeleteTodoParams = {
   id: Todo["id"];
 };
 
+export type CompleteTodoParams = {
+  id: Todo["id"];
+};
+
+export type UncompleteTodoParams = {
+  id: Todo["id"];
+};
+
 export class TodoAPI {
   constructor(private prisma: PrismaClient) {}
 
@@ -64,5 +72,13 @@ export class TodoAPI {
 
   async delete({ id }: DeleteTodoParams) {
     return this.prisma.todo.delete({ where: { id } });
+  }
+
+  async complete({ id }: CompleteTodoParams) {
+    return this.prisma.todo.update({ where: { id }, data: { status: TodoStatus.DONE } });
+  }
+
+  async uncomplete({ id }: UncompleteTodoParams) {
+    return this.prisma.todo.update({ where: { id }, data: { status: TodoStatus.PENDING } });
   }
 }

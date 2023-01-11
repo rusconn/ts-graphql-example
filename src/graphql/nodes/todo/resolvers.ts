@@ -1,5 +1,5 @@
 import { toUserNode, toTodoNode, toTodoNodes } from "@/adapters";
-import { Graph } from "@/graphql/types";
+import type { Graph } from "@/graphql/types";
 import { parsers } from "./parsers";
 
 export const resolvers: Graph.Resolvers = {
@@ -44,14 +44,14 @@ export const resolvers: Graph.Resolvers = {
     completeTodo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.completeTodo(args);
 
-      const todo = await todoAPI.update({ ...parsed, status: Graph.TodoStatus.Done });
+      const todo = await todoAPI.complete(parsed);
 
       return toTodoNode(todo);
     },
     uncompleteTodo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.uncompleteTodo(args);
 
-      const todo = await todoAPI.update({ ...parsed, status: Graph.TodoStatus.Pending });
+      const todo = await todoAPI.uncomplete(parsed);
 
       return toTodoNode(todo);
     },
