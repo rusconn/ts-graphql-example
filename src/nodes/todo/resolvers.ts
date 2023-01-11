@@ -1,49 +1,66 @@
+import { toSchemaUser, toSchemaTodo, toSchemaTodos } from "@/adapters";
 import { Resolvers, TodoStatus } from "@/types";
 import { parsers } from "./parsers";
 
 export const resolvers: Resolvers = {
   Query: {
-    todos: (_, args, { dataSources: { todoAPI } }, info) => {
+    todos: async (_, args, { dataSources: { todoAPI } }, info) => {
       const parsed = parsers.Query.todos(args);
 
-      return todoAPI.getsUserTodos({ ...parsed, info });
+      const todos = await todoAPI.getsUserTodos({ ...parsed, info });
+
+      return toSchemaTodos(todos);
     },
-    todo: (_, args, { dataSources: { todoAPI } }) => {
+    todo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Query.todo(args);
 
-      return todoAPI.get(parsed);
+      const todo = await todoAPI.get(parsed);
+
+      return toSchemaTodo(todo);
     },
   },
   Mutation: {
-    createTodo: (_, args, { dataSources: { todoAPI } }) => {
+    createTodo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.createTodo(args);
 
-      return todoAPI.create(parsed);
+      const todo = await todoAPI.create(parsed);
+
+      return toSchemaTodo(todo);
     },
-    updateTodo: (_, args, { dataSources: { todoAPI } }) => {
+    updateTodo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.updateTodo(args);
 
-      return todoAPI.update(parsed);
+      const todo = await todoAPI.update(parsed);
+
+      return toSchemaTodo(todo);
     },
-    deleteTodo: (_, args, { dataSources: { todoAPI } }) => {
+    deleteTodo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.deleteTodo(args);
 
-      return todoAPI.delete(parsed);
+      const todo = await todoAPI.delete(parsed);
+
+      return toSchemaTodo(todo);
     },
-    completeTodo: (_, args, { dataSources: { todoAPI } }) => {
+    completeTodo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.completeTodo(args);
 
-      return todoAPI.update({ ...parsed, status: TodoStatus.Done });
+      const todo = await todoAPI.update({ ...parsed, status: TodoStatus.Done });
+
+      return toSchemaTodo(todo);
     },
-    uncompleteTodo: (_, args, { dataSources: { todoAPI } }) => {
+    uncompleteTodo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.uncompleteTodo(args);
 
-      return todoAPI.update({ ...parsed, status: TodoStatus.Pending });
+      const todo = await todoAPI.update({ ...parsed, status: TodoStatus.Pending });
+
+      return toSchemaTodo(todo);
     },
   },
   Todo: {
-    user: ({ userId }, _, { dataSources: { userAPI } }) => {
-      return userAPI.get({ id: userId });
+    user: async ({ userId }, __, { dataSources: { userAPI } }) => {
+      const user = await userAPI.get({ id: userId });
+
+      return toSchemaUser(user);
     },
   },
 };

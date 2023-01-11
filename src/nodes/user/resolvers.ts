@@ -1,44 +1,59 @@
+import { toSchemaUser, toSchemaUsers, toSchemaTodos } from "@/adapters";
 import type { Resolvers } from "@/types";
 import { parsers } from "./parsers";
 
 export const resolvers: Resolvers = {
   Query: {
-    viewer: (_, __, { dataSources: { userAPI }, user }) => {
-      return userAPI.get({ id: user.id });
+    viewer: async (_, __, { dataSources: { userAPI }, user: contextUser }) => {
+      const user = await userAPI.get({ id: contextUser.id });
+
+      return toSchemaUser(user);
     },
-    users: (_, args, { dataSources: { userAPI } }, info) => {
+    users: async (_, args, { dataSources: { userAPI } }, info) => {
       const parsed = parsers.Query.users(args);
 
-      return userAPI.gets({ ...parsed, info });
+      const users = await userAPI.gets({ ...parsed, info });
+
+      return toSchemaUsers(users);
     },
-    user: (_, args, { dataSources: { userAPI } }) => {
+    user: async (_, args, { dataSources: { userAPI } }) => {
       const parsed = parsers.Query.user(args);
 
-      return userAPI.get(parsed);
+      const user = await userAPI.get(parsed);
+
+      return toSchemaUser(user);
     },
   },
   Mutation: {
-    createUser: (_, args, { dataSources: { userAPI } }) => {
+    createUser: async (_, args, { dataSources: { userAPI } }) => {
       const parsed = parsers.Mutation.createUser(args);
 
-      return userAPI.create(parsed);
+      const user = await userAPI.create(parsed);
+
+      return toSchemaUser(user);
     },
-    updateUser: (_, args, { dataSources: { userAPI } }) => {
+    updateUser: async (_, args, { dataSources: { userAPI } }) => {
       const parsed = parsers.Mutation.updateUser(args);
 
-      return userAPI.update(parsed);
+      const user = await userAPI.update(parsed);
+
+      return toSchemaUser(user);
     },
-    deleteUser: (_, args, { dataSources: { userAPI } }) => {
+    deleteUser: async (_, args, { dataSources: { userAPI } }) => {
       const parsed = parsers.Mutation.deleteUser(args);
 
-      return userAPI.delete(parsed);
+      const user = await userAPI.delete(parsed);
+
+      return toSchemaUser(user);
     },
   },
   User: {
-    todos: ({ id }, args, { dataSources: { todoAPI } }, info) => {
+    todos: async ({ id }, args, { dataSources: { todoAPI } }, info) => {
       const parsed = parsers.User.todos(args);
 
-      return todoAPI.getsUserTodos({ userId: id, ...parsed, info });
+      const todos = await todoAPI.getsUserTodos({ userId: id, ...parsed, info });
+
+      return toSchemaTodos(todos);
     },
   },
 };
