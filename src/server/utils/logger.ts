@@ -1,5 +1,5 @@
 import pino, { LoggerOptions, stdTimeFunctions } from "pino";
-import pretty from "pino-pretty"; // eslint-disable-line
+import pretty from "pino-pretty"; // eslint-disable-line import/no-extraneous-dependencies
 import { nanoid } from "nanoid";
 
 import type { NodeEnv } from "./env";
