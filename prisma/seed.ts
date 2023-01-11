@@ -1,10 +1,12 @@
-import zipWith from "lodash/zipWith";
 import { User, Role } from "@prisma/client";
 
+import { TodoAPI, UserAPI } from "@/datasources";
 import * as Utils from "@/server/utils";
-import * as Ids from "@/ids";
 
 const prisma = Utils.makePrismaClient(true);
+
+const todoAPI = new TodoAPI(prisma);
+const userAPI = new UserAPI(prisma);
 
 const main = async () => {
   const users = await createUsers();
@@ -12,28 +14,27 @@ const main = async () => {
 };
 
 const createUsers = () => {
-  const ids = [Ids.userId(), Ids.userId(), Ids.userId(), Ids.userId()];
-  const names = ["admin", "hoge", "piyo", "fuga"];
-  const roles = [Role.ADMIN, Role.USER, Role.USER, Role.USER];
-  const users = zipWith(ids, names, roles, (id, name, role) => ({ id, name, role }));
-  const creates = users.map(data => prisma.user.create({ data }));
+  const params = [
+    { name: "admin", role: Role.ADMIN },
+    { name: "hoge", role: Role.USER },
+    { name: "piyo", role: Role.USER },
+    { name: "fuga", role: Role.USER },
+  ];
+
+  const creates = params.map(data => userAPI.create(data));
+
   return Promise.all(creates);
 };
 
 const createTodos = ([_adminId, userId1, userId2, _userId3]: User["id"][]) => {
-  const ids = [Ids.todoId(), Ids.todoId(), Ids.todoId()];
-  const todo1 = [ids[0], "hoge todo 1", "hoge desc 1", userId1] as const;
-  const todo2 = [ids[1], "piyo todo 1", "piyo desc 1", userId2] as const;
-  const todo3 = [ids[2], "piyo todo 2", "piyo desc 2", userId2] as const;
+  const params = [
+    { title: "hoge todo 1", description: "hoge desc 1", userId: userId1 },
+    { title: "piyo todo 1", description: "piyo desc 1", userId: userId2 },
+    { title: "piyo todo 2", description: "piyo desc 2", userId: userId2 },
+  ];
 
-  const todos = [todo1, todo2, todo3].map(([id, title, description, userId]) => ({
-    id,
-    title,
-    description,
-    userId,
-  }));
+  const creates = params.map(data => todoAPI.create(data));
 
-  const creates = todos.map(data => prisma.todo.create({ data }));
   return Promise.all(creates);
 };
 
