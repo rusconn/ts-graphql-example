@@ -6,7 +6,7 @@
     "setup:migrate": "yarn migrate:reset ",
     "setup:generate": "yarn generate",
     "setup:seed": "yarn seed",
-    "start": "nodemon --watch src --ext 'js,ts' --exec 'yarn ts src/index.ts'",
+    "start": "nodemon --watch src --ext 'js,ts' --exec 'yarn ts src/server/index.ts'",
     "migrate:dev": "prisma migrate dev",
     "migrate:reset": "prisma migrate reset --force",
     "pretest": "DB_NAME=testdb yarn migrate:reset",

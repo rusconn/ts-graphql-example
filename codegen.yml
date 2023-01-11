@@ -1,6 +1,6 @@
 scalars: &scalars
-  DateTime: "@/utils#DateTime"
-  NonEmptyString: "@/utils#NonEmptyString"
+  DateTime: "@/graphql/types/scalars#DateTime"
+  NonEmptyString: "@/graphql/types/scalars#NonEmptyString"
 
 typescript: &typescript
   inputMaybeValue: T | null | undefined # null を指定する場合と、指定しない(=undefined)場合がある
@@ -9,11 +9,11 @@ typescript: &typescript
 
 typescript-resolvers: &typescript-resolvers
   useIndexSignature: true
-  contextType: "@/types#Context"
+  contextType: "@/server/types#Context"
   mapperTypeSuffix: Mapped # prefix がなかったため suffix
   mappers:
-    User: "@/types/mappers#User"
-    Todo: "@/types/mappers#Todo"
+    User: "@/graphql/types/mappers#User"
+    Todo: "@/graphql/types/mappers#Todo"
 
 typescript-operations: &typescript-operations
   onlyOperationTypes: true
@@ -21,16 +21,16 @@ typescript-operations: &typescript-operations
 
 schema: http://localhost:4000/graphql
 generates:
-  src/types/graphql.ts:
+  src/graphql/types/schema.ts:
     plugins:
       - typescript
       - typescript-resolvers
     config:
       <<: *typescript
       <<: *typescript-resolvers
-  tests/integration/types/graphql.ts:
+  tests/integration/graphql/types/schema.ts:
     documents:
-      - tests/integration/**/*.ts
+      - tests/integration/graphql/**/*.ts
     plugins:
       - typescript
       - typescript-operations

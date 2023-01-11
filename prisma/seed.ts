@@ -1,9 +1,10 @@
 import zipWith from "lodash/zipWith";
 import { User, Role } from "@prisma/client";
 
-import * as utils from "@/utils";
+import * as Utils from "@/server/utils";
+import * as Ids from "@/ids";
 
-const prisma = utils.makePrismaClient(true);
+const prisma = Utils.makePrismaClient(true);
 
 const main = async () => {
   const users = await createUsers();
@@ -11,7 +12,7 @@ const main = async () => {
 };
 
 const createUsers = () => {
-  const ids = [utils.userId(), utils.userId(), utils.userId(), utils.userId()];
+  const ids = [Ids.userId(), Ids.userId(), Ids.userId(), Ids.userId()];
   const names = ["admin", "hoge", "piyo", "fuga"];
   const roles = [Role.ADMIN, Role.USER, Role.USER, Role.USER];
   const users = zipWith(ids, names, roles, (id, name, role) => ({ id, name, role }));
@@ -20,7 +21,7 @@ const createUsers = () => {
 };
 
 const createTodos = ([_adminId, userId1, userId2, _userId3]: User["id"][]) => {
-  const ids = [utils.todoId(), utils.todoId(), utils.todoId()];
+  const ids = [Ids.todoId(), Ids.todoId(), Ids.todoId()];
   const todo1 = [ids[0], "hoge todo 1", "hoge desc 1", userId1] as const;
   const todo2 = [ids[1], "piyo todo 1", "piyo desc 1", userId2] as const;
   const todo3 = [ids[2], "piyo todo 2", "piyo desc 2", userId2] as const;

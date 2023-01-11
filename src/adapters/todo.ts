@@ -1,17 +1,16 @@
 import * as Prisma from "@prisma/client";
 
-import { TodoStatus } from "@/types";
-import type * as Mapper from "@/types/mappers";
-import { nonEmptyString } from "@/utils";
-import { toSchemaConnections } from "./utils";
+import { Graph, Mapper } from "@/graphql/types";
+import { nonEmptyString } from "@/graphql/utils";
+import { toGraphConnections } from "./utils";
 
-export const toSchemaTodo = (todo: Prisma.Todo): Mapper.Todo => ({
+export const toTodoNode = (todo: Prisma.Todo): Mapper.Todo => ({
   ...todo,
   title: nonEmptyString(todo.title),
   status: {
-    [Prisma.TodoStatus.DONE]: TodoStatus.Done,
-    [Prisma.TodoStatus.PENDING]: TodoStatus.Pending,
+    [Prisma.TodoStatus.DONE]: Graph.TodoStatus.Done,
+    [Prisma.TodoStatus.PENDING]: Graph.TodoStatus.Pending,
   }[todo.status],
 });
 
-export const toSchemaTodos = toSchemaConnections(toSchemaTodo);
+export const toTodoNodes = toGraphConnections(toTodoNode);
