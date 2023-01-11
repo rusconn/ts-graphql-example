@@ -117,7 +117,7 @@ export const parsers = {
 
       return { id };
     },
-    completeTodo: (args: Graph.MutationCompleteTodoArgs): DataSource.UpdateTodoParams => {
+    completeTodo: (args: Graph.MutationCompleteTodoArgs): DataSource.CompleteTodoParams => {
       const { id } = args;
 
       if (!isTodoId(id)) {
@@ -126,7 +126,7 @@ export const parsers = {
 
       return { id };
     },
-    uncompleteTodo: (args: Graph.MutationUncompleteTodoArgs): DataSource.UpdateTodoParams => {
+    uncompleteTodo: (args: Graph.MutationUncompleteTodoArgs): DataSource.UncompleteTodoParams => {
       const { id } = args;
 
       if (!isTodoId(id)) {
