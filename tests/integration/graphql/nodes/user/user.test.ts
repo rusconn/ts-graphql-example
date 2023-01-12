@@ -18,7 +18,6 @@ import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
-import { userId } from "@/ids";
 
 const users = [admin, alice, bob];
 const todos = [adminTodo1, adminTodo2, adminTodo3];
@@ -228,7 +227,7 @@ describe("query without other nodes", () => {
   });
 
   it("should return not found error if not found", async () => {
-    const { data, errors } = await executeQuery({ variables: { id: userId() } });
+    const { data, errors } = await executeQuery({ variables: { id: admin.id.slice(0, -1) } });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
