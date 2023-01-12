@@ -3,11 +3,11 @@ import range from "lodash/range";
 
 import { OrderDirection, TodoOrderField, TodosQuery, TodosQueryVariables } from "it/graphql/types";
 import { admin, adminTodo1, adminTodo2, adminTodo3, alice, bob, guest } from "it/data";
+import { todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
-import { todoId } from "@/ids";
 
 const users = [admin, alice, bob];
 const todos = [adminTodo1, adminTodo2, adminTodo3];
@@ -148,12 +148,16 @@ describe("number of items", () => {
   it("should be 20 by default", async () => {
     const numDefault = 20;
     const numAdditionals = numDefault - numSeedTodos + 1;
+
     const additionals = range(numAdditionals).map(x => ({
-      id: todoId(),
       title: `${x}`,
+      description: "",
       userId: admin.id,
     }));
-    await prisma.todo.createMany({ data: additionals });
+
+    const creates = additionals.map(additional => todoAPI.create(additional));
+
+    await Promise.all(creates);
 
     const numTodos = await prisma.todo.count();
     const { data } = await executeQuery({ variables: { userId: admin.id } });
