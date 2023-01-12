@@ -1,8 +1,8 @@
+import { splitTodoNodeId, splitUserNodeId } from "@/adapters";
 import type * as DataSource from "@/datasources";
 import { ParseError } from "@/errors";
 import { Graph } from "@/graphql/types";
 import { parseConnectionArgs } from "@/graphql/utils";
-import { isTodoId, isUserId } from "@/ids";
 
 export const parsers = {
   Query: {
@@ -19,18 +19,26 @@ export const parsers = {
         throw new ParseError("`last` must be up to 30");
       }
 
-      if (before && !isUserId(before)) {
-        throw new ParseError("invalid `before`");
-      }
+      const firstToUse = first == null && last == null ? 10 : first;
 
-      if (after && !isUserId(after)) {
-        throw new ParseError("invalid `after`");
-      }
+      let beforeToUse = before;
+      let afterToUse = after;
 
-      const defaultedConnectionArgs =
-        first == null && last == null
-          ? { first: 10, last, before, after }
-          : { first, last, before, after };
+      try {
+        if (before) {
+          ({ id: beforeToUse } = splitUserNodeId(before));
+        }
+
+        if (after) {
+          ({ id: afterToUse } = splitUserNodeId(after));
+        }
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
+
+        throw e;
+      }
 
       const directionToUse = orderBy?.direction === Graph.OrderDirection.Asc ? "asc" : "desc";
 
@@ -39,16 +47,26 @@ export const parsers = {
           ? [{ updatedAt: directionToUse } as const, { id: directionToUse } as const]
           : [{ createdAt: directionToUse } as const, { id: directionToUse } as const];
 
-      return { ...defaultedConnectionArgs, orderBy: orderByToUse };
+      return {
+        first: firstToUse,
+        last,
+        before: beforeToUse,
+        after: afterToUse,
+        orderBy: orderByToUse,
+      };
     },
     user: (args: Graph.QueryUserArgs): DataSource.GetUserParams => {
       const { id } = args;
 
-      if (!isUserId(id)) {
-        throw new ParseError("invalid `id`");
-      }
+      try {
+        return splitUserNodeId(id);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
 
-      return { id };
+        throw e;
+      }
     },
   },
   Mutation: {
@@ -67,6 +85,18 @@ export const parsers = {
         input: { name },
       } = args;
 
+      let idToUse;
+
+      try {
+        ({ id: idToUse } = splitUserNodeId(id));
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
+
+        throw e;
+      }
+
       if (name === null) {
         throw new ParseError("`name` must be not null");
       }
@@ -75,25 +105,29 @@ export const parsers = {
         throw new ParseError("`name` must be up to 100 characteres");
       }
 
-      if (!isUserId(id)) {
-        throw new ParseError("invalid `id`");
-      }
-
-      return { id, name };
+      return { id: idToUse, name };
     },
     deleteUser: (args: Graph.MutationDeleteUserArgs): DataSource.DeleteUserParams => {
       const { id } = args;
 
-      if (!isUserId(id)) {
-        throw new ParseError("invalid `id`");
-      }
+      try {
+        return splitUserNodeId(id);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
 
-      return { id };
+        throw e;
+      }
     },
   },
   User: {
-    todos: (args: Graph.UserTodosArgs): Omit<DataSource.GetUserTodosParams, "userId" | "info"> => {
-      const { orderBy, ...connectionArgs } = args;
+    todos: (
+      args: Graph.UserTodosArgs & Pick<Graph.User, "id">
+    ): Omit<DataSource.GetUserTodosParams, "info"> => {
+      const { id, orderBy, ...connectionArgs } = args;
+
+      const { id: userId } = splitUserNodeId(id);
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 
@@ -105,18 +139,26 @@ export const parsers = {
         throw new ParseError("`last` must be up to 50");
       }
 
-      if (before && !isTodoId(before)) {
-        throw new ParseError("invalid `before`");
-      }
+      const firstToUse = first == null && last == null ? 20 : first;
 
-      if (after && !isTodoId(after)) {
-        throw new ParseError("invalid `after`");
-      }
+      let beforeToUse = before;
+      let afterToUse = after;
 
-      const defaultedConnectionArgs =
-        first == null && last == null
-          ? { first: 20, last, before, after }
-          : { first, last, before, after };
+      try {
+        if (before) {
+          ({ id: beforeToUse } = splitTodoNodeId(before));
+        }
+
+        if (after) {
+          ({ id: afterToUse } = splitTodoNodeId(after));
+        }
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
+
+        throw e;
+      }
 
       const directionToUse = orderBy?.direction === Graph.OrderDirection.Asc ? "asc" : "desc";
 
@@ -125,7 +167,14 @@ export const parsers = {
           ? [{ createdAt: directionToUse } as const, { id: directionToUse } as const]
           : [{ updatedAt: directionToUse } as const, { id: directionToUse } as const];
 
-      return { ...defaultedConnectionArgs, orderBy: orderByToUse };
+      return {
+        first: firstToUse,
+        last,
+        before: beforeToUse,
+        after: afterToUse,
+        userId,
+        orderBy: orderByToUse,
+      };
     },
   },
 };

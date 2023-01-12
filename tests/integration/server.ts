@@ -1,7 +1,7 @@
 import type { DocumentNode } from "graphql";
 
 import { defaultContext } from "it/context";
-import { admin } from "it/data";
+import { DBData } from "it/data";
 import type { Context } from "@/server/types";
 import { parseEnvVars, makeServer } from "@/server/utils";
 
@@ -24,10 +24,13 @@ type ExecuteOperationParams<TVariables> = {
 
 export const executeSingleResultOperation =
   (query: DocumentNode) =>
-  async <TData, TVariables>({ variables, user }: ExecuteOperationParams<TVariables>) => {
+  async <TData, TVariables>({
+    variables,
+    user = DBData.admin,
+  }: ExecuteOperationParams<TVariables>) => {
     const res = await server.executeOperation<TData, TVariables>(
       { query, variables },
-      { contextValue: { ...defaultContext, user: user ?? admin } }
+      { contextValue: { ...defaultContext, user } }
     );
 
     if (res.body.kind !== "single") {

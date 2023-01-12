@@ -1,8 +1,8 @@
+import { splitTodoNodeId, splitUserNodeId } from "@/adapters";
 import type * as DataSource from "@/datasources";
 import { ParseError } from "@/errors";
 import { Graph } from "@/graphql/types";
 import { parseConnectionArgs } from "@/graphql/utils";
-import { isTodoId, isUserId } from "@/ids";
 
 export const parsers = {
   Query: {
@@ -19,22 +19,38 @@ export const parsers = {
         throw new ParseError("`last` must be up to 50");
       }
 
-      if (before && !isTodoId(before)) {
-        throw new ParseError("invalid `before`");
+      const firstToUse = first == null && last == null ? 20 : first;
+
+      let beforeToUse = before;
+      let afterToUse = after;
+
+      try {
+        if (before) {
+          ({ id: beforeToUse } = splitTodoNodeId(before));
+        }
+
+        if (after) {
+          ({ id: afterToUse } = splitTodoNodeId(after));
+        }
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
+
+        throw e;
       }
 
-      if (after && !isTodoId(after)) {
-        throw new ParseError("invalid `after`");
-      }
+      let userIdToUse;
 
-      if (!isUserId(userId)) {
-        throw new ParseError("invalid `userId`");
-      }
+      try {
+        ({ id: userIdToUse } = splitUserNodeId(userId));
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
 
-      const defaultedConnectionArgs =
-        first == null && last == null
-          ? { first: 20, last, before, after }
-          : { first, last, before, after };
+        throw e;
+      }
 
       const directionToUse = orderBy?.direction === Graph.OrderDirection.Asc ? "asc" : "desc";
 
@@ -43,16 +59,27 @@ export const parsers = {
           ? [{ createdAt: directionToUse } as const, { id: directionToUse } as const]
           : [{ updatedAt: directionToUse } as const, { id: directionToUse } as const];
 
-      return { ...defaultedConnectionArgs, userId, orderBy: orderByToUse };
+      return {
+        first: firstToUse,
+        last,
+        before: beforeToUse,
+        after: afterToUse,
+        userId: userIdToUse,
+        orderBy: orderByToUse,
+      };
     },
     todo: (args: Graph.QueryTodoArgs): DataSource.GetTodoParams => {
       const { id } = args;
 
-      if (!isTodoId(id)) {
-        throw new ParseError("invalid `id`");
-      }
+      try {
+        return splitTodoNodeId(id);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
 
-      return { id };
+        throw e;
+      }
     },
   },
   Mutation: {
@@ -62,6 +89,18 @@ export const parsers = {
         input: { title, description },
       } = args;
 
+      let userIdToUse;
+
+      try {
+        ({ id: userIdToUse } = splitUserNodeId(userId));
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
+
+        throw e;
+      }
+
       if ([...title].length > 100) {
         throw new ParseError("`title` must be up to 100 characters");
       }
@@ -70,17 +109,25 @@ export const parsers = {
         throw new ParseError("`description` must be up to 5000 characters");
       }
 
-      if (!isUserId(userId)) {
-        throw new ParseError("invalid `userId`");
-      }
-
-      return { userId, title, description };
+      return { userId: userIdToUse, title, description };
     },
     updateTodo: (args: Graph.MutationUpdateTodoArgs): DataSource.UpdateTodoParams => {
       const {
         id,
         input: { title, description, status },
       } = args;
+
+      let idToUse;
+
+      try {
+        ({ id: idToUse } = splitTodoNodeId(id));
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
+
+        throw e;
+      }
 
       if (title === null) {
         throw new ParseError("`title` must be not null");
@@ -102,38 +149,46 @@ export const parsers = {
         throw new ParseError("`description` must be up to 5000 characters");
       }
 
-      if (!isTodoId(id)) {
-        throw new ParseError("invalid `id`");
-      }
-
-      return { id, title, description, status };
+      return { id: idToUse, title, description, status };
     },
     deleteTodo: (args: Graph.MutationDeleteTodoArgs): DataSource.DeleteTodoParams => {
       const { id } = args;
 
-      if (!isTodoId(id)) {
-        throw new ParseError("invalid `id`");
-      }
+      try {
+        return splitTodoNodeId(id);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
 
-      return { id };
+        throw e;
+      }
     },
     completeTodo: (args: Graph.MutationCompleteTodoArgs): DataSource.CompleteTodoParams => {
       const { id } = args;
 
-      if (!isTodoId(id)) {
-        throw new ParseError("invalid `id`");
-      }
+      try {
+        return splitTodoNodeId(id);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
 
-      return { id };
+        throw e;
+      }
     },
     uncompleteTodo: (args: Graph.MutationUncompleteTodoArgs): DataSource.UncompleteTodoParams => {
       const { id } = args;
 
-      if (!isTodoId(id)) {
-        throw new ParseError("invalid `id`");
-      }
+      try {
+        return splitTodoNodeId(id);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
 
-      return { id };
+        throw e;
+      }
     },
   },
 };

@@ -1,8 +1,10 @@
 import { chain, race, rule } from "graphql-shield";
 
+import { toUserNodeId } from "@/adapters";
 import type { Graph } from "@/graphql/types";
 import { permissionError, isAdmin, isGuest, isAuthenticated } from "@/graphql/utils";
 import type { Context } from "@/server/types";
+import { parsers } from "./parsers";
 
 type QueryOrUpdateOrDeleteArgs =
   | Graph.QueryUserArgs
@@ -12,13 +14,15 @@ type QueryOrUpdateOrDeleteArgs =
 type Parent = Graph.ResolversParentTypes["User"];
 
 const isSelf = rule({ cache: "strict" })(
-  (_, { id }: QueryOrUpdateOrDeleteArgs, { user }: Context) => {
+  (_, args: QueryOrUpdateOrDeleteArgs, { user }: Context) => {
+    const { id } = parsers.Query.user(args);
+
     return id === user.id || permissionError;
   }
 );
 
 const isOwner = rule({ cache: "strict" })(({ id }: Parent, _, { user }: Context) => {
-  return id === user.id || permissionError;
+  return id === toUserNodeId(user.id) || permissionError;
 });
 
 export const permissions = {

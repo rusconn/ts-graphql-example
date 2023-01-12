@@ -2,15 +2,15 @@ import { gql } from "graphql-tag";
 import range from "lodash/range";
 
 import { OrderDirection, TodoOrderField, TodosQuery, TodosQueryVariables } from "it/graphql/types";
-import { admin, adminTodo1, adminTodo2, adminTodo3, alice, bob, guest } from "it/data";
+import { DBData, GraphData } from "it/data";
 import { todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
-const users = [admin, alice, bob];
-const todos = [adminTodo1, adminTodo2, adminTodo3];
+const users = [DBData.admin, DBData.alice, DBData.bob];
+const todos = [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3];
 
 const seedUsers = () => prisma.user.createMany({ data: users });
 const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
@@ -62,16 +62,16 @@ beforeAll(async () => {
 
 describe("authorization", () => {
   const allowedPatterns = [
-    [admin, admin],
-    [admin, alice],
-    [alice, alice],
+    [DBData.admin, GraphData.admin],
+    [DBData.admin, GraphData.alice],
+    [DBData.alice, GraphData.alice],
   ] as const;
 
   const notAllowedPatterns = [
-    [alice, admin],
-    [alice, bob],
-    [guest, admin],
-    [guest, alice],
+    [DBData.alice, GraphData.admin],
+    [DBData.alice, GraphData.bob],
+    [DBData.guest, GraphData.admin],
+    [DBData.guest, GraphData.alice],
   ] as const;
 
   test.each(allowedPatterns)("allowed %s", async (user, { id }) => {
@@ -99,8 +99,8 @@ describe("validation", () => {
     {},
     { first: firstMax },
     { last: lastMax },
-    { first: 1, after: adminTodo1.id },
-    { last: 1, before: adminTodo2.id },
+    { first: 1, after: GraphData.adminTodo1.id },
+    { last: 1, before: GraphData.adminTodo2.id },
   ];
 
   const invalids = [
@@ -111,13 +111,13 @@ describe("validation", () => {
     { first: firstMax + 1 },
     { last: lastMax + 1 },
     { first: 1, last: 1 },
-    { first: 1, before: adminTodo1.id },
-    { last: 1, after: adminTodo2.id },
+    { first: 1, before: GraphData.adminTodo1.id },
+    { last: 1, after: GraphData.adminTodo2.id },
   ];
 
   test.each(valids)("valid %o", async variables => {
     const { data, errors } = await executeQuery({
-      variables: { ...variables, userId: admin.id },
+      variables: { ...variables, userId: GraphData.admin.id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -128,7 +128,7 @@ describe("validation", () => {
 
   test.each(invalids)("invalid %o", async variables => {
     const { data, errors } = await executeQuery({
-      variables: { ...variables, userId: admin.id },
+      variables: { ...variables, userId: GraphData.admin.id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -152,7 +152,7 @@ describe("number of items", () => {
     const additionals = range(numAdditionals).map(x => ({
       title: `${x}`,
       description: "",
-      userId: admin.id,
+      userId: DBData.admin.id,
     }));
 
     const creates = additionals.map(additional => todoAPI.create(additional));
@@ -160,7 +160,7 @@ describe("number of items", () => {
     await Promise.all(creates);
 
     const numTodos = await prisma.todo.count();
-    const { data } = await executeQuery({ variables: { userId: admin.id } });
+    const { data } = await executeQuery({ variables: { userId: GraphData.admin.id } });
 
     expect(numTodos).toBe(numDefault + 1);
     expect(data?.todos?.edges).toHaveLength(numDefault);
@@ -168,14 +168,14 @@ describe("number of items", () => {
 
   it("should affected by first option", async () => {
     const first = numSeedTodos - 1;
-    const { data } = await executeQuery({ variables: { first, userId: admin.id } });
+    const { data } = await executeQuery({ variables: { first, userId: GraphData.admin.id } });
 
     expect(data?.todos?.edges).toHaveLength(first);
   });
 
   it("should affected by last option", async () => {
     const last = numSeedTodos - 1;
-    const { data } = await executeQuery({ variables: { last, userId: admin.id } });
+    const { data } = await executeQuery({ variables: { last, userId: GraphData.admin.id } });
 
     expect(data?.todos?.edges).toHaveLength(last);
   });
@@ -183,28 +183,28 @@ describe("number of items", () => {
 
 describe("order of items", () => {
   const patterns = [
-    [{}, [adminTodo1, adminTodo3, adminTodo2]], // defaults to updatedAt desc
+    [{}, [GraphData.adminTodo1, GraphData.adminTodo3, GraphData.adminTodo2]], // defaults to updatedAt desc
     [
       { orderBy: { field: Graph.TodoOrderField.CreatedAt, direction: Graph.OrderDirection.Asc } },
-      [adminTodo1, adminTodo2, adminTodo3],
+      [GraphData.adminTodo1, GraphData.adminTodo2, GraphData.adminTodo3],
     ],
     [
       { orderBy: { field: Graph.TodoOrderField.CreatedAt, direction: Graph.OrderDirection.Desc } },
-      [adminTodo3, adminTodo2, adminTodo1],
+      [GraphData.adminTodo3, GraphData.adminTodo2, GraphData.adminTodo1],
     ],
     [
       { orderBy: { field: Graph.TodoOrderField.UpdatedAt, direction: Graph.OrderDirection.Asc } },
-      [adminTodo2, adminTodo3, adminTodo1],
+      [GraphData.adminTodo2, GraphData.adminTodo3, GraphData.adminTodo1],
     ],
     [
       { orderBy: { field: Graph.TodoOrderField.UpdatedAt, direction: Graph.OrderDirection.Desc } },
-      [adminTodo1, adminTodo3, adminTodo2],
+      [GraphData.adminTodo1, GraphData.adminTodo3, GraphData.adminTodo2],
     ],
   ] as const;
 
   test.each(patterns)("%o, %o", async (variables, expectedTodos) => {
     const { data } = await executeQuery({
-      variables: { ...variables, userId: admin.id },
+      variables: { ...variables, userId: GraphData.admin.id },
     });
 
     const ids = data?.todos?.edges.map(({ node }) => node.id);
@@ -223,7 +223,7 @@ describe("pagination", () => {
         variables: {
           first,
           orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Asc },
-          userId: admin.id,
+          userId: GraphData.admin.id,
         },
       });
 

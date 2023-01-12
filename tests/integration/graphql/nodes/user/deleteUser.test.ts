@@ -1,26 +1,17 @@
 import { gql } from "graphql-tag";
 
 import type { DeleteUserMutation, DeleteUserMutationVariables } from "it/graphql/types";
-import {
-  admin,
-  adminTodo1,
-  adminTodo2,
-  adminTodo3,
-  alice,
-  bob,
-  guest,
-  invalidUserIds,
-  validUserIds,
-} from "it/data";
+import { DBData, GraphData } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 import { nonEmptyString } from "@/graphql/utils";
 
-const todos = [adminTodo1, adminTodo2, adminTodo3];
+const users = [DBData.admin, DBData.alice, DBData.bob];
+const todos = [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3];
 
-const seedUsers = () => prisma.user.createMany({ data: [admin, alice, bob] });
+const seedUsers = () => prisma.user.createMany({ data: users });
 const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
 
 const query = gql`
@@ -50,16 +41,16 @@ describe("authorization", () => {
   const variables = { input: { name: nonEmptyString("foo") } };
 
   const allowedPatterns = [
-    [admin, admin],
-    [admin, alice],
-    [alice, alice],
+    [DBData.admin, GraphData.admin],
+    [DBData.admin, GraphData.alice],
+    [DBData.alice, GraphData.alice],
   ] as const;
 
   const notAllowedPatterns = [
-    [alice, admin],
-    [alice, bob],
-    [guest, admin],
-    [guest, alice],
+    [DBData.alice, GraphData.admin],
+    [DBData.alice, GraphData.bob],
+    [DBData.guest, GraphData.admin],
+    [DBData.guest, GraphData.alice],
   ] as const;
 
   test.each(allowedPatterns)("allowed %o %o", async (user, { id }) => {
@@ -99,7 +90,7 @@ describe("validation", () => {
       await seedUsers();
     });
 
-    test.each(validUserIds)("valid %s", async id => {
+    test.each(GraphData.validUserIds)("valid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -107,7 +98,7 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
-    test.each(invalidUserIds)("invalid %s", async id => {
+    test.each(GraphData.invalidUserIds)("invalid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -129,7 +120,7 @@ describe("logic", () => {
   });
 
   it("should delete user", async () => {
-    const { data } = await executeMutation({ variables: { id: bob.id } });
+    const { data } = await executeMutation({ variables: { id: GraphData.bob.id } });
 
     if (!data || !data.deleteUser) {
       throw new Error("operation failed");
@@ -143,7 +134,7 @@ describe("logic", () => {
   it("should not delete others", async () => {
     const before = await prisma.user.count();
 
-    const { data } = await executeMutation({ variables: { id: bob.id } });
+    const { data } = await executeMutation({ variables: { id: GraphData.bob.id } });
 
     if (!data || !data.deleteUser) {
       throw new Error("operation failed");
@@ -160,15 +151,15 @@ describe("logic", () => {
   it("should delete his resources", async () => {
     await seedAdminTodos();
 
-    const before = await prisma.todo.count({ where: { userId: admin.id } });
+    const before = await prisma.todo.count({ where: { userId: DBData.admin.id } });
 
-    const { data } = await executeMutation({ variables: { id: admin.id } });
+    const { data } = await executeMutation({ variables: { id: GraphData.admin.id } });
 
     if (!data || !data.deleteUser) {
       throw new Error("operation failed");
     }
 
-    const after = await prisma.todo.count({ where: { id: admin.id } });
+    const after = await prisma.todo.count({ where: { userId: DBData.admin.id } });
 
     expect(before).not.toBe(0);
     expect(after).toBe(0);

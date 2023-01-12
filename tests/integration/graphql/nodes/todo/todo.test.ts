@@ -1,27 +1,21 @@
 import { gql } from "graphql-tag";
-import omit from "lodash/omit";
 
 import type { TodoQuery, TodoQueryVariables } from "it/graphql/types";
-import {
-  admin,
-  alice,
-  bob,
-  adminTodo1,
-  adminTodo2,
-  adminTodo3,
-  guest,
-  aliceTodo,
-  bobTodo,
-  validTodoIds,
-  invalidTodoIds,
-} from "it/data";
+import { DBData, GraphData } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
-const users = [admin, alice, bob];
-const todos = [adminTodo1, adminTodo2, adminTodo3, aliceTodo, bobTodo];
+const users = [DBData.admin, DBData.alice, DBData.bob];
+
+const todos = [
+  DBData.adminTodo1,
+  DBData.adminTodo2,
+  DBData.adminTodo3,
+  DBData.aliceTodo,
+  DBData.bobTodo,
+];
 
 const seedUsers = () => prisma.user.createMany({ data: users });
 const seedTodos = () => prisma.todo.createMany({ data: todos });
@@ -57,15 +51,15 @@ beforeAll(async () => {
 
 describe("authorization", () => {
   const allowedPatterns = [
-    [admin, adminTodo1],
-    [admin, aliceTodo],
-    [alice, aliceTodo],
+    [DBData.admin, GraphData.adminTodo1],
+    [DBData.admin, GraphData.aliceTodo],
+    [DBData.alice, GraphData.aliceTodo],
   ] as const;
 
   const notAllowedPatterns = [
-    [alice, bobTodo],
-    [guest, adminTodo1],
-    [guest, aliceTodo],
+    [DBData.alice, GraphData.bobTodo],
+    [DBData.guest, GraphData.adminTodo1],
+    [DBData.guest, GraphData.aliceTodo],
   ] as const;
 
   test.each(allowedPatterns)("allowed %o", async (user, { id }) => {
@@ -87,7 +81,7 @@ describe("authorization", () => {
 
 describe("validation", () => {
   describe("$id", () => {
-    test.each(validTodoIds)("valid %s", async id => {
+    test.each(GraphData.validTodoIds)("valid %s", async id => {
       const { data, errors } = await executeQuery({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -95,7 +89,7 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
-    test.each(invalidTodoIds)("invalid %s", async id => {
+    test.each(GraphData.invalidTodoIds)("invalid %s", async id => {
       const { data, errors } = await executeQuery({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -107,13 +101,15 @@ describe("validation", () => {
 
 describe("query without other nodes", () => {
   it("should return item correctly", async () => {
-    const { data } = await executeQuery({ variables: { id: adminTodo1.id } });
+    const { data } = await executeQuery({ variables: { id: GraphData.adminTodo1.id } });
 
-    expect(data?.todo).toEqual({ ...omit(adminTodo1, "userId"), id: adminTodo1.id });
+    expect(data?.todo).toEqual(GraphData.adminTodo1);
   });
 
   it("should return not found error if not found", async () => {
-    const { data, errors } = await executeQuery({ variables: { id: adminTodo1.id.slice(0, -1) } });
+    const { data, errors } = await executeQuery({
+      variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
+    });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -125,9 +121,9 @@ describe("query without other nodes", () => {
 describe("query other nodes: user", () => {
   it("should return item correctly", async () => {
     const { data } = await executeQuery({
-      variables: { id: adminTodo1.id, includeUser: true },
+      variables: { id: GraphData.adminTodo1.id, includeUser: true },
     });
 
-    expect(data?.todo?.user).toEqual(admin);
+    expect(data?.todo?.user).toEqual(GraphData.admin);
   });
 });

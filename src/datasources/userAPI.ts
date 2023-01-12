@@ -1,11 +1,10 @@
 import type { Prisma, PrismaClient, User } from "@prisma/client";
 import type { GraphQLResolveInfo } from "graphql";
+import { nanoid } from "nanoid";
 import {
   ConnectionArguments,
   findManyCursorConnection,
 } from "@devoxa/prisma-relay-cursor-connection";
-
-import { userId } from "@/ids";
 
 export type GetUsersParams = ConnectionArguments & {
   orderBy: Exclude<Prisma.UserFindManyArgs["orderBy"], undefined>;
@@ -46,7 +45,7 @@ export class UserAPI {
   }
 
   async create(data: CreateUserParams) {
-    return this.prisma.user.create({ data: { id: userId(), ...data } });
+    return this.prisma.user.create({ data: { id: nanoid(), ...data } });
   }
 
   async update({ id, ...data }: UpdateUserParams) {

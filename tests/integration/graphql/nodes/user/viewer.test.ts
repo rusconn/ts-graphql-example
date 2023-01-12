@@ -1,13 +1,13 @@
 import { gql } from "graphql-tag";
 
 import type { ViewerQuery, ViewerQueryVariables } from "it/graphql/types";
-import { admin, alice, bob, guest } from "it/data";
+import { DBData } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
-const users = [admin, alice, bob];
+const users = [DBData.admin, DBData.alice, DBData.bob];
 
 const seedUsers = () => prisma.user.createMany({ data: users });
 
@@ -27,8 +27,8 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const alloweds = [admin, alice, bob];
-  const notAlloweds = [guest];
+  const alloweds = [DBData.admin, DBData.alice, DBData.bob];
+  const notAlloweds = [DBData.guest];
 
   test.each(alloweds)("allowed %o", async user => {
     const { data, errors } = await executeQuery({ user });

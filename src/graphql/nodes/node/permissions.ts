@@ -1,31 +1,24 @@
 import { chain, race, rule } from "graphql-shield";
 
-import * as DataSource from "@/datasources";
 import type { Graph } from "@/graphql/types";
 import { permissionError, isAdmin, isAuthenticated } from "@/graphql/utils";
-import { isUserId, isTodoId } from "@/ids";
 import type { Context } from "@/server/types";
+import { parsers } from "./parsers";
 
 const isOwner = rule({ cache: "strict" })(
-  async (_, { id }: Graph.QueryNodeArgs, { user, dataSources }: Context) => {
-    try {
-      if (isUserId(id)) {
-        return id === user.id || permissionError;
-      }
+  async (_, args: Graph.QueryNodeArgs, { user, dataSources }: Context) => {
+    const { type, id } = parsers.Query.node(args);
 
-      if (isTodoId(id)) {
+    switch (type) {
+      case "Todo": {
         const todo = await dataSources.todoAPI.get({ id });
+
         return todo.userId === user.id || permissionError;
       }
-    } catch (e) {
-      if (e instanceof DataSource.NotFoundError) {
-        return false;
+      case "User": {
+        return id === user.id || permissionError;
       }
-
-      throw e;
     }
-
-    return false;
   }
 );
 

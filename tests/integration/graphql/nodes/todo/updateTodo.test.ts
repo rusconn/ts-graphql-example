@@ -2,27 +2,23 @@ import { gql } from "graphql-tag";
 import omit from "lodash/omit";
 
 import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "it/graphql/types";
-import {
-  admin,
-  adminTodo1,
-  adminTodo2,
-  adminTodo3,
-  alice,
-  aliceTodo,
-  bob,
-  bobTodo,
-  guest,
-  invalidTodoIds,
-  validTodoIds,
-} from "it/data";
+import { DBData, GraphData } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 import { nonEmptyString } from "@/graphql/utils";
+import { splitTodoNodeId } from "@/adapters";
 
-const users = [admin, alice, bob];
-const todos = [adminTodo1, adminTodo2, adminTodo3, aliceTodo, bobTodo];
+const users = [DBData.admin, DBData.alice, DBData.bob];
+
+const todos = [
+  DBData.adminTodo1,
+  DBData.adminTodo2,
+  DBData.adminTodo3,
+  DBData.aliceTodo,
+  DBData.bobTodo,
+];
 
 const seedUsers = () => prisma.user.createMany({ data: users });
 const seedTodos = () => prisma.todo.createMany({ data: todos });
@@ -60,16 +56,16 @@ describe("authorization", () => {
   const input = { title: nonEmptyString("foo"), description: "", status: Graph.TodoStatus.Done };
 
   const allowedPatterns = [
-    [admin, adminTodo1],
-    [admin, aliceTodo],
-    [alice, aliceTodo],
+    [DBData.admin, GraphData.adminTodo1],
+    [DBData.admin, GraphData.aliceTodo],
+    [DBData.alice, GraphData.aliceTodo],
   ] as const;
 
   const notAllowedPatterns = [
-    [alice, adminTodo1],
-    [alice, bobTodo],
-    [guest, adminTodo1],
-    [guest, aliceTodo],
+    [DBData.alice, GraphData.adminTodo1],
+    [DBData.alice, GraphData.bobTodo],
+    [DBData.guest, GraphData.adminTodo1],
+    [DBData.guest, GraphData.aliceTodo],
   ] as const;
 
   test.each(allowedPatterns)("allowed %o %o", async (user, { id }) => {
@@ -107,7 +103,7 @@ describe("validation", () => {
 
     const input = { title: nonEmptyString("foo"), description: "", status: Graph.TodoStatus.Done };
 
-    test.each(validTodoIds)("valid %s", async id => {
+    test.each(GraphData.validTodoIds)("valid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -115,7 +111,7 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
-    test.each(invalidTodoIds)("invalid %s", async id => {
+    test.each(GraphData.invalidTodoIds)("invalid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -161,7 +157,7 @@ describe("validation", () => {
 
     test.each(valids)("valid %s", async input => {
       const { data, errors } = await executeMutation({
-        variables: { input, id: adminTodo1.id },
+        variables: { input, id: GraphData.adminTodo1.id },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -172,7 +168,7 @@ describe("validation", () => {
 
     test.each(invalids)("invalid %s", async input => {
       const { data, errors } = await executeMutation({
-        variables: { input, id: adminTodo1.id },
+        variables: { input, id: GraphData.adminTodo1.id },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -193,7 +189,7 @@ describe("validation", () => {
       "field absence should not cause bad input error: %s",
       async input => {
         const { data, errors } = await executeMutation({
-          variables: { input, id: adminTodo1.id },
+          variables: { input, id: GraphData.adminTodo1.id },
         });
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -207,7 +203,7 @@ describe("validation", () => {
       "some fields should cause bad input error if null: %s",
       async input => {
         const { data, errors } = await executeMutation({
-          variables: { input, id: adminTodo1.id },
+          variables: { input, id: GraphData.adminTodo1.id },
         });
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -234,14 +230,14 @@ describe("logic", () => {
     };
 
     const { data } = await executeMutation({
-      variables: { id: adminTodo1.id, input },
+      variables: { id: GraphData.adminTodo1.id, input },
     });
 
     if (!data || !data.updateTodo) {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await prisma.todo.findUnique({ where: { id: adminTodo1.id } });
+    const maybeUser = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
 
     expect(maybeUser?.title).toBe(input.title);
     expect(maybeUser?.description).toBe(input.description);
@@ -249,21 +245,23 @@ describe("logic", () => {
   });
 
   it("should not update fields if the field is absent", async () => {
-    const before = await prisma.todo.findUnique({ where: { id: adminTodo1.id } });
+    const before = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
 
     if (!before) {
       throw new Error("todo not found");
     }
 
     const { data } = await executeMutation({
-      variables: { id: adminTodo1.id, input: {} },
+      variables: { id: GraphData.adminTodo1.id, input: {} },
     });
 
     if (!data || !data.updateTodo) {
       throw new Error("operation failed");
     }
 
-    const after = await prisma.todo.findUnique({ where: { id: data.updateTodo.id } });
+    const { id } = splitTodoNodeId(data.updateTodo.id);
+
+    const after = await prisma.todo.findUnique({ where: { id } });
 
     if (!after) {
       throw new Error("user not found");
@@ -275,7 +273,7 @@ describe("logic", () => {
   });
 
   it("should update updatedAt", async () => {
-    const before = await prisma.todo.findUnique({ where: { id: adminTodo1.id } });
+    const before = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
 
     if (!before) {
       throw new Error("test user not set");
@@ -288,14 +286,14 @@ describe("logic", () => {
     };
 
     const { data } = await executeMutation({
-      variables: { id: adminTodo1.id, input },
+      variables: { id: GraphData.adminTodo1.id, input },
     });
 
     if (!data || !data.updateTodo) {
       throw new Error("operation failed");
     }
 
-    const after = await prisma.todo.findUnique({ where: { id: adminTodo1.id } });
+    const after = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
 
     if (!after) {
       throw new Error("test user not set");
@@ -308,7 +306,7 @@ describe("logic", () => {
   });
 
   it("should not update other attrs", async () => {
-    const before = await prisma.todo.findUnique({ where: { id: adminTodo1.id } });
+    const before = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
 
     if (!before) {
       throw new Error("test user not set");
@@ -321,14 +319,14 @@ describe("logic", () => {
     };
 
     const { data } = await executeMutation({
-      variables: { id: adminTodo1.id, input },
+      variables: { id: GraphData.adminTodo1.id, input },
     });
 
     if (!data || !data.updateTodo) {
       throw new Error("operation failed");
     }
 
-    const after = await prisma.todo.findUnique({ where: { id: adminTodo1.id } });
+    const after = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
 
     if (!after) {
       throw new Error("test user not set");
