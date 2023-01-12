@@ -2,14 +2,14 @@ import { gql } from "graphql-tag";
 import range from "lodash/range";
 
 import type { UsersQuery, UsersQueryVariables } from "it/graphql/types";
-import { admin, alice, bob, guest } from "it/data";
+import { DBData, GraphData } from "it/data";
 import { userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
-const users = [admin, alice, bob];
+const users = [DBData.admin, DBData.alice, DBData.bob];
 
 const seedUsers = () => prisma.user.createMany({ data: users });
 
@@ -43,8 +43,8 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const alloweds = [admin];
-  const notAlloweds = [alice, bob, guest];
+  const alloweds = [DBData.admin];
+  const notAlloweds = [DBData.alice, DBData.bob, DBData.guest];
 
   test.each(alloweds)("allowed %s", async user => {
     const { data, errors } = await executeQuery({ user });
@@ -71,8 +71,8 @@ describe("validation", () => {
     {},
     { first: firstMax },
     { last: lastMax },
-    { first: 1, after: admin.id },
-    { last: 1, before: bob.id },
+    { first: 1, after: GraphData.admin.id },
+    { last: 1, before: GraphData.bob.id },
   ];
 
   const invalids = [
@@ -83,8 +83,8 @@ describe("validation", () => {
     { first: firstMax + 1 },
     { last: lastMax + 1 },
     { first: 1, last: 1 },
-    { first: 1, before: admin.id },
-    { last: 1, after: bob.id },
+    { first: 1, before: GraphData.admin.id },
+    { last: 1, after: GraphData.bob.id },
   ];
 
   test.each(valids)("valid %o", async variables => {
@@ -146,22 +146,22 @@ describe("number of items", () => {
 
 describe("order of items", () => {
   const patterns = [
-    [{}, [bob, alice, admin]], // defaults to createdAt desc
+    [{}, [GraphData.bob, GraphData.alice, GraphData.admin]], // defaults to createdAt desc
     [
       { orderBy: { field: Graph.UserOrderField.CreatedAt, direction: Graph.OrderDirection.Asc } },
-      [admin, alice, bob],
+      [GraphData.admin, GraphData.alice, GraphData.bob],
     ],
     [
       { orderBy: { field: Graph.UserOrderField.CreatedAt, direction: Graph.OrderDirection.Desc } },
-      [bob, alice, admin],
+      [GraphData.bob, GraphData.alice, GraphData.admin],
     ],
     [
       { orderBy: { field: Graph.UserOrderField.UpdatedAt, direction: Graph.OrderDirection.Asc } },
-      [alice, bob, admin],
+      [GraphData.alice, GraphData.bob, GraphData.admin],
     ],
     [
       { orderBy: { field: Graph.UserOrderField.UpdatedAt, direction: Graph.OrderDirection.Desc } },
-      [admin, bob, alice],
+      [GraphData.admin, GraphData.bob, GraphData.alice],
     ],
   ] as const;
 

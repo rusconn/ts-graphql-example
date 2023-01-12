@@ -49,9 +49,9 @@ export const resolvers: Graph.Resolvers = {
   },
   User: {
     todos: async ({ id }, args, { dataSources: { todoAPI } }, info) => {
-      const parsed = parsers.User.todos(args);
+      const parsed = parsers.User.todos({ ...args, id });
 
-      const todos = await todoAPI.getsUserTodos({ userId: id, ...parsed, info });
+      const todos = await todoAPI.getsUserTodos({ ...parsed, info });
 
       return toTodoNodes(todos);
     },

@@ -1,17 +1,21 @@
+import { splitNodeId } from "@/adapters";
 import { ParseError } from "@/errors";
 import type { Graph } from "@/graphql/types";
-import { isId } from "@/ids";
 
 export const parsers = {
   Query: {
     node: (args: Graph.QueryNodeArgs) => {
       const { id } = args;
 
-      if (!isId(id)) {
-        throw new ParseError("invalid `id`");
-      }
+      try {
+        return splitNodeId(id);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new ParseError("parse failed", e);
+        }
 
-      return { id };
+        throw e;
+      }
     },
   },
 };

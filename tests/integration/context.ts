@@ -1,4 +1,4 @@
-import { admin } from "it/data";
+import { DBData } from "it/data";
 import { prisma } from "it/prisma";
 import { TodoAPI, UserAPI } from "@/datasources";
 import type { Context } from "@/server/types";
@@ -6,7 +6,7 @@ import { makeLogger } from "@/server/utils";
 
 /** user は admin */
 export const defaultContext: Context = {
-  user: admin,
+  user: DBData.admin,
   logger: makeLogger("test"),
   dataSources: {
     todoAPI: new TodoAPI(prisma),

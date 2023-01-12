@@ -2,25 +2,15 @@ import { gql } from "graphql-tag";
 import range from "lodash/range";
 
 import type { UserQuery, UserQueryVariables } from "it/graphql/types";
-import {
-  admin,
-  alice,
-  bob,
-  adminTodo1,
-  adminTodo2,
-  adminTodo3,
-  guest,
-  validUserIds,
-  invalidUserIds,
-} from "it/data";
+import { DBData, GraphData } from "it/data";
 import { todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
-const users = [admin, alice, bob];
-const todos = [adminTodo1, adminTodo2, adminTodo3];
+const users = [DBData.admin, DBData.alice, DBData.bob];
+const todos = [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3];
 
 const seedUsers = () => prisma.user.createMany({ data: users });
 const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
@@ -79,17 +69,17 @@ beforeAll(async () => {
 describe("authorization", () => {
   describe("query user", () => {
     const allowedPatterns = [
-      [admin, admin],
-      [admin, alice],
-      [alice, alice],
-      [bob, bob],
+      [DBData.admin, GraphData.admin],
+      [DBData.admin, GraphData.alice],
+      [DBData.alice, GraphData.alice],
+      [DBData.bob, GraphData.bob],
     ] as const;
 
     const notAllowedPatterns = [
-      [alice, bob],
-      [bob, alice],
-      [guest, admin],
-      [guest, alice],
+      [DBData.alice, GraphData.bob],
+      [DBData.bob, GraphData.alice],
+      [DBData.guest, GraphData.admin],
+      [DBData.guest, GraphData.alice],
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async (user, { id }) => {
@@ -111,17 +101,17 @@ describe("authorization", () => {
 
   describe("query subfields", () => {
     const allowedPatterns = [
-      [admin, admin, { includeToken: true }],
-      [alice, alice, { includeToken: true }],
-      [admin, alice, { includeRole: true }],
-      [admin, admin, { includeRole: true }],
+      [DBData.admin, GraphData.admin, { includeToken: true }],
+      [DBData.alice, GraphData.alice, { includeToken: true }],
+      [DBData.admin, GraphData.alice, { includeRole: true }],
+      [DBData.admin, GraphData.admin, { includeRole: true }],
     ] as const;
 
     const notAllowedPatterns = [
-      [admin, alice, { includeToken: true }],
-      [alice, admin, { includeToken: true }],
-      [alice, admin, { includeRole: true }],
-      [alice, alice, { includeRole: true }],
+      [DBData.admin, GraphData.alice, { includeToken: true }],
+      [DBData.alice, GraphData.admin, { includeToken: true }],
+      [DBData.alice, GraphData.admin, { includeRole: true }],
+      [DBData.alice, GraphData.alice, { includeRole: true }],
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async (user, { id }, options) => {
@@ -152,7 +142,7 @@ describe("authorization", () => {
 
 describe("validation", () => {
   describe("$id", () => {
-    test.each(validUserIds)("valid %s", async id => {
+    test.each(GraphData.validUserIds)("valid %s", async id => {
       const { data, errors } = await executeQuery({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -160,7 +150,7 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
-    test.each(invalidUserIds)("invalid %s", async id => {
+    test.each(GraphData.invalidUserIds)("invalid %s", async id => {
       const { data, errors } = await executeQuery({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -177,8 +167,8 @@ describe("validation", () => {
       {},
       { first: firstMax },
       { last: lastMax },
-      { first: 1, after: adminTodo1.id },
-      { last: 1, before: adminTodo3.id },
+      { first: 1, after: GraphData.adminTodo1.id },
+      { last: 1, before: GraphData.adminTodo3.id },
     ];
 
     const invalids = [
@@ -189,13 +179,13 @@ describe("validation", () => {
       { first: firstMax + 1 },
       { last: lastMax + 1 },
       { first: 1, last: 1 },
-      { first: 1, before: adminTodo1.id },
-      { last: 1, after: adminTodo3.id },
+      { first: 1, before: GraphData.adminTodo1.id },
+      { last: 1, after: GraphData.adminTodo3.id },
     ];
 
     test.each(valids)("valid %o", async variables => {
       const { data, errors } = await executeQuery({
-        variables: { ...variables, id: admin.id, includeTodos: true },
+        variables: { ...variables, id: GraphData.admin.id, includeTodos: true },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -206,7 +196,7 @@ describe("validation", () => {
 
     test.each(invalids)("invalid %o", async variables => {
       const { data, errors } = await executeQuery({
-        variables: { ...variables, id: admin.id, includeTodos: true },
+        variables: { ...variables, id: GraphData.admin.id, includeTodos: true },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -220,14 +210,16 @@ describe("validation", () => {
 describe("query without other nodes", () => {
   it("should return item correctly", async () => {
     const { data } = await executeQuery({
-      variables: { id: admin.id, includeToken: true, includeRole: true },
+      variables: { id: GraphData.admin.id, includeToken: true, includeRole: true },
     });
 
-    expect(data?.user).toEqual(admin);
+    expect(data?.user).toEqual(GraphData.admin);
   });
 
   it("should return not found error if not found", async () => {
-    const { data, errors } = await executeQuery({ variables: { id: admin.id.slice(0, -1) } });
+    const { data, errors } = await executeQuery({
+      variables: { id: GraphData.admin.id.slice(0, -1) },
+    });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -251,7 +243,7 @@ describe("query other nodes: todos", () => {
       const additionals = range(numAdditionals).map(x => ({
         title: `${x}`,
         description: "",
-        userId: admin.id,
+        userId: DBData.admin.id,
       }));
 
       const creates = additionals.map(additional => todoAPI.create(additional));
@@ -259,7 +251,7 @@ describe("query other nodes: todos", () => {
       await Promise.all(creates);
 
       const { data } = await executeQuery({
-        variables: { id: admin.id, includeTodos: true },
+        variables: { id: GraphData.admin.id, includeTodos: true },
       });
 
       const numTodos = await prisma.todo.count();
@@ -272,7 +264,7 @@ describe("query other nodes: todos", () => {
       const first = numSeedTodos - 1;
 
       const { data } = await executeQuery({
-        variables: { id: admin.id, includeTodos: true, first },
+        variables: { id: GraphData.admin.id, includeTodos: true, first },
       });
 
       expect(data?.user?.todos?.edges).toHaveLength(first);
@@ -281,32 +273,32 @@ describe("query other nodes: todos", () => {
 
   describe("order of items", () => {
     const patterns = [
-      [{}, [adminTodo1, adminTodo3, adminTodo2]], // defaults to updatedAt desc
+      [{}, [GraphData.adminTodo1, GraphData.adminTodo3, GraphData.adminTodo2]], // defaults to updatedAt desc
       [
         { orderBy: { field: Graph.TodoOrderField.CreatedAt, direction: Graph.OrderDirection.Asc } },
-        [adminTodo1, adminTodo2, adminTodo3],
+        [GraphData.adminTodo1, GraphData.adminTodo2, GraphData.adminTodo3],
       ],
       [
         {
           orderBy: { field: Graph.TodoOrderField.CreatedAt, direction: Graph.OrderDirection.Desc },
         },
-        [adminTodo3, adminTodo2, adminTodo1],
+        [GraphData.adminTodo3, GraphData.adminTodo2, GraphData.adminTodo1],
       ],
       [
         { orderBy: { field: Graph.TodoOrderField.UpdatedAt, direction: Graph.OrderDirection.Asc } },
-        [adminTodo2, adminTodo3, adminTodo1],
+        [GraphData.adminTodo2, GraphData.adminTodo3, GraphData.adminTodo1],
       ],
       [
         {
           orderBy: { field: Graph.TodoOrderField.UpdatedAt, direction: Graph.OrderDirection.Desc },
         },
-        [adminTodo1, adminTodo3, adminTodo2],
+        [GraphData.adminTodo1, GraphData.adminTodo3, GraphData.adminTodo2],
       ],
     ] as const;
 
     test.each(patterns)("%o %o", async (variables, expectedTodos) => {
       const { data } = await executeQuery({
-        variables: { ...variables, id: admin.id, includeTodos: true },
+        variables: { ...variables, id: GraphData.admin.id, includeTodos: true },
       });
 
       const ids = data?.user?.todos?.edges.map(({ node }) => node.id);
@@ -321,7 +313,7 @@ describe("query other nodes: todos", () => {
       const first = numSeedTodos - 1;
 
       const makeExecution = () =>
-        executeQuery({ variables: { id: admin.id, includeTodos: true, first } });
+        executeQuery({ variables: { id: GraphData.admin.id, includeTodos: true, first } });
 
       const { data: data1 } = await makeExecution();
       const { data: data2 } = await makeExecution();

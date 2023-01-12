@@ -1,9 +1,11 @@
 import { chain, race, rule } from "graphql-shield";
 
+import { toUserNodeId } from "@/adapters";
 import * as DataSource from "@/datasources";
 import type { Graph } from "@/graphql/types";
 import { permissionError, isAdmin, isAuthenticated } from "@/graphql/utils";
 import type { Context } from "@/server/types";
+import { parsers } from "./parsers";
 
 type QueryOrUpdateOrDeleteTodosArgs =
   | Graph.QueryTodoArgs
@@ -14,20 +16,18 @@ type Parent = Graph.ResolversParentTypes["Todo"];
 
 const isTodosOwner = rule({ cache: "strict" })(
   (_, { userId }: Graph.QueryTodosArgs, { user }: Context) => {
-    return userId === user.id || permissionError;
+    return userId === toUserNodeId(user.id) || permissionError;
   }
 );
 
 const isTodoOwner = rule({ cache: "strict" })(
-  async (
-    _,
-    { id }: QueryOrUpdateOrDeleteTodosArgs,
-    { user, dataSources: { todoAPI } }: Context
-  ) => {
+  async (_, args: QueryOrUpdateOrDeleteTodosArgs, { user, dataSources: { todoAPI } }: Context) => {
+    const parsed = parsers.Query.todo(args);
+
     let todo;
 
     try {
-      todo = await todoAPI.get({ id });
+      todo = await todoAPI.get(parsed);
     } catch (e) {
       if (e instanceof DataSource.NotFoundError) {
         return false;
@@ -42,7 +42,7 @@ const isTodoOwner = rule({ cache: "strict" })(
 
 const isMine = rule({ cache: "strict" })(
   (_, { userId }: Graph.MutationCreateTodoArgs, { user }: Context) => {
-    return userId === user.id || permissionError;
+    return userId === toUserNodeId(user.id) || permissionError;
   }
 );
 

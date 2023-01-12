@@ -2,14 +2,17 @@ import { Role } from "@prisma/client";
 import { gql } from "graphql-tag";
 
 import type { CreateUserMutation, CreateUserMutationVariables } from "it/graphql/types";
-import { admin, alice, bob, guest } from "it/data";
+import { DBData } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
+import { splitUserNodeId } from "@/adapters";
 import { Graph } from "@/graphql/types";
 import { nonEmptyString } from "@/graphql/utils";
 
-const seedUsers = () => prisma.user.createMany({ data: [admin, alice, bob] });
+const users = [DBData.admin, DBData.alice, DBData.bob];
+
+const seedUsers = () => prisma.user.createMany({ data: users });
 
 const query = gql`
   mutation CreateUser($input: CreateUserInput!) {
@@ -38,8 +41,8 @@ describe("authorization", () => {
 
   const variables = { input: { name: nonEmptyString("foo") } };
 
-  const alloweds = [admin, guest];
-  const notAlloweds = [alice, bob];
+  const alloweds = [DBData.admin, DBData.guest];
+  const notAlloweds = [DBData.alice, DBData.bob];
 
   test.each(alloweds)("allowed %o", async user => {
     const { data, errors } = await executeMutation({ user, variables });
@@ -114,7 +117,9 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await prisma.user.findUnique({ where: { id: data.createUser.id } });
+    const { id } = splitUserNodeId(data.createUser.id);
+
+    const maybeUser = await prisma.user.findUnique({ where: { id } });
 
     expect(maybeUser?.name).toBe(name);
   });
@@ -128,7 +133,9 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await prisma.user.findUnique({ where: { id: data.createUser.id } });
+    const { id } = splitUserNodeId(data.createUser.id);
+
+    const maybeUser = await prisma.user.findUnique({ where: { id } });
 
     expect(maybeUser?.role).toBe(Role.USER);
   });

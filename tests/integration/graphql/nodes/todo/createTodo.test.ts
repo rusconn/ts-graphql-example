@@ -2,14 +2,17 @@ import { TodoStatus } from "@prisma/client";
 import { gql } from "graphql-tag";
 
 import type { CreateTodoMutation, CreateTodoMutationVariables } from "it/graphql/types";
-import { admin, alice, bob, guest, invalidUserIds, validUserIds } from "it/data";
+import { DBData, GraphData } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
+import { splitTodoNodeId } from "@/adapters";
 import { Graph } from "@/graphql/types";
 import { nonEmptyString } from "@/graphql/utils";
 
-const seedUsers = () => prisma.user.createMany({ data: [admin, alice, bob] });
+const users = [DBData.admin, DBData.alice, DBData.bob];
+
+const seedUsers = () => prisma.user.createMany({ data: users });
 
 const query = gql`
   mutation CreateTodo($userId: ID!, $input: CreateTodoInput!) {
@@ -41,15 +44,15 @@ describe("authorization", () => {
   const variables = { input: { title: nonEmptyString("title"), description: "" } };
 
   const allowedPatterns = [
-    [admin, admin],
-    [admin, alice],
-    [alice, alice],
+    [DBData.admin, GraphData.admin],
+    [DBData.admin, GraphData.alice],
+    [DBData.alice, GraphData.alice],
   ] as const;
 
   const notAllowedPatterns = [
-    [alice, bob],
-    [guest, admin],
-    [guest, alice],
+    [DBData.alice, GraphData.bob],
+    [DBData.guest, GraphData.admin],
+    [DBData.guest, GraphData.alice],
   ] as const;
 
   test.each(allowedPatterns)("allowed %o %o", async (user, { id }) => {
@@ -86,7 +89,7 @@ describe("validation", () => {
 
     const variables = { input: { title: nonEmptyString("title"), description: "" } };
 
-    test.each(validUserIds)("valid %s", async id => {
+    test.each(GraphData.validUserIds)("valid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { ...variables, userId: id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -94,7 +97,7 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
-    test.each(invalidUserIds)("invalid %s", async id => {
+    test.each(GraphData.invalidUserIds)("invalid %s", async id => {
       const { data, errors } = await executeMutation({ variables: { ...variables, userId: id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -131,7 +134,7 @@ describe("validation", () => {
 
     test.each(valids)("valid %s", async input => {
       const { data, errors } = await executeMutation({
-        variables: { input, userId: admin.id },
+        variables: { input, userId: GraphData.admin.id },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -142,7 +145,7 @@ describe("validation", () => {
 
     test.each(invalids)("invalid %s", async input => {
       const { data, errors } = await executeMutation({
-        variables: { input, userId: admin.id },
+        variables: { input, userId: GraphData.admin.id },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -163,14 +166,16 @@ describe("logic", () => {
 
   it("should create todo using input", async () => {
     const { data } = await executeMutation({
-      variables: { input, userId: admin.id },
+      variables: { input, userId: GraphData.admin.id },
     });
 
     if (!data || !data.createTodo) {
       throw new Error("operation failed");
     }
 
-    const maybeTodo = await prisma.todo.findUnique({ where: { id: data.createTodo.id } });
+    const { id } = splitTodoNodeId(data.createTodo.id);
+
+    const maybeTodo = await prisma.todo.findUnique({ where: { id } });
 
     expect(maybeTodo?.title).toBe(input.title);
     expect(maybeTodo?.description).toBe(input.description);
@@ -178,14 +183,16 @@ describe("logic", () => {
 
   test("status should be PENDING by default", async () => {
     const { data } = await executeMutation({
-      variables: { input, userId: admin.id },
+      variables: { input, userId: GraphData.admin.id },
     });
 
     if (!data || !data.createTodo) {
       throw new Error("operation failed");
     }
 
-    const maybeTodo = await prisma.todo.findUnique({ where: { id: data.createTodo.id } });
+    const { id } = splitTodoNodeId(data.createTodo.id);
+
+    const maybeTodo = await prisma.todo.findUnique({ where: { id } });
 
     expect(maybeTodo?.status).toBe(TodoStatus.PENDING);
   });

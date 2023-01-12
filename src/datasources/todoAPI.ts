@@ -1,11 +1,10 @@
 import { Prisma, PrismaClient, User, Todo, TodoStatus } from "@prisma/client";
 import type { GraphQLResolveInfo } from "graphql";
+import { nanoid } from "nanoid";
 import {
   ConnectionArguments,
   findManyCursorConnection,
 } from "@devoxa/prisma-relay-cursor-connection";
-
-import { todoId } from "@/ids";
 
 export type GetUserTodosParams = ConnectionArguments & {
   userId: User["id"];
@@ -63,7 +62,7 @@ export class TodoAPI {
   }
 
   async create({ userId, ...data }: CreateTodoParams) {
-    return this.prisma.todo.create({ data: { id: todoId(), ...data, userId } });
+    return this.prisma.todo.create({ data: { id: nanoid(), ...data, userId } });
   }
 
   async update({ id, ...data }: UpdateTodoParams) {

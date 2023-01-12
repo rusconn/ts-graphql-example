@@ -1,7 +1,7 @@
-import type { Type } from "@/ids";
+import type { NodeType } from "@/adapters";
 
 export const makeCursorConnections = (
-  type: Type,
+  type: NodeType,
   additionalConnectionFields: Record<string, string> = {},
   additionalEdgeFields: Record<string, string> = {}
 ) => `
@@ -20,7 +20,7 @@ export const makeCursorConnections = (
 `;
 
 export const makeOrderOptions = (
-  type: Type,
+  type: NodeType,
   additionaOrderFields: Record<string, string> = {},
   additionalOrderFieldFields: Record<string, string> = {}
 ) => `
