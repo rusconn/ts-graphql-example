@@ -13,6 +13,7 @@ import {
   validUserIds,
   invalidUserIds,
 } from "it/data";
+import { todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
@@ -248,14 +249,15 @@ describe("query other nodes: todos", () => {
       const numDefault = 20;
       const numAdditionals = numDefault - numSeedTodos + 1;
 
-      // id が衝突しないようにしている
       const additionals = range(numAdditionals).map(x => ({
-        id: userId(),
         title: `${x}`,
+        description: "",
         userId: admin.id,
       }));
 
-      await prisma.todo.createMany({ data: additionals });
+      const creates = additionals.map(additional => todoAPI.create(additional));
+
+      await Promise.all(creates);
 
       const { data } = await executeQuery({
         variables: { id: admin.id, includeTodos: true },

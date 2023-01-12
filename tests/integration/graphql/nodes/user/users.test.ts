@@ -3,11 +3,11 @@ import range from "lodash/range";
 
 import type { UsersQuery, UsersQueryVariables } from "it/graphql/types";
 import { admin, alice, bob, guest } from "it/data";
+import { userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
-import { userId } from "@/ids";
 
 const users = [admin, alice, bob];
 
@@ -113,11 +113,14 @@ describe("number of items", () => {
   it("should be 10 by default", async () => {
     const numDefault = 10;
     const numAdditionals = numDefault - numSeed + 1;
+
     const additionals = range(numAdditionals).map(x => ({
-      id: userId(),
       name: `${x}`,
     }));
-    await prisma.user.createMany({ data: additionals });
+
+    const creates = additionals.map(additional => userAPI.create(additional));
+
+    await Promise.all(creates);
 
     const numUsers = await prisma.user.count();
     const { data } = await executeQuery({});
