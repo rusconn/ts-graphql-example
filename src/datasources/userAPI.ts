@@ -45,7 +45,7 @@ export class UserAPI {
   }
 
   async create(data: CreateUserParams) {
-    return this.prisma.user.create({ data: { id: nanoid(), ...data } });
+    return this.prisma.user.create({ data: { id: nanoid(), token: nanoid(), ...data } });
   }
 
   async update({ id, ...data }: UpdateUserParams) {
