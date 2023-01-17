@@ -22,16 +22,8 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Node: {
-    __resolveType: node => {
-      if ("title" in node) {
-        return "Todo";
-      }
-
-      if ("name" in node) {
-        return "User";
-      }
-
-      return null;
+    __resolveType: ({ id }) => {
+      return splitNodeId(id).type;
     },
   },
 };
