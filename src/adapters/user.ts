@@ -16,7 +16,6 @@ export const toUserNode = (user: Prisma.User): Mapper.User => ({
   role: {
     [Prisma.Role.ADMIN]: Graph.Role.Admin,
     [Prisma.Role.USER]: Graph.Role.User,
-    [Prisma.Role.GUEST]: Graph.Role.Guest,
   }[user.role],
 });
 

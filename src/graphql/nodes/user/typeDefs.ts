@@ -52,7 +52,6 @@ export const typeDefs = gql`
   enum Role {
     ADMIN
     USER
-    GUEST
   }
 
   input CreateUserInput {

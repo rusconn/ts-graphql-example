@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 import range from "lodash/range";
 
 import type { UserQuery, UserQueryVariables } from "it/graphql/types";
-import { DBData, GraphData } from "it/data";
+import { ContextData, DBData, GraphData } from "it/data";
 import { todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
@@ -69,17 +69,17 @@ beforeAll(async () => {
 describe("authorization", () => {
   describe("query user", () => {
     const allowedPatterns = [
-      [DBData.admin, GraphData.admin],
-      [DBData.admin, GraphData.alice],
-      [DBData.alice, GraphData.alice],
-      [DBData.bob, GraphData.bob],
+      [ContextData.admin, GraphData.admin],
+      [ContextData.admin, GraphData.alice],
+      [ContextData.alice, GraphData.alice],
+      [ContextData.bob, GraphData.bob],
     ] as const;
 
     const notAllowedPatterns = [
-      [DBData.alice, GraphData.bob],
-      [DBData.bob, GraphData.alice],
-      [DBData.guest, GraphData.admin],
-      [DBData.guest, GraphData.alice],
+      [ContextData.alice, GraphData.bob],
+      [ContextData.bob, GraphData.alice],
+      [ContextData.guest, GraphData.admin],
+      [ContextData.guest, GraphData.alice],
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async (user, { id }) => {
@@ -101,17 +101,17 @@ describe("authorization", () => {
 
   describe("query subfields", () => {
     const allowedPatterns = [
-      [DBData.admin, GraphData.admin, { includeToken: true }],
-      [DBData.alice, GraphData.alice, { includeToken: true }],
-      [DBData.admin, GraphData.alice, { includeRole: true }],
-      [DBData.admin, GraphData.admin, { includeRole: true }],
+      [ContextData.admin, GraphData.admin, { includeToken: true }],
+      [ContextData.alice, GraphData.alice, { includeToken: true }],
+      [ContextData.admin, GraphData.alice, { includeRole: true }],
+      [ContextData.admin, GraphData.admin, { includeRole: true }],
     ] as const;
 
     const notAllowedPatterns = [
-      [DBData.admin, GraphData.alice, { includeToken: true }],
-      [DBData.alice, GraphData.admin, { includeToken: true }],
-      [DBData.alice, GraphData.admin, { includeRole: true }],
-      [DBData.alice, GraphData.alice, { includeRole: true }],
+      [ContextData.admin, GraphData.alice, { includeToken: true }],
+      [ContextData.alice, GraphData.admin, { includeToken: true }],
+      [ContextData.alice, GraphData.admin, { includeRole: true }],
+      [ContextData.alice, GraphData.alice, { includeRole: true }],
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async (user, { id }, options) => {

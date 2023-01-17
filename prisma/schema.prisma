@@ -43,5 +43,4 @@ enum TodoStatus {
 enum Role {
   ADMIN
   USER
-  GUEST
 }

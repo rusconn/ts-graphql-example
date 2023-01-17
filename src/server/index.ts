@@ -1,5 +1,4 @@
 import { startStandaloneServer } from "@apollo/server/standalone";
-import { Role } from "@prisma/client";
 import { GraphQLError } from "graphql";
 
 import { TodoAPI, UserAPI } from "@/datasources";
@@ -47,7 +46,7 @@ startStandaloneServer(server, {
 
       user = maybeUser;
     } else {
-      user = { id: "GUEST_DUMMY_ID", role: Role.GUEST };
+      user = { id: "GUEST", role: "GUEST" } as const;
     }
 
     return {

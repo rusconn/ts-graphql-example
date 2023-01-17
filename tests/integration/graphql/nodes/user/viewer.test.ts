@@ -1,7 +1,7 @@
 import { gql } from "graphql-tag";
 
 import type { ViewerQuery, ViewerQueryVariables } from "it/graphql/types";
-import { DBData } from "it/data";
+import { ContextData, DBData } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
@@ -27,8 +27,8 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const alloweds = [DBData.admin, DBData.alice, DBData.bob];
-  const notAlloweds = [DBData.guest];
+  const alloweds = [ContextData.admin, ContextData.alice, ContextData.bob];
+  const notAlloweds = [ContextData.guest];
 
   test.each(alloweds)("allowed %o", async user => {
     const { data, errors } = await executeQuery({ user });

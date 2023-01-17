@@ -2,7 +2,7 @@ import { Role } from "@prisma/client";
 import { gql } from "graphql-tag";
 
 import type { CreateUserMutation, CreateUserMutationVariables } from "it/graphql/types";
-import { DBData } from "it/data";
+import { ContextData, DBData } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
@@ -41,8 +41,8 @@ describe("authorization", () => {
 
   const variables = { input: { name: nonEmptyString("foo") } };
 
-  const alloweds = [DBData.admin, DBData.guest];
-  const notAlloweds = [DBData.alice, DBData.bob];
+  const alloweds = [ContextData.admin, ContextData.guest];
+  const notAlloweds = [ContextData.alice, ContextData.bob];
 
   test.each(alloweds)("allowed %o", async user => {
     const { data, errors } = await executeMutation({ user, variables });

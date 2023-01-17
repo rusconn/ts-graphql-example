@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 import range from "lodash/range";
 
 import { OrderDirection, TodoOrderField, TodosQuery, TodosQueryVariables } from "it/graphql/types";
-import { DBData, GraphData } from "it/data";
+import { ContextData, DBData, GraphData } from "it/data";
 import { todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
@@ -62,16 +62,16 @@ beforeAll(async () => {
 
 describe("authorization", () => {
   const allowedPatterns = [
-    [DBData.admin, GraphData.admin],
-    [DBData.admin, GraphData.alice],
-    [DBData.alice, GraphData.alice],
+    [ContextData.admin, GraphData.admin],
+    [ContextData.admin, GraphData.alice],
+    [ContextData.alice, GraphData.alice],
   ] as const;
 
   const notAllowedPatterns = [
-    [DBData.alice, GraphData.admin],
-    [DBData.alice, GraphData.bob],
-    [DBData.guest, GraphData.admin],
-    [DBData.guest, GraphData.alice],
+    [ContextData.alice, GraphData.admin],
+    [ContextData.alice, GraphData.bob],
+    [ContextData.guest, GraphData.admin],
+    [ContextData.guest, GraphData.alice],
   ] as const;
 
   test.each(allowedPatterns)("allowed %s", async (user, { id }) => {

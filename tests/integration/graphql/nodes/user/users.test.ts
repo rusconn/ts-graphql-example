@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 import range from "lodash/range";
 
 import type { UsersQuery, UsersQueryVariables } from "it/graphql/types";
-import { DBData, GraphData } from "it/data";
+import { ContextData, DBData, GraphData } from "it/data";
 import { userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
@@ -43,8 +43,8 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const alloweds = [DBData.admin];
-  const notAlloweds = [DBData.alice, DBData.bob, DBData.guest];
+  const alloweds = [ContextData.admin];
+  const notAlloweds = [ContextData.alice, ContextData.bob, ContextData.guest];
 
   test.each(alloweds)("allowed %s", async user => {
     const { data, errors } = await executeQuery({ user });

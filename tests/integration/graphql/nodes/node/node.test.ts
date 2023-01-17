@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 import pick from "lodash/pick";
 
 import type { NodeQuery, NodeQueryVariables } from "it/graphql/types";
-import { DBData, GraphData } from "it/data";
+import { ContextData, DBData, GraphData } from "it/data";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
@@ -46,15 +46,15 @@ beforeAll(async () => {
 describe("authorization", () => {
   describe("user", () => {
     const allowedPatterns = [
-      [DBData.admin, GraphData.admin],
-      [DBData.admin, GraphData.alice],
-      [DBData.alice, GraphData.alice],
+      [ContextData.admin, GraphData.admin],
+      [ContextData.admin, GraphData.alice],
+      [ContextData.alice, GraphData.alice],
     ] as const;
 
     const notAllowedPatterns = [
-      [DBData.alice, GraphData.bob],
-      [DBData.guest, GraphData.admin],
-      [DBData.guest, GraphData.alice],
+      [ContextData.alice, GraphData.bob],
+      [ContextData.guest, GraphData.admin],
+      [ContextData.guest, GraphData.alice],
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async (user, { id }) => {
@@ -76,15 +76,15 @@ describe("authorization", () => {
 
   describe("todo", () => {
     const allowedPatterns = [
-      [DBData.admin, GraphData.adminTodo1],
-      [DBData.admin, GraphData.aliceTodo],
-      [DBData.alice, GraphData.aliceTodo],
+      [ContextData.admin, GraphData.adminTodo1],
+      [ContextData.admin, GraphData.aliceTodo],
+      [ContextData.alice, GraphData.aliceTodo],
     ] as const;
 
     const notAllowedPatterns = [
-      [DBData.alice, GraphData.bobTodo],
-      [DBData.guest, GraphData.adminTodo1],
-      [DBData.guest, GraphData.aliceTodo],
+      [ContextData.alice, GraphData.bobTodo],
+      [ContextData.guest, GraphData.adminTodo1],
+      [ContextData.guest, GraphData.aliceTodo],
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async (user, { id }) => {

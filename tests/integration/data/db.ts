@@ -27,15 +27,6 @@ export const bob = {
   updatedAt: new Date(2),
 } as const;
 
-export const guest = {
-  id: "d9QWU0PPanh9HAWqdYRLx",
-  name: "Guest",
-  role: Prisma.Role.GUEST,
-  token: undefined,
-  createdAt: undefined,
-  updatedAt: undefined,
-} as const;
-
 export const adminTodo1 = {
   id: "aHbtLGE7ANe1CSDbnhZQZ",
   title: "admin todo 1",
