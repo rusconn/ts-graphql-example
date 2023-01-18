@@ -144,7 +144,7 @@ describe("logic", () => {
   });
 
   it("should not delete others", async () => {
-    const before = await prisma.todo.count();
+    const before = await todoAPI.count();
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
@@ -154,7 +154,7 @@ describe("logic", () => {
 
     const maybeTodo = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
 
-    const after = await prisma.todo.count();
+    const after = await todoAPI.count();
 
     expect(maybeTodo).toBeNull();
     expect(after).toBe(before - 1);

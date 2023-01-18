@@ -5,7 +5,6 @@ import { OrderDirection, TodoOrderField, TodosQuery, TodosQueryVariables } from 
 import { ContextData, DBData, GraphData } from "it/data";
 import { todoAPI, userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
-import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
@@ -159,7 +158,7 @@ describe("number of items", () => {
 
     await Promise.all(creates);
 
-    const numTodos = await prisma.todo.count();
+    const numTodos = await todoAPI.count();
     const { data } = await executeQuery({ variables: { userId: GraphData.admin.id } });
 
     expect(numTodos).toBe(numDefault + 1);

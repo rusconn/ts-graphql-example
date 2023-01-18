@@ -8,6 +8,10 @@ import {
 
 import { prisma } from "./internal/prisma";
 
+export type CountTodosParams = {
+  userId?: Todo["userId"];
+};
+
 export type GetUserTodosParams = ConnectionArguments & {
   userId: User["id"];
   orderBy: Exclude<Prisma.TodoFindManyArgs["orderBy"], undefined>;
@@ -56,6 +60,10 @@ export class TodoAPI {
 
   constructor() {
     this.prisma = prisma;
+  }
+
+  async count({ userId }: CountTodosParams = {}) {
+    return this.prisma.todo.count({ where: { userId } });
   }
 
   async getsUserTodos({ userId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {

@@ -51,6 +51,10 @@ export class UserAPI {
     this.prisma = prisma;
   }
 
+  async count() {
+    return this.prisma.user.count();
+  }
+
   async gets({ info, orderBy, ...paginationArgs }: GetUsersParams) {
     return findManyCursorConnection<User>(
       args => this.prisma.user.findMany({ ...args, orderBy }),

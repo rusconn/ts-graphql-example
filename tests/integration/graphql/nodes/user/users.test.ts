@@ -5,7 +5,6 @@ import type { UsersQuery, UsersQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
-import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
@@ -122,7 +121,7 @@ describe("number of items", () => {
 
     await Promise.all(creates);
 
-    const numUsers = await prisma.user.count();
+    const numUsers = await userAPI.count();
     const { data } = await executeQuery({});
 
     expect(numUsers).toBe(numDefault + 1);

@@ -133,7 +133,7 @@ describe("logic", () => {
   });
 
   it("should not delete others", async () => {
-    const before = await prisma.user.count();
+    const before = await userAPI.count();
 
     const { data } = await executeMutation({ variables: { id: GraphData.bob.id } });
 
@@ -143,7 +143,7 @@ describe("logic", () => {
 
     const maybeUser = await prisma.user.findUnique({ where: { id: data.deleteUser.id } });
 
-    const after = await prisma.user.count();
+    const after = await userAPI.count();
 
     expect(maybeUser).toBeNull();
     expect(after).toBe(before - 1);
@@ -152,7 +152,7 @@ describe("logic", () => {
   it("should delete his resources", async () => {
     await seedAdminTodos();
 
-    const before = await prisma.todo.count({ where: { userId: DBData.admin.id } });
+    const before = await todoAPI.count({ userId: DBData.admin.id });
 
     const { data } = await executeMutation({ variables: { id: GraphData.admin.id } });
 
@@ -160,7 +160,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const after = await prisma.todo.count({ where: { userId: DBData.admin.id } });
+    const after = await todoAPI.count({ userId: DBData.admin.id });
 
     expect(before).not.toBe(0);
     expect(after).toBe(0);

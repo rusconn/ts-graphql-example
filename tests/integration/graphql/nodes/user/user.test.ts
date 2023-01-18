@@ -5,7 +5,6 @@ import type { UserQuery, UserQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { todoAPI, userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
-import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
@@ -254,7 +253,7 @@ describe("query other nodes: todos", () => {
         variables: { id: GraphData.admin.id, includeTodos: true },
       });
 
-      const numTodos = await prisma.todo.count();
+      const numTodos = await todoAPI.count();
 
       expect(numTodos).toBe(numDefault + 1);
       expect(data?.user?.todos?.edges).toHaveLength(numDefault);
