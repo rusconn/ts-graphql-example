@@ -36,7 +36,7 @@ export const parsers = {
         }
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
@@ -67,7 +67,7 @@ export const parsers = {
         return splitUserNodeId(id);
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
@@ -96,7 +96,7 @@ export const parsers = {
         ({ id: idToUse } = splitUserNodeId(id));
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
@@ -119,7 +119,7 @@ export const parsers = {
         return splitUserNodeId(id);
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
@@ -159,7 +159,7 @@ export const parsers = {
         }
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;

@@ -36,7 +36,7 @@ export const parsers = {
         }
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
@@ -48,7 +48,7 @@ export const parsers = {
         ({ id: userIdToUse } = splitUserNodeId(userId));
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
@@ -80,7 +80,7 @@ export const parsers = {
         return splitTodoNodeId(id);
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
@@ -100,7 +100,7 @@ export const parsers = {
         ({ id: userIdToUse } = splitUserNodeId(userId));
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
@@ -128,7 +128,7 @@ export const parsers = {
         ({ id: idToUse } = splitTodoNodeId(id));
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
@@ -163,7 +163,7 @@ export const parsers = {
         return splitTodoNodeId(id);
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
@@ -176,7 +176,7 @@ export const parsers = {
         return splitTodoNodeId(id);
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
@@ -189,7 +189,7 @@ export const parsers = {
         return splitTodoNodeId(id);
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;

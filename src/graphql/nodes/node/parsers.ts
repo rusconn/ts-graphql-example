@@ -11,7 +11,7 @@ export const parsers = {
         return splitNodeId(id);
       } catch (e) {
         if (e instanceof Error) {
-          throw new ParseError("parse failed", e);
+          throw new ParseError(e.message, e);
         }
 
         throw e;
