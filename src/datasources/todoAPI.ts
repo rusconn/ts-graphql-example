@@ -79,6 +79,10 @@ export class TodoAPI {
     return this.prisma.todo.delete({ where: { id } });
   }
 
+  async deleteAll() {
+    return this.prisma.todo.deleteMany();
+  }
+
   async complete({ id }: CompleteTodoParams) {
     return this.prisma.todo.update({ where: { id }, data: { status: TodoStatus.DONE } });
   }

@@ -69,4 +69,8 @@ export class UserAPI {
   async delete({ id }: DeleteUserParams) {
     return this.prisma.user.delete({ where: { id } });
   }
+
+  async deleteAll() {
+    return this.prisma.user.deleteMany();
+  }
 }
