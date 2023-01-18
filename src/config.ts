@@ -27,6 +27,8 @@ if (!NODE_ENV || !isValidNodeEnv(NODE_ENV)) {
   throw new Error("Invalid NODE_ENV");
 }
 
-const nodeEnv = NODE_ENV;
+const isDev = NODE_ENV === "development";
+const isTest = NODE_ENV === "test";
+const isProd = NODE_ENV === "production";
 
-export { maxDepth, maxCost, alertCost, nodeEnv };
+export { maxDepth, maxCost, alertCost, isDev, isTest, isProd };

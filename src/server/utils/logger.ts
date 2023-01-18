@@ -2,14 +2,12 @@ import pino, { LoggerOptions, stdTimeFunctions } from "pino";
 import pretty from "pino-pretty"; // eslint-disable-line import/no-extraneous-dependencies
 import { nanoid } from "nanoid";
 
-import { nodeEnv } from "@/config";
+import { isDev, isTest } from "@/config";
 
 export const makeLogger = () => {
-  if (nodeEnv === "test") {
+  if (isTest) {
     return pino({ enabled: false });
   }
-
-  const isDev = nodeEnv === "development";
 
   // pid と hostname を省き、タイムスタンプを読める形にする
   const options: pretty.PrettyStream | LoggerOptions = isDev
