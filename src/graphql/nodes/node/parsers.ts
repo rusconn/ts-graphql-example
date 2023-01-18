@@ -3,9 +3,7 @@ import { parseNodeId } from "@/graphql/utils";
 
 export const parsers = {
   Query: {
-    node: (args: Graph.QueryNodeArgs) => {
-      const { id } = args;
-
+    node: ({ id }: Graph.QueryNodeArgs) => {
       return parseNodeId(id);
     },
   },

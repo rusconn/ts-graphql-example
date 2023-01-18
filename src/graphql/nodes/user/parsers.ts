@@ -44,9 +44,7 @@ export const parsers = {
         orderBy: orderByToUse,
       };
     },
-    user: (args: Graph.QueryUserArgs): DataSource.GetUserParams => {
-      const { id } = args;
-
+    user: ({ id }: Graph.QueryUserArgs): DataSource.GetUserParams => {
       return { id: parseUserNodeId(id) };
     },
   },
@@ -78,9 +76,7 @@ export const parsers = {
 
       return { id: idToUse, name };
     },
-    deleteUser: (args: Graph.MutationDeleteUserArgs): DataSource.DeleteUserParams => {
-      const { id } = args;
-
+    deleteUser: ({ id }: Graph.MutationDeleteUserArgs): DataSource.DeleteUserParams => {
       return { id: parseUserNodeId(id) };
     },
   },

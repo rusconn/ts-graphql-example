@@ -46,9 +46,7 @@ export const parsers = {
         orderBy: orderByToUse,
       };
     },
-    todo: (args: Graph.QueryTodoArgs): DataSource.GetTodoParams => {
-      const { id } = args;
-
+    todo: ({ id }: Graph.QueryTodoArgs): DataSource.GetTodoParams => {
       return { id: parseTodoNodeId(id) };
     },
   },
@@ -101,19 +99,13 @@ export const parsers = {
 
       return { id: idToUse, title, description, status };
     },
-    deleteTodo: (args: Graph.MutationDeleteTodoArgs): DataSource.DeleteTodoParams => {
-      const { id } = args;
-
+    deleteTodo: ({ id }: Graph.MutationDeleteTodoArgs): DataSource.DeleteTodoParams => {
       return { id: parseTodoNodeId(id) };
     },
-    completeTodo: (args: Graph.MutationCompleteTodoArgs): DataSource.CompleteTodoParams => {
-      const { id } = args;
-
+    completeTodo: ({ id }: Graph.MutationCompleteTodoArgs): DataSource.CompleteTodoParams => {
       return { id: parseTodoNodeId(id) };
     },
-    uncompleteTodo: (args: Graph.MutationUncompleteTodoArgs): DataSource.UncompleteTodoParams => {
-      const { id } = args;
-
+    uncompleteTodo: ({ id }: Graph.MutationUncompleteTodoArgs): DataSource.UncompleteTodoParams => {
       return { id: parseTodoNodeId(id) };
     },
   },
