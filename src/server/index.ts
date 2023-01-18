@@ -5,9 +5,9 @@ import { TodoAPI, UserAPI } from "@/datasources";
 import { Graph } from "@/graphql/types";
 import type { Context } from "./types";
 import { logger } from "./logger";
-import { isIntrospectionQuery, makePrismaClient, makeServer } from "./utils";
+import { prisma } from "./prisma";
+import { isIntrospectionQuery, makeServer } from "./utils";
 
-const prisma = makePrismaClient();
 const server = makeServer();
 
 startStandaloneServer(server, {
