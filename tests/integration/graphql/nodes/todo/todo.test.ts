@@ -2,8 +2,8 @@ import { gql } from "graphql-tag";
 
 import type { TodoQuery, TodoQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
+import { userAPI, todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
-import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
@@ -17,8 +17,8 @@ const todos = [
   DBData.bobTodo,
 ];
 
-const seedUsers = () => prisma.user.createMany({ data: users });
-const seedTodos = () => prisma.todo.createMany({ data: todos });
+const seedUsers = () => userAPI.createMany(users);
+const seedTodos = () => todoAPI.createMany(todos);
 
 const query = gql`
   query Todo($id: ID!, $includeUser: Boolean = false) {

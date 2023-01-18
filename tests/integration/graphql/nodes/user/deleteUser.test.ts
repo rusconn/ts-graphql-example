@@ -2,6 +2,7 @@ import { gql } from "graphql-tag";
 
 import type { DeleteUserMutation, DeleteUserMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
+import { userAPI, todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
@@ -11,8 +12,8 @@ import { nonEmptyString } from "@/graphql/utils";
 const users = [DBData.admin, DBData.alice, DBData.bob];
 const todos = [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3];
 
-const seedUsers = () => prisma.user.createMany({ data: users });
-const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
+const seedUsers = () => userAPI.createMany(users);
+const seedAdminTodos = () => todoAPI.createMany(todos);
 
 const query = gql`
   mutation DeleteUser($id: ID!) {

@@ -24,6 +24,10 @@ export type CreateTodoParams = {
   description: Todo["description"];
 };
 
+export type CreateManyTodoParams = (CreateTodoParams & {
+  id: Todo["id"];
+})[];
+
 export type UpdateTodoParams = {
   id: Todo["id"];
   title?: Todo["title"];
@@ -69,6 +73,10 @@ export class TodoAPI {
 
   async create({ userId, ...data }: CreateTodoParams) {
     return this.prisma.todo.create({ data: { id: nanoid(), ...data, userId } });
+  }
+
+  async createMany(data: CreateManyTodoParams) {
+    return this.prisma.todo.createMany({ data });
   }
 
   async update({ id, ...data }: UpdateTodoParams) {

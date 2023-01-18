@@ -3,6 +3,7 @@ import omit from "lodash/omit";
 
 import type { CompleteTodoMutation, CompleteTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
+import { todoAPI, userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
@@ -18,8 +19,8 @@ const todos = [
   DBData.bobTodo,
 ];
 
-const seedUsers = () => prisma.user.createMany({ data: users });
-const seedTodos = () => prisma.todo.createMany({ data: todos });
+const seedUsers = () => userAPI.createMany(users);
+const seedTodos = () => todoAPI.createMany(todos);
 
 const resetAdminTodoValue = () =>
   prisma.todo.upsert({

@@ -25,6 +25,11 @@ export type CreateUserParams = {
   name: User["name"];
 };
 
+export type CreateManyUserParams = (CreateUserParams & {
+  id: User["id"];
+  token: User["token"];
+})[];
+
 export type UpdateUserParams = {
   id: User["id"];
   name?: User["name"];
@@ -60,6 +65,10 @@ export class UserAPI {
 
   async create(data: CreateUserParams) {
     return this.prisma.user.create({ data: { id: nanoid(), token: nanoid(), ...data } });
+  }
+
+  async createMany(data: CreateManyUserParams) {
+    return this.prisma.user.createMany({ data });
   }
 
   async update({ id, ...data }: UpdateUserParams) {

@@ -3,7 +3,7 @@ import range from "lodash/range";
 
 import { OrderDirection, TodoOrderField, TodosQuery, TodosQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
-import { todoAPI } from "it/datasources";
+import { todoAPI, userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
@@ -12,8 +12,8 @@ import { Graph } from "@/graphql/types";
 const users = [DBData.admin, DBData.alice, DBData.bob];
 const todos = [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3];
 
-const seedUsers = () => prisma.user.createMany({ data: users });
-const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
+const seedUsers = () => userAPI.createMany(users);
+const seedAdminTodos = () => todoAPI.createMany(todos);
 
 const numSeedTodos = todos.length;
 

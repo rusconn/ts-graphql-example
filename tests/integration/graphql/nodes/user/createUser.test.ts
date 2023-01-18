@@ -3,6 +3,7 @@ import { gql } from "graphql-tag";
 
 import type { CreateUserMutation, CreateUserMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
+import { userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
@@ -12,7 +13,7 @@ import { nonEmptyString } from "@/graphql/utils";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
-const seedUsers = () => prisma.user.createMany({ data: users });
+const seedUsers = () => userAPI.createMany(users);
 
 const query = gql`
   mutation CreateUser($input: CreateUserInput!) {

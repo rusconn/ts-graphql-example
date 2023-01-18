@@ -3,6 +3,7 @@ import omit from "lodash/omit";
 
 import type { UpdateUserMutation, UpdateUserMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
+import { userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
@@ -11,7 +12,7 @@ import { nonEmptyString } from "@/graphql/utils";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
-const seedUsers = () => prisma.user.createMany({ data: users });
+const seedUsers = () => userAPI.createMany(users);
 
 const query = gql`
   mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {

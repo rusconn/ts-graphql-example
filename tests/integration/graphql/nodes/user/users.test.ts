@@ -11,7 +11,7 @@ import { Graph } from "@/graphql/types";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
-const seedUsers = () => prisma.user.createMany({ data: users });
+const seedUsers = () => userAPI.createMany(users);
 
 const numSeed = users.length;
 
