@@ -5,8 +5,6 @@ import { TodoAPI, UserAPI } from "@/datasources";
 import { Graph } from "@/graphql/types";
 import type { Context } from "./types";
 import { logger } from "./logger";
-// TDOO: 依存を消す
-import { prisma } from "./datasources/internal/prisma";
 import { server } from "./server";
 import { isIntrospectionQuery } from "./utils";
 
@@ -25,10 +23,13 @@ startStandaloneServer(server, {
 
     const token = req.headers.authorization?.replace("Bearer ", "");
 
+    const todoAPI = new TodoAPI();
+    const userAPI = new UserAPI();
+
     let user;
 
     if (token) {
-      const maybeUser = await prisma.user.findUnique({ where: { token } });
+      const maybeUser = await userAPI.getByToken({ token });
 
       if (!maybeUser) {
         throw new GraphQLError("Authentication error", {
@@ -45,8 +46,8 @@ startStandaloneServer(server, {
       logger,
       user,
       dataSources: {
-        todoAPI: new TodoAPI(),
-        userAPI: new UserAPI(),
+        todoAPI,
+        userAPI,
       },
     };
   },

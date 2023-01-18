@@ -17,6 +17,10 @@ export type GetUserParams = {
   id: User["id"];
 };
 
+export type GetUserByTokenParams = {
+  token: User["token"];
+};
+
 export type CreateUserParams = {
   name: User["name"];
 };
@@ -48,6 +52,10 @@ export class UserAPI {
 
   async get({ id }: GetUserParams) {
     return this.prisma.user.findUniqueOrThrow({ where: { id } });
+  }
+
+  async getByToken({ token }: GetUserByTokenParams) {
+    return this.prisma.user.findUnique({ where: { token } });
   }
 
   async create(data: CreateUserParams) {
