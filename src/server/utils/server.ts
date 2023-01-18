@@ -4,17 +4,12 @@ import depthLimit from "graphql-depth-limit";
 import { applyMiddleware } from "graphql-middleware";
 import { createComplexityLimitRule } from "graphql-validation-complexity";
 
+import { maxDepth, maxCost, alertCost } from "@/config";
 import { middlewares, schema } from "@/graphql";
 import type { Context } from "@/server/types";
 import { isIntrospectionQuery } from "./graphql";
 
-type MakeServerParams = {
-  maxDepth: number;
-  maxCost: number;
-  alertCost: number;
-};
-
-export const makeServer = ({ maxDepth, maxCost, alertCost }: MakeServerParams) =>
+export const makeServer = () =>
   new ApolloServer<Context>({
     schema: applyMiddleware(schema, ...middlewares),
     validationRules: [

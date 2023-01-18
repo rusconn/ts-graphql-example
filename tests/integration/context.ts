@@ -7,7 +7,7 @@ import { makeLogger } from "@/server/utils";
 /** user は admin */
 export const defaultContext: Context = {
   user: DBData.admin,
-  logger: makeLogger("test"),
+  logger: makeLogger(),
   dataSources: {
     todoAPI: new TodoAPI(prisma),
     userAPI: new UserAPI(prisma),

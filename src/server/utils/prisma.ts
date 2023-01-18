@@ -1,8 +1,11 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
+import { nodeEnv } from "@/config";
 import * as DataSource from "@/datasources";
 
-export const makePrismaClient = (isDev: boolean) => {
+export const makePrismaClient = () => {
+  const isDev = nodeEnv === "development";
+
   const prisma = new PrismaClient({
     log: isDev ? ["query", "info", "warn", "error"] : ["info", "warn", "error"],
   });

@@ -3,9 +3,7 @@ import type { DocumentNode } from "graphql";
 import { defaultContext } from "it/context";
 import { DBData } from "it/data";
 import type { Context } from "@/server/types";
-import { parseEnvVars, makeServer } from "@/server/utils";
-
-const envs = parseEnvVars(process.env);
+import { makeServer } from "@/server/utils";
 
 /**
  * テスト用のサーバインスタンス
@@ -15,7 +13,7 @@ const envs = parseEnvVars(process.env);
  * 注意: サーバのインメモリキャッシュを使う場合はキャッシュを共有することになる。
  * 他のテストケースで発生したキャッシュの影響を受けたくない場合は別途サーバインスタンスを作成すること。
  */
-export const server = makeServer(envs);
+export const server = makeServer();
 
 type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;

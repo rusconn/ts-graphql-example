@@ -5,4 +5,4 @@ import { makePrismaClient } from "@/server/utils";
  *
  * Node.js のモジュールキャッシュにより全テストケースで使いまわされる。
  */
-export const prisma = makePrismaClient(false);
+export const prisma = makePrismaClient();

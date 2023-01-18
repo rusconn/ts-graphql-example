@@ -4,7 +4,7 @@ import { nanoid } from "nanoid";
 import { TodoAPI, UserAPI } from "@/datasources";
 import * as Utils from "@/server/utils";
 
-const prisma = Utils.makePrismaClient(true);
+const prisma = Utils.makePrismaClient();
 
 const todoAPI = new TodoAPI(prisma);
 const userAPI = new UserAPI(prisma);

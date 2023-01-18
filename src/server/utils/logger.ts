@@ -2,9 +2,9 @@ import pino, { LoggerOptions, stdTimeFunctions } from "pino";
 import pretty from "pino-pretty"; // eslint-disable-line import/no-extraneous-dependencies
 import { nanoid } from "nanoid";
 
-import type { NodeEnv } from "./env";
+import { nodeEnv } from "@/config";
 
-export const makeLogger = (nodeEnv: NodeEnv) => {
+export const makeLogger = () => {
   if (nodeEnv === "test") {
     return pino({ enabled: false });
   }

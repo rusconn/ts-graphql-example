@@ -4,18 +4,10 @@ import { GraphQLError } from "graphql";
 import { TodoAPI, UserAPI } from "@/datasources";
 import { Graph } from "@/graphql/types";
 import type { Context } from "./types";
-import {
-  isIntrospectionQuery,
-  parseEnvVars,
-  makePrismaClient,
-  makeLogger,
-  makeServer,
-} from "./utils";
+import { isIntrospectionQuery, makePrismaClient, makeLogger, makeServer } from "./utils";
 
-const envs = parseEnvVars(process.env);
-const isDev = envs.nodeEnv === "development";
-const prisma = makePrismaClient(isDev);
-const server = makeServer(envs);
+const prisma = makePrismaClient();
+const server = makeServer();
 
 startStandaloneServer(server, {
   context: async ({ req, res }) => {
@@ -30,7 +22,7 @@ startStandaloneServer(server, {
     // plugins では消せなかったのでここで消している
     res.removeHeader("x-powered-by");
 
-    const logger = makeLogger(envs.nodeEnv);
+    const logger = makeLogger();
     const token = req.headers.authorization?.replace("Bearer ", "");
 
     let user;
