@@ -1,4 +1,3 @@
-import { TodoStatus } from "@prisma/client";
 import { gql } from "graphql-tag";
 
 import type { CreateTodoMutation, CreateTodoMutationVariables } from "it/graphql/types";
@@ -7,6 +6,7 @@ import { todoAPI, userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { splitTodoNodeId } from "@/adapters";
+import * as DataSource from "@/datasources";
 import { Graph } from "@/graphql/types";
 import { nonEmptyString } from "@/graphql/utils";
 
@@ -194,6 +194,6 @@ describe("logic", () => {
 
     const todo = await todoAPI.get({ id });
 
-    expect(todo.status).toBe(TodoStatus.PENDING);
+    expect(todo.status).toBe(DataSource.TodoStatus.PENDING);
   });
 });

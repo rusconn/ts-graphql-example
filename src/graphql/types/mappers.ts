@@ -1,5 +1,4 @@
-import type * as Prisma from "@prisma/client";
-
+import type * as DataSource from "@/datasources";
 import type * as Scalar from "./scalars";
 import type * as Graph from "./schema";
 
@@ -12,5 +11,5 @@ type WideTimestamps<T> = Omit<T, "createdAt" | "updatedAt"> & {
 export type User = WideTimestamps<Omit<Graph.User, "__typename" | "todos">>;
 
 export type Todo = WideTimestamps<Omit<Graph.Todo, "__typename" | "user">> & {
-  userId: Prisma.User["id"];
+  userId: DataSource.User["id"];
 };

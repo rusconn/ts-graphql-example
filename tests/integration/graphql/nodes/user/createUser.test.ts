@@ -1,4 +1,3 @@
-import { Role } from "@prisma/client";
 import { gql } from "graphql-tag";
 
 import type { CreateUserMutation, CreateUserMutationVariables } from "it/graphql/types";
@@ -7,6 +6,7 @@ import { userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { splitUserNodeId } from "@/adapters";
+import * as DataSource from "@/datasources";
 import { Graph } from "@/graphql/types";
 import { nonEmptyString } from "@/graphql/utils";
 
@@ -137,6 +137,6 @@ describe("logic", () => {
 
     const user = await userAPI.get({ id });
 
-    expect(user.role).toBe(Role.USER);
+    expect(user.role).toBe(DataSource.Role.USER);
   });
 });

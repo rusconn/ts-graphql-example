@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient, User } from "@prisma/client";
+import { Prisma, PrismaClient, Role, User } from "@prisma/client";
 import type { GraphQLResolveInfo } from "graphql";
 import { nanoid } from "nanoid";
 import {
@@ -7,6 +7,9 @@ import {
 } from "@devoxa/prisma-relay-cursor-connection";
 
 import { prisma } from "./internal/prisma";
+
+export { Role, type User };
+export const UserSortOrder = Prisma.SortOrder;
 
 export type GetUsersParams = ConnectionArguments & {
   orderBy: Exclude<Prisma.UserFindManyArgs["orderBy"], undefined>;

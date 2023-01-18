@@ -6,6 +6,7 @@ import { ContextData, DBData, GraphData } from "it/data";
 import { userAPI, todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
+import * as DataSource from "@/datasources";
 import { Graph } from "@/graphql/types";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
@@ -26,8 +27,7 @@ const resetAdminTodoValue = () => todoAPI.upsert(DBData.adminTodo1);
 const completeAdminTodo = () =>
   todoAPI.update({
     id: DBData.adminTodo1.id,
-    // TODO: Datasource 層のデータを使う
-    status: Graph.TodoStatus.Done,
+    status: DataSource.TodoStatus.DONE,
   });
 
 const query = gql`

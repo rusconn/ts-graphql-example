@@ -1,6 +1,4 @@
-import { Prisma } from "@prisma/client";
-
-import type * as DataSource from "@/datasources";
+import * as DataSource from "@/datasources";
 import { ParseError } from "@/errors";
 import { Graph } from "@/graphql/types";
 import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql/utils";
@@ -29,8 +27,8 @@ export const parsers = {
 
       const directionToUse =
         orderBy?.direction === Graph.OrderDirection.Asc
-          ? Prisma.SortOrder.asc
-          : Prisma.SortOrder.desc;
+          ? DataSource.TodoSortOrder.asc
+          : DataSource.TodoSortOrder.desc;
 
       const orderByToUse =
         orderBy?.field === Graph.TodoOrderField.CreatedAt

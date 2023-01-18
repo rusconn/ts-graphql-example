@@ -1,9 +1,9 @@
-import * as Prisma from "@prisma/client";
+import * as DataSource from "@/datasources";
 
 export const admin = {
   id: "a4kxogX92Wxe-kbUfDRX7",
   name: "Admin",
-  role: Prisma.Role.ADMIN,
+  role: DataSource.Role.ADMIN,
   token: "admin token",
   createdAt: new Date(0),
   updatedAt: new Date(3),
@@ -12,7 +12,7 @@ export const admin = {
 export const alice = {
   id: "bYzHPCFPTkTPHNbCBkh8H",
   name: "Alice",
-  role: Prisma.Role.USER,
+  role: DataSource.Role.USER,
   token: "alice token",
   createdAt: new Date(1),
   updatedAt: new Date(1),
@@ -21,7 +21,7 @@ export const alice = {
 export const bob = {
   id: "cuEgH4iyoMMm6CzhWLR9S",
   name: "Bob",
-  role: Prisma.Role.USER,
+  role: DataSource.Role.USER,
   token: "bob token",
   createdAt: new Date(2),
   updatedAt: new Date(2),
@@ -33,7 +33,7 @@ export const adminTodo1 = {
   createdAt: new Date(1),
   updatedAt: new Date(6),
   description: "admin todo 1",
-  status: Prisma.TodoStatus.PENDING,
+  status: DataSource.TodoStatus.PENDING,
   userId: admin.id,
 } as const;
 
@@ -43,7 +43,7 @@ export const adminTodo2 = {
   createdAt: new Date(2),
   updatedAt: new Date(2),
   description: "admin todo 2",
-  status: Prisma.TodoStatus.PENDING,
+  status: DataSource.TodoStatus.PENDING,
   userId: admin.id,
 } as const;
 
@@ -53,7 +53,7 @@ export const adminTodo3 = {
   createdAt: new Date(3),
   updatedAt: new Date(3),
   description: "admin todo 3",
-  status: Prisma.TodoStatus.PENDING,
+  status: DataSource.TodoStatus.PENDING,
   userId: admin.id,
 } as const;
 
@@ -63,7 +63,7 @@ export const aliceTodo = {
   createdAt: new Date(4),
   updatedAt: new Date(4),
   description: "alice todo 1",
-  status: Prisma.TodoStatus.PENDING,
+  status: DataSource.TodoStatus.PENDING,
   userId: alice.id,
 } as const;
 
@@ -73,6 +73,6 @@ export const bobTodo = {
   createdAt: new Date(5),
   updatedAt: new Date(5),
   description: "bob todo 1",
-  status: Prisma.TodoStatus.PENDING,
+  status: DataSource.TodoStatus.PENDING,
   userId: bob.id,
 } as const;

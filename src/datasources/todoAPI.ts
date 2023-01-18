@@ -8,6 +8,9 @@ import {
 
 import { prisma } from "./internal/prisma";
 
+export { type Todo, TodoStatus };
+export const TodoSortOrder = Prisma.SortOrder;
+
 export type CountTodosParams = {
   userId?: Todo["userId"];
 };
