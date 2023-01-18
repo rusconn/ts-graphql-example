@@ -5,7 +5,8 @@ import { TodoAPI, UserAPI } from "@/datasources";
 import { Graph } from "@/graphql/types";
 import type { Context } from "./types";
 import { logger } from "./logger";
-import { prisma } from "./prisma";
+// TDOO: 依存を消す
+import { prisma } from "./datasources/internal/prisma";
 import { server } from "./server";
 import { isIntrospectionQuery } from "./utils";
 
@@ -44,8 +45,8 @@ startStandaloneServer(server, {
       logger,
       user,
       dataSources: {
-        todoAPI: new TodoAPI(prisma),
-        userAPI: new UserAPI(prisma),
+        todoAPI: new TodoAPI(),
+        userAPI: new UserAPI(),
       },
     };
   },

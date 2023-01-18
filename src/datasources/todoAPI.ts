@@ -6,6 +6,8 @@ import {
   findManyCursorConnection,
 } from "@devoxa/prisma-relay-cursor-connection";
 
+import { prisma } from "./internal/prisma";
+
 export type GetUserTodosParams = ConnectionArguments & {
   userId: User["id"];
   orderBy: Exclude<Prisma.TodoFindManyArgs["orderBy"], undefined>;
@@ -42,7 +44,11 @@ export type UncompleteTodoParams = {
 };
 
 export class TodoAPI {
-  constructor(private prisma: PrismaClient) {}
+  private prisma: PrismaClient;
+
+  constructor() {
+    this.prisma = prisma;
+  }
 
   async getsUserTodos({ userId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
     const userPromise = this.prisma.user.findUniqueOrThrow({

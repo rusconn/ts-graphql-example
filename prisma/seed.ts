@@ -2,10 +2,9 @@ import { User, Role } from "@prisma/client";
 import { nanoid } from "nanoid";
 
 import { TodoAPI, UserAPI } from "@/datasources";
-import { prisma } from "@/prisma";
 
-const todoAPI = new TodoAPI(prisma);
-const userAPI = new UserAPI(prisma);
+const todoAPI = new TodoAPI();
+const userAPI = new UserAPI();
 
 const main = async () => {
   const users = await createUsers();
