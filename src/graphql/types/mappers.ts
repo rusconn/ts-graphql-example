@@ -1,3 +1,5 @@
+import type * as Prisma from "@prisma/client";
+
 import type * as Scalar from "./scalars";
 import type * as Graph from "./schema";
 
@@ -12,5 +14,5 @@ export type User = Omit<Graph.User, "__typename" | "todos" | "createdAt" | "upda
 
 export type Todo = Omit<Graph.Todo, "__typename" | "user" | "createdAt" | "updatedAt"> &
   Timestamps & {
-    userId: User["id"];
+    userId: Prisma.User["id"];
   };
