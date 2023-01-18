@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 import { splitTodoNodeId, splitUserNodeId } from "@/adapters";
 import type * as DataSource from "@/datasources";
 import { ParseError } from "@/errors";
@@ -40,12 +42,15 @@ export const parsers = {
         throw e;
       }
 
-      const directionToUse = orderBy?.direction === Graph.OrderDirection.Asc ? "asc" : "desc";
+      const directionToUse =
+        orderBy?.direction === Graph.OrderDirection.Asc
+          ? Prisma.SortOrder.asc
+          : Prisma.SortOrder.desc;
 
       const orderByToUse =
         orderBy?.field === Graph.UserOrderField.UpdatedAt
-          ? [{ updatedAt: directionToUse } as const, { id: directionToUse } as const]
-          : [{ createdAt: directionToUse } as const, { id: directionToUse } as const];
+          ? [{ updatedAt: directionToUse }, { id: directionToUse }]
+          : [{ createdAt: directionToUse }, { id: directionToUse }];
 
       return {
         first: firstToUse,
@@ -160,12 +165,15 @@ export const parsers = {
         throw e;
       }
 
-      const directionToUse = orderBy?.direction === Graph.OrderDirection.Asc ? "asc" : "desc";
+      const directionToUse =
+        orderBy?.direction === Graph.OrderDirection.Asc
+          ? Prisma.SortOrder.asc
+          : Prisma.SortOrder.desc;
 
       const orderByToUse =
         orderBy?.field === Graph.TodoOrderField.CreatedAt
-          ? [{ createdAt: directionToUse } as const, { id: directionToUse } as const]
-          : [{ updatedAt: directionToUse } as const, { id: directionToUse } as const];
+          ? [{ createdAt: directionToUse }, { id: directionToUse }]
+          : [{ updatedAt: directionToUse }, { id: directionToUse }];
 
       return {
         first: firstToUse,
