@@ -4,7 +4,6 @@ import type { DeleteUserMutation, DeleteUserMutationVariables } from "it/graphql
 import { ContextData, DBData, GraphData } from "it/data";
 import { userAPI, todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
-import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 import { nonEmptyString } from "@/graphql/utils";
@@ -127,7 +126,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await prisma.user.findUnique({ where: { id: data.deleteUser.id } });
+    const maybeUser = await userAPI.getOptional({ id: data.deleteUser.id });
 
     expect(maybeUser).toBeNull();
   });
@@ -141,7 +140,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await prisma.user.findUnique({ where: { id: data.deleteUser.id } });
+    const maybeUser = await userAPI.getOptional({ id: data.deleteUser.id });
 
     const after = await userAPI.count();
 

@@ -68,6 +68,10 @@ export class UserAPI {
     return this.prisma.user.findUniqueOrThrow({ where: { id } });
   }
 
+  async getOptional({ id }: GetUserParams) {
+    return this.prisma.user.findUnique({ where: { id } });
+  }
+
   async getByToken({ token }: GetUserByTokenParams) {
     return this.prisma.user.findUnique({ where: { token } });
   }

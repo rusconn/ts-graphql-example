@@ -4,7 +4,6 @@ import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "it/graphql
 import { ContextData, DBData, GraphData } from "it/data";
 import { userAPI, todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
-import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 import { nonEmptyString } from "@/graphql/utils";
@@ -138,7 +137,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeTodo = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
+    const maybeTodo = await todoAPI.getOptional({ id: DBData.adminTodo1.id });
 
     expect(maybeTodo).toBeNull();
   });
@@ -152,7 +151,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeTodo = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
+    const maybeTodo = await todoAPI.getOptional({ id: DBData.adminTodo1.id });
 
     const after = await todoAPI.count();
 

@@ -83,6 +83,10 @@ export class TodoAPI {
     return this.prisma.todo.findUniqueOrThrow({ where: { id } });
   }
 
+  async getOptional({ id }: GetTodoParams) {
+    return this.prisma.todo.findUnique({ where: { id } });
+  }
+
   async create({ userId, ...data }: CreateTodoParams) {
     return this.prisma.todo.create({ data: { id: nanoid(), ...data, userId } });
   }
