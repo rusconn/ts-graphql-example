@@ -6,9 +6,8 @@ import { Graph } from "@/graphql/types";
 import type { Context } from "./types";
 import { logger } from "./logger";
 import { prisma } from "./prisma";
-import { isIntrospectionQuery, makeServer } from "./utils";
-
-const server = makeServer();
+import { server } from "./server";
+import { isIntrospectionQuery } from "./utils";
 
 startStandaloneServer(server, {
   context: async ({ req, res }) => {
