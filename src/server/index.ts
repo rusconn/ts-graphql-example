@@ -4,7 +4,8 @@ import { GraphQLError } from "graphql";
 import { TodoAPI, UserAPI } from "@/datasources";
 import { Graph } from "@/graphql/types";
 import type { Context } from "./types";
-import { isIntrospectionQuery, makePrismaClient, makeLogger, makeServer } from "./utils";
+import { logger } from "./logger";
+import { isIntrospectionQuery, makePrismaClient, makeServer } from "./utils";
 
 const prisma = makePrismaClient();
 const server = makeServer();
@@ -22,7 +23,6 @@ startStandaloneServer(server, {
     // plugins では消せなかったのでここで消している
     res.removeHeader("x-powered-by");
 
-    const logger = makeLogger();
     const token = req.headers.authorization?.replace("Bearer ", "");
 
     let user;
