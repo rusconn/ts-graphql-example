@@ -1,7 +1,7 @@
 import { chain, race, rule } from "graphql-shield";
 
 import type { Graph } from "@/graphql/types";
-import { permissionError, isAdmin, isAuthenticated } from "@/graphql/utils";
+import { isAdmin, isAuthenticated, newPermissionError } from "@/graphql/utils";
 import type { Context } from "@/server/types";
 import { parsers } from "./parsers";
 
@@ -13,10 +13,10 @@ const isOwner = rule({ cache: "strict" })(
       case "Todo": {
         const todo = await dataSources.todoAPI.get({ id });
 
-        return todo.userId === user.id || permissionError;
+        return todo.userId === user.id || newPermissionError();
       }
       case "User": {
-        return id === user.id || permissionError;
+        return id === user.id || newPermissionError();
       }
     }
   }

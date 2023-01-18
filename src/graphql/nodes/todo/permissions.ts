@@ -3,7 +3,7 @@ import { chain, race, rule } from "graphql-shield";
 import { toUserNodeId } from "@/adapters";
 import * as DataSource from "@/datasources";
 import type { Graph } from "@/graphql/types";
-import { permissionError, isAdmin, isAuthenticated } from "@/graphql/utils";
+import { isAdmin, isAuthenticated, newPermissionError } from "@/graphql/utils";
 import type { Context } from "@/server/types";
 import { parsers } from "./parsers";
 
@@ -16,7 +16,7 @@ type Parent = Graph.ResolversParentTypes["Todo"];
 
 const isTodosOwner = rule({ cache: "strict" })(
   (_, { userId }: Graph.QueryTodosArgs, { user }: Context) => {
-    return userId === toUserNodeId(user.id) || permissionError;
+    return userId === toUserNodeId(user.id) || newPermissionError();
   }
 );
 
@@ -36,18 +36,18 @@ const isTodoOwner = rule({ cache: "strict" })(
       throw e;
     }
 
-    return todo.userId === user.id || permissionError;
+    return todo.userId === user.id || newPermissionError();
   }
 );
 
 const isMine = rule({ cache: "strict" })(
   (_, { userId }: Graph.MutationCreateTodoArgs, { user }: Context) => {
-    return userId === toUserNodeId(user.id) || permissionError;
+    return userId === toUserNodeId(user.id) || newPermissionError();
   }
 );
 
 const isSelf = rule({ cache: "strict" })(({ userId }: Parent, _, { user }: Context) => {
-  return userId === user.id || permissionError;
+  return userId === user.id || newPermissionError();
 });
 
 export const permissions = {
