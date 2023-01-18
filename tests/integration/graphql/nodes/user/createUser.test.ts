@@ -5,7 +5,6 @@ import type { CreateUserMutation, CreateUserMutationVariables } from "it/graphql
 import { ContextData, DBData } from "it/data";
 import { userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
-import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { splitUserNodeId } from "@/adapters";
 import { Graph } from "@/graphql/types";
@@ -120,9 +119,9 @@ describe("logic", () => {
 
     const { id } = splitUserNodeId(data.createUser.id);
 
-    const maybeUser = await prisma.user.findUnique({ where: { id } });
+    const user = await userAPI.get({ id });
 
-    expect(maybeUser?.name).toBe(name);
+    expect(user.name).toBe(name);
   });
 
   test("role should be USER by default", async () => {
@@ -136,8 +135,8 @@ describe("logic", () => {
 
     const { id } = splitUserNodeId(data.createUser.id);
 
-    const maybeUser = await prisma.user.findUnique({ where: { id } });
+    const user = await userAPI.get({ id });
 
-    expect(maybeUser?.role).toBe(Role.USER);
+    expect(user.role).toBe(Role.USER);
   });
 });

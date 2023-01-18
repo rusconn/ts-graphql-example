@@ -3,9 +3,8 @@ import { gql } from "graphql-tag";
 
 import type { CreateTodoMutation, CreateTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
-import { userAPI } from "it/datasources";
+import { todoAPI, userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
-import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { splitTodoNodeId } from "@/adapters";
 import { Graph } from "@/graphql/types";
@@ -176,10 +175,10 @@ describe("logic", () => {
 
     const { id } = splitTodoNodeId(data.createTodo.id);
 
-    const maybeTodo = await prisma.todo.findUnique({ where: { id } });
+    const todo = await todoAPI.get({ id });
 
-    expect(maybeTodo?.title).toBe(input.title);
-    expect(maybeTodo?.description).toBe(input.description);
+    expect(todo.title).toBe(input.title);
+    expect(todo.description).toBe(input.description);
   });
 
   test("status should be PENDING by default", async () => {
@@ -193,8 +192,8 @@ describe("logic", () => {
 
     const { id } = splitTodoNodeId(data.createTodo.id);
 
-    const maybeTodo = await prisma.todo.findUnique({ where: { id } });
+    const todo = await todoAPI.get({ id });
 
-    expect(maybeTodo?.status).toBe(TodoStatus.PENDING);
+    expect(todo.status).toBe(TodoStatus.PENDING);
   });
 });

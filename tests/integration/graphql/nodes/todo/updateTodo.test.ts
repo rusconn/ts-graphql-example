@@ -5,11 +5,9 @@ import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "it/graphql
 import { ContextData, DBData, GraphData } from "it/data";
 import { userAPI, todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
-import { prisma } from "it/prisma";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 import { nonEmptyString } from "@/graphql/utils";
-import { splitTodoNodeId } from "@/adapters";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
@@ -238,19 +236,15 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
+    const todo = await todoAPI.get({ id: DBData.adminTodo1.id });
 
-    expect(maybeUser?.title).toBe(input.title);
-    expect(maybeUser?.description).toBe(input.description);
-    expect(maybeUser?.status).toBe(input.status);
+    expect(todo.title).toBe(input.title);
+    expect(todo.description).toBe(input.description);
+    expect(todo.status).toBe(input.status);
   });
 
   it("should not update fields if the field is absent", async () => {
-    const before = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
-
-    if (!before) {
-      throw new Error("todo not found");
-    }
+    const before = await todoAPI.get({ id: DBData.adminTodo1.id });
 
     const { data } = await executeMutation({
       variables: { id: GraphData.adminTodo1.id, input: {} },
@@ -260,13 +254,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const { id } = splitTodoNodeId(data.updateTodo.id);
-
-    const after = await prisma.todo.findUnique({ where: { id } });
-
-    if (!after) {
-      throw new Error("user not found");
-    }
+    const after = await todoAPI.get({ id: DBData.adminTodo1.id });
 
     expect(before.title).toBe(after.title);
     expect(before.description).toBe(after.description);
@@ -274,11 +262,7 @@ describe("logic", () => {
   });
 
   it("should update updatedAt", async () => {
-    const before = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
-
-    if (!before) {
-      throw new Error("test user not set");
-    }
+    const before = await todoAPI.get({ id: DBData.adminTodo1.id });
 
     const input = {
       title: nonEmptyString("bar"),
@@ -294,11 +278,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const after = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
-
-    if (!after) {
-      throw new Error("test user not set");
-    }
+    const after = await todoAPI.get({ id: DBData.adminTodo1.id });
 
     const beforeUpdatedAt = before.updatedAt.getTime();
     const afterUpdatedAt = after.updatedAt.getTime();
@@ -307,11 +287,7 @@ describe("logic", () => {
   });
 
   it("should not update other attrs", async () => {
-    const before = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
-
-    if (!before) {
-      throw new Error("test user not set");
-    }
+    const before = await todoAPI.get({ id: DBData.adminTodo1.id });
 
     const input = {
       title: nonEmptyString("bar"),
@@ -327,11 +303,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const after = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
-
-    if (!after) {
-      throw new Error("test user not set");
-    }
+    const after = await todoAPI.get({ id: DBData.adminTodo1.id });
 
     // これらのフィールドは変化する想定
     const beforeToCompare = omit(before, ["title", "description", "status", "updatedAt"]);
