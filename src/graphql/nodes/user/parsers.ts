@@ -1,10 +1,10 @@
 import { Prisma } from "@prisma/client";
 
-import { splitTodoNodeId, splitUserNodeId } from "@/adapters";
+import { splitUserNodeId } from "@/adapters";
 import type * as DataSource from "@/datasources";
 import { ParseError } from "@/errors";
 import { Graph } from "@/graphql/types";
-import { parseConnectionArgs } from "@/graphql/utils";
+import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql/utils";
 
 export const parsers = {
   Query: {
@@ -23,24 +23,8 @@ export const parsers = {
 
       const firstToUse = first == null && last == null ? 10 : first;
 
-      let beforeToUse = before;
-      let afterToUse = after;
-
-      try {
-        if (before) {
-          ({ id: beforeToUse } = splitUserNodeId(before));
-        }
-
-        if (after) {
-          ({ id: afterToUse } = splitUserNodeId(after));
-        }
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      const beforeToUse = before ? parseUserNodeId(before) : before;
+      const afterToUse = after ? parseUserNodeId(after) : after;
 
       const directionToUse =
         orderBy?.direction === Graph.OrderDirection.Asc
@@ -63,15 +47,7 @@ export const parsers = {
     user: (args: Graph.QueryUserArgs): DataSource.GetUserParams => {
       const { id } = args;
 
-      try {
-        return splitUserNodeId(id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      return { id: parseUserNodeId(id) };
     },
   },
   Mutation: {
@@ -90,17 +66,7 @@ export const parsers = {
         input: { name },
       } = args;
 
-      let idToUse;
-
-      try {
-        ({ id: idToUse } = splitUserNodeId(id));
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      const idToUse = parseUserNodeId(id);
 
       if (name === null) {
         throw new ParseError("`name` must be not null");
@@ -115,15 +81,7 @@ export const parsers = {
     deleteUser: (args: Graph.MutationDeleteUserArgs): DataSource.DeleteUserParams => {
       const { id } = args;
 
-      try {
-        return splitUserNodeId(id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      return { id: parseUserNodeId(id) };
     },
   },
   User: {
@@ -146,24 +104,8 @@ export const parsers = {
 
       const firstToUse = first == null && last == null ? 20 : first;
 
-      let beforeToUse = before;
-      let afterToUse = after;
-
-      try {
-        if (before) {
-          ({ id: beforeToUse } = splitTodoNodeId(before));
-        }
-
-        if (after) {
-          ({ id: afterToUse } = splitTodoNodeId(after));
-        }
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      const beforeToUse = before ? parseTodoNodeId(before) : before;
+      const afterToUse = after ? parseTodoNodeId(after) : after;
 
       const directionToUse =
         orderBy?.direction === Graph.OrderDirection.Asc

@@ -1,10 +1,9 @@
 import { Prisma } from "@prisma/client";
 
-import { splitTodoNodeId, splitUserNodeId } from "@/adapters";
 import type * as DataSource from "@/datasources";
 import { ParseError } from "@/errors";
 import { Graph } from "@/graphql/types";
-import { parseConnectionArgs } from "@/graphql/utils";
+import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql/utils";
 
 export const parsers = {
   Query: {
@@ -23,36 +22,10 @@ export const parsers = {
 
       const firstToUse = first == null && last == null ? 20 : first;
 
-      let beforeToUse = before;
-      let afterToUse = after;
+      const beforeToUse = before ? parseTodoNodeId(before) : before;
+      const afterToUse = after ? parseTodoNodeId(after) : after;
 
-      try {
-        if (before) {
-          ({ id: beforeToUse } = splitTodoNodeId(before));
-        }
-
-        if (after) {
-          ({ id: afterToUse } = splitTodoNodeId(after));
-        }
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
-
-      let userIdToUse;
-
-      try {
-        ({ id: userIdToUse } = splitUserNodeId(userId));
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      const userIdToUse = parseUserNodeId(userId);
 
       const directionToUse =
         orderBy?.direction === Graph.OrderDirection.Asc
@@ -76,15 +49,7 @@ export const parsers = {
     todo: (args: Graph.QueryTodoArgs): DataSource.GetTodoParams => {
       const { id } = args;
 
-      try {
-        return splitTodoNodeId(id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      return { id: parseTodoNodeId(id) };
     },
   },
   Mutation: {
@@ -94,17 +59,7 @@ export const parsers = {
         input: { title, description },
       } = args;
 
-      let userIdToUse;
-
-      try {
-        ({ id: userIdToUse } = splitUserNodeId(userId));
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      const userIdToUse = parseUserNodeId(userId);
 
       if ([...title].length > 100) {
         throw new ParseError("`title` must be up to 100 characters");
@@ -122,17 +77,7 @@ export const parsers = {
         input: { title, description, status },
       } = args;
 
-      let idToUse;
-
-      try {
-        ({ id: idToUse } = splitTodoNodeId(id));
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      const idToUse = parseTodoNodeId(id);
 
       if (title === null) {
         throw new ParseError("`title` must be not null");
@@ -159,41 +104,17 @@ export const parsers = {
     deleteTodo: (args: Graph.MutationDeleteTodoArgs): DataSource.DeleteTodoParams => {
       const { id } = args;
 
-      try {
-        return splitTodoNodeId(id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      return { id: parseTodoNodeId(id) };
     },
     completeTodo: (args: Graph.MutationCompleteTodoArgs): DataSource.CompleteTodoParams => {
       const { id } = args;
 
-      try {
-        return splitTodoNodeId(id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      return { id: parseTodoNodeId(id) };
     },
     uncompleteTodo: (args: Graph.MutationUncompleteTodoArgs): DataSource.UncompleteTodoParams => {
       const { id } = args;
 
-      try {
-        return splitTodoNodeId(id);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new ParseError(e.message, e);
-        }
-
-        throw e;
-      }
+      return { id: parseTodoNodeId(id) };
     },
   },
 };
