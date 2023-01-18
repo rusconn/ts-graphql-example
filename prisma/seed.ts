@@ -2,7 +2,7 @@ import { User, Role } from "@prisma/client";
 import { nanoid } from "nanoid";
 
 import { TodoAPI, UserAPI } from "@/datasources";
-import { prisma } from "@/server/prisma";
+import { prisma } from "@/prisma";
 
 const todoAPI = new TodoAPI(prisma);
 const userAPI = new UserAPI(prisma);

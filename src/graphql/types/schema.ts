@@ -2,7 +2,7 @@ import type { DateTime } from '@/graphql/types/scalars';
 import type { NonEmptyString } from '@/graphql/types/scalars';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import type { User as UserMapped, Todo as TodoMapped } from '@/graphql/types/mappers';
-import type { Context } from '@/server/types';
+import type { Context } from '@/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };

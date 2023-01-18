@@ -2,7 +2,7 @@ import { chain, race, rule } from "graphql-shield";
 
 import type { Graph } from "@/graphql/types";
 import { isAdmin, isAuthenticated, newPermissionError } from "@/graphql/utils";
-import type { Context } from "@/server/types";
+import type { Context } from "@/types";
 import { parsers } from "./parsers";
 
 const isOwner = rule({ cache: "strict" })(

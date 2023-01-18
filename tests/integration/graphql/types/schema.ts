@@ -43,7 +43,6 @@ export enum OrderDirection {
 
 export enum Role {
   Admin = 'ADMIN',
-  Guest = 'GUEST',
   User = 'USER'
 }
 

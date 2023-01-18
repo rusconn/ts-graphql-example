@@ -1,8 +1,8 @@
 import { DBData } from "it/data";
 import { prisma } from "it/prisma";
 import { TodoAPI, UserAPI } from "@/datasources";
-import { logger } from "@/server/logger";
-import type { Context } from "@/server/types";
+import { logger } from "@/logger";
+import type { Context } from "@/types";
 
 /** user は admin */
 export const defaultContext: Context = {

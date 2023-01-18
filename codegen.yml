@@ -9,7 +9,7 @@ typescript: &typescript
 
 typescript-resolvers: &typescript-resolvers
   useIndexSignature: true
-  contextType: "@/server/types#Context"
+  contextType: "@/types#Context"
   mapperTypeSuffix: Mapped # prefix がなかったため suffix
   mappers:
     User: "@/graphql/types/mappers#User"
