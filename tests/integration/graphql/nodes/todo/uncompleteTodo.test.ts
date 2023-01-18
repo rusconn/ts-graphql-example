@@ -22,12 +22,7 @@ const todos = [
 const seedUsers = () => userAPI.createMany(users);
 const seedTodos = () => todoAPI.createMany(todos);
 
-const resetAdminTodoValue = () =>
-  prisma.todo.upsert({
-    where: { id: DBData.adminTodo1.id },
-    create: DBData.adminTodo1,
-    update: DBData.adminTodo1,
-  });
+const resetAdminTodoValue = () => todoAPI.upsert(DBData.adminTodo1);
 
 const completeAdminTodo = () =>
   prisma.todo.update({

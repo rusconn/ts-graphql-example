@@ -35,6 +35,10 @@ export type UpdateTodoParams = {
   status?: Todo["status"];
 };
 
+export type UpsertTodoParams = CreateTodoParams & {
+  id: Todo["id"];
+};
+
 export type DeleteTodoParams = {
   id: Todo["id"];
 };
@@ -81,6 +85,10 @@ export class TodoAPI {
 
   async update({ id, ...data }: UpdateTodoParams) {
     return this.prisma.todo.update({ where: { id }, data });
+  }
+
+  async upsert(todo: UpsertTodoParams) {
+    return this.prisma.todo.upsert({ where: { id: todo.id }, create: todo, update: todo });
   }
 
   async delete({ id }: DeleteTodoParams) {

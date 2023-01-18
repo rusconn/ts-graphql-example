@@ -35,6 +35,11 @@ export type UpdateUserParams = {
   name?: User["name"];
 };
 
+export type UpsertUserParams = CreateUserParams & {
+  id: User["id"];
+  token: User["token"];
+};
+
 export type DeleteUserParams = {
   id: User["id"];
 };
@@ -73,6 +78,10 @@ export class UserAPI {
 
   async update({ id, ...data }: UpdateUserParams) {
     return this.prisma.user.update({ where: { id }, data });
+  }
+
+  async upsert(user: UpsertUserParams) {
+    return this.prisma.user.upsert({ where: { id: user.id }, create: user, update: user });
   }
 
   async delete({ id }: DeleteUserParams) {
