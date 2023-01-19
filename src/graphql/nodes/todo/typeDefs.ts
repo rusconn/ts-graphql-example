@@ -7,8 +7,7 @@ export const typeDefs = gql`
   ${makeOrderOptions("Todo")}
 
   type Query {
-    todos(
-      userId: ID!
+    myTodos(
       "default: 20, max: 50"
       first: Int
       after: String

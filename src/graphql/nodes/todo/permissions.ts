@@ -14,12 +14,6 @@ type QueryOrUpdateOrDeleteTodosArgs =
 
 type Parent = Graph.ResolversParentTypes["Todo"];
 
-const isTodosOwner = rule({ cache: "strict" })(
-  (_, { userId }: Graph.QueryTodosArgs, { user }: Context) => {
-    return userId === toUserNodeId(user.id) || newPermissionError();
-  }
-);
-
 const isTodoOwner = rule({ cache: "strict" })(
   async (_, args: QueryOrUpdateOrDeleteTodosArgs, { user, dataSources: { todoAPI } }: Context) => {
     let parsed;
@@ -48,7 +42,7 @@ const isSelf = rule({ cache: "strict" })(({ userId }: Parent, _, { user }: Conte
 
 export const permissions = {
   Query: {
-    todos: race(isAdmin, chain(isAuthenticated, isTodosOwner)),
+    myTodos: isAuthenticated,
     todo: race(isAdmin, chain(isAuthenticated, isTodoOwner)),
   },
   Mutation: {

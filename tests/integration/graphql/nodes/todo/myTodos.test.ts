@@ -1,7 +1,12 @@
 import { gql } from "graphql-tag";
 import range from "lodash/range";
 
-import { OrderDirection, TodoOrderField, TodosQuery, TodosQueryVariables } from "it/graphql/types";
+import {
+  OrderDirection,
+  TodoOrderField,
+  MyTodosQuery,
+  MyTodosQueryVariables,
+} from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { todoAPI, userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
@@ -17,22 +22,8 @@ const seedAdminTodos = () => todoAPI.createMany(todos);
 const numSeedTodos = todos.length;
 
 const query = gql`
-  query Todos(
-    $userId: ID!
-    $first: Int
-    $after: String
-    $last: Int
-    $before: String
-    $orderBy: TodoOrder
-  ) {
-    todos(
-      userId: $userId
-      first: $first
-      last: $last
-      after: $after
-      before: $before
-      orderBy: $orderBy
-    ) {
+  query MyTodos($first: Int, $after: String, $last: Int, $before: String, $orderBy: TodoOrder) {
+    myTodos(first: $first, last: $last, after: $after, before: $before, orderBy: $orderBy) {
       totalCount
       pageInfo {
         startCursor
@@ -51,7 +42,7 @@ const query = gql`
   }
 `;
 
-const executeQuery = executeSingleResultOperation(query)<TodosQuery, TodosQueryVariables>;
+const executeQuery = executeSingleResultOperation(query)<MyTodosQuery, MyTodosQueryVariables>;
 
 beforeAll(async () => {
   await clearTables();
@@ -60,32 +51,22 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const allowedPatterns = [
-    [ContextData.admin, GraphData.admin],
-    [ContextData.admin, GraphData.alice],
-    [ContextData.alice, GraphData.alice],
-  ] as const;
+  const alloweds = [ContextData.admin, ContextData.alice] as const;
+  const notAlloweds = [ContextData.guest] as const;
 
-  const notAllowedPatterns = [
-    [ContextData.alice, GraphData.admin],
-    [ContextData.alice, GraphData.bob],
-    [ContextData.guest, GraphData.admin],
-    [ContextData.guest, GraphData.alice],
-  ] as const;
-
-  test.each(allowedPatterns)("allowed %s", async (user, { id }) => {
-    const { data, errors } = await executeQuery({ user, variables: { userId: id } });
+  test.each(alloweds)("allowed %s", async user => {
+    const { data, errors } = await executeQuery({ user });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.todos).not.toBeFalsy();
+    expect(data?.myTodos).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowedPatterns)("not allowed %s", async (user, { id }) => {
-    const { data, errors } = await executeQuery({ user, variables: { userId: id } });
+  test.each(notAlloweds)("not allowed %s", async user => {
+    const { data, errors } = await executeQuery({ user });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.todos).toBeFalsy();
+    expect(data?.myTodos).toBeFalsy();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -115,24 +96,20 @@ describe("validation", () => {
   ];
 
   test.each(valids)("valid %o", async variables => {
-    const { data, errors } = await executeQuery({
-      variables: { ...variables, userId: GraphData.admin.id },
-    });
+    const { data, errors } = await executeQuery({ variables });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.todos).not.toBeFalsy();
+    expect(data?.myTodos).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
   });
 
   test.each(invalids)("invalid %o", async variables => {
-    const { data, errors } = await executeQuery({
-      variables: { ...variables, userId: GraphData.admin.id },
-    });
+    const { data, errors } = await executeQuery({ variables });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.todos).toBeFalsy();
+    expect(data?.myTodos).toBeFalsy();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
   });
 });
@@ -159,24 +136,24 @@ describe("number of items", () => {
     await Promise.all(creates);
 
     const numTodos = await todoAPI.count();
-    const { data } = await executeQuery({ variables: { userId: GraphData.admin.id } });
+    const { data } = await executeQuery({});
 
     expect(numTodos).toBe(numDefault + 1);
-    expect(data?.todos?.edges).toHaveLength(numDefault);
+    expect(data?.myTodos?.edges).toHaveLength(numDefault);
   });
 
   it("should affected by first option", async () => {
     const first = numSeedTodos - 1;
-    const { data } = await executeQuery({ variables: { first, userId: GraphData.admin.id } });
+    const { data } = await executeQuery({ variables: { first } });
 
-    expect(data?.todos?.edges).toHaveLength(first);
+    expect(data?.myTodos?.edges).toHaveLength(first);
   });
 
   it("should affected by last option", async () => {
     const last = numSeedTodos - 1;
-    const { data } = await executeQuery({ variables: { last, userId: GraphData.admin.id } });
+    const { data } = await executeQuery({ variables: { last } });
 
-    expect(data?.todos?.edges).toHaveLength(last);
+    expect(data?.myTodos?.edges).toHaveLength(last);
   });
 });
 
@@ -202,11 +179,9 @@ describe("order of items", () => {
   ] as const;
 
   test.each(patterns)("%o, %o", async (variables, expectedTodos) => {
-    const { data } = await executeQuery({
-      variables: { ...variables, userId: GraphData.admin.id },
-    });
+    const { data } = await executeQuery({ variables });
 
-    const ids = data?.todos?.edges.map(({ node }) => node.id);
+    const ids = data?.myTodos?.edges.map(({ node }) => node.id);
     const expectedIds = expectedTodos.map(({ id }) => id);
 
     expect(ids).toStrictEqual(expectedIds);
@@ -222,15 +197,14 @@ describe("pagination", () => {
         variables: {
           first,
           orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Asc },
-          userId: GraphData.admin.id,
         },
       });
 
     const { data: data1 } = await makeExecution();
     const { data: data2 } = await makeExecution();
 
-    expect(data1?.todos?.edges).toHaveLength(first);
-    expect(data2?.todos?.edges).toHaveLength(first);
+    expect(data1?.myTodos?.edges).toHaveLength(first);
+    expect(data2?.myTodos?.edges).toHaveLength(first);
     expect(data1).toStrictEqual(data2);
   });
 });

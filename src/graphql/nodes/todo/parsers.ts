@@ -5,8 +5,10 @@ import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql
 
 export const parsers = {
   Query: {
-    todos: (args: Graph.QueryTodosArgs): Omit<DataSource.GetUserTodosParams, "info"> => {
-      const { userId, orderBy, ...connectionArgs } = args;
+    myTodos: (
+      args: Graph.QueryMyTodosArgs
+    ): Omit<DataSource.GetUserTodosParams, "userId" | "info"> => {
+      const { orderBy, ...connectionArgs } = args;
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 
@@ -23,8 +25,6 @@ export const parsers = {
       const beforeToUse = before ? parseTodoNodeId(before) : before;
       const afterToUse = after ? parseTodoNodeId(after) : after;
 
-      const userIdToUse = parseUserNodeId(userId);
-
       const directionToUse =
         orderBy?.direction === Graph.OrderDirection.Asc
           ? DataSource.TodoSortOrder.asc
@@ -40,7 +40,6 @@ export const parsers = {
         last,
         before: beforeToUse,
         after: afterToUse,
-        userId: userIdToUse,
         orderBy: orderByToUse,
       };
     },

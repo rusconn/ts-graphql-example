@@ -4,10 +4,10 @@ import { parsers } from "./parsers";
 
 export const resolvers: Graph.Resolvers = {
   Query: {
-    todos: async (_, args, { dataSources: { todoAPI } }, info) => {
-      const parsed = parsers.Query.todos(args);
+    myTodos: async (_, args, { dataSources: { todoAPI }, user }, info) => {
+      const parsed = parsers.Query.myTodos(args);
 
-      const todos = await todoAPI.getsUserTodos({ ...parsed, info });
+      const todos = await todoAPI.getsUserTodos({ ...parsed, userId: user.id, info });
 
       return toTodoNodes(todos);
     },
