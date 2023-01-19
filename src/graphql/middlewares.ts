@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql";
 import { shield } from "graphql-shield";
 
 import * as DataSource from "@/datasources";
-import { ParseError } from "@/errors";
+import { ParseError } from "./errors";
 import { permissions } from "./permissions";
 import { Graph } from "./types";
 

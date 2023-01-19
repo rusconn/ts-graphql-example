@@ -1,6 +1,6 @@
 import * as DataSource from "@/datasources";
-import { ParseError } from "@/errors";
 import { splitUserNodeId } from "@/graphql/adapters";
+import { ParseError } from "@/graphql/errors";
 import { Graph } from "@/graphql/types";
 import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql/utils";
 

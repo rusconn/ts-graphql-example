@@ -1,5 +1,5 @@
 import * as DataSource from "@/datasources";
-import { ParseError } from "@/errors";
+import { ParseError } from "@/graphql/errors";
 import { Graph } from "@/graphql/types";
 import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql/utils";
 

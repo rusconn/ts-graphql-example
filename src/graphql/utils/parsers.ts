@@ -1,7 +1,7 @@
 import type { ConnectionArguments } from "@devoxa/prisma-relay-cursor-connection";
 
-import { ParseError } from "@/errors";
 import { splitNodeId, splitTodoNodeId, splitUserNodeId } from "@/graphql/adapters";
+import { ParseError } from "@/graphql/errors";
 import type { Graph } from "@/graphql/types";
 
 // @devoxa/prisma-relay-cursor-connection がバリデーション部分のコードを export していないのでコピーしてきた
