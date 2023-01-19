@@ -71,9 +71,6 @@ export const parsers = {
 
       return { name };
     },
-    deleteUser: ({ id }: Graph.MutationDeleteUserArgs): DataSource.DeleteUserParams => {
-      return { id: parseUserNodeId(id) };
-    },
   },
   User: {
     todos: (

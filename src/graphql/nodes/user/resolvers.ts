@@ -39,10 +39,8 @@ export const resolvers: Graph.Resolvers = {
 
       return toUserNode(user);
     },
-    deleteUser: async (_, args, { dataSources: { userAPI } }) => {
-      const parsed = parsers.Mutation.deleteUser(args);
-
-      const user = await userAPI.delete(parsed);
+    deleteMe: async (_, __, { dataSources: { userAPI }, user: contextUser }) => {
+      const user = await userAPI.delete({ id: contextUser.id });
 
       return toUserNode(user);
     },

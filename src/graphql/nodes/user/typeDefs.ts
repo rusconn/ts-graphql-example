@@ -28,7 +28,7 @@ export const typeDefs = gql`
     updateMe(input: UpdateMeInput!): User
 
     "紐づくリソースは全て削除される"
-    deleteUser(id: ID!): User
+    deleteMe: User
   }
 
   type User implements Node {

@@ -149,12 +149,10 @@ export type UpdateTodoMutationVariables = Exact<{
 
 export type UpdateTodoMutation = { updateTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
-export type DeleteUserMutationVariables = Exact<{
-  id: Scalars['ID'];
-}>;
+export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DeleteUserMutation = { deleteUser?: { id: string } | null };
+export type DeleteMeMutation = { deleteMe?: { id: string } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 

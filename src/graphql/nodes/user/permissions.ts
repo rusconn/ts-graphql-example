@@ -1,20 +1,11 @@
-import { chain, race, rule } from "graphql-shield";
+import { race, rule } from "graphql-shield";
 
 import type { Graph } from "@/graphql/types";
 import { isAdmin, isGuest, isAuthenticated, newPermissionError } from "@/graphql/utils";
 import type { Context } from "@/types";
-import { parsers } from "./parsers";
 import { toUserNodeId } from "./adapters";
 
-type DeleteArgs = Graph.MutationDeleteUserArgs;
-
 type Parent = Graph.ResolversParentTypes["User"];
-
-const isSelf = rule({ cache: "strict" })((_, args: DeleteArgs, { user }: Context) => {
-  const { id } = parsers.Query.user(args);
-
-  return id === user.id || newPermissionError();
-});
 
 const isOwner = rule({ cache: "strict" })(({ id }: Parent, _, { user }: Context) => {
   return id === toUserNodeId(user.id) || newPermissionError();
@@ -29,7 +20,7 @@ export const permissions = {
   Mutation: {
     signup: isGuest,
     updateMe: isAuthenticated,
-    deleteUser: race(isAdmin, chain(isAuthenticated, isSelf)),
+    deleteMe: isAuthenticated,
   },
   User: {
     token: race(isOwner, isGuest),
