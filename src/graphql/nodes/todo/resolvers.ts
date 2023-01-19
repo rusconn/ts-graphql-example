@@ -1,4 +1,4 @@
-import { toUserNode, toTodoNode, toTodoNodes } from "@/adapters";
+import { toTodoNodes, toTodoNode, toUserNode } from "@/graphql/adapters";
 import type { Graph } from "@/graphql/types";
 import { parsers } from "./parsers";
 

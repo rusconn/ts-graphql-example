@@ -1,8 +1,7 @@
 import * as DataSource from "@/datasources";
 import { Graph, Mapper } from "@/graphql/types";
-import { nonEmptyString } from "@/graphql/utils";
-import { splitSpecifiedNodeId, toSpecifiedNodeId } from "./node";
-import { toGraphConnections } from "./utils";
+import { nonEmptyString, toGraphConnections } from "@/graphql/utils";
+import { splitSpecifiedNodeId, toSpecifiedNodeId } from "../node";
 
 export const toUserNodeId = toSpecifiedNodeId("User");
 export const splitUserNodeId = splitSpecifiedNodeId("User");

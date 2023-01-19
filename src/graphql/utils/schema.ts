@@ -1,4 +1,4 @@
-import type { NodeType } from "@/adapters";
+import type { NodeType } from "@/graphql/adapters";
 
 export const makeCursorConnections = (
   type: NodeType,

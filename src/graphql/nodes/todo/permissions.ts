@@ -1,7 +1,7 @@
 import { chain, race, rule } from "graphql-shield";
 
-import { toUserNodeId } from "@/adapters";
 import * as DataSource from "@/datasources";
+import { toUserNodeId } from "@/graphql/adapters";
 import type { Graph } from "@/graphql/types";
 import { isAdmin, isAuthenticated, newPermissionError } from "@/graphql/utils";
 import type { Context } from "@/types";

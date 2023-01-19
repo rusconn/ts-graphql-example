@@ -1,5 +1,5 @@
-import { toUserNode, toTodoNode, splitNodeId } from "@/adapters";
 import type { Graph } from "@/graphql/types";
+import { splitNodeId, toTodoNode, toUserNode } from "@/graphql/adapters";
 import { parsers } from "./parsers";
 
 export const resolvers: Graph.Resolvers = {

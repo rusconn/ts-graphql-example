@@ -5,8 +5,8 @@ import { ContextData, DBData, GraphData } from "it/data";
 import { todoAPI, userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
-import { splitTodoNodeId } from "@/adapters";
 import * as DataSource from "@/datasources";
+import { splitTodoNodeId } from "@/graphql/adapters";
 import { Graph } from "@/graphql/types";
 import { nonEmptyString } from "@/graphql/utils";
 

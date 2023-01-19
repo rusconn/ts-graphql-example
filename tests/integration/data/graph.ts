@@ -1,6 +1,7 @@
 import omit from "lodash/omit";
 
-import { toTodoNode, toUserNode } from "@/adapters";
+import { toUserNode, toTodoNode } from "@/graphql/adapters";
+
 import * as DB from "./db";
 
 export const admin = toUserNode(DB.admin);

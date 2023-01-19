@@ -1,10 +1,10 @@
 import { chain, race, rule } from "graphql-shield";
 
-import { toUserNodeId } from "@/adapters";
 import type { Graph } from "@/graphql/types";
 import { isAdmin, isGuest, isAuthenticated, newPermissionError } from "@/graphql/utils";
 import type { Context } from "@/types";
 import { parsers } from "./parsers";
+import { toUserNodeId } from "./adapters";
 
 type QueryOrUpdateOrDeleteArgs =
   | Graph.QueryUserArgs

@@ -5,8 +5,8 @@ import { ContextData, DBData } from "it/data";
 import { userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
-import { splitUserNodeId } from "@/adapters";
 import * as DataSource from "@/datasources";
+import { splitUserNodeId } from "@/graphql/adapters";
 import { Graph } from "@/graphql/types";
 import { nonEmptyString } from "@/graphql/utils";
 
