@@ -25,8 +25,8 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Mutation: {
-    createUser: async (_, args, { dataSources: { userAPI } }) => {
-      const parsed = parsers.Mutation.createUser(args);
+    signup: async (_, args, { dataSources: { userAPI } }) => {
+      const parsed = parsers.Mutation.signup(args);
 
       const user = await userAPI.create(parsed);
 

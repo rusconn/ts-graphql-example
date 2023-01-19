@@ -47,7 +47,7 @@ export const parsers = {
     },
   },
   Mutation: {
-    createUser: (args: Graph.MutationCreateUserArgs): DataSource.CreateUserParams => {
+    signup: (args: Graph.MutationSignupArgs): DataSource.CreateUserParams => {
       const { name } = args.input;
 
       if ([...name].length > 100) {

@@ -22,7 +22,7 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createUser(input: CreateUserInput!): User
+    signup(input: SignupInput!): User
 
     "指定したフィールドのみ更新する"
     updateUser(id: ID!, input: UpdateUserInput!): User
@@ -54,7 +54,7 @@ export const typeDefs = gql`
     USER
   }
 
-  input CreateUserInput {
+  input SignupInput {
     "100文字まで"
     name: NonEmptyString!
   }

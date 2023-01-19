@@ -23,11 +23,6 @@ export type CreateTodoInput = {
   title: Scalars['NonEmptyString'];
 };
 
-export type CreateUserInput = {
-  /** 100文字まで */
-  name: Scalars['NonEmptyString'];
-};
-
 export enum ErrorCode {
   AuthenticationError = 'AUTHENTICATION_ERROR',
   BadUserInput = 'BAD_USER_INPUT',
@@ -45,6 +40,11 @@ export enum Role {
   Admin = 'ADMIN',
   User = 'USER'
 }
+
+export type SignupInput = {
+  /** 100文字まで */
+  name: Scalars['NonEmptyString'];
+};
 
 export type TodoOrder = {
   direction: OrderDirection;
@@ -149,19 +149,19 @@ export type UpdateTodoMutationVariables = Exact<{
 
 export type UpdateTodoMutation = { updateTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
-export type CreateUserMutationVariables = Exact<{
-  input: CreateUserInput;
-}>;
-
-
-export type CreateUserMutation = { createUser?: { id: string, name: NonEmptyString } | null };
-
 export type DeleteUserMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
 export type DeleteUserMutation = { deleteUser?: { id: string } | null };
+
+export type SignupMutationVariables = Exact<{
+  input: SignupInput;
+}>;
+
+
+export type SignupMutation = { signup?: { id: string, name: NonEmptyString } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 

@@ -1,6 +1,6 @@
 import { gql } from "graphql-tag";
 
-import type { CreateUserMutation, CreateUserMutationVariables } from "it/graphql/types";
+import type { SignupMutation, SignupMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
 import { userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
@@ -15,8 +15,8 @@ const users = [DBData.admin, DBData.alice, DBData.bob];
 const seedUsers = () => userAPI.createMany(users);
 
 const query = gql`
-  mutation CreateUser($input: CreateUserInput!) {
-    createUser(input: $input) {
+  mutation Signup($input: SignupInput!) {
+    signup(input: $input) {
       id
       name
     }
@@ -24,8 +24,8 @@ const query = gql`
 `;
 
 const executeMutation = executeSingleResultOperation(query)<
-  CreateUserMutation,
-  CreateUserMutationVariables
+  SignupMutation,
+  SignupMutationVariables
 >;
 
 beforeAll(async () => {
@@ -41,15 +41,15 @@ describe("authorization", () => {
 
   const variables = { input: { name: nonEmptyString("foo") } };
 
-  const alloweds = [ContextData.admin, ContextData.guest];
-  const notAlloweds = [ContextData.alice, ContextData.bob];
+  const alloweds = [ContextData.guest];
+  const notAlloweds = [ContextData.admin, ContextData.alice, ContextData.bob];
 
   test.each(alloweds)("allowed %o", async user => {
     const { data, errors } = await executeMutation({ user, variables });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.createUser).not.toBeFalsy();
+    expect(data?.signup).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
@@ -58,7 +58,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.createUser).toBeFalsy();
+    expect(data?.signup).toBeFalsy();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -80,23 +80,25 @@ describe("validation", () => {
 
     test.each(valids)("valid %s", async name => {
       const { data, errors } = await executeMutation({
+        user: ContextData.guest,
         variables: { input: { name: nonEmptyString(name) } },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.createUser).not.toBeFalsy();
+      expect(data?.signup).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
     test.each(invalids)("invalid %s", async name => {
       const { data, errors } = await executeMutation({
+        user: ContextData.guest,
         variables: { input: { name: nonEmptyString(name) } },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.createUser).toBeFalsy();
+      expect(data?.signup).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -111,13 +113,16 @@ describe("logic", () => {
   it("should create user using input name", async () => {
     const name = nonEmptyString("foo");
 
-    const { data } = await executeMutation({ variables: { input: { name } } });
+    const { data } = await executeMutation({
+      user: ContextData.guest,
+      variables: { input: { name } },
+    });
 
-    if (!data || !data.createUser) {
+    if (!data || !data.signup) {
       throw new Error("operation failed");
     }
 
-    const { id } = splitUserNodeId(data.createUser.id);
+    const { id } = splitUserNodeId(data.signup.id);
 
     const user = await userAPI.get({ id });
 
@@ -127,13 +132,16 @@ describe("logic", () => {
   test("role should be USER by default", async () => {
     const name = nonEmptyString("bar");
 
-    const { data } = await executeMutation({ variables: { input: { name } } });
+    const { data } = await executeMutation({
+      user: ContextData.guest,
+      variables: { input: { name } },
+    });
 
-    if (!data || !data.createUser) {
+    if (!data || !data.signup) {
       throw new Error("operation failed");
     }
 
-    const { id } = splitUserNodeId(data.createUser.id);
+    const { id } = splitUserNodeId(data.signup.id);
 
     const user = await userAPI.get({ id });
 

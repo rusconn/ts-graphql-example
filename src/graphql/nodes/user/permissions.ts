@@ -27,7 +27,7 @@ export const permissions = {
     user: isAdmin,
   },
   Mutation: {
-    createUser: race(isAdmin, isGuest),
+    signup: isGuest,
     updateUser: race(isAdmin, chain(isAuthenticated, isSelf)),
     deleteUser: race(isAdmin, chain(isAuthenticated, isSelf)),
   },

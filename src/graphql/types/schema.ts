@@ -28,11 +28,6 @@ export type CreateTodoInput = {
   title: Scalars['NonEmptyString'];
 };
 
-export type CreateUserInput = {
-  /** 100文字まで */
-  name: Scalars['NonEmptyString'];
-};
-
 export enum ErrorCode {
   AuthenticationError = 'AUTHENTICATION_ERROR',
   BadUserInput = 'BAD_USER_INPUT',
@@ -45,10 +40,10 @@ export type Mutation = {
   __typename?: 'Mutation';
   completeTodo?: Maybe<Todo>;
   createTodo?: Maybe<Todo>;
-  createUser?: Maybe<User>;
   deleteTodo?: Maybe<Todo>;
   /** 紐づくリソースは全て削除される */
   deleteUser?: Maybe<User>;
+  signup?: Maybe<User>;
   uncompleteTodo?: Maybe<Todo>;
   /** 指定したフィールドのみ更新する */
   updateTodo?: Maybe<Todo>;
@@ -68,11 +63,6 @@ export type MutationCreateTodoArgs = {
 };
 
 
-export type MutationCreateUserArgs = {
-  input: CreateUserInput;
-};
-
-
 export type MutationDeleteTodoArgs = {
   id: Scalars['ID'];
 };
@@ -80,6 +70,11 @@ export type MutationDeleteTodoArgs = {
 
 export type MutationDeleteUserArgs = {
   id: Scalars['ID'];
+};
+
+
+export type MutationSignupArgs = {
+  input: SignupInput;
 };
 
 
@@ -164,6 +159,11 @@ export enum Role {
   Admin = 'ADMIN',
   User = 'USER'
 }
+
+export type SignupInput = {
+  /** 100文字まで */
+  name: Scalars['NonEmptyString'];
+};
 
 export type Todo = Node & {
   __typename?: 'Todo';
@@ -335,7 +335,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CreateTodoInput: CreateTodoInput;
-  CreateUserInput: CreateUserInput;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   ErrorCode: ErrorCode;
   ID: ResolverTypeWrapper<Scalars['ID']>;
@@ -347,6 +346,7 @@ export type ResolversTypes = ResolversObject<{
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<{}>;
   Role: Role;
+  SignupInput: SignupInput;
   String: ResolverTypeWrapper<Scalars['String']>;
   Todo: ResolverTypeWrapper<TodoMapped>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['TodoEdge']>, nodes: Array<ResolversTypes['Todo']> }>;
@@ -367,7 +367,6 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
   CreateTodoInput: CreateTodoInput;
-  CreateUserInput: CreateUserInput;
   DateTime: Scalars['DateTime'];
   ID: Scalars['ID'];
   Int: Scalars['Int'];
@@ -376,6 +375,7 @@ export type ResolversParentTypes = ResolversObject<{
   NonEmptyString: Scalars['NonEmptyString'];
   PageInfo: PageInfo;
   Query: {};
+  SignupInput: SignupInput;
   String: Scalars['String'];
   Todo: TodoMapped;
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['TodoEdge']>, nodes: Array<ResolversParentTypes['Todo']> };
@@ -395,10 +395,10 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   completeTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
-  createTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'input' | 'userId'>>;
-  createUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
+  createTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'input'>>;
   deleteTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, 'id'>>;
   deleteUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
+  signup?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
   uncompleteTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUncompleteTodoArgs, 'id'>>;
   updateTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUpdateTodoArgs, 'id' | 'input'>>;
   updateUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id' | 'input'>>;
