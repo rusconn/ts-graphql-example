@@ -1,4 +1,4 @@
 import ExtensibleCustomError from "extensible-custom-error";
 
-/** アプリで使うエラーのベース */
-export class BaseError extends ExtensibleCustomError {}
+/** カスタムエラーの継承ベース */
+export class CustomError extends ExtensibleCustomError {}

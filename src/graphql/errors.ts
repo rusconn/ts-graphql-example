@@ -1,3 +1,3 @@
-import { BaseError } from "@/errors";
+import { CustomError } from "@/errors";
 
-export class ParseError extends BaseError {}
+export class ParseError extends CustomError {}
