@@ -1,4 +1,3 @@
-import { BaseError } from "@/errors";
 import type { Graph } from "@/graphql/types";
 
 const nodeTypes = ["Todo", "User"] as const;
@@ -18,7 +17,7 @@ export const splitSpecifiedNodeId =
     const { type, id } = splitNodeId(nodeId);
 
     if (type !== nodeType) {
-      throw new BaseError(`invalid node id: ${nodeId}`);
+      throw new TypeError(`invalid node id: ${nodeId}`);
     }
 
     return { type, id } as T extends "Todo"
@@ -30,7 +29,7 @@ export const splitNodeId = (nodeId: Graph.Node["id"]) => {
   const [type, id, ...rest] = nodeId.split(sep);
 
   if (!isValidNodeType(type) || id == null || id === "" || rest.length !== 0) {
-    throw new BaseError(`invalid node id: ${nodeId}`);
+    throw new TypeError(`invalid node id: ${nodeId}`);
   }
 
   return { type, id };
