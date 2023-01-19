@@ -61,6 +61,11 @@ export enum TodoStatus {
   Pending = 'PENDING'
 }
 
+export type UpdateMeInput = {
+  /** 100文字まで、null は入力エラー */
+  name?: InputMaybe<Scalars['NonEmptyString']>;
+};
+
 export type UpdateTodoInput = {
   /** 5000文字まで、null は入力エラー */
   description?: InputMaybe<Scalars['String']>;
@@ -68,11 +73,6 @@ export type UpdateTodoInput = {
   status?: InputMaybe<TodoStatus>;
   /** 100文字まで、null は入力エラー */
   title?: InputMaybe<Scalars['NonEmptyString']>;
-};
-
-export type UpdateUserInput = {
-  /** 100文字まで、null は入力エラー */
-  name?: InputMaybe<Scalars['NonEmptyString']>;
 };
 
 export type UserOrder = {
@@ -156,6 +156,11 @@ export type DeleteUserMutationVariables = Exact<{
 
 export type DeleteUserMutation = { deleteUser?: { id: string } | null };
 
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = { me: { id: string } };
+
 export type SignupMutationVariables = Exact<{
   input: SignupInput;
 }>;
@@ -163,18 +168,12 @@ export type SignupMutationVariables = Exact<{
 
 export type SignupMutation = { signup?: { id: string, name: NonEmptyString } | null };
 
-export type MeQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type MeQuery = { me: { id: string } };
-
-export type UpdateUserMutationVariables = Exact<{
-  id: Scalars['ID'];
-  input: UpdateUserInput;
+export type UpdateMeMutationVariables = Exact<{
+  input: UpdateMeInput;
 }>;
 
 
-export type UpdateUserMutation = { updateUser?: { id: string, name: NonEmptyString, updatedAt: DateTime } | null };
+export type UpdateMeMutation = { updateMe?: { id: string, name: NonEmptyString, updatedAt: DateTime } | null };
 
 export type UserQueryVariables = Exact<{
   id: Scalars['ID'];

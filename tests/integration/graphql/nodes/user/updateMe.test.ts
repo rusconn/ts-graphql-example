@@ -1,8 +1,8 @@
 import { gql } from "graphql-tag";
 import omit from "lodash/omit";
 
-import type { UpdateUserMutation, UpdateUserMutationVariables } from "it/graphql/types";
-import { ContextData, DBData, GraphData } from "it/data";
+import type { UpdateMeMutation, UpdateMeMutationVariables } from "it/graphql/types";
+import { ContextData, DBData } from "it/data";
 import { userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
@@ -14,8 +14,8 @@ const users = [DBData.admin, DBData.alice, DBData.bob];
 const seedUsers = () => userAPI.createMany(users);
 
 const query = gql`
-  mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
-    updateUser(id: $id, input: $input) {
+  mutation UpdateMe($input: UpdateMeInput!) {
+    updateMe(input: $input) {
       id
       name
       updatedAt
@@ -24,8 +24,8 @@ const query = gql`
 `;
 
 const executeMutation = executeSingleResultOperation(query)<
-  UpdateUserMutation,
-  UpdateUserMutationVariables
+  UpdateMeMutation,
+  UpdateMeMutationVariables
 >;
 
 beforeAll(async () => {
@@ -41,70 +41,35 @@ describe("authorization", () => {
 
   const input = { name: nonEmptyString("foo") };
 
-  const allowedPatterns = [
-    [ContextData.admin, GraphData.admin],
-    [ContextData.admin, GraphData.alice],
-    [ContextData.alice, GraphData.alice],
-  ] as const;
+  const alloweds = [ContextData.admin, ContextData.alice, ContextData.bob] as const;
+  const notAlloweds = [ContextData.guest] as const;
 
-  const notAllowedPatterns = [
-    [ContextData.alice, GraphData.admin],
-    [ContextData.alice, GraphData.bob],
-    [ContextData.guest, GraphData.admin],
-    [ContextData.guest, GraphData.alice],
-  ] as const;
-
-  test.each(allowedPatterns)("allowed %o %o", async (user, { id }) => {
+  test.each(alloweds)("allowed %o %o", async user => {
     const { data, errors } = await executeMutation({
       user,
-      variables: { input, id },
+      variables: { input },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateUser).not.toBeFalsy();
+    expect(data?.updateMe).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowedPatterns)("not allowed %o %o", async (user, { id }) => {
+  test.each(notAlloweds)("not allowed %o %o", async user => {
     const { data, errors } = await executeMutation({
       user,
-      variables: { input, id },
+      variables: { input },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateUser).toBeFalsy();
+    expect(data?.updateMe).toBeFalsy();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
 
 describe("validation", () => {
-  describe("$id", () => {
-    afterAll(async () => {
-      await clearTables();
-      await seedUsers();
-    });
-
-    const input = { name: nonEmptyString("foo") };
-
-    test.each(GraphData.validUserIds)("valid %s", async id => {
-      const { data, errors } = await executeMutation({ variables: { id, input } });
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(data?.updateUser).not.toBeFalsy();
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-    });
-
-    test.each(GraphData.invalidUserIds)("invalid %s", async id => {
-      const { data, errors } = await executeMutation({ variables: { id, input } });
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(data?.updateUser).toBeFalsy();
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-    });
-  });
-
   describe("$input", () => {
     afterAll(async () => {
       await clearTables();
@@ -121,45 +86,45 @@ describe("validation", () => {
 
     test.each(valids)("valid %s", async name => {
       const { data, errors } = await executeMutation({
-        variables: { id: GraphData.admin.id, input: { name: nonEmptyString(name) } },
+        variables: { input: { name: nonEmptyString(name) } },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateUser).not.toBeFalsy();
+      expect(data?.updateMe).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
     test.each(invalids)("invalid %s", async name => {
       const { data, errors } = await executeMutation({
-        variables: { id: GraphData.admin.id, input: { name: nonEmptyString(name) } },
+        variables: { input: { name: nonEmptyString(name) } },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateUser).toBeFalsy();
+      expect(data?.updateMe).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
     test("null name should cause bad input error", async () => {
       const { data, errors } = await executeMutation({
-        variables: { id: GraphData.admin.id, input: { name: null } },
+        variables: { input: { name: null } },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateUser).toBeFalsy();
+      expect(data?.updateMe).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
     test("absent name should not cause bad input error", async () => {
       const { data, errors } = await executeMutation({
-        variables: { id: GraphData.admin.id, input: {} },
+        variables: { input: {} },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateUser).not.toBeFalsy();
+      expect(data?.updateMe).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -175,10 +140,10 @@ describe("logic", () => {
     const name = nonEmptyString("foo");
 
     const { data } = await executeMutation({
-      variables: { id: GraphData.admin.id, input: { name } },
+      variables: { input: { name } },
     });
 
-    if (!data || !data.updateUser) {
+    if (!data || !data.updateMe) {
       throw new Error("operation failed");
     }
 
@@ -191,10 +156,10 @@ describe("logic", () => {
     const before = await userAPI.get({ id: DBData.admin.id });
 
     const { data } = await executeMutation({
-      variables: { id: GraphData.admin.id, input: {} },
+      variables: { input: {} },
     });
 
-    if (!data || !data.updateUser) {
+    if (!data || !data.updateMe) {
       throw new Error("operation failed");
     }
 
@@ -207,10 +172,10 @@ describe("logic", () => {
     const before = await userAPI.get({ id: DBData.admin.id });
 
     const { data } = await executeMutation({
-      variables: { id: GraphData.admin.id, input: { name: nonEmptyString("bar") } },
+      variables: { input: { name: nonEmptyString("bar") } },
     });
 
-    if (!data || !data.updateUser) {
+    if (!data || !data.updateMe) {
       throw new Error("operation failed");
     }
 
@@ -226,10 +191,10 @@ describe("logic", () => {
     const before = await userAPI.get({ id: DBData.admin.id });
 
     const { data } = await executeMutation({
-      variables: { id: GraphData.admin.id, input: { name: nonEmptyString("baz") } },
+      variables: { input: { name: nonEmptyString("baz") } },
     });
 
-    if (!data || !data.updateUser) {
+    if (!data || !data.updateMe) {
       throw new Error("operation failed");
     }
 

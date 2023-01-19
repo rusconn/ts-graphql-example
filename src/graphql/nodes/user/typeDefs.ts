@@ -25,7 +25,7 @@ export const typeDefs = gql`
     signup(input: SignupInput!): User
 
     "指定したフィールドのみ更新する"
-    updateUser(id: ID!, input: UpdateUserInput!): User
+    updateMe(input: UpdateMeInput!): User
 
     "紐づくリソースは全て削除される"
     deleteUser(id: ID!): User
@@ -59,7 +59,7 @@ export const typeDefs = gql`
     name: NonEmptyString!
   }
 
-  input UpdateUserInput {
+  input UpdateMeInput {
     "100文字まで、null は入力エラー"
     name: NonEmptyString
   }

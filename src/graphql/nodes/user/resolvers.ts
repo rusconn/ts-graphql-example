@@ -32,10 +32,10 @@ export const resolvers: Graph.Resolvers = {
 
       return toUserNode(user);
     },
-    updateUser: async (_, args, { dataSources: { userAPI } }) => {
-      const parsed = parsers.Mutation.updateUser(args);
+    updateMe: async (_, args, { dataSources: { userAPI }, user: contextUser }) => {
+      const parsed = parsers.Mutation.updateMe(args);
 
-      const user = await userAPI.update(parsed);
+      const user = await userAPI.update({ ...parsed, id: contextUser.id });
 
       return toUserNode(user);
     },

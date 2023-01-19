@@ -56,13 +56,10 @@ export const parsers = {
 
       return { name };
     },
-    updateUser: (args: Graph.MutationUpdateUserArgs): DataSource.UpdateUserParams => {
+    updateMe: (args: Graph.MutationUpdateMeArgs): Omit<DataSource.UpdateUserParams, "id"> => {
       const {
-        id,
         input: { name },
       } = args;
-
-      const idToUse = parseUserNodeId(id);
 
       if (name === null) {
         throw new ParseError("`name` must be not null");
@@ -72,7 +69,7 @@ export const parsers = {
         throw new ParseError("`name` must be up to 100 characteres");
       }
 
-      return { id: idToUse, name };
+      return { name };
     },
     deleteUser: ({ id }: Graph.MutationDeleteUserArgs): DataSource.DeleteUserParams => {
       return { id: parseUserNodeId(id) };

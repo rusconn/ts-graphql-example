@@ -6,11 +6,11 @@ import type { Context } from "@/types";
 import { parsers } from "./parsers";
 import { toUserNodeId } from "./adapters";
 
-type UpdateOrDeleteArgs = Graph.MutationUpdateUserArgs | Graph.MutationDeleteUserArgs;
+type DeleteArgs = Graph.MutationDeleteUserArgs;
 
 type Parent = Graph.ResolversParentTypes["User"];
 
-const isSelf = rule({ cache: "strict" })((_, args: UpdateOrDeleteArgs, { user }: Context) => {
+const isSelf = rule({ cache: "strict" })((_, args: DeleteArgs, { user }: Context) => {
   const { id } = parsers.Query.user(args);
 
   return id === user.id || newPermissionError();
@@ -28,7 +28,7 @@ export const permissions = {
   },
   Mutation: {
     signup: isGuest,
-    updateUser: race(isAdmin, chain(isAuthenticated, isSelf)),
+    updateMe: isAuthenticated,
     deleteUser: race(isAdmin, chain(isAuthenticated, isSelf)),
   },
   User: {
