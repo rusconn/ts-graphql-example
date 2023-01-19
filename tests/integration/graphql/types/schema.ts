@@ -16,7 +16,7 @@ export type Scalars = {
   NonEmptyString: NonEmptyString;
 };
 
-export type CreateTodoInput = {
+export type CreateMyTodoInput = {
   /** 5000文字まで */
   description: Scalars['String'];
   /** 100文字まで */
@@ -99,13 +99,12 @@ export type CompleteTodoMutationVariables = Exact<{
 
 export type CompleteTodoMutation = { completeTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
-export type CreateTodoMutationVariables = Exact<{
-  userId: Scalars['ID'];
-  input: CreateTodoInput;
+export type CreateMyTodoMutationVariables = Exact<{
+  input: CreateMyTodoInput;
 }>;
 
 
-export type CreateTodoMutation = { createTodo?: { id: string, title: NonEmptyString, description: string, status: TodoStatus } | null };
+export type CreateMyTodoMutation = { createMyTodo?: { id: string, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
 export type DeleteTodoMutationVariables = Exact<{
   id: Scalars['ID'];

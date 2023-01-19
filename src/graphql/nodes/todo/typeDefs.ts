@@ -21,7 +21,7 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createTodo(userId: ID!, input: CreateTodoInput!): Todo
+    createMyTodo(input: CreateMyTodoInput!): Todo
 
     "指定したフィールドのみ更新する"
     updateTodo(id: ID!, input: UpdateTodoInput!): Todo
@@ -46,7 +46,7 @@ export const typeDefs = gql`
     PENDING
   }
 
-  input CreateTodoInput {
+  input CreateMyTodoInput {
     "100文字まで"
     title: NonEmptyString!
     "5000文字まで"

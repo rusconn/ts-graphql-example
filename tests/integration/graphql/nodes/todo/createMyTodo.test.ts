@@ -1,7 +1,7 @@
 import { gql } from "graphql-tag";
 
-import type { CreateTodoMutation, CreateTodoMutationVariables } from "it/graphql/types";
-import { ContextData, DBData, GraphData } from "it/data";
+import type { CreateMyTodoMutation, CreateMyTodoMutationVariables } from "it/graphql/types";
+import { ContextData, DBData } from "it/data";
 import { todoAPI, userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
@@ -15,8 +15,8 @@ const users = [DBData.admin, DBData.alice, DBData.bob];
 const seedUsers = () => userAPI.createMany(users);
 
 const query = gql`
-  mutation CreateTodo($userId: ID!, $input: CreateTodoInput!) {
-    createTodo(userId: $userId, input: $input) {
+  mutation CreateMyTodo($input: CreateMyTodoInput!) {
+    createMyTodo(input: $input) {
       id
       title
       description
@@ -26,8 +26,8 @@ const query = gql`
 `;
 
 const executeMutation = executeSingleResultOperation(query)<
-  CreateTodoMutation,
-  CreateTodoMutationVariables
+  CreateMyTodoMutation,
+  CreateMyTodoMutationVariables
 >;
 
 beforeAll(async () => {
@@ -43,69 +43,29 @@ describe("authorization", () => {
 
   const variables = { input: { title: nonEmptyString("title"), description: "" } };
 
-  const allowedPatterns = [
-    [ContextData.admin, GraphData.admin],
-    [ContextData.admin, GraphData.alice],
-    [ContextData.alice, GraphData.alice],
-  ] as const;
+  const alloweds = [ContextData.admin, ContextData.alice, ContextData.bob] as const;
+  const notAllowed = [ContextData.guest] as const;
 
-  const notAllowedPatterns = [
-    [ContextData.alice, GraphData.bob],
-    [ContextData.guest, GraphData.admin],
-    [ContextData.guest, GraphData.alice],
-  ] as const;
-
-  test.each(allowedPatterns)("allowed %o %o", async (user, { id }) => {
-    const { data, errors } = await executeMutation({
-      user,
-      variables: { ...variables, userId: id },
-    });
+  test.each(alloweds)("allowed %o %o", async user => {
+    const { data, errors } = await executeMutation({ user, variables });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.createTodo).not.toBeFalsy();
+    expect(data?.createMyTodo).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowedPatterns)("not allowed %o %o", async (user, { id }) => {
-    const { data, errors } = await executeMutation({
-      user,
-      variables: { ...variables, userId: id },
-    });
+  test.each(notAllowed)("not allowed %o %o", async user => {
+    const { data, errors } = await executeMutation({ user, variables });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.createTodo).toBeFalsy();
+    expect(data?.createMyTodo).toBeFalsy();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
 
 describe("validation", () => {
-  describe("$userId", () => {
-    afterAll(async () => {
-      await clearTables();
-      await seedUsers();
-    });
-
-    const variables = { input: { title: nonEmptyString("title"), description: "" } };
-
-    test.each(GraphData.validUserIds)("valid %s", async id => {
-      const { data, errors } = await executeMutation({ variables: { ...variables, userId: id } });
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(data?.createTodo).not.toBeFalsy();
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-    });
-
-    test.each(GraphData.invalidUserIds)("invalid %s", async id => {
-      const { data, errors } = await executeMutation({ variables: { ...variables, userId: id } });
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(data?.createTodo).toBeFalsy();
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-    });
-  });
-
   describe("$input", () => {
     afterAll(async () => {
       await clearTables();
@@ -133,24 +93,20 @@ describe("validation", () => {
     ].map(([title, description]) => ({ title: nonEmptyString(title), description }));
 
     test.each(valids)("valid %s", async input => {
-      const { data, errors } = await executeMutation({
-        variables: { input, userId: GraphData.admin.id },
-      });
+      const { data, errors } = await executeMutation({ variables: { input } });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.createTodo).not.toBeFalsy();
+      expect(data?.createMyTodo).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
     test.each(invalids)("invalid %s", async input => {
-      const { data, errors } = await executeMutation({
-        variables: { input, userId: GraphData.admin.id },
-      });
+      const { data, errors } = await executeMutation({ variables: { input } });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.createTodo).toBeFalsy();
+      expect(data?.createMyTodo).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -165,15 +121,13 @@ describe("logic", () => {
   const input = { title: nonEmptyString("foo"), description: "bar" };
 
   it("should create todo using input", async () => {
-    const { data } = await executeMutation({
-      variables: { input, userId: GraphData.admin.id },
-    });
+    const { data } = await executeMutation({ variables: { input } });
 
-    if (!data || !data.createTodo) {
+    if (!data || !data.createMyTodo) {
       throw new Error("operation failed");
     }
 
-    const { id } = splitTodoNodeId(data.createTodo.id);
+    const { id } = splitTodoNodeId(data.createMyTodo.id);
 
     const todo = await todoAPI.get({ id });
 
@@ -182,15 +136,13 @@ describe("logic", () => {
   });
 
   test("status should be PENDING by default", async () => {
-    const { data } = await executeMutation({
-      variables: { input, userId: GraphData.admin.id },
-    });
+    const { data } = await executeMutation({ variables: { input } });
 
-    if (!data || !data.createTodo) {
+    if (!data || !data.createMyTodo) {
       throw new Error("operation failed");
     }
 
-    const { id } = splitTodoNodeId(data.createTodo.id);
+    const { id } = splitTodoNodeId(data.createMyTodo.id);
 
     const todo = await todoAPI.get({ id });
 

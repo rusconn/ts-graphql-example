@@ -21,7 +21,7 @@ export type Scalars = {
   NonEmptyString: NonEmptyString;
 };
 
-export type CreateTodoInput = {
+export type CreateMyTodoInput = {
   /** 5000文字まで */
   description: Scalars['String'];
   /** 100文字まで */
@@ -39,7 +39,7 @@ export enum ErrorCode {
 export type Mutation = {
   __typename?: 'Mutation';
   completeTodo?: Maybe<Todo>;
-  createTodo?: Maybe<Todo>;
+  createMyTodo?: Maybe<Todo>;
   /** 紐づくリソースは全て削除される */
   deleteMe?: Maybe<User>;
   deleteTodo?: Maybe<Todo>;
@@ -57,9 +57,8 @@ export type MutationCompleteTodoArgs = {
 };
 
 
-export type MutationCreateTodoArgs = {
-  input: CreateTodoInput;
-  userId: Scalars['ID'];
+export type MutationCreateMyTodoArgs = {
+  input: CreateMyTodoInput;
 };
 
 
@@ -327,7 +326,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  CreateTodoInput: CreateTodoInput;
+  CreateMyTodoInput: CreateMyTodoInput;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   ErrorCode: ErrorCode;
   ID: ResolverTypeWrapper<Scalars['ID']>;
@@ -359,7 +358,7 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
-  CreateTodoInput: CreateTodoInput;
+  CreateMyTodoInput: CreateMyTodoInput;
   DateTime: Scalars['DateTime'];
   ID: Scalars['ID'];
   Int: Scalars['Int'];
@@ -388,7 +387,7 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   completeTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
-  createTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'input'>>;
+  createMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateMyTodoArgs, 'input'>>;
   deleteMe?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   deleteTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, 'id'>>;
   signup?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;

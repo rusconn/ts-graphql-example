@@ -1,7 +1,7 @@
 import * as DataSource from "@/datasources";
 import { ParseError } from "@/graphql/errors";
 import { Graph } from "@/graphql/types";
-import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql/utils";
+import { parseConnectionArgs, parseTodoNodeId } from "@/graphql/utils";
 
 export const parsers = {
   Query: {
@@ -48,13 +48,12 @@ export const parsers = {
     },
   },
   Mutation: {
-    createTodo: (args: Graph.MutationCreateTodoArgs): DataSource.CreateTodoParams => {
+    createMyTodo: (
+      args: Graph.MutationCreateMyTodoArgs
+    ): Omit<DataSource.CreateTodoParams, "userId"> => {
       const {
-        userId,
         input: { title, description },
       } = args;
-
-      const userIdToUse = parseUserNodeId(userId);
 
       if ([...title].length > 100) {
         throw new ParseError("`title` must be up to 100 characters");
@@ -64,7 +63,7 @@ export const parsers = {
         throw new ParseError("`description` must be up to 5000 characters");
       }
 
-      return { userId: userIdToUse, title, description };
+      return { title, description };
     },
     updateTodo: (args: Graph.MutationUpdateTodoArgs): DataSource.UpdateTodoParams => {
       const {

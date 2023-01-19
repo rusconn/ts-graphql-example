@@ -20,10 +20,10 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Mutation: {
-    createTodo: async (_, args, { dataSources: { todoAPI } }) => {
-      const parsed = parsers.Mutation.createTodo(args);
+    createMyTodo: async (_, args, { dataSources: { todoAPI }, user }) => {
+      const parsed = parsers.Mutation.createMyTodo(args);
 
-      const todo = await todoAPI.create(parsed);
+      const todo = await todoAPI.create({ ...parsed, userId: user.id });
 
       return toTodoNode(todo);
     },
