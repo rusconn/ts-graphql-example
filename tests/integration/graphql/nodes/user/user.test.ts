@@ -70,13 +70,12 @@ describe("authorization", () => {
     const allowedPatterns = [
       [ContextData.admin, GraphData.admin],
       [ContextData.admin, GraphData.alice],
-      [ContextData.alice, GraphData.alice],
-      [ContextData.bob, GraphData.bob],
     ] as const;
 
     const notAllowedPatterns = [
+      [ContextData.alice, GraphData.admin],
+      [ContextData.alice, GraphData.alice],
       [ContextData.alice, GraphData.bob],
-      [ContextData.bob, GraphData.alice],
       [ContextData.guest, GraphData.admin],
       [ContextData.guest, GraphData.alice],
     ] as const;
@@ -101,16 +100,12 @@ describe("authorization", () => {
   describe("query subfields", () => {
     const allowedPatterns = [
       [ContextData.admin, GraphData.admin, { includeToken: true }],
-      [ContextData.alice, GraphData.alice, { includeToken: true }],
-      [ContextData.admin, GraphData.alice, { includeRole: true }],
       [ContextData.admin, GraphData.admin, { includeRole: true }],
+      [ContextData.admin, GraphData.alice, { includeRole: true }],
     ] as const;
 
     const notAllowedPatterns = [
       [ContextData.admin, GraphData.alice, { includeToken: true }],
-      [ContextData.alice, GraphData.admin, { includeToken: true }],
-      [ContextData.alice, GraphData.admin, { includeRole: true }],
-      [ContextData.alice, GraphData.alice, { includeRole: true }],
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async (user, { id }, options) => {
