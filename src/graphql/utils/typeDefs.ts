@@ -1,7 +1,7 @@
-import type { NodeType } from "@/graphql/adapters";
+import type { TypeDef } from "@/graphql/types";
 
 export const makeCursorConnections = (
-  type: NodeType,
+  type: TypeDef.NodeType,
   additionalConnectionFields: Record<string, string> = {},
   additionalEdgeFields: Record<string, string> = {}
 ) => `
@@ -20,7 +20,7 @@ export const makeCursorConnections = (
 `;
 
 export const makeOrderOptions = (
-  type: NodeType,
+  type: TypeDef.NodeType,
   additionaOrderFields: Record<string, string> = {},
   additionalOrderFieldFields: Record<string, string> = {}
 ) => `
