@@ -11,9 +11,9 @@ const isOwner = rule({ cache: "strict" })(
 
     switch (type) {
       case "Todo": {
-        const todo = await dataSources.todoAPI.get({ id });
+        const todo = await dataSources.todoAPI.getOptional({ id });
 
-        return todo.userId === user.id || newPermissionError();
+        return !todo || todo.userId === user.id || newPermissionError();
       }
       case "User": {
         return id === user.id || newPermissionError();

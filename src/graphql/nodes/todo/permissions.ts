@@ -1,6 +1,5 @@
 import { chain, race, rule } from "graphql-shield";
 
-import * as DataSource from "@/datasources";
 import { toUserNodeId } from "@/graphql/adapters";
 import type { Graph } from "@/graphql/types";
 import { isAdmin, isAuthenticated, newPermissionError } from "@/graphql/utils";
@@ -24,19 +23,9 @@ const isTodoOwner = rule({ cache: "strict" })(
   async (_, args: QueryOrUpdateOrDeleteTodosArgs, { user, dataSources: { todoAPI } }: Context) => {
     const parsed = parsers.Query.todo(args);
 
-    let todo;
+    const todo = await todoAPI.getOptional(parsed);
 
-    try {
-      todo = await todoAPI.get(parsed);
-    } catch (e) {
-      if (e instanceof DataSource.NotFoundError) {
-        return false;
-      }
-
-      throw e;
-    }
-
-    return todo.userId === user.id || newPermissionError();
+    return !todo || todo.userId === user.id || newPermissionError();
   }
 );
 
