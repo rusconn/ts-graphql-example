@@ -37,7 +37,6 @@ export const typeDefs = gql`
     updatedAt: DateTime!
     name: NonEmptyString!
     token: NonEmptyString!
-    role: Role!
     todos(
       "default: 20, max: 50"
       first: Int
@@ -47,11 +46,6 @@ export const typeDefs = gql`
       before: String
       orderBy: TodoOrder
     ): TodoConnection!
-  }
-
-  enum Role {
-    ADMIN
-    USER
   }
 
   input SignupInput {

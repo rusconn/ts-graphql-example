@@ -34,7 +34,6 @@ const query = gql`
         createdAt
         updatedAt
         name
-        role
         token
       }
     }

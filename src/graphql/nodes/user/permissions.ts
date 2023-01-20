@@ -24,7 +24,6 @@ export const permissions = {
   },
   User: {
     token: race(isOwner, isGuest),
-    role: isAdmin,
     todos: race(isAdmin, isOwner),
   },
 };

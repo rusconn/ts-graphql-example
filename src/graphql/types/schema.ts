@@ -147,11 +147,6 @@ export type QueryUsersArgs = {
   orderBy?: InputMaybe<UserOrder>;
 };
 
-export enum Role {
-  Admin = 'ADMIN',
-  User = 'USER'
-}
-
 export type SignupInput = {
   /** 100文字まで */
   name: Scalars['NonEmptyString'];
@@ -216,7 +211,6 @@ export type User = Node & {
   createdAt: Scalars['DateTime'];
   id: Scalars['ID'];
   name: Scalars['NonEmptyString'];
-  role: Role;
   todos: TodoConnection;
   token: Scalars['NonEmptyString'];
   updatedAt: Scalars['DateTime'];
@@ -337,7 +331,6 @@ export type ResolversTypes = ResolversObject<{
   OrderDirection: OrderDirection;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<{}>;
-  Role: Role;
   SignupInput: SignupInput;
   String: ResolverTypeWrapper<Scalars['String']>;
   Todo: ResolverTypeWrapper<TodoMapped>;
@@ -451,7 +444,6 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['NonEmptyString'], ParentType, ContextType>;
-  role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
   todos?: Resolver<ResolversTypes['TodoConnection'], ParentType, ContextType, Partial<UserTodosArgs>>;
   token?: Resolver<ResolversTypes['NonEmptyString'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;

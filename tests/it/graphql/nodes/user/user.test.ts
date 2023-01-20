@@ -20,7 +20,6 @@ const query = gql`
   query User(
     $id: ID!
     $includeToken: Boolean = false
-    $includeRole: Boolean = false
     $includeTodos: Boolean = false
     $first: Int
     $after: String
@@ -34,7 +33,6 @@ const query = gql`
       updatedAt
       name
       token @include(if: $includeToken)
-      role @include(if: $includeRole)
       todos(first: $first, after: $after, last: $last, before: $before, orderBy: $orderBy)
         @include(if: $includeTodos) {
         totalCount
@@ -98,11 +96,7 @@ describe("authorization", () => {
   });
 
   describe("query subfields", () => {
-    const allowedPatterns = [
-      [ContextData.admin, GraphData.admin, { includeToken: true }],
-      [ContextData.admin, GraphData.admin, { includeRole: true }],
-      [ContextData.admin, GraphData.alice, { includeRole: true }],
-    ] as const;
+    const allowedPatterns = [[ContextData.admin, GraphData.admin, { includeToken: true }]] as const;
 
     const notAllowedPatterns = [
       [ContextData.admin, GraphData.alice, { includeToken: true }],
@@ -187,7 +181,7 @@ describe("validation", () => {
 describe("query without other nodes", () => {
   it("should return item correctly", async () => {
     const { data } = await executeQuery({
-      variables: { id: GraphData.admin.id, includeToken: true, includeRole: true },
+      variables: { id: GraphData.admin.id, includeToken: true },
     });
 
     expect(data?.user).toEqual(GraphData.admin);

@@ -36,11 +36,6 @@ export enum OrderDirection {
   Desc = 'DESC'
 }
 
-export enum Role {
-  Admin = 'ADMIN',
-  User = 'USER'
-}
-
 export type SignupInput = {
   /** 100文字まで */
   name: Scalars['NonEmptyString'];
@@ -119,7 +114,7 @@ export type MyTodoQueryVariables = Exact<{
 }>;
 
 
-export type MyTodoQuery = { myTodo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, role: Role, token: NonEmptyString } } | null };
+export type MyTodoQuery = { myTodo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, token: NonEmptyString } } | null };
 
 export type MyTodosQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']>;
@@ -174,7 +169,6 @@ export type UpdateMeMutation = { updateMe?: { id: string, name: NonEmptyString, 
 export type UserQueryVariables = Exact<{
   id: Scalars['ID'];
   includeToken?: InputMaybe<Scalars['Boolean']>;
-  includeRole?: InputMaybe<Scalars['Boolean']>;
   includeTodos?: InputMaybe<Scalars['Boolean']>;
   first?: InputMaybe<Scalars['Int']>;
   after?: InputMaybe<Scalars['String']>;
@@ -184,7 +178,7 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, token?: NonEmptyString, role?: Role, todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString, status: TodoStatus } }> } } | null };
+export type UserQuery = { user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, token?: NonEmptyString, todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString, status: TodoStatus } }> } } | null };
 
 export type UsersQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']>;
