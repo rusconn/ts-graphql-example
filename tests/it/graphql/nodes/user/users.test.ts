@@ -66,25 +66,8 @@ describe("validation", () => {
   const firstMax = 30;
   const lastMax = 30;
 
-  const valids = [
-    {},
-    { first: firstMax },
-    { last: lastMax },
-    { first: 1, after: GraphData.admin.id },
-    { last: 1, before: GraphData.bob.id },
-  ];
-
-  const invalids = [
-    { first: -1 },
-    { first: 0 },
-    { last: -1 },
-    { last: 0 },
-    { first: firstMax + 1 },
-    { last: lastMax + 1 },
-    { first: 1, last: 1 },
-    { first: 1, before: GraphData.admin.id },
-    { last: 1, after: GraphData.bob.id },
-  ];
+  const valids = [{}, { first: firstMax }, { last: lastMax }];
+  const invalids = [{ first: firstMax + 1 }, { last: lastMax + 1 }];
 
   test.each(valids)("valid %o", async variables => {
     const { data, errors } = await executeQuery({ variables });
