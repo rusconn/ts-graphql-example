@@ -28,7 +28,7 @@ export const typeDefs = gql`
     deleteMyTodo(id: ID!): Todo
 
     completeMyTodo(id: ID!): Todo
-    uncompleteTodo(id: ID!): Todo
+    uncompleteMyTodo(id: ID!): Todo
   }
 
   type Todo implements Node {

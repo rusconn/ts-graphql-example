@@ -132,12 +132,12 @@ export type MyTodosQueryVariables = Exact<{
 
 export type MyTodosQuery = { myTodos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString } }> } | null };
 
-export type UncompleteTodoMutationVariables = Exact<{
+export type UncompleteMyTodoMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type UncompleteTodoMutation = { uncompleteTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
+export type UncompleteMyTodoMutation = { uncompleteMyTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
 export type UpdateMyTodoMutationVariables = Exact<{
   id: Scalars['ID'];
