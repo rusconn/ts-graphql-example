@@ -1,4 +1,4 @@
-import { toTodoNodes, toUserNode, toUserNodes } from "@/graphql/adapters";
+import { toTodoNodes, toUserNode, toUserNodeId, toUserNodes } from "@/graphql/adapters";
 import type { Graph } from "@/graphql/types";
 import { parsers } from "./parsers";
 
@@ -39,10 +39,10 @@ export const resolvers: Graph.Resolvers = {
 
       return toUserNode(user);
     },
-    deleteMe: async (_, __, { dataSources: { userAPI }, user: contextUser }) => {
-      const user = await userAPI.delete({ id: contextUser.id });
+    deleteMe: async (_, __, { dataSources: { userAPI }, user }) => {
+      await userAPI.delete({ id: user.id });
 
-      return toUserNode(user);
+      return toUserNodeId(user.id);
     },
   },
   User: {

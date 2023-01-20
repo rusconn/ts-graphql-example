@@ -41,7 +41,7 @@ export type Mutation = {
   completeMyTodo?: Maybe<Todo>;
   createMyTodo?: Maybe<Todo>;
   /** 紐づくリソースは全て削除される */
-  deleteMe?: Maybe<User>;
+  deleteMe?: Maybe<Scalars['ID']>;
   deleteMyTodo?: Maybe<Todo>;
   signup?: Maybe<User>;
   uncompleteMyTodo?: Maybe<Todo>;
@@ -381,7 +381,7 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   completeMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteMyTodoArgs, 'id'>>;
   createMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateMyTodoArgs, 'input'>>;
-  deleteMe?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  deleteMe?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   deleteMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationDeleteMyTodoArgs, 'id'>>;
   signup?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
   uncompleteMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUncompleteMyTodoArgs, 'id'>>;

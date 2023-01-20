@@ -15,9 +15,7 @@ const seedAdminTodos = () => todoAPI.createMany(todos);
 
 const query = gql`
   mutation DeleteMe {
-    deleteMe {
-      id
-    }
+    deleteMe
   }
 `;
 
@@ -77,7 +75,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await userAPI.getOptional({ id: data.deleteMe.id });
+    const maybeUser = await userAPI.getOptional({ id: data.deleteMe });
 
     expect(maybeUser).toBeNull();
   });
@@ -91,7 +89,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await userAPI.getOptional({ id: data.deleteMe.id });
+    const maybeUser = await userAPI.getOptional({ id: data.deleteMe });
 
     const after = await userAPI.count();
 

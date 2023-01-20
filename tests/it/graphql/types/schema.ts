@@ -145,7 +145,7 @@ export type UpdateMyTodoMutation = { updateMyTodo?: { id: string, updatedAt: Dat
 export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DeleteMeMutation = { deleteMe?: { id: string } | null };
+export type DeleteMeMutation = { deleteMe?: string | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
