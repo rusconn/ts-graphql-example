@@ -8,7 +8,7 @@ import { parsers } from "./parsers";
 
 type QueryOrUpdateOrDeleteTodosArgs =
   | Graph.QueryMyTodoArgs
-  | Graph.MutationUpdateTodoArgs
+  | Graph.MutationUpdateMyTodoArgs
   | Graph.MutationDeleteTodoArgs;
 
 type Parent = Graph.ResolversParentTypes["Todo"];
@@ -40,7 +40,7 @@ export const permissions = {
   },
   Mutation: {
     createMyTodo: isAuthenticated,
-    updateTodo: race(isAdmin, chain(isAuthenticated, isTodoOwner)),
+    updateMyTodo: chain(isAuthenticated, isTodoOwner),
     deleteTodo: race(isAdmin, chain(isAuthenticated, isTodoOwner)),
     completeTodo: race(isAdmin, chain(isAuthenticated, isTodoOwner)),
     uncompleteTodo: race(isAdmin, chain(isAuthenticated, isTodoOwner)),

@@ -65,7 +65,7 @@ export const parsers = {
 
       return { title, description };
     },
-    updateTodo: (args: Graph.MutationUpdateTodoArgs): DataSource.UpdateTodoParams => {
+    updateMyTodo: (args: Graph.MutationUpdateMyTodoArgs): DataSource.UpdateTodoParams => {
       const {
         id,
         input: { title, description, status },

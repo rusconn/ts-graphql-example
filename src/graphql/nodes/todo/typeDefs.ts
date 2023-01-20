@@ -24,7 +24,7 @@ export const typeDefs = gql`
     createMyTodo(input: CreateMyTodoInput!): Todo
 
     "指定したフィールドのみ更新する"
-    updateTodo(id: ID!, input: UpdateTodoInput!): Todo
+    updateMyTodo(id: ID!, input: UpdateMyTodoInput!): Todo
     deleteTodo(id: ID!): Todo
 
     completeTodo(id: ID!): Todo
@@ -53,7 +53,7 @@ export const typeDefs = gql`
     description: String!
   }
 
-  input UpdateTodoInput {
+  input UpdateMyTodoInput {
     "100文字まで、null は入力エラー"
     title: NonEmptyString
     "5000文字まで、null は入力エラー"

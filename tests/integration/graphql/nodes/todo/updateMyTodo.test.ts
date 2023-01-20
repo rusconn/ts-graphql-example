@@ -1,7 +1,7 @@
 import { gql } from "graphql-tag";
 import omit from "lodash/omit";
 
-import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "it/graphql/types";
+import type { UpdateMyTodoMutation, UpdateMyTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { userAPI, todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
@@ -23,8 +23,8 @@ const seedUsers = () => userAPI.createMany(users);
 const seedTodos = () => todoAPI.createMany(todos);
 
 const query = gql`
-  mutation UpdateTodo($id: ID!, $input: UpdateTodoInput!) {
-    updateTodo(id: $id, input: $input) {
+  mutation UpdateMyTodo($id: ID!, $input: UpdateMyTodoInput!) {
+    updateMyTodo(id: $id, input: $input) {
       id
       updatedAt
       title
@@ -35,8 +35,8 @@ const query = gql`
 `;
 
 const executeMutation = executeSingleResultOperation(query)<
-  UpdateTodoMutation,
-  UpdateTodoMutationVariables
+  UpdateMyTodoMutation,
+  UpdateMyTodoMutationVariables
 >;
 
 beforeAll(async () => {
@@ -56,11 +56,11 @@ describe("authorization", () => {
 
   const allowedPatterns = [
     [ContextData.admin, GraphData.adminTodo1],
-    [ContextData.admin, GraphData.aliceTodo],
     [ContextData.alice, GraphData.aliceTodo],
   ] as const;
 
   const notAllowedPatterns = [
+    [ContextData.admin, GraphData.aliceTodo],
     [ContextData.alice, GraphData.adminTodo1],
     [ContextData.alice, GraphData.bobTodo],
     [ContextData.guest, GraphData.adminTodo1],
@@ -75,7 +75,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateTodo).not.toBeFalsy();
+    expect(data?.updateMyTodo).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
@@ -87,7 +87,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateTodo).toBeFalsy();
+    expect(data?.updateMyTodo).toBeFalsy();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -106,7 +106,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).not.toBeFalsy();
+      expect(data?.updateMyTodo).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -114,7 +114,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).toBeFalsy();
+      expect(data?.updateMyTodo).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -161,7 +161,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).not.toBeFalsy();
+      expect(data?.updateMyTodo).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -172,7 +172,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).toBeFalsy();
+      expect(data?.updateMyTodo).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -193,7 +193,7 @@ describe("validation", () => {
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-        expect(data?.updateTodo).not.toBeFalsy();
+        expect(data?.updateMyTodo).not.toBeFalsy();
         expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
       }
     );
@@ -207,7 +207,7 @@ describe("validation", () => {
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-        expect(data?.updateTodo).toBeFalsy();
+        expect(data?.updateMyTodo).toBeFalsy();
         expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
       }
     );
@@ -232,7 +232,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo) {
+    if (!data || !data.updateMyTodo) {
       throw new Error("operation failed");
     }
 
@@ -250,7 +250,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input: {} },
     });
 
-    if (!data || !data.updateTodo) {
+    if (!data || !data.updateMyTodo) {
       throw new Error("operation failed");
     }
 
@@ -274,7 +274,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo) {
+    if (!data || !data.updateMyTodo) {
       throw new Error("operation failed");
     }
 
@@ -299,7 +299,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo) {
+    if (!data || !data.updateMyTodo) {
       throw new Error("operation failed");
     }
 

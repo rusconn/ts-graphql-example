@@ -66,7 +66,7 @@ export type UpdateMeInput = {
   name?: InputMaybe<Scalars['NonEmptyString']>;
 };
 
-export type UpdateTodoInput = {
+export type UpdateMyTodoInput = {
   /** 5000文字まで、null は入力エラー */
   description?: InputMaybe<Scalars['String']>;
   /** null は入力エラー */
@@ -139,13 +139,13 @@ export type UncompleteTodoMutationVariables = Exact<{
 
 export type UncompleteTodoMutation = { uncompleteTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
-export type UpdateTodoMutationVariables = Exact<{
+export type UpdateMyTodoMutationVariables = Exact<{
   id: Scalars['ID'];
-  input: UpdateTodoInput;
+  input: UpdateMyTodoInput;
 }>;
 
 
-export type UpdateTodoMutation = { updateTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
+export type UpdateMyTodoMutation = { updateMyTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
 export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
 
