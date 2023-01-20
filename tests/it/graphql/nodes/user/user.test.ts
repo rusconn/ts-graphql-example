@@ -122,7 +122,8 @@ describe("authorization", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.user).toBeFalsy();
+      expect(data?.user).not.toBeFalsy();
+      expect(data?.user?.token).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
     });
   });

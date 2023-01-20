@@ -37,7 +37,7 @@ export const typeDefs = gql`
     createdAt: DateTime!
     updatedAt: DateTime!
     name: NonEmptyString!
-    token: NonEmptyString!
+    token: NonEmptyString
     todos(
       "default: 20, max: 50"
       first: Int
