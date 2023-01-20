@@ -43,7 +43,7 @@ export const parsers = {
         orderBy: orderByToUse,
       };
     },
-    todo: ({ id }: Graph.QueryTodoArgs): DataSource.GetTodoParams => {
+    myTodo: ({ id }: Graph.QueryMyTodoArgs): DataSource.GetTodoParams => {
       return { id: parseTodoNodeId(id) };
     },
   },

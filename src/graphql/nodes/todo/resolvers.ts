@@ -11,8 +11,8 @@ export const resolvers: Graph.Resolvers = {
 
       return toTodoNodes(todos);
     },
-    todo: async (_, args, { dataSources: { todoAPI } }) => {
-      const parsed = parsers.Query.todo(args);
+    myTodo: async (_, args, { dataSources: { todoAPI } }) => {
+      const parsed = parsers.Query.myTodo(args);
 
       const todo = await todoAPI.get(parsed);
 

@@ -108,11 +108,16 @@ export type PageInfo = {
 export type Query = {
   __typename?: 'Query';
   me: User;
+  myTodo?: Maybe<Todo>;
   myTodos?: Maybe<TodoConnection>;
   node?: Maybe<Node>;
-  todo?: Maybe<Todo>;
   user?: Maybe<User>;
   users: UserConnection;
+};
+
+
+export type QueryMyTodoArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -126,11 +131,6 @@ export type QueryMyTodosArgs = {
 
 
 export type QueryNodeArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryTodoArgs = {
   id: Scalars['ID'];
 };
 
@@ -416,9 +416,9 @@ export type PageInfoResolvers<ContextType = Context, ParentType extends Resolver
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  myTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<QueryMyTodoArgs, 'id'>>;
   myTodos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, Partial<QueryMyTodosArgs>>;
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;
-  todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<QueryTodoArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
   users?: Resolver<ResolversTypes['UserConnection'], ParentType, ContextType, Partial<QueryUsersArgs>>;
 }>;

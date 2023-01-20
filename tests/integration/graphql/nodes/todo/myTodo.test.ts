@@ -1,6 +1,6 @@
 import { gql } from "graphql-tag";
 
-import type { TodoQuery, TodoQueryVariables } from "it/graphql/types";
+import type { MyTodoQuery, MyTodoQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { userAPI, todoAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
@@ -21,8 +21,8 @@ const seedUsers = () => userAPI.createMany(users);
 const seedTodos = () => todoAPI.createMany(todos);
 
 const query = gql`
-  query Todo($id: ID!, $includeUser: Boolean = false) {
-    todo(id: $id) {
+  query MyTodo($id: ID!, $includeUser: Boolean = false) {
+    myTodo(id: $id) {
       id
       createdAt
       updatedAt
@@ -41,7 +41,7 @@ const query = gql`
   }
 `;
 
-const executeQuery = executeSingleResultOperation(query)<TodoQuery, TodoQueryVariables>;
+const executeQuery = executeSingleResultOperation(query)<MyTodoQuery, MyTodoQueryVariables>;
 
 beforeAll(async () => {
   await clearTables();
@@ -52,11 +52,11 @@ beforeAll(async () => {
 describe("authorization", () => {
   const allowedPatterns = [
     [ContextData.admin, GraphData.adminTodo1],
-    [ContextData.admin, GraphData.aliceTodo],
     [ContextData.alice, GraphData.aliceTodo],
   ] as const;
 
   const notAllowedPatterns = [
+    [ContextData.admin, GraphData.aliceTodo],
     [ContextData.alice, GraphData.bobTodo],
     [ContextData.guest, GraphData.adminTodo1],
     [ContextData.guest, GraphData.aliceTodo],
@@ -66,7 +66,7 @@ describe("authorization", () => {
     const { data, errors } = await executeQuery({ user, variables: { id } });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.todo).not.toBeFalsy();
+    expect(data?.myTodo).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
@@ -74,7 +74,7 @@ describe("authorization", () => {
     const { data, errors } = await executeQuery({ user, variables: { id } });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.todo).toBeFalsy();
+    expect(data?.myTodo).toBeFalsy();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -85,7 +85,7 @@ describe("validation", () => {
       const { data, errors } = await executeQuery({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.todo).not.toBeFalsy();
+      expect(data?.myTodo).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -93,7 +93,7 @@ describe("validation", () => {
       const { data, errors } = await executeQuery({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.todo).toBeFalsy();
+      expect(data?.myTodo).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -103,7 +103,7 @@ describe("query without other nodes", () => {
   it("should return item correctly", async () => {
     const { data } = await executeQuery({ variables: { id: GraphData.adminTodo1.id } });
 
-    expect(data?.todo).toEqual(GraphData.adminTodo1);
+    expect(data?.myTodo).toEqual(GraphData.adminTodo1);
   });
 
   it("should return not found error if not found", async () => {
@@ -113,7 +113,7 @@ describe("query without other nodes", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.todo).toBeFalsy();
+    expect(data?.myTodo).toBeFalsy();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 });
@@ -124,6 +124,6 @@ describe("query other nodes: user", () => {
       variables: { id: GraphData.adminTodo1.id, includeUser: true },
     });
 
-    expect(data?.todo?.user).toEqual(GraphData.admin);
+    expect(data?.myTodo?.user).toEqual(GraphData.admin);
   });
 });

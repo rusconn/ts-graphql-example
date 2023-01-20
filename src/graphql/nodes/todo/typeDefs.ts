@@ -17,7 +17,7 @@ export const typeDefs = gql`
       orderBy: TodoOrder
     ): TodoConnection
 
-    todo(id: ID!): Todo
+    myTodo(id: ID!): Todo
   }
 
   type Mutation {

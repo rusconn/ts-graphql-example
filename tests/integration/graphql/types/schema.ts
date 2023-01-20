@@ -114,6 +114,14 @@ export type DeleteTodoMutationVariables = Exact<{
 
 export type DeleteTodoMutation = { deleteTodo?: { id: string } | null };
 
+export type MyTodoQueryVariables = Exact<{
+  id: Scalars['ID'];
+  includeUser?: InputMaybe<Scalars['Boolean']>;
+}>;
+
+
+export type MyTodoQuery = { myTodo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, role: Role, token: NonEmptyString } } | null };
+
 export type MyTodosQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']>;
   after?: InputMaybe<Scalars['String']>;
@@ -124,14 +132,6 @@ export type MyTodosQueryVariables = Exact<{
 
 
 export type MyTodosQuery = { myTodos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString } }> } | null };
-
-export type TodoQueryVariables = Exact<{
-  id: Scalars['ID'];
-  includeUser?: InputMaybe<Scalars['Boolean']>;
-}>;
-
-
-export type TodoQuery = { todo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, role: Role, token: NonEmptyString } } | null };
 
 export type UncompleteTodoMutationVariables = Exact<{
   id: Scalars['ID'];

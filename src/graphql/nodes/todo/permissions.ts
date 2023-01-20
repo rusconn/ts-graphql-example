@@ -8,7 +8,7 @@ import type { Context } from "@/types";
 import { parsers } from "./parsers";
 
 type QueryOrUpdateOrDeleteTodosArgs =
-  | Graph.QueryTodoArgs
+  | Graph.QueryMyTodoArgs
   | Graph.MutationUpdateTodoArgs
   | Graph.MutationDeleteTodoArgs;
 
@@ -19,7 +19,7 @@ const isTodoOwner = rule({ cache: "strict" })(
     let parsed;
 
     try {
-      parsed = parsers.Query.todo(args);
+      parsed = parsers.Query.myTodo(args);
     } catch (e) {
       return e instanceof ParseError;
     }
@@ -43,7 +43,7 @@ const isSelf = rule({ cache: "strict" })(({ userId }: Parent, _, { user }: Conte
 export const permissions = {
   Query: {
     myTodos: isAuthenticated,
-    todo: race(isAdmin, chain(isAuthenticated, isTodoOwner)),
+    myTodo: chain(isAuthenticated, isTodoOwner),
   },
   Mutation: {
     createTodo: race(isAdmin, chain(isAuthenticated, isMine)),
