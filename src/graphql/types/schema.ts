@@ -160,7 +160,7 @@ export type Todo = Node & {
   status: TodoStatus;
   title: Scalars['NonEmptyString'];
   updatedAt: Scalars['DateTime'];
-  user: User;
+  user?: Maybe<User>;
 };
 
 export type TodoConnection = {
@@ -422,7 +422,7 @@ export type TodoResolvers<ContextType = Context, ParentType extends ResolversPar
   status?: Resolver<ResolversTypes['TodoStatus'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['NonEmptyString'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

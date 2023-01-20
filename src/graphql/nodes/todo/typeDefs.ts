@@ -38,7 +38,7 @@ export const typeDefs = gql`
     title: NonEmptyString!
     description: String!
     status: TodoStatus!
-    user: User!
+    user: User
   }
 
   enum TodoStatus {

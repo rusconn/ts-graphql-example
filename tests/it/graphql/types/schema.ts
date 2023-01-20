@@ -114,7 +114,7 @@ export type MyTodoQueryVariables = Exact<{
 }>;
 
 
-export type MyTodoQuery = { myTodo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, token?: NonEmptyString | null } } | null };
+export type MyTodoQuery = { myTodo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, token?: NonEmptyString | null } | null } | null };
 
 export type MyTodosQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']>;
