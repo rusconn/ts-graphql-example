@@ -1,5 +1,6 @@
 import { chain, race, rule } from "graphql-shield";
 
+import { ParseError } from "@/graphql/errors";
 import type { Graph } from "@/graphql/types";
 import { isAdmin, isAuthenticated, newPermissionError } from "@/graphql/utils";
 import type { Context } from "@/types";
@@ -7,7 +8,14 @@ import { parsers } from "./parsers";
 
 const isOwner = rule({ cache: "strict" })(
   async (_, args: Graph.QueryNodeArgs, { user, dataSources }: Context) => {
-    const { type, id } = parsers.Query.node(args);
+    let type;
+    let id;
+
+    try {
+      ({ type, id } = parsers.Query.node(args));
+    } catch (e) {
+      return e instanceof ParseError;
+    }
 
     switch (type) {
       case "Todo": {

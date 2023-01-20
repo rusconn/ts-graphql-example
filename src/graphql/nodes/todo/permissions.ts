@@ -1,6 +1,7 @@
 import { chain, race, rule } from "graphql-shield";
 
 import { toUserNodeId } from "@/graphql/adapters";
+import { ParseError } from "@/graphql/errors";
 import type { Graph } from "@/graphql/types";
 import { isAdmin, isAuthenticated, newPermissionError } from "@/graphql/utils";
 import type { Context } from "@/types";
@@ -21,7 +22,13 @@ const isTodosOwner = rule({ cache: "strict" })(
 
 const isTodoOwner = rule({ cache: "strict" })(
   async (_, args: QueryOrUpdateOrDeleteTodosArgs, { user, dataSources: { todoAPI } }: Context) => {
-    const parsed = parsers.Query.todo(args);
+    let parsed;
+
+    try {
+      parsed = parsers.Query.todo(args);
+    } catch (e) {
+      return e instanceof ParseError;
+    }
 
     const todo = await todoAPI.getOptional(parsed);
 
