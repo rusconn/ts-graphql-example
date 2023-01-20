@@ -5,6 +5,4 @@ services:
     image: rusconn/apollo-prisma-test-dev-app:1.0.0
     build:
       context: .devcontainer
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "yarn && yarn setup && sleep infinity"
