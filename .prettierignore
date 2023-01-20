@@ -5,4 +5,4 @@ tsconfig.tsbuildinfo
 
 # additional ignores
 src/graphql/types/schema.ts
-tests/integration/graphql/types/schema.ts
+tests/it/graphql/types/schema.ts

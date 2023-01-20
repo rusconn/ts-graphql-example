@@ -28,9 +28,9 @@ generates:
     config:
       <<: *typescript
       <<: *typescript-resolvers
-  tests/integration/graphql/types/schema.ts:
+  tests/it/graphql/types/schema.ts:
     documents:
-      - tests/integration/graphql/**/*.ts
+      - tests/it/graphql/**/*.ts
     plugins:
       - typescript
       - typescript-operations
