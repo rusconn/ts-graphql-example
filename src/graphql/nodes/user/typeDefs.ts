@@ -17,7 +17,7 @@ export const typeDefs = gql`
       last: Int
       before: String
       orderBy: UserOrder
-    ): UserConnection!
+    ): UserConnection
 
     user(id: ID!): User
   }

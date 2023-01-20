@@ -108,21 +108,21 @@ describe("number of items", () => {
     const { data } = await executeQuery({});
 
     expect(numUsers).toBe(numDefault + 1);
-    expect(data?.users.edges).toHaveLength(numDefault);
+    expect(data?.users?.edges).toHaveLength(numDefault);
   });
 
   it("should affected by first option", async () => {
     const first = numSeed - 1;
     const { data } = await executeQuery({ variables: { first } });
 
-    expect(data?.users.edges).toHaveLength(first);
+    expect(data?.users?.edges).toHaveLength(first);
   });
 
   it("should affected by last option", async () => {
     const last = numSeed - 1;
     const { data } = await executeQuery({ variables: { last } });
 
-    expect(data?.users.edges).toHaveLength(last);
+    expect(data?.users?.edges).toHaveLength(last);
   });
 });
 
@@ -149,7 +149,7 @@ describe("order of items", () => {
 
   test.each(patterns)("%o, %o", async (variables, expectedUsers) => {
     const { data } = await executeQuery({ variables });
-    const ids = data?.users.edges.map(({ node }) => node.id);
+    const ids = data?.users?.edges.map(({ node }) => node.id);
     const expectedIds = expectedUsers.map(({ id }) => id);
 
     expect(ids).toStrictEqual(expectedIds);
@@ -171,8 +171,8 @@ describe("pagination", () => {
     const { data: data1 } = await makeExecution();
     const { data: data2 } = await makeExecution();
 
-    expect(data1?.users.edges).toHaveLength(first);
-    expect(data2?.users.edges).toHaveLength(first);
+    expect(data1?.users?.edges).toHaveLength(first);
+    expect(data2?.users?.edges).toHaveLength(first);
     expect(data1).toStrictEqual(data2);
   });
 });

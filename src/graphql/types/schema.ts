@@ -111,7 +111,7 @@ export type Query = {
   myTodos?: Maybe<TodoConnection>;
   node?: Maybe<Node>;
   user?: Maybe<User>;
-  users: UserConnection;
+  users?: Maybe<UserConnection>;
 };
 
 
@@ -412,7 +412,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   myTodos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, Partial<QueryMyTodosArgs>>;
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
-  users?: Resolver<ResolversTypes['UserConnection'], ParentType, ContextType, Partial<QueryUsersArgs>>;
+  users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, Partial<QueryUsersArgs>>;
 }>;
 
 export type TodoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Todo'] = ResolversParentTypes['Todo']> = ResolversObject<{
