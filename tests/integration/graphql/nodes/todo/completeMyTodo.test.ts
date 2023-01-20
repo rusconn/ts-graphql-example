@@ -1,7 +1,7 @@
 import { gql } from "graphql-tag";
 import omit from "lodash/omit";
 
-import type { CompleteTodoMutation, CompleteTodoMutationVariables } from "it/graphql/types";
+import type { CompleteMyTodoMutation, CompleteMyTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { todoAPI, userAPI } from "it/datasources";
 import { clearTables } from "it/helpers";
@@ -24,8 +24,8 @@ const seedTodos = () => todoAPI.createMany(todos);
 const resetAdminTodoValue = () => todoAPI.upsert(DBData.adminTodo1);
 
 const query = gql`
-  mutation CompleteTodo($id: ID!) {
-    completeTodo(id: $id) {
+  mutation CompleteMyTodo($id: ID!) {
+    completeMyTodo(id: $id) {
       id
       updatedAt
       title
@@ -36,8 +36,8 @@ const query = gql`
 `;
 
 const executeMutation = executeSingleResultOperation(query)<
-  CompleteTodoMutation,
-  CompleteTodoMutationVariables
+  CompleteMyTodoMutation,
+  CompleteMyTodoMutationVariables
 >;
 
 beforeAll(async () => {
@@ -55,11 +55,11 @@ describe("authorization", () => {
 
   const allowedPatterns = [
     [ContextData.admin, GraphData.adminTodo1],
-    [ContextData.admin, GraphData.aliceTodo],
     [ContextData.alice, GraphData.aliceTodo],
   ] as const;
 
   const notAllowedPatterns = [
+    [ContextData.admin, GraphData.aliceTodo],
     [ContextData.alice, GraphData.adminTodo1],
     [ContextData.alice, GraphData.bobTodo],
     [ContextData.guest, GraphData.adminTodo1],
@@ -74,7 +74,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.completeTodo).not.toBeFalsy();
+    expect(data?.completeMyTodo).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
@@ -86,7 +86,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.completeTodo).toBeFalsy();
+    expect(data?.completeMyTodo).toBeFalsy();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -103,7 +103,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.completeTodo).not.toBeFalsy();
+      expect(data?.completeMyTodo).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -111,7 +111,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.completeTodo).toBeFalsy();
+      expect(data?.completeMyTodo).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -131,7 +131,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo) {
+    if (!data || !data.completeMyTodo) {
       throw new Error("operation failed");
     }
 
@@ -146,7 +146,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo) {
+    if (!data || !data.completeMyTodo) {
       throw new Error("operation failed");
     }
 
@@ -163,7 +163,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo) {
+    if (!data || !data.completeMyTodo) {
       throw new Error("operation failed");
     }
 

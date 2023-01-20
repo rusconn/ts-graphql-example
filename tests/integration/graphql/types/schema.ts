@@ -92,12 +92,12 @@ export type NodeQueryVariables = Exact<{
 
 export type NodeQuery = { node?: { title: NonEmptyString, id: string } | { name: NonEmptyString, id: string } | null };
 
-export type CompleteTodoMutationVariables = Exact<{
+export type CompleteMyTodoMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type CompleteTodoMutation = { completeTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
+export type CompleteMyTodoMutation = { completeMyTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
 
 export type CreateMyTodoMutationVariables = Exact<{
   input: CreateMyTodoInput;

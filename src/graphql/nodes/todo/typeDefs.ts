@@ -27,7 +27,7 @@ export const typeDefs = gql`
     updateMyTodo(id: ID!, input: UpdateMyTodoInput!): Todo
     deleteMyTodo(id: ID!): Todo
 
-    completeTodo(id: ID!): Todo
+    completeMyTodo(id: ID!): Todo
     uncompleteTodo(id: ID!): Todo
   }
 

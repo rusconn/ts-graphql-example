@@ -98,7 +98,7 @@ export const parsers = {
     deleteMyTodo: ({ id }: Graph.MutationDeleteMyTodoArgs): DataSource.DeleteTodoParams => {
       return { id: parseTodoNodeId(id) };
     },
-    completeTodo: ({ id }: Graph.MutationCompleteTodoArgs): DataSource.CompleteTodoParams => {
+    completeMyTodo: ({ id }: Graph.MutationCompleteMyTodoArgs): DataSource.CompleteTodoParams => {
       return { id: parseTodoNodeId(id) };
     },
     uncompleteTodo: ({ id }: Graph.MutationUncompleteTodoArgs): DataSource.UncompleteTodoParams => {

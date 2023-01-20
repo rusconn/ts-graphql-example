@@ -38,7 +38,7 @@ export enum ErrorCode {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  completeTodo?: Maybe<Todo>;
+  completeMyTodo?: Maybe<Todo>;
   createMyTodo?: Maybe<Todo>;
   /** 紐づくリソースは全て削除される */
   deleteMe?: Maybe<User>;
@@ -52,7 +52,7 @@ export type Mutation = {
 };
 
 
-export type MutationCompleteTodoArgs = {
+export type MutationCompleteMyTodoArgs = {
   id: Scalars['ID'];
 };
 
@@ -386,7 +386,7 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 }
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  completeTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
+  completeMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteMyTodoArgs, 'id'>>;
   createMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateMyTodoArgs, 'input'>>;
   deleteMe?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   deleteMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationDeleteMyTodoArgs, 'id'>>;

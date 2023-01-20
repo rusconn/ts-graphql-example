@@ -42,7 +42,7 @@ export const permissions = {
     createMyTodo: isAuthenticated,
     updateMyTodo: chain(isAuthenticated, isTodoOwner),
     deleteMyTodo: chain(isAuthenticated, isTodoOwner),
-    completeTodo: race(isAdmin, chain(isAuthenticated, isTodoOwner)),
+    completeMyTodo: chain(isAuthenticated, isTodoOwner),
     uncompleteTodo: race(isAdmin, chain(isAuthenticated, isTodoOwner)),
   },
   Todo: {
