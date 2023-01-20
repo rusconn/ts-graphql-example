@@ -106,7 +106,7 @@ export type PageInfo = {
 
 export type Query = {
   __typename?: 'Query';
-  me: User;
+  me?: Maybe<User>;
   myTodo?: Maybe<Todo>;
   myTodos?: Maybe<TodoConnection>;
   node?: Maybe<Node>;
@@ -407,7 +407,7 @@ export type PageInfoResolvers<ContextType = Context, ParentType extends Resolver
 }>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   myTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<QueryMyTodoArgs, 'id'>>;
   myTodos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, Partial<QueryMyTodosArgs>>;
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;

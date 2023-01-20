@@ -7,7 +7,8 @@ export const typeDefs = gql`
   ${makeOrderOptions("User")}
 
   type Query {
-    me: User!
+    me: User
+
     users(
       "default: 10, max: 30"
       first: Int

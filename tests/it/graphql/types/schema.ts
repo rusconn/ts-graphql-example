@@ -150,7 +150,7 @@ export type DeleteMeMutation = { deleteMe?: { id: string } | null };
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { me: { id: string } };
+export type MeQuery = { me?: { id: string } | null };
 
 export type SignupMutationVariables = Exact<{
   input: SignupInput;
