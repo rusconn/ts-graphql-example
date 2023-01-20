@@ -3,3 +3,5 @@ tsconfig.tsbuildinfo
 .env
 .eslintcache
 .devcontainer
+yarn-debug.log*
+yarn-error.log*
