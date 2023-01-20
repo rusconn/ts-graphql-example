@@ -5,4 +5,4 @@ services:
     image: rusconn/apollo-prisma-test-dev-app:1.0.0
     build:
       context: .devcontainer
-    command: sh -c "yarn && yarn setup && sleep infinity"
+    command: sh -c "yarn setup && sleep infinity"
