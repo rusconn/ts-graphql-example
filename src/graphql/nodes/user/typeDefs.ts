@@ -46,7 +46,7 @@ export const typeDefs = gql`
       last: Int
       before: String
       orderBy: TodoOrder
-    ): TodoConnection!
+    ): TodoConnection
   }
 
   input SignupInput {

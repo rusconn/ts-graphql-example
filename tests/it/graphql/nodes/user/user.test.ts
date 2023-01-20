@@ -173,7 +173,8 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.user).toBeFalsy();
+      expect(data?.user).not.toBeFalsy();
+      expect(data?.user?.todos).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });

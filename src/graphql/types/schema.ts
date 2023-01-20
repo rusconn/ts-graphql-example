@@ -211,7 +211,7 @@ export type User = Node & {
   createdAt: Scalars['DateTime'];
   id: Scalars['ID'];
   name: Scalars['NonEmptyString'];
-  todos: TodoConnection;
+  todos?: Maybe<TodoConnection>;
   token?: Maybe<Scalars['NonEmptyString']>;
   updatedAt: Scalars['DateTime'];
 };
@@ -444,7 +444,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['NonEmptyString'], ParentType, ContextType>;
-  todos?: Resolver<ResolversTypes['TodoConnection'], ParentType, ContextType, Partial<UserTodosArgs>>;
+  todos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, Partial<UserTodosArgs>>;
   token?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
