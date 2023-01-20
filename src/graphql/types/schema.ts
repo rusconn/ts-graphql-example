@@ -42,7 +42,7 @@ export type Mutation = {
   createMyTodo?: Maybe<Todo>;
   /** 紐づくリソースは全て削除される */
   deleteMe?: Maybe<Scalars['ID']>;
-  deleteMyTodo?: Maybe<Todo>;
+  deleteMyTodo?: Maybe<Scalars['ID']>;
   signup?: Maybe<User>;
   uncompleteMyTodo?: Maybe<Todo>;
   /** 指定したフィールドのみ更新する */
@@ -382,7 +382,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   completeMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteMyTodoArgs, 'id'>>;
   createMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateMyTodoArgs, 'input'>>;
   deleteMe?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  deleteMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationDeleteMyTodoArgs, 'id'>>;
+  deleteMyTodo?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationDeleteMyTodoArgs, 'id'>>;
   signup?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
   uncompleteMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUncompleteMyTodoArgs, 'id'>>;
   updateMe?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpdateMeArgs, 'input'>>;

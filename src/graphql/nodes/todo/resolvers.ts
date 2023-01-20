@@ -37,9 +37,9 @@ export const resolvers: Graph.Resolvers = {
     deleteMyTodo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.deleteMyTodo(args);
 
-      const todo = await todoAPI.delete(parsed);
+      await todoAPI.delete(parsed);
 
-      return toTodoNode(todo);
+      return args.id;
     },
     completeMyTodo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.completeMyTodo(args);

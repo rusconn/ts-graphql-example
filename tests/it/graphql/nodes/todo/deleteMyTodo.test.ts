@@ -23,9 +23,7 @@ const seedTodos = () => todoAPI.createMany(todos);
 
 const query = gql`
   mutation DeleteMyTodo($id: ID!) {
-    deleteMyTodo(id: $id) {
-      id
-    }
+    deleteMyTodo(id: $id)
   }
 `;
 

@@ -106,7 +106,7 @@ export type DeleteMyTodoMutationVariables = Exact<{
 }>;
 
 
-export type DeleteMyTodoMutation = { deleteMyTodo?: { id: string } | null };
+export type DeleteMyTodoMutation = { deleteMyTodo?: string | null };
 
 export type MyTodoQueryVariables = Exact<{
   id: Scalars['ID'];
