@@ -22,7 +22,7 @@ const isOwner = rule({ cache: "strict" })(({ id }: Parent, _, { user }: Context)
 
 export const permissions = {
   Query: {
-    viewer: isAuthenticated,
+    me: isAuthenticated,
     users: isAdmin,
     user: isAdmin,
   },

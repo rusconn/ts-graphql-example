@@ -163,6 +163,11 @@ export type DeleteUserMutationVariables = Exact<{
 
 export type DeleteUserMutation = { deleteUser?: { id: string } | null };
 
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = { me: { id: string } };
+
 export type UpdateUserMutationVariables = Exact<{
   id: Scalars['ID'];
   input: UpdateUserInput;
@@ -196,8 +201,3 @@ export type UsersQueryVariables = Exact<{
 
 
 export type UsersQuery = { users: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string } }> } };
-
-export type ViewerQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ViewerQuery = { viewer: { id: string } };

@@ -4,7 +4,7 @@ import { parsers } from "./parsers";
 
 export const resolvers: Graph.Resolvers = {
   Query: {
-    viewer: async (_, __, { dataSources: { userAPI }, user: contextUser }) => {
+    me: async (_, __, { dataSources: { userAPI }, user: contextUser }) => {
       const user = await userAPI.get({ id: contextUser.id });
 
       return toUserNode(user);
