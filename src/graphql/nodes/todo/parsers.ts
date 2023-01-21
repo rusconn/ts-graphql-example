@@ -98,13 +98,11 @@ export const parsers = {
     deleteMyTodo: ({ id }: Graph.MutationDeleteMyTodoArgs): DataSource.DeleteTodoParams => {
       return { id: parseTodoNodeId(id) };
     },
-    completeMyTodo: ({ id }: Graph.MutationCompleteMyTodoArgs): DataSource.CompleteTodoParams => {
-      return { id: parseTodoNodeId(id) };
+    completeMyTodo: ({ id }: Graph.MutationCompleteMyTodoArgs): DataSource.UpdateTodoParams => {
+      return { id: parseTodoNodeId(id), status: DataSource.TodoStatus.DONE };
     },
-    uncompleteMyTodo: ({
-      id,
-    }: Graph.MutationUncompleteMyTodoArgs): DataSource.UncompleteTodoParams => {
-      return { id: parseTodoNodeId(id) };
+    uncompleteMyTodo: ({ id }: Graph.MutationUncompleteMyTodoArgs): DataSource.UpdateTodoParams => {
+      return { id: parseTodoNodeId(id), status: DataSource.TodoStatus.PENDING };
     },
   },
 };

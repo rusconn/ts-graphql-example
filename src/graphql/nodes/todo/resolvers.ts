@@ -44,14 +44,14 @@ export const resolvers: Graph.Resolvers = {
     completeMyTodo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.completeMyTodo(args);
 
-      const todo = await todoAPI.complete(parsed);
+      const todo = await todoAPI.update(parsed);
 
       return toTodoNode(todo);
     },
     uncompleteMyTodo: async (_, args, { dataSources: { todoAPI } }) => {
       const parsed = parsers.Mutation.uncompleteMyTodo(args);
 
-      const todo = await todoAPI.uncomplete(parsed);
+      const todo = await todoAPI.update(parsed);
 
       return toTodoNode(todo);
     },

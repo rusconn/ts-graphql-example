@@ -54,14 +54,6 @@ export type DeleteTodoParams = {
   id: Todo["id"];
 };
 
-export type CompleteTodoParams = {
-  id: Todo["id"];
-};
-
-export type UncompleteTodoParams = {
-  id: Todo["id"];
-};
-
 export class TodoAPI {
   private prisma: PrismaClient;
 
@@ -138,13 +130,5 @@ export class TodoAPI {
 
   async deleteAll() {
     return this.prisma.todo.deleteMany();
-  }
-
-  async complete({ id }: CompleteTodoParams) {
-    return this.prisma.todo.update({ where: { id }, data: { status: TodoStatus.DONE } });
-  }
-
-  async uncomplete({ id }: UncompleteTodoParams) {
-    return this.prisma.todo.update({ where: { id }, data: { status: TodoStatus.PENDING } });
   }
 }
