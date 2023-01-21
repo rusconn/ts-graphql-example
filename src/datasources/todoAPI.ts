@@ -31,8 +31,12 @@ export type CreateTodoParams = {
   description: Todo["description"];
 };
 
-export type CreateManyTodoParams = (CreateTodoParams & {
-  id: Todo["id"];
+export type CreateManyTodoParams = CreateTodoParams[];
+
+export type CreateManyTodoForTestParams = (CreateTodoParams & {
+  id?: Todo["id"];
+  createdAt?: Todo["createdAt"];
+  updatedAt?: Todo["updatedAt"];
 })[];
 
 export type UpdateTodoParams = {
@@ -69,7 +73,7 @@ export class TodoAPI {
     return this.prisma.todo.count({ where: { userId } });
   }
 
-  async getsUserTodos({ userId, info, orderBy, ...paginationArgs }: GetUserTodosParams) {
+  async getsUserTodos({ userId, info, orderBy, first, last, before, after }: GetUserTodosParams) {
     const userPromise = this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
     });
@@ -77,7 +81,7 @@ export class TodoAPI {
     return findManyCursorConnection<Todo, Pick<Todo, "id">>(
       async args => userPromise.todos({ ...args, orderBy }),
       async () => (await userPromise.todos()).length,
-      paginationArgs,
+      { first, last, before, after },
       { resolveInfo: info }
     );
   }
@@ -90,19 +94,41 @@ export class TodoAPI {
     return this.prisma.todo.findUnique({ where: { id } });
   }
 
-  async create({ userId, ...data }: CreateTodoParams) {
-    return this.prisma.todo.create({ data: { id: nanoid(), ...data, userId } });
+  async create({ title, description, userId }: CreateTodoParams) {
+    return this.prisma.todo.create({ data: { id: nanoid(), title, description, userId } });
   }
 
-  async createMany(data: CreateManyTodoParams) {
+  async createMany(params: CreateManyTodoParams) {
+    const data = params.map(({ title, description, userId }) => ({
+      id: nanoid(),
+      title,
+      description,
+      userId,
+    }));
+
     return this.prisma.todo.createMany({ data });
   }
 
-  async update({ id, ...data }: UpdateTodoParams) {
-    return this.prisma.todo.update({ where: { id }, data });
+  async createManyForTest(params: CreateManyTodoForTestParams) {
+    const data = params.map(({ id, title, description, userId, createdAt, updatedAt }) => ({
+      id: id ?? nanoid(),
+      title,
+      description,
+      userId,
+      createdAt,
+      updatedAt,
+    }));
+
+    return this.prisma.todo.createMany({ data });
   }
 
-  async upsert(todo: UpsertTodoParams) {
+  async update({ id, title, description, status }: UpdateTodoParams) {
+    return this.prisma.todo.update({ where: { id }, data: { title, description, status } });
+  }
+
+  async upsert({ id, title, description, userId }: UpsertTodoParams) {
+    const todo = { id, title, description, userId };
+
     return this.prisma.todo.upsert({ where: { id: todo.id }, create: todo, update: todo });
   }
 

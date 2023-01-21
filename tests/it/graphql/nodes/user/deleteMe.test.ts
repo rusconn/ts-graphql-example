@@ -10,8 +10,8 @@ import { Graph } from "@/graphql/types";
 const users = [DBData.admin, DBData.alice, DBData.bob];
 const todos = [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3];
 
-const seedUsers = () => userAPI.createMany(users);
-const seedAdminTodos = () => todoAPI.createMany(todos);
+const seedUsers = () => userAPI.createManyForTest(users);
+const seedAdminTodos = () => todoAPI.createManyForTest(todos);
 
 const query = gql`
   mutation DeleteMe {

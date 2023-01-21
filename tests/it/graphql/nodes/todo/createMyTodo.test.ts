@@ -12,7 +12,7 @@ import { nonEmptyString } from "@/graphql/utils";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
-const seedUsers = () => userAPI.createMany(users);
+const seedUsers = () => userAPI.createManyForTest(users);
 
 const query = gql`
   mutation CreateMyTodo($input: CreateMyTodoInput!) {

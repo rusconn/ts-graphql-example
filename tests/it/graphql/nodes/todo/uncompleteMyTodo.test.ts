@@ -19,8 +19,8 @@ const todos = [
   DBData.bobTodo,
 ];
 
-const seedUsers = () => userAPI.createMany(users);
-const seedTodos = () => todoAPI.createMany(todos);
+const seedUsers = () => userAPI.createManyForTest(users);
+const seedTodos = () => todoAPI.createManyForTest(todos);
 
 const resetAdminTodoValue = () => todoAPI.upsert(DBData.adminTodo1);
 

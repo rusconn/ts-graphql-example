@@ -9,7 +9,7 @@ import { Graph } from "@/graphql/types";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
-const seedUsers = () => userAPI.createMany(users);
+const seedUsers = () => userAPI.createManyForTest(users);
 
 const query = gql`
   query Me {

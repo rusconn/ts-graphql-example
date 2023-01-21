@@ -26,21 +26,28 @@ export type GetUserByTokenParams = {
 
 export type CreateUserParams = {
   name: User["name"];
+  role?: User["role"];
 };
 
-export type CreateManyUserParams = (CreateUserParams & {
-  id: User["id"];
-  token: User["token"];
+export type CreateManyUserParams = CreateUserParams[];
+
+export type CreateManyUserForTestParams = (CreateUserParams & {
+  id?: User["id"];
+  token?: User["token"];
+  createdAt?: User["createdAt"];
+  updatedAt?: User["updatedAt"];
 })[];
 
 export type UpdateUserParams = {
   id: User["id"];
   name?: User["name"];
+  token?: User["token"];
+  role?: User["role"];
 };
 
 export type UpsertUserParams = CreateUserParams & {
   id: User["id"];
-  token: User["token"];
+  token?: User["token"];
 };
 
 export type DeleteUserParams = {
@@ -58,11 +65,11 @@ export class UserAPI {
     return this.prisma.user.count();
   }
 
-  async gets({ info, orderBy, ...paginationArgs }: GetUsersParams) {
+  async gets({ info, orderBy, first, last, before, after }: GetUsersParams) {
     return findManyCursorConnection<User>(
       args => this.prisma.user.findMany({ ...args, orderBy }),
       () => this.prisma.user.count(),
-      paginationArgs,
+      { first, last, before, after },
       { resolveInfo: info }
     );
   }
@@ -79,19 +86,36 @@ export class UserAPI {
     return this.prisma.user.findUnique({ where: { token } });
   }
 
-  async create(data: CreateUserParams) {
-    return this.prisma.user.create({ data: { id: nanoid(), token: nanoid(), ...data } });
+  async create({ name, role }: CreateUserParams) {
+    return this.prisma.user.create({ data: { id: nanoid(), name, token: nanoid(), role } });
   }
 
-  async createMany(data: CreateManyUserParams) {
+  async createMany(params: CreateManyUserParams) {
+    const data = params.map(({ name, role }) => ({ id: nanoid(), name, token: nanoid(), role }));
+
     return this.prisma.user.createMany({ data });
   }
 
-  async update({ id, ...data }: UpdateUserParams) {
-    return this.prisma.user.update({ where: { id }, data });
+  async createManyForTest(params: CreateManyUserForTestParams) {
+    const data = params.map(({ id, name, token, role, createdAt, updatedAt }) => ({
+      id: id ?? nanoid(),
+      name,
+      token: token ?? nanoid(),
+      role,
+      createdAt,
+      updatedAt,
+    }));
+
+    return this.prisma.user.createMany({ data });
   }
 
-  async upsert(user: UpsertUserParams) {
+  async update({ id, name, token, role }: UpdateUserParams) {
+    return this.prisma.user.update({ where: { id }, data: { name, token, role } });
+  }
+
+  async upsert({ id, name, token, role }: UpsertUserParams) {
+    const user = { id, name, token: token ?? nanoid(), role };
+
     return this.prisma.user.upsert({ where: { id: user.id }, create: user, update: user });
   }
 

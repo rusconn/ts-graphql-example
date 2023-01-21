@@ -1,5 +1,3 @@
-import { nanoid } from "nanoid";
-
 import { Role, TodoAPI, User, UserAPI } from "@/datasources";
 
 const todoAPI = new TodoAPI();
@@ -12,10 +10,10 @@ const main = async () => {
 
 const createUsers = () => {
   const params = [
-    { name: "admin", token: nanoid(), role: Role.ADMIN },
-    { name: "hoge", token: nanoid(), role: Role.USER },
-    { name: "piyo", token: nanoid(), role: Role.USER },
-    { name: "fuga", token: nanoid(), role: Role.USER },
+    { name: "admin", role: Role.ADMIN },
+    { name: "hoge", role: Role.USER },
+    { name: "piyo", role: Role.USER },
+    { name: "fuga", role: Role.USER },
   ];
 
   const creates = params.map(data => userAPI.create(data));
