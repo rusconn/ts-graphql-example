@@ -15,7 +15,7 @@ export type CountTodosParams = {
   userId?: Todo["userId"];
 };
 
-export type GetUserTodosParams = ConnectionArguments & {
+export type GetTheirTodosParams = ConnectionArguments & {
   userId: User["id"];
   orderBy: Exclude<Prisma.TodoFindManyArgs["orderBy"], undefined>;
   info: GraphQLResolveInfo;
@@ -65,7 +65,7 @@ export class TodoAPI {
     return this.prisma.todo.count({ where: { userId } });
   }
 
-  async getsUserTodos({ userId, info, orderBy, first, last, before, after }: GetUserTodosParams) {
+  async getTheirs({ userId, info, orderBy, first, last, before, after }: GetTheirTodosParams) {
     const userPromise = this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
     });

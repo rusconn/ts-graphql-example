@@ -7,7 +7,7 @@ export const parsers = {
   Query: {
     myTodos: (
       args: Graph.QueryMyTodosArgs
-    ): Omit<DataSource.GetUserTodosParams, "userId" | "info"> => {
+    ): Omit<DataSource.GetTheirTodosParams, "userId" | "info"> => {
       const { orderBy, ...connectionArgs } = args;
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);

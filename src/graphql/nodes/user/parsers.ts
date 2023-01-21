@@ -75,7 +75,7 @@ export const parsers = {
   User: {
     todos: (
       args: Graph.UserTodosArgs & Pick<Graph.User, "id">
-    ): Omit<DataSource.GetUserTodosParams, "info"> => {
+    ): Omit<DataSource.GetTheirTodosParams, "info"> => {
       const { id, orderBy, ...connectionArgs } = args;
 
       const { id: userId } = splitUserNodeId(id);
