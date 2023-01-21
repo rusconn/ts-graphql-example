@@ -1,4 +1,4 @@
-import { race, rule } from "graphql-shield";
+import { or, rule } from "graphql-shield";
 
 import type { Graph } from "@/graphql/types";
 import { isAdmin, isGuest, isAuthenticated, newPermissionError } from "@/graphql/utils";
@@ -23,7 +23,7 @@ export const permissions = {
     deleteMe: isAuthenticated,
   },
   User: {
-    token: race(isOwner, isGuest),
-    todos: race(isAdmin, isOwner),
+    token: or(isOwner, isGuest),
+    todos: or(isAdmin, isOwner),
   },
 };

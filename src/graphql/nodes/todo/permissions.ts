@@ -1,4 +1,4 @@
-import { race, rule } from "graphql-shield";
+import { or, rule } from "graphql-shield";
 
 import type { Graph } from "@/graphql/types";
 import { isAdmin, isAuthenticated, newPermissionError } from "@/graphql/utils";
@@ -23,6 +23,6 @@ export const permissions = {
     uncompleteMyTodo: isAuthenticated,
   },
   Todo: {
-    user: race(isAdmin, isSelf),
+    user: or(isAdmin, isSelf),
   },
 };
