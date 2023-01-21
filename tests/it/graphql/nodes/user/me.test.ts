@@ -2,14 +2,14 @@ import { gql } from "graphql-tag";
 
 import type { MeQuery, MeQueryVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
-import { userAPI } from "it/datasources";
+import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
-const seedUsers = () => userAPI.createManyForTest(users);
+const seedUsers = () => prisma.user.createMany({ data: users });
 
 const query = gql`
   query Me {

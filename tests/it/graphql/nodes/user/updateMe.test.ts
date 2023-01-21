@@ -3,7 +3,7 @@ import omit from "lodash/omit";
 
 import type { UpdateMeMutation, UpdateMeMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
-import { userAPI } from "it/datasources";
+import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
@@ -11,7 +11,7 @@ import { nonEmptyString } from "@/graphql/utils";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
-const seedUsers = () => userAPI.createManyForTest(users);
+const seedUsers = () => prisma.user.createMany({ data: users });
 
 const query = gql`
   mutation UpdateMe($input: UpdateMeInput!) {
@@ -147,13 +147,13 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const user = await userAPI.get({ id: DBData.admin.id });
+    const user = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
 
     expect(user.name).toBe(name);
   });
 
   it("should not update fields if the field is absent", async () => {
-    const before = await userAPI.get({ id: DBData.admin.id });
+    const before = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
 
     const { data } = await executeMutation({
       variables: { input: {} },
@@ -163,13 +163,13 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const after = await userAPI.get({ id: DBData.admin.id });
+    const after = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
 
     expect(before.name).toBe(after.name);
   });
 
   it("should update updatedAt", async () => {
-    const before = await userAPI.get({ id: DBData.admin.id });
+    const before = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
 
     const { data } = await executeMutation({
       variables: { input: { name: nonEmptyString("bar") } },
@@ -179,7 +179,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const after = await userAPI.get({ id: DBData.admin.id });
+    const after = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
 
     const beforeUpdatedAt = before.updatedAt.getTime();
     const afterUpdatedAt = after.updatedAt.getTime();
@@ -188,7 +188,7 @@ describe("logic", () => {
   });
 
   it("should not update other attrs", async () => {
-    const before = await userAPI.get({ id: DBData.admin.id });
+    const before = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
 
     const { data } = await executeMutation({
       variables: { input: { name: nonEmptyString("baz") } },
@@ -198,7 +198,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const after = await userAPI.get({ id: DBData.admin.id });
+    const after = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
 
     // これらのフィールドは変化する想定
     const beforeToCompare = omit(before, ["name", "updatedAt"]);

@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 
 import type { DeleteMyTodoMutation, DeleteMyTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
-import { userAPI, todoAPI } from "it/datasources";
+import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
@@ -17,8 +17,8 @@ const todos = [
   DBData.bobTodo,
 ];
 
-const seedUsers = () => userAPI.createManyForTest(users);
-const seedTodos = () => todoAPI.createManyForTest(todos);
+const seedUsers = () => prisma.user.createMany({ data: users });
+const seedTodos = () => prisma.todo.createMany({ data: todos });
 
 const query = gql`
   mutation DeleteMyTodo($id: ID!) {
@@ -152,13 +152,13 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeTodo = await todoAPI.getOptional({ id: DBData.adminTodo1.id });
+    const todo = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
 
-    expect(maybeTodo).toBeNull();
+    expect(todo).toBeNull();
   });
 
   it("should not delete others", async () => {
-    const before = await todoAPI.count();
+    const before = await prisma.todo.count();
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
@@ -166,11 +166,11 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeTodo = await todoAPI.getOptional({ id: DBData.adminTodo1.id });
+    const todo = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
 
-    const after = await todoAPI.count();
+    const after = await prisma.todo.count();
 
-    expect(maybeTodo).toBeNull();
+    expect(todo).toBeNull();
     expect(after).toBe(before - 1);
   });
 });

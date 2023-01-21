@@ -3,7 +3,7 @@ import omit from "lodash/omit";
 
 import type { UncompleteMyTodoMutation, UncompleteMyTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
-import { userAPI, todoAPI } from "it/datasources";
+import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as DataSource from "@/datasources";
@@ -19,15 +19,22 @@ const todos = [
   DBData.bobTodo,
 ];
 
-const seedUsers = () => userAPI.createManyForTest(users);
-const seedTodos = () => todoAPI.createManyForTest(todos);
+const seedUsers = () => prisma.user.createMany({ data: users });
+const seedTodos = () => prisma.todo.createMany({ data: todos });
 
-const resetAdminTodoValue = () => todoAPI.upsert(DBData.adminTodo1);
+const resetAdminTodoValue = () =>
+  prisma.todo.upsert({
+    where: { id: DBData.adminTodo1.id },
+    create: DBData.adminTodo1,
+    update: DBData.adminTodo1,
+  });
 
 const completeAdminTodo = () =>
-  todoAPI.update({
-    id: DBData.adminTodo1.id,
-    status: DataSource.TodoStatus.DONE,
+  prisma.todo.update({
+    where: { id: DBData.adminTodo1.id },
+    data: {
+      status: DataSource.TodoStatus.DONE,
+    },
   });
 
 const query = gql`
@@ -157,7 +164,7 @@ describe("logic", () => {
   });
 
   it("should update status", async () => {
-    const before = await todoAPI.get({ id: DBData.adminTodo1.id });
+    const before = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
@@ -165,14 +172,14 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const after = await todoAPI.get({ id: DBData.adminTodo1.id });
+    const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
 
     expect(before.status).toBe(Graph.TodoStatus.Done);
     expect(after.status).toBe(Graph.TodoStatus.Pending);
   });
 
   it("should update updatedAt", async () => {
-    const before = await todoAPI.get({ id: DBData.adminTodo1.id });
+    const before = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
@@ -180,7 +187,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const after = await todoAPI.get({ id: DBData.adminTodo1.id });
+    const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
 
     const beforeUpdatedAt = before.updatedAt.getTime();
     const afterUpdatedAt = after.updatedAt.getTime();
@@ -189,7 +196,7 @@ describe("logic", () => {
   });
 
   it("should not update other attrs", async () => {
-    const before = await todoAPI.get({ id: DBData.adminTodo1.id });
+    const before = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
@@ -197,7 +204,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const after = await todoAPI.get({ id: DBData.adminTodo1.id });
+    const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
 
     // これらのフィールドは変化する想定
     const beforeToCompare = omit(before, ["status", "updatedAt"]);

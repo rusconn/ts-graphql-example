@@ -1,7 +1,7 @@
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { GraphQLError } from "graphql";
 
-import { TodoAPI, UserAPI } from "@/datasources";
+import { prisma } from "@/datasources";
 import { Graph } from "@/graphql/types";
 import type { Context } from "./types";
 import { logger } from "./logger";
@@ -23,13 +23,10 @@ startStandaloneServer(server, {
 
     const token = req.headers.authorization?.replace("Bearer ", "");
 
-    const todoAPI = new TodoAPI();
-    const userAPI = new UserAPI();
-
     let user;
 
     if (token) {
-      const maybeUser = await userAPI.getByToken({ token });
+      const maybeUser = await prisma.user.findUnique({ where: { token } });
 
       if (!maybeUser) {
         throw new GraphQLError("Authentication error", {
@@ -46,8 +43,7 @@ startStandaloneServer(server, {
       logger,
       user,
       dataSources: {
-        todoAPI,
-        userAPI,
+        prisma,
       },
     };
   },

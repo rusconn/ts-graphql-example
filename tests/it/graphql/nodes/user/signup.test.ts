@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 
 import type { SignupMutation, SignupMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
-import { userAPI } from "it/datasources";
+import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as DataSource from "@/datasources";
@@ -12,7 +12,7 @@ import { nonEmptyString } from "@/graphql/utils";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
-const seedUsers = () => userAPI.createManyForTest(users);
+const seedUsers = () => prisma.user.createMany({ data: users });
 
 const query = gql`
   mutation Signup($input: SignupInput!) {
@@ -124,7 +124,7 @@ describe("logic", () => {
 
     const { id } = splitUserNodeId(data.signup.id);
 
-    const user = await userAPI.get({ id });
+    const user = await prisma.user.findUniqueOrThrow({ where: { id } });
 
     expect(user.name).toBe(name);
   });
@@ -143,7 +143,7 @@ describe("logic", () => {
 
     const { id } = splitUserNodeId(data.signup.id);
 
-    const user = await userAPI.get({ id });
+    const user = await prisma.user.findUniqueOrThrow({ where: { id } });
 
     expect(user.role).toBe(DataSource.Role.USER);
   });

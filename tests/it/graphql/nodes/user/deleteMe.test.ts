@@ -2,16 +2,17 @@ import { gql } from "graphql-tag";
 
 import type { DeleteMeMutation, DeleteMeMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
-import { userAPI, todoAPI } from "it/datasources";
+import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
+import { splitUserNodeId } from "@/graphql/adapters";
 import { Graph } from "@/graphql/types";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 const todos = [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3];
 
-const seedUsers = () => userAPI.createManyForTest(users);
-const seedAdminTodos = () => todoAPI.createManyForTest(todos);
+const seedUsers = () => prisma.user.createMany({ data: users });
+const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
 
 const query = gql`
   mutation DeleteMe {
@@ -75,13 +76,13 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await userAPI.getOptional({ id: data.deleteMe });
+    const user = await prisma.user.findUnique({ where: { id: splitUserNodeId(data.deleteMe).id } });
 
-    expect(maybeUser).toBeNull();
+    expect(user).toBeNull();
   });
 
   it("should not delete others", async () => {
-    const before = await userAPI.count();
+    const before = await prisma.user.count();
 
     const { data } = await executeMutation({});
 
@@ -89,18 +90,18 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const maybeUser = await userAPI.getOptional({ id: data.deleteMe });
+    const user = await prisma.user.findUnique({ where: { id: splitUserNodeId(data.deleteMe).id } });
 
-    const after = await userAPI.count();
+    const after = await prisma.user.count();
 
-    expect(maybeUser).toBeNull();
+    expect(user).toBeNull();
     expect(after).toBe(before - 1);
   });
 
   it("should delete his resources", async () => {
     await seedAdminTodos();
 
-    const before = await todoAPI.count({ userId: DBData.admin.id });
+    const before = await prisma.todo.count({ where: { userId: DBData.admin.id } });
 
     const { data } = await executeMutation({});
 
@@ -108,7 +109,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const after = await todoAPI.count({ userId: DBData.admin.id });
+    const after = await prisma.todo.count({ where: { userId: DBData.admin.id } });
 
     expect(before).not.toBe(0);
     expect(after).toBe(0);

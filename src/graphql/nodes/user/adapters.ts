@@ -1,6 +1,6 @@
 import type * as DataSource from "@/datasources";
 import type { Mapper } from "@/graphql/types";
-import { nonEmptyString, toGraphConnections } from "@/graphql/utils";
+import { nonEmptyString } from "@/graphql/utils";
 import { splitSpecifiedNodeId, toSpecifiedNodeId } from "../node";
 
 export const toUserNodeId = toSpecifiedNodeId("User");
@@ -12,5 +12,3 @@ export const toUserNode = ({ role: _role, ...user }: DataSource.User): Mapper.Us
   name: nonEmptyString(user.name),
   token: nonEmptyString(user.token),
 });
-
-export const toUserNodes = toGraphConnections(toUserNode);

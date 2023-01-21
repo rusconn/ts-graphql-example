@@ -1,14 +1,4 @@
-import type { Connection } from "@devoxa/prisma-relay-cursor-connection";
-
 import type { Scalar } from "@/graphql/types";
-
-export const toGraphConnections =
-  <T, U>(toNode: (_: T) => U) =>
-  (connection: Connection<T>) => ({
-    ...connection,
-    edges: connection.edges.map(edge => ({ ...edge, node: toNode(edge.node) })),
-    nodes: connection.nodes.map(toNode),
-  });
 
 export function dateTime(x: string): Scalar.DateTime {
   if (!isDateTime(x)) {

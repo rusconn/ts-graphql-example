@@ -1,57 +1,90 @@
-import { toTodoNodes, toUserNode, toUserNodeId, toUserNodes } from "@/graphql/adapters";
-import type { Graph } from "@/graphql/types";
+import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
+import { nanoid } from "nanoid";
+
+import type * as DataSource from "@/datasources";
+import { toTodoNode, toTodoNodeId, toUserNode, toUserNodeId } from "@/graphql/adapters";
+import type { Graph, Mapper } from "@/graphql/types";
 import { parsers } from "./parsers";
 
 export const resolvers: Graph.Resolvers = {
   Query: {
-    me: async (_, __, { dataSources: { userAPI }, user: contextUser }) => {
-      const user = await userAPI.get({ id: contextUser.id });
+    me: async (_, __, { dataSources: { prisma }, user: contextUser }) => {
+      const user = await prisma.user.findUniqueOrThrow({
+        where: { id: contextUser.id },
+      });
 
       return toUserNode(user);
     },
-    users: async (_, args, { dataSources: { userAPI } }, info) => {
-      const parsed = parsers.Query.users(args);
+    users: async (_, args, { dataSources: { prisma } }, resolveInfo) => {
+      const { orderBy, first, last, before, after } = parsers.Query.users(args);
 
-      const users = await userAPI.gets({ ...parsed, info });
-
-      return toUserNodes(users);
+      return findManyCursorConnection<DataSource.User, Pick<Mapper.User, "id">, Mapper.User>(
+        async args_ => prisma.user.findMany({ ...args_, orderBy }),
+        async () => prisma.user.count(),
+        { first, last, before, after },
+        {
+          resolveInfo,
+          getCursor: record => ({ id: toUserNodeId(record.id) }),
+          recordToEdge: record => ({ node: toUserNode(record) }),
+        }
+      );
     },
-    user: async (_, args, { dataSources: { userAPI } }) => {
-      const parsed = parsers.Query.user(args);
+    user: async (_, args, { dataSources: { prisma } }) => {
+      const { id } = parsers.Query.user(args);
 
-      const user = await userAPI.get(parsed);
+      const user = await prisma.user.findUniqueOrThrow({
+        where: { id },
+      });
 
       return toUserNode(user);
     },
   },
   Mutation: {
-    signup: async (_, args, { dataSources: { userAPI } }) => {
-      const parsed = parsers.Mutation.signup(args);
+    signup: async (_, args, { dataSources: { prisma } }) => {
+      const data = parsers.Mutation.signup(args);
 
-      const user = await userAPI.create(parsed);
-
-      return toUserNode(user);
-    },
-    updateMe: async (_, args, { dataSources: { userAPI }, user: contextUser }) => {
-      const parsed = parsers.Mutation.updateMe(args);
-
-      const user = await userAPI.update({ ...parsed, id: contextUser.id });
+      const user = await prisma.user.create({
+        data: { ...data, id: nanoid(), token: nanoid() },
+      });
 
       return toUserNode(user);
     },
-    deleteMe: async (_, __, { dataSources: { userAPI }, user }) => {
-      await userAPI.delete({ id: user.id });
+    updateMe: async (_, args, { dataSources: { prisma }, user: contextUser }) => {
+      const data = parsers.Mutation.updateMe(args);
+
+      const user = await prisma.user.update({
+        where: { id: contextUser.id },
+        data,
+      });
+
+      return toUserNode(user);
+    },
+    deleteMe: async (_, __, { dataSources: { prisma }, user }) => {
+      await prisma.user.delete({
+        where: { id: user.id },
+      });
 
       return toUserNodeId(user.id);
     },
   },
   User: {
-    todos: async ({ id }, args, { dataSources: { todoAPI } }, info) => {
-      const parsed = parsers.User.todos({ ...args, id });
+    todos: async ({ id }, args, { dataSources: { prisma } }, resolveInfo) => {
+      const { orderBy, userId, first, last, before, after } = parsers.User.todos({ ...args, id });
 
-      const todos = await todoAPI.getTheirs({ ...parsed, info });
+      const userPromise = prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+      });
 
-      return toTodoNodes(todos);
+      return findManyCursorConnection<DataSource.Todo, Pick<Mapper.Todo, "id">, Mapper.Todo>(
+        async args_ => userPromise.todos({ ...args_, orderBy }),
+        async () => (await userPromise.todos()).length,
+        { first, last, before, after },
+        {
+          resolveInfo,
+          getCursor: record => ({ id: toTodoNodeId(record.id) }),
+          recordToEdge: record => ({ node: toTodoNode(record) }),
+        }
+      );
     },
   },
 };

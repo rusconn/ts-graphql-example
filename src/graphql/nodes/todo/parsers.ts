@@ -5,9 +5,7 @@ import { parseConnectionArgs, parseTodoNodeId } from "@/graphql/utils";
 
 export const parsers = {
   Query: {
-    myTodos: (
-      args: Graph.QueryMyTodosArgs
-    ): Omit<DataSource.GetTheirTodosParams, "userId" | "info"> => {
+    myTodos: (args: Graph.QueryMyTodosArgs) => {
       const { orderBy, ...connectionArgs } = args;
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
@@ -43,14 +41,12 @@ export const parsers = {
         orderBy: orderByToUse,
       };
     },
-    myTodo: ({ id }: Graph.QueryMyTodoArgs): Omit<DataSource.GetTodoParams, "userId"> => {
+    myTodo: ({ id }: Graph.QueryMyTodoArgs) => {
       return { id: parseTodoNodeId(id) };
     },
   },
   Mutation: {
-    createMyTodo: (
-      args: Graph.MutationCreateMyTodoArgs
-    ): Omit<DataSource.CreateTodoParams, "userId"> => {
+    createMyTodo: (args: Graph.MutationCreateMyTodoArgs) => {
       const {
         input: { title, description },
       } = args;
@@ -65,9 +61,7 @@ export const parsers = {
 
       return { title, description };
     },
-    updateMyTodo: (
-      args: Graph.MutationUpdateMyTodoArgs
-    ): Omit<DataSource.UpdateTodoParams, "userId"> => {
+    updateMyTodo: (args: Graph.MutationUpdateMyTodoArgs) => {
       const {
         id,
         input: { title, description, status },
@@ -97,15 +91,13 @@ export const parsers = {
 
       return { id: idToUse, title, description, status };
     },
-    deleteMyTodo: ({
-      id,
-    }: Graph.MutationDeleteMyTodoArgs): Omit<DataSource.DeleteTodoParams, "userId"> => {
+    deleteMyTodo: ({ id }: Graph.MutationDeleteMyTodoArgs) => {
       return { id: parseTodoNodeId(id) };
     },
-    completeMyTodo: ({ id }: Graph.MutationCompleteMyTodoArgs): DataSource.UpdateTodoParams => {
+    completeMyTodo: ({ id }: Graph.MutationCompleteMyTodoArgs) => {
       return { id: parseTodoNodeId(id), status: DataSource.TodoStatus.DONE };
     },
-    uncompleteMyTodo: ({ id }: Graph.MutationUncompleteMyTodoArgs): DataSource.UpdateTodoParams => {
+    uncompleteMyTodo: ({ id }: Graph.MutationUncompleteMyTodoArgs) => {
       return { id: parseTodoNodeId(id), status: DataSource.TodoStatus.PENDING };
     },
   },

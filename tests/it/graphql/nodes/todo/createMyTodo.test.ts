@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 
 import type { CreateMyTodoMutation, CreateMyTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
-import { todoAPI, userAPI } from "it/datasources";
+import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as DataSource from "@/datasources";
@@ -12,7 +12,7 @@ import { nonEmptyString } from "@/graphql/utils";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
-const seedUsers = () => userAPI.createManyForTest(users);
+const seedUsers = () => prisma.user.createMany({ data: users });
 
 const query = gql`
   mutation CreateMyTodo($input: CreateMyTodoInput!) {
@@ -129,7 +129,7 @@ describe("logic", () => {
 
     const { id } = splitTodoNodeId(data.createMyTodo.id);
 
-    const todo = await todoAPI.get({ id });
+    const todo = await prisma.todo.findUniqueOrThrow({ where: { id } });
 
     expect(todo.title).toBe(input.title);
     expect(todo.description).toBe(input.description);
@@ -144,7 +144,7 @@ describe("logic", () => {
 
     const { id } = splitTodoNodeId(data.createMyTodo.id);
 
-    const todo = await todoAPI.get({ id });
+    const todo = await prisma.todo.findUniqueOrThrow({ where: { id } });
 
     expect(todo.status).toBe(DataSource.TodoStatus.PENDING);
   });

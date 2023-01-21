@@ -6,7 +6,7 @@ import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql
 
 export const parsers = {
   Query: {
-    users: (args: Graph.QueryUsersArgs): Omit<DataSource.GetUsersParams, "info"> => {
+    users: (args: Graph.QueryUsersArgs) => {
       const { orderBy, ...connectionArgs } = args;
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
@@ -42,21 +42,21 @@ export const parsers = {
         orderBy: orderByToUse,
       };
     },
-    user: ({ id }: Graph.QueryUserArgs): DataSource.GetUserParams => {
+    user: ({ id }: Graph.QueryUserArgs) => {
       return { id: parseUserNodeId(id) };
     },
   },
   Mutation: {
-    signup: (args: Graph.MutationSignupArgs): DataSource.CreateUserParams => {
+    signup: (args: Graph.MutationSignupArgs) => {
       const { name } = args.input;
 
       if ([...name].length > 100) {
         throw new ParseError("`name` must be up to 100 characteres");
       }
 
-      return { name };
+      return { name, role: DataSource.Role.USER };
     },
-    updateMe: (args: Graph.MutationUpdateMeArgs): Omit<DataSource.UpdateUserParams, "id"> => {
+    updateMe: (args: Graph.MutationUpdateMeArgs) => {
       const {
         input: { name },
       } = args;
@@ -73,9 +73,7 @@ export const parsers = {
     },
   },
   User: {
-    todos: (
-      args: Graph.UserTodosArgs & Pick<Graph.User, "id">
-    ): Omit<DataSource.GetTheirTodosParams, "info"> => {
+    todos: (args: Graph.UserTodosArgs & Pick<Graph.User, "id">) => {
       const { id, orderBy, ...connectionArgs } = args;
 
       const { id: userId } = splitUserNodeId(id);

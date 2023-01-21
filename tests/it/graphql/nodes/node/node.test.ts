@@ -3,7 +3,7 @@ import pick from "lodash/pick";
 
 import type { NodeQuery, NodeQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
-import { userAPI, todoAPI } from "it/datasources";
+import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
@@ -18,8 +18,8 @@ const todos = [
   DBData.bobTodo,
 ];
 
-const seedUsers = () => userAPI.createManyForTest(users);
-const seedTodos = () => todoAPI.createManyForTest(todos);
+const seedUsers = () => prisma.user.createMany({ data: users });
+const seedTodos = () => prisma.todo.createMany({ data: todos });
 
 const query = gql`
   query Node($id: ID!) {

@@ -1,5 +1,6 @@
 import { gql } from "graphql-tag";
 import range from "lodash/range";
+import { nanoid } from "nanoid";
 
 import {
   OrderDirection,
@@ -8,7 +9,7 @@ import {
   MyTodosQueryVariables,
 } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
-import { todoAPI, userAPI } from "it/datasources";
+import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
@@ -16,8 +17,8 @@ import { Graph } from "@/graphql/types";
 const users = [DBData.admin, DBData.alice, DBData.bob];
 const todos = [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3];
 
-const seedUsers = () => userAPI.createManyForTest(users);
-const seedAdminTodos = () => todoAPI.createManyForTest(todos);
+const seedUsers = () => prisma.user.createMany({ data: users });
+const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
 
 const numSeedTodos = todos.length;
 
@@ -109,16 +110,17 @@ describe("number of items", () => {
     const numAdditionals = numDefault - numSeedTodos + 1;
 
     const additionals = range(numAdditionals).map(x => ({
+      id: nanoid(),
       title: `${x}`,
       description: "",
       userId: DBData.admin.id,
     }));
 
-    const creates = additionals.map(additional => todoAPI.create(additional));
+    const creates = additionals.map(additional => prisma.todo.create({ data: additional }));
 
     await Promise.all(creates);
 
-    const numTodos = await todoAPI.count();
+    const numTodos = await prisma.todo.count();
     const { data } = await executeQuery({});
 
     expect(numTodos).toBe(numDefault + 1);

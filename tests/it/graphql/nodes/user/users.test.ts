@@ -1,16 +1,17 @@
 import { gql } from "graphql-tag";
 import range from "lodash/range";
+import { nanoid } from "nanoid";
 
 import type { UsersQuery, UsersQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
-import { userAPI } from "it/datasources";
+import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
-const seedUsers = () => userAPI.createManyForTest(users);
+const seedUsers = () => prisma.user.createMany({ data: users });
 
 const numSeed = users.length;
 
@@ -97,14 +98,16 @@ describe("number of items", () => {
     const numAdditionals = numDefault - numSeed + 1;
 
     const additionals = range(numAdditionals).map(x => ({
+      id: nanoid(),
       name: `${x}`,
+      token: `${x}`,
     }));
 
-    const creates = additionals.map(additional => userAPI.create(additional));
+    const creates = additionals.map(additional => prisma.user.create({ data: additional }));
 
     await Promise.all(creates);
 
-    const numUsers = await userAPI.count();
+    const numUsers = await prisma.user.count();
     const { data } = await executeQuery({});
 
     expect(numUsers).toBe(numDefault + 1);
