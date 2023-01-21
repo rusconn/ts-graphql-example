@@ -44,24 +44,23 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  describe("user", () => {
+  describe("node", () => {
     const allowedPatterns = [
       [ContextData.admin, GraphData.admin],
       [ContextData.admin, GraphData.alice],
+      [ContextData.alice, GraphData.admin],
       [ContextData.alice, GraphData.alice],
     ] as const;
 
     const notAllowedPatterns = [
-      [ContextData.alice, GraphData.bob],
       [ContextData.guest, GraphData.admin],
       [ContextData.guest, GraphData.alice],
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async (user, { id }) => {
-      const { data, errors } = await executeQuery({ user, variables: { id } });
+      const { errors } = await executeQuery({ user, variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.node).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
     });
 
@@ -69,37 +68,7 @@ describe("authorization", () => {
       const { data, errors } = await executeQuery({ user, variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.node).toBeFalsy();
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-    });
-  });
-
-  describe("todo", () => {
-    const allowedPatterns = [
-      [ContextData.admin, GraphData.adminTodo1],
-      [ContextData.admin, GraphData.aliceTodo],
-      [ContextData.alice, GraphData.aliceTodo],
-    ] as const;
-
-    const notAllowedPatterns = [
-      [ContextData.alice, GraphData.bobTodo],
-      [ContextData.guest, GraphData.adminTodo1],
-      [ContextData.guest, GraphData.aliceTodo],
-    ] as const;
-
-    test.each(allowedPatterns)("allowed %o", async (user, { id }) => {
-      const { data, errors } = await executeQuery({ user, variables: { id } });
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(data?.node).not.toBeFalsy();
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-    });
-
-    test.each(notAllowedPatterns)("not allowed %o", async (user, { id }) => {
-      const { data, errors } = await executeQuery({ user, variables: { id } });
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(data?.node).toBeFalsy();
+      expect(data?.node).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
     });
   });
@@ -108,10 +77,9 @@ describe("authorization", () => {
 describe("validation", () => {
   describe("$id", () => {
     test.each(GraphData.validNodeIds)("valid %s", async id => {
-      const { data, errors } = await executeQuery({ variables: { id } });
+      const { errors } = await executeQuery({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.node).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -122,6 +90,30 @@ describe("validation", () => {
       expect(data?.node).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
+  });
+});
+
+describe("logic", () => {
+  test("not exists", async () => {
+    const { data, errors } = await executeQuery({
+      variables: { id: GraphData.admin.id.slice(0, -1) },
+    });
+
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+    expect(data?.node).toBeNull();
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+  });
+
+  test("exists, but not owned", async () => {
+    const { data, errors } = await executeQuery({
+      variables: { id: GraphData.alice.id },
+    });
+
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+    expect(data?.node).toBeNull();
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 });
 

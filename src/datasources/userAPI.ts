@@ -7,6 +7,7 @@ import {
 } from "@devoxa/prisma-relay-cursor-connection";
 
 import { prisma } from "./internal/prisma";
+import { NotFoundError } from "./errors";
 
 export { Role, type User };
 export const UserSortOrder = Prisma.SortOrder;
@@ -18,6 +19,7 @@ export type GetUsersParams = ConnectionArguments & {
 
 export type GetUserParams = {
   id: User["id"];
+  userId?: User["id"];
 };
 
 export type GetUserByTokenParams = {
@@ -74,7 +76,11 @@ export class UserAPI {
     );
   }
 
-  async get({ id }: GetUserParams) {
+  async get({ id, userId }: GetUserParams) {
+    if (userId != null && id !== userId) {
+      throw new NotFoundError();
+    }
+
     return this.prisma.user.findUniqueOrThrow({ where: { id } });
   }
 

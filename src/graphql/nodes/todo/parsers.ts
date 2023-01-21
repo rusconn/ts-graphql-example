@@ -43,7 +43,7 @@ export const parsers = {
         orderBy: orderByToUse,
       };
     },
-    myTodo: ({ id }: Graph.QueryMyTodoArgs): DataSource.GetTodoParams => {
+    myTodo: ({ id }: Graph.QueryMyTodoArgs): Omit<DataSource.GetTodoParams, "userId"> => {
       return { id: parseTodoNodeId(id) };
     },
   },
@@ -65,7 +65,9 @@ export const parsers = {
 
       return { title, description };
     },
-    updateMyTodo: (args: Graph.MutationUpdateMyTodoArgs): DataSource.UpdateTodoParams => {
+    updateMyTodo: (
+      args: Graph.MutationUpdateMyTodoArgs
+    ): Omit<DataSource.UpdateTodoParams, "userId"> => {
       const {
         id,
         input: { title, description, status },
@@ -95,7 +97,9 @@ export const parsers = {
 
       return { id: idToUse, title, description, status };
     },
-    deleteMyTodo: ({ id }: Graph.MutationDeleteMyTodoArgs): DataSource.DeleteTodoParams => {
+    deleteMyTodo: ({
+      id,
+    }: Graph.MutationDeleteMyTodoArgs): Omit<DataSource.DeleteTodoParams, "userId"> => {
       return { id: parseTodoNodeId(id) };
     },
     completeMyTodo: ({ id }: Graph.MutationCompleteMyTodoArgs): DataSource.UpdateTodoParams => {

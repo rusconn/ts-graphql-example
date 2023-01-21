@@ -11,10 +11,10 @@ export const resolvers: Graph.Resolvers = {
 
       return toTodoNodes(todos);
     },
-    myTodo: async (_, args, { dataSources: { todoAPI } }) => {
+    myTodo: async (_, args, { dataSources: { todoAPI }, user }) => {
       const parsed = parsers.Query.myTodo(args);
 
-      const todo = await todoAPI.get(parsed);
+      const todo = await todoAPI.get({ ...parsed, userId: user.id });
 
       return toTodoNode(todo);
     },
@@ -27,31 +27,31 @@ export const resolvers: Graph.Resolvers = {
 
       return toTodoNode(todo);
     },
-    updateMyTodo: async (_, args, { dataSources: { todoAPI } }) => {
+    updateMyTodo: async (_, args, { dataSources: { todoAPI }, user }) => {
       const parsed = parsers.Mutation.updateMyTodo(args);
 
-      const todo = await todoAPI.update(parsed);
+      const todo = await todoAPI.update({ ...parsed, userId: user.id });
 
       return toTodoNode(todo);
     },
-    deleteMyTodo: async (_, args, { dataSources: { todoAPI } }) => {
+    deleteMyTodo: async (_, args, { dataSources: { todoAPI }, user }) => {
       const parsed = parsers.Mutation.deleteMyTodo(args);
 
-      await todoAPI.delete(parsed);
+      await todoAPI.delete({ ...parsed, userId: user.id });
 
       return args.id;
     },
-    completeMyTodo: async (_, args, { dataSources: { todoAPI } }) => {
+    completeMyTodo: async (_, args, { dataSources: { todoAPI }, user }) => {
       const parsed = parsers.Mutation.completeMyTodo(args);
 
-      const todo = await todoAPI.update(parsed);
+      const todo = await todoAPI.update({ ...parsed, userId: user.id });
 
       return toTodoNode(todo);
     },
-    uncompleteMyTodo: async (_, args, { dataSources: { todoAPI } }) => {
+    uncompleteMyTodo: async (_, args, { dataSources: { todoAPI }, user }) => {
       const parsed = parsers.Mutation.uncompleteMyTodo(args);
 
-      const todo = await todoAPI.update(parsed);
+      const todo = await todoAPI.update({ ...parsed, userId: user.id });
 
       return toTodoNode(todo);
     },

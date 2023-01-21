@@ -55,26 +55,24 @@ describe("authorization", () => {
 
   const allowedPatterns = [
     [ContextData.admin, GraphData.adminTodo1],
+    [ContextData.admin, GraphData.aliceTodo],
+    [ContextData.alice, GraphData.adminTodo1],
     [ContextData.alice, GraphData.aliceTodo],
   ] as const;
 
   const notAllowedPatterns = [
-    [ContextData.admin, GraphData.aliceTodo],
-    [ContextData.alice, GraphData.adminTodo1],
-    [ContextData.alice, GraphData.bobTodo],
     [ContextData.guest, GraphData.adminTodo1],
     [ContextData.guest, GraphData.aliceTodo],
   ] as const;
 
   test.each(allowedPatterns)("allowed %o %o", async (user, { id }) => {
-    const { data, errors } = await executeMutation({
+    const { errors } = await executeMutation({
       user,
       variables: { id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.completeMyTodo).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
@@ -86,7 +84,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.completeMyTodo).toBeFalsy();
+    expect(data?.completeMyTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -124,6 +122,28 @@ describe("logic", () => {
     await clearTables();
     await seedUsers();
     await seedTodos();
+  });
+
+  test("not exists", async () => {
+    const { data, errors } = await executeMutation({
+      variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
+    });
+
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+    expect(data?.completeMyTodo).toBeNull();
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+  });
+
+  test("exists, but not owned", async () => {
+    const { data, errors } = await executeMutation({
+      variables: { id: GraphData.aliceTodo.id },
+    });
+
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+    expect(data?.completeMyTodo).toBeNull();
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 
   it("should update status", async () => {

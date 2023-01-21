@@ -51,29 +51,28 @@ beforeAll(async () => {
 describe("authorization", () => {
   const allowedPatterns = [
     [ContextData.admin, GraphData.adminTodo1],
+    [ContextData.admin, GraphData.aliceTodo],
+    [ContextData.alice, GraphData.adminTodo1],
     [ContextData.alice, GraphData.aliceTodo],
   ] as const;
 
   const notAllowedPatterns = [
-    [ContextData.admin, GraphData.aliceTodo],
-    [ContextData.alice, GraphData.bobTodo],
     [ContextData.guest, GraphData.adminTodo1],
     [ContextData.guest, GraphData.aliceTodo],
   ] as const;
 
-  test.each(allowedPatterns)("allowed %o", async (user, { id }) => {
-    const { data, errors } = await executeQuery({ user, variables: { id } });
+  test.each(allowedPatterns)("allowed %o %o", async (user, { id }) => {
+    const { errors } = await executeQuery({ user, variables: { id } });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.myTodo).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowedPatterns)("not allowed %o", async (user, { id }) => {
+  test.each(notAllowedPatterns)("not allowed %o %o", async (user, { id }) => {
     const { data, errors } = await executeQuery({ user, variables: { id } });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.myTodo).toBeFalsy();
+    expect(data?.myTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -98,22 +97,33 @@ describe("validation", () => {
   });
 });
 
-describe("query without other nodes", () => {
-  it("should return item correctly", async () => {
-    const { data } = await executeQuery({ variables: { id: GraphData.adminTodo1.id } });
-
-    expect(data?.myTodo).toEqual(GraphData.adminTodo1);
-  });
-
-  it("should return not found error if not found", async () => {
+describe("logic", () => {
+  test("not exists", async () => {
     const { data, errors } = await executeQuery({
       variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.myTodo).toBeFalsy();
+    expect(data?.myTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+  });
+
+  test("exists, but not owned", async () => {
+    const { data, errors } = await executeQuery({
+      variables: { id: GraphData.aliceTodo.id },
+    });
+
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+    expect(data?.myTodo).toBeNull();
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+  });
+
+  it("should return item correctly", async () => {
+    const { data } = await executeQuery({ variables: { id: GraphData.adminTodo1.id } });
+
+    expect(data?.myTodo).toEqual(GraphData.adminTodo1);
   });
 });
 

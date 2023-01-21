@@ -4,17 +4,17 @@ import { parsers } from "./parsers";
 
 export const resolvers: Graph.Resolvers = {
   Query: {
-    node: async (_, args, { dataSources: { todoAPI, userAPI } }) => {
+    node: async (_, args, { dataSources: { todoAPI, userAPI }, user: contextUser }) => {
       const { type, id } = parsers.Query.node(args);
 
       switch (type) {
         case "Todo": {
-          const todo = await todoAPI.get({ id });
+          const todo = await todoAPI.get({ id, userId: contextUser.id });
 
           return toTodoNode(todo);
         }
         case "User": {
-          const user = await userAPI.get({ id });
+          const user = await userAPI.get({ id, userId: contextUser.id });
 
           return toUserNode(user);
         }

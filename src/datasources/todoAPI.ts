@@ -23,6 +23,7 @@ export type GetTheirTodosParams = ConnectionArguments & {
 
 export type GetTodoParams = {
   id: Todo["id"];
+  userId?: Todo["userId"];
 };
 
 export type CreateTodoParams = {
@@ -44,6 +45,7 @@ export type UpdateTodoParams = {
   title?: Todo["title"];
   description?: Todo["description"];
   status?: Todo["status"];
+  userId?: Todo["userId"];
 };
 
 export type UpsertTodoParams = CreateTodoParams & {
@@ -52,6 +54,7 @@ export type UpsertTodoParams = CreateTodoParams & {
 
 export type DeleteTodoParams = {
   id: Todo["id"];
+  userId?: Todo["userId"];
 };
 
 export class TodoAPI {
@@ -78,12 +81,12 @@ export class TodoAPI {
     );
   }
 
-  async get({ id }: GetTodoParams) {
-    return this.prisma.todo.findUniqueOrThrow({ where: { id } });
+  async get({ id, userId }: GetTodoParams) {
+    return this.prisma.todo.findUniqueOrThrow({ where: { id, userId } });
   }
 
-  async getOptional({ id }: GetTodoParams) {
-    return this.prisma.todo.findUnique({ where: { id } });
+  async getOptional({ id, userId }: GetTodoParams) {
+    return this.prisma.todo.findUnique({ where: { id, userId } });
   }
 
   async create({ title, description, userId }: CreateTodoParams) {
@@ -114,8 +117,8 @@ export class TodoAPI {
     return this.prisma.todo.createMany({ data });
   }
 
-  async update({ id, title, description, status }: UpdateTodoParams) {
-    return this.prisma.todo.update({ where: { id }, data: { title, description, status } });
+  async update({ id, title, description, status, userId }: UpdateTodoParams) {
+    return this.prisma.todo.update({ where: { id, userId }, data: { title, description, status } });
   }
 
   async upsert({ id, title, description, userId }: UpsertTodoParams) {
@@ -124,8 +127,8 @@ export class TodoAPI {
     return this.prisma.todo.upsert({ where: { id: todo.id }, create: todo, update: todo });
   }
 
-  async delete({ id }: DeleteTodoParams) {
-    return this.prisma.todo.delete({ where: { id } });
+  async delete({ id, userId }: DeleteTodoParams) {
+    return this.prisma.todo.delete({ where: { id, userId } });
   }
 
   async deleteAll() {
