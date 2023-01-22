@@ -1,4 +1,5 @@
 import type { DateTime } from '@/graphql/types/scalars';
+import type { EmailAddress } from '@/graphql/types/scalars';
 import type { NonEmptyString } from '@/graphql/types/scalars';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import type { User as UserMapped, Todo as TodoMapped } from '@/graphql/types/mappers';
@@ -18,6 +19,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   DateTime: DateTime;
+  EmailAddress: EmailAddress;
   NonEmptyString: NonEmptyString;
 };
 
@@ -29,6 +31,7 @@ export type CreateMyTodoInput = {
 };
 
 export enum ErrorCode {
+  AlreadyExists = 'ALREADY_EXISTS',
   AuthenticationError = 'AUTHENTICATION_ERROR',
   BadUserInput = 'BAD_USER_INPUT',
   Forbidden = 'FORBIDDEN',
@@ -148,8 +151,12 @@ export type QueryUsersArgs = {
 };
 
 export type SignupInput = {
+  /** 100文字まで、既に存在する場合はエラー */
+  email: Scalars['EmailAddress'];
   /** 100文字まで */
   name: Scalars['NonEmptyString'];
+  /** 8文字以上、50文字まで */
+  password: Scalars['NonEmptyString'];
 };
 
 export type Todo = Node & {
@@ -193,8 +200,12 @@ export enum TodoStatus {
 }
 
 export type UpdateMeInput = {
+  /** 100文字まで、既に存在する場合はエラー、null は入力エラー */
+  email?: InputMaybe<Scalars['EmailAddress']>;
   /** 100文字まで、null は入力エラー */
   name?: InputMaybe<Scalars['NonEmptyString']>;
+  /** 8文字以上、50文字まで、null は入力エラー */
+  password?: InputMaybe<Scalars['NonEmptyString']>;
 };
 
 export type UpdateMyTodoInput = {
@@ -209,6 +220,7 @@ export type UpdateMyTodoInput = {
 export type User = Node & {
   __typename?: 'User';
   createdAt: Scalars['DateTime'];
+  email?: Maybe<Scalars['EmailAddress']>;
   id: Scalars['ID'];
   name: Scalars['NonEmptyString'];
   todos?: Maybe<TodoConnection>;
@@ -322,6 +334,7 @@ export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CreateMyTodoInput: CreateMyTodoInput;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
+  EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']>;
   ErrorCode: ErrorCode;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
@@ -353,6 +366,7 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
   CreateMyTodoInput: CreateMyTodoInput;
   DateTime: Scalars['DateTime'];
+  EmailAddress: Scalars['EmailAddress'];
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   Mutation: {};
@@ -376,6 +390,10 @@ export type ResolversParentTypes = ResolversObject<{
 
 export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
   name: 'DateTime';
+}
+
+export interface EmailAddressScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['EmailAddress'], any> {
+  name: 'EmailAddress';
 }
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
@@ -442,6 +460,7 @@ export type TodoEdgeResolvers<ContextType = Context, ParentType extends Resolver
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  email?: Resolver<Maybe<ResolversTypes['EmailAddress']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['NonEmptyString'], ParentType, ContextType>;
   todos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, Partial<UserTodosArgs>>;
@@ -466,6 +485,7 @@ export type UserEdgeResolvers<ContextType = Context, ParentType extends Resolver
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
   DateTime?: GraphQLScalarType;
+  EmailAddress?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
   NonEmptyString?: GraphQLScalarType;

@@ -1,5 +1,6 @@
 scalars: &scalars
   DateTime: "@/graphql/types/scalars#DateTime"
+  EmailAddress: "@/graphql/types/scalars#EmailAddress"
   NonEmptyString: "@/graphql/types/scalars#NonEmptyString"
 
 typescript: &typescript

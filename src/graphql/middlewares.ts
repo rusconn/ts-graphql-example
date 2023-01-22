@@ -26,6 +26,14 @@ const permissionAndErrorMiddleware = shield(permissions, {
       });
     }
 
+    // 想定通りの例外が起きた
+    if (thrown instanceof DataSource.NotUniqueError) {
+      throw new GraphQLError("Already exists", {
+        originalError: thrown,
+        extensions: { code: Graph.ErrorCode.AlreadyExists },
+      });
+    }
+
     // その他想定通りの例外が起きた
     if (thrown instanceof GraphQLError) {
       return thrown;

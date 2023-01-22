@@ -1,4 +1,8 @@
-import { NonEmptyStringTypeDefinition, DateTimeTypeDefinition } from "graphql-scalars";
+import {
+  NonEmptyStringTypeDefinition,
+  DateTimeTypeDefinition,
+  EmailAddressTypeDefinition,
+} from "graphql-scalars";
 import { gql } from "graphql-tag";
 
 import * as nodes from "@/graphql/nodes";
@@ -15,6 +19,7 @@ const cursorConnectionsTypeDef = gql`
 const errorTypeDef = gql`
   enum ErrorCode {
     BAD_USER_INPUT
+    ALREADY_EXISTS
     AUTHENTICATION_ERROR
     FORBIDDEN
     NOT_FOUND
@@ -29,7 +34,11 @@ const orderDirectionTypeDef = gql`
   }
 `;
 
-const scalarTypeDefs = [NonEmptyStringTypeDefinition, DateTimeTypeDefinition];
+const scalarTypeDefs = [
+  NonEmptyStringTypeDefinition,
+  DateTimeTypeDefinition,
+  EmailAddressTypeDefinition,
+];
 
 export const typeDefs = [
   cursorConnectionsTypeDef,

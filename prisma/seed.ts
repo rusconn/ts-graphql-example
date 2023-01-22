@@ -1,5 +1,7 @@
+import bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
 
+import { passwordHashRoundsExponent } from "@/config";
 import { prisma, Role, User } from "@/datasources";
 
 const main = async () => {
@@ -7,13 +9,48 @@ const main = async () => {
   await createTodos(users.map(({ id }) => id));
 };
 
-const createUsers = () => {
-  const params = [
-    { id: nanoid(), name: "admin", token: nanoid(), role: Role.ADMIN },
-    { id: nanoid(), name: "hoge", token: nanoid(), role: Role.USER },
-    { id: nanoid(), name: "piyo", token: nanoid(), role: Role.USER },
-    { id: nanoid(), name: "fuga", token: nanoid(), role: Role.USER },
+const createUsers = async () => {
+  const rawParams = [
+    {
+      id: nanoid(),
+      name: "admin",
+      email: "admin@admin.com",
+      rawPassword: "adminadmin",
+      token: nanoid(),
+      role: Role.ADMIN,
+    },
+    {
+      id: nanoid(),
+      name: "hoge",
+      email: "hoge@hoge.com",
+      rawPassword: "hogehoge",
+      token: nanoid(),
+      role: Role.USER,
+    },
+    {
+      id: nanoid(),
+      name: "piyo",
+      email: "piyo@piyo.com",
+      rawPassword: "piyopiyo",
+      token: nanoid(),
+      role: Role.USER,
+    },
+    {
+      id: nanoid(),
+      name: "fuga",
+      email: "fuga@fuga.com",
+      rawPassword: "fugafuga",
+      token: nanoid(),
+      role: Role.USER,
+    },
   ];
+
+  const paramPromises = rawParams.map(async ({ rawPassword, ...rest }) => ({
+    ...rest,
+    password: await bcrypt.hash(rawPassword, passwordHashRoundsExponent),
+  }));
+
+  const params = await Promise.all(paramPromises);
 
   const creates = params.map(data => prisma.user.create({ data }));
 

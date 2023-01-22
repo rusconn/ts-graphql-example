@@ -12,6 +12,10 @@ const options: pretty.PrettyStream | LoggerOptions = isDev
       formatters: {
         bindings: () => ({}),
       },
+      redact: {
+        paths: ["variables.input.email", "variables.input.password"],
+        censor: "***",
+      },
     };
 
 const level = isDev ? "debug" : "info";

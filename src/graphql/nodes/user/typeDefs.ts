@@ -37,6 +37,7 @@ export const typeDefs = gql`
     createdAt: DateTime!
     updatedAt: DateTime!
     name: NonEmptyString!
+    email: EmailAddress
     token: NonEmptyString
     todos(
       "default: 20, max: 50"
@@ -52,10 +53,18 @@ export const typeDefs = gql`
   input SignupInput {
     "100文字まで"
     name: NonEmptyString!
+    "100文字まで、既に存在する場合はエラー"
+    email: EmailAddress!
+    "8文字以上、50文字まで"
+    password: NonEmptyString!
   }
 
   input UpdateMeInput {
     "100文字まで、null は入力エラー"
     name: NonEmptyString
+    "100文字まで、既に存在する場合はエラー、null は入力エラー"
+    email: EmailAddress
+    "8文字以上、50文字まで、null は入力エラー"
+    password: NonEmptyString
   }
 `;

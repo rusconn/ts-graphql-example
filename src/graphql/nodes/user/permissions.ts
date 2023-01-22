@@ -23,6 +23,7 @@ export const permissions = {
     deleteMe: isAuthenticated,
   },
   User: {
+    email: or(isAdmin, isOwner),
     token: or(isOwner, isGuest),
     todos: or(isAdmin, isOwner),
   },

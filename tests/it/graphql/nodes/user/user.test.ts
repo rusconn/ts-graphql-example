@@ -20,6 +20,7 @@ const numSeedTodos = todos.length;
 const query = gql`
   query User(
     $id: ID!
+    $includeEmail: Boolean = false
     $includeToken: Boolean = false
     $includeTodos: Boolean = false
     $first: Int
@@ -33,6 +34,7 @@ const query = gql`
       createdAt
       updatedAt
       name
+      email @include(if: $includeEmail)
       token @include(if: $includeToken)
       todos(first: $first, after: $after, last: $last, before: $before, orderBy: $orderBy)
         @include(if: $includeTodos) {
@@ -97,35 +99,58 @@ describe("authorization", () => {
   });
 
   describe("query subfields", () => {
-    const allowedPatterns = [[ContextData.admin, GraphData.admin, { includeToken: true }]] as const;
+    describe("token", () => {
+      const allowedPatterns = [
+        [ContextData.admin, GraphData.admin, { includeToken: true }],
+      ] as const;
 
-    const notAllowedPatterns = [
-      [ContextData.admin, GraphData.alice, { includeToken: true }],
-    ] as const;
+      const notAllowedPatterns = [
+        [ContextData.admin, GraphData.alice, { includeToken: true }],
+      ] as const;
 
-    test.each(allowedPatterns)("allowed %o", async (user, { id }, options) => {
-      const { data, errors } = await executeQuery({
-        user,
-        variables: { id, ...options },
+      test.each(allowedPatterns)("allowed %o", async (user, { id }, options) => {
+        const { data, errors } = await executeQuery({
+          user,
+          variables: { id, ...options },
+        });
+
+        const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+        expect(data?.user).not.toBeFalsy();
+        expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
       });
 
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+      test.each(notAllowedPatterns)("not allowed %o", async (user, { id }, options) => {
+        const { data, errors } = await executeQuery({
+          user,
+          variables: { id, ...options },
+        });
 
-      expect(data?.user).not.toBeFalsy();
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
+        const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+        expect(data?.user).not.toBeFalsy();
+        expect(data?.user?.token).toBeNull();
+        expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
+      });
     });
 
-    test.each(notAllowedPatterns)("not allowed %o", async (user, { id }, options) => {
-      const { data, errors } = await executeQuery({
-        user,
-        variables: { id, ...options },
+    describe("email", () => {
+      const allowedPatterns = [
+        [ContextData.admin, GraphData.admin, { includeEmail: true }],
+        [ContextData.admin, GraphData.alice, { includeEmail: true }],
+      ] as const;
+
+      test.each(allowedPatterns)("allowed %o", async (user, { id }, options) => {
+        const { data, errors } = await executeQuery({
+          user,
+          variables: { id, ...options },
+        });
+
+        const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+        expect(data?.user).not.toBeFalsy();
+        expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
       });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(data?.user).not.toBeFalsy();
-      expect(data?.user?.token).toBeNull();
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
     });
   });
 });
@@ -184,7 +209,7 @@ describe("validation", () => {
 describe("query without other nodes", () => {
   it("should return item correctly", async () => {
     const { data } = await executeQuery({
-      variables: { id: GraphData.admin.id, includeToken: true },
+      variables: { id: GraphData.admin.id, includeEmail: true, includeToken: true },
     });
 
     expect(data?.user).toEqual(GraphData.admin);

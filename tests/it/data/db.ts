@@ -3,6 +3,9 @@ import * as DataSource from "@/datasources";
 export const admin = {
   id: "a4kxogX92Wxe-kbUfDRX7",
   name: "Admin",
+  email: "admin@admin.com",
+  /** raw: adminadmin */
+  password: "$2b$10$363AzXaBAp3xwf/1c85mJeCH.l3BorYjEFXywOtUT8t8IOvkaLQfO",
   role: DataSource.Role.ADMIN,
   token: "admin token",
   createdAt: new Date(0),
@@ -12,6 +15,9 @@ export const admin = {
 export const alice = {
   id: "bYzHPCFPTkTPHNbCBkh8H",
   name: "Alice",
+  email: "alice@alice.com",
+  /** raw: alicealice */
+  password: "$2b$10$nhNLSR99rprKOT3pvIeiqOW.U.YPBiXXM7.vMxILjl.ywDc9RUTqq",
   role: DataSource.Role.USER,
   token: "alice token",
   createdAt: new Date(1),
@@ -21,6 +27,9 @@ export const alice = {
 export const bob = {
   id: "cuEgH4iyoMMm6CzhWLR9S",
   name: "Bob",
+  email: "bob@bob.com",
+  /** raw: bobbobbob */
+  password: "$2b$10$6zDRVDvyLcIfbfphxKlx2eln4vmewOitItQpJlCEyGothvnFPkev.",
   role: DataSource.Role.USER,
   token: "bob token",
   createdAt: new Date(2),

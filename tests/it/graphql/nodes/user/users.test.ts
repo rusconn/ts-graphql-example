@@ -100,6 +100,8 @@ describe("number of items", () => {
     const additionals = range(numAdditionals).map(x => ({
       id: nanoid(),
       name: `${x}`,
+      email: `email${x}@email.com`,
+      password: "password",
       token: `${x}`,
     }));
 

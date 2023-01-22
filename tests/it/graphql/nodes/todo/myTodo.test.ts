@@ -34,6 +34,7 @@ const query = gql`
         createdAt
         updatedAt
         name
+        email
         token
       }
     }

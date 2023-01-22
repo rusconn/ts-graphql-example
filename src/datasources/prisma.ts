@@ -27,6 +27,8 @@ prisma.$use(async (params, next) => {
         case "P2001":
         case "P2025":
           throw new DataSource.NotFoundError(e);
+        case "P2002":
+          throw new DataSource.NotUniqueError(e);
         default:
           throw new DataSource.DataSourceError(e);
       }

@@ -1,4 +1,5 @@
 import type { DateTime } from '@/graphql/types/scalars';
+import type { EmailAddress } from '@/graphql/types/scalars';
 import type { NonEmptyString } from '@/graphql/types/scalars';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null | undefined;
@@ -13,6 +14,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   DateTime: DateTime;
+  EmailAddress: EmailAddress;
   NonEmptyString: NonEmptyString;
 };
 
@@ -24,6 +26,7 @@ export type CreateMyTodoInput = {
 };
 
 export enum ErrorCode {
+  AlreadyExists = 'ALREADY_EXISTS',
   AuthenticationError = 'AUTHENTICATION_ERROR',
   BadUserInput = 'BAD_USER_INPUT',
   Forbidden = 'FORBIDDEN',
@@ -37,8 +40,12 @@ export enum OrderDirection {
 }
 
 export type SignupInput = {
+  /** 100文字まで、既に存在する場合はエラー */
+  email: Scalars['EmailAddress'];
   /** 100文字まで */
   name: Scalars['NonEmptyString'];
+  /** 8文字以上、50文字まで */
+  password: Scalars['NonEmptyString'];
 };
 
 export type TodoOrder = {
@@ -57,8 +64,12 @@ export enum TodoStatus {
 }
 
 export type UpdateMeInput = {
+  /** 100文字まで、既に存在する場合はエラー、null は入力エラー */
+  email?: InputMaybe<Scalars['EmailAddress']>;
   /** 100文字まで、null は入力エラー */
   name?: InputMaybe<Scalars['NonEmptyString']>;
+  /** 8文字以上、50文字まで、null は入力エラー */
+  password?: InputMaybe<Scalars['NonEmptyString']>;
 };
 
 export type UpdateMyTodoInput = {
@@ -114,7 +125,7 @@ export type MyTodoQueryVariables = Exact<{
 }>;
 
 
-export type MyTodoQuery = { myTodo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, token?: NonEmptyString | null } | null } | null };
+export type MyTodoQuery = { myTodo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, email?: EmailAddress | null, token?: NonEmptyString | null } | null } | null };
 
 export type MyTodosQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']>;
@@ -164,10 +175,11 @@ export type UpdateMeMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMeMutation = { updateMe?: { id: string, name: NonEmptyString, updatedAt: DateTime } | null };
+export type UpdateMeMutation = { updateMe?: { id: string, name: NonEmptyString, email?: EmailAddress | null, updatedAt: DateTime } | null };
 
 export type UserQueryVariables = Exact<{
   id: Scalars['ID'];
+  includeEmail?: InputMaybe<Scalars['Boolean']>;
   includeToken?: InputMaybe<Scalars['Boolean']>;
   includeTodos?: InputMaybe<Scalars['Boolean']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -178,7 +190,7 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, token?: NonEmptyString | null, todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString, status: TodoStatus } }> } | null } | null };
+export type UserQuery = { user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, email?: EmailAddress | null, token?: NonEmptyString | null, todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString, status: TodoStatus } }> } | null } | null };
 
 export type UsersQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']>;

@@ -48,17 +48,29 @@ export const parsers = {
   },
   Mutation: {
     signup: (args: Graph.MutationSignupArgs) => {
-      const { name } = args.input;
+      const { name, email, password } = args.input;
 
       if ([...name].length > 100) {
         throw new ParseError("`name` must be up to 100 characteres");
       }
 
-      return { name, role: DataSource.Role.USER };
+      if ([...email].length > 100) {
+        throw new ParseError("`email` must be up to 100 characteres");
+      }
+
+      if ([...password].length < 8) {
+        throw new ParseError("`password` must be at least 8 characteres");
+      }
+
+      if ([...password].length > 50) {
+        throw new ParseError("`password` must be up to 50 characteres");
+      }
+
+      return { name, email, password, role: DataSource.Role.USER };
     },
     updateMe: (args: Graph.MutationUpdateMeArgs) => {
       const {
-        input: { name },
+        input: { name, email, password },
       } = args;
 
       if (name === null) {
@@ -69,7 +81,27 @@ export const parsers = {
         throw new ParseError("`name` must be up to 100 characteres");
       }
 
-      return { name };
+      if (email === null) {
+        throw new ParseError("`email` must be not null");
+      }
+
+      if (email && [...email].length > 100) {
+        throw new ParseError("`email` must be up to 100 characteres");
+      }
+
+      if (password === null) {
+        throw new ParseError("`password` must be not null");
+      }
+
+      if (password && [...password].length < 8) {
+        throw new ParseError("`password` must be at least 8 characteres");
+      }
+
+      if (password && [...password].length > 50) {
+        throw new ParseError("`password` must be up to 50 characteres");
+      }
+
+      return { name, email, password };
     },
   },
   User: {
