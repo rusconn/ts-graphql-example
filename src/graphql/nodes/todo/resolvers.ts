@@ -11,13 +11,9 @@ export const resolvers: Graph.Resolvers = {
     myTodos: async (_, args, { dataSources: { prisma }, user }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.Query.myTodos(args);
 
-      const userPromise = prisma.user.findUniqueOrThrow({
-        where: { id: user.id },
-      });
-
       return findManyCursorConnection<DataSource.Todo, Pick<Mapper.Todo, "id">, Mapper.Todo>(
-        async args_ => userPromise.todos({ ...args_, orderBy }),
-        async () => (await userPromise.todos()).length,
+        args_ => prisma.todo.findMany({ ...args_, orderBy, where: { userId: user.id } }),
+        () => prisma.todo.count({ where: { userId: user.id } }),
         { first, last, before, after },
         {
           resolveInfo,

@@ -19,8 +19,8 @@ export const resolvers: Graph.Resolvers = {
       const { orderBy, first, last, before, after } = parsers.Query.users(args);
 
       return findManyCursorConnection<DataSource.User, Pick<Mapper.User, "id">, Mapper.User>(
-        async args_ => prisma.user.findMany({ ...args_, orderBy }),
-        async () => prisma.user.count(),
+        args_ => prisma.user.findMany({ ...args_, orderBy }),
+        () => prisma.user.count(),
         { first, last, before, after },
         {
           resolveInfo,
@@ -71,13 +71,9 @@ export const resolvers: Graph.Resolvers = {
     todos: async ({ id }, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, userId, first, last, before, after } = parsers.User.todos({ ...args, id });
 
-      const userPromise = prisma.user.findUniqueOrThrow({
-        where: { id: userId },
-      });
-
       return findManyCursorConnection<DataSource.Todo, Pick<Mapper.Todo, "id">, Mapper.Todo>(
-        async args_ => userPromise.todos({ ...args_, orderBy }),
-        async () => (await userPromise.todos()).length,
+        args_ => prisma.todo.findMany({ ...args_, orderBy, where: { userId } }),
+        () => prisma.todo.count({ where: { userId } }),
         { first, last, before, after },
         {
           resolveInfo,
