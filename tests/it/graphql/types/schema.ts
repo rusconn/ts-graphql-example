@@ -34,6 +34,13 @@ export enum ErrorCode {
   NotFound = 'NOT_FOUND'
 }
 
+export type LoginInput = {
+  /** 100文字まで */
+  email: Scalars['EmailAddress'];
+  /** 8文字以上、50文字まで */
+  password: Scalars['NonEmptyString'];
+};
+
 export enum OrderDirection {
   Asc = 'ASC',
   Desc = 'DESC'
@@ -157,6 +164,13 @@ export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 export type DeleteMeMutation = { deleteMe?: string | null };
+
+export type LoginMutationVariables = Exact<{
+  input: LoginInput;
+}>;
+
+
+export type LoginMutation = { login?: { id: string, name: NonEmptyString, email?: EmailAddress | null, token?: NonEmptyString | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 

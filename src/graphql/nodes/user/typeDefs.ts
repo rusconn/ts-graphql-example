@@ -25,6 +25,8 @@ export const typeDefs = gql`
   type Mutation {
     signup(input: SignupInput!): User
 
+    login(input: LoginInput!): User
+
     "指定したフィールドのみ更新する"
     updateMe(input: UpdateMeInput!): User
 
@@ -66,5 +68,12 @@ export const typeDefs = gql`
     email: EmailAddress
     "8文字以上、50文字まで、null は入力エラー"
     password: NonEmptyString
+  }
+
+  input LoginInput {
+    "100文字まで"
+    email: EmailAddress!
+    "8文字以上、50文字まで"
+    password: NonEmptyString!
   }
 `;

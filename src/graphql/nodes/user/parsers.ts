@@ -68,6 +68,23 @@ export const parsers = {
 
       return { name, email, password, role: DataSource.Role.USER };
     },
+    login: (args: Graph.MutationLoginArgs) => {
+      const { email, password } = args.input;
+
+      if ([...email].length > 100) {
+        throw new ParseError("`email` must be up to 100 characteres");
+      }
+
+      if ([...password].length < 8) {
+        throw new ParseError("`password` must be at least 8 characteres");
+      }
+
+      if ([...password].length > 50) {
+        throw new ParseError("`password` must be up to 50 characteres");
+      }
+
+      return { email, password };
+    },
     updateMe: (args: Graph.MutationUpdateMeArgs) => {
       const {
         input: { name, email, password },

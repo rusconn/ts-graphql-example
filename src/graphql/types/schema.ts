@@ -39,6 +39,13 @@ export enum ErrorCode {
   NotFound = 'NOT_FOUND'
 }
 
+export type LoginInput = {
+  /** 100文字まで */
+  email: Scalars['EmailAddress'];
+  /** 8文字以上、50文字まで */
+  password: Scalars['NonEmptyString'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   completeMyTodo?: Maybe<Todo>;
@@ -46,6 +53,7 @@ export type Mutation = {
   /** 紐づくリソースは全て削除される */
   deleteMe?: Maybe<Scalars['ID']>;
   deleteMyTodo?: Maybe<Scalars['ID']>;
+  login?: Maybe<User>;
   signup?: Maybe<User>;
   uncompleteMyTodo?: Maybe<Todo>;
   /** 指定したフィールドのみ更新する */
@@ -67,6 +75,11 @@ export type MutationCreateMyTodoArgs = {
 
 export type MutationDeleteMyTodoArgs = {
   id: Scalars['ID'];
+};
+
+
+export type MutationLoginArgs = {
+  input: LoginInput;
 };
 
 
@@ -338,6 +351,7 @@ export type ResolversTypes = ResolversObject<{
   ErrorCode: ErrorCode;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  LoginInput: LoginInput;
   Mutation: ResolverTypeWrapper<{}>;
   Node: ResolversTypes['Todo'] | ResolversTypes['User'];
   NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']>;
@@ -369,6 +383,7 @@ export type ResolversParentTypes = ResolversObject<{
   EmailAddress: Scalars['EmailAddress'];
   ID: Scalars['ID'];
   Int: Scalars['Int'];
+  LoginInput: LoginInput;
   Mutation: {};
   Node: ResolversParentTypes['Todo'] | ResolversParentTypes['User'];
   NonEmptyString: Scalars['NonEmptyString'];
@@ -401,6 +416,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateMyTodoArgs, 'input'>>;
   deleteMe?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   deleteMyTodo?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationDeleteMyTodoArgs, 'id'>>;
+  login?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
   signup?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
   uncompleteMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUncompleteMyTodoArgs, 'id'>>;
   updateMe?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpdateMeArgs, 'input'>>;

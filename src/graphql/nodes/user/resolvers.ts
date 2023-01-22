@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
 
 import { passwordHashRoundsExponent } from "@/config";
-import type * as DataSource from "@/datasources";
+import * as DataSource from "@/datasources";
 import { toTodoNode, toTodoNodeId, toUserNode, toUserNodeId } from "@/graphql/adapters";
 import type { Graph, Mapper } from "@/graphql/types";
 import { parsers } from "./parsers";
@@ -55,6 +55,26 @@ export const resolvers: Graph.Resolvers = {
       });
 
       return toUserNode(user);
+    },
+    login: async (_, args, { dataSources: { prisma } }) => {
+      const { email, password } = parsers.Mutation.login(args);
+
+      const refreshedUser = await prisma.$transaction(async tx => {
+        const user = await tx.user.findUniqueOrThrow({
+          where: { email },
+        });
+
+        if (!bcrypt.compareSync(password, user.password)) {
+          throw new DataSource.NotFoundError();
+        }
+
+        return tx.user.update({
+          where: { email },
+          data: { token: nanoid() },
+        });
+      });
+
+      return toUserNode(refreshedUser);
     },
     updateMe: async (_, args, { dataSources: { prisma }, user: contextUser }) => {
       const data = parsers.Mutation.updateMe(args);
