@@ -76,6 +76,14 @@ export const resolvers: Graph.Resolvers = {
 
       return toUserNode(refreshedUser);
     },
+    logout: async (_, __, { dataSources: { prisma }, user: contextUser }) => {
+      const user = await prisma.user.update({
+        where: { id: contextUser.id },
+        data: { token: null },
+      });
+
+      return toUserNode(user);
+    },
     updateMe: async (_, args, { dataSources: { prisma }, user: contextUser }) => {
       const data = parsers.Mutation.updateMe(args);
 

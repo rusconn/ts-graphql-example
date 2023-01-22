@@ -27,6 +27,8 @@ export const typeDefs = gql`
 
     login(input: LoginInput!): User
 
+    logout: User
+
     "指定したフィールドのみ更新する"
     updateMe(input: UpdateMeInput!): User
 

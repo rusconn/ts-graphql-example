@@ -30,7 +30,7 @@ model User {
   name      String   @db.VarChar(255)
   email     String   @unique @db.VarChar(255)
   password  String   @db.VarChar(255)
-  token     String   @unique @db.VarChar(255)
+  token     String?  @unique @db.VarChar(255)
   role      Role     @default(USER)
   id        String   @id @db.VarChar(255)
   todos     Todo[]

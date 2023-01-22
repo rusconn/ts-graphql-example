@@ -19,6 +19,7 @@ export const permissions = {
   },
   Mutation: {
     signup: isGuest,
+    logout: isAuthenticated,
     updateMe: isAuthenticated,
     deleteMe: isAuthenticated,
   },

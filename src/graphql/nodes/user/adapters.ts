@@ -15,5 +15,5 @@ export const toUserNode = ({
   id: toUserNodeId(user.id),
   name: nonEmptyString(user.name),
   email: emailAddress(user.email),
-  token: nonEmptyString(user.token),
+  token: user.token != null ? nonEmptyString(user.token) : user.token,
 });
