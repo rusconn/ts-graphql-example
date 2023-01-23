@@ -1,25 +1,26 @@
 import pino, { LoggerOptions, stdTimeFunctions } from "pino";
-import pretty from "pino-pretty"; // eslint-disable-line import/no-extraneous-dependencies
 import { nanoid } from "nanoid";
 
-import { isDev, isTest } from "@/config";
+import { isDev, isProd, isTest } from "@/config";
 
-// pid と hostname を省き、タイムスタンプを読める形にする
-const options: pretty.PrettyStream | LoggerOptions = isDev
-  ? pretty({ ignore: "pid,hostname", translateTime: true })
-  : {
-      timestamp: stdTimeFunctions.isoTime,
-      formatters: {
-        bindings: () => ({}),
-      },
-      redact: {
+const options: LoggerOptions = {
+  enabled: !isTest,
+  timestamp: stdTimeFunctions.isoTime,
+  formatters: {
+    // pid と hostname を省く
+    bindings: () => ({}),
+  },
+  redact: isProd
+    ? {
         paths: ["variables.input.email", "variables.input.password"],
         censor: "***",
-      },
-    };
+      }
+    : undefined,
+  transport: isDev
+    ? {
+        target: "pino-pretty",
+      }
+    : undefined,
+};
 
-const level = isDev ? "debug" : "info";
-
-export const logger = isTest
-  ? pino({ enabled: false })
-  : pino(options).child({ requestId: nanoid() }, { level });
+export const logger = pino(options).child({ requestId: nanoid() });
