@@ -176,10 +176,10 @@ export type SignupInput = {
 export type Todo = Node & {
   __typename?: 'Todo';
   createdAt: Scalars['DateTime'];
-  description: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
-  status: TodoStatus;
-  title: Scalars['NonEmptyString'];
+  status?: Maybe<TodoStatus>;
+  title?: Maybe<Scalars['NonEmptyString']>;
   updatedAt: Scalars['DateTime'];
   user?: Maybe<User>;
 };
@@ -453,10 +453,10 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 
 export type TodoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Todo'] = ResolversParentTypes['Todo']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  status?: Resolver<ResolversTypes['TodoStatus'], ParentType, ContextType>;
-  title?: Resolver<ResolversTypes['NonEmptyString'], ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['TodoStatus']>, ParentType, ContextType>;
+  title?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

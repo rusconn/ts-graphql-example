@@ -35,9 +35,9 @@ export const typeDefs = gql`
     id: ID!
     createdAt: DateTime!
     updatedAt: DateTime!
-    title: NonEmptyString!
-    description: String!
-    status: TodoStatus!
+    title: NonEmptyString
+    description: String
+    status: TodoStatus
     user: User
   }
 

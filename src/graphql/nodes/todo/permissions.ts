@@ -6,7 +6,7 @@ import type { Context } from "@/types";
 
 type Parent = Graph.ResolversParentTypes["Todo"];
 
-const isSelf = rule({ cache: "strict" })(({ userId }: Parent, _, { user }: Context) => {
+const isOwner = rule({ cache: "strict" })(({ userId }: Parent, _, { user }: Context) => {
   return userId === user.id || newPermissionError();
 });
 
@@ -23,6 +23,9 @@ export const permissions = {
     uncompleteMyTodo: isAuthenticated,
   },
   Todo: {
-    user: or(isAdmin, isSelf),
+    title: isOwner,
+    description: isOwner,
+    status: isOwner,
+    user: or(isAdmin, isOwner),
   },
 };

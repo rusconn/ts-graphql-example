@@ -103,21 +103,21 @@ export type NodeQueryVariables = Exact<{
 }>;
 
 
-export type NodeQuery = { node?: { title: NonEmptyString, id: string } | { name: NonEmptyString, id: string } | null };
+export type NodeQuery = { node?: { title?: NonEmptyString | null, id: string } | { name: NonEmptyString, id: string } | null };
 
 export type CompleteMyTodoMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type CompleteMyTodoMutation = { completeMyTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
+export type CompleteMyTodoMutation = { completeMyTodo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
 
 export type CreateMyTodoMutationVariables = Exact<{
   input: CreateMyTodoInput;
 }>;
 
 
-export type CreateMyTodoMutation = { createMyTodo?: { id: string, title: NonEmptyString, description: string, status: TodoStatus } | null };
+export type CreateMyTodoMutation = { createMyTodo?: { id: string, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
 
 export type DeleteMyTodoMutationVariables = Exact<{
   id: Scalars['ID'];
@@ -132,7 +132,7 @@ export type MyTodoQueryVariables = Exact<{
 }>;
 
 
-export type MyTodoQuery = { myTodo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, email?: EmailAddress | null, token?: NonEmptyString | null } | null } | null };
+export type MyTodoQuery = { myTodo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, email?: EmailAddress | null, token?: NonEmptyString | null } | null } | null };
 
 export type MyTodosQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']>;
@@ -143,14 +143,14 @@ export type MyTodosQueryVariables = Exact<{
 }>;
 
 
-export type MyTodosQuery = { myTodos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString } }> } | null };
+export type MyTodosQuery = { myTodos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title?: NonEmptyString | null } }> } | null };
 
 export type UncompleteMyTodoMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type UncompleteMyTodoMutation = { uncompleteMyTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
+export type UncompleteMyTodoMutation = { uncompleteMyTodo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
 
 export type UpdateMyTodoMutationVariables = Exact<{
   id: Scalars['ID'];
@@ -158,7 +158,7 @@ export type UpdateMyTodoMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMyTodoMutation = { updateMyTodo?: { id: string, updatedAt: DateTime, title: NonEmptyString, description: string, status: TodoStatus } | null };
+export type UpdateMyTodoMutation = { updateMyTodo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
 
 export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -209,7 +209,7 @@ export type UserQueryVariables = Exact<{
 }>;
 
 
-export type UserQuery = { user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, email?: EmailAddress | null, token?: NonEmptyString | null, todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title: NonEmptyString, status: TodoStatus } }> } | null } | null };
+export type UserQuery = { user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name: NonEmptyString, email?: EmailAddress | null, token?: NonEmptyString | null, todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title?: NonEmptyString | null, status?: TodoStatus | null } }> } | null } | null };
 
 export type UsersQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']>;
