@@ -84,9 +84,15 @@ export const resolvers: Graph.Resolvers = {
   },
   Todo: {
     user: async ({ userId }, __, { dataSources: { prisma } }) => {
-      const user = await prisma.user.findUniqueOrThrow({
+      // findUniqueOrThrow を使いたいが、バッチ化されない
+      // https://github.com/prisma/prisma/issues/16625
+      const user = await prisma.user.findUnique({
         where: { id: userId },
       });
+
+      if (!user) {
+        throw new Error(`user not found: ${userId}`);
+      }
 
       return toUserNode(user);
     },
