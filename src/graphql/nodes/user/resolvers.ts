@@ -54,7 +54,7 @@ export const resolvers: Graph.Resolvers = {
         },
       });
 
-      return toUserNode(user);
+      return toUserNodeId(user.id);
     },
     login: async (_, args, { dataSources: { prisma } }) => {
       const { email, password } = parsers.Mutation.login(args);

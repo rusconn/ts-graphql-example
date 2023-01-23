@@ -187,7 +187,7 @@ export type SignupMutationVariables = Exact<{
 }>;
 
 
-export type SignupMutation = { signup?: { id: string, name: NonEmptyString } | null };
+export type SignupMutation = { signup?: string | null };
 
 export type UpdateMeMutationVariables = Exact<{
   input: UpdateMeInput;

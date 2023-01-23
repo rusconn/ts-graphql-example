@@ -16,10 +16,7 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 
 const query = gql`
   mutation Signup($input: SignupInput!) {
-    signup(input: $input) {
-      id
-      name
-    }
+    signup(input: $input)
   }
 `;
 
@@ -178,7 +175,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const { id } = splitUserNodeId(data.signup.id);
+    const { id } = splitUserNodeId(data.signup);
 
     const user = await prisma.user.findUniqueOrThrow({ where: { id } });
 
@@ -200,7 +197,7 @@ describe("logic", () => {
       throw new Error("operation failed");
     }
 
-    const { id } = splitUserNodeId(data.signup.id);
+    const { id } = splitUserNodeId(data.signup);
 
     const user = await prisma.user.findUniqueOrThrow({ where: { id } });
 
