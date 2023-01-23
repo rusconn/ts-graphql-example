@@ -1,19 +1,24 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
-import { isDev } from "@/config";
+import { isProd } from "@/config";
 import * as DataSource from "@/datasources";
 
 /** Node.js 環境下ではモジュールキャッシュにより singleton */
 export const prisma = new PrismaClient({
-  log: isDev ? ["query", "info", "warn", "error"] : ["info", "warn", "error"],
+  log: [
+    { level: "query", emit: "event" },
+    { level: "info", emit: "stdout" },
+    { level: "warn", emit: "stdout" },
+    { level: "error", emit: "stdout" },
+  ],
 });
 
-prisma.$use(async (params, next) => {
-  const before = Date.now();
-  const result = (await next(params)) as unknown;
-  const after = Date.now();
-  console.log(`Query ${params.model ?? "model"}.${params.action} took ${after - before}ms`);
-  return result;
+prisma.$on("query", e => {
+  console.log("\x1b[34mprisma:query\u001b[0m", {
+    Query: `${e.query.replaceAll('"public".', "")}`,
+    Params: isProd ? "***" : e.params,
+    Duration: `${e.duration}ms`,
+  });
 });
 
 prisma.$use(async (params, next) => {
