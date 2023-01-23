@@ -40,7 +40,7 @@ export const typeDefs = gql`
     id: ID!
     createdAt: DateTime!
     updatedAt: DateTime!
-    name: NonEmptyString!
+    name: NonEmptyString
     email: EmailAddress
     token: NonEmptyString
     todos(
