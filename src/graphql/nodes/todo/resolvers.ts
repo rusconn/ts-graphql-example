@@ -5,17 +5,6 @@ import type { Graph } from "@/graphql/types";
 import { parsers } from "./parsers";
 
 export const resolvers: Graph.Resolvers = {
-  Query: {
-    myTodo: async (_, args, { dataSources: { prisma }, user }) => {
-      const { id } = parsers.Query.myTodo(args);
-
-      const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId: user.id },
-      });
-
-      return toTodoNode(todo);
-    },
-  },
   Mutation: {
     createMyTodo: async (_, args, { dataSources: { prisma }, user }) => {
       const parsed = parsers.Mutation.createMyTodo(args);

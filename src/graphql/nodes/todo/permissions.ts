@@ -11,9 +11,6 @@ const isOwner = rule({ cache: "strict" })(({ userId }: Parent, _, { user }: Cont
 });
 
 export const permissions = {
-  Query: {
-    myTodo: isAuthenticated,
-  },
   Mutation: {
     createMyTodo: isAuthenticated,
     updateMyTodo: isAuthenticated,

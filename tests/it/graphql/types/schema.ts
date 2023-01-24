@@ -126,14 +126,6 @@ export type DeleteMyTodoMutationVariables = Exact<{
 
 export type DeleteMyTodoMutation = { deleteMyTodo?: string | null };
 
-export type MyTodoQueryVariables = Exact<{
-  id: Scalars['ID'];
-  includeUser?: InputMaybe<Scalars['Boolean']>;
-}>;
-
-
-export type MyTodoQuery = { myTodo?: { id: string, createdAt: DateTime, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null, user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name?: NonEmptyString | null, email?: EmailAddress | null, token?: NonEmptyString | null } | null } | null };
-
 export type UncompleteMyTodoMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;

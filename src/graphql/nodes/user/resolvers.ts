@@ -103,6 +103,15 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   User: {
+    todo: async (parent, args, { dataSources: { prisma } }) => {
+      const { id, userId } = parsers.User.todo(parent, args);
+
+      const todo = await prisma.todo.findUniqueOrThrow({
+        where: { id, userId },
+      });
+
+      return toTodoNode(todo);
+    },
     todos: async ({ id }, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, userId, first, last, before, after } = parsers.User.todos({ ...args, id });
 

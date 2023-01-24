@@ -1,10 +1,6 @@
 import { gql } from "graphql-tag";
 
 export const typeDefs = gql`
-  type Query {
-    myTodo(id: ID!): Todo
-  }
-
   type Mutation {
     createMyTodo(input: CreateMyTodoInput!): Todo
 

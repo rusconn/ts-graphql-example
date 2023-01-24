@@ -45,6 +45,7 @@ export const typeDefs = gql`
     name: NonEmptyString
     email: EmailAddress
     token: NonEmptyString
+    todo(id: ID!): Todo
     todos(
       "max: 50"
       first: Int

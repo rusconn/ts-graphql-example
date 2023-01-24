@@ -27,6 +27,7 @@ export const permissions = {
     name: or(isAdmin, isOwner),
     email: or(isAdmin, isOwner),
     token: or(isOwner, isGuest),
+    todo: or(isAdmin, isOwner),
     todos: or(isAdmin, isOwner),
   },
 };

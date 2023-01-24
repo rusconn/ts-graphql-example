@@ -4,11 +4,6 @@ import type { Graph } from "@/graphql/types";
 import { parseTodoNodeId } from "@/graphql/utils";
 
 export const parsers = {
-  Query: {
-    myTodo: ({ id }: Graph.QueryMyTodoArgs) => {
-      return { id: parseTodoNodeId(id) };
-    },
-  },
   Mutation: {
     createMyTodo: (args: Graph.MutationCreateMyTodoArgs) => {
       const {

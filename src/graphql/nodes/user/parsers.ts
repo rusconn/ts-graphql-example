@@ -4,6 +4,8 @@ import { ParseError } from "@/graphql/errors";
 import { Graph } from "@/graphql/types";
 import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql/utils";
 
+type Parent = Graph.ResolversParentTypes["User"];
+
 export const parsers = {
   Query: {
     users: (args: Graph.QueryUsersArgs) => {
@@ -126,6 +128,9 @@ export const parsers = {
     },
   },
   User: {
+    todo: (parent: Parent, args: Graph.UserTodoArgs) => {
+      return { id: parseTodoNodeId(args.id), userId: parseUserNodeId(parent.id) };
+    },
     todos: (args: Graph.UserTodosArgs & Pick<Graph.User, "id">) => {
       const { id, orderBy, ...connectionArgs } = args;
 

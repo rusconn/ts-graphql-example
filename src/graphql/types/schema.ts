@@ -124,15 +124,9 @@ export type PageInfo = {
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
-  myTodo?: Maybe<Todo>;
   node?: Maybe<Node>;
   user?: Maybe<User>;
   users?: Maybe<UserConnection>;
-};
-
-
-export type QueryMyTodoArgs = {
-  id: Scalars['ID'];
 };
 
 
@@ -227,9 +221,15 @@ export type User = Node & {
   email?: Maybe<Scalars['EmailAddress']>;
   id: Scalars['ID'];
   name?: Maybe<Scalars['NonEmptyString']>;
+  todo?: Maybe<Todo>;
   todos?: Maybe<TodoConnection>;
   token?: Maybe<Scalars['NonEmptyString']>;
   updatedAt: Scalars['DateTime'];
+};
+
+
+export type UserTodoArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -434,7 +434,6 @@ export type PageInfoResolvers<ContextType = Context, ParentType extends Resolver
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
-  myTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<QueryMyTodoArgs, 'id'>>;
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
   users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'orderBy'>>;
@@ -470,6 +469,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   email?: Resolver<Maybe<ResolversTypes['EmailAddress']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
+  todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<UserTodoArgs, 'id'>>;
   todos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, RequireFields<UserTodosArgs, 'orderBy'>>;
   token?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
