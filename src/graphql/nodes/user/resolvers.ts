@@ -10,12 +10,10 @@ import { parsers } from "./parsers";
 
 export const resolvers: Graph.Resolvers = {
   Query: {
-    me: async (_, __, { dataSources: { prisma }, user: contextUser }) => {
-      const user = await prisma.user.findUniqueOrThrow({
-        where: { id: contextUser.id },
-      });
-
-      return toUserNode(user);
+    me: async (_, __, { user }) => {
+      // ミドルウェアでの権限チェックにより GUEST ではないことが保証される
+      // しかし型に影響しないのでアサーションが必要になっている
+      return toUserNode(user as DataSource.User);
     },
     users: async (_, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.Query.users(args);
