@@ -1,48 +1,10 @@
 import * as DataSource from "@/datasources";
 import { ParseError } from "@/graphql/errors";
-import { Graph } from "@/graphql/types";
-import { parseConnectionArgs, parseTodoNodeId } from "@/graphql/utils";
+import type { Graph } from "@/graphql/types";
+import { parseTodoNodeId } from "@/graphql/utils";
 
 export const parsers = {
   Query: {
-    myTodos: (args: Graph.QueryMyTodosArgs) => {
-      const { orderBy, ...connectionArgs } = args;
-
-      const { first, last, before, after } = parseConnectionArgs(connectionArgs);
-
-      if (first == null && last == null) {
-        throw new ParseError("`first` or `last` value required");
-      }
-
-      if (first && first > 50) {
-        throw new ParseError("`first` must be up to 50");
-      }
-
-      if (last && last > 50) {
-        throw new ParseError("`last` must be up to 50");
-      }
-
-      const beforeToUse = before ? parseTodoNodeId(before) : before;
-      const afterToUse = after ? parseTodoNodeId(after) : after;
-
-      const directionToUse =
-        orderBy.direction === Graph.OrderDirection.Asc
-          ? DataSource.TodoSortOrder.asc
-          : DataSource.TodoSortOrder.desc;
-
-      const orderByToUse =
-        orderBy.field === Graph.TodoOrderField.CreatedAt
-          ? [{ createdAt: directionToUse }, { id: directionToUse }]
-          : [{ updatedAt: directionToUse }, { id: directionToUse }];
-
-      return {
-        first,
-        last,
-        before: beforeToUse,
-        after: afterToUse,
-        orderBy: orderByToUse,
-      };
-    },
     myTodo: ({ id }: Graph.QueryMyTodoArgs) => {
       return { id: parseTodoNodeId(id) };
     },

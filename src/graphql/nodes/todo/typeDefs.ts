@@ -1,22 +1,7 @@
 import { gql } from "graphql-tag";
 
-import { makeOrderOptions, makeCursorConnections } from "@/graphql/utils";
-
 export const typeDefs = gql`
-  ${makeCursorConnections("Todo", { totalCount: "Int!" })}
-  ${makeOrderOptions("Todo")}
-
   type Query {
-    myTodos(
-      "max: 50"
-      first: Int
-      after: String
-      "max: 50"
-      last: Int
-      before: String
-      orderBy: TodoOrder! = { field: UPDATED_AT, direction: DESC }
-    ): TodoConnection
-
     myTodo(id: ID!): Todo
   }
 

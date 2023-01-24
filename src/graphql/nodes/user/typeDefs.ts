@@ -5,6 +5,8 @@ import { makeOrderOptions, makeCursorConnections } from "@/graphql/utils";
 export const typeDefs = gql`
   ${makeCursorConnections("User", { totalCount: "Int!" })}
   ${makeOrderOptions("User")}
+  ${makeCursorConnections("Todo", { totalCount: "Int!" })}
+  ${makeOrderOptions("Todo")}
 
   type Query {
     me: User

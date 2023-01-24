@@ -1,27 +1,11 @@
-import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 import { nanoid } from "nanoid";
 
-import type * as DataSource from "@/datasources";
-import { toTodoNode, toTodoNodeId, toUserNode } from "@/graphql/adapters";
-import type { Graph, Mapper } from "@/graphql/types";
+import { toTodoNode, toUserNode } from "@/graphql/adapters";
+import type { Graph } from "@/graphql/types";
 import { parsers } from "./parsers";
 
 export const resolvers: Graph.Resolvers = {
   Query: {
-    myTodos: async (_, args, { dataSources: { prisma }, user }, resolveInfo) => {
-      const { orderBy, first, last, before, after } = parsers.Query.myTodos(args);
-
-      return findManyCursorConnection<DataSource.Todo, Pick<Mapper.Todo, "id">, Mapper.Todo>(
-        args_ => prisma.todo.findMany({ ...args_, orderBy, where: { userId: user.id } }),
-        () => prisma.todo.count({ where: { userId: user.id } }),
-        { first, last, before, after },
-        {
-          resolveInfo,
-          getCursor: record => ({ id: toTodoNodeId(record.id) }),
-          recordToEdge: record => ({ node: toTodoNode(record) }),
-        }
-      );
-    },
     myTodo: async (_, args, { dataSources: { prisma }, user }) => {
       const { id } = parsers.Query.myTodo(args);
 
