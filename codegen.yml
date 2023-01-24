@@ -4,6 +4,8 @@ scalars: &scalars
   NonEmptyString: "@/graphql/types/scalars#NonEmptyString"
 
 typescript: &typescript
+  avoidOptionals:
+    defaultValue: true
   inputMaybeValue: T | null | undefined # null を指定する場合と、指定しない(=undefined)場合がある
   scalars: *scalars
   useTypeImports: true

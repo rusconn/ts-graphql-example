@@ -24,12 +24,12 @@ export const parsers = {
       const afterToUse = after ? parseTodoNodeId(after) : after;
 
       const directionToUse =
-        orderBy?.direction === Graph.OrderDirection.Asc
+        orderBy.direction === Graph.OrderDirection.Asc
           ? DataSource.TodoSortOrder.asc
           : DataSource.TodoSortOrder.desc;
 
       const orderByToUse =
-        orderBy?.field === Graph.TodoOrderField.CreatedAt
+        orderBy.field === Graph.TodoOrderField.CreatedAt
           ? [{ createdAt: directionToUse }, { id: directionToUse }]
           : [{ updatedAt: directionToUse }, { id: directionToUse }];
 

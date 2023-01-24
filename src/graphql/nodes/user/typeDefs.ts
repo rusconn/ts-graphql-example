@@ -16,7 +16,7 @@ export const typeDefs = gql`
       "max: 30"
       last: Int
       before: String
-      orderBy: UserOrder
+      orderBy: UserOrder! = { field: CREATED_AT, direction: DESC }
     ): UserConnection
 
     user(id: ID!): User
@@ -50,7 +50,7 @@ export const typeDefs = gql`
       "max: 50"
       last: Int
       before: String
-      orderBy: TodoOrder
+      orderBy: TodoOrder! = { field: UPDATED_AT, direction: DESC }
     ): TodoConnection
   }
 

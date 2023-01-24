@@ -142,7 +142,7 @@ export type QueryMyTodosArgs = {
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<TodoOrder>;
+  orderBy: TodoOrder;
 };
 
 
@@ -161,7 +161,7 @@ export type QueryUsersArgs = {
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<UserOrder>;
+  orderBy: UserOrder;
 };
 
 export type SignupInput = {
@@ -248,7 +248,7 @@ export type UserTodosArgs = {
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<TodoOrder>;
+  orderBy: TodoOrder;
 };
 
 export type UserConnection = {
@@ -445,10 +445,10 @@ export type PageInfoResolvers<ContextType = Context, ParentType extends Resolver
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   myTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<QueryMyTodoArgs, 'id'>>;
-  myTodos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, Partial<QueryMyTodosArgs>>;
+  myTodos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, RequireFields<QueryMyTodosArgs, 'orderBy'>>;
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
-  users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, Partial<QueryUsersArgs>>;
+  users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'orderBy'>>;
 }>;
 
 export type TodoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Todo'] = ResolversParentTypes['Todo']> = ResolversObject<{
@@ -481,7 +481,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   email?: Resolver<Maybe<ResolversTypes['EmailAddress']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
-  todos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, Partial<UserTodosArgs>>;
+  todos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, RequireFields<UserTodosArgs, 'orderBy'>>;
   token?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

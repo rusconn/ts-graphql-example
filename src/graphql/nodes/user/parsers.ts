@@ -25,12 +25,12 @@ export const parsers = {
       const afterToUse = after ? parseUserNodeId(after) : after;
 
       const directionToUse =
-        orderBy?.direction === Graph.OrderDirection.Asc
+        orderBy.direction === Graph.OrderDirection.Asc
           ? DataSource.UserSortOrder.asc
           : DataSource.UserSortOrder.desc;
 
       const orderByToUse =
-        orderBy?.field === Graph.UserOrderField.UpdatedAt
+        orderBy.field === Graph.UserOrderField.UpdatedAt
           ? [{ updatedAt: directionToUse }, { id: directionToUse }]
           : [{ createdAt: directionToUse }, { id: directionToUse }];
 
@@ -143,12 +143,12 @@ export const parsers = {
       const afterToUse = after ? parseTodoNodeId(after) : after;
 
       const directionToUse =
-        orderBy?.direction === Graph.OrderDirection.Asc
+        orderBy.direction === Graph.OrderDirection.Asc
           ? DataSource.TodoSortOrder.asc
           : DataSource.TodoSortOrder.desc;
 
       const orderByToUse =
-        orderBy?.field === Graph.TodoOrderField.CreatedAt
+        orderBy.field === Graph.TodoOrderField.CreatedAt
           ? [{ createdAt: directionToUse }, { id: directionToUse }]
           : [{ updatedAt: directionToUse }, { id: directionToUse }];
 

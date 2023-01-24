@@ -14,7 +14,7 @@ export const typeDefs = gql`
       "max: 50"
       last: Int
       before: String
-      orderBy: TodoOrder
+      orderBy: TodoOrder! = { field: UPDATED_AT, direction: DESC }
     ): TodoConnection
 
     myTodo(id: ID!): Todo
