@@ -5,7 +5,7 @@ import { parseTodoNodeId } from "@/graphql/utils";
 
 export const parsers = {
   Mutation: {
-    createMyTodo: (args: Graph.MutationCreateMyTodoArgs) => {
+    createTodo: (args: Graph.MutationCreateTodoArgs) => {
       const {
         input: { title, description },
       } = args;
@@ -20,7 +20,7 @@ export const parsers = {
 
       return { title, description };
     },
-    updateMyTodo: (args: Graph.MutationUpdateMyTodoArgs) => {
+    updateTodo: (args: Graph.MutationUpdateTodoArgs) => {
       const {
         id,
         input: { title, description, status },
@@ -50,13 +50,13 @@ export const parsers = {
 
       return { id: idToUse, title, description, status };
     },
-    deleteMyTodo: ({ id }: Graph.MutationDeleteMyTodoArgs) => {
+    deleteTodo: ({ id }: Graph.MutationDeleteTodoArgs) => {
       return { id: parseTodoNodeId(id) };
     },
-    completeMyTodo: ({ id }: Graph.MutationCompleteMyTodoArgs) => {
+    completeTodo: ({ id }: Graph.MutationCompleteTodoArgs) => {
       return { id: parseTodoNodeId(id), status: DataSource.TodoStatus.DONE };
     },
-    uncompleteMyTodo: ({ id }: Graph.MutationUncompleteMyTodoArgs) => {
+    uncompleteTodo: ({ id }: Graph.MutationUncompleteTodoArgs) => {
       return { id: parseTodoNodeId(id), status: DataSource.TodoStatus.PENDING };
     },
   },

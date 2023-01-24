@@ -6,8 +6,8 @@ import { parsers } from "./parsers";
 
 export const resolvers: Graph.Resolvers = {
   Mutation: {
-    createMyTodo: async (_, args, { dataSources: { prisma }, user }) => {
-      const parsed = parsers.Mutation.createMyTodo(args);
+    createTodo: async (_, args, { dataSources: { prisma }, user }) => {
+      const parsed = parsers.Mutation.createTodo(args);
 
       const todo = await prisma.todo.create({
         data: { ...parsed, id: nanoid(), userId: user.id },
@@ -15,8 +15,8 @@ export const resolvers: Graph.Resolvers = {
 
       return toTodoNode(todo);
     },
-    updateMyTodo: async (_, args, { dataSources: { prisma }, user }) => {
-      const { id, ...data } = parsers.Mutation.updateMyTodo(args);
+    updateTodo: async (_, args, { dataSources: { prisma }, user }) => {
+      const { id, ...data } = parsers.Mutation.updateTodo(args);
 
       const todo = await prisma.todo.update({
         where: { id, userId: user.id },
@@ -25,8 +25,8 @@ export const resolvers: Graph.Resolvers = {
 
       return toTodoNode(todo);
     },
-    deleteMyTodo: async (_, args, { dataSources: { prisma }, user }) => {
-      const { id } = parsers.Mutation.deleteMyTodo(args);
+    deleteTodo: async (_, args, { dataSources: { prisma }, user }) => {
+      const { id } = parsers.Mutation.deleteTodo(args);
 
       await prisma.todo.delete({
         where: { id, userId: user.id },
@@ -34,8 +34,8 @@ export const resolvers: Graph.Resolvers = {
 
       return args.id;
     },
-    completeMyTodo: async (_, args, { dataSources: { prisma }, user }) => {
-      const { id, ...data } = parsers.Mutation.completeMyTodo(args);
+    completeTodo: async (_, args, { dataSources: { prisma }, user }) => {
+      const { id, ...data } = parsers.Mutation.completeTodo(args);
 
       const todo = await prisma.todo.update({
         where: { id, userId: user.id },
@@ -44,8 +44,8 @@ export const resolvers: Graph.Resolvers = {
 
       return toTodoNode(todo);
     },
-    uncompleteMyTodo: async (_, args, { dataSources: { prisma }, user }) => {
-      const { id, ...data } = parsers.Mutation.uncompleteMyTodo(args);
+    uncompleteTodo: async (_, args, { dataSources: { prisma }, user }) => {
+      const { id, ...data } = parsers.Mutation.uncompleteTodo(args);
 
       const todo = await prisma.todo.update({
         where: { id, userId: user.id },

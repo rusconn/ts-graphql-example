@@ -18,7 +18,7 @@ export type Scalars = {
   NonEmptyString: NonEmptyString;
 };
 
-export type CreateMyTodoInput = {
+export type CreateTodoInput = {
   /** 5000文字まで */
   description: Scalars['String'];
   /** 100文字まで */
@@ -79,7 +79,7 @@ export type UpdateMeInput = {
   password?: InputMaybe<Scalars['NonEmptyString']>;
 };
 
-export type UpdateMyTodoInput = {
+export type UpdateTodoInput = {
   /** 5000文字まで、null は入力エラー */
   description?: InputMaybe<Scalars['String']>;
   /** null は入力エラー */
@@ -105,41 +105,41 @@ export type NodeQueryVariables = Exact<{
 
 export type NodeQuery = { node?: { title?: NonEmptyString | null, id: string } | { name?: NonEmptyString | null, id: string } | null };
 
-export type CompleteMyTodoMutationVariables = Exact<{
+export type CompleteTodoMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type CompleteMyTodoMutation = { completeMyTodo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
+export type CompleteTodoMutation = { completeTodo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
 
-export type CreateMyTodoMutationVariables = Exact<{
-  input: CreateMyTodoInput;
+export type CreateTodoMutationVariables = Exact<{
+  input: CreateTodoInput;
 }>;
 
 
-export type CreateMyTodoMutation = { createMyTodo?: { id: string, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
+export type CreateTodoMutation = { createTodo?: { id: string, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
 
-export type DeleteMyTodoMutationVariables = Exact<{
+export type DeleteTodoMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type DeleteMyTodoMutation = { deleteMyTodo?: string | null };
+export type DeleteTodoMutation = { deleteTodo?: string | null };
 
-export type UncompleteMyTodoMutationVariables = Exact<{
+export type UncompleteTodoMutationVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type UncompleteMyTodoMutation = { uncompleteMyTodo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
+export type UncompleteTodoMutation = { uncompleteTodo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
 
-export type UpdateMyTodoMutationVariables = Exact<{
+export type UpdateTodoMutationVariables = Exact<{
   id: Scalars['ID'];
-  input: UpdateMyTodoInput;
+  input: UpdateTodoInput;
 }>;
 
 
-export type UpdateMyTodoMutation = { updateMyTodo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
+export type UpdateTodoMutation = { updateTodo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null };
 
 export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
 

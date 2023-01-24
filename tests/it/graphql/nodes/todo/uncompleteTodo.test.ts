@@ -1,7 +1,7 @@
 import { gql } from "graphql-tag";
 import omit from "lodash/omit";
 
-import type { UncompleteMyTodoMutation, UncompleteMyTodoMutationVariables } from "it/graphql/types";
+import type { UncompleteTodoMutation, UncompleteTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
@@ -38,8 +38,8 @@ const completeAdminTodo = () =>
   });
 
 const query = gql`
-  mutation UncompleteMyTodo($id: ID!) {
-    uncompleteMyTodo(id: $id) {
+  mutation UncompleteTodo($id: ID!) {
+    uncompleteTodo(id: $id) {
       id
       updatedAt
       title
@@ -50,8 +50,8 @@ const query = gql`
 `;
 
 const executeMutation = executeSingleResultOperation(query)<
-  UncompleteMyTodoMutation,
-  UncompleteMyTodoMutationVariables
+  UncompleteTodoMutation,
+  UncompleteTodoMutationVariables
 >;
 
 beforeAll(async () => {
@@ -98,7 +98,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.uncompleteMyTodo).toBeNull();
+    expect(data?.uncompleteTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -115,7 +115,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.uncompleteMyTodo).not.toBeFalsy();
+      expect(data?.uncompleteTodo).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -123,7 +123,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.uncompleteMyTodo).toBeFalsy();
+      expect(data?.uncompleteTodo).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -148,7 +148,7 @@ describe("logic", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.uncompleteMyTodo).toBeNull();
+    expect(data?.uncompleteTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 
@@ -159,7 +159,7 @@ describe("logic", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.uncompleteMyTodo).toBeNull();
+    expect(data?.uncompleteTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 
@@ -168,7 +168,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.uncompleteMyTodo) {
+    if (!data || !data.uncompleteTodo) {
       throw new Error("operation failed");
     }
 
@@ -183,7 +183,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.uncompleteMyTodo) {
+    if (!data || !data.uncompleteTodo) {
       throw new Error("operation failed");
     }
 
@@ -200,7 +200,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.uncompleteMyTodo) {
+    if (!data || !data.uncompleteTodo) {
       throw new Error("operation failed");
     }
 

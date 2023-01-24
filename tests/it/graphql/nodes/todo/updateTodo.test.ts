@@ -1,7 +1,7 @@
 import { gql } from "graphql-tag";
 import omit from "lodash/omit";
 
-import type { UpdateMyTodoMutation, UpdateMyTodoMutationVariables } from "it/graphql/types";
+import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
@@ -23,8 +23,8 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const seedTodos = () => prisma.todo.createMany({ data: todos });
 
 const query = gql`
-  mutation UpdateMyTodo($id: ID!, $input: UpdateMyTodoInput!) {
-    updateMyTodo(id: $id, input: $input) {
+  mutation UpdateTodo($id: ID!, $input: UpdateTodoInput!) {
+    updateTodo(id: $id, input: $input) {
       id
       updatedAt
       title
@@ -35,8 +35,8 @@ const query = gql`
 `;
 
 const executeMutation = executeSingleResultOperation(query)<
-  UpdateMyTodoMutation,
-  UpdateMyTodoMutationVariables
+  UpdateTodoMutation,
+  UpdateTodoMutationVariables
 >;
 
 beforeAll(async () => {
@@ -85,7 +85,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateMyTodo).toBeNull();
+    expect(data?.updateTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -104,7 +104,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMyTodo).not.toBeFalsy();
+      expect(data?.updateTodo).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -112,7 +112,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMyTodo).toBeFalsy();
+      expect(data?.updateTodo).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -159,7 +159,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMyTodo).not.toBeFalsy();
+      expect(data?.updateTodo).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -170,7 +170,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMyTodo).toBeFalsy();
+      expect(data?.updateTodo).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -191,7 +191,7 @@ describe("validation", () => {
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-        expect(data?.updateMyTodo).not.toBeFalsy();
+        expect(data?.updateTodo).not.toBeFalsy();
         expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
       }
     );
@@ -205,7 +205,7 @@ describe("validation", () => {
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-        expect(data?.updateMyTodo).toBeFalsy();
+        expect(data?.updateTodo).toBeFalsy();
         expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
       }
     );
@@ -226,7 +226,7 @@ describe("logic", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateMyTodo).toBeNull();
+    expect(data?.updateTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 
@@ -237,7 +237,7 @@ describe("logic", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateMyTodo).toBeNull();
+    expect(data?.updateTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 
@@ -252,7 +252,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateMyTodo) {
+    if (!data || !data.updateTodo) {
       throw new Error("operation failed");
     }
 
@@ -270,7 +270,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input: {} },
     });
 
-    if (!data || !data.updateMyTodo) {
+    if (!data || !data.updateTodo) {
       throw new Error("operation failed");
     }
 
@@ -294,7 +294,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateMyTodo) {
+    if (!data || !data.updateTodo) {
       throw new Error("operation failed");
     }
 
@@ -319,7 +319,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateMyTodo) {
+    if (!data || !data.updateTodo) {
       throw new Error("operation failed");
     }
 

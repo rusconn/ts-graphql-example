@@ -12,11 +12,11 @@ const isOwner = rule({ cache: "strict" })(({ userId }: Parent, _, { user }: Cont
 
 export const permissions = {
   Mutation: {
-    createMyTodo: isAuthenticated,
-    updateMyTodo: isAuthenticated,
-    deleteMyTodo: isAuthenticated,
-    completeMyTodo: isAuthenticated,
-    uncompleteMyTodo: isAuthenticated,
+    createTodo: isAuthenticated,
+    updateTodo: isAuthenticated,
+    deleteTodo: isAuthenticated,
+    completeTodo: isAuthenticated,
+    uncompleteTodo: isAuthenticated,
   },
   Todo: {
     title: isOwner,

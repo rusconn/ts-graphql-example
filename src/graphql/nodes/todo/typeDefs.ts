@@ -2,14 +2,14 @@ import { gql } from "graphql-tag";
 
 export const typeDefs = gql`
   type Mutation {
-    createMyTodo(input: CreateMyTodoInput!): Todo
+    createTodo(input: CreateTodoInput!): Todo
 
     "指定したフィールドのみ更新する"
-    updateMyTodo(id: ID!, input: UpdateMyTodoInput!): Todo
-    deleteMyTodo(id: ID!): ID
+    updateTodo(id: ID!, input: UpdateTodoInput!): Todo
+    deleteTodo(id: ID!): ID
 
-    completeMyTodo(id: ID!): Todo
-    uncompleteMyTodo(id: ID!): Todo
+    completeTodo(id: ID!): Todo
+    uncompleteTodo(id: ID!): Todo
   }
 
   type Todo implements Node {
@@ -27,14 +27,14 @@ export const typeDefs = gql`
     PENDING
   }
 
-  input CreateMyTodoInput {
+  input CreateTodoInput {
     "100文字まで"
     title: NonEmptyString!
     "5000文字まで"
     description: String!
   }
 
-  input UpdateMyTodoInput {
+  input UpdateTodoInput {
     "100文字まで、null は入力エラー"
     title: NonEmptyString
     "5000文字まで、null は入力エラー"

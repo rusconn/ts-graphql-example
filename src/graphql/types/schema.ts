@@ -23,7 +23,7 @@ export type Scalars = {
   NonEmptyString: NonEmptyString;
 };
 
-export type CreateMyTodoInput = {
+export type CreateTodoInput = {
   /** 5000文字まで */
   description: Scalars['String'];
   /** 100文字まで */
@@ -48,33 +48,33 @@ export type LoginInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  completeMyTodo?: Maybe<Todo>;
-  createMyTodo?: Maybe<Todo>;
+  completeTodo?: Maybe<Todo>;
+  createTodo?: Maybe<Todo>;
   /** 紐づくリソースは全て削除される */
   deleteMe?: Maybe<Scalars['ID']>;
-  deleteMyTodo?: Maybe<Scalars['ID']>;
+  deleteTodo?: Maybe<Scalars['ID']>;
   login?: Maybe<User>;
   logout?: Maybe<User>;
   signup?: Maybe<Scalars['ID']>;
-  uncompleteMyTodo?: Maybe<Todo>;
+  uncompleteTodo?: Maybe<Todo>;
   /** 指定したフィールドのみ更新する */
   updateMe?: Maybe<User>;
   /** 指定したフィールドのみ更新する */
-  updateMyTodo?: Maybe<Todo>;
+  updateTodo?: Maybe<Todo>;
 };
 
 
-export type MutationCompleteMyTodoArgs = {
+export type MutationCompleteTodoArgs = {
   id: Scalars['ID'];
 };
 
 
-export type MutationCreateMyTodoArgs = {
-  input: CreateMyTodoInput;
+export type MutationCreateTodoArgs = {
+  input: CreateTodoInput;
 };
 
 
-export type MutationDeleteMyTodoArgs = {
+export type MutationDeleteTodoArgs = {
   id: Scalars['ID'];
 };
 
@@ -89,7 +89,7 @@ export type MutationSignupArgs = {
 };
 
 
-export type MutationUncompleteMyTodoArgs = {
+export type MutationUncompleteTodoArgs = {
   id: Scalars['ID'];
 };
 
@@ -99,9 +99,9 @@ export type MutationUpdateMeArgs = {
 };
 
 
-export type MutationUpdateMyTodoArgs = {
+export type MutationUpdateTodoArgs = {
   id: Scalars['ID'];
-  input: UpdateMyTodoInput;
+  input: UpdateTodoInput;
 };
 
 export type Node = {
@@ -206,7 +206,7 @@ export type UpdateMeInput = {
   password?: InputMaybe<Scalars['NonEmptyString']>;
 };
 
-export type UpdateMyTodoInput = {
+export type UpdateTodoInput = {
   /** 5000文字まで、null は入力エラー */
   description?: InputMaybe<Scalars['String']>;
   /** null は入力エラー */
@@ -336,7 +336,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  CreateMyTodoInput: CreateMyTodoInput;
+  CreateTodoInput: CreateTodoInput;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']>;
   ErrorCode: ErrorCode;
@@ -358,7 +358,7 @@ export type ResolversTypes = ResolversObject<{
   TodoOrderField: TodoOrderField;
   TodoStatus: TodoStatus;
   UpdateMeInput: UpdateMeInput;
-  UpdateMyTodoInput: UpdateMyTodoInput;
+  UpdateTodoInput: UpdateTodoInput;
   User: ResolverTypeWrapper<UserMapped>;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['UserEdge']>, nodes: Array<ResolversTypes['User']> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: ResolversTypes['User'] }>;
@@ -369,7 +369,7 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
-  CreateMyTodoInput: CreateMyTodoInput;
+  CreateTodoInput: CreateTodoInput;
   DateTime: Scalars['DateTime'];
   EmailAddress: Scalars['EmailAddress'];
   ID: Scalars['ID'];
@@ -387,7 +387,7 @@ export type ResolversParentTypes = ResolversObject<{
   TodoEdge: Omit<TodoEdge, 'node'> & { node: ResolversParentTypes['Todo'] };
   TodoOrder: TodoOrder;
   UpdateMeInput: UpdateMeInput;
-  UpdateMyTodoInput: UpdateMyTodoInput;
+  UpdateTodoInput: UpdateTodoInput;
   User: UserMapped;
   UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['UserEdge']>, nodes: Array<ResolversParentTypes['User']> };
   UserEdge: Omit<UserEdge, 'node'> & { node: ResolversParentTypes['User'] };
@@ -403,16 +403,16 @@ export interface EmailAddressScalarConfig extends GraphQLScalarTypeConfig<Resolv
 }
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  completeMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteMyTodoArgs, 'id'>>;
-  createMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateMyTodoArgs, 'input'>>;
+  completeTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
+  createTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'input'>>;
   deleteMe?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  deleteMyTodo?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationDeleteMyTodoArgs, 'id'>>;
+  deleteTodo?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, 'id'>>;
   login?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
   logout?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   signup?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
-  uncompleteMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUncompleteMyTodoArgs, 'id'>>;
+  uncompleteTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUncompleteTodoArgs, 'id'>>;
   updateMe?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpdateMeArgs, 'input'>>;
-  updateMyTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUpdateMyTodoArgs, 'id' | 'input'>>;
+  updateTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUpdateTodoArgs, 'id' | 'input'>>;
 }>;
 
 export type NodeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = ResolversObject<{

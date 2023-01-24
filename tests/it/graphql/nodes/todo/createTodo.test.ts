@@ -1,6 +1,6 @@
 import { gql } from "graphql-tag";
 
-import type { CreateMyTodoMutation, CreateMyTodoMutationVariables } from "it/graphql/types";
+import type { CreateTodoMutation, CreateTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
 import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
@@ -15,8 +15,8 @@ const users = [DBData.admin, DBData.alice, DBData.bob];
 const seedUsers = () => prisma.user.createMany({ data: users });
 
 const query = gql`
-  mutation CreateMyTodo($input: CreateMyTodoInput!) {
-    createMyTodo(input: $input) {
+  mutation CreateTodo($input: CreateTodoInput!) {
+    createTodo(input: $input) {
       id
       title
       description
@@ -26,8 +26,8 @@ const query = gql`
 `;
 
 const executeMutation = executeSingleResultOperation(query)<
-  CreateMyTodoMutation,
-  CreateMyTodoMutationVariables
+  CreateTodoMutation,
+  CreateTodoMutationVariables
 >;
 
 beforeAll(async () => {
@@ -51,7 +51,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.createMyTodo).not.toBeFalsy();
+    expect(data?.createTodo).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
@@ -60,7 +60,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.createMyTodo).toBeFalsy();
+    expect(data?.createTodo).toBeFalsy();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -97,7 +97,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.createMyTodo).not.toBeFalsy();
+      expect(data?.createTodo).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -106,7 +106,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.createMyTodo).toBeFalsy();
+      expect(data?.createTodo).toBeFalsy();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -123,11 +123,11 @@ describe("logic", () => {
   it("should create todo using input", async () => {
     const { data } = await executeMutation({ variables: { input } });
 
-    if (!data || !data.createMyTodo) {
+    if (!data || !data.createTodo) {
       throw new Error("operation failed");
     }
 
-    const { id } = splitTodoNodeId(data.createMyTodo.id);
+    const { id } = splitTodoNodeId(data.createTodo.id);
 
     const todo = await prisma.todo.findUniqueOrThrow({ where: { id } });
 
@@ -138,11 +138,11 @@ describe("logic", () => {
   test("status should be PENDING by default", async () => {
     const { data } = await executeMutation({ variables: { input } });
 
-    if (!data || !data.createMyTodo) {
+    if (!data || !data.createTodo) {
       throw new Error("operation failed");
     }
 
-    const { id } = splitTodoNodeId(data.createMyTodo.id);
+    const { id } = splitTodoNodeId(data.createTodo.id);
 
     const todo = await prisma.todo.findUniqueOrThrow({ where: { id } });
 

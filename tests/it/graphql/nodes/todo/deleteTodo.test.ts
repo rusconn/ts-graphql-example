@@ -1,6 +1,6 @@
 import { gql } from "graphql-tag";
 
-import type { DeleteMyTodoMutation, DeleteMyTodoMutationVariables } from "it/graphql/types";
+import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
@@ -21,14 +21,14 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const seedTodos = () => prisma.todo.createMany({ data: todos });
 
 const query = gql`
-  mutation DeleteMyTodo($id: ID!) {
-    deleteMyTodo(id: $id)
+  mutation DeleteTodo($id: ID!) {
+    deleteTodo(id: $id)
   }
 `;
 
 const executeMutation = executeSingleResultOperation(query)<
-  DeleteMyTodoMutation,
-  DeleteMyTodoMutationVariables
+  DeleteTodoMutation,
+  DeleteTodoMutationVariables
 >;
 
 describe("authorization", () => {
@@ -75,7 +75,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.deleteMyTodo).toBeNull();
+    expect(data?.deleteTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -130,7 +130,7 @@ describe("logic", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.deleteMyTodo).toBeNull();
+    expect(data?.deleteTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 
@@ -141,14 +141,14 @@ describe("logic", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.deleteMyTodo).toBeNull();
+    expect(data?.deleteTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 
   it("should delete todo", async () => {
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.deleteMyTodo) {
+    if (!data || !data.deleteTodo) {
       throw new Error("operation failed");
     }
 
@@ -162,7 +162,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.deleteMyTodo) {
+    if (!data || !data.deleteTodo) {
       throw new Error("operation failed");
     }
 
