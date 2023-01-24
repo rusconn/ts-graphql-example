@@ -10,6 +10,10 @@ export const parsers = {
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 
+      if (first == null && last == null) {
+        throw new ParseError("`first` or `last` value required");
+      }
+
       if (first && first > 50) {
         throw new ParseError("`first` must be up to 50");
       }
@@ -17,8 +21,6 @@ export const parsers = {
       if (last && last > 50) {
         throw new ParseError("`last` must be up to 50");
       }
-
-      const firstToUse = first == null && last == null ? 20 : first;
 
       const beforeToUse = before ? parseTodoNodeId(before) : before;
       const afterToUse = after ? parseTodoNodeId(after) : after;
@@ -34,7 +36,7 @@ export const parsers = {
           : [{ updatedAt: directionToUse }, { id: directionToUse }];
 
       return {
-        first: firstToUse,
+        first,
         last,
         before: beforeToUse,
         after: afterToUse,

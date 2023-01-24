@@ -1,6 +1,4 @@
 import { gql } from "graphql-tag";
-import range from "lodash/range";
-import { nanoid } from "nanoid";
 
 import {
   OrderDirection,
@@ -56,7 +54,7 @@ describe("authorization", () => {
   const notAlloweds = [ContextData.guest] as const;
 
   test.each(alloweds)("allowed %s", async user => {
-    const { data, errors } = await executeQuery({ user });
+    const { data, errors } = await executeQuery({ user, variables: { first: 1 } });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.myTodos).not.toBeFalsy();
@@ -64,7 +62,7 @@ describe("authorization", () => {
   });
 
   test.each(notAlloweds)("not allowed %s", async user => {
-    const { data, errors } = await executeQuery({ user });
+    const { data, errors } = await executeQuery({ user, variables: { first: 1 } });
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.myTodos).toBeFalsy();
@@ -76,8 +74,8 @@ describe("validation", () => {
   const firstMax = 50;
   const lastMax = 50;
 
-  const valids = [{}, { first: firstMax }, { last: lastMax }];
-  const invalids = [{ first: firstMax + 1 }, { last: lastMax + 1 }];
+  const valids = [{ first: firstMax }, { last: lastMax }];
+  const invalids = [{}, { first: firstMax + 1 }, { last: lastMax + 1 }];
 
   test.each(valids)("valid %o", async variables => {
     const { data, errors } = await executeQuery({ variables });
@@ -103,28 +101,6 @@ describe("number of items", () => {
     await clearTables();
     await seedUsers();
     await seedAdminTodos();
-  });
-
-  it("should be 20 by default", async () => {
-    const numDefault = 20;
-    const numAdditionals = numDefault - numSeedTodos + 1;
-
-    const additionals = range(numAdditionals).map(x => ({
-      id: nanoid(),
-      title: `${x}`,
-      description: "",
-      userId: DBData.admin.id,
-    }));
-
-    const creates = additionals.map(additional => prisma.todo.create({ data: additional }));
-
-    await Promise.all(creates);
-
-    const numTodos = await prisma.todo.count();
-    const { data } = await executeQuery({});
-
-    expect(numTodos).toBe(numDefault + 1);
-    expect(data?.myTodos?.edges).toHaveLength(numDefault);
   });
 
   it("should affected by first option", async () => {
@@ -164,7 +140,7 @@ describe("order of items", () => {
   ] as const;
 
   test.each(patterns)("%o, %o", async (variables, expectedTodos) => {
-    const { data } = await executeQuery({ variables });
+    const { data } = await executeQuery({ variables: { ...variables, first: 10 } });
 
     const ids = data?.myTodos?.edges.map(({ node }) => node.id);
     const expectedIds = expectedTodos.map(({ id }) => id);

@@ -11,6 +11,10 @@ export const parsers = {
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 
+      if (first == null && last == null) {
+        throw new ParseError("`first` or `last` value required");
+      }
+
       if (first && first > 30) {
         throw new ParseError("`first` must be up to 30");
       }
@@ -128,6 +132,10 @@ export const parsers = {
       const { id: userId } = splitUserNodeId(id);
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
+
+      if (first == null && last == null) {
+        throw new ParseError("`first` or `last` value required");
+      }
 
       if (first && first > 50) {
         throw new ParseError("`first` must be up to 50");

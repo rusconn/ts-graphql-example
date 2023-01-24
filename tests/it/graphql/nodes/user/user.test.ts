@@ -1,6 +1,4 @@
 import { gql } from "graphql-tag";
-import range from "lodash/range";
-import { nanoid } from "nanoid";
 
 import type { UserQuery, UserQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
@@ -178,8 +176,8 @@ describe("validation", () => {
     const firstMax = 50;
     const lastMax = 50;
 
-    const valids = [{}, { first: firstMax }, { last: lastMax }];
-    const invalids = [{ first: firstMax + 1 }, { last: lastMax + 1 }];
+    const valids = [{ first: firstMax }, { last: lastMax }];
+    const invalids = [{}, { first: firstMax + 1 }, { last: lastMax + 1 }];
 
     test.each(valids)("valid %o", async variables => {
       const { data, errors } = await executeQuery({
@@ -235,31 +233,6 @@ describe("query other nodes: todos", () => {
       await seedAdminTodos();
     });
 
-    it("should be 20 by default", async () => {
-      const numDefault = 20;
-      const numAdditionals = numDefault - numSeedTodos + 1;
-
-      const additionals = range(numAdditionals).map(x => ({
-        id: nanoid(),
-        title: `${x}`,
-        description: "",
-        userId: DBData.admin.id,
-      }));
-
-      const creates = additionals.map(additional => prisma.todo.create({ data: additional }));
-
-      await Promise.all(creates);
-
-      const { data } = await executeQuery({
-        variables: { id: GraphData.admin.id, includeTodos: true },
-      });
-
-      const numTodos = await prisma.todo.count();
-
-      expect(numTodos).toBe(numDefault + 1);
-      expect(data?.user?.todos?.edges).toHaveLength(numDefault);
-    });
-
     it("should affected by first option", async () => {
       const first = numSeedTodos - 1;
 
@@ -268,6 +241,16 @@ describe("query other nodes: todos", () => {
       });
 
       expect(data?.user?.todos?.edges).toHaveLength(first);
+    });
+
+    it("should affected by last option", async () => {
+      const last = numSeedTodos - 1;
+
+      const { data } = await executeQuery({
+        variables: { id: GraphData.admin.id, includeTodos: true, last },
+      });
+
+      expect(data?.user?.todos?.edges).toHaveLength(last);
     });
   });
 
@@ -298,7 +281,7 @@ describe("query other nodes: todos", () => {
 
     test.each(patterns)("%o %o", async (variables, expectedTodos) => {
       const { data } = await executeQuery({
-        variables: { ...variables, id: GraphData.admin.id, includeTodos: true },
+        variables: { ...variables, id: GraphData.admin.id, includeTodos: true, first: 10 },
       });
 
       const ids = data?.user?.todos?.edges.map(({ node }) => node.id);

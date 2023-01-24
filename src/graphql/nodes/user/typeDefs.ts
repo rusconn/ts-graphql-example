@@ -10,7 +10,7 @@ export const typeDefs = gql`
     me: User
 
     users(
-      "default: 10, max: 30"
+      "max: 30"
       first: Int
       after: String
       "max: 30"
@@ -44,7 +44,7 @@ export const typeDefs = gql`
     email: EmailAddress
     token: NonEmptyString
     todos(
-      "default: 20, max: 50"
+      "max: 50"
       first: Int
       after: String
       "max: 50"

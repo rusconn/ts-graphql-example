@@ -8,7 +8,7 @@ export const typeDefs = gql`
 
   type Query {
     myTodos(
-      "default: 20, max: 50"
+      "max: 50"
       first: Int
       after: String
       "max: 50"
