@@ -2,6 +2,7 @@
 node_modules
 tsconfig.tsbuildinfo
 .env
+dist
 
 # additional ignores
 src/graphql/types/schema.ts

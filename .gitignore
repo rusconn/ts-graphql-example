@@ -5,3 +5,4 @@ tsconfig.tsbuildinfo
 .devcontainer
 yarn-debug.log*
 yarn-error.log*
+dist
