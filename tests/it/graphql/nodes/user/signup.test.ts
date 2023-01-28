@@ -16,7 +16,9 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 
 const query = gql`
   mutation Signup($input: SignupInput!) {
-    signup(input: $input)
+    signup(input: $input) {
+      id
+    }
   }
 `;
 
@@ -52,7 +54,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.signup).not.toBeFalsy();
+    expect(data?.signup?.id).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
@@ -61,7 +63,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.signup).toBeFalsy();
+    expect(data?.signup?.id).toBeFalsy();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -115,7 +117,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.signup).not.toBeFalsy();
+      expect(data?.signup?.id).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -171,11 +173,11 @@ describe("logic", () => {
       variables: { input: { name, email, password } },
     });
 
-    if (!data || !data.signup) {
+    if (!data || !data.signup || !data.signup.id) {
       throw new Error("operation failed");
     }
 
-    const { id } = splitUserNodeId(data.signup);
+    const { id } = splitUserNodeId(data.signup.id);
 
     const user = await prisma.user.findUniqueOrThrow({ where: { id } });
 
@@ -193,11 +195,11 @@ describe("logic", () => {
       variables: { input: { name, email, password } },
     });
 
-    if (!data || !data.signup) {
+    if (!data || !data.signup || !data.signup.id) {
       throw new Error("operation failed");
     }
 
-    const { id } = splitUserNodeId(data.signup);
+    const { id } = splitUserNodeId(data.signup.id);
 
     const user = await prisma.user.findUniqueOrThrow({ where: { id } });
 

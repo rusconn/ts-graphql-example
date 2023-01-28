@@ -25,7 +25,7 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    signup(input: SignupInput!): ID
+    signup(input: SignupInput!): SignupPayload
 
     login(input: LoginInput!): User
 
@@ -80,5 +80,9 @@ export const typeDefs = gql`
     email: EmailAddress!
     "8文字以上、50文字まで"
     password: NonEmptyString!
+  }
+
+  type SignupPayload {
+    id: ID
   }
 `;

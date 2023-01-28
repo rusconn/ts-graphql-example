@@ -55,7 +55,7 @@ export type Mutation = {
   deleteTodo?: Maybe<Scalars['ID']>;
   login?: Maybe<User>;
   logout?: Maybe<User>;
-  signup?: Maybe<Scalars['ID']>;
+  signup?: Maybe<SignupPayload>;
   uncompleteTodo?: Maybe<Todo>;
   /** 指定したフィールドのみ更新する */
   updateMe?: Maybe<User>;
@@ -155,6 +155,11 @@ export type SignupInput = {
   name: Scalars['NonEmptyString'];
   /** 8文字以上、50文字まで */
   password: Scalars['NonEmptyString'];
+};
+
+export type SignupPayload = {
+  __typename?: 'SignupPayload';
+  id?: Maybe<Scalars['ID']>;
 };
 
 export type Todo = Node & {
@@ -350,6 +355,7 @@ export type ResolversTypes = ResolversObject<{
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<{}>;
   SignupInput: SignupInput;
+  SignupPayload: ResolverTypeWrapper<SignupPayload>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Todo: ResolverTypeWrapper<TodoMapped>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['TodoEdge']>, nodes: Array<ResolversTypes['Todo']> }>;
@@ -381,6 +387,7 @@ export type ResolversParentTypes = ResolversObject<{
   PageInfo: PageInfo;
   Query: {};
   SignupInput: SignupInput;
+  SignupPayload: SignupPayload;
   String: Scalars['String'];
   Todo: TodoMapped;
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['TodoEdge']>, nodes: Array<ResolversParentTypes['Todo']> };
@@ -409,7 +416,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteTodo?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, 'id'>>;
   login?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
   logout?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
-  signup?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
+  signup?: Resolver<Maybe<ResolversTypes['SignupPayload']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
   uncompleteTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUncompleteTodoArgs, 'id'>>;
   updateMe?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpdateMeArgs, 'input'>>;
   updateTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUpdateTodoArgs, 'id' | 'input'>>;
@@ -437,6 +444,11 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
   users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'orderBy'>>;
+}>;
+
+export type SignupPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupPayload'] = ResolversParentTypes['SignupPayload']> = ResolversObject<{
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type TodoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Todo'] = ResolversParentTypes['Todo']> = ResolversObject<{
@@ -498,6 +510,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   NonEmptyString?: GraphQLScalarType;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  SignupPayload?: SignupPayloadResolvers<ContextType>;
   Todo?: TodoResolvers<ContextType>;
   TodoConnection?: TodoConnectionResolvers<ContextType>;
   TodoEdge?: TodoEdgeResolvers<ContextType>;
