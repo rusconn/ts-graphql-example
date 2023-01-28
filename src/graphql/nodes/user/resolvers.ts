@@ -105,7 +105,9 @@ export const resolvers: Graph.Resolvers = {
         where: { id: user.id },
       });
 
-      return toUserNodeId(user.id);
+      return {
+        id: toUserNodeId(user.id),
+      };
     },
   },
   User: {

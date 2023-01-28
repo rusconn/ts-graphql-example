@@ -16,7 +16,9 @@ const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
 
 const query = gql`
   mutation DeleteMe {
-    deleteMe
+    deleteMe {
+      id
+    }
   }
 `;
 
@@ -44,7 +46,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.deleteMe).not.toBeFalsy();
+    expect(data?.deleteMe).not.toBeNull();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
@@ -53,7 +55,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.deleteMe).toBeFalsy();
+    expect(data?.deleteMe).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -72,11 +74,13 @@ describe("logic", () => {
   it("should delete user", async () => {
     const { data } = await executeMutation({});
 
-    if (!data || !data.deleteMe) {
+    if (!data || !data.deleteMe || !data.deleteMe.id) {
       throw new Error("operation failed");
     }
 
-    const user = await prisma.user.findUnique({ where: { id: splitUserNodeId(data.deleteMe).id } });
+    const user = await prisma.user.findUnique({
+      where: { id: splitUserNodeId(data.deleteMe.id).id },
+    });
 
     expect(user).toBeNull();
   });
@@ -86,11 +90,13 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.deleteMe) {
+    if (!data || !data.deleteMe || !data.deleteMe.id) {
       throw new Error("operation failed");
     }
 
-    const user = await prisma.user.findUnique({ where: { id: splitUserNodeId(data.deleteMe).id } });
+    const user = await prisma.user.findUnique({
+      where: { id: splitUserNodeId(data.deleteMe.id).id },
+    });
 
     const after = await prisma.user.count();
 
@@ -105,7 +111,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.deleteMe) {
+    if (!data || !data.deleteMe || !data.deleteMe.id) {
       throw new Error("operation failed");
     }
 

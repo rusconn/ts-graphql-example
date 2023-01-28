@@ -35,7 +35,7 @@ export const typeDefs = gql`
     updateMe(input: UpdateMeInput!): UpdateMePayload
 
     "紐づくリソースは全て削除される"
-    deleteMe: ID
+    deleteMe: DeleteMePayload
   }
 
   type User implements Node {
@@ -96,5 +96,9 @@ export const typeDefs = gql`
 
   type UpdateMePayload {
     user: User
+  }
+
+  type DeleteMePayload {
+    id: ID
   }
 `;
