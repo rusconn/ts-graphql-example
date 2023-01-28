@@ -66,6 +66,13 @@ export const typeDefs = gql`
     password: NonEmptyString!
   }
 
+  input LoginInput {
+    "100文字まで"
+    email: EmailAddress!
+    "8文字以上、50文字まで"
+    password: NonEmptyString!
+  }
+
   input UpdateMeInput {
     "100文字まで、null は入力エラー"
     name: NonEmptyString
@@ -84,9 +91,7 @@ export const typeDefs = gql`
 
   union SignupPayload = SignupSucceeded | SignupFailed
 
-  type LoginPayload {
-    user: User
-  }
+  union LoginPayload = LoginSucceeded | LoginFailed
 
   type LogoutPayload {
     user: User
@@ -104,13 +109,27 @@ export const typeDefs = gql`
     id: ID!
   }
 
+  type LoginSucceeded {
+    user: User!
+  }
+
   type SignupFailed {
     errors: [SignupError!]!
   }
 
+  type LoginFailed {
+    errors: [LoginError!]!
+  }
+
   union SignupError = EmailAlreadyTakenError
 
+  union LoginError = UserNotFoundError
+
   type EmailAlreadyTakenError implements Error {
+    message: String!
+  }
+
+  type UserNotFoundError implements Error {
     message: String!
   }
 `;

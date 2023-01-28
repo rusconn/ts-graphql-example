@@ -76,27 +76,46 @@ export const resolvers: Graph.Resolvers = {
         throw e;
       }
     },
-    login: async (_, args, { dataSources: { prisma } }) => {
-      const { email, password } = parsers.Mutation.login(args);
+    login: async (_, args, { dataSources: { prisma }, logger }) => {
+      const data = parsers.Mutation.login(args);
 
-      const refreshedUser = await prisma.$transaction(async tx => {
-        const user = await tx.user.findUniqueOrThrow({
-          where: { email },
+      try {
+        const refreshedUser = await prisma.$transaction(async tx => {
+          const user = await tx.user.findUniqueOrThrow({
+            where: { email: data.email },
+          });
+
+          if (!bcrypt.compareSync(data.password, user.password)) {
+            throw new DataSource.NotFoundError();
+          }
+
+          return tx.user.update({
+            where: { email: data.email },
+            data: { token: nanoid() },
+          });
         });
 
-        if (!bcrypt.compareSync(password, user.password)) {
-          throw new DataSource.NotFoundError();
+        return {
+          __typename: "LoginSucceeded",
+          user: toUserNode(refreshedUser),
+        };
+      } catch (e) {
+        if (e instanceof DataSource.NotFoundError) {
+          logger.error(e, "error info");
+
+          return {
+            __typename: "LoginFailed",
+            errors: [
+              {
+                __typename: "UserNotFoundError",
+                message: "user not found",
+              },
+            ],
+          };
         }
 
-        return tx.user.update({
-          where: { email },
-          data: { token: nanoid() },
-        });
-      });
-
-      return {
-        user: toUserNode(refreshedUser),
-      };
+        throw e;
+      }
     },
     logout: async (_, __, { dataSources: { prisma }, user: contextUser }) => {
       const user = await prisma.user.update({

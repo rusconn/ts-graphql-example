@@ -68,6 +68,13 @@ export enum ErrorCode {
   NotFound = 'NOT_FOUND'
 }
 
+export type LoginError = UserNotFoundError;
+
+export type LoginFailed = {
+  __typename?: 'LoginFailed';
+  errors: Array<LoginError>;
+};
+
 export type LoginInput = {
   /** 100文字まで */
   email: Scalars['EmailAddress'];
@@ -75,9 +82,11 @@ export type LoginInput = {
   password: Scalars['NonEmptyString'];
 };
 
-export type LoginPayload = {
-  __typename?: 'LoginPayload';
-  user?: Maybe<User>;
+export type LoginPayload = LoginFailed | LoginSucceeded;
+
+export type LoginSucceeded = {
+  __typename?: 'LoginSucceeded';
+  user: User;
 };
 
 export type LogoutPayload = {
@@ -323,6 +332,11 @@ export type UserEdge = {
   node: User;
 };
 
+export type UserNotFoundError = Error & {
+  __typename?: 'UserNotFoundError';
+  message: Scalars['String'];
+};
+
 export type UserOrder = {
   direction: OrderDirection;
   field: UserOrderField;
@@ -412,12 +426,15 @@ export type ResolversTypes = ResolversObject<{
   DeleteTodoPayload: ResolverTypeWrapper<DeleteTodoPayload>;
   EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']>;
   EmailAlreadyTakenError: ResolverTypeWrapper<EmailAlreadyTakenError>;
-  Error: ResolversTypes['EmailAlreadyTakenError'];
+  Error: ResolversTypes['EmailAlreadyTakenError'] | ResolversTypes['UserNotFoundError'];
   ErrorCode: ErrorCode;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  LoginError: ResolversTypes['UserNotFoundError'];
+  LoginFailed: ResolverTypeWrapper<Omit<LoginFailed, 'errors'> & { errors: Array<ResolversTypes['LoginError']> }>;
   LoginInput: LoginInput;
-  LoginPayload: ResolverTypeWrapper<Omit<LoginPayload, 'user'> & { user: Maybe<ResolversTypes['User']> }>;
+  LoginPayload: ResolversTypes['LoginFailed'] | ResolversTypes['LoginSucceeded'];
+  LoginSucceeded: ResolverTypeWrapper<Omit<LoginSucceeded, 'user'> & { user: ResolversTypes['User'] }>;
   LogoutPayload: ResolverTypeWrapper<Omit<LogoutPayload, 'user'> & { user: Maybe<ResolversTypes['User']> }>;
   Mutation: ResolverTypeWrapper<{}>;
   Node: ResolversTypes['Todo'] | ResolversTypes['User'];
@@ -445,6 +462,7 @@ export type ResolversTypes = ResolversObject<{
   User: ResolverTypeWrapper<UserMapped>;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['UserEdge']>, nodes: Array<ResolversTypes['User']> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: ResolversTypes['User'] }>;
+  UserNotFoundError: ResolverTypeWrapper<UserNotFoundError>;
   UserOrder: UserOrder;
   UserOrderField: UserOrderField;
 }>;
@@ -460,11 +478,14 @@ export type ResolversParentTypes = ResolversObject<{
   DeleteTodoPayload: DeleteTodoPayload;
   EmailAddress: Scalars['EmailAddress'];
   EmailAlreadyTakenError: EmailAlreadyTakenError;
-  Error: ResolversParentTypes['EmailAlreadyTakenError'];
+  Error: ResolversParentTypes['EmailAlreadyTakenError'] | ResolversParentTypes['UserNotFoundError'];
   ID: Scalars['ID'];
   Int: Scalars['Int'];
+  LoginError: ResolversParentTypes['UserNotFoundError'];
+  LoginFailed: Omit<LoginFailed, 'errors'> & { errors: Array<ResolversParentTypes['LoginError']> };
   LoginInput: LoginInput;
-  LoginPayload: Omit<LoginPayload, 'user'> & { user: Maybe<ResolversParentTypes['User']> };
+  LoginPayload: ResolversParentTypes['LoginFailed'] | ResolversParentTypes['LoginSucceeded'];
+  LoginSucceeded: Omit<LoginSucceeded, 'user'> & { user: ResolversParentTypes['User'] };
   LogoutPayload: Omit<LogoutPayload, 'user'> & { user: Maybe<ResolversParentTypes['User']> };
   Mutation: {};
   Node: ResolversParentTypes['Todo'] | ResolversParentTypes['User'];
@@ -489,6 +510,7 @@ export type ResolversParentTypes = ResolversObject<{
   User: UserMapped;
   UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['UserEdge']>, nodes: Array<ResolversParentTypes['User']> };
   UserEdge: Omit<UserEdge, 'node'> & { node: ResolversParentTypes['User'] };
+  UserNotFoundError: UserNotFoundError;
   UserOrder: UserOrder;
 }>;
 
@@ -526,12 +548,25 @@ export type EmailAlreadyTakenErrorResolvers<ContextType = Context, ParentType ex
 }>;
 
 export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'UserNotFoundError', ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
+export type LoginErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginError'] = ResolversParentTypes['LoginError']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'UserNotFoundError', ParentType, ContextType>;
+}>;
+
+export type LoginFailedResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginFailed'] = ResolversParentTypes['LoginFailed']> = ResolversObject<{
+  errors?: Resolver<Array<ResolversTypes['LoginError']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type LoginPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginPayload'] = ResolversParentTypes['LoginPayload']> = ResolversObject<{
-  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'LoginFailed' | 'LoginSucceeded', ParentType, ContextType>;
+}>;
+
+export type LoginSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginSucceeded'] = ResolversParentTypes['LoginSucceeded']> = ResolversObject<{
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -661,6 +696,11 @@ export type UserEdgeResolvers<ContextType = Context, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type UserNotFoundErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserNotFoundError'] = ResolversParentTypes['UserNotFoundError']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = Context> = ResolversObject<{
   CompleteTodoPayload?: CompleteTodoPayloadResolvers<ContextType>;
   CreateTodoPayload?: CreateTodoPayloadResolvers<ContextType>;
@@ -670,7 +710,10 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   EmailAddress?: GraphQLScalarType;
   EmailAlreadyTakenError?: EmailAlreadyTakenErrorResolvers<ContextType>;
   Error?: ErrorResolvers<ContextType>;
+  LoginError?: LoginErrorResolvers<ContextType>;
+  LoginFailed?: LoginFailedResolvers<ContextType>;
   LoginPayload?: LoginPayloadResolvers<ContextType>;
+  LoginSucceeded?: LoginSucceededResolvers<ContextType>;
   LogoutPayload?: LogoutPayloadResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
@@ -690,5 +733,6 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   User?: UserResolvers<ContextType>;
   UserConnection?: UserConnectionResolvers<ContextType>;
   UserEdge?: UserEdgeResolvers<ContextType>;
+  UserNotFoundError?: UserNotFoundErrorResolvers<ContextType>;
 }>;
 

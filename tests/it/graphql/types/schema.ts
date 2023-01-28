@@ -151,7 +151,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { login?: { user?: { id: string, name?: NonEmptyString | null, email?: EmailAddress | null, token?: NonEmptyString | null } | null } | null };
+export type LoginMutation = { login?: { __typename: 'LoginFailed', errors: Array<{ __typename: 'UserNotFoundError', message: string }> } | { __typename: 'LoginSucceeded', user: { id: string, name?: NonEmptyString | null, email?: EmailAddress | null, token?: NonEmptyString | null } } | null };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 

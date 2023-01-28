@@ -15,11 +15,23 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation Login($input: LoginInput!) {
     login(input: $input) {
-      user {
-        id
-        name
-        email
-        token
+      ... on LoginSucceeded {
+        __typename
+        user {
+          id
+          name
+          email
+          token
+        }
+      }
+      ... on LoginFailed {
+        __typename
+        errors {
+          ... on UserNotFoundError {
+            __typename
+            message
+          }
+        }
       }
     }
   }
@@ -99,7 +111,7 @@ describe("validation", () => {
     });
 
     test.each(invalids)("invalid %s", async ({ email, password }) => {
-      const { data, errors } = await executeMutation({
+      const { errors } = await executeMutation({
         user: ContextData.guest,
         variables: {
           input: {
@@ -111,7 +123,6 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.login).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -127,46 +138,45 @@ describe("logic", () => {
     const wrongEmail = emailAddress(DBData.admin.email.slice(1));
     const password = nonEmptyString("adminadmin");
 
-    const { data, errors } = await executeMutation({
+    const { data } = await executeMutation({
       variables: { input: { email: wrongEmail, password } },
     });
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    if (!data || !data.login || data.login.__typename === "LoginSucceeded") {
+      fail();
+    }
 
-    expect(data?.login).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+    expect(data.login.errors.find(x => x.__typename === "UserNotFoundError")).toBeTruthy();
   });
 
   test("wrong password", async () => {
     const email = emailAddress(DBData.admin.email);
     const wrongPassword = nonEmptyString("dminadmin");
 
-    const { data, errors } = await executeMutation({
+    const { data } = await executeMutation({
       variables: { input: { email, password: wrongPassword } },
     });
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    if (!data || !data.login || data.login.__typename === "LoginSucceeded") {
+      fail();
+    }
 
-    expect(data?.login).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+    expect(data.login.errors.find(x => x.__typename === "UserNotFoundError")).toBeTruthy();
   });
 
   test("correct input", async () => {
     const email = emailAddress(DBData.admin.email);
     const password = nonEmptyString("adminadmin");
 
-    const { data, errors } = await executeMutation({
+    const { data } = await executeMutation({
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || !data.login.user) {
-      throw new Error("operation failed");
+    if (!data || !data.login || data.login.__typename === "LoginFailed") {
+      fail();
     }
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
     expect(data.login.user).not.toBeNull();
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 
   test("login changes token", async () => {
@@ -179,8 +189,8 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || !data.login.user) {
-      throw new Error("operation failed");
+    if (!data || !data.login || data.login.__typename === "LoginFailed") {
+      fail();
     }
 
     const after = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });
@@ -201,8 +211,8 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || !data.login.user) {
-      throw new Error("operation failed");
+    if (!data || !data.login || data.login.__typename === "LoginFailed") {
+      fail();
     }
 
     const after = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });
