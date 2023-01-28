@@ -48,7 +48,9 @@ export const resolvers: Graph.Resolvers = {
         data,
       });
 
-      return toTodoNode(todo);
+      return {
+        todo: toTodoNode(todo),
+      };
     },
     uncompleteTodo: async (_, args, { dataSources: { prisma }, user }) => {
       const { id, ...data } = parsers.Mutation.uncompleteTodo(args);

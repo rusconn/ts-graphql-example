@@ -8,7 +8,7 @@ export const typeDefs = gql`
     updateTodo(id: ID!, input: UpdateTodoInput!): UpdateTodoPayload
     deleteTodo(id: ID!): DeleteTodoPayload
 
-    completeTodo(id: ID!): Todo
+    completeTodo(id: ID!): CompleteTodoPayload
     uncompleteTodo(id: ID!): Todo
   }
 
@@ -53,5 +53,9 @@ export const typeDefs = gql`
 
   type DeleteTodoPayload {
     id: ID
+  }
+
+  type CompleteTodoPayload {
+    todo: Todo
   }
 `;

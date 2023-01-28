@@ -23,6 +23,11 @@ export type Scalars = {
   NonEmptyString: NonEmptyString;
 };
 
+export type CompleteTodoPayload = {
+  __typename?: 'CompleteTodoPayload';
+  todo?: Maybe<Todo>;
+};
+
 export type CreateTodoInput = {
   /** 5000文字まで */
   description: Scalars['String'];
@@ -73,7 +78,7 @@ export type LogoutPayload = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  completeTodo?: Maybe<Todo>;
+  completeTodo?: Maybe<CompleteTodoPayload>;
   createTodo?: Maybe<CreateTodoPayload>;
   /** 紐づくリソースは全て削除される */
   deleteMe?: Maybe<DeleteMePayload>;
@@ -376,6 +381,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  CompleteTodoPayload: ResolverTypeWrapper<Omit<CompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversTypes['Todo']> }>;
   CreateTodoInput: CreateTodoInput;
   CreateTodoPayload: ResolverTypeWrapper<Omit<CreateTodoPayload, 'todo'> & { todo: Maybe<ResolversTypes['Todo']> }>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
@@ -417,6 +423,7 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
+  CompleteTodoPayload: Omit<CompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversParentTypes['Todo']> };
   CreateTodoInput: CreateTodoInput;
   CreateTodoPayload: Omit<CreateTodoPayload, 'todo'> & { todo: Maybe<ResolversParentTypes['Todo']> };
   DateTime: Scalars['DateTime'];
@@ -448,6 +455,11 @@ export type ResolversParentTypes = ResolversObject<{
   UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['UserEdge']>, nodes: Array<ResolversParentTypes['User']> };
   UserEdge: Omit<UserEdge, 'node'> & { node: ResolversParentTypes['User'] };
   UserOrder: UserOrder;
+}>;
+
+export type CompleteTodoPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoPayload'] = ResolversParentTypes['CompleteTodoPayload']> = ResolversObject<{
+  todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type CreateTodoPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTodoPayload'] = ResolversParentTypes['CreateTodoPayload']> = ResolversObject<{
@@ -484,7 +496,7 @@ export type LogoutPayloadResolvers<ContextType = Context, ParentType extends Res
 }>;
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  completeTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
+  completeTodo?: Resolver<Maybe<ResolversTypes['CompleteTodoPayload']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
   createTodo?: Resolver<Maybe<ResolversTypes['CreateTodoPayload']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'input'>>;
   deleteMe?: Resolver<Maybe<ResolversTypes['DeleteMePayload']>, ParentType, ContextType>;
   deleteTodo?: Resolver<Maybe<ResolversTypes['DeleteTodoPayload']>, ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, 'id'>>;
@@ -587,6 +599,7 @@ export type UserEdgeResolvers<ContextType = Context, ParentType extends Resolver
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
+  CompleteTodoPayload?: CompleteTodoPayloadResolvers<ContextType>;
   CreateTodoPayload?: CreateTodoPayloadResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   DeleteMePayload?: DeleteMePayloadResolvers<ContextType>;

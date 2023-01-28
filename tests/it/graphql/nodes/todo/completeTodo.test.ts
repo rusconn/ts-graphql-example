@@ -31,11 +31,13 @@ const resetAdminTodoValue = () =>
 const query = gql`
   mutation CompleteTodo($id: ID!) {
     completeTodo(id: $id) {
-      id
-      updatedAt
-      title
-      description
-      status
+      todo {
+        id
+        updatedAt
+        title
+        description
+        status
+      }
     }
   }
 `;
@@ -106,7 +108,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.completeTodo).not.toBeFalsy();
+      expect(data?.completeTodo).not.toBeNull();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -114,7 +116,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.completeTodo).toBeFalsy();
+      expect(data?.completeTodo).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -156,7 +158,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo) {
+    if (!data || !data.completeTodo || !data.completeTodo.todo) {
       throw new Error("operation failed");
     }
 
@@ -171,7 +173,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo) {
+    if (!data || !data.completeTodo || !data.completeTodo) {
       throw new Error("operation failed");
     }
 
@@ -188,7 +190,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo) {
+    if (!data || !data.completeTodo || !data.completeTodo) {
       throw new Error("operation failed");
     }
 
