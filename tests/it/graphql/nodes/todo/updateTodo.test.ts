@@ -25,11 +25,13 @@ const seedTodos = () => prisma.todo.createMany({ data: todos });
 const query = gql`
   mutation UpdateTodo($id: ID!, $input: UpdateTodoInput!) {
     updateTodo(id: $id, input: $input) {
-      id
-      updatedAt
-      title
-      description
-      status
+      todo {
+        id
+        updatedAt
+        title
+        description
+        status
+      }
     }
   }
 `;
@@ -104,7 +106,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).not.toBeFalsy();
+      expect(data?.updateTodo).not.toBeNull();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -112,7 +114,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id, input } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).toBeFalsy();
+      expect(data?.updateTodo).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -159,7 +161,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).not.toBeFalsy();
+      expect(data?.updateTodo).not.toBeNull();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -170,7 +172,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).toBeFalsy();
+      expect(data?.updateTodo).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -191,7 +193,7 @@ describe("validation", () => {
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-        expect(data?.updateTodo).not.toBeFalsy();
+        expect(data?.updateTodo).not.toBeNull();
         expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
       }
     );
@@ -205,7 +207,7 @@ describe("validation", () => {
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-        expect(data?.updateTodo).toBeFalsy();
+        expect(data?.updateTodo).toBeNull();
         expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
       }
     );
@@ -252,7 +254,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo) {
+    if (!data || !data.updateTodo || !data.updateTodo.todo) {
       throw new Error("operation failed");
     }
 
@@ -270,7 +272,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input: {} },
     });
 
-    if (!data || !data.updateTodo) {
+    if (!data || !data.updateTodo || !data.updateTodo) {
       throw new Error("operation failed");
     }
 
@@ -294,7 +296,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo) {
+    if (!data || !data.updateTodo || !data.updateTodo) {
       throw new Error("operation failed");
     }
 
@@ -319,7 +321,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo) {
+    if (!data || !data.updateTodo || !data.updateTodo) {
       throw new Error("operation failed");
     }
 

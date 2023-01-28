@@ -5,7 +5,7 @@ export const typeDefs = gql`
     createTodo(input: CreateTodoInput!): CreateTodoPayload
 
     "指定したフィールドのみ更新する"
-    updateTodo(id: ID!, input: UpdateTodoInput!): Todo
+    updateTodo(id: ID!, input: UpdateTodoInput!): UpdateTodoPayload
     deleteTodo(id: ID!): ID
 
     completeTodo(id: ID!): Todo
@@ -44,6 +44,10 @@ export const typeDefs = gql`
   }
 
   type CreateTodoPayload {
+    todo: Todo
+  }
+
+  type UpdateTodoPayload {
     todo: Todo
   }
 `;

@@ -25,7 +25,9 @@ export const resolvers: Graph.Resolvers = {
         data,
       });
 
-      return toTodoNode(todo);
+      return {
+        todo: toTodoNode(todo),
+      };
     },
     deleteTodo: async (_, args, { dataSources: { prisma }, user }) => {
       const { id } = parsers.Mutation.deleteTodo(args);
