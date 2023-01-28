@@ -13,7 +13,9 @@ export const resolvers: Graph.Resolvers = {
         data: { ...parsed, id: nanoid(), userId: user.id },
       });
 
-      return toTodoNode(todo);
+      return {
+        todo: toTodoNode(todo),
+      };
     },
     updateTodo: async (_, args, { dataSources: { prisma }, user }) => {
       const { id, ...data } = parsers.Mutation.updateTodo(args);

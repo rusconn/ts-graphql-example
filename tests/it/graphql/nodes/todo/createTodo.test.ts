@@ -17,10 +17,12 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation CreateTodo($input: CreateTodoInput!) {
     createTodo(input: $input) {
-      id
-      title
-      description
-      status
+      todo {
+        id
+        title
+        description
+        status
+      }
     }
   }
 `;
@@ -51,7 +53,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.createTodo).not.toBeFalsy();
+    expect(data?.createTodo).not.toBeNull();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
@@ -60,7 +62,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.createTodo).toBeFalsy();
+    expect(data?.createTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -97,7 +99,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.createTodo).not.toBeFalsy();
+      expect(data?.createTodo).not.toBeNull();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -106,7 +108,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.createTodo).toBeFalsy();
+      expect(data?.createTodo).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -123,11 +125,11 @@ describe("logic", () => {
   it("should create todo using input", async () => {
     const { data } = await executeMutation({ variables: { input } });
 
-    if (!data || !data.createTodo) {
+    if (!data || !data.createTodo || !data.createTodo.todo) {
       throw new Error("operation failed");
     }
 
-    const { id } = splitTodoNodeId(data.createTodo.id);
+    const { id } = splitTodoNodeId(data.createTodo.todo.id);
 
     const todo = await prisma.todo.findUniqueOrThrow({ where: { id } });
 
@@ -138,11 +140,11 @@ describe("logic", () => {
   test("status should be PENDING by default", async () => {
     const { data } = await executeMutation({ variables: { input } });
 
-    if (!data || !data.createTodo) {
+    if (!data || !data.createTodo || !data.createTodo.todo) {
       throw new Error("operation failed");
     }
 
-    const { id } = splitTodoNodeId(data.createTodo.id);
+    const { id } = splitTodoNodeId(data.createTodo.todo.id);
 
     const todo = await prisma.todo.findUniqueOrThrow({ where: { id } });
 

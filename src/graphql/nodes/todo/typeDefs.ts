@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 
 export const typeDefs = gql`
   type Mutation {
-    createTodo(input: CreateTodoInput!): Todo
+    createTodo(input: CreateTodoInput!): CreateTodoPayload
 
     "指定したフィールドのみ更新する"
     updateTodo(id: ID!, input: UpdateTodoInput!): Todo
@@ -41,5 +41,9 @@ export const typeDefs = gql`
     description: String
     "null は入力エラー"
     status: TodoStatus
+  }
+
+  type CreateTodoPayload {
+    todo: Todo
   }
 `;

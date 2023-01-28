@@ -30,6 +30,11 @@ export type CreateTodoInput = {
   title: Scalars['NonEmptyString'];
 };
 
+export type CreateTodoPayload = {
+  __typename?: 'CreateTodoPayload';
+  todo?: Maybe<Todo>;
+};
+
 export type DeleteMePayload = {
   __typename?: 'DeleteMePayload';
   id?: Maybe<Scalars['ID']>;
@@ -64,7 +69,7 @@ export type LogoutPayload = {
 export type Mutation = {
   __typename?: 'Mutation';
   completeTodo?: Maybe<Todo>;
-  createTodo?: Maybe<Todo>;
+  createTodo?: Maybe<CreateTodoPayload>;
   /** 紐づくリソースは全て削除される */
   deleteMe?: Maybe<DeleteMePayload>;
   deleteTodo?: Maybe<Scalars['ID']>;
@@ -362,6 +367,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CreateTodoInput: CreateTodoInput;
+  CreateTodoPayload: ResolverTypeWrapper<Omit<CreateTodoPayload, 'todo'> & { todo: Maybe<ResolversTypes['Todo']> }>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   DeleteMePayload: ResolverTypeWrapper<DeleteMePayload>;
   EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']>;
@@ -400,6 +406,7 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
   CreateTodoInput: CreateTodoInput;
+  CreateTodoPayload: Omit<CreateTodoPayload, 'todo'> & { todo: Maybe<ResolversParentTypes['Todo']> };
   DateTime: Scalars['DateTime'];
   DeleteMePayload: DeleteMePayload;
   EmailAddress: Scalars['EmailAddress'];
@@ -429,6 +436,11 @@ export type ResolversParentTypes = ResolversObject<{
   UserOrder: UserOrder;
 }>;
 
+export type CreateTodoPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTodoPayload'] = ResolversParentTypes['CreateTodoPayload']> = ResolversObject<{
+  todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
   name: 'DateTime';
 }
@@ -454,7 +466,7 @@ export type LogoutPayloadResolvers<ContextType = Context, ParentType extends Res
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   completeTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
-  createTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'input'>>;
+  createTodo?: Resolver<Maybe<ResolversTypes['CreateTodoPayload']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'input'>>;
   deleteMe?: Resolver<Maybe<ResolversTypes['DeleteMePayload']>, ParentType, ContextType>;
   deleteTodo?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, 'id'>>;
   login?: Resolver<Maybe<ResolversTypes['LoginPayload']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
@@ -551,6 +563,7 @@ export type UserEdgeResolvers<ContextType = Context, ParentType extends Resolver
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
+  CreateTodoPayload?: CreateTodoPayloadResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   DeleteMePayload?: DeleteMePayloadResolvers<ContextType>;
   EmailAddress?: GraphQLScalarType;
