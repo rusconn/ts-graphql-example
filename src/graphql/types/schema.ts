@@ -86,7 +86,7 @@ export type Mutation = {
   login?: Maybe<LoginPayload>;
   logout?: Maybe<LogoutPayload>;
   signup?: Maybe<SignupPayload>;
-  uncompleteTodo?: Maybe<Todo>;
+  uncompleteTodo?: Maybe<UncompleteTodoPayload>;
   /** 指定したフィールドのみ更新する */
   updateMe?: Maybe<UpdateMePayload>;
   /** 指定したフィールドのみ更新する */
@@ -231,6 +231,11 @@ export enum TodoStatus {
   Done = 'DONE',
   Pending = 'PENDING'
 }
+
+export type UncompleteTodoPayload = {
+  __typename?: 'UncompleteTodoPayload';
+  todo?: Maybe<Todo>;
+};
 
 export type UpdateMeInput = {
   /** 100文字まで、既に存在する場合はエラー、null は入力エラー */
@@ -409,6 +414,7 @@ export type ResolversTypes = ResolversObject<{
   TodoOrder: TodoOrder;
   TodoOrderField: TodoOrderField;
   TodoStatus: TodoStatus;
+  UncompleteTodoPayload: ResolverTypeWrapper<Omit<UncompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversTypes['Todo']> }>;
   UpdateMeInput: UpdateMeInput;
   UpdateMePayload: ResolverTypeWrapper<Omit<UpdateMePayload, 'user'> & { user: Maybe<ResolversTypes['User']> }>;
   UpdateTodoInput: UpdateTodoInput;
@@ -447,6 +453,7 @@ export type ResolversParentTypes = ResolversObject<{
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['TodoEdge']>, nodes: Array<ResolversParentTypes['Todo']> };
   TodoEdge: Omit<TodoEdge, 'node'> & { node: ResolversParentTypes['Todo'] };
   TodoOrder: TodoOrder;
+  UncompleteTodoPayload: Omit<UncompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversParentTypes['Todo']> };
   UpdateMeInput: UpdateMeInput;
   UpdateMePayload: Omit<UpdateMePayload, 'user'> & { user: Maybe<ResolversParentTypes['User']> };
   UpdateTodoInput: UpdateTodoInput;
@@ -503,7 +510,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   login?: Resolver<Maybe<ResolversTypes['LoginPayload']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
   logout?: Resolver<Maybe<ResolversTypes['LogoutPayload']>, ParentType, ContextType>;
   signup?: Resolver<Maybe<ResolversTypes['SignupPayload']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
-  uncompleteTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUncompleteTodoArgs, 'id'>>;
+  uncompleteTodo?: Resolver<Maybe<ResolversTypes['UncompleteTodoPayload']>, ParentType, ContextType, RequireFields<MutationUncompleteTodoArgs, 'id'>>;
   updateMe?: Resolver<Maybe<ResolversTypes['UpdateMePayload']>, ParentType, ContextType, RequireFields<MutationUpdateMeArgs, 'input'>>;
   updateTodo?: Resolver<Maybe<ResolversTypes['UpdateTodoPayload']>, ParentType, ContextType, RequireFields<MutationUpdateTodoArgs, 'id' | 'input'>>;
 }>;
@@ -562,6 +569,11 @@ export type TodoEdgeResolvers<ContextType = Context, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type UncompleteTodoPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoPayload'] = ResolversParentTypes['UncompleteTodoPayload']> = ResolversObject<{
+  todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type UpdateMePayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateMePayload'] = ResolversParentTypes['UpdateMePayload']> = ResolversObject<{
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -616,6 +628,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Todo?: TodoResolvers<ContextType>;
   TodoConnection?: TodoConnectionResolvers<ContextType>;
   TodoEdge?: TodoEdgeResolvers<ContextType>;
+  UncompleteTodoPayload?: UncompleteTodoPayloadResolvers<ContextType>;
   UpdateMePayload?: UpdateMePayloadResolvers<ContextType>;
   UpdateTodoPayload?: UpdateTodoPayloadResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

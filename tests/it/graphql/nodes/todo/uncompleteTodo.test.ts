@@ -40,11 +40,13 @@ const completeAdminTodo = () =>
 const query = gql`
   mutation UncompleteTodo($id: ID!) {
     uncompleteTodo(id: $id) {
-      id
-      updatedAt
-      title
-      description
-      status
+      todo {
+        id
+        updatedAt
+        title
+        description
+        status
+      }
     }
   }
 `;
@@ -115,7 +117,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.uncompleteTodo).not.toBeFalsy();
+      expect(data?.uncompleteTodo).not.toBeNull();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -123,7 +125,7 @@ describe("validation", () => {
       const { data, errors } = await executeMutation({ variables: { id } });
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.uncompleteTodo).toBeFalsy();
+      expect(data?.uncompleteTodo).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -168,7 +170,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.uncompleteTodo) {
+    if (!data || !data.uncompleteTodo || !data.uncompleteTodo.todo) {
       throw new Error("operation failed");
     }
 
@@ -183,7 +185,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.uncompleteTodo) {
+    if (!data || !data.uncompleteTodo || !data.uncompleteTodo) {
       throw new Error("operation failed");
     }
 
@@ -200,7 +202,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.uncompleteTodo) {
+    if (!data || !data.uncompleteTodo || !data.uncompleteTodo) {
       throw new Error("operation failed");
     }
 

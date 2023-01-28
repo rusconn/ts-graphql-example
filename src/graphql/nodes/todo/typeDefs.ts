@@ -9,7 +9,7 @@ export const typeDefs = gql`
     deleteTodo(id: ID!): DeleteTodoPayload
 
     completeTodo(id: ID!): CompleteTodoPayload
-    uncompleteTodo(id: ID!): Todo
+    uncompleteTodo(id: ID!): UncompleteTodoPayload
   }
 
   type Todo implements Node {
@@ -56,6 +56,10 @@ export const typeDefs = gql`
   }
 
   type CompleteTodoPayload {
+    todo: Todo
+  }
+
+  type UncompleteTodoPayload {
     todo: Todo
   }
 `;

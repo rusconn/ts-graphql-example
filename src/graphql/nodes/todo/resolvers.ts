@@ -60,7 +60,9 @@ export const resolvers: Graph.Resolvers = {
         data,
       });
 
-      return toTodoNode(todo);
+      return {
+        todo: toTodoNode(todo),
+      };
     },
   },
   Todo: {
