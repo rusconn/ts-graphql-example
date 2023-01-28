@@ -74,7 +74,9 @@ export const resolvers: Graph.Resolvers = {
         });
       });
 
-      return toUserNode(refreshedUser);
+      return {
+        user: toUserNode(refreshedUser),
+      };
     },
     logout: async (_, __, { dataSources: { prisma }, user: contextUser }) => {
       const user = await prisma.user.update({

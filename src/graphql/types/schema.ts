@@ -46,6 +46,11 @@ export type LoginInput = {
   password: Scalars['NonEmptyString'];
 };
 
+export type LoginPayload = {
+  __typename?: 'LoginPayload';
+  user?: Maybe<User>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   completeTodo?: Maybe<Todo>;
@@ -53,7 +58,7 @@ export type Mutation = {
   /** 紐づくリソースは全て削除される */
   deleteMe?: Maybe<Scalars['ID']>;
   deleteTodo?: Maybe<Scalars['ID']>;
-  login?: Maybe<User>;
+  login?: Maybe<LoginPayload>;
   logout?: Maybe<User>;
   signup?: Maybe<SignupPayload>;
   uncompleteTodo?: Maybe<Todo>;
@@ -348,6 +353,7 @@ export type ResolversTypes = ResolversObject<{
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   LoginInput: LoginInput;
+  LoginPayload: ResolverTypeWrapper<Omit<LoginPayload, 'user'> & { user: Maybe<ResolversTypes['User']> }>;
   Mutation: ResolverTypeWrapper<{}>;
   Node: ResolversTypes['Todo'] | ResolversTypes['User'];
   NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']>;
@@ -381,6 +387,7 @@ export type ResolversParentTypes = ResolversObject<{
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   LoginInput: LoginInput;
+  LoginPayload: Omit<LoginPayload, 'user'> & { user: Maybe<ResolversParentTypes['User']> };
   Mutation: {};
   Node: ResolversParentTypes['Todo'] | ResolversParentTypes['User'];
   NonEmptyString: Scalars['NonEmptyString'];
@@ -409,12 +416,17 @@ export interface EmailAddressScalarConfig extends GraphQLScalarTypeConfig<Resolv
   name: 'EmailAddress';
 }
 
+export type LoginPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginPayload'] = ResolversParentTypes['LoginPayload']> = ResolversObject<{
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   completeTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
   createTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'input'>>;
   deleteMe?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   deleteTodo?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, 'id'>>;
-  login?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
+  login?: Resolver<Maybe<ResolversTypes['LoginPayload']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
   logout?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   signup?: Resolver<Maybe<ResolversTypes['SignupPayload']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
   uncompleteTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationUncompleteTodoArgs, 'id'>>;
@@ -505,6 +517,7 @@ export type UserEdgeResolvers<ContextType = Context, ParentType extends Resolver
 export type Resolvers<ContextType = Context> = ResolversObject<{
   DateTime?: GraphQLScalarType;
   EmailAddress?: GraphQLScalarType;
+  LoginPayload?: LoginPayloadResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
   NonEmptyString?: GraphQLScalarType;

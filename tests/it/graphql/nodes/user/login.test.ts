@@ -15,10 +15,12 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation Login($input: LoginInput!) {
     login(input: $input) {
-      id
-      name
-      email
-      token
+      user {
+        id
+        name
+        email
+        token
+      }
     }
   }
 `;
@@ -157,13 +159,13 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login) {
+    if (!data || !data.login || !data.login.user) {
       throw new Error("operation failed");
     }
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.login).not.toBeNull();
+    expect(data.login.user).not.toBeNull();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 
@@ -177,7 +179,7 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login) {
+    if (!data || !data.login || !data.login.user) {
       throw new Error("operation failed");
     }
 
@@ -199,7 +201,7 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login) {
+    if (!data || !data.login || !data.login.user) {
       throw new Error("operation failed");
     }
 

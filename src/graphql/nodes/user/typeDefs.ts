@@ -27,7 +27,7 @@ export const typeDefs = gql`
   type Mutation {
     signup(input: SignupInput!): SignupPayload
 
-    login(input: LoginInput!): User
+    login(input: LoginInput!): LoginPayload
 
     logout: User
 
@@ -84,5 +84,9 @@ export const typeDefs = gql`
 
   type SignupPayload {
     id: ID
+  }
+
+  type LoginPayload {
+    user: User
   }
 `;
