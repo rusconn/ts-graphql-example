@@ -156,7 +156,7 @@ export type LoginMutation = { login?: { user?: { id: string, name?: NonEmptyStri
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type LogoutMutation = { logout?: { id: string, name?: NonEmptyString | null, email?: EmailAddress | null, token?: NonEmptyString | null } | null };
+export type LogoutMutation = { logout?: { user?: { id: string, name?: NonEmptyString | null, email?: EmailAddress | null, token?: NonEmptyString | null } | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 

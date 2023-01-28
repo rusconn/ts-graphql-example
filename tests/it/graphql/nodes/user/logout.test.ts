@@ -14,10 +14,12 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation Logout {
     logout {
-      id
-      name
-      email
-      token
+      user {
+        id
+        name
+        email
+        token
+      }
     }
   }
 `;
@@ -70,7 +72,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.logout) {
+    if (!data || !data.logout || !data.logout.user) {
       throw new Error("operation failed");
     }
 
@@ -85,7 +87,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.logout) {
+    if (!data || !data.logout || !data.logout.user) {
       throw new Error("operation failed");
     }
 

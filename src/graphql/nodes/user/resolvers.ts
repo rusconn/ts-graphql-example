@@ -84,7 +84,9 @@ export const resolvers: Graph.Resolvers = {
         data: { token: null },
       });
 
-      return toUserNode(user);
+      return {
+        user: toUserNode(user),
+      };
     },
     updateMe: async (_, args, { dataSources: { prisma }, user: contextUser }) => {
       const data = parsers.Mutation.updateMe(args);

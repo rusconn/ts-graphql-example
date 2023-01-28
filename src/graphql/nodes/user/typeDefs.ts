@@ -29,7 +29,7 @@ export const typeDefs = gql`
 
     login(input: LoginInput!): LoginPayload
 
-    logout: User
+    logout: LogoutPayload
 
     "指定したフィールドのみ更新する"
     updateMe(input: UpdateMeInput!): User
@@ -87,6 +87,10 @@ export const typeDefs = gql`
   }
 
   type LoginPayload {
+    user: User
+  }
+
+  type LogoutPayload {
     user: User
   }
 `;
