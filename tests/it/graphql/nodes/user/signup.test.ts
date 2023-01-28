@@ -17,7 +17,19 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation Signup($input: SignupInput!) {
     signup(input: $input) {
-      id
+      ... on SignupSucceeded {
+        __typename
+        id
+      }
+      ... on SignupFailed {
+        __typename
+        errors {
+          ... on EmailAlreadyTakenError {
+            __typename
+            message
+          }
+        }
+      }
     }
   }
 `;
@@ -54,7 +66,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.signup?.id).not.toBeFalsy();
+    expect(data?.signup).not.toBeNull();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
@@ -63,7 +75,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.signup?.id).toBeFalsy();
+    expect(data?.signup).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -104,7 +116,7 @@ describe("validation", () => {
     ];
 
     test.each(valids)("valid %s", async ({ name, email, password }) => {
-      const { data, errors } = await executeMutation({
+      const { errors } = await executeMutation({
         user: ContextData.guest,
         variables: {
           input: {
@@ -117,12 +129,11 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.signup?.id).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
     test.each(invalids)("invalid %s", async ({ name, email, password }) => {
-      const { data, errors } = await executeMutation({
+      const { errors } = await executeMutation({
         user: ContextData.guest,
         variables: {
           input: {
@@ -135,7 +146,6 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.signup).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -152,15 +162,16 @@ describe("logic", () => {
     const email = emailAddress(DBData.admin.email);
     const password = nonEmptyString("password");
 
-    const { data, errors } = await executeMutation({
+    const { data } = await executeMutation({
       user: ContextData.guest,
       variables: { input: { name, email, password } },
     });
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    if (!data || !data.signup || data.signup.__typename === "SignupSucceeded") {
+      fail();
+    }
 
-    expect(data?.signup).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.AlreadyExists]));
+    expect(data.signup.errors.find(e => e.__typename === "EmailAlreadyTakenError")).toBeTruthy();
   });
 
   it("should create user using input", async () => {
@@ -173,8 +184,8 @@ describe("logic", () => {
       variables: { input: { name, email, password } },
     });
 
-    if (!data || !data.signup || !data.signup.id) {
-      throw new Error("operation failed");
+    if (!data || !data.signup || data.signup.__typename === "SignupFailed") {
+      fail();
     }
 
     const { id } = splitUserNodeId(data.signup.id);
@@ -195,8 +206,8 @@ describe("logic", () => {
       variables: { input: { name, email, password } },
     });
 
-    if (!data || !data.signup || !data.signup.id) {
-      throw new Error("operation failed");
+    if (!data || !data.signup || data.signup.__typename === "SignupFailed") {
+      fail();
     }
 
     const { id } = splitUserNodeId(data.signup.id);

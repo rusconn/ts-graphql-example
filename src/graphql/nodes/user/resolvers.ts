@@ -40,21 +40,41 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Mutation: {
-    signup: async (_, args, { dataSources: { prisma } }) => {
+    signup: async (_, args, { dataSources: { prisma }, logger }) => {
       const { password, ...data } = parsers.Mutation.signup(args);
 
-      const user = await prisma.user.create({
-        data: {
-          ...data,
-          id: nanoid(),
-          password: bcrypt.hashSync(password, passwordHashRoundsExponent),
-          token: nanoid(),
-        },
-      });
+      try {
+        const user = await prisma.user.create({
+          data: {
+            ...data,
+            id: nanoid(),
+            password: bcrypt.hashSync(password, passwordHashRoundsExponent),
+            token: nanoid(),
+          },
+        });
 
-      return {
-        id: toUserNodeId(user.id),
-      };
+        return {
+          __typename: "SignupSucceeded",
+          id: toUserNodeId(user.id),
+        };
+      } catch (e) {
+        // ほぼ確実に email の衝突
+        if (e instanceof DataSource.NotUniqueError) {
+          logger.error(e, "error info");
+
+          return {
+            __typename: "SignupFailed",
+            errors: [
+              {
+                __typename: "EmailAlreadyTakenError",
+                message: "specified email already taken",
+              },
+            ],
+          };
+        }
+
+        throw e;
+      }
     },
     login: async (_, args, { dataSources: { prisma } }) => {
       const { email, password } = parsers.Mutation.login(args);

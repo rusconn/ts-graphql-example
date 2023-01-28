@@ -19,6 +19,7 @@
     "arrow-body-style": "off",
     // for of を許可
     "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
+    "no-underscore-dangle": ["error", { "allow": ["__typename"] }],
     "max-classes-per-file": "off",
     // exhaustive な switch には要らない、他は自己責任とする
     "default-case": "off",

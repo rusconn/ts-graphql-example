@@ -50,6 +50,15 @@ export type DeleteTodoPayload = {
   id?: Maybe<Scalars['ID']>;
 };
 
+export type EmailAlreadyTakenError = Error & {
+  __typename?: 'EmailAlreadyTakenError';
+  message: Scalars['String'];
+};
+
+export type Error = {
+  message: Scalars['String'];
+};
+
 export enum ErrorCode {
   AlreadyExists = 'ALREADY_EXISTS',
   AuthenticationError = 'AUTHENTICATION_ERROR',
@@ -178,6 +187,13 @@ export type QueryUsersArgs = {
   orderBy: UserOrder;
 };
 
+export type SignupError = EmailAlreadyTakenError;
+
+export type SignupFailed = {
+  __typename?: 'SignupFailed';
+  errors: Array<SignupError>;
+};
+
 export type SignupInput = {
   /** 100文字まで、既に存在する場合はエラー */
   email: Scalars['EmailAddress'];
@@ -187,9 +203,11 @@ export type SignupInput = {
   password: Scalars['NonEmptyString'];
 };
 
-export type SignupPayload = {
-  __typename?: 'SignupPayload';
-  id?: Maybe<Scalars['ID']>;
+export type SignupPayload = SignupFailed | SignupSucceeded;
+
+export type SignupSucceeded = {
+  __typename?: 'SignupSucceeded';
+  id: Scalars['ID'];
 };
 
 export type Todo = Node & {
@@ -393,6 +411,8 @@ export type ResolversTypes = ResolversObject<{
   DeleteMePayload: ResolverTypeWrapper<DeleteMePayload>;
   DeleteTodoPayload: ResolverTypeWrapper<DeleteTodoPayload>;
   EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']>;
+  EmailAlreadyTakenError: ResolverTypeWrapper<EmailAlreadyTakenError>;
+  Error: ResolversTypes['EmailAlreadyTakenError'];
   ErrorCode: ErrorCode;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
@@ -405,8 +425,11 @@ export type ResolversTypes = ResolversObject<{
   OrderDirection: OrderDirection;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<{}>;
+  SignupError: ResolversTypes['EmailAlreadyTakenError'];
+  SignupFailed: ResolverTypeWrapper<Omit<SignupFailed, 'errors'> & { errors: Array<ResolversTypes['SignupError']> }>;
   SignupInput: SignupInput;
-  SignupPayload: ResolverTypeWrapper<SignupPayload>;
+  SignupPayload: ResolversTypes['SignupFailed'] | ResolversTypes['SignupSucceeded'];
+  SignupSucceeded: ResolverTypeWrapper<SignupSucceeded>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Todo: ResolverTypeWrapper<TodoMapped>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['TodoEdge']>, nodes: Array<ResolversTypes['Todo']> }>;
@@ -436,6 +459,8 @@ export type ResolversParentTypes = ResolversObject<{
   DeleteMePayload: DeleteMePayload;
   DeleteTodoPayload: DeleteTodoPayload;
   EmailAddress: Scalars['EmailAddress'];
+  EmailAlreadyTakenError: EmailAlreadyTakenError;
+  Error: ResolversParentTypes['EmailAlreadyTakenError'];
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   LoginInput: LoginInput;
@@ -446,8 +471,11 @@ export type ResolversParentTypes = ResolversObject<{
   NonEmptyString: Scalars['NonEmptyString'];
   PageInfo: PageInfo;
   Query: {};
+  SignupError: ResolversParentTypes['EmailAlreadyTakenError'];
+  SignupFailed: Omit<SignupFailed, 'errors'> & { errors: Array<ResolversParentTypes['SignupError']> };
   SignupInput: SignupInput;
-  SignupPayload: SignupPayload;
+  SignupPayload: ResolversParentTypes['SignupFailed'] | ResolversParentTypes['SignupSucceeded'];
+  SignupSucceeded: SignupSucceeded;
   String: Scalars['String'];
   Todo: TodoMapped;
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['TodoEdge']>, nodes: Array<ResolversParentTypes['Todo']> };
@@ -491,6 +519,16 @@ export type DeleteTodoPayloadResolvers<ContextType = Context, ParentType extends
 export interface EmailAddressScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['EmailAddress'], any> {
   name: 'EmailAddress';
 }
+
+export type EmailAlreadyTakenErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EmailAlreadyTakenError'] = ResolversParentTypes['EmailAlreadyTakenError']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError', ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+}>;
 
 export type LoginPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginPayload'] = ResolversParentTypes['LoginPayload']> = ResolversObject<{
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -539,8 +577,21 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'orderBy'>>;
 }>;
 
+export type SignupErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupError'] = ResolversParentTypes['SignupError']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError', ParentType, ContextType>;
+}>;
+
+export type SignupFailedResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupFailed'] = ResolversParentTypes['SignupFailed']> = ResolversObject<{
+  errors?: Resolver<Array<ResolversTypes['SignupError']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type SignupPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupPayload'] = ResolversParentTypes['SignupPayload']> = ResolversObject<{
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'SignupFailed' | 'SignupSucceeded', ParentType, ContextType>;
+}>;
+
+export type SignupSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupSucceeded'] = ResolversParentTypes['SignupSucceeded']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -617,6 +668,8 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   DeleteMePayload?: DeleteMePayloadResolvers<ContextType>;
   DeleteTodoPayload?: DeleteTodoPayloadResolvers<ContextType>;
   EmailAddress?: GraphQLScalarType;
+  EmailAlreadyTakenError?: EmailAlreadyTakenErrorResolvers<ContextType>;
+  Error?: ErrorResolvers<ContextType>;
   LoginPayload?: LoginPayloadResolvers<ContextType>;
   LogoutPayload?: LogoutPayloadResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
@@ -624,7 +677,10 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   NonEmptyString?: GraphQLScalarType;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  SignupError?: SignupErrorResolvers<ContextType>;
+  SignupFailed?: SignupFailedResolvers<ContextType>;
   SignupPayload?: SignupPayloadResolvers<ContextType>;
+  SignupSucceeded?: SignupSucceededResolvers<ContextType>;
   Todo?: TodoResolvers<ContextType>;
   TodoConnection?: TodoConnectionResolvers<ContextType>;
   TodoEdge?: TodoEdgeResolvers<ContextType>;

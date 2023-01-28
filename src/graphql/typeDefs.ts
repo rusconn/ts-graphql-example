@@ -17,6 +17,10 @@ const cursorConnectionsTypeDef = gql`
 `;
 
 const errorTypeDef = gql`
+  interface Error {
+    message: String!
+  }
+
   enum ErrorCode {
     BAD_USER_INPUT
     ALREADY_EXISTS

@@ -82,9 +82,7 @@ export const typeDefs = gql`
     password: NonEmptyString!
   }
 
-  type SignupPayload {
-    id: ID
-  }
+  union SignupPayload = SignupSucceeded | SignupFailed
 
   type LoginPayload {
     user: User
@@ -100,5 +98,19 @@ export const typeDefs = gql`
 
   type DeleteMePayload {
     id: ID
+  }
+
+  type SignupSucceeded {
+    id: ID!
+  }
+
+  type SignupFailed {
+    errors: [SignupError!]!
+  }
+
+  union SignupError = EmailAlreadyTakenError
+
+  type EmailAlreadyTakenError implements Error {
+    message: String!
   }
 `;
