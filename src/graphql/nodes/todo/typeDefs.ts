@@ -6,7 +6,7 @@ export const typeDefs = gql`
 
     "指定したフィールドのみ更新する"
     updateTodo(id: ID!, input: UpdateTodoInput!): UpdateTodoPayload
-    deleteTodo(id: ID!): ID
+    deleteTodo(id: ID!): DeleteTodoPayload
 
     completeTodo(id: ID!): Todo
     uncompleteTodo(id: ID!): Todo
@@ -49,5 +49,9 @@ export const typeDefs = gql`
 
   type UpdateTodoPayload {
     todo: Todo
+  }
+
+  type DeleteTodoPayload {
+    id: ID
   }
 `;

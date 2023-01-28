@@ -36,7 +36,9 @@ export const resolvers: Graph.Resolvers = {
         where: { id, userId: user.id },
       });
 
-      return args.id;
+      return {
+        id: args.id,
+      };
     },
     completeTodo: async (_, args, { dataSources: { prisma }, user }) => {
       const { id, ...data } = parsers.Mutation.completeTodo(args);

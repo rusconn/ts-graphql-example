@@ -124,7 +124,7 @@ export type DeleteTodoMutationVariables = Exact<{
 }>;
 
 
-export type DeleteTodoMutation = { deleteTodo?: string | null };
+export type DeleteTodoMutation = { deleteTodo?: { id?: string | null } | null };
 
 export type UncompleteTodoMutationVariables = Exact<{
   id: Scalars['ID'];
