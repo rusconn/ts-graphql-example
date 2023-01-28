@@ -32,7 +32,7 @@ export const typeDefs = gql`
     logout: LogoutPayload
 
     "指定したフィールドのみ更新する"
-    updateMe(input: UpdateMeInput!): User
+    updateMe(input: UpdateMeInput!): UpdateMePayload
 
     "紐づくリソースは全て削除される"
     deleteMe: ID
@@ -91,6 +91,10 @@ export const typeDefs = gql`
   }
 
   type LogoutPayload {
+    user: User
+  }
+
+  type UpdateMePayload {
     user: User
   }
 `;

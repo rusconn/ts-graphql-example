@@ -175,7 +175,7 @@ export type UpdateMeMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMeMutation = { updateMe?: { id: string, name?: NonEmptyString | null, email?: EmailAddress | null, updatedAt: DateTime } | null };
+export type UpdateMeMutation = { updateMe?: { user?: { id: string, name?: NonEmptyString | null, email?: EmailAddress | null, updatedAt: DateTime } | null } | null };
 
 export type UserQueryVariables = Exact<{
   id: Scalars['ID'];

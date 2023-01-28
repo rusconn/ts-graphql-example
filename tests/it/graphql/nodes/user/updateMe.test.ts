@@ -16,10 +16,12 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation UpdateMe($input: UpdateMeInput!) {
     updateMe(input: $input) {
-      id
-      name
-      email
-      updatedAt
+      user {
+        id
+        name
+        email
+        updatedAt
+      }
     }
   }
 `;
@@ -53,7 +55,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateMe).not.toBeFalsy();
+    expect(data?.updateMe?.user).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
@@ -65,7 +67,7 @@ describe("authorization", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateMe).toBeFalsy();
+    expect(data?.updateMe).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -118,7 +120,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMe).not.toBeFalsy();
+      expect(data?.updateMe?.user).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -135,7 +137,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMe).toBeFalsy();
+      expect(data?.updateMe).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -146,7 +148,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMe).toBeFalsy();
+      expect(data?.updateMe).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -157,7 +159,7 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMe).not.toBeFalsy();
+      expect(data?.updateMe).not.toBeNull();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -190,7 +192,7 @@ describe("logic", () => {
       variables: { input: { name, email } },
     });
 
-    if (!data || !data.updateMe) {
+    if (!data || !data.updateMe || !data.updateMe.user) {
       throw new Error("operation failed");
     }
 
@@ -207,7 +209,7 @@ describe("logic", () => {
       variables: { input: {} },
     });
 
-    if (!data || !data.updateMe) {
+    if (!data || !data.updateMe || !data.updateMe) {
       throw new Error("operation failed");
     }
 
@@ -225,7 +227,7 @@ describe("logic", () => {
       variables: { input: { name: nonEmptyString("bar") } },
     });
 
-    if (!data || !data.updateMe) {
+    if (!data || !data.updateMe || !data.updateMe) {
       throw new Error("operation failed");
     }
 
@@ -244,7 +246,7 @@ describe("logic", () => {
       variables: { input: { name: nonEmptyString("baz") } },
     });
 
-    if (!data || !data.updateMe) {
+    if (!data || !data.updateMe || !data.updateMe) {
       throw new Error("operation failed");
     }
 

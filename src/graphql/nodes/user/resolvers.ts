@@ -96,7 +96,9 @@ export const resolvers: Graph.Resolvers = {
         data,
       });
 
-      return toUserNode(user);
+      return {
+        user: toUserNode(user),
+      };
     },
     deleteMe: async (_, __, { dataSources: { prisma }, user }) => {
       await prisma.user.delete({
