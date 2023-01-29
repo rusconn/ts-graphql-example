@@ -89,9 +89,11 @@ export type LoginSucceeded = {
   user: User;
 };
 
-export type LogoutPayload = {
-  __typename?: 'LogoutPayload';
-  user?: Maybe<User>;
+export type LogoutPayload = LogoutSucceeded;
+
+export type LogoutSucceeded = {
+  __typename?: 'LogoutSucceeded';
+  user: User;
 };
 
 export type Mutation = {
@@ -435,7 +437,8 @@ export type ResolversTypes = ResolversObject<{
   LoginInput: LoginInput;
   LoginPayload: ResolversTypes['LoginFailed'] | ResolversTypes['LoginSucceeded'];
   LoginSucceeded: ResolverTypeWrapper<Omit<LoginSucceeded, 'user'> & { user: ResolversTypes['User'] }>;
-  LogoutPayload: ResolverTypeWrapper<Omit<LogoutPayload, 'user'> & { user: Maybe<ResolversTypes['User']> }>;
+  LogoutPayload: ResolversTypes['LogoutSucceeded'];
+  LogoutSucceeded: ResolverTypeWrapper<Omit<LogoutSucceeded, 'user'> & { user: ResolversTypes['User'] }>;
   Mutation: ResolverTypeWrapper<{}>;
   Node: ResolversTypes['Todo'] | ResolversTypes['User'];
   NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']>;
@@ -486,7 +489,8 @@ export type ResolversParentTypes = ResolversObject<{
   LoginInput: LoginInput;
   LoginPayload: ResolversParentTypes['LoginFailed'] | ResolversParentTypes['LoginSucceeded'];
   LoginSucceeded: Omit<LoginSucceeded, 'user'> & { user: ResolversParentTypes['User'] };
-  LogoutPayload: Omit<LogoutPayload, 'user'> & { user: Maybe<ResolversParentTypes['User']> };
+  LogoutPayload: ResolversParentTypes['LogoutSucceeded'];
+  LogoutSucceeded: Omit<LogoutSucceeded, 'user'> & { user: ResolversParentTypes['User'] };
   Mutation: {};
   Node: ResolversParentTypes['Todo'] | ResolversParentTypes['User'];
   NonEmptyString: Scalars['NonEmptyString'];
@@ -571,7 +575,11 @@ export type LoginSucceededResolvers<ContextType = Context, ParentType extends Re
 }>;
 
 export type LogoutPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LogoutPayload'] = ResolversParentTypes['LogoutPayload']> = ResolversObject<{
-  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'LogoutSucceeded', ParentType, ContextType>;
+}>;
+
+export type LogoutSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LogoutSucceeded'] = ResolversParentTypes['LogoutSucceeded']> = ResolversObject<{
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -715,6 +723,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   LoginPayload?: LoginPayloadResolvers<ContextType>;
   LoginSucceeded?: LoginSucceededResolvers<ContextType>;
   LogoutPayload?: LogoutPayloadResolvers<ContextType>;
+  LogoutSucceeded?: LogoutSucceededResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
   NonEmptyString?: GraphQLScalarType;

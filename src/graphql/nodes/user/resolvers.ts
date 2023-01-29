@@ -124,6 +124,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       return {
+        __typename: "LogoutSucceeded",
         user: toUserNode(user),
       };
     },

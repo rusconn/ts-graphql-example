@@ -14,11 +14,14 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation Logout {
     logout {
-      user {
-        id
-        name
-        email
-        token
+      ... on LogoutSucceeded {
+        __typename
+        user {
+          id
+          name
+          email
+          token
+        }
       }
     }
   }
@@ -52,11 +55,10 @@ describe("authorization", () => {
   });
 
   test.each(notAlloweds)("not allowed %o", async user => {
-    const { data, errors } = await executeMutation({ user });
+    const { errors } = await executeMutation({ user });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.logout).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -72,8 +74,8 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.logout || !data.logout.user) {
-      throw new Error("operation failed");
+    if (!data || !data.logout || data.logout.__typename !== "LogoutSucceeded") {
+      fail();
     }
 
     const after = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });
@@ -87,8 +89,8 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.logout || !data.logout.user) {
-      throw new Error("operation failed");
+    if (!data || !data.logout || data.logout.__typename !== "LogoutSucceeded") {
+      fail();
     }
 
     const after = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });

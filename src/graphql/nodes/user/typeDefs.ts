@@ -93,9 +93,7 @@ export const typeDefs = gql`
 
   union LoginPayload = LoginSucceeded | LoginFailed
 
-  type LogoutPayload {
-    user: User
-  }
+  union LogoutPayload = LogoutSucceeded
 
   type UpdateMePayload {
     user: User
@@ -110,6 +108,10 @@ export const typeDefs = gql`
   }
 
   type LoginSucceeded {
+    user: User!
+  }
+
+  type LogoutSucceeded {
     user: User!
   }
 
