@@ -175,7 +175,7 @@ export type UpdateMeMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMeMutation = { updateMe?: { user?: { id: string, name?: NonEmptyString | null, email?: EmailAddress | null, updatedAt: DateTime } | null } | null };
+export type UpdateMeMutation = { updateMe?: { __typename: 'UpdateMeFailed', errors: Array<{ __typename: 'EmailAlreadyTakenError', message: string }> } | { __typename: 'UpdateMeSucceeded', user: { id: string, name?: NonEmptyString | null, email?: EmailAddress | null, updatedAt: DateTime } } | null };
 
 export type UserQueryVariables = Exact<{
   id: Scalars['ID'];

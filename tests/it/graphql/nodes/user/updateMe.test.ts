@@ -16,11 +16,23 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation UpdateMe($input: UpdateMeInput!) {
     updateMe(input: $input) {
-      user {
-        id
-        name
-        email
-        updatedAt
+      ... on UpdateMeSucceeded {
+        __typename
+        user {
+          id
+          name
+          email
+          updatedAt
+        }
+      }
+      ... on UpdateMeFailed {
+        __typename
+        errors {
+          ... on EmailAlreadyTakenError {
+            __typename
+            message
+          }
+        }
       }
     }
   }
@@ -48,26 +60,24 @@ describe("authorization", () => {
   const notAlloweds = [ContextData.guest] as const;
 
   test.each(alloweds)("allowed %o %o", async user => {
-    const { data, errors } = await executeMutation({
+    const { errors } = await executeMutation({
       user,
       variables: { input },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateMe?.user).not.toBeFalsy();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
   test.each(notAlloweds)("not allowed %o %o", async user => {
-    const { data, errors } = await executeMutation({
+    const { errors } = await executeMutation({
       user,
       variables: { input },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateMe).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -108,7 +118,7 @@ describe("validation", () => {
     ];
 
     test.each(valids)("valid %s", async ({ name, email, password }) => {
-      const { data, errors } = await executeMutation({
+      const { errors } = await executeMutation({
         variables: {
           input: {
             name: nonEmptyString(name),
@@ -120,12 +130,11 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMe?.user).not.toBeFalsy();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
     test.each(invalids)("invalid %s", async ({ name, email, password }) => {
-      const { data, errors } = await executeMutation({
+      const { errors } = await executeMutation({
         variables: {
           input: {
             name: nonEmptyString(name),
@@ -137,29 +146,26 @@ describe("validation", () => {
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMe).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
-    test("null name should cause bad input error", async () => {
-      const { data, errors } = await executeMutation({
+    test("null name should cause input error", async () => {
+      const { errors } = await executeMutation({
         variables: { input: { name: null } },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMe).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
-    test("absent name should not cause bad input error", async () => {
-      const { data, errors } = await executeMutation({
+    test("absent name should not cause input error", async () => {
+      const { errors } = await executeMutation({
         variables: { input: {} },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateMe).not.toBeNull();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -174,14 +180,15 @@ describe("logic", () => {
   test("email already exists", async () => {
     const email = emailAddress(DBData.alice.email);
 
-    const { data, errors } = await executeMutation({
+    const { data } = await executeMutation({
       variables: { input: { email } },
     });
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    if (!data || !data.updateMe || data.updateMe.__typename === "UpdateMeSucceeded") {
+      fail();
+    }
 
-    expect(data?.updateMe).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.AlreadyExists]));
+    expect(data.updateMe.errors.find(x => x.__typename === "EmailAlreadyTakenError")).toBeTruthy();
   });
 
   it("should update using input", async () => {
@@ -192,8 +199,8 @@ describe("logic", () => {
       variables: { input: { name, email } },
     });
 
-    if (!data || !data.updateMe || !data.updateMe.user) {
-      throw new Error("operation failed");
+    if (data?.updateMe?.__typename === "UpdateMeFailed") {
+      fail();
     }
 
     const user = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
@@ -209,8 +216,8 @@ describe("logic", () => {
       variables: { input: {} },
     });
 
-    if (!data || !data.updateMe || !data.updateMe) {
-      throw new Error("operation failed");
+    if (data?.updateMe?.__typename === "UpdateMeFailed") {
+      fail();
     }
 
     const after = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
@@ -227,8 +234,8 @@ describe("logic", () => {
       variables: { input: { name: nonEmptyString("bar") } },
     });
 
-    if (!data || !data.updateMe || !data.updateMe) {
-      throw new Error("operation failed");
+    if (data?.updateMe?.__typename === "UpdateMeFailed") {
+      fail();
     }
 
     const after = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
@@ -246,8 +253,8 @@ describe("logic", () => {
       variables: { input: { name: nonEmptyString("baz") } },
     });
 
-    if (!data || !data.updateMe || !data.updateMe) {
-      throw new Error("operation failed");
+    if (!data || !data.updateMe || data.updateMe.__typename === "UpdateMeFailed") {
+      fail();
     }
 
     const after = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });

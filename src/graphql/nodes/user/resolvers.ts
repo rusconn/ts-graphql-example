@@ -128,17 +128,36 @@ export const resolvers: Graph.Resolvers = {
         user: toUserNode(user),
       };
     },
-    updateMe: async (_, args, { dataSources: { prisma }, user: contextUser }) => {
+    updateMe: async (_, args, { dataSources: { prisma }, user: contextUser, logger }) => {
       const data = parsers.Mutation.updateMe(args);
 
-      const user = await prisma.user.update({
-        where: { id: contextUser.id },
-        data,
-      });
+      try {
+        const user = await prisma.user.update({
+          where: { id: contextUser.id },
+          data,
+        });
 
-      return {
-        user: toUserNode(user),
-      };
+        return {
+          __typename: "UpdateMeSucceeded",
+          user: toUserNode(user),
+        };
+      } catch (e) {
+        if (e instanceof DataSource.NotUniqueError) {
+          logger.error(e, "error info");
+
+          return {
+            __typename: "UpdateMeFailed",
+            errors: [
+              {
+                __typename: "EmailAlreadyTakenError",
+                message: "specified email already taken",
+              },
+            ],
+          };
+        }
+
+        throw e;
+      }
     },
     deleteMe: async (_, __, { dataSources: { prisma }, user }) => {
       await prisma.user.delete({

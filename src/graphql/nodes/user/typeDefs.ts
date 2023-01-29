@@ -95,9 +95,7 @@ export const typeDefs = gql`
 
   union LogoutPayload = LogoutSucceeded
 
-  type UpdateMePayload {
-    user: User
-  }
+  union UpdateMePayload = UpdateMeSucceeded | UpdateMeFailed
 
   type DeleteMePayload {
     id: ID
@@ -115,6 +113,10 @@ export const typeDefs = gql`
     user: User!
   }
 
+  type UpdateMeSucceeded {
+    user: User!
+  }
+
   type SignupFailed {
     errors: [SignupError!]!
   }
@@ -123,9 +125,15 @@ export const typeDefs = gql`
     errors: [LoginError!]!
   }
 
+  type UpdateMeFailed {
+    errors: [UpdateMeError!]!
+  }
+
   union SignupError = EmailAlreadyTakenError
 
   union LoginError = UserNotFoundError
+
+  union UpdateMeError = EmailAlreadyTakenError
 
   type EmailAlreadyTakenError implements Error {
     message: String!

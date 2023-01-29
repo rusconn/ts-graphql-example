@@ -266,6 +266,13 @@ export type UncompleteTodoPayload = {
   todo?: Maybe<Todo>;
 };
 
+export type UpdateMeError = EmailAlreadyTakenError;
+
+export type UpdateMeFailed = {
+  __typename?: 'UpdateMeFailed';
+  errors: Array<UpdateMeError>;
+};
+
 export type UpdateMeInput = {
   /** 100文字まで、既に存在する場合はエラー、null は入力エラー */
   email?: InputMaybe<Scalars['EmailAddress']>;
@@ -275,9 +282,11 @@ export type UpdateMeInput = {
   password?: InputMaybe<Scalars['NonEmptyString']>;
 };
 
-export type UpdateMePayload = {
-  __typename?: 'UpdateMePayload';
-  user?: Maybe<User>;
+export type UpdateMePayload = UpdateMeFailed | UpdateMeSucceeded;
+
+export type UpdateMeSucceeded = {
+  __typename?: 'UpdateMeSucceeded';
+  user: User;
 };
 
 export type UpdateTodoInput = {
@@ -458,8 +467,11 @@ export type ResolversTypes = ResolversObject<{
   TodoOrderField: TodoOrderField;
   TodoStatus: TodoStatus;
   UncompleteTodoPayload: ResolverTypeWrapper<Omit<UncompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversTypes['Todo']> }>;
+  UpdateMeError: ResolversTypes['EmailAlreadyTakenError'];
+  UpdateMeFailed: ResolverTypeWrapper<Omit<UpdateMeFailed, 'errors'> & { errors: Array<ResolversTypes['UpdateMeError']> }>;
   UpdateMeInput: UpdateMeInput;
-  UpdateMePayload: ResolverTypeWrapper<Omit<UpdateMePayload, 'user'> & { user: Maybe<ResolversTypes['User']> }>;
+  UpdateMePayload: ResolversTypes['UpdateMeFailed'] | ResolversTypes['UpdateMeSucceeded'];
+  UpdateMeSucceeded: ResolverTypeWrapper<Omit<UpdateMeSucceeded, 'user'> & { user: ResolversTypes['User'] }>;
   UpdateTodoInput: UpdateTodoInput;
   UpdateTodoPayload: ResolverTypeWrapper<Omit<UpdateTodoPayload, 'todo'> & { todo: Maybe<ResolversTypes['Todo']> }>;
   User: ResolverTypeWrapper<UserMapped>;
@@ -507,8 +519,11 @@ export type ResolversParentTypes = ResolversObject<{
   TodoEdge: Omit<TodoEdge, 'node'> & { node: ResolversParentTypes['Todo'] };
   TodoOrder: TodoOrder;
   UncompleteTodoPayload: Omit<UncompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversParentTypes['Todo']> };
+  UpdateMeError: ResolversParentTypes['EmailAlreadyTakenError'];
+  UpdateMeFailed: Omit<UpdateMeFailed, 'errors'> & { errors: Array<ResolversParentTypes['UpdateMeError']> };
   UpdateMeInput: UpdateMeInput;
-  UpdateMePayload: Omit<UpdateMePayload, 'user'> & { user: Maybe<ResolversParentTypes['User']> };
+  UpdateMePayload: ResolversParentTypes['UpdateMeFailed'] | ResolversParentTypes['UpdateMeSucceeded'];
+  UpdateMeSucceeded: Omit<UpdateMeSucceeded, 'user'> & { user: ResolversParentTypes['User'] };
   UpdateTodoInput: UpdateTodoInput;
   UpdateTodoPayload: Omit<UpdateTodoPayload, 'todo'> & { todo: Maybe<ResolversParentTypes['Todo']> };
   User: UserMapped;
@@ -668,8 +683,21 @@ export type UncompleteTodoPayloadResolvers<ContextType = Context, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type UpdateMeErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateMeError'] = ResolversParentTypes['UpdateMeError']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError', ParentType, ContextType>;
+}>;
+
+export type UpdateMeFailedResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateMeFailed'] = ResolversParentTypes['UpdateMeFailed']> = ResolversObject<{
+  errors?: Resolver<Array<ResolversTypes['UpdateMeError']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type UpdateMePayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateMePayload'] = ResolversParentTypes['UpdateMePayload']> = ResolversObject<{
-  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UpdateMeFailed' | 'UpdateMeSucceeded', ParentType, ContextType>;
+}>;
+
+export type UpdateMeSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateMeSucceeded'] = ResolversParentTypes['UpdateMeSucceeded']> = ResolversObject<{
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -737,7 +765,10 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   TodoConnection?: TodoConnectionResolvers<ContextType>;
   TodoEdge?: TodoEdgeResolvers<ContextType>;
   UncompleteTodoPayload?: UncompleteTodoPayloadResolvers<ContextType>;
+  UpdateMeError?: UpdateMeErrorResolvers<ContextType>;
+  UpdateMeFailed?: UpdateMeFailedResolvers<ContextType>;
   UpdateMePayload?: UpdateMePayloadResolvers<ContextType>;
+  UpdateMeSucceeded?: UpdateMeSucceededResolvers<ContextType>;
   UpdateTodoPayload?: UpdateTodoPayloadResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserConnection?: UserConnectionResolvers<ContextType>;
