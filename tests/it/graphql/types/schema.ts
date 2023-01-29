@@ -144,7 +144,7 @@ export type UpdateTodoMutation = { updateTodo?: { todo?: { id: string, updatedAt
 export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DeleteMeMutation = { deleteMe?: { id?: string | null } | null };
+export type DeleteMeMutation = { deleteMe?: { __typename: 'DeleteMeSucceeded', id: string } | null };
 
 export type LoginMutationVariables = Exact<{
   input: LoginInput;

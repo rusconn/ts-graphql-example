@@ -40,9 +40,11 @@ export type CreateTodoPayload = {
   todo?: Maybe<Todo>;
 };
 
-export type DeleteMePayload = {
-  __typename?: 'DeleteMePayload';
-  id?: Maybe<Scalars['ID']>;
+export type DeleteMePayload = DeleteMeSucceeded;
+
+export type DeleteMeSucceeded = {
+  __typename?: 'DeleteMeSucceeded';
+  id: Scalars['ID'];
 };
 
 export type DeleteTodoPayload = {
@@ -433,7 +435,8 @@ export type ResolversTypes = ResolversObject<{
   CreateTodoInput: CreateTodoInput;
   CreateTodoPayload: ResolverTypeWrapper<Omit<CreateTodoPayload, 'todo'> & { todo: Maybe<ResolversTypes['Todo']> }>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
-  DeleteMePayload: ResolverTypeWrapper<DeleteMePayload>;
+  DeleteMePayload: ResolversTypes['DeleteMeSucceeded'];
+  DeleteMeSucceeded: ResolverTypeWrapper<DeleteMeSucceeded>;
   DeleteTodoPayload: ResolverTypeWrapper<DeleteTodoPayload>;
   EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']>;
   EmailAlreadyTakenError: ResolverTypeWrapper<EmailAlreadyTakenError>;
@@ -489,7 +492,8 @@ export type ResolversParentTypes = ResolversObject<{
   CreateTodoInput: CreateTodoInput;
   CreateTodoPayload: Omit<CreateTodoPayload, 'todo'> & { todo: Maybe<ResolversParentTypes['Todo']> };
   DateTime: Scalars['DateTime'];
-  DeleteMePayload: DeleteMePayload;
+  DeleteMePayload: ResolversParentTypes['DeleteMeSucceeded'];
+  DeleteMeSucceeded: DeleteMeSucceeded;
   DeleteTodoPayload: DeleteTodoPayload;
   EmailAddress: Scalars['EmailAddress'];
   EmailAlreadyTakenError: EmailAlreadyTakenError;
@@ -548,7 +552,11 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 }
 
 export type DeleteMePayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteMePayload'] = ResolversParentTypes['DeleteMePayload']> = ResolversObject<{
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'DeleteMeSucceeded', ParentType, ContextType>;
+}>;
+
+export type DeleteMeSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteMeSucceeded'] = ResolversParentTypes['DeleteMeSucceeded']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -742,6 +750,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   CreateTodoPayload?: CreateTodoPayloadResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   DeleteMePayload?: DeleteMePayloadResolvers<ContextType>;
+  DeleteMeSucceeded?: DeleteMeSucceededResolvers<ContextType>;
   DeleteTodoPayload?: DeleteTodoPayloadResolvers<ContextType>;
   EmailAddress?: GraphQLScalarType;
   EmailAlreadyTakenError?: EmailAlreadyTakenErrorResolvers<ContextType>;

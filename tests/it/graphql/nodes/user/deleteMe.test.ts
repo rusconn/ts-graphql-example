@@ -17,7 +17,10 @@ const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
 const query = gql`
   mutation DeleteMe {
     deleteMe {
-      id
+      ... on DeleteMeSucceeded {
+        __typename
+        id
+      }
     }
   }
 `;
@@ -42,20 +45,18 @@ describe("authorization", () => {
   const notAlloweds = [ContextData.guest] as const;
 
   test.each(alloweds)("allowed %o %o", async user => {
-    const { data, errors } = await executeMutation({ user });
+    const { errors } = await executeMutation({ user });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.deleteMe).not.toBeNull();
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
   test.each(notAlloweds)("not allowed %o %o", async user => {
-    const { data, errors } = await executeMutation({ user });
+    const { errors } = await executeMutation({ user });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.deleteMe).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -74,8 +75,8 @@ describe("logic", () => {
   it("should delete user", async () => {
     const { data } = await executeMutation({});
 
-    if (!data || !data.deleteMe || !data.deleteMe.id) {
-      throw new Error("operation failed");
+    if (!data || !data.deleteMe || data.deleteMe.__typename !== "DeleteMeSucceeded") {
+      fail();
     }
 
     const user = await prisma.user.findUnique({
@@ -90,8 +91,8 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.deleteMe || !data.deleteMe.id) {
-      throw new Error("operation failed");
+    if (!data || !data.deleteMe || data.deleteMe.__typename !== "DeleteMeSucceeded") {
+      fail();
     }
 
     const user = await prisma.user.findUnique({
@@ -111,8 +112,8 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.deleteMe || !data.deleteMe.id) {
-      throw new Error("operation failed");
+    if (!data || !data.deleteMe || data.deleteMe.__typename !== "DeleteMeSucceeded") {
+      fail();
     }
 
     const after = await prisma.todo.count({ where: { userId: DBData.admin.id } });

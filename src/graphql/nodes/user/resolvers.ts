@@ -165,6 +165,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       return {
+        __typename: "DeleteMeSucceeded",
         id: toUserNodeId(user.id),
       };
     },

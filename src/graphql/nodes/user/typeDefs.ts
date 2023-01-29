@@ -97,9 +97,7 @@ export const typeDefs = gql`
 
   union UpdateMePayload = UpdateMeSucceeded | UpdateMeFailed
 
-  type DeleteMePayload {
-    id: ID
-  }
+  union DeleteMePayload = DeleteMeSucceeded
 
   type SignupSucceeded {
     id: ID!
@@ -115,6 +113,10 @@ export const typeDefs = gql`
 
   type UpdateMeSucceeded {
     user: User!
+  }
+
+  type DeleteMeSucceeded {
+    id: ID!
   }
 
   type SignupFailed {
