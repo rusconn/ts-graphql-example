@@ -35,9 +35,11 @@ export type CreateTodoInput = {
   title: Scalars['NonEmptyString'];
 };
 
-export type CreateTodoPayload = {
-  __typename?: 'CreateTodoPayload';
-  todo?: Maybe<Todo>;
+export type CreateTodoPayload = CreateTodoSucceeded;
+
+export type CreateTodoSucceeded = {
+  __typename?: 'CreateTodoSucceeded';
+  todo: Todo;
 };
 
 export type DeleteMePayload = DeleteMeSucceeded;
@@ -433,7 +435,8 @@ export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CompleteTodoPayload: ResolverTypeWrapper<Omit<CompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversTypes['Todo']> }>;
   CreateTodoInput: CreateTodoInput;
-  CreateTodoPayload: ResolverTypeWrapper<Omit<CreateTodoPayload, 'todo'> & { todo: Maybe<ResolversTypes['Todo']> }>;
+  CreateTodoPayload: ResolversTypes['CreateTodoSucceeded'];
+  CreateTodoSucceeded: ResolverTypeWrapper<Omit<CreateTodoSucceeded, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   DeleteMePayload: ResolversTypes['DeleteMeSucceeded'];
   DeleteMeSucceeded: ResolverTypeWrapper<DeleteMeSucceeded>;
@@ -490,7 +493,8 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
   CompleteTodoPayload: Omit<CompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversParentTypes['Todo']> };
   CreateTodoInput: CreateTodoInput;
-  CreateTodoPayload: Omit<CreateTodoPayload, 'todo'> & { todo: Maybe<ResolversParentTypes['Todo']> };
+  CreateTodoPayload: ResolversParentTypes['CreateTodoSucceeded'];
+  CreateTodoSucceeded: Omit<CreateTodoSucceeded, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   DateTime: Scalars['DateTime'];
   DeleteMePayload: ResolversParentTypes['DeleteMeSucceeded'];
   DeleteMeSucceeded: DeleteMeSucceeded;
@@ -543,7 +547,11 @@ export type CompleteTodoPayloadResolvers<ContextType = Context, ParentType exten
 }>;
 
 export type CreateTodoPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTodoPayload'] = ResolversParentTypes['CreateTodoPayload']> = ResolversObject<{
-  todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateTodoSucceeded', ParentType, ContextType>;
+}>;
+
+export type CreateTodoSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTodoSucceeded'] = ResolversParentTypes['CreateTodoSucceeded']> = ResolversObject<{
+  todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -748,6 +756,7 @@ export type UserNotFoundErrorResolvers<ContextType = Context, ParentType extends
 export type Resolvers<ContextType = Context> = ResolversObject<{
   CompleteTodoPayload?: CompleteTodoPayloadResolvers<ContextType>;
   CreateTodoPayload?: CreateTodoPayloadResolvers<ContextType>;
+  CreateTodoSucceeded?: CreateTodoSucceededResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   DeleteMePayload?: DeleteMePayloadResolvers<ContextType>;
   DeleteMeSucceeded?: DeleteMeSucceededResolvers<ContextType>;

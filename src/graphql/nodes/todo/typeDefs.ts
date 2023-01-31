@@ -43,9 +43,7 @@ export const typeDefs = gql`
     status: TodoStatus
   }
 
-  type CreateTodoPayload {
-    todo: Todo
-  }
+  union CreateTodoPayload = CreateTodoSucceeded
 
   type UpdateTodoPayload {
     todo: Todo
@@ -61,5 +59,9 @@ export const typeDefs = gql`
 
   type UncompleteTodoPayload {
     todo: Todo
+  }
+
+  type CreateTodoSucceeded {
+    todo: Todo!
   }
 `;

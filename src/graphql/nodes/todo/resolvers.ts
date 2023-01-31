@@ -14,6 +14,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       return {
+        __typename: "CreateTodoSucceeded",
         todo: toTodoNode(todo),
       };
     },
