@@ -23,7 +23,19 @@ const seedTodos = () => prisma.todo.createMany({ data: todos });
 const query = gql`
   mutation DeleteTodo($id: ID!) {
     deleteTodo(id: $id) {
-      id
+      ... on DeleteTodoSucceeded {
+        __typename
+        id
+      }
+      ... on DeleteTodoFailed {
+        __typename
+        errors {
+          ... on TodoNotFoundError {
+            __typename
+            message
+          }
+        }
+      }
     }
   }
 `;
@@ -70,14 +82,13 @@ describe("authorization", () => {
   });
 
   test.each(notAllowedPatterns)("not allowed %o %o", async (user, { id }) => {
-    const { data, errors } = await executeMutation({
+    const { errors } = await executeMutation({
       user,
       variables: { id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.deleteTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -98,6 +109,7 @@ describe("validation", () => {
 
     test.each(GraphData.validTodoIds)("valid %s", async id => {
       const { errors } = await executeMutation({ variables: { id } });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
@@ -105,6 +117,7 @@ describe("validation", () => {
 
     test.each(GraphData.invalidTodoIds)("invalid %s", async id => {
       const { errors } = await executeMutation({ variables: { id } });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
@@ -126,32 +139,34 @@ describe("logic", () => {
   });
 
   test("not exists", async () => {
-    const { data, errors } = await executeMutation({
+    const { data } = await executeMutation({
       variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
     });
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    if (!data || !data.deleteTodo || data.deleteTodo.__typename === "DeleteTodoSucceeded") {
+      fail();
+    }
 
-    expect(data?.deleteTodo).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+    expect(data.deleteTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
   });
 
   test("exists, but not owned", async () => {
-    const { data, errors } = await executeMutation({
+    const { data } = await executeMutation({
       variables: { id: GraphData.aliceTodo.id },
     });
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    if (!data || !data.deleteTodo || data.deleteTodo.__typename === "DeleteTodoSucceeded") {
+      fail();
+    }
 
-    expect(data?.deleteTodo).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+    expect(data.deleteTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
   });
 
   it("should delete todo", async () => {
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.deleteTodo || !data.deleteTodo.id) {
-      throw new Error("operation failed");
+    if (!data || !data.deleteTodo || data.deleteTodo.__typename === "DeleteTodoFailed") {
+      fail();
     }
 
     const todo = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });
@@ -164,8 +179,8 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.deleteTodo || !data.deleteTodo.id) {
-      throw new Error("operation failed");
+    if (!data || !data.deleteTodo || data.deleteTodo.__typename === "DeleteTodoFailed") {
+      fail();
     }
 
     const todo = await prisma.todo.findUnique({ where: { id: DBData.adminTodo1.id } });

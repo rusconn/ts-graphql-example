@@ -49,9 +49,18 @@ export type DeleteMeSucceeded = {
   id: Scalars['ID'];
 };
 
-export type DeleteTodoPayload = {
-  __typename?: 'DeleteTodoPayload';
-  id?: Maybe<Scalars['ID']>;
+export type DeleteTodoError = TodoNotFoundError;
+
+export type DeleteTodoFailed = {
+  __typename?: 'DeleteTodoFailed';
+  errors: Array<DeleteTodoError>;
+};
+
+export type DeleteTodoPayload = DeleteTodoFailed | DeleteTodoSucceeded;
+
+export type DeleteTodoSucceeded = {
+  __typename?: 'DeleteTodoSucceeded';
+  id: Scalars['ID'];
 };
 
 export type EmailAlreadyTakenError = Error & {
@@ -454,7 +463,10 @@ export type ResolversTypes = ResolversObject<{
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   DeleteMePayload: ResolversTypes['DeleteMeSucceeded'];
   DeleteMeSucceeded: ResolverTypeWrapper<DeleteMeSucceeded>;
-  DeleteTodoPayload: ResolverTypeWrapper<DeleteTodoPayload>;
+  DeleteTodoError: ResolversTypes['TodoNotFoundError'];
+  DeleteTodoFailed: ResolverTypeWrapper<Omit<DeleteTodoFailed, 'errors'> & { errors: Array<ResolversTypes['DeleteTodoError']> }>;
+  DeleteTodoPayload: ResolversTypes['DeleteTodoFailed'] | ResolversTypes['DeleteTodoSucceeded'];
+  DeleteTodoSucceeded: ResolverTypeWrapper<DeleteTodoSucceeded>;
   EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']>;
   EmailAlreadyTakenError: ResolverTypeWrapper<EmailAlreadyTakenError>;
   Error: ResolversTypes['EmailAlreadyTakenError'] | ResolversTypes['TodoNotFoundError'] | ResolversTypes['UserNotFoundError'];
@@ -516,7 +528,10 @@ export type ResolversParentTypes = ResolversObject<{
   DateTime: Scalars['DateTime'];
   DeleteMePayload: ResolversParentTypes['DeleteMeSucceeded'];
   DeleteMeSucceeded: DeleteMeSucceeded;
-  DeleteTodoPayload: DeleteTodoPayload;
+  DeleteTodoError: ResolversParentTypes['TodoNotFoundError'];
+  DeleteTodoFailed: Omit<DeleteTodoFailed, 'errors'> & { errors: Array<ResolversParentTypes['DeleteTodoError']> };
+  DeleteTodoPayload: ResolversParentTypes['DeleteTodoFailed'] | ResolversParentTypes['DeleteTodoSucceeded'];
+  DeleteTodoSucceeded: DeleteTodoSucceeded;
   EmailAddress: Scalars['EmailAddress'];
   EmailAlreadyTakenError: EmailAlreadyTakenError;
   Error: ResolversParentTypes['EmailAlreadyTakenError'] | ResolversParentTypes['TodoNotFoundError'] | ResolversParentTypes['UserNotFoundError'];
@@ -590,8 +605,21 @@ export type DeleteMeSucceededResolvers<ContextType = Context, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type DeleteTodoErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTodoError'] = ResolversParentTypes['DeleteTodoError']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'TodoNotFoundError', ParentType, ContextType>;
+}>;
+
+export type DeleteTodoFailedResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTodoFailed'] = ResolversParentTypes['DeleteTodoFailed']> = ResolversObject<{
+  errors?: Resolver<Array<ResolversTypes['DeleteTodoError']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type DeleteTodoPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTodoPayload'] = ResolversParentTypes['DeleteTodoPayload']> = ResolversObject<{
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'DeleteTodoFailed' | 'DeleteTodoSucceeded', ParentType, ContextType>;
+}>;
+
+export type DeleteTodoSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTodoSucceeded'] = ResolversParentTypes['DeleteTodoSucceeded']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -800,7 +828,10 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   DateTime?: GraphQLScalarType;
   DeleteMePayload?: DeleteMePayloadResolvers<ContextType>;
   DeleteMeSucceeded?: DeleteMeSucceededResolvers<ContextType>;
+  DeleteTodoError?: DeleteTodoErrorResolvers<ContextType>;
+  DeleteTodoFailed?: DeleteTodoFailedResolvers<ContextType>;
   DeleteTodoPayload?: DeleteTodoPayloadResolvers<ContextType>;
+  DeleteTodoSucceeded?: DeleteTodoSucceededResolvers<ContextType>;
   EmailAddress?: GraphQLScalarType;
   EmailAlreadyTakenError?: EmailAlreadyTakenErrorResolvers<ContextType>;
   Error?: ErrorResolvers<ContextType>;

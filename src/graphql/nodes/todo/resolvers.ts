@@ -50,16 +50,35 @@ export const resolvers: Graph.Resolvers = {
         throw e;
       }
     },
-    deleteTodo: async (_, args, { dataSources: { prisma }, user }) => {
+    deleteTodo: async (_, args, { dataSources: { prisma }, user, logger }) => {
       const { id } = parsers.Mutation.deleteTodo(args);
 
-      await prisma.todo.delete({
-        where: { id, userId: user.id },
-      });
+      try {
+        await prisma.todo.delete({
+          where: { id, userId: user.id },
+        });
 
-      return {
-        id: args.id,
-      };
+        return {
+          __typename: "DeleteTodoSucceeded",
+          id: args.id,
+        };
+      } catch (e) {
+        if (e instanceof DataSource.NotFoundError) {
+          logger.error(e, "error info");
+
+          return {
+            __typename: "DeleteTodoFailed",
+            errors: [
+              {
+                __typename: "TodoNotFoundError",
+                message: "todo not found",
+              },
+            ],
+          };
+        }
+
+        throw e;
+      }
     },
     completeTodo: async (_, args, { dataSources: { prisma }, user }) => {
       const { id, ...data } = parsers.Mutation.completeTodo(args);
