@@ -23,9 +23,18 @@ export type Scalars = {
   NonEmptyString: NonEmptyString;
 };
 
-export type CompleteTodoPayload = {
-  __typename?: 'CompleteTodoPayload';
-  todo?: Maybe<Todo>;
+export type CompleteTodoError = TodoNotFoundError;
+
+export type CompleteTodoFailed = {
+  __typename?: 'CompleteTodoFailed';
+  errors: Array<CompleteTodoError>;
+};
+
+export type CompleteTodoPayload = CompleteTodoFailed | CompleteTodoSucceeded;
+
+export type CompleteTodoSucceeded = {
+  __typename?: 'CompleteTodoSucceeded';
+  todo: Todo;
 };
 
 export type CreateTodoInput = {
@@ -456,7 +465,10 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  CompleteTodoPayload: ResolverTypeWrapper<Omit<CompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversTypes['Todo']> }>;
+  CompleteTodoError: ResolversTypes['TodoNotFoundError'];
+  CompleteTodoFailed: ResolverTypeWrapper<Omit<CompleteTodoFailed, 'errors'> & { errors: Array<ResolversTypes['CompleteTodoError']> }>;
+  CompleteTodoPayload: ResolversTypes['CompleteTodoFailed'] | ResolversTypes['CompleteTodoSucceeded'];
+  CompleteTodoSucceeded: ResolverTypeWrapper<Omit<CompleteTodoSucceeded, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   CreateTodoInput: CreateTodoInput;
   CreateTodoPayload: ResolversTypes['CreateTodoSucceeded'];
   CreateTodoSucceeded: ResolverTypeWrapper<Omit<CreateTodoSucceeded, 'todo'> & { todo: ResolversTypes['Todo'] }>;
@@ -521,7 +533,10 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
-  CompleteTodoPayload: Omit<CompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversParentTypes['Todo']> };
+  CompleteTodoError: ResolversParentTypes['TodoNotFoundError'];
+  CompleteTodoFailed: Omit<CompleteTodoFailed, 'errors'> & { errors: Array<ResolversParentTypes['CompleteTodoError']> };
+  CompleteTodoPayload: ResolversParentTypes['CompleteTodoFailed'] | ResolversParentTypes['CompleteTodoSucceeded'];
+  CompleteTodoSucceeded: Omit<CompleteTodoSucceeded, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   CreateTodoInput: CreateTodoInput;
   CreateTodoPayload: ResolversParentTypes['CreateTodoSucceeded'];
   CreateTodoSucceeded: Omit<CreateTodoSucceeded, 'todo'> & { todo: ResolversParentTypes['Todo'] };
@@ -578,8 +593,21 @@ export type ResolversParentTypes = ResolversObject<{
   UserOrder: UserOrder;
 }>;
 
+export type CompleteTodoErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoError'] = ResolversParentTypes['CompleteTodoError']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'TodoNotFoundError', ParentType, ContextType>;
+}>;
+
+export type CompleteTodoFailedResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoFailed'] = ResolversParentTypes['CompleteTodoFailed']> = ResolversObject<{
+  errors?: Resolver<Array<ResolversTypes['CompleteTodoError']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CompleteTodoPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoPayload'] = ResolversParentTypes['CompleteTodoPayload']> = ResolversObject<{
-  todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CompleteTodoFailed' | 'CompleteTodoSucceeded', ParentType, ContextType>;
+}>;
+
+export type CompleteTodoSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoSucceeded'] = ResolversParentTypes['CompleteTodoSucceeded']> = ResolversObject<{
+  todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -822,7 +850,10 @@ export type UserNotFoundErrorResolvers<ContextType = Context, ParentType extends
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
+  CompleteTodoError?: CompleteTodoErrorResolvers<ContextType>;
+  CompleteTodoFailed?: CompleteTodoFailedResolvers<ContextType>;
   CompleteTodoPayload?: CompleteTodoPayloadResolvers<ContextType>;
+  CompleteTodoSucceeded?: CompleteTodoSucceededResolvers<ContextType>;
   CreateTodoPayload?: CreateTodoPayloadResolvers<ContextType>;
   CreateTodoSucceeded?: CreateTodoSucceededResolvers<ContextType>;
   DateTime?: GraphQLScalarType;

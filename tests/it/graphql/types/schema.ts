@@ -110,7 +110,7 @@ export type CompleteTodoMutationVariables = Exact<{
 }>;
 
 
-export type CompleteTodoMutation = { completeTodo?: { todo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null } | null };
+export type CompleteTodoMutation = { completeTodo?: { __typename: 'CompleteTodoFailed', errors: Array<{ __typename: 'TodoNotFoundError', message: string }> } | { __typename: 'CompleteTodoSucceeded', todo: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type CreateTodoMutationVariables = Exact<{
   input: CreateTodoInput;

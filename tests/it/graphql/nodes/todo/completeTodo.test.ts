@@ -31,12 +31,24 @@ const resetAdminTodoValue = () =>
 const query = gql`
   mutation CompleteTodo($id: ID!) {
     completeTodo(id: $id) {
-      todo {
-        id
-        updatedAt
-        title
-        description
-        status
+      ... on CompleteTodoSucceeded {
+        __typename
+        todo {
+          id
+          updatedAt
+          title
+          description
+          status
+        }
+      }
+      ... on CompleteTodoFailed {
+        __typename
+        errors {
+          ... on TodoNotFoundError {
+            __typename
+            message
+          }
+        }
       }
     }
   }
@@ -84,14 +96,13 @@ describe("authorization", () => {
   });
 
   test.each(notAllowedPatterns)("not allowed %o %o", async (user, { id }) => {
-    const { data, errors } = await executeMutation({
+    const { errors } = await executeMutation({
       user,
       variables: { id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.completeTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -105,18 +116,18 @@ describe("validation", () => {
     });
 
     test.each(GraphData.validTodoIds)("valid %s", async id => {
-      const { data, errors } = await executeMutation({ variables: { id } });
+      const { errors } = await executeMutation({ variables: { id } });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.completeTodo).not.toBeNull();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
     test.each(GraphData.invalidTodoIds)("invalid %s", async id => {
-      const { data, errors } = await executeMutation({ variables: { id } });
+      const { errors } = await executeMutation({ variables: { id } });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.completeTodo).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -132,25 +143,27 @@ describe("logic", () => {
   });
 
   test("not exists", async () => {
-    const { data, errors } = await executeMutation({
+    const { data } = await executeMutation({
       variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
     });
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    if (!data || !data.completeTodo || data.completeTodo.__typename === "CompleteTodoSucceeded") {
+      fail();
+    }
 
-    expect(data?.completeTodo).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+    expect(data.completeTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
   });
 
   test("exists, but not owned", async () => {
-    const { data, errors } = await executeMutation({
+    const { data } = await executeMutation({
       variables: { id: GraphData.aliceTodo.id },
     });
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    if (!data || !data.completeTodo || data.completeTodo.__typename === "CompleteTodoSucceeded") {
+      fail();
+    }
 
-    expect(data?.completeTodo).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+    expect(data.completeTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
   });
 
   it("should update status", async () => {
@@ -158,8 +171,8 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo || !data.completeTodo.todo) {
-      throw new Error("operation failed");
+    if (!data || !data.completeTodo || data.completeTodo.__typename === "CompleteTodoFailed") {
+      fail();
     }
 
     const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
@@ -173,8 +186,8 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo || !data.completeTodo) {
-      throw new Error("operation failed");
+    if (!data || !data.completeTodo || data.completeTodo.__typename === "CompleteTodoFailed") {
+      fail();
     }
 
     const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
@@ -190,8 +203,8 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo || !data.completeTodo) {
-      throw new Error("operation failed");
+    if (!data || !data.completeTodo || data.completeTodo.__typename === "CompleteTodoFailed") {
+      fail();
     }
 
     const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
