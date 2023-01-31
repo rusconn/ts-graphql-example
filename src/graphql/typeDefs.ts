@@ -23,7 +23,6 @@ const errorTypeDef = gql`
 
   enum ErrorCode {
     BAD_USER_INPUT
-    ALREADY_EXISTS
     AUTHENTICATION_ERROR
     FORBIDDEN
     NOT_FOUND

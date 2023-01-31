@@ -82,7 +82,6 @@ export type Error = {
 };
 
 export enum ErrorCode {
-  AlreadyExists = 'ALREADY_EXISTS',
   AuthenticationError = 'AUTHENTICATION_ERROR',
   BadUserInput = 'BAD_USER_INPUT',
   Forbidden = 'FORBIDDEN',
