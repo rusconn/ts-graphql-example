@@ -288,9 +288,18 @@ export enum TodoStatus {
   Pending = 'PENDING'
 }
 
-export type UncompleteTodoPayload = {
-  __typename?: 'UncompleteTodoPayload';
-  todo?: Maybe<Todo>;
+export type UncompleteTodoError = TodoNotFoundError;
+
+export type UncompleteTodoFailed = {
+  __typename?: 'UncompleteTodoFailed';
+  errors: Array<UncompleteTodoError>;
+};
+
+export type UncompleteTodoPayload = UncompleteTodoFailed | UncompleteTodoSucceeded;
+
+export type UncompleteTodoSucceeded = {
+  __typename?: 'UncompleteTodoSucceeded';
+  todo: Todo;
 };
 
 export type UpdateMeError = EmailAlreadyTakenError;
@@ -511,7 +520,10 @@ export type ResolversTypes = ResolversObject<{
   TodoOrder: TodoOrder;
   TodoOrderField: TodoOrderField;
   TodoStatus: TodoStatus;
-  UncompleteTodoPayload: ResolverTypeWrapper<Omit<UncompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversTypes['Todo']> }>;
+  UncompleteTodoError: ResolversTypes['TodoNotFoundError'];
+  UncompleteTodoFailed: ResolverTypeWrapper<Omit<UncompleteTodoFailed, 'errors'> & { errors: Array<ResolversTypes['UncompleteTodoError']> }>;
+  UncompleteTodoPayload: ResolversTypes['UncompleteTodoFailed'] | ResolversTypes['UncompleteTodoSucceeded'];
+  UncompleteTodoSucceeded: ResolverTypeWrapper<Omit<UncompleteTodoSucceeded, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   UpdateMeError: ResolversTypes['EmailAlreadyTakenError'];
   UpdateMeFailed: ResolverTypeWrapper<Omit<UpdateMeFailed, 'errors'> & { errors: Array<ResolversTypes['UpdateMeError']> }>;
   UpdateMeInput: UpdateMeInput;
@@ -575,7 +587,10 @@ export type ResolversParentTypes = ResolversObject<{
   TodoEdge: Omit<TodoEdge, 'node'> & { node: ResolversParentTypes['Todo'] };
   TodoNotFoundError: TodoNotFoundError;
   TodoOrder: TodoOrder;
-  UncompleteTodoPayload: Omit<UncompleteTodoPayload, 'todo'> & { todo: Maybe<ResolversParentTypes['Todo']> };
+  UncompleteTodoError: ResolversParentTypes['TodoNotFoundError'];
+  UncompleteTodoFailed: Omit<UncompleteTodoFailed, 'errors'> & { errors: Array<ResolversParentTypes['UncompleteTodoError']> };
+  UncompleteTodoPayload: ResolversParentTypes['UncompleteTodoFailed'] | ResolversParentTypes['UncompleteTodoSucceeded'];
+  UncompleteTodoSucceeded: Omit<UncompleteTodoSucceeded, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   UpdateMeError: ResolversParentTypes['EmailAlreadyTakenError'];
   UpdateMeFailed: Omit<UpdateMeFailed, 'errors'> & { errors: Array<ResolversParentTypes['UpdateMeError']> };
   UpdateMeInput: UpdateMeInput;
@@ -777,8 +792,21 @@ export type TodoNotFoundErrorResolvers<ContextType = Context, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type UncompleteTodoErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoError'] = ResolversParentTypes['UncompleteTodoError']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'TodoNotFoundError', ParentType, ContextType>;
+}>;
+
+export type UncompleteTodoFailedResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoFailed'] = ResolversParentTypes['UncompleteTodoFailed']> = ResolversObject<{
+  errors?: Resolver<Array<ResolversTypes['UncompleteTodoError']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type UncompleteTodoPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoPayload'] = ResolversParentTypes['UncompleteTodoPayload']> = ResolversObject<{
-  todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UncompleteTodoFailed' | 'UncompleteTodoSucceeded', ParentType, ContextType>;
+}>;
+
+export type UncompleteTodoSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoSucceeded'] = ResolversParentTypes['UncompleteTodoSucceeded']> = ResolversObject<{
+  todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -885,7 +913,10 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   TodoConnection?: TodoConnectionResolvers<ContextType>;
   TodoEdge?: TodoEdgeResolvers<ContextType>;
   TodoNotFoundError?: TodoNotFoundErrorResolvers<ContextType>;
+  UncompleteTodoError?: UncompleteTodoErrorResolvers<ContextType>;
+  UncompleteTodoFailed?: UncompleteTodoFailedResolvers<ContextType>;
   UncompleteTodoPayload?: UncompleteTodoPayloadResolvers<ContextType>;
+  UncompleteTodoSucceeded?: UncompleteTodoSucceededResolvers<ContextType>;
   UpdateMeError?: UpdateMeErrorResolvers<ContextType>;
   UpdateMeFailed?: UpdateMeFailedResolvers<ContextType>;
   UpdateMePayload?: UpdateMePayloadResolvers<ContextType>;

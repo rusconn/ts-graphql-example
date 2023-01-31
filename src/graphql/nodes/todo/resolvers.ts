@@ -111,17 +111,36 @@ export const resolvers: Graph.Resolvers = {
         throw e;
       }
     },
-    uncompleteTodo: async (_, args, { dataSources: { prisma }, user }) => {
+    uncompleteTodo: async (_, args, { dataSources: { prisma }, user, logger }) => {
       const { id, ...data } = parsers.Mutation.uncompleteTodo(args);
 
-      const todo = await prisma.todo.update({
-        where: { id, userId: user.id },
-        data,
-      });
+      try {
+        const todo = await prisma.todo.update({
+          where: { id, userId: user.id },
+          data,
+        });
 
-      return {
-        todo: toTodoNode(todo),
-      };
+        return {
+          __typename: "UncompleteTodoSucceeded",
+          todo: toTodoNode(todo),
+        };
+      } catch (e) {
+        if (e instanceof DataSource.NotFoundError) {
+          logger.error(e, "error info");
+
+          return {
+            __typename: "UncompleteTodoFailed",
+            errors: [
+              {
+                __typename: "TodoNotFoundError",
+                message: "todo not found",
+              },
+            ],
+          };
+        }
+
+        throw e;
+      }
     },
   },
   Todo: {

@@ -51,9 +51,7 @@ export const typeDefs = gql`
 
   union CompleteTodoPayload = CompleteTodoSucceeded | CompleteTodoFailed
 
-  type UncompleteTodoPayload {
-    todo: Todo
-  }
+  union UncompleteTodoPayload = UncompleteTodoSucceeded | UncompleteTodoFailed
 
   type CreateTodoSucceeded {
     todo: Todo!
@@ -71,6 +69,10 @@ export const typeDefs = gql`
     todo: Todo!
   }
 
+  type UncompleteTodoSucceeded {
+    todo: Todo!
+  }
+
   type UpdateTodoFailed {
     errors: [UpdateTodoError!]!
   }
@@ -83,11 +85,17 @@ export const typeDefs = gql`
     errors: [CompleteTodoError!]!
   }
 
+  type UncompleteTodoFailed {
+    errors: [UncompleteTodoError!]!
+  }
+
   union UpdateTodoError = TodoNotFoundError
 
   union DeleteTodoError = TodoNotFoundError
 
   union CompleteTodoError = TodoNotFoundError
+
+  union UncompleteTodoError = TodoNotFoundError
 
   type TodoNotFoundError implements Error {
     message: String!

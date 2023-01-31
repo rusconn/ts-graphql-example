@@ -131,7 +131,7 @@ export type UncompleteTodoMutationVariables = Exact<{
 }>;
 
 
-export type UncompleteTodoMutation = { uncompleteTodo?: { todo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null } | null };
+export type UncompleteTodoMutation = { uncompleteTodo?: { __typename: 'UncompleteTodoFailed', errors: Array<{ __typename: 'TodoNotFoundError', message: string }> } | { __typename: 'UncompleteTodoSucceeded', todo: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type UpdateTodoMutationVariables = Exact<{
   id: Scalars['ID'];
