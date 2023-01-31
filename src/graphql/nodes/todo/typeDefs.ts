@@ -45,9 +45,7 @@ export const typeDefs = gql`
 
   union CreateTodoPayload = CreateTodoSucceeded
 
-  type UpdateTodoPayload {
-    todo: Todo
-  }
+  union UpdateTodoPayload = UpdateTodoSucceeded | UpdateTodoFailed
 
   type DeleteTodoPayload {
     id: ID
@@ -63,5 +61,19 @@ export const typeDefs = gql`
 
   type CreateTodoSucceeded {
     todo: Todo!
+  }
+
+  type UpdateTodoSucceeded {
+    todo: Todo!
+  }
+
+  type UpdateTodoFailed {
+    errors: [UpdateTodoError!]!
+  }
+
+  union UpdateTodoError = TodoNotFoundError
+
+  type TodoNotFoundError implements Error {
+    message: String!
   }
 `;

@@ -1,5 +1,6 @@
 import { nanoid } from "nanoid";
 
+import * as DataSource from "@/datasources";
 import { toTodoNode, toUserNode } from "@/graphql/adapters";
 import type { Graph } from "@/graphql/types";
 import { parsers } from "./parsers";
@@ -18,17 +19,36 @@ export const resolvers: Graph.Resolvers = {
         todo: toTodoNode(todo),
       };
     },
-    updateTodo: async (_, args, { dataSources: { prisma }, user }) => {
+    updateTodo: async (_, args, { dataSources: { prisma }, user, logger }) => {
       const { id, ...data } = parsers.Mutation.updateTodo(args);
 
-      const todo = await prisma.todo.update({
-        where: { id, userId: user.id },
-        data,
-      });
+      try {
+        const todo = await prisma.todo.update({
+          where: { id, userId: user.id },
+          data,
+        });
 
-      return {
-        todo: toTodoNode(todo),
-      };
+        return {
+          __typename: "UpdateTodoSucceeded",
+          todo: toTodoNode(todo),
+        };
+      } catch (e) {
+        if (e instanceof DataSource.NotFoundError) {
+          logger.error(e, "error info");
+
+          return {
+            __typename: "UpdateTodoFailed",
+            errors: [
+              {
+                __typename: "TodoNotFoundError",
+                message: "todo not found",
+              },
+            ],
+          };
+        }
+
+        throw e;
+      }
     },
     deleteTodo: async (_, args, { dataSources: { prisma }, user }) => {
       const { id } = parsers.Mutation.deleteTodo(args);

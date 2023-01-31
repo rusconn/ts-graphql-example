@@ -25,12 +25,24 @@ const seedTodos = () => prisma.todo.createMany({ data: todos });
 const query = gql`
   mutation UpdateTodo($id: ID!, $input: UpdateTodoInput!) {
     updateTodo(id: $id, input: $input) {
-      todo {
-        id
-        updatedAt
-        title
-        description
-        status
+      ... on UpdateTodoSucceeded {
+        __typename
+        todo {
+          id
+          updatedAt
+          title
+          description
+          status
+        }
+      }
+      ... on UpdateTodoFailed {
+        __typename
+        errors {
+          ... on TodoNotFoundError {
+            __typename
+            message
+          }
+        }
       }
     }
   }
@@ -80,14 +92,13 @@ describe("authorization", () => {
   });
 
   test.each(notAllowedPatterns)("not allowed %o %o", async (user, { id }) => {
-    const { data, errors } = await executeMutation({
+    const { errors } = await executeMutation({
       user,
       variables: { input, id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.updateTodo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 });
@@ -103,18 +114,18 @@ describe("validation", () => {
     const input = { title: nonEmptyString("foo"), description: "", status: Graph.TodoStatus.Done };
 
     test.each(GraphData.validTodoIds)("valid %s", async id => {
-      const { data, errors } = await executeMutation({ variables: { id, input } });
+      const { errors } = await executeMutation({ variables: { id, input } });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).not.toBeNull();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
     test.each(GraphData.invalidTodoIds)("invalid %s", async id => {
-      const { data, errors } = await executeMutation({ variables: { id, input } });
+      const { errors } = await executeMutation({ variables: { id, input } });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
   });
@@ -155,24 +166,22 @@ describe("validation", () => {
     }));
 
     test.each(valids)("valid %s", async input => {
-      const { data, errors } = await executeMutation({
+      const { errors } = await executeMutation({
         variables: { input, id: GraphData.adminTodo1.id },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).not.toBeNull();
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
     test.each(invalids)("invalid %s", async input => {
-      const { data, errors } = await executeMutation({
+      const { errors } = await executeMutation({
         variables: { input, id: GraphData.adminTodo1.id },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      expect(data?.updateTodo).toBeNull();
       expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
@@ -187,13 +196,12 @@ describe("validation", () => {
     test.each(validPartialInputs)(
       "field absence should not cause bad input error: %s",
       async input => {
-        const { data, errors } = await executeMutation({
+        const { errors } = await executeMutation({
           variables: { input, id: GraphData.adminTodo1.id },
         });
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-        expect(data?.updateTodo).not.toBeNull();
         expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
       }
     );
@@ -201,13 +209,12 @@ describe("validation", () => {
     test.each(invalidPartialInputs)(
       "some fields should cause bad input error if null: %s",
       async input => {
-        const { data, errors } = await executeMutation({
+        const { errors } = await executeMutation({
           variables: { input, id: GraphData.adminTodo1.id },
         });
 
         const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-        expect(data?.updateTodo).toBeNull();
         expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
       }
     );
@@ -222,25 +229,27 @@ describe("logic", () => {
   });
 
   test("not exists", async () => {
-    const { data, errors } = await executeMutation({
+    const { data } = await executeMutation({
       variables: { input: {}, id: GraphData.adminTodo1.id.slice(0, -1) },
     });
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoSucceeded") {
+      fail();
+    }
 
-    expect(data?.updateTodo).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+    expect(data.updateTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
   });
 
   test("exists, but not owned", async () => {
-    const { data, errors } = await executeMutation({
+    const { data } = await executeMutation({
       variables: { input: {}, id: GraphData.aliceTodo.id },
     });
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoSucceeded") {
+      fail();
+    }
 
-    expect(data?.updateTodo).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+    expect(data.updateTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
   });
 
   it("should update using input", async () => {
@@ -254,8 +263,8 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || !data.updateTodo.todo) {
-      throw new Error("operation failed");
+    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoFailed") {
+      fail();
     }
 
     const todo = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
@@ -272,8 +281,8 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input: {} },
     });
 
-    if (!data || !data.updateTodo || !data.updateTodo) {
-      throw new Error("operation failed");
+    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoFailed") {
+      fail();
     }
 
     const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
@@ -296,8 +305,8 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || !data.updateTodo) {
-      throw new Error("operation failed");
+    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoFailed") {
+      fail();
     }
 
     const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
@@ -321,8 +330,8 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || !data.updateTodo) {
-      throw new Error("operation failed");
+    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoFailed") {
+      fail();
     }
 
     const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });

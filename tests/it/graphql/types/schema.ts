@@ -139,7 +139,7 @@ export type UpdateTodoMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodoMutation = { updateTodo?: { todo?: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } | null } | null };
+export type UpdateTodoMutation = { updateTodo?: { __typename: 'UpdateTodoFailed', errors: Array<{ __typename: 'TodoNotFoundError', message: string }> } | { __typename: 'UpdateTodoSucceeded', todo: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
 
