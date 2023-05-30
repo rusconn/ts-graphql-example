@@ -2,8 +2,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "setup": "run-s setup:*",
-    "setup:yarn": "yarn",
+    "setup": "yarn && run-s setup:*",
     "setup:migrate": "yarn migrate:reset ",
     "setup:generate": "yarn generate",
     "setup:seed": "yarn seed",
