@@ -4,7 +4,7 @@ services:
   app:
     image: apollo-prisma-test-dev-app:1.0.0
     build:
-      context: dockerfiles/dev/app
+      context: docker/dev/app
     working_dir: /app
     environment:
       - NODE_ENV=development
@@ -22,7 +22,7 @@ services:
   studio:
     image: apollo-prisma-test-dev-studio:1.0.0
     build:
-      context: dockerfiles/dev/studio
+      context: docker/dev/studio
     working_dir: /studio
     volumes:
       - ./prisma:/studio/prisma
