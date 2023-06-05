@@ -28,7 +28,7 @@
   "dependencies": {
     "@apollo/server": "^4.7.1",
     "@devoxa/prisma-relay-cursor-connection": "^2.1.0",
-    "@graphql-tools/schema": "^8.5.0",
+    "@graphql-tools/schema": "^10.0.0",
     "@prisma/client": "4.15.0",
     "bcrypt": "^5.1.0",
     "extensible-custom-error": "^0.0.7",
