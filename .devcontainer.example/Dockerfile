@@ -1,4 +1,4 @@
-FROM apollo-prisma-test-dev-app:1.0.0
+FROM apollo-prisma-test-dev-app:2.0.0
 
 RUN apt-get update \
   && apt-get install --no-install-recommends -y git ca-certificates fish \
