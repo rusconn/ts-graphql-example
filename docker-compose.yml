@@ -19,23 +19,6 @@ services:
     depends_on:
       - db
 
-  studio:
-    image: apollo-prisma-test-dev-studio:1.0.0
-    build:
-      context: docker/dev/studio
-    working_dir: /studio
-    volumes:
-      - ./prisma:/studio/prisma
-      - ./.env:/studio/.env
-      - node_modules:/studio/node_modules
-    # アプリコンテナのprismaを使うので待つ
-    command: sh -c "wait-for-it app:4000 --timeout=0 -- npx prisma studio"
-    ports:
-      - ${STUDIO_PORT:-5555}:5555
-    depends_on:
-      - app
-      - db
-
   db:
     image: postgres:14.1-bullseye
     restart: always

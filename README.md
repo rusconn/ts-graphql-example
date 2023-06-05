@@ -7,7 +7,8 @@ Apollo Server と Prisma を使って GraphQL API を作る。
 `cp .env.example .env && docker compose up` で ok 。  
 クエリの実行は [Web コンソール](http://localhost:4000) で。  
 token を Authorization ヘッダへ Bearer でセットしておくこと。  
-token は [Prisma Studio](http://localhost:5555) で取得する。
+token は [Prisma Studio](http://localhost:5555) で取得する。  
+Prisma Studio は `yarn studio` で起動しておくこと。
 
 ## 各技術への理解と所感
 

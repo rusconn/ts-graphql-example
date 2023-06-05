@@ -28,6 +28,6 @@
       ]
     }
   },
-  "runServices": ["app", "studio", "db"],
+  "runServices": ["app", "db"],
   "shutdownAction": "stopCompose"
 }

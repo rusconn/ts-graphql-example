@@ -12,6 +12,7 @@
     "clean": "rm -rf dist/*",
     "migrate:dev": "prisma migrate dev",
     "migrate:reset": "prisma migrate reset --force",
+    "studio": "yarn prisma studio",
     "pretest": "DB_NAME=testdb yarn migrate:reset",
     "test": "NODE_ENV=test DB_NAME=testdb jest -i --silent",
     "seed": "yarn ts prisma/seed.ts",
