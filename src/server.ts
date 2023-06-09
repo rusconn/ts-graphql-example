@@ -49,14 +49,10 @@ export const server = new ApolloServer<Context>({
           },
           async willSendResponse({ response }) {
             // 脆弱性対策: https://qiita.com/tnishi97/items/9fb9b2e69689fbfb52e3
-            const headersForSecurity = new Map<string, string>()
+            response.http.headers
               .set("X-Content-Type-Options", "nosniff") // XSS
               .set("X-Frame-Options", "DENY") // クリックジャッキング
               .set("Strict-Transport-Security", "max-age=31536000; includeSubdomains"); // https
-
-            for (const [key, value] of headersForSecurity) {
-              response.http.headers.set(key, value);
-            }
           },
         };
       },
