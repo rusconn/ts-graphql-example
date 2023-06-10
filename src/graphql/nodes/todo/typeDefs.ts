@@ -2,14 +2,14 @@ import { gql } from "graphql-tag";
 
 export const typeDefs = gql`
   type Mutation {
-    createTodo(input: CreateTodoInput!): CreateTodoPayload
+    createTodo(input: CreateTodoInput!): CreateTodoResult
 
     "指定したフィールドのみ更新する"
-    updateTodo(id: ID!, input: UpdateTodoInput!): UpdateTodoPayload
-    deleteTodo(id: ID!): DeleteTodoPayload
+    updateTodo(id: ID!, input: UpdateTodoInput!): UpdateTodoResult
+    deleteTodo(id: ID!): DeleteTodoResult
 
-    completeTodo(id: ID!): CompleteTodoPayload
-    uncompleteTodo(id: ID!): UncompleteTodoPayload
+    completeTodo(id: ID!): CompleteTodoResult
+    uncompleteTodo(id: ID!): UncompleteTodoResult
   }
 
   type Todo implements Node {
@@ -43,15 +43,15 @@ export const typeDefs = gql`
     status: TodoStatus
   }
 
-  union CreateTodoPayload = CreateTodoSucceeded
+  union CreateTodoResult = CreateTodoSucceeded
 
-  union UpdateTodoPayload = UpdateTodoSucceeded | UpdateTodoFailed
+  union UpdateTodoResult = UpdateTodoSucceeded | UpdateTodoFailed
 
-  union DeleteTodoPayload = DeleteTodoSucceeded | DeleteTodoFailed
+  union DeleteTodoResult = DeleteTodoSucceeded | DeleteTodoFailed
 
-  union CompleteTodoPayload = CompleteTodoSucceeded | CompleteTodoFailed
+  union CompleteTodoResult = CompleteTodoSucceeded | CompleteTodoFailed
 
-  union UncompleteTodoPayload = UncompleteTodoSucceeded | UncompleteTodoFailed
+  union UncompleteTodoResult = UncompleteTodoSucceeded | UncompleteTodoFailed
 
   type CreateTodoSucceeded {
     todo: Todo!

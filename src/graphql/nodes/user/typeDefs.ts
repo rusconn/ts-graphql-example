@@ -25,17 +25,17 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    signup(input: SignupInput!): SignupPayload
+    signup(input: SignupInput!): SignupResult
 
-    login(input: LoginInput!): LoginPayload
+    login(input: LoginInput!): LoginResult
 
-    logout: LogoutPayload
+    logout: LogoutResult
 
     "指定したフィールドのみ更新する"
-    updateMe(input: UpdateMeInput!): UpdateMePayload
+    updateMe(input: UpdateMeInput!): UpdateMeResult
 
     "紐づくリソースは全て削除される"
-    deleteMe: DeleteMePayload
+    deleteMe: DeleteMeResult
   }
 
   type User implements Node {
@@ -89,15 +89,15 @@ export const typeDefs = gql`
     password: NonEmptyString!
   }
 
-  union SignupPayload = SignupSucceeded | SignupFailed
+  union SignupResult = SignupSucceeded | SignupFailed
 
-  union LoginPayload = LoginSucceeded | LoginFailed
+  union LoginResult = LoginSucceeded | LoginFailed
 
-  union LogoutPayload = LogoutSucceeded
+  union LogoutResult = LogoutSucceeded
 
-  union UpdateMePayload = UpdateMeSucceeded | UpdateMeFailed
+  union UpdateMeResult = UpdateMeSucceeded | UpdateMeFailed
 
-  union DeleteMePayload = DeleteMeSucceeded
+  union DeleteMeResult = DeleteMeSucceeded
 
   type SignupSucceeded {
     id: ID!
