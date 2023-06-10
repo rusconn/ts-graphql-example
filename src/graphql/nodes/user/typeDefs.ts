@@ -89,33 +89,33 @@ export const typeDefs = gql`
     password: NonEmptyString!
   }
 
-  union SignupResult = SignupSucceeded | EmailAlreadyTakenError
+  union SignupResult = SignupSuccess | EmailAlreadyTakenError
 
-  union LoginResult = LoginSucceeded | UserNotFoundError
+  union LoginResult = LoginSuccess | UserNotFoundError
 
-  union LogoutResult = LogoutSucceeded
+  union LogoutResult = LogoutSuccess
 
-  union UpdateMeResult = UpdateMeSucceeded | EmailAlreadyTakenError
+  union UpdateMeResult = UpdateMeSuccess | EmailAlreadyTakenError
 
-  union DeleteMeResult = DeleteMeSucceeded
+  union DeleteMeResult = DeleteMeSuccess
 
-  type SignupSucceeded {
+  type SignupSuccess {
     id: ID!
   }
 
-  type LoginSucceeded {
+  type LoginSuccess {
     user: User!
   }
 
-  type LogoutSucceeded {
+  type LogoutSuccess {
     user: User!
   }
 
-  type UpdateMeSucceeded {
+  type UpdateMeSuccess {
     user: User!
   }
 
-  type DeleteMeSucceeded {
+  type DeleteMeSuccess {
     id: ID!
   }
 

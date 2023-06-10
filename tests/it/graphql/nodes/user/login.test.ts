@@ -15,7 +15,7 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation Login($input: LoginInput!) {
     login(input: $input) {
-      ... on LoginSucceeded {
+      ... on LoginSuccess {
         __typename
         user {
           id
@@ -159,7 +159,7 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || data.login.__typename !== "LoginSucceeded") {
+    if (!data || !data.login || data.login.__typename !== "LoginSuccess") {
       fail();
     }
 
@@ -176,7 +176,7 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || data.login.__typename !== "LoginSucceeded") {
+    if (!data || !data.login || data.login.__typename !== "LoginSuccess") {
       fail();
     }
 
@@ -198,7 +198,7 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || data.login.__typename !== "LoginSucceeded") {
+    if (!data || !data.login || data.login.__typename !== "LoginSuccess") {
       fail();
     }
 

@@ -54,7 +54,7 @@ export const resolvers: Graph.Resolvers = {
         });
 
         return {
-          __typename: "SignupSucceeded",
+          __typename: "SignupSuccess",
           id: toUserNodeId(user.id),
         };
       } catch (e) {
@@ -91,7 +91,7 @@ export const resolvers: Graph.Resolvers = {
         });
 
         return {
-          __typename: "LoginSucceeded",
+          __typename: "LoginSuccess",
           user: toUserNode(refreshedUser),
         };
       } catch (e) {
@@ -114,7 +114,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       return {
-        __typename: "LogoutSucceeded",
+        __typename: "LogoutSuccess",
         user: toUserNode(user),
       };
     },
@@ -128,7 +128,7 @@ export const resolvers: Graph.Resolvers = {
         });
 
         return {
-          __typename: "UpdateMeSucceeded",
+          __typename: "UpdateMeSuccess",
           user: toUserNode(user),
         };
       } catch (e) {
@@ -150,7 +150,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       return {
-        __typename: "DeleteMeSucceeded",
+        __typename: "DeleteMeSuccess",
         id: toUserNodeId(user.id),
       };
     },

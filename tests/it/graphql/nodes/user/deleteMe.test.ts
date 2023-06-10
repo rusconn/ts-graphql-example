@@ -17,7 +17,7 @@ const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
 const query = gql`
   mutation DeleteMe {
     deleteMe {
-      ... on DeleteMeSucceeded {
+      ... on DeleteMeSuccess {
         __typename
         id
       }
@@ -75,7 +75,7 @@ describe("logic", () => {
   it("should delete user", async () => {
     const { data } = await executeMutation({});
 
-    if (!data || !data.deleteMe || data.deleteMe.__typename !== "DeleteMeSucceeded") {
+    if (!data || !data.deleteMe || data.deleteMe.__typename !== "DeleteMeSuccess") {
       fail();
     }
 
@@ -91,7 +91,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.deleteMe || data.deleteMe.__typename !== "DeleteMeSucceeded") {
+    if (!data || !data.deleteMe || data.deleteMe.__typename !== "DeleteMeSuccess") {
       fail();
     }
 
@@ -112,7 +112,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.deleteMe || data.deleteMe.__typename !== "DeleteMeSucceeded") {
+    if (!data || !data.deleteMe || data.deleteMe.__typename !== "DeleteMeSuccess") {
       fail();
     }
 

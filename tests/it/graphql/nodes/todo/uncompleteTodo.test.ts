@@ -40,7 +40,7 @@ const completeAdminTodo = () =>
 const query = gql`
   mutation UncompleteTodo($id: ID!) {
     uncompleteTodo(id: $id) {
-      ... on UncompleteTodoSucceeded {
+      ... on UncompleteTodoSuccess {
         __typename
         todo {
           id
@@ -173,7 +173,7 @@ describe("logic", () => {
     if (
       !data ||
       !data.uncompleteTodo ||
-      data.uncompleteTodo.__typename !== "UncompleteTodoSucceeded"
+      data.uncompleteTodo.__typename !== "UncompleteTodoSuccess"
     ) {
       fail();
     }
@@ -192,7 +192,7 @@ describe("logic", () => {
     if (
       !data ||
       !data.uncompleteTodo ||
-      data.uncompleteTodo.__typename !== "UncompleteTodoSucceeded"
+      data.uncompleteTodo.__typename !== "UncompleteTodoSuccess"
     ) {
       fail();
     }
@@ -213,7 +213,7 @@ describe("logic", () => {
     if (
       !data ||
       !data.uncompleteTodo ||
-      data.uncompleteTodo.__typename !== "UncompleteTodoSucceeded"
+      data.uncompleteTodo.__typename !== "UncompleteTodoSuccess"
     ) {
       fail();
     }

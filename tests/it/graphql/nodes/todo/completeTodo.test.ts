@@ -31,7 +31,7 @@ const resetAdminTodoValue = () =>
 const query = gql`
   mutation CompleteTodo($id: ID!) {
     completeTodo(id: $id) {
-      ... on CompleteTodoSucceeded {
+      ... on CompleteTodoSuccess {
         __typename
         todo {
           id
@@ -158,7 +158,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo || data.completeTodo.__typename !== "CompleteTodoSucceeded") {
+    if (!data || !data.completeTodo || data.completeTodo.__typename !== "CompleteTodoSuccess") {
       fail();
     }
 
@@ -173,7 +173,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo || data.completeTodo.__typename !== "CompleteTodoSucceeded") {
+    if (!data || !data.completeTodo || data.completeTodo.__typename !== "CompleteTodoSuccess") {
       fail();
     }
 
@@ -190,7 +190,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo || data.completeTodo.__typename !== "CompleteTodoSucceeded") {
+    if (!data || !data.completeTodo || data.completeTodo.__typename !== "CompleteTodoSuccess") {
       fail();
     }
 

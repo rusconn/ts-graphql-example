@@ -23,10 +23,10 @@ export type Scalars = {
   NonEmptyString: NonEmptyString;
 };
 
-export type CompleteTodoResult = CompleteTodoSucceeded | TodoNotFoundError;
+export type CompleteTodoResult = CompleteTodoSuccess | TodoNotFoundError;
 
-export type CompleteTodoSucceeded = {
-  __typename?: 'CompleteTodoSucceeded';
+export type CompleteTodoSuccess = {
+  __typename?: 'CompleteTodoSuccess';
   todo: Todo;
 };
 
@@ -37,24 +37,24 @@ export type CreateTodoInput = {
   title: Scalars['NonEmptyString'];
 };
 
-export type CreateTodoResult = CreateTodoSucceeded;
+export type CreateTodoResult = CreateTodoSuccess;
 
-export type CreateTodoSucceeded = {
-  __typename?: 'CreateTodoSucceeded';
+export type CreateTodoSuccess = {
+  __typename?: 'CreateTodoSuccess';
   todo: Todo;
 };
 
-export type DeleteMeResult = DeleteMeSucceeded;
+export type DeleteMeResult = DeleteMeSuccess;
 
-export type DeleteMeSucceeded = {
-  __typename?: 'DeleteMeSucceeded';
+export type DeleteMeSuccess = {
+  __typename?: 'DeleteMeSuccess';
   id: Scalars['ID'];
 };
 
-export type DeleteTodoResult = DeleteTodoSucceeded | TodoNotFoundError;
+export type DeleteTodoResult = DeleteTodoSuccess | TodoNotFoundError;
 
-export type DeleteTodoSucceeded = {
-  __typename?: 'DeleteTodoSucceeded';
+export type DeleteTodoSuccess = {
+  __typename?: 'DeleteTodoSuccess';
   id: Scalars['ID'];
 };
 
@@ -82,17 +82,17 @@ export type LoginInput = {
   password: Scalars['NonEmptyString'];
 };
 
-export type LoginResult = LoginSucceeded | UserNotFoundError;
+export type LoginResult = LoginSuccess | UserNotFoundError;
 
-export type LoginSucceeded = {
-  __typename?: 'LoginSucceeded';
+export type LoginSuccess = {
+  __typename?: 'LoginSuccess';
   user: User;
 };
 
-export type LogoutResult = LogoutSucceeded;
+export type LogoutResult = LogoutSuccess;
 
-export type LogoutSucceeded = {
-  __typename?: 'LogoutSucceeded';
+export type LogoutSuccess = {
+  __typename?: 'LogoutSuccess';
   user: User;
 };
 
@@ -207,10 +207,10 @@ export type SignupInput = {
   password: Scalars['NonEmptyString'];
 };
 
-export type SignupResult = EmailAlreadyTakenError | SignupSucceeded;
+export type SignupResult = EmailAlreadyTakenError | SignupSuccess;
 
-export type SignupSucceeded = {
-  __typename?: 'SignupSucceeded';
+export type SignupSuccess = {
+  __typename?: 'SignupSuccess';
   id: Scalars['ID'];
 };
 
@@ -259,10 +259,10 @@ export enum TodoStatus {
   Pending = 'PENDING'
 }
 
-export type UncompleteTodoResult = TodoNotFoundError | UncompleteTodoSucceeded;
+export type UncompleteTodoResult = TodoNotFoundError | UncompleteTodoSuccess;
 
-export type UncompleteTodoSucceeded = {
-  __typename?: 'UncompleteTodoSucceeded';
+export type UncompleteTodoSuccess = {
+  __typename?: 'UncompleteTodoSuccess';
   todo: Todo;
 };
 
@@ -275,10 +275,10 @@ export type UpdateMeInput = {
   password?: InputMaybe<Scalars['NonEmptyString']>;
 };
 
-export type UpdateMeResult = EmailAlreadyTakenError | UpdateMeSucceeded;
+export type UpdateMeResult = EmailAlreadyTakenError | UpdateMeSuccess;
 
-export type UpdateMeSucceeded = {
-  __typename?: 'UpdateMeSucceeded';
+export type UpdateMeSuccess = {
+  __typename?: 'UpdateMeSuccess';
   user: User;
 };
 
@@ -291,10 +291,10 @@ export type UpdateTodoInput = {
   title?: InputMaybe<Scalars['NonEmptyString']>;
 };
 
-export type UpdateTodoResult = TodoNotFoundError | UpdateTodoSucceeded;
+export type UpdateTodoResult = TodoNotFoundError | UpdateTodoSuccess;
 
-export type UpdateTodoSucceeded = {
-  __typename?: 'UpdateTodoSucceeded';
+export type UpdateTodoSuccess = {
+  __typename?: 'UpdateTodoSuccess';
   todo: Todo;
 };
 
@@ -424,16 +424,16 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  CompleteTodoResult: ResolversTypes['CompleteTodoSucceeded'] | ResolversTypes['TodoNotFoundError'];
-  CompleteTodoSucceeded: ResolverTypeWrapper<Omit<CompleteTodoSucceeded, 'todo'> & { todo: ResolversTypes['Todo'] }>;
+  CompleteTodoResult: ResolversTypes['CompleteTodoSuccess'] | ResolversTypes['TodoNotFoundError'];
+  CompleteTodoSuccess: ResolverTypeWrapper<Omit<CompleteTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   CreateTodoInput: CreateTodoInput;
-  CreateTodoResult: ResolversTypes['CreateTodoSucceeded'];
-  CreateTodoSucceeded: ResolverTypeWrapper<Omit<CreateTodoSucceeded, 'todo'> & { todo: ResolversTypes['Todo'] }>;
+  CreateTodoResult: ResolversTypes['CreateTodoSuccess'];
+  CreateTodoSuccess: ResolverTypeWrapper<Omit<CreateTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
-  DeleteMeResult: ResolversTypes['DeleteMeSucceeded'];
-  DeleteMeSucceeded: ResolverTypeWrapper<DeleteMeSucceeded>;
-  DeleteTodoResult: ResolversTypes['DeleteTodoSucceeded'] | ResolversTypes['TodoNotFoundError'];
-  DeleteTodoSucceeded: ResolverTypeWrapper<DeleteTodoSucceeded>;
+  DeleteMeResult: ResolversTypes['DeleteMeSuccess'];
+  DeleteMeSuccess: ResolverTypeWrapper<DeleteMeSuccess>;
+  DeleteTodoResult: ResolversTypes['DeleteTodoSuccess'] | ResolversTypes['TodoNotFoundError'];
+  DeleteTodoSuccess: ResolverTypeWrapper<DeleteTodoSuccess>;
   EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']>;
   EmailAlreadyTakenError: ResolverTypeWrapper<EmailAlreadyTakenError>;
   Error: ResolversTypes['EmailAlreadyTakenError'] | ResolversTypes['TodoNotFoundError'] | ResolversTypes['UserNotFoundError'];
@@ -441,10 +441,10 @@ export type ResolversTypes = ResolversObject<{
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   LoginInput: LoginInput;
-  LoginResult: ResolversTypes['LoginSucceeded'] | ResolversTypes['UserNotFoundError'];
-  LoginSucceeded: ResolverTypeWrapper<Omit<LoginSucceeded, 'user'> & { user: ResolversTypes['User'] }>;
-  LogoutResult: ResolversTypes['LogoutSucceeded'];
-  LogoutSucceeded: ResolverTypeWrapper<Omit<LogoutSucceeded, 'user'> & { user: ResolversTypes['User'] }>;
+  LoginResult: ResolversTypes['LoginSuccess'] | ResolversTypes['UserNotFoundError'];
+  LoginSuccess: ResolverTypeWrapper<Omit<LoginSuccess, 'user'> & { user: ResolversTypes['User'] }>;
+  LogoutResult: ResolversTypes['LogoutSuccess'];
+  LogoutSuccess: ResolverTypeWrapper<Omit<LogoutSuccess, 'user'> & { user: ResolversTypes['User'] }>;
   Mutation: ResolverTypeWrapper<{}>;
   Node: ResolversTypes['Todo'] | ResolversTypes['User'];
   NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']>;
@@ -452,8 +452,8 @@ export type ResolversTypes = ResolversObject<{
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<{}>;
   SignupInput: SignupInput;
-  SignupResult: ResolversTypes['EmailAlreadyTakenError'] | ResolversTypes['SignupSucceeded'];
-  SignupSucceeded: ResolverTypeWrapper<SignupSucceeded>;
+  SignupResult: ResolversTypes['EmailAlreadyTakenError'] | ResolversTypes['SignupSuccess'];
+  SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Todo: ResolverTypeWrapper<TodoMapped>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['TodoEdge']>, nodes: Array<ResolversTypes['Todo']> }>;
@@ -462,14 +462,14 @@ export type ResolversTypes = ResolversObject<{
   TodoOrder: TodoOrder;
   TodoOrderField: TodoOrderField;
   TodoStatus: TodoStatus;
-  UncompleteTodoResult: ResolversTypes['TodoNotFoundError'] | ResolversTypes['UncompleteTodoSucceeded'];
-  UncompleteTodoSucceeded: ResolverTypeWrapper<Omit<UncompleteTodoSucceeded, 'todo'> & { todo: ResolversTypes['Todo'] }>;
+  UncompleteTodoResult: ResolversTypes['TodoNotFoundError'] | ResolversTypes['UncompleteTodoSuccess'];
+  UncompleteTodoSuccess: ResolverTypeWrapper<Omit<UncompleteTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   UpdateMeInput: UpdateMeInput;
-  UpdateMeResult: ResolversTypes['EmailAlreadyTakenError'] | ResolversTypes['UpdateMeSucceeded'];
-  UpdateMeSucceeded: ResolverTypeWrapper<Omit<UpdateMeSucceeded, 'user'> & { user: ResolversTypes['User'] }>;
+  UpdateMeResult: ResolversTypes['EmailAlreadyTakenError'] | ResolversTypes['UpdateMeSuccess'];
+  UpdateMeSuccess: ResolverTypeWrapper<Omit<UpdateMeSuccess, 'user'> & { user: ResolversTypes['User'] }>;
   UpdateTodoInput: UpdateTodoInput;
-  UpdateTodoResult: ResolversTypes['TodoNotFoundError'] | ResolversTypes['UpdateTodoSucceeded'];
-  UpdateTodoSucceeded: ResolverTypeWrapper<Omit<UpdateTodoSucceeded, 'todo'> & { todo: ResolversTypes['Todo'] }>;
+  UpdateTodoResult: ResolversTypes['TodoNotFoundError'] | ResolversTypes['UpdateTodoSuccess'];
+  UpdateTodoSuccess: ResolverTypeWrapper<Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   User: ResolverTypeWrapper<UserMapped>;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['UserEdge']>, nodes: Array<ResolversTypes['User']> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: ResolversTypes['User'] }>;
@@ -481,48 +481,48 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
-  CompleteTodoResult: ResolversParentTypes['CompleteTodoSucceeded'] | ResolversParentTypes['TodoNotFoundError'];
-  CompleteTodoSucceeded: Omit<CompleteTodoSucceeded, 'todo'> & { todo: ResolversParentTypes['Todo'] };
+  CompleteTodoResult: ResolversParentTypes['CompleteTodoSuccess'] | ResolversParentTypes['TodoNotFoundError'];
+  CompleteTodoSuccess: Omit<CompleteTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   CreateTodoInput: CreateTodoInput;
-  CreateTodoResult: ResolversParentTypes['CreateTodoSucceeded'];
-  CreateTodoSucceeded: Omit<CreateTodoSucceeded, 'todo'> & { todo: ResolversParentTypes['Todo'] };
+  CreateTodoResult: ResolversParentTypes['CreateTodoSuccess'];
+  CreateTodoSuccess: Omit<CreateTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   DateTime: Scalars['DateTime'];
-  DeleteMeResult: ResolversParentTypes['DeleteMeSucceeded'];
-  DeleteMeSucceeded: DeleteMeSucceeded;
-  DeleteTodoResult: ResolversParentTypes['DeleteTodoSucceeded'] | ResolversParentTypes['TodoNotFoundError'];
-  DeleteTodoSucceeded: DeleteTodoSucceeded;
+  DeleteMeResult: ResolversParentTypes['DeleteMeSuccess'];
+  DeleteMeSuccess: DeleteMeSuccess;
+  DeleteTodoResult: ResolversParentTypes['DeleteTodoSuccess'] | ResolversParentTypes['TodoNotFoundError'];
+  DeleteTodoSuccess: DeleteTodoSuccess;
   EmailAddress: Scalars['EmailAddress'];
   EmailAlreadyTakenError: EmailAlreadyTakenError;
   Error: ResolversParentTypes['EmailAlreadyTakenError'] | ResolversParentTypes['TodoNotFoundError'] | ResolversParentTypes['UserNotFoundError'];
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   LoginInput: LoginInput;
-  LoginResult: ResolversParentTypes['LoginSucceeded'] | ResolversParentTypes['UserNotFoundError'];
-  LoginSucceeded: Omit<LoginSucceeded, 'user'> & { user: ResolversParentTypes['User'] };
-  LogoutResult: ResolversParentTypes['LogoutSucceeded'];
-  LogoutSucceeded: Omit<LogoutSucceeded, 'user'> & { user: ResolversParentTypes['User'] };
+  LoginResult: ResolversParentTypes['LoginSuccess'] | ResolversParentTypes['UserNotFoundError'];
+  LoginSuccess: Omit<LoginSuccess, 'user'> & { user: ResolversParentTypes['User'] };
+  LogoutResult: ResolversParentTypes['LogoutSuccess'];
+  LogoutSuccess: Omit<LogoutSuccess, 'user'> & { user: ResolversParentTypes['User'] };
   Mutation: {};
   Node: ResolversParentTypes['Todo'] | ResolversParentTypes['User'];
   NonEmptyString: Scalars['NonEmptyString'];
   PageInfo: PageInfo;
   Query: {};
   SignupInput: SignupInput;
-  SignupResult: ResolversParentTypes['EmailAlreadyTakenError'] | ResolversParentTypes['SignupSucceeded'];
-  SignupSucceeded: SignupSucceeded;
+  SignupResult: ResolversParentTypes['EmailAlreadyTakenError'] | ResolversParentTypes['SignupSuccess'];
+  SignupSuccess: SignupSuccess;
   String: Scalars['String'];
   Todo: TodoMapped;
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['TodoEdge']>, nodes: Array<ResolversParentTypes['Todo']> };
   TodoEdge: Omit<TodoEdge, 'node'> & { node: ResolversParentTypes['Todo'] };
   TodoNotFoundError: TodoNotFoundError;
   TodoOrder: TodoOrder;
-  UncompleteTodoResult: ResolversParentTypes['TodoNotFoundError'] | ResolversParentTypes['UncompleteTodoSucceeded'];
-  UncompleteTodoSucceeded: Omit<UncompleteTodoSucceeded, 'todo'> & { todo: ResolversParentTypes['Todo'] };
+  UncompleteTodoResult: ResolversParentTypes['TodoNotFoundError'] | ResolversParentTypes['UncompleteTodoSuccess'];
+  UncompleteTodoSuccess: Omit<UncompleteTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   UpdateMeInput: UpdateMeInput;
-  UpdateMeResult: ResolversParentTypes['EmailAlreadyTakenError'] | ResolversParentTypes['UpdateMeSucceeded'];
-  UpdateMeSucceeded: Omit<UpdateMeSucceeded, 'user'> & { user: ResolversParentTypes['User'] };
+  UpdateMeResult: ResolversParentTypes['EmailAlreadyTakenError'] | ResolversParentTypes['UpdateMeSuccess'];
+  UpdateMeSuccess: Omit<UpdateMeSuccess, 'user'> & { user: ResolversParentTypes['User'] };
   UpdateTodoInput: UpdateTodoInput;
-  UpdateTodoResult: ResolversParentTypes['TodoNotFoundError'] | ResolversParentTypes['UpdateTodoSucceeded'];
-  UpdateTodoSucceeded: Omit<UpdateTodoSucceeded, 'todo'> & { todo: ResolversParentTypes['Todo'] };
+  UpdateTodoResult: ResolversParentTypes['TodoNotFoundError'] | ResolversParentTypes['UpdateTodoSuccess'];
+  UpdateTodoSuccess: Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   User: UserMapped;
   UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['UserEdge']>, nodes: Array<ResolversParentTypes['User']> };
   UserEdge: Omit<UserEdge, 'node'> & { node: ResolversParentTypes['User'] };
@@ -531,19 +531,19 @@ export type ResolversParentTypes = ResolversObject<{
 }>;
 
 export type CompleteTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoResult'] = ResolversParentTypes['CompleteTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'CompleteTodoSucceeded' | 'TodoNotFoundError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CompleteTodoSuccess' | 'TodoNotFoundError', ParentType, ContextType>;
 }>;
 
-export type CompleteTodoSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoSucceeded'] = ResolversParentTypes['CompleteTodoSucceeded']> = ResolversObject<{
+export type CompleteTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoSuccess'] = ResolversParentTypes['CompleteTodoSuccess']> = ResolversObject<{
   todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type CreateTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTodoResult'] = ResolversParentTypes['CreateTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'CreateTodoSucceeded', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateTodoSuccess', ParentType, ContextType>;
 }>;
 
-export type CreateTodoSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTodoSucceeded'] = ResolversParentTypes['CreateTodoSucceeded']> = ResolversObject<{
+export type CreateTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTodoSuccess'] = ResolversParentTypes['CreateTodoSuccess']> = ResolversObject<{
   todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -553,19 +553,19 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 }
 
 export type DeleteMeResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteMeResult'] = ResolversParentTypes['DeleteMeResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'DeleteMeSucceeded', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'DeleteMeSuccess', ParentType, ContextType>;
 }>;
 
-export type DeleteMeSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteMeSucceeded'] = ResolversParentTypes['DeleteMeSucceeded']> = ResolversObject<{
+export type DeleteMeSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteMeSuccess'] = ResolversParentTypes['DeleteMeSuccess']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type DeleteTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTodoResult'] = ResolversParentTypes['DeleteTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'DeleteTodoSucceeded' | 'TodoNotFoundError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'DeleteTodoSuccess' | 'TodoNotFoundError', ParentType, ContextType>;
 }>;
 
-export type DeleteTodoSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTodoSucceeded'] = ResolversParentTypes['DeleteTodoSucceeded']> = ResolversObject<{
+export type DeleteTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTodoSuccess'] = ResolversParentTypes['DeleteTodoSuccess']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -585,19 +585,19 @@ export type ErrorResolvers<ContextType = Context, ParentType extends ResolversPa
 }>;
 
 export type LoginResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginResult'] = ResolversParentTypes['LoginResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'LoginSucceeded' | 'UserNotFoundError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'LoginSuccess' | 'UserNotFoundError', ParentType, ContextType>;
 }>;
 
-export type LoginSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginSucceeded'] = ResolversParentTypes['LoginSucceeded']> = ResolversObject<{
+export type LoginSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginSuccess'] = ResolversParentTypes['LoginSuccess']> = ResolversObject<{
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type LogoutResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LogoutResult'] = ResolversParentTypes['LogoutResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'LogoutSucceeded', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'LogoutSuccess', ParentType, ContextType>;
 }>;
 
-export type LogoutSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LogoutSucceeded'] = ResolversParentTypes['LogoutSucceeded']> = ResolversObject<{
+export type LogoutSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LogoutSuccess'] = ResolversParentTypes['LogoutSuccess']> = ResolversObject<{
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -640,10 +640,10 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 }>;
 
 export type SignupResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupResult'] = ResolversParentTypes['SignupResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'SignupSucceeded', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'SignupSuccess', ParentType, ContextType>;
 }>;
 
-export type SignupSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupSucceeded'] = ResolversParentTypes['SignupSucceeded']> = ResolversObject<{
+export type SignupSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupSuccess'] = ResolversParentTypes['SignupSuccess']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -679,28 +679,28 @@ export type TodoNotFoundErrorResolvers<ContextType = Context, ParentType extends
 }>;
 
 export type UncompleteTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoResult'] = ResolversParentTypes['UncompleteTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'TodoNotFoundError' | 'UncompleteTodoSucceeded', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'TodoNotFoundError' | 'UncompleteTodoSuccess', ParentType, ContextType>;
 }>;
 
-export type UncompleteTodoSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoSucceeded'] = ResolversParentTypes['UncompleteTodoSucceeded']> = ResolversObject<{
+export type UncompleteTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoSuccess'] = ResolversParentTypes['UncompleteTodoSuccess']> = ResolversObject<{
   todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type UpdateMeResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateMeResult'] = ResolversParentTypes['UpdateMeResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'UpdateMeSucceeded', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'UpdateMeSuccess', ParentType, ContextType>;
 }>;
 
-export type UpdateMeSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateMeSucceeded'] = ResolversParentTypes['UpdateMeSucceeded']> = ResolversObject<{
+export type UpdateMeSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateMeSuccess'] = ResolversParentTypes['UpdateMeSuccess']> = ResolversObject<{
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type UpdateTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTodoResult'] = ResolversParentTypes['UpdateTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'TodoNotFoundError' | 'UpdateTodoSucceeded', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'TodoNotFoundError' | 'UpdateTodoSuccess', ParentType, ContextType>;
 }>;
 
-export type UpdateTodoSucceededResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTodoSucceeded'] = ResolversParentTypes['UpdateTodoSucceeded']> = ResolversObject<{
+export type UpdateTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTodoSuccess'] = ResolversParentTypes['UpdateTodoSuccess']> = ResolversObject<{
   todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -738,38 +738,38 @@ export type UserNotFoundErrorResolvers<ContextType = Context, ParentType extends
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
   CompleteTodoResult?: CompleteTodoResultResolvers<ContextType>;
-  CompleteTodoSucceeded?: CompleteTodoSucceededResolvers<ContextType>;
+  CompleteTodoSuccess?: CompleteTodoSuccessResolvers<ContextType>;
   CreateTodoResult?: CreateTodoResultResolvers<ContextType>;
-  CreateTodoSucceeded?: CreateTodoSucceededResolvers<ContextType>;
+  CreateTodoSuccess?: CreateTodoSuccessResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   DeleteMeResult?: DeleteMeResultResolvers<ContextType>;
-  DeleteMeSucceeded?: DeleteMeSucceededResolvers<ContextType>;
+  DeleteMeSuccess?: DeleteMeSuccessResolvers<ContextType>;
   DeleteTodoResult?: DeleteTodoResultResolvers<ContextType>;
-  DeleteTodoSucceeded?: DeleteTodoSucceededResolvers<ContextType>;
+  DeleteTodoSuccess?: DeleteTodoSuccessResolvers<ContextType>;
   EmailAddress?: GraphQLScalarType;
   EmailAlreadyTakenError?: EmailAlreadyTakenErrorResolvers<ContextType>;
   Error?: ErrorResolvers<ContextType>;
   LoginResult?: LoginResultResolvers<ContextType>;
-  LoginSucceeded?: LoginSucceededResolvers<ContextType>;
+  LoginSuccess?: LoginSuccessResolvers<ContextType>;
   LogoutResult?: LogoutResultResolvers<ContextType>;
-  LogoutSucceeded?: LogoutSucceededResolvers<ContextType>;
+  LogoutSuccess?: LogoutSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
   NonEmptyString?: GraphQLScalarType;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   SignupResult?: SignupResultResolvers<ContextType>;
-  SignupSucceeded?: SignupSucceededResolvers<ContextType>;
+  SignupSuccess?: SignupSuccessResolvers<ContextType>;
   Todo?: TodoResolvers<ContextType>;
   TodoConnection?: TodoConnectionResolvers<ContextType>;
   TodoEdge?: TodoEdgeResolvers<ContextType>;
   TodoNotFoundError?: TodoNotFoundErrorResolvers<ContextType>;
   UncompleteTodoResult?: UncompleteTodoResultResolvers<ContextType>;
-  UncompleteTodoSucceeded?: UncompleteTodoSucceededResolvers<ContextType>;
+  UncompleteTodoSuccess?: UncompleteTodoSuccessResolvers<ContextType>;
   UpdateMeResult?: UpdateMeResultResolvers<ContextType>;
-  UpdateMeSucceeded?: UpdateMeSucceededResolvers<ContextType>;
+  UpdateMeSuccess?: UpdateMeSuccessResolvers<ContextType>;
   UpdateTodoResult?: UpdateTodoResultResolvers<ContextType>;
-  UpdateTodoSucceeded?: UpdateTodoSucceededResolvers<ContextType>;
+  UpdateTodoSuccess?: UpdateTodoSuccessResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserConnection?: UserConnectionResolvers<ContextType>;
   UserEdge?: UserEdgeResolvers<ContextType>;

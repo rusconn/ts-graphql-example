@@ -25,7 +25,7 @@ const seedTodos = () => prisma.todo.createMany({ data: todos });
 const query = gql`
   mutation UpdateTodo($id: ID!, $input: UpdateTodoInput!) {
     updateTodo(id: $id, input: $input) {
-      ... on UpdateTodoSucceeded {
+      ... on UpdateTodoSuccess {
         __typename
         todo {
           id
@@ -250,7 +250,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSucceeded") {
+    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSuccess") {
       fail();
     }
 
@@ -268,7 +268,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input: {} },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSucceeded") {
+    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSuccess") {
       fail();
     }
 
@@ -292,7 +292,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSucceeded") {
+    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSuccess") {
       fail();
     }
 
@@ -317,7 +317,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSucceeded") {
+    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSuccess") {
       fail();
     }
 

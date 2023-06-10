@@ -16,7 +16,7 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation UpdateMe($input: UpdateMeInput!) {
     updateMe(input: $input) {
-      ... on UpdateMeSucceeded {
+      ... on UpdateMeSuccess {
         __typename
         user {
           id
@@ -190,7 +190,7 @@ describe("logic", () => {
       variables: { input: { name, email } },
     });
 
-    if (data?.updateMe?.__typename !== "UpdateMeSucceeded") {
+    if (data?.updateMe?.__typename !== "UpdateMeSuccess") {
       fail();
     }
 
@@ -207,7 +207,7 @@ describe("logic", () => {
       variables: { input: {} },
     });
 
-    if (data?.updateMe?.__typename !== "UpdateMeSucceeded") {
+    if (data?.updateMe?.__typename !== "UpdateMeSuccess") {
       fail();
     }
 
@@ -225,7 +225,7 @@ describe("logic", () => {
       variables: { input: { name: nonEmptyString("bar") } },
     });
 
-    if (data?.updateMe?.__typename !== "UpdateMeSucceeded") {
+    if (data?.updateMe?.__typename !== "UpdateMeSuccess") {
       fail();
     }
 
@@ -244,7 +244,7 @@ describe("logic", () => {
       variables: { input: { name: nonEmptyString("baz") } },
     });
 
-    if (!data || !data.updateMe || data.updateMe.__typename !== "UpdateMeSucceeded") {
+    if (!data || !data.updateMe || data.updateMe.__typename !== "UpdateMeSuccess") {
       fail();
     }
 

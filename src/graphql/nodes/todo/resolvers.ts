@@ -15,7 +15,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       return {
-        __typename: "CreateTodoSucceeded",
+        __typename: "CreateTodoSuccess",
         todo: toTodoNode(todo),
       };
     },
@@ -29,7 +29,7 @@ export const resolvers: Graph.Resolvers = {
         });
 
         return {
-          __typename: "UpdateTodoSucceeded",
+          __typename: "UpdateTodoSuccess",
           todo: toTodoNode(todo),
         };
       } catch (e) {
@@ -54,7 +54,7 @@ export const resolvers: Graph.Resolvers = {
         });
 
         return {
-          __typename: "DeleteTodoSucceeded",
+          __typename: "DeleteTodoSuccess",
           id: args.id,
         };
       } catch (e) {
@@ -80,7 +80,7 @@ export const resolvers: Graph.Resolvers = {
         });
 
         return {
-          __typename: "CompleteTodoSucceeded",
+          __typename: "CompleteTodoSuccess",
           todo: toTodoNode(todo),
         };
       } catch (e) {
@@ -106,7 +106,7 @@ export const resolvers: Graph.Resolvers = {
         });
 
         return {
-          __typename: "UncompleteTodoSucceeded",
+          __typename: "UncompleteTodoSuccess",
           todo: toTodoNode(todo),
         };
       } catch (e) {

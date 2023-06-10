@@ -17,7 +17,7 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation CreateTodo($input: CreateTodoInput!) {
     createTodo(input: $input) {
-      ... on CreateTodoSucceeded {
+      ... on CreateTodoSuccess {
         __typename
         todo {
           id
@@ -124,7 +124,7 @@ describe("logic", () => {
   it("should create todo using input", async () => {
     const { data } = await executeMutation({ variables: { input } });
 
-    if (!data || !data.createTodo || data.createTodo.__typename !== "CreateTodoSucceeded") {
+    if (!data || !data.createTodo || data.createTodo.__typename !== "CreateTodoSuccess") {
       fail();
     }
 
@@ -139,7 +139,7 @@ describe("logic", () => {
   test("status should be PENDING by default", async () => {
     const { data } = await executeMutation({ variables: { input } });
 
-    if (!data || !data.createTodo || data.createTodo.__typename !== "CreateTodoSucceeded") {
+    if (!data || !data.createTodo || data.createTodo.__typename !== "CreateTodoSuccess") {
       fail();
     }
 

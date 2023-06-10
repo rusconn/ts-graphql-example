@@ -43,33 +43,33 @@ export const typeDefs = gql`
     status: TodoStatus
   }
 
-  union CreateTodoResult = CreateTodoSucceeded
+  union CreateTodoResult = CreateTodoSuccess
 
-  union UpdateTodoResult = UpdateTodoSucceeded | TodoNotFoundError
+  union UpdateTodoResult = UpdateTodoSuccess | TodoNotFoundError
 
-  union DeleteTodoResult = DeleteTodoSucceeded | TodoNotFoundError
+  union DeleteTodoResult = DeleteTodoSuccess | TodoNotFoundError
 
-  union CompleteTodoResult = CompleteTodoSucceeded | TodoNotFoundError
+  union CompleteTodoResult = CompleteTodoSuccess | TodoNotFoundError
 
-  union UncompleteTodoResult = UncompleteTodoSucceeded | TodoNotFoundError
+  union UncompleteTodoResult = UncompleteTodoSuccess | TodoNotFoundError
 
-  type CreateTodoSucceeded {
+  type CreateTodoSuccess {
     todo: Todo!
   }
 
-  type UpdateTodoSucceeded {
+  type UpdateTodoSuccess {
     todo: Todo!
   }
 
-  type DeleteTodoSucceeded {
+  type DeleteTodoSuccess {
     id: ID!
   }
 
-  type CompleteTodoSucceeded {
+  type CompleteTodoSuccess {
     todo: Todo!
   }
 
-  type UncompleteTodoSucceeded {
+  type UncompleteTodoSuccess {
     todo: Todo!
   }
 

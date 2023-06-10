@@ -14,7 +14,7 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation Logout {
     logout {
-      ... on LogoutSucceeded {
+      ... on LogoutSuccess {
         __typename
         user {
           id
@@ -74,7 +74,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.logout || data.logout.__typename !== "LogoutSucceeded") {
+    if (!data || !data.logout || data.logout.__typename !== "LogoutSuccess") {
       fail();
     }
 
@@ -89,7 +89,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.logout || data.logout.__typename !== "LogoutSucceeded") {
+    if (!data || !data.logout || data.logout.__typename !== "LogoutSuccess") {
       fail();
     }
 
