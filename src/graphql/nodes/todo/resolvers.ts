@@ -37,13 +37,8 @@ export const resolvers: Graph.Resolvers = {
           logger.error(e, "error info");
 
           return {
-            __typename: "UpdateTodoFailed",
-            errors: [
-              {
-                __typename: "TodoNotFoundError",
-                message: "todo not found",
-              },
-            ],
+            __typename: "TodoNotFoundError",
+            message: "todo not found",
           };
         }
 
@@ -67,13 +62,8 @@ export const resolvers: Graph.Resolvers = {
           logger.error(e, "error info");
 
           return {
-            __typename: "DeleteTodoFailed",
-            errors: [
-              {
-                __typename: "TodoNotFoundError",
-                message: "todo not found",
-              },
-            ],
+            __typename: "TodoNotFoundError",
+            message: "todo not found",
           };
         }
 
@@ -98,13 +88,8 @@ export const resolvers: Graph.Resolvers = {
           logger.error(e, "error info");
 
           return {
-            __typename: "CompleteTodoFailed",
-            errors: [
-              {
-                __typename: "TodoNotFoundError",
-                message: "todo not found",
-              },
-            ],
+            __typename: "TodoNotFoundError",
+            message: "todo not found",
           };
         }
 
@@ -129,13 +114,8 @@ export const resolvers: Graph.Resolvers = {
           logger.error(e, "error info");
 
           return {
-            __typename: "UncompleteTodoFailed",
-            errors: [
-              {
-                __typename: "TodoNotFoundError",
-                message: "todo not found",
-              },
-            ],
+            __typename: "TodoNotFoundError",
+            message: "todo not found",
           };
         }
 

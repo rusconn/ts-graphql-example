@@ -50,14 +50,9 @@ const query = gql`
           status
         }
       }
-      ... on UncompleteTodoFailed {
+      ... on TodoNotFoundError {
         __typename
-        errors {
-          ... on TodoNotFoundError {
-            __typename
-            message
-          }
-        }
+        message
       }
     }
   }
@@ -159,15 +154,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
     });
 
-    if (
-      !data ||
-      !data.uncompleteTodo ||
-      data.uncompleteTodo.__typename === "UncompleteTodoSucceeded"
-    ) {
-      fail();
-    }
-
-    expect(data.uncompleteTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
+    expect(data?.uncompleteTodo?.__typename === "TodoNotFoundError").toBeTruthy();
   });
 
   test("exists, but not owned", async () => {
@@ -175,15 +162,7 @@ describe("logic", () => {
       variables: { id: GraphData.aliceTodo.id },
     });
 
-    if (
-      !data ||
-      !data.uncompleteTodo ||
-      data.uncompleteTodo.__typename === "UncompleteTodoSucceeded"
-    ) {
-      fail();
-    }
-
-    expect(data.uncompleteTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
+    expect(data?.uncompleteTodo?.__typename === "TodoNotFoundError").toBeTruthy();
   });
 
   it("should update status", async () => {
@@ -194,7 +173,7 @@ describe("logic", () => {
     if (
       !data ||
       !data.uncompleteTodo ||
-      data.uncompleteTodo.__typename === "UncompleteTodoFailed"
+      data.uncompleteTodo.__typename !== "UncompleteTodoSucceeded"
     ) {
       fail();
     }
@@ -213,7 +192,7 @@ describe("logic", () => {
     if (
       !data ||
       !data.uncompleteTodo ||
-      data.uncompleteTodo.__typename === "UncompleteTodoFailed"
+      data.uncompleteTodo.__typename !== "UncompleteTodoSucceeded"
     ) {
       fail();
     }
@@ -234,7 +213,7 @@ describe("logic", () => {
     if (
       !data ||
       !data.uncompleteTodo ||
-      data.uncompleteTodo.__typename === "UncompleteTodoFailed"
+      data.uncompleteTodo.__typename !== "UncompleteTodoSucceeded"
     ) {
       fail();
     }

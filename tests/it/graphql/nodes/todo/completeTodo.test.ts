@@ -41,14 +41,9 @@ const query = gql`
           status
         }
       }
-      ... on CompleteTodoFailed {
+      ... on TodoNotFoundError {
         __typename
-        errors {
-          ... on TodoNotFoundError {
-            __typename
-            message
-          }
-        }
+        message
       }
     }
   }
@@ -147,11 +142,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
     });
 
-    if (!data || !data.completeTodo || data.completeTodo.__typename === "CompleteTodoSucceeded") {
-      fail();
-    }
-
-    expect(data.completeTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
+    expect(data?.completeTodo?.__typename === "TodoNotFoundError").toBeTruthy();
   });
 
   test("exists, but not owned", async () => {
@@ -159,11 +150,7 @@ describe("logic", () => {
       variables: { id: GraphData.aliceTodo.id },
     });
 
-    if (!data || !data.completeTodo || data.completeTodo.__typename === "CompleteTodoSucceeded") {
-      fail();
-    }
-
-    expect(data.completeTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
+    expect(data?.completeTodo?.__typename === "TodoNotFoundError").toBeTruthy();
   });
 
   it("should update status", async () => {
@@ -171,7 +158,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo || data.completeTodo.__typename === "CompleteTodoFailed") {
+    if (!data || !data.completeTodo || data.completeTodo.__typename !== "CompleteTodoSucceeded") {
       fail();
     }
 
@@ -186,7 +173,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo || data.completeTodo.__typename === "CompleteTodoFailed") {
+    if (!data || !data.completeTodo || data.completeTodo.__typename !== "CompleteTodoSucceeded") {
       fail();
     }
 
@@ -203,7 +190,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.completeTodo || data.completeTodo.__typename === "CompleteTodoFailed") {
+    if (!data || !data.completeTodo || data.completeTodo.__typename !== "CompleteTodoSucceeded") {
       fail();
     }
 

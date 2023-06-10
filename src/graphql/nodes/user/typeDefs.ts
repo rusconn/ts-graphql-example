@@ -89,13 +89,13 @@ export const typeDefs = gql`
     password: NonEmptyString!
   }
 
-  union SignupResult = SignupSucceeded | SignupFailed
+  union SignupResult = SignupSucceeded | EmailAlreadyTakenError
 
-  union LoginResult = LoginSucceeded | LoginFailed
+  union LoginResult = LoginSucceeded | UserNotFoundError
 
   union LogoutResult = LogoutSucceeded
 
-  union UpdateMeResult = UpdateMeSucceeded | UpdateMeFailed
+  union UpdateMeResult = UpdateMeSucceeded | EmailAlreadyTakenError
 
   union DeleteMeResult = DeleteMeSucceeded
 
@@ -118,24 +118,6 @@ export const typeDefs = gql`
   type DeleteMeSucceeded {
     id: ID!
   }
-
-  type SignupFailed {
-    errors: [SignupError!]!
-  }
-
-  type LoginFailed {
-    errors: [LoginError!]!
-  }
-
-  type UpdateMeFailed {
-    errors: [UpdateMeError!]!
-  }
-
-  union SignupError = EmailAlreadyTakenError
-
-  union LoginError = UserNotFoundError
-
-  union UpdateMeError = EmailAlreadyTakenError
 
   type EmailAlreadyTakenError implements Error {
     message: String!

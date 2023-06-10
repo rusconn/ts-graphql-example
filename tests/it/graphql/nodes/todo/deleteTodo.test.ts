@@ -27,14 +27,9 @@ const query = gql`
         __typename
         id
       }
-      ... on DeleteTodoFailed {
+      ... on TodoNotFoundError {
         __typename
-        errors {
-          ... on TodoNotFoundError {
-            __typename
-            message
-          }
-        }
+        message
       }
     }
   }
@@ -143,11 +138,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
     });
 
-    if (!data || !data.deleteTodo || data.deleteTodo.__typename === "DeleteTodoSucceeded") {
-      fail();
-    }
-
-    expect(data.deleteTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
+    expect(data?.deleteTodo?.__typename === "TodoNotFoundError").toBeTruthy();
   });
 
   test("exists, but not owned", async () => {
@@ -155,17 +146,13 @@ describe("logic", () => {
       variables: { id: GraphData.aliceTodo.id },
     });
 
-    if (!data || !data.deleteTodo || data.deleteTodo.__typename === "DeleteTodoSucceeded") {
-      fail();
-    }
-
-    expect(data.deleteTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
+    expect(data?.deleteTodo?.__typename === "TodoNotFoundError").toBeTruthy();
   });
 
   it("should delete todo", async () => {
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.deleteTodo || data.deleteTodo.__typename === "DeleteTodoFailed") {
+    if (!data || !data.deleteTodo || data.deleteTodo.__typename !== "DeleteTodoSucceeded") {
       fail();
     }
 
@@ -179,7 +166,7 @@ describe("logic", () => {
 
     const { data } = await executeMutation({ variables: { id: GraphData.adminTodo1.id } });
 
-    if (!data || !data.deleteTodo || data.deleteTodo.__typename === "DeleteTodoFailed") {
+    if (!data || !data.deleteTodo || data.deleteTodo.__typename !== "DeleteTodoSucceeded") {
       fail();
     }
 

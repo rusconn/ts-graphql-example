@@ -21,14 +21,9 @@ const query = gql`
         __typename
         id
       }
-      ... on SignupFailed {
+      ... on EmailAlreadyTakenError {
         __typename
-        errors {
-          ... on EmailAlreadyTakenError {
-            __typename
-            message
-          }
-        }
+        message
       }
     }
   }
@@ -167,11 +162,7 @@ describe("logic", () => {
       variables: { input: { name, email, password } },
     });
 
-    if (!data || !data.signup || data.signup.__typename === "SignupSucceeded") {
-      fail();
-    }
-
-    expect(data.signup.errors.find(e => e.__typename === "EmailAlreadyTakenError")).toBeTruthy();
+    expect(data?.signup?.__typename === "EmailAlreadyTakenError").toBeTruthy();
   });
 
   it("should create user using input", async () => {
@@ -184,7 +175,7 @@ describe("logic", () => {
       variables: { input: { name, email, password } },
     });
 
-    if (!data || !data.signup || data.signup.__typename === "SignupFailed") {
+    if (!data || !data.signup || data.signup.__typename !== "SignupSucceeded") {
       fail();
     }
 
@@ -206,7 +197,7 @@ describe("logic", () => {
       variables: { input: { name, email, password } },
     });
 
-    if (!data || !data.signup || data.signup.__typename === "SignupFailed") {
+    if (!data || !data.signup || data.signup.__typename !== "SignupSucceeded") {
       fail();
     }
 

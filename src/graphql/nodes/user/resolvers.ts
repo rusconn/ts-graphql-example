@@ -63,13 +63,8 @@ export const resolvers: Graph.Resolvers = {
           logger.error(e, "error info");
 
           return {
-            __typename: "SignupFailed",
-            errors: [
-              {
-                __typename: "EmailAlreadyTakenError",
-                message: "specified email already taken",
-              },
-            ],
+            __typename: "EmailAlreadyTakenError",
+            message: "specified email already taken",
           };
         }
 
@@ -104,13 +99,8 @@ export const resolvers: Graph.Resolvers = {
           logger.error(e, "error info");
 
           return {
-            __typename: "LoginFailed",
-            errors: [
-              {
-                __typename: "UserNotFoundError",
-                message: "user not found",
-              },
-            ],
+            __typename: "UserNotFoundError",
+            message: "user not found",
           };
         }
 
@@ -146,13 +136,8 @@ export const resolvers: Graph.Resolvers = {
           logger.error(e, "error info");
 
           return {
-            __typename: "UpdateMeFailed",
-            errors: [
-              {
-                __typename: "EmailAlreadyTakenError",
-                message: "specified email already taken",
-              },
-            ],
+            __typename: "EmailAlreadyTakenError",
+            message: "specified email already taken",
           };
         }
 

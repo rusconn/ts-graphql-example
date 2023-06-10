@@ -35,14 +35,9 @@ const query = gql`
           status
         }
       }
-      ... on UpdateTodoFailed {
+      ... on TodoNotFoundError {
         __typename
-        errors {
-          ... on TodoNotFoundError {
-            __typename
-            message
-          }
-        }
+        message
       }
     }
   }
@@ -233,11 +228,7 @@ describe("logic", () => {
       variables: { input: {}, id: GraphData.adminTodo1.id.slice(0, -1) },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoSucceeded") {
-      fail();
-    }
-
-    expect(data.updateTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
+    expect(data?.updateTodo?.__typename === "TodoNotFoundError").toBeTruthy();
   });
 
   test("exists, but not owned", async () => {
@@ -245,11 +236,7 @@ describe("logic", () => {
       variables: { input: {}, id: GraphData.aliceTodo.id },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoSucceeded") {
-      fail();
-    }
-
-    expect(data.updateTodo.errors.find(x => x.__typename === "TodoNotFoundError")).toBeTruthy();
+    expect(data?.updateTodo?.__typename === "TodoNotFoundError").toBeTruthy();
   });
 
   it("should update using input", async () => {
@@ -263,7 +250,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoFailed") {
+    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSucceeded") {
       fail();
     }
 
@@ -281,7 +268,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input: {} },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoFailed") {
+    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSucceeded") {
       fail();
     }
 
@@ -305,7 +292,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoFailed") {
+    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSucceeded") {
       fail();
     }
 
@@ -330,7 +317,7 @@ describe("logic", () => {
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename === "UpdateTodoFailed") {
+    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSucceeded") {
       fail();
     }
 

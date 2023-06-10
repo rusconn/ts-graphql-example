@@ -25,14 +25,9 @@ const query = gql`
           updatedAt
         }
       }
-      ... on UpdateMeFailed {
+      ... on EmailAlreadyTakenError {
         __typename
-        errors {
-          ... on EmailAlreadyTakenError {
-            __typename
-            message
-          }
-        }
+        message
       }
     }
   }
@@ -184,11 +179,7 @@ describe("logic", () => {
       variables: { input: { email } },
     });
 
-    if (!data || !data.updateMe || data.updateMe.__typename === "UpdateMeSucceeded") {
-      fail();
-    }
-
-    expect(data.updateMe.errors.find(x => x.__typename === "EmailAlreadyTakenError")).toBeTruthy();
+    expect(data?.updateMe?.__typename === "EmailAlreadyTakenError").toBeTruthy();
   });
 
   it("should update using input", async () => {
@@ -199,7 +190,7 @@ describe("logic", () => {
       variables: { input: { name, email } },
     });
 
-    if (data?.updateMe?.__typename === "UpdateMeFailed") {
+    if (data?.updateMe?.__typename !== "UpdateMeSucceeded") {
       fail();
     }
 
@@ -216,7 +207,7 @@ describe("logic", () => {
       variables: { input: {} },
     });
 
-    if (data?.updateMe?.__typename === "UpdateMeFailed") {
+    if (data?.updateMe?.__typename !== "UpdateMeSucceeded") {
       fail();
     }
 
@@ -234,7 +225,7 @@ describe("logic", () => {
       variables: { input: { name: nonEmptyString("bar") } },
     });
 
-    if (data?.updateMe?.__typename === "UpdateMeFailed") {
+    if (data?.updateMe?.__typename !== "UpdateMeSucceeded") {
       fail();
     }
 
@@ -253,7 +244,7 @@ describe("logic", () => {
       variables: { input: { name: nonEmptyString("baz") } },
     });
 
-    if (!data || !data.updateMe || data.updateMe.__typename === "UpdateMeFailed") {
+    if (!data || !data.updateMe || data.updateMe.__typename !== "UpdateMeSucceeded") {
       fail();
     }
 

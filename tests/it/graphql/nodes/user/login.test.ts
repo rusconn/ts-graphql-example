@@ -24,14 +24,9 @@ const query = gql`
           token
         }
       }
-      ... on LoginFailed {
+      ... on UserNotFoundError {
         __typename
-        errors {
-          ... on UserNotFoundError {
-            __typename
-            message
-          }
-        }
+        message
       }
     }
   }
@@ -142,11 +137,7 @@ describe("logic", () => {
       variables: { input: { email: wrongEmail, password } },
     });
 
-    if (!data || !data.login || data.login.__typename === "LoginSucceeded") {
-      fail();
-    }
-
-    expect(data.login.errors.find(x => x.__typename === "UserNotFoundError")).toBeTruthy();
+    expect(data?.login?.__typename === "UserNotFoundError").toBeTruthy();
   });
 
   test("wrong password", async () => {
@@ -157,11 +148,7 @@ describe("logic", () => {
       variables: { input: { email, password: wrongPassword } },
     });
 
-    if (!data || !data.login || data.login.__typename === "LoginSucceeded") {
-      fail();
-    }
-
-    expect(data.login.errors.find(x => x.__typename === "UserNotFoundError")).toBeTruthy();
+    expect(data?.login?.__typename === "UserNotFoundError").toBeTruthy();
   });
 
   test("correct input", async () => {
@@ -172,7 +159,7 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || data.login.__typename === "LoginFailed") {
+    if (!data || !data.login || data.login.__typename !== "LoginSucceeded") {
       fail();
     }
 
@@ -189,7 +176,7 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || data.login.__typename === "LoginFailed") {
+    if (!data || !data.login || data.login.__typename !== "LoginSucceeded") {
       fail();
     }
 
@@ -211,7 +198,7 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || data.login.__typename === "LoginFailed") {
+    if (!data || !data.login || data.login.__typename !== "LoginSucceeded") {
       fail();
     }
 
