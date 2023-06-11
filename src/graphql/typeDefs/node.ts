@@ -1,6 +1,4 @@
-import { gql } from "graphql-tag";
-
-export default gql`
+export default /* GraphQL */ `
   type Query {
     node(id: ID!): Node
   }

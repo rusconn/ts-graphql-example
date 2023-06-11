@@ -1,8 +1,6 @@
-import { gql } from "graphql-tag";
-
 import { makeOrderOptions, makeCursorConnections } from "@/graphql/utils";
 
-export default gql`
+export default /* GraphQL */ `
   ${makeCursorConnections("User", { totalCount: "Int!" })}
   ${makeOrderOptions("User")}
 

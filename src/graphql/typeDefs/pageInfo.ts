@@ -1,6 +1,4 @@
-import { gql } from "graphql-tag";
-
-export default gql`
+export default /* GraphQL */ `
   type PageInfo {
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
