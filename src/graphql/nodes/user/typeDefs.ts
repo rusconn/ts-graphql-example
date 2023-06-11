@@ -5,8 +5,6 @@ import { makeOrderOptions, makeCursorConnections } from "@/graphql/utils";
 export const typeDefs = gql`
   ${makeCursorConnections("User", { totalCount: "Int!" })}
   ${makeOrderOptions("User")}
-  ${makeCursorConnections("Todo", { totalCount: "Int!" })}
-  ${makeOrderOptions("Todo")}
 
   type Query {
     me: User
@@ -45,16 +43,6 @@ export const typeDefs = gql`
     name: NonEmptyString
     email: EmailAddress
     token: NonEmptyString
-    todo(id: ID!): Todo
-    todos(
-      "max: 50"
-      first: Int
-      after: String
-      "max: 50"
-      last: Int
-      before: String
-      orderBy: TodoOrder! = { field: UPDATED_AT, direction: DESC }
-    ): TodoConnection
   }
 
   input SignupInput {

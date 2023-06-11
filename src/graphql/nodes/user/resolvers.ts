@@ -4,7 +4,7 @@ import { nanoid } from "nanoid";
 
 import { passwordHashRoundsExponent } from "@/config";
 import * as DataSource from "@/datasources";
-import { toTodoNode, toTodoNodeId, toUserNode, toUserNodeId } from "@/graphql/adapters";
+import { toUserNode, toUserNodeId } from "@/graphql/adapters";
 import type { Graph, Mapper } from "@/graphql/types";
 import { parsers } from "./parsers";
 
@@ -153,49 +153,6 @@ export const resolvers: Graph.Resolvers = {
         __typename: "DeleteMeSuccess",
         id: toUserNodeId(user.id),
       };
-    },
-  },
-  User: {
-    todo: async (parent, args, { dataSources: { prisma } }) => {
-      const { id, userId } = parsers.User.todo(parent, args);
-
-      const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
-      });
-
-      return toTodoNode(todo);
-    },
-    todos: async ({ id }, args, { dataSources: { prisma } }, resolveInfo) => {
-      const { orderBy, userId, first, last, before, after } = parsers.User.todos({ ...args, id });
-
-      // findUniqueOrThrow を使いたいが、バッチ化されない
-      // https://github.com/prisma/prisma/issues/16625
-      const userPromise = prisma.user.findUnique({
-        where: { id: userId },
-      });
-
-      return findManyCursorConnection<DataSource.Todo, Pick<Mapper.Todo, "id">, Mapper.Todo>(
-        async args_ => {
-          const todos = await userPromise.todos({ ...args_, orderBy });
-
-          if (!todos) throw new Error(`parent not found: ${userId}`);
-
-          return todos;
-        },
-        async () => {
-          const todos = await userPromise.todos();
-
-          if (!todos) throw new Error(`parent not found: ${userId}`);
-
-          return todos.length;
-        },
-        { first, last, before, after },
-        {
-          resolveInfo,
-          getCursor: record => ({ id: toTodoNodeId(record.id) }),
-          recordToEdge: record => ({ node: toTodoNode(record) }),
-        }
-      );
     },
   },
 };

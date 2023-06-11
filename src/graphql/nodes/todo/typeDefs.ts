@@ -1,6 +1,11 @@
 import { gql } from "graphql-tag";
 
+import { makeOrderOptions, makeCursorConnections } from "@/graphql/utils";
+
 export const typeDefs = gql`
+  ${makeCursorConnections("Todo", { totalCount: "Int!" })}
+  ${makeOrderOptions("Todo")}
+
   type Mutation {
     createTodo(input: CreateTodoInput!): CreateTodoResult
 
@@ -20,6 +25,19 @@ export const typeDefs = gql`
     description: String
     status: TodoStatus
     user: User
+  }
+
+  type User {
+    todo(id: ID!): Todo
+    todos(
+      "max: 50"
+      first: Int
+      after: String
+      "max: 50"
+      last: Int
+      before: String
+      orderBy: TodoOrder! = { field: UPDATED_AT, direction: DESC }
+    ): TodoConnection
   }
 
   enum TodoStatus {
