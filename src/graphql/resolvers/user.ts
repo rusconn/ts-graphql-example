@@ -6,7 +6,7 @@ import { passwordHashRoundsExponent } from "@/config";
 import * as DataSource from "@/datasources";
 import { toUserNode, toUserNodeId } from "@/graphql/adapters";
 import type { Graph, Mapper } from "@/graphql/types";
-import { parsers } from "./parsers";
+import { parsers } from "@/graphql/parsers/user";
 
 export const resolvers: Graph.Resolvers = {
   Query: {

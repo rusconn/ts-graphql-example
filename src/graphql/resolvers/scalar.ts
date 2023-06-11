@@ -1,11 +1,9 @@
 import { NonEmptyStringResolver, DateTimeResolver, EmailAddressResolver } from "graphql-scalars";
 
-import * as nodes from "@/graphql/nodes";
+import type { Graph } from "@/graphql/types";
 
-const scalarResolvers = {
+export const resolvers: Graph.Resolvers = {
   NonEmptyString: NonEmptyStringResolver,
   DateTime: DateTimeResolver,
   EmailAddress: EmailAddressResolver,
 };
-
-export const resolvers = { ...scalarResolvers, ...nodes.resolvers };
