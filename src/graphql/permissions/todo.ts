@@ -16,7 +16,7 @@ const isUserOwner = rule({ cache: "strict" })(({ id }: ParentUser, _, { user }: 
   return id === toUserNodeId(user.id) || newPermissionError();
 });
 
-export const permissions = {
+export default {
   Mutation: {
     createTodo: isAuthenticated,
     updateTodo: isAuthenticated,

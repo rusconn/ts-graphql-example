@@ -3,7 +3,7 @@ import { ParseError } from "@/graphql/errors";
 import { Graph } from "@/graphql/types";
 import { parseConnectionArgs, parseUserNodeId } from "@/graphql/utils";
 
-export const parsers = {
+export default {
   Query: {
     users: (args: Graph.QueryUsersArgs) => {
       const { orderBy, ...connectionArgs } = args;

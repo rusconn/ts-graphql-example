@@ -11,7 +11,7 @@ const isOwner = rule({ cache: "strict" })(({ id }: Parent, _, { user }: Context)
   return id === toUserNodeId(user.id) || newPermissionError();
 });
 
-export const permissions = {
+export default {
   Query: {
     me: isAuthenticated,
     users: isAdmin,

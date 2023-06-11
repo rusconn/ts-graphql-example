@@ -6,7 +6,7 @@ import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql
 
 type Parent = Graph.ResolversParentTypes["User"];
 
-export const parsers = {
+export default {
   Mutation: {
     createTodo: (args: Graph.MutationCreateTodoArgs) => {
       const {

@@ -4,8 +4,4 @@ import {
   EmailAddressTypeDefinition,
 } from "graphql-scalars";
 
-export const typeDefs = [
-  NonEmptyStringTypeDefinition,
-  DateTimeTypeDefinition,
-  EmailAddressTypeDefinition,
-];
+export default [NonEmptyStringTypeDefinition, DateTimeTypeDefinition, EmailAddressTypeDefinition];

@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 
 import { makeOrderOptions, makeCursorConnections } from "@/graphql/utils";
 
-export const typeDefs = gql`
+export default gql`
   ${makeCursorConnections("Todo", { totalCount: "Int!" })}
   ${makeOrderOptions("Todo")}
 

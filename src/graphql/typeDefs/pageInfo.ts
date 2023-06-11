@@ -1,6 +1,6 @@
 import { gql } from "graphql-tag";
 
-export const typeDefs = gql`
+export default gql`
   type PageInfo {
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!

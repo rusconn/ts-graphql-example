@@ -1,6 +1,6 @@
 import { gql } from "graphql-tag";
 
-export const typeDefs = gql`
+export default gql`
   enum OrderDirection {
     ASC
     DESC

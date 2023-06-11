@@ -4,7 +4,7 @@ import { nanoid } from "nanoid";
 import * as DataSource from "@/datasources";
 import { toTodoNode, toTodoNodeId, toUserNode } from "@/graphql/adapters";
 import type { Graph, Mapper } from "@/graphql/types";
-import { parsers } from "@/graphql/parsers/todo";
+import parsers from "@/graphql/parsers/todo";
 
 export const resolvers: Graph.Resolvers = {
   Mutation: {

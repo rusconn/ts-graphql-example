@@ -1,6 +1,6 @@
 import { isAuthenticated } from "@/graphql/utils";
 
-export const permissions = {
+export default {
   Query: {
     node: isAuthenticated,
   },

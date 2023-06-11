@@ -1,7 +1,7 @@
 import merge from "lodash/merge";
 
-import * as node from "./node";
-import * as todo from "./todo";
-import * as user from "./user";
+import node from "./node";
+import todo from "./todo";
+import user from "./user";
 
-export const permissions = merge(node.permissions, todo.permissions, user.permissions);
+export const permissions = merge(node, todo, user);

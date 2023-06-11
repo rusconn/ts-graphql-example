@@ -1,7 +1,7 @@
 import * as DataSource from "@/datasources";
 import type { Graph } from "@/graphql/types";
 import { splitNodeId, toTodoNode, toUserNode } from "@/graphql/adapters";
-import { parsers } from "@/graphql/parsers/node";
+import parsers from "@/graphql/parsers/node";
 
 export const resolvers: Graph.Resolvers = {
   Query: {
