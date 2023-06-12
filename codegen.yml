@@ -1,4 +1,7 @@
 scalars: &scalars
+  ID:
+    input: string
+    output: string
   DateTime: "@/graphql/types/scalars#DateTime"
   EmailAddress: "@/graphql/types/scalars#EmailAddress"
   NonEmptyString: "@/graphql/types/scalars#NonEmptyString"

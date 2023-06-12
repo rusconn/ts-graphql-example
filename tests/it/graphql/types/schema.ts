@@ -6,23 +6,25 @@ export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
-  DateTime: DateTime;
-  EmailAddress: EmailAddress;
-  NonEmptyString: NonEmptyString;
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  DateTime: { input: DateTime; output: DateTime; }
+  EmailAddress: { input: EmailAddress; output: EmailAddress; }
+  NonEmptyString: { input: NonEmptyString; output: NonEmptyString; }
 };
 
 export type CreateTodoInput = {
   /** 5000文字まで */
-  description: Scalars['String'];
+  description: Scalars['String']['input'];
   /** 100文字まで */
-  title: Scalars['NonEmptyString'];
+  title: Scalars['NonEmptyString']['input'];
 };
 
 export enum ErrorCode {
@@ -35,9 +37,9 @@ export enum ErrorCode {
 
 export type LoginInput = {
   /** 100文字まで */
-  email: Scalars['EmailAddress'];
+  email: Scalars['EmailAddress']['input'];
   /** 8文字以上、50文字まで */
-  password: Scalars['NonEmptyString'];
+  password: Scalars['NonEmptyString']['input'];
 };
 
 export enum OrderDirection {
@@ -47,11 +49,11 @@ export enum OrderDirection {
 
 export type SignupInput = {
   /** 100文字まで、既に存在する場合はエラー */
-  email: Scalars['EmailAddress'];
+  email: Scalars['EmailAddress']['input'];
   /** 100文字まで */
-  name: Scalars['NonEmptyString'];
+  name: Scalars['NonEmptyString']['input'];
   /** 8文字以上、50文字まで */
-  password: Scalars['NonEmptyString'];
+  password: Scalars['NonEmptyString']['input'];
 };
 
 export type TodoOrder = {
@@ -71,20 +73,20 @@ export enum TodoStatus {
 
 export type UpdateMeInput = {
   /** 100文字まで、既に存在する場合はエラー、null は入力エラー */
-  email?: InputMaybe<Scalars['EmailAddress']>;
+  email?: InputMaybe<Scalars['EmailAddress']['input']>;
   /** 100文字まで、null は入力エラー */
-  name?: InputMaybe<Scalars['NonEmptyString']>;
+  name?: InputMaybe<Scalars['NonEmptyString']['input']>;
   /** 8文字以上、50文字まで、null は入力エラー */
-  password?: InputMaybe<Scalars['NonEmptyString']>;
+  password?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type UpdateTodoInput = {
   /** 5000文字まで、null は入力エラー */
-  description?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   /** null は入力エラー */
   status?: InputMaybe<TodoStatus>;
   /** 100文字まで、null は入力エラー */
-  title?: InputMaybe<Scalars['NonEmptyString']>;
+  title?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type UserOrder = {
@@ -98,14 +100,14 @@ export enum UserOrderField {
 }
 
 export type NodeQueryVariables = Exact<{
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 }>;
 
 
 export type NodeQuery = { node?: { title?: NonEmptyString | null, id: string } | { name?: NonEmptyString | null, id: string } | null };
 
 export type CompleteTodoMutationVariables = Exact<{
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 }>;
 
 
@@ -119,21 +121,21 @@ export type CreateTodoMutationVariables = Exact<{
 export type CreateTodoMutation = { createTodo?: { __typename: 'CreateTodoSuccess', todo: { id: string, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type DeleteTodoMutationVariables = Exact<{
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 }>;
 
 
 export type DeleteTodoMutation = { deleteTodo?: { __typename: 'DeleteTodoSuccess', id: string } | { __typename: 'TodoNotFoundError', message: string } | null };
 
 export type UncompleteTodoMutationVariables = Exact<{
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 }>;
 
 
 export type UncompleteTodoMutation = { uncompleteTodo?: { __typename: 'TodoNotFoundError', message: string } | { __typename: 'UncompleteTodoSuccess', todo: { id: string, updatedAt: DateTime, title?: NonEmptyString | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type UpdateTodoMutationVariables = Exact<{
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
   input: UpdateTodoInput;
 }>;
 
@@ -177,14 +179,14 @@ export type UpdateMeMutationVariables = Exact<{
 export type UpdateMeMutation = { updateMe?: { __typename: 'EmailAlreadyTakenError', message: string } | { __typename: 'UpdateMeSuccess', user: { id: string, name?: NonEmptyString | null, email?: EmailAddress | null, updatedAt: DateTime } } | null };
 
 export type UserQueryVariables = Exact<{
-  id: Scalars['ID'];
-  includeEmail?: InputMaybe<Scalars['Boolean']>;
-  includeToken?: InputMaybe<Scalars['Boolean']>;
-  includeTodos?: InputMaybe<Scalars['Boolean']>;
-  first?: InputMaybe<Scalars['Int']>;
-  after?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  before?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID']['input'];
+  includeEmail?: InputMaybe<Scalars['Boolean']['input']>;
+  includeToken?: InputMaybe<Scalars['Boolean']['input']>;
+  includeTodos?: InputMaybe<Scalars['Boolean']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
   orderBy?: InputMaybe<TodoOrder>;
 }>;
 
@@ -192,10 +194,10 @@ export type UserQueryVariables = Exact<{
 export type UserQuery = { user?: { id: string, createdAt: DateTime, updatedAt: DateTime, name?: NonEmptyString | null, email?: EmailAddress | null, token?: NonEmptyString | null, todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string, title?: NonEmptyString | null, status?: TodoStatus | null } }> } | null } | null };
 
 export type UsersQueryVariables = Exact<{
-  first?: InputMaybe<Scalars['Int']>;
-  after?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
   orderBy?: InputMaybe<UserOrder>;
 }>;
 

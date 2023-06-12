@@ -9,18 +9,20 @@ export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
-  DateTime: DateTime;
-  EmailAddress: EmailAddress;
-  NonEmptyString: NonEmptyString;
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  DateTime: { input: DateTime; output: DateTime; }
+  EmailAddress: { input: EmailAddress; output: EmailAddress; }
+  NonEmptyString: { input: NonEmptyString; output: NonEmptyString; }
 };
 
 export type CompleteTodoResult = CompleteTodoSuccess | TodoNotFoundError;
@@ -32,9 +34,9 @@ export type CompleteTodoSuccess = {
 
 export type CreateTodoInput = {
   /** 5000文字まで */
-  description: Scalars['String'];
+  description: Scalars['String']['input'];
   /** 100文字まで */
-  title: Scalars['NonEmptyString'];
+  title: Scalars['NonEmptyString']['input'];
 };
 
 export type CreateTodoResult = CreateTodoSuccess;
@@ -48,23 +50,23 @@ export type DeleteMeResult = DeleteMeSuccess;
 
 export type DeleteMeSuccess = {
   __typename?: 'DeleteMeSuccess';
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
 };
 
 export type DeleteTodoResult = DeleteTodoSuccess | TodoNotFoundError;
 
 export type DeleteTodoSuccess = {
   __typename?: 'DeleteTodoSuccess';
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
 };
 
 export type EmailAlreadyTakenError = Error & {
   __typename?: 'EmailAlreadyTakenError';
-  message: Scalars['String'];
+  message: Scalars['String']['output'];
 };
 
 export type Error = {
-  message: Scalars['String'];
+  message: Scalars['String']['output'];
 };
 
 export enum ErrorCode {
@@ -77,9 +79,9 @@ export enum ErrorCode {
 
 export type LoginInput = {
   /** 100文字まで */
-  email: Scalars['EmailAddress'];
+  email: Scalars['EmailAddress']['input'];
   /** 8文字以上、50文字まで */
-  password: Scalars['NonEmptyString'];
+  password: Scalars['NonEmptyString']['input'];
 };
 
 export type LoginResult = LoginSuccess | UserNotFoundError;
@@ -115,7 +117,7 @@ export type Mutation = {
 
 
 export type MutationCompleteTodoArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -125,7 +127,7 @@ export type MutationCreateTodoArgs = {
 
 
 export type MutationDeleteTodoArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -140,7 +142,7 @@ export type MutationSignupArgs = {
 
 
 export type MutationUncompleteTodoArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -150,12 +152,12 @@ export type MutationUpdateMeArgs = {
 
 
 export type MutationUpdateTodoArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
   input: UpdateTodoInput;
 };
 
 export type Node = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
 };
 
 export enum OrderDirection {
@@ -165,10 +167,10 @@ export enum OrderDirection {
 
 export type PageInfo = {
   __typename?: 'PageInfo';
-  endCursor?: Maybe<Scalars['String']>;
-  hasNextPage: Scalars['Boolean'];
-  hasPreviousPage: Scalars['Boolean'];
-  startCursor?: Maybe<Scalars['String']>;
+  endCursor?: Maybe<Scalars['String']['output']>;
+  hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
+  startCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type Query = {
@@ -181,47 +183,47 @@ export type Query = {
 
 
 export type QueryNodeArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type QueryUserArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type QueryUsersArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
   orderBy: UserOrder;
 };
 
 export type SignupInput = {
   /** 100文字まで、既に存在する場合はエラー */
-  email: Scalars['EmailAddress'];
+  email: Scalars['EmailAddress']['input'];
   /** 100文字まで */
-  name: Scalars['NonEmptyString'];
+  name: Scalars['NonEmptyString']['input'];
   /** 8文字以上、50文字まで */
-  password: Scalars['NonEmptyString'];
+  password: Scalars['NonEmptyString']['input'];
 };
 
 export type SignupResult = EmailAlreadyTakenError | SignupSuccess;
 
 export type SignupSuccess = {
   __typename?: 'SignupSuccess';
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
 };
 
 export type Todo = Node & {
   __typename?: 'Todo';
-  createdAt: Scalars['DateTime'];
-  description?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
   status?: Maybe<TodoStatus>;
-  title?: Maybe<Scalars['NonEmptyString']>;
-  updatedAt: Scalars['DateTime'];
+  title?: Maybe<Scalars['NonEmptyString']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
   user?: Maybe<User>;
 };
 
@@ -230,18 +232,18 @@ export type TodoConnection = {
   edges: Array<TodoEdge>;
   nodes: Array<Todo>;
   pageInfo: PageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type TodoEdge = {
   __typename?: 'TodoEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Todo;
 };
 
 export type TodoNotFoundError = Error & {
   __typename?: 'TodoNotFoundError';
-  message: Scalars['String'];
+  message: Scalars['String']['output'];
 };
 
 export type TodoOrder = {
@@ -268,11 +270,11 @@ export type UncompleteTodoSuccess = {
 
 export type UpdateMeInput = {
   /** 100文字まで、既に存在する場合はエラー、null は入力エラー */
-  email?: InputMaybe<Scalars['EmailAddress']>;
+  email?: InputMaybe<Scalars['EmailAddress']['input']>;
   /** 100文字まで、null は入力エラー */
-  name?: InputMaybe<Scalars['NonEmptyString']>;
+  name?: InputMaybe<Scalars['NonEmptyString']['input']>;
   /** 8文字以上、50文字まで、null は入力エラー */
-  password?: InputMaybe<Scalars['NonEmptyString']>;
+  password?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type UpdateMeResult = EmailAlreadyTakenError | UpdateMeSuccess;
@@ -284,11 +286,11 @@ export type UpdateMeSuccess = {
 
 export type UpdateTodoInput = {
   /** 5000文字まで、null は入力エラー */
-  description?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   /** null は入力エラー */
   status?: InputMaybe<TodoStatus>;
   /** 100文字まで、null は入力エラー */
-  title?: InputMaybe<Scalars['NonEmptyString']>;
+  title?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type UpdateTodoResult = TodoNotFoundError | UpdateTodoSuccess;
@@ -300,27 +302,27 @@ export type UpdateTodoSuccess = {
 
 export type User = Node & {
   __typename?: 'User';
-  createdAt: Scalars['DateTime'];
-  email?: Maybe<Scalars['EmailAddress']>;
-  id: Scalars['ID'];
-  name?: Maybe<Scalars['NonEmptyString']>;
+  createdAt: Scalars['DateTime']['output'];
+  email?: Maybe<Scalars['EmailAddress']['output']>;
+  id: Scalars['ID']['output'];
+  name?: Maybe<Scalars['NonEmptyString']['output']>;
   todo?: Maybe<Todo>;
   todos?: Maybe<TodoConnection>;
-  token?: Maybe<Scalars['NonEmptyString']>;
-  updatedAt: Scalars['DateTime'];
+  token?: Maybe<Scalars['NonEmptyString']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 
 export type UserTodoArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type UserTodosArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
   orderBy: TodoOrder;
 };
 
@@ -329,18 +331,18 @@ export type UserConnection = {
   edges: Array<UserEdge>;
   nodes: Array<User>;
   pageInfo: PageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type UserEdge = {
   __typename?: 'UserEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: User;
 };
 
 export type UserNotFoundError = Error & {
   __typename?: 'UserNotFoundError';
-  message: Scalars['String'];
+  message: Scalars['String']['output'];
 };
 
 export type UserOrder = {
@@ -421,40 +423,60 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+/** Mapping of union types */
+export type ResolversUnionTypes<RefType extends Record<string, unknown>> = ResolversObject<{
+  CompleteTodoResult: ( Omit<CompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } ) | ( TodoNotFoundError );
+  CreateTodoResult: ( Omit<CreateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } );
+  DeleteMeResult: ( DeleteMeSuccess );
+  DeleteTodoResult: ( DeleteTodoSuccess ) | ( TodoNotFoundError );
+  LoginResult: ( Omit<LoginSuccess, 'user'> & { user: RefType['User'] } ) | ( UserNotFoundError );
+  LogoutResult: ( Omit<LogoutSuccess, 'user'> & { user: RefType['User'] } );
+  SignupResult: ( EmailAlreadyTakenError ) | ( SignupSuccess );
+  UncompleteTodoResult: ( TodoNotFoundError ) | ( Omit<UncompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } );
+  UpdateMeResult: ( EmailAlreadyTakenError ) | ( Omit<UpdateMeSuccess, 'user'> & { user: RefType['User'] } );
+  UpdateTodoResult: ( TodoNotFoundError ) | ( Omit<UpdateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } );
+}>;
+
+/** Mapping of interface types */
+export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = ResolversObject<{
+  Error: ( EmailAlreadyTakenError ) | ( TodoNotFoundError ) | ( UserNotFoundError );
+  Node: ( TodoMapped ) | ( UserMapped );
+}>;
+
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  CompleteTodoResult: ResolversTypes['CompleteTodoSuccess'] | ResolversTypes['TodoNotFoundError'];
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  CompleteTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CompleteTodoResult']>;
   CompleteTodoSuccess: ResolverTypeWrapper<Omit<CompleteTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   CreateTodoInput: CreateTodoInput;
-  CreateTodoResult: ResolversTypes['CreateTodoSuccess'];
+  CreateTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTodoResult']>;
   CreateTodoSuccess: ResolverTypeWrapper<Omit<CreateTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
-  DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
-  DeleteMeResult: ResolversTypes['DeleteMeSuccess'];
+  DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
+  DeleteMeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteMeResult']>;
   DeleteMeSuccess: ResolverTypeWrapper<DeleteMeSuccess>;
-  DeleteTodoResult: ResolversTypes['DeleteTodoSuccess'] | ResolversTypes['TodoNotFoundError'];
+  DeleteTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteTodoResult']>;
   DeleteTodoSuccess: ResolverTypeWrapper<DeleteTodoSuccess>;
-  EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']>;
+  EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']['output']>;
   EmailAlreadyTakenError: ResolverTypeWrapper<EmailAlreadyTakenError>;
-  Error: ResolversTypes['EmailAlreadyTakenError'] | ResolversTypes['TodoNotFoundError'] | ResolversTypes['UserNotFoundError'];
+  Error: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Error']>;
   ErrorCode: ErrorCode;
-  ID: ResolverTypeWrapper<Scalars['ID']>;
-  Int: ResolverTypeWrapper<Scalars['Int']>;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   LoginInput: LoginInput;
-  LoginResult: ResolversTypes['LoginSuccess'] | ResolversTypes['UserNotFoundError'];
+  LoginResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LoginResult']>;
   LoginSuccess: ResolverTypeWrapper<Omit<LoginSuccess, 'user'> & { user: ResolversTypes['User'] }>;
-  LogoutResult: ResolversTypes['LogoutSuccess'];
+  LogoutResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LogoutResult']>;
   LogoutSuccess: ResolverTypeWrapper<Omit<LogoutSuccess, 'user'> & { user: ResolversTypes['User'] }>;
   Mutation: ResolverTypeWrapper<{}>;
-  Node: ResolversTypes['Todo'] | ResolversTypes['User'];
-  NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']>;
+  Node: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Node']>;
+  NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']['output']>;
   OrderDirection: OrderDirection;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<{}>;
   SignupInput: SignupInput;
-  SignupResult: ResolversTypes['EmailAlreadyTakenError'] | ResolversTypes['SignupSuccess'];
+  SignupResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SignupResult']>;
   SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
-  String: ResolverTypeWrapper<Scalars['String']>;
+  String: ResolverTypeWrapper<Scalars['String']['output']>;
   Todo: ResolverTypeWrapper<TodoMapped>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['TodoEdge']>, nodes: Array<ResolversTypes['Todo']> }>;
   TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node: ResolversTypes['Todo'] }>;
@@ -462,13 +484,13 @@ export type ResolversTypes = ResolversObject<{
   TodoOrder: TodoOrder;
   TodoOrderField: TodoOrderField;
   TodoStatus: TodoStatus;
-  UncompleteTodoResult: ResolversTypes['TodoNotFoundError'] | ResolversTypes['UncompleteTodoSuccess'];
+  UncompleteTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UncompleteTodoResult']>;
   UncompleteTodoSuccess: ResolverTypeWrapper<Omit<UncompleteTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   UpdateMeInput: UpdateMeInput;
-  UpdateMeResult: ResolversTypes['EmailAlreadyTakenError'] | ResolversTypes['UpdateMeSuccess'];
+  UpdateMeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateMeResult']>;
   UpdateMeSuccess: ResolverTypeWrapper<Omit<UpdateMeSuccess, 'user'> & { user: ResolversTypes['User'] }>;
   UpdateTodoInput: UpdateTodoInput;
-  UpdateTodoResult: ResolversTypes['TodoNotFoundError'] | ResolversTypes['UpdateTodoSuccess'];
+  UpdateTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTodoResult']>;
   UpdateTodoSuccess: ResolverTypeWrapper<Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   User: ResolverTypeWrapper<UserMapped>;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['UserEdge']>, nodes: Array<ResolversTypes['User']> }>;
@@ -480,48 +502,48 @@ export type ResolversTypes = ResolversObject<{
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
-  Boolean: Scalars['Boolean'];
-  CompleteTodoResult: ResolversParentTypes['CompleteTodoSuccess'] | ResolversParentTypes['TodoNotFoundError'];
+  Boolean: Scalars['Boolean']['output'];
+  CompleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['CompleteTodoResult'];
   CompleteTodoSuccess: Omit<CompleteTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   CreateTodoInput: CreateTodoInput;
-  CreateTodoResult: ResolversParentTypes['CreateTodoSuccess'];
+  CreateTodoResult: ResolversUnionTypes<ResolversParentTypes>['CreateTodoResult'];
   CreateTodoSuccess: Omit<CreateTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
-  DateTime: Scalars['DateTime'];
-  DeleteMeResult: ResolversParentTypes['DeleteMeSuccess'];
+  DateTime: Scalars['DateTime']['output'];
+  DeleteMeResult: ResolversUnionTypes<ResolversParentTypes>['DeleteMeResult'];
   DeleteMeSuccess: DeleteMeSuccess;
-  DeleteTodoResult: ResolversParentTypes['DeleteTodoSuccess'] | ResolversParentTypes['TodoNotFoundError'];
+  DeleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['DeleteTodoResult'];
   DeleteTodoSuccess: DeleteTodoSuccess;
-  EmailAddress: Scalars['EmailAddress'];
+  EmailAddress: Scalars['EmailAddress']['output'];
   EmailAlreadyTakenError: EmailAlreadyTakenError;
-  Error: ResolversParentTypes['EmailAlreadyTakenError'] | ResolversParentTypes['TodoNotFoundError'] | ResolversParentTypes['UserNotFoundError'];
-  ID: Scalars['ID'];
-  Int: Scalars['Int'];
+  Error: ResolversInterfaceTypes<ResolversParentTypes>['Error'];
+  ID: Scalars['ID']['output'];
+  Int: Scalars['Int']['output'];
   LoginInput: LoginInput;
-  LoginResult: ResolversParentTypes['LoginSuccess'] | ResolversParentTypes['UserNotFoundError'];
+  LoginResult: ResolversUnionTypes<ResolversParentTypes>['LoginResult'];
   LoginSuccess: Omit<LoginSuccess, 'user'> & { user: ResolversParentTypes['User'] };
-  LogoutResult: ResolversParentTypes['LogoutSuccess'];
+  LogoutResult: ResolversUnionTypes<ResolversParentTypes>['LogoutResult'];
   LogoutSuccess: Omit<LogoutSuccess, 'user'> & { user: ResolversParentTypes['User'] };
   Mutation: {};
-  Node: ResolversParentTypes['Todo'] | ResolversParentTypes['User'];
-  NonEmptyString: Scalars['NonEmptyString'];
+  Node: ResolversInterfaceTypes<ResolversParentTypes>['Node'];
+  NonEmptyString: Scalars['NonEmptyString']['output'];
   PageInfo: PageInfo;
   Query: {};
   SignupInput: SignupInput;
-  SignupResult: ResolversParentTypes['EmailAlreadyTakenError'] | ResolversParentTypes['SignupSuccess'];
+  SignupResult: ResolversUnionTypes<ResolversParentTypes>['SignupResult'];
   SignupSuccess: SignupSuccess;
-  String: Scalars['String'];
+  String: Scalars['String']['output'];
   Todo: TodoMapped;
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['TodoEdge']>, nodes: Array<ResolversParentTypes['Todo']> };
   TodoEdge: Omit<TodoEdge, 'node'> & { node: ResolversParentTypes['Todo'] };
   TodoNotFoundError: TodoNotFoundError;
   TodoOrder: TodoOrder;
-  UncompleteTodoResult: ResolversParentTypes['TodoNotFoundError'] | ResolversParentTypes['UncompleteTodoSuccess'];
+  UncompleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['UncompleteTodoResult'];
   UncompleteTodoSuccess: Omit<UncompleteTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   UpdateMeInput: UpdateMeInput;
-  UpdateMeResult: ResolversParentTypes['EmailAlreadyTakenError'] | ResolversParentTypes['UpdateMeSuccess'];
+  UpdateMeResult: ResolversUnionTypes<ResolversParentTypes>['UpdateMeResult'];
   UpdateMeSuccess: Omit<UpdateMeSuccess, 'user'> & { user: ResolversParentTypes['User'] };
   UpdateTodoInput: UpdateTodoInput;
-  UpdateTodoResult: ResolversParentTypes['TodoNotFoundError'] | ResolversParentTypes['UpdateTodoSuccess'];
+  UpdateTodoResult: ResolversUnionTypes<ResolversParentTypes>['UpdateTodoResult'];
   UpdateTodoSuccess: Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   User: UserMapped;
   UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['UserEdge']>, nodes: Array<ResolversParentTypes['User']> };
