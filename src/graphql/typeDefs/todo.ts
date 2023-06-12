@@ -4,7 +4,7 @@ export default /* GraphQL */ `
   ${makeCursorConnections("Todo", { totalCount: "Int!" })}
   ${makeOrderOptions("Todo")}
 
-  type Mutation {
+  extend type Mutation {
     createTodo(input: CreateTodoInput!): CreateTodoResult
 
     "指定したフィールドのみ更新する"
@@ -25,7 +25,7 @@ export default /* GraphQL */ `
     user: User
   }
 
-  type User {
+  extend type User {
     todo(id: ID!): Todo
     todos(
       "max: 50"

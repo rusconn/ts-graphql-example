@@ -1,5 +1,5 @@
 export default /* GraphQL */ `
-  type Query {
+  extend type Query {
     node(id: ID!): Node
   }
 

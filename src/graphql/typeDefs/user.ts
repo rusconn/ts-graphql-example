@@ -4,7 +4,7 @@ export default /* GraphQL */ `
   ${makeCursorConnections("User", { totalCount: "Int!" })}
   ${makeOrderOptions("User")}
 
-  type Query {
+  extend type Query {
     me: User
 
     users(
@@ -20,7 +20,7 @@ export default /* GraphQL */ `
     user(id: ID!): User
   }
 
-  type Mutation {
+  extend type Mutation {
     signup(input: SignupInput!): SignupResult
 
     login(input: LoginInput!): LoginResult
