@@ -3,9 +3,9 @@ import { Graph, TypeDef } from "@/graphql/types";
 const sep = ":";
 
 export const toSpecifiedNodeId =
-  (type: TypeDef.NodeType) =>
-  (id: string): Graph.Scalars["ID"] =>
-    `${type}${sep}${id}`;
+  <T extends TypeDef.NodeType>(type: T) =>
+  (id: string) =>
+    `${type}${sep}${id}` as const;
 
 export const splitSpecifiedNodeId =
   <T extends TypeDef.NodeType>(nodeType: T) =>

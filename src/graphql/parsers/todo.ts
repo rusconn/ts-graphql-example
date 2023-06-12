@@ -1,5 +1,4 @@
 import * as DataSource from "@/datasources";
-import { splitUserNodeId } from "@/graphql/adapters";
 import { ParseError } from "@/graphql/errors";
 import { Graph } from "@/graphql/types";
 import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql/utils";
@@ -67,10 +66,10 @@ export default {
     todo: (parent: Parent, args: Graph.UserTodoArgs) => {
       return { id: parseTodoNodeId(args.id), userId: parseUserNodeId(parent.id) };
     },
-    todos: (args: Graph.UserTodosArgs & Pick<Graph.User, "id">) => {
-      const { id, orderBy, ...connectionArgs } = args;
+    todos: (parent: Parent, args: Graph.UserTodosArgs) => {
+      const { orderBy, ...connectionArgs } = args;
 
-      const { id: userId } = splitUserNodeId(id);
+      const userId = parseUserNodeId(parent.id);
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 

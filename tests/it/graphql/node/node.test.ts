@@ -58,14 +58,22 @@ describe("authorization", () => {
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async (user, { id }) => {
-      const { errors } = await executeQuery({ user, variables: { id } });
+      const { errors } = await executeQuery({
+        user,
+        variables: { id },
+      });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
     });
 
     test.each(notAllowedPatterns)("not allowed %o", async (user, { id }) => {
-      const { data, errors } = await executeQuery({ user, variables: { id } });
+      const { data, errors } = await executeQuery({
+        user,
+        variables: { id },
+      });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.node).toBeNull();
@@ -77,14 +85,20 @@ describe("authorization", () => {
 describe("validation", () => {
   describe("$id", () => {
     test.each(GraphData.validNodeIds)("valid %s", async id => {
-      const { errors } = await executeQuery({ variables: { id } });
+      const { errors } = await executeQuery({
+        variables: { id },
+      });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
     test.each(GraphData.invalidIds)("invalid %s", async id => {
-      const { data, errors } = await executeQuery({ variables: { id } });
+      const { data, errors } = await executeQuery({
+        variables: { id },
+      });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.node).toBeFalsy();
@@ -119,7 +133,9 @@ describe("logic", () => {
 
 describe("query user", () => {
   it("should return item correctly", async () => {
-    const { data } = await executeQuery({ variables: { id: GraphData.admin.id } });
+    const { data } = await executeQuery({
+      variables: { id: GraphData.admin.id },
+    });
 
     expect(data?.node).toEqual({ ...pick(GraphData.admin, ["name"]), id: GraphData.admin.id });
   });
@@ -138,9 +154,11 @@ describe("query user", () => {
 
 describe("query todo", () => {
   it("should return item correctly", async () => {
-    const { data } = await executeQuery({ variables: { id: GraphData.adminTodo1.id } });
+    const { data } = await executeQuery({
+      variables: { id: GraphData.adminTodo1.id },
+    });
 
-    expect(data?.node).toEqual(pick(GraphData.adminTodo1, ["id", "title"]));
+    expect(data?.node).toEqual(pick(GraphData.adminTodo1, ["__typename", "id", "title"]));
   });
 
   it("should return not found error if not found", async () => {

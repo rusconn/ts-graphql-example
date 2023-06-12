@@ -3,7 +3,7 @@ import { gql } from "graphql-tag";
 import type { MeQuery, MeQueryVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
 import { prisma } from "it/datasources";
-import { clearTables } from "it/helpers";
+import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
@@ -22,7 +22,7 @@ const query = gql`
 const executeQuery = executeSingleResultOperation(query)<MeQuery, MeQueryVariables>;
 
 beforeAll(async () => {
-  await clearTables();
+  await clearUsers();
   await seedUsers();
 });
 
@@ -31,7 +31,10 @@ describe("authorization", () => {
   const notAlloweds = [ContextData.guest];
 
   test.each(alloweds)("allowed %o", async user => {
-    const { data, errors } = await executeQuery({ user });
+    const { data, errors } = await executeQuery({
+      user,
+    });
+
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.me).not.toBeFalsy();
@@ -39,7 +42,10 @@ describe("authorization", () => {
   });
 
   test.each(notAlloweds)("not allowed %o", async user => {
-    const { data, errors } = await executeQuery({ user });
+    const { data, errors } = await executeQuery({
+      user,
+    });
+
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.me).toBeFalsy();

@@ -25,8 +25,8 @@ const seedTodos = () => prisma.todo.createMany({ data: todos });
 const query = gql`
   mutation UpdateTodo($id: ID!, $input: UpdateTodoInput!) {
     updateTodo(id: $id, input: $input) {
+      __typename
       ... on UpdateTodoSuccess {
-        __typename
         todo {
           id
           updatedAt
@@ -36,7 +36,6 @@ const query = gql`
         }
       }
       ... on TodoNotFoundError {
-        __typename
         message
       }
     }
@@ -55,13 +54,11 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  afterAll(async () => {
-    await clearTables();
-    await seedUsers();
-    await seedTodos();
-  });
-
-  const input = { title: nonEmptyString("foo"), description: "", status: Graph.TodoStatus.Done };
+  const input = {
+    title: nonEmptyString("foo"),
+    description: "",
+    status: Graph.TodoStatus.Done,
+  };
 
   const allowedPatterns = [
     [ContextData.admin, GraphData.adminTodo1],
@@ -100,16 +97,16 @@ describe("authorization", () => {
 
 describe("validation", () => {
   describe("$id", () => {
-    afterAll(async () => {
-      await clearTables();
-      await seedUsers();
-      await seedTodos();
-    });
-
-    const input = { title: nonEmptyString("foo"), description: "", status: Graph.TodoStatus.Done };
+    const input = {
+      title: nonEmptyString("foo"),
+      description: "",
+      status: Graph.TodoStatus.Done,
+    };
 
     test.each(GraphData.validTodoIds)("valid %s", async id => {
-      const { errors } = await executeMutation({ variables: { id, input } });
+      const { errors } = await executeMutation({
+        variables: { id, input },
+      });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -117,7 +114,9 @@ describe("validation", () => {
     });
 
     test.each(GraphData.invalidTodoIds)("invalid %s", async id => {
-      const { errors } = await executeMutation({ variables: { id, input } });
+      const { errors } = await executeMutation({
+        variables: { id, input },
+      });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -126,12 +125,6 @@ describe("validation", () => {
   });
 
   describe("$input", () => {
-    afterAll(async () => {
-      await clearTables();
-      await seedUsers();
-      await seedTodos();
-    });
-
     // 文字数は文字列の長さやバイト数とは異なるので注意
     // https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/length#unicode
     // 合字は複数文字とカウントしていいものとする
@@ -217,18 +210,26 @@ describe("validation", () => {
 });
 
 describe("logic", () => {
-  afterAll(async () => {
-    await clearTables();
-    await seedUsers();
-    await seedTodos();
-  });
+  beforeEach(() =>
+    prisma.todo.upsert({
+      where: { id: DBData.adminTodo1.id },
+      create: DBData.adminTodo1,
+      update: DBData.adminTodo1,
+    })
+  );
+
+  const input = {
+    title: nonEmptyString("bar"),
+    description: "baz",
+    status: Graph.TodoStatus.Done,
+  };
 
   test("not exists", async () => {
     const { data } = await executeMutation({
       variables: { input: {}, id: GraphData.adminTodo1.id.slice(0, -1) },
     });
 
-    expect(data?.updateTodo?.__typename === "TodoNotFoundError").toBeTruthy();
+    expect(data?.updateTodo?.__typename).toBe("TodoNotFoundError");
   });
 
   test("exists, but not owned", async () => {
@@ -236,25 +237,19 @@ describe("logic", () => {
       variables: { input: {}, id: GraphData.aliceTodo.id },
     });
 
-    expect(data?.updateTodo?.__typename === "TodoNotFoundError").toBeTruthy();
+    expect(data?.updateTodo?.__typename).toBe("TodoNotFoundError");
   });
 
   it("should update using input", async () => {
-    const input = {
-      title: nonEmptyString("bar"),
-      description: "baz",
-      status: Graph.TodoStatus.Done,
-    };
-
     const { data } = await executeMutation({
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSuccess") {
-      fail();
-    }
+    expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
-    const todo = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
+    const todo = await prisma.todo.findUniqueOrThrow({
+      where: { id: DBData.adminTodo1.id },
+    });
 
     expect(todo.title).toBe(input.title);
     expect(todo.description).toBe(input.description);
@@ -262,17 +257,19 @@ describe("logic", () => {
   });
 
   it("should not update fields if the field is absent", async () => {
-    const before = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
+    const before = await prisma.todo.findUniqueOrThrow({
+      where: { id: DBData.adminTodo1.id },
+    });
 
     const { data } = await executeMutation({
       variables: { id: GraphData.adminTodo1.id, input: {} },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSuccess") {
-      fail();
-    }
+    expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
-    const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
+    const after = await prisma.todo.findUniqueOrThrow({
+      where: { id: DBData.adminTodo1.id },
+    });
 
     expect(before.title).toBe(after.title);
     expect(before.description).toBe(after.description);
@@ -280,23 +277,19 @@ describe("logic", () => {
   });
 
   it("should update updatedAt", async () => {
-    const before = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
-
-    const input = {
-      title: nonEmptyString("bar"),
-      description: "baz",
-      status: Graph.TodoStatus.Done,
-    };
+    const before = await prisma.todo.findUniqueOrThrow({
+      where: { id: DBData.adminTodo1.id },
+    });
 
     const { data } = await executeMutation({
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSuccess") {
-      fail();
-    }
+    expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
-    const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
+    const after = await prisma.todo.findUniqueOrThrow({
+      where: { id: DBData.adminTodo1.id },
+    });
 
     const beforeUpdatedAt = before.updatedAt.getTime();
     const afterUpdatedAt = after.updatedAt.getTime();
@@ -305,23 +298,19 @@ describe("logic", () => {
   });
 
   it("should not update other attrs", async () => {
-    const before = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
-
-    const input = {
-      title: nonEmptyString("bar"),
-      description: "baz",
-      status: Graph.TodoStatus.Done,
-    };
+    const before = await prisma.todo.findUniqueOrThrow({
+      where: { id: DBData.adminTodo1.id },
+    });
 
     const { data } = await executeMutation({
       variables: { id: GraphData.adminTodo1.id, input },
     });
 
-    if (!data || !data.updateTodo || data.updateTodo.__typename !== "UpdateTodoSuccess") {
-      fail();
-    }
+    expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
-    const after = await prisma.todo.findUniqueOrThrow({ where: { id: DBData.adminTodo1.id } });
+    const after = await prisma.todo.findUniqueOrThrow({
+      where: { id: DBData.adminTodo1.id },
+    });
 
     // これらのフィールドは変化する想定
     const beforeToCompare = omit(before, ["title", "description", "status", "updatedAt"]);

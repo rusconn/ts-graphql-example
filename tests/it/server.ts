@@ -5,8 +5,6 @@ import { DBData } from "it/data";
 import type { Context } from "@/types";
 import { server } from "@/server";
 
-export { server } from "@/server";
-
 type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;
   user?: Context["user"];

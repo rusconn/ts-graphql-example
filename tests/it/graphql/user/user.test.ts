@@ -80,7 +80,11 @@ describe("authorization", () => {
     ] as const;
 
     test.each(allowedPatterns)("allowed %o", async (user, { id }) => {
-      const { data, errors } = await executeQuery({ user, variables: { id } });
+      const { data, errors } = await executeQuery({
+        user,
+        variables: { id },
+      });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.user).not.toBeFalsy();
@@ -88,7 +92,11 @@ describe("authorization", () => {
     });
 
     test.each(notAllowedPatterns)("not allowed %o", async (user, { id }) => {
-      const { data, errors } = await executeQuery({ user, variables: { id } });
+      const { data, errors } = await executeQuery({
+        user,
+        variables: { id },
+      });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.user).toBeFalsy();
@@ -156,7 +164,10 @@ describe("authorization", () => {
 describe("validation", () => {
   describe("$id", () => {
     test.each(GraphData.validUserIds)("valid %s", async id => {
-      const { data, errors } = await executeQuery({ variables: { id } });
+      const { data, errors } = await executeQuery({
+        variables: { id },
+      });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.user).not.toBeFalsy();
@@ -164,7 +175,10 @@ describe("validation", () => {
     });
 
     test.each(GraphData.invalidUserIds)("invalid %s", async id => {
-      const { data, errors } = await executeQuery({ variables: { id } });
+      const { data, errors } = await executeQuery({
+        variables: { id },
+      });
+
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
       expect(data?.user).toBeFalsy();
@@ -227,12 +241,6 @@ describe("query without other nodes", () => {
 
 describe("query other nodes: todos", () => {
   describe("number of items", () => {
-    afterAll(async () => {
-      await clearTables();
-      await seedUsers();
-      await seedAdminTodos();
-    });
-
     it("should affected by first option", async () => {
       const first = numSeedTodos - 1;
 
@@ -296,7 +304,9 @@ describe("query other nodes: todos", () => {
       const first = numSeedTodos - 1;
 
       const makeExecution = () =>
-        executeQuery({ variables: { id: GraphData.admin.id, includeTodos: true, first } });
+        executeQuery({
+          variables: { id: GraphData.admin.id, includeTodos: true, first },
+        });
 
       const { data: data1 } = await makeExecution();
       const { data: data2 } = await makeExecution();

@@ -125,7 +125,7 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Todo: {
-    user: async ({ userId }, __, { dataSources: { prisma } }) => {
+    user: async ({ userId }, _, { dataSources: { prisma } }) => {
       // findUniqueOrThrow を使いたいが、バッチ化されない
       // https://github.com/prisma/prisma/issues/16625
       const user = await prisma.user.findUnique({
@@ -149,8 +149,8 @@ export const resolvers: Graph.Resolvers = {
 
       return toTodoNode(todo);
     },
-    todos: async ({ id }, args, { dataSources: { prisma } }, resolveInfo) => {
-      const { orderBy, userId, first, last, before, after } = parsers.User.todos({ ...args, id });
+    todos: async (parent, args, { dataSources: { prisma } }, resolveInfo) => {
+      const { orderBy, userId, first, last, before, after } = parsers.User.todos(parent, args);
 
       // findUniqueOrThrow を使いたいが、バッチ化されない
       // https://github.com/prisma/prisma/issues/16625

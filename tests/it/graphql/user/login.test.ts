@@ -3,7 +3,7 @@ import { gql } from "graphql-tag";
 import type { LoginMutation, LoginMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
 import { prisma } from "it/datasources";
-import { clearTables } from "it/helpers";
+import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 import { emailAddress, nonEmptyString } from "@/graphql/utils";
@@ -15,8 +15,8 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 const query = gql`
   mutation Login($input: LoginInput!) {
     login(input: $input) {
+      __typename
       ... on LoginSuccess {
-        __typename
         user {
           id
           name
@@ -25,7 +25,6 @@ const query = gql`
         }
       }
       ... on UserNotFoundError {
-        __typename
         message
       }
     }
@@ -35,16 +34,11 @@ const query = gql`
 const executeMutation = executeSingleResultOperation(query)<LoginMutation, LoginMutationVariables>;
 
 beforeAll(async () => {
-  await clearTables();
+  await clearUsers();
   await seedUsers();
 });
 
 describe("authorization", () => {
-  beforeEach(async () => {
-    await clearTables();
-    await seedUsers();
-  });
-
   const variables = {
     input: {
       email: emailAddress("email@email.com"),
@@ -55,7 +49,10 @@ describe("authorization", () => {
   const alloweds = [ContextData.admin, ContextData.alice, ContextData.guest];
 
   test.each(alloweds)("allowed %o", async user => {
-    const { errors } = await executeMutation({ user, variables });
+    const { errors } = await executeMutation({
+      user,
+      variables,
+    });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -65,11 +62,6 @@ describe("authorization", () => {
 
 describe("validation", () => {
   describe("$input", () => {
-    beforeEach(async () => {
-      await clearTables();
-      await seedUsers();
-    });
-
     const emailMaxCharacters = 100;
     const passwordMinCharacters = 8;
     const passwordMaxCharacters = 50;
@@ -124,11 +116,6 @@ describe("validation", () => {
 });
 
 describe("logic", () => {
-  beforeEach(async () => {
-    await clearTables();
-    await seedUsers();
-  });
-
   test("wrong email", async () => {
     const wrongEmail = emailAddress(DBData.admin.email.slice(1));
     const password = nonEmptyString("adminadmin");
@@ -137,7 +124,7 @@ describe("logic", () => {
       variables: { input: { email: wrongEmail, password } },
     });
 
-    expect(data?.login?.__typename === "UserNotFoundError").toBeTruthy();
+    expect(data?.login?.__typename).toBe("UserNotFoundError");
   });
 
   test("wrong password", async () => {
@@ -148,7 +135,7 @@ describe("logic", () => {
       variables: { input: { email, password: wrongPassword } },
     });
 
-    expect(data?.login?.__typename === "UserNotFoundError").toBeTruthy();
+    expect(data?.login?.__typename).toBe("UserNotFoundError");
   });
 
   test("correct input", async () => {
@@ -159,15 +146,13 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || data.login.__typename !== "LoginSuccess") {
-      fail();
-    }
-
-    expect(data.login.user).not.toBeNull();
+    expect(data?.login?.__typename).toBe("LoginSuccess");
   });
 
   test("login changes token", async () => {
-    const before = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });
+    const before = await prisma.user.findFirstOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     const email = emailAddress(DBData.admin.email);
     const password = nonEmptyString("adminadmin");
@@ -176,11 +161,11 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || data.login.__typename !== "LoginSuccess") {
-      fail();
-    }
+    expect(data?.login?.__typename).toBe("LoginSuccess");
 
-    const after = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });
+    const after = await prisma.user.findFirstOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     expect(before.id).toBe(after.id);
     expect(before.name).toBe(after.name);
@@ -189,7 +174,9 @@ describe("logic", () => {
   });
 
   test("login does not changes other attrs", async () => {
-    const before = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });
+    const before = await prisma.user.findFirstOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     const email = emailAddress(DBData.admin.email);
     const password = nonEmptyString("adminadmin");
@@ -198,11 +185,11 @@ describe("logic", () => {
       variables: { input: { email, password } },
     });
 
-    if (!data || !data.login || data.login.__typename !== "LoginSuccess") {
-      fail();
-    }
+    expect(data?.login?.__typename).toBe("LoginSuccess");
 
-    const after = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });
+    const after = await prisma.user.findFirstOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     expect(before.id).toBe(after.id);
     expect(before.name).toBe(after.name);

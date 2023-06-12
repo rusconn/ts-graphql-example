@@ -21,7 +21,9 @@ export const resolvers: Graph.Resolvers = {
             throw new DataSource.NotFoundError();
           }
 
-          const user = await prisma.user.findUniqueOrThrow({ where: { id } });
+          const user = await prisma.user.findUniqueOrThrow({
+            where: { id },
+          });
 
           return toUserNode(user);
         }

@@ -4,7 +4,7 @@ import omit from "lodash/omit";
 import type { UpdateMeMutation, UpdateMeMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
 import { prisma } from "it/datasources";
-import { clearTables } from "it/helpers";
+import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 import { emailAddress, nonEmptyString } from "@/graphql/utils";
@@ -13,11 +13,16 @@ const users = [DBData.admin, DBData.alice, DBData.bob];
 
 const seedUsers = () => prisma.user.createMany({ data: users });
 
+const resetUsers = async () => {
+  await clearUsers();
+  await seedUsers();
+};
+
 const query = gql`
   mutation UpdateMe($input: UpdateMeInput!) {
     updateMe(input: $input) {
+      __typename
       ... on UpdateMeSuccess {
-        __typename
         user {
           id
           name
@@ -26,7 +31,6 @@ const query = gql`
         }
       }
       ... on EmailAlreadyTakenError {
-        __typename
         message
       }
     }
@@ -38,17 +42,9 @@ const executeMutation = executeSingleResultOperation(query)<
   UpdateMeMutationVariables
 >;
 
-beforeAll(async () => {
-  await clearTables();
-  await seedUsers();
-});
+beforeAll(resetUsers);
 
 describe("authorization", () => {
-  afterAll(async () => {
-    await clearTables();
-    await seedUsers();
-  });
-
   const input = { name: nonEmptyString("foo") };
 
   const alloweds = [ContextData.admin, ContextData.alice, ContextData.bob] as const;
@@ -79,11 +75,6 @@ describe("authorization", () => {
 
 describe("validation", () => {
   describe("$input", () => {
-    beforeEach(async () => {
-      await clearTables();
-      await seedUsers();
-    });
-
     // 文字数は文字列の長さやバイト数とは異なるので注意
     // https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/length#unicode
     // 合字は複数文字とカウントしていいものとする
@@ -167,10 +158,7 @@ describe("validation", () => {
 });
 
 describe("logic", () => {
-  beforeEach(async () => {
-    await clearTables();
-    await seedUsers();
-  });
+  beforeEach(resetUsers);
 
   test("email already exists", async () => {
     const email = emailAddress(DBData.alice.email);
@@ -179,7 +167,7 @@ describe("logic", () => {
       variables: { input: { email } },
     });
 
-    expect(data?.updateMe?.__typename === "EmailAlreadyTakenError").toBeTruthy();
+    expect(data?.updateMe?.__typename).toBe("EmailAlreadyTakenError");
   });
 
   it("should update using input", async () => {
@@ -190,28 +178,30 @@ describe("logic", () => {
       variables: { input: { name, email } },
     });
 
-    if (data?.updateMe?.__typename !== "UpdateMeSuccess") {
-      fail();
-    }
+    expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
 
-    const user = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     expect(user.name).toBe(name);
     expect(user.email).toBe(email);
   });
 
   it("should not update fields if the field is absent", async () => {
-    const before = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
+    const before = await prisma.user.findUniqueOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     const { data } = await executeMutation({
       variables: { input: {} },
     });
 
-    if (data?.updateMe?.__typename !== "UpdateMeSuccess") {
-      fail();
-    }
+    expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
 
-    const after = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
+    const after = await prisma.user.findUniqueOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     expect(before.name).toBe(after.name);
     expect(before.email).toBe(after.email);
@@ -219,17 +209,19 @@ describe("logic", () => {
   });
 
   it("should update updatedAt", async () => {
-    const before = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
+    const before = await prisma.user.findUniqueOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     const { data } = await executeMutation({
       variables: { input: { name: nonEmptyString("bar") } },
     });
 
-    if (data?.updateMe?.__typename !== "UpdateMeSuccess") {
-      fail();
-    }
+    expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
 
-    const after = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
+    const after = await prisma.user.findUniqueOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     const beforeUpdatedAt = before.updatedAt.getTime();
     const afterUpdatedAt = after.updatedAt.getTime();
@@ -238,17 +230,19 @@ describe("logic", () => {
   });
 
   it("should not update other attrs", async () => {
-    const before = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
+    const before = await prisma.user.findUniqueOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     const { data } = await executeMutation({
       variables: { input: { name: nonEmptyString("baz") } },
     });
 
-    if (!data || !data.updateMe || data.updateMe.__typename !== "UpdateMeSuccess") {
-      fail();
-    }
+    expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
 
-    const after = await prisma.user.findUniqueOrThrow({ where: { id: DBData.admin.id } });
+    const after = await prisma.user.findUniqueOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     // これらのフィールドは変化する想定
     const beforeToCompare = omit(before, ["name", "updatedAt"]);

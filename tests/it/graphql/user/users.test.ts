@@ -3,7 +3,7 @@ import { gql } from "graphql-tag";
 import type { UsersQuery, UsersQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { prisma } from "it/datasources";
-import { clearTables } from "it/helpers";
+import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
@@ -36,7 +36,7 @@ const query = gql`
 const executeQuery = executeSingleResultOperation(query)<UsersQuery, UsersQueryVariables>;
 
 beforeAll(async () => {
-  await clearTables();
+  await clearUsers();
   await seedUsers();
 });
 
@@ -45,7 +45,11 @@ describe("authorization", () => {
   const notAlloweds = [ContextData.alice, ContextData.bob, ContextData.guest];
 
   test.each(alloweds)("allowed %s", async user => {
-    const { data, errors } = await executeQuery({ user, variables: { first: 1 } });
+    const { data, errors } = await executeQuery({
+      user,
+      variables: { first: 1 },
+    });
+
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.users).not.toBeFalsy();
@@ -53,7 +57,11 @@ describe("authorization", () => {
   });
 
   test.each(notAlloweds)("not allowed %s", async user => {
-    const { data, errors } = await executeQuery({ user, variables: { first: 1 } });
+    const { data, errors } = await executeQuery({
+      user,
+      variables: { first: 1 },
+    });
+
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.users).toBeFalsy();
@@ -69,7 +77,10 @@ describe("validation", () => {
   const invalids = [{}, { first: firstMax + 1 }, { last: lastMax + 1 }];
 
   test.each(valids)("valid %o", async variables => {
-    const { data, errors } = await executeQuery({ variables });
+    const { data, errors } = await executeQuery({
+      variables,
+    });
+
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.users).not.toBeFalsy();
@@ -77,7 +88,10 @@ describe("validation", () => {
   });
 
   test.each(invalids)("invalid %o", async variables => {
-    const { data, errors } = await executeQuery({ variables });
+    const { data, errors } = await executeQuery({
+      variables,
+    });
+
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.users).toBeFalsy();
@@ -86,21 +100,22 @@ describe("validation", () => {
 });
 
 describe("number of items", () => {
-  afterAll(async () => {
-    await clearTables();
-    await seedUsers();
-  });
-
   it("should affected by first option", async () => {
     const first = numSeed - 1;
-    const { data } = await executeQuery({ variables: { first } });
+
+    const { data } = await executeQuery({
+      variables: { first },
+    });
 
     expect(data?.users?.edges).toHaveLength(first);
   });
 
   it("should affected by last option", async () => {
     const last = numSeed - 1;
-    const { data } = await executeQuery({ variables: { last } });
+
+    const { data } = await executeQuery({
+      variables: { last },
+    });
 
     expect(data?.users?.edges).toHaveLength(last);
   });
@@ -128,7 +143,10 @@ describe("order of items", () => {
   ] as const;
 
   test.each(patterns)("%o, %o", async (variables, expectedUsers) => {
-    const { data } = await executeQuery({ variables: { ...variables, first: 10 } });
+    const { data } = await executeQuery({
+      variables: { ...variables, first: 10 },
+    });
+
     const ids = data?.users?.edges.map(({ node }) => node.id);
     const expectedIds = expectedUsers.map(({ id }) => id);
 

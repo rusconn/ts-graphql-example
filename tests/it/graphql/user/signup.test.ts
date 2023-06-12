@@ -3,26 +3,29 @@ import { gql } from "graphql-tag";
 import type { SignupMutation, SignupMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
 import { prisma } from "it/datasources";
-import { clearTables } from "it/helpers";
+import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as DataSource from "@/datasources";
-import { splitUserNodeId } from "@/graphql/adapters";
 import { Graph } from "@/graphql/types";
-import { emailAddress, nonEmptyString } from "@/graphql/utils";
+import { emailAddress, nonEmptyString, parseUserNodeId } from "@/graphql/utils";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
 const seedUsers = () => prisma.user.createMany({ data: users });
 
+const resetUsers = async () => {
+  await clearUsers();
+  await seedUsers();
+};
+
 const query = gql`
   mutation Signup($input: SignupInput!) {
     signup(input: $input) {
+      __typename
       ... on SignupSuccess {
-        __typename
         id
       }
       ... on EmailAlreadyTakenError {
-        __typename
         message
       }
     }
@@ -34,17 +37,9 @@ const executeMutation = executeSingleResultOperation(query)<
   SignupMutationVariables
 >;
 
-beforeAll(async () => {
-  await clearTables();
-  await seedUsers();
-});
+beforeAll(resetUsers);
 
 describe("authorization", () => {
-  beforeEach(async () => {
-    await clearTables();
-    await seedUsers();
-  });
-
   const variables = {
     input: {
       name: nonEmptyString("foo"),
@@ -57,7 +52,10 @@ describe("authorization", () => {
   const notAlloweds = [ContextData.admin, ContextData.alice, ContextData.bob];
 
   test.each(alloweds)("allowed %o", async user => {
-    const { data, errors } = await executeMutation({ user, variables });
+    const { data, errors } = await executeMutation({
+      user,
+      variables,
+    });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -66,7 +64,10 @@ describe("authorization", () => {
   });
 
   test.each(notAlloweds)("not allowed %o", async user => {
-    const { data, errors } = await executeMutation({ user, variables });
+    const { data, errors } = await executeMutation({
+      user,
+      variables,
+    });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -77,11 +78,6 @@ describe("authorization", () => {
 
 describe("validation", () => {
   describe("$input", () => {
-    beforeEach(async () => {
-      await clearTables();
-      await seedUsers();
-    });
-
     // 文字数は文字列の長さやバイト数とは異なるので注意
     // https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/length#unicode
     // 合字は複数文字とカウントしていいものとする
@@ -147,10 +143,7 @@ describe("validation", () => {
 });
 
 describe("logic", () => {
-  beforeEach(async () => {
-    await clearTables();
-    await seedUsers();
-  });
+  beforeEach(resetUsers);
 
   test("email already exists", async () => {
     const name = nonEmptyString("foo");
@@ -162,7 +155,7 @@ describe("logic", () => {
       variables: { input: { name, email, password } },
     });
 
-    expect(data?.signup?.__typename === "EmailAlreadyTakenError").toBeTruthy();
+    expect(data?.signup?.__typename).toBe("EmailAlreadyTakenError");
   });
 
   it("should create user using input", async () => {
@@ -175,13 +168,15 @@ describe("logic", () => {
       variables: { input: { name, email, password } },
     });
 
-    if (!data || !data.signup || data.signup.__typename !== "SignupSuccess") {
+    if (data?.signup?.__typename !== "SignupSuccess") {
       fail();
     }
 
-    const { id } = splitUserNodeId(data.signup.id);
+    const id = parseUserNodeId(data.signup.id);
 
-    const user = await prisma.user.findUniqueOrThrow({ where: { id } });
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id },
+    });
 
     expect(user.name).toBe(name);
     expect(user.email).toBe(email);
@@ -197,13 +192,15 @@ describe("logic", () => {
       variables: { input: { name, email, password } },
     });
 
-    if (!data || !data.signup || data.signup.__typename !== "SignupSuccess") {
+    if (data?.signup?.__typename !== "SignupSuccess") {
       fail();
     }
 
-    const { id } = splitUserNodeId(data.signup.id);
+    const id = parseUserNodeId(data.signup.id);
 
-    const user = await prisma.user.findUniqueOrThrow({ where: { id } });
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id },
+    });
 
     expect(user.role).toBe(DataSource.Role.USER);
   });

@@ -3,7 +3,7 @@ import { gql } from "graphql-tag";
 import type { LogoutMutation, LogoutMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
 import { prisma } from "it/datasources";
-import { clearTables } from "it/helpers";
+import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import { Graph } from "@/graphql/types";
 
@@ -11,11 +11,16 @@ const users = [DBData.admin, DBData.alice, DBData.bob];
 
 const seedUsers = () => prisma.user.createMany({ data: users });
 
+const resetUsers = async () => {
+  await clearUsers();
+  await seedUsers();
+};
+
 const query = gql`
   mutation Logout {
     logout {
+      __typename
       ... on LogoutSuccess {
-        __typename
         user {
           id
           name
@@ -32,22 +37,16 @@ const executeMutation = executeSingleResultOperation(query)<
   LogoutMutationVariables
 >;
 
-beforeAll(async () => {
-  await clearTables();
-  await seedUsers();
-});
+beforeAll(resetUsers);
 
 describe("authorization", () => {
-  beforeEach(async () => {
-    await clearTables();
-    await seedUsers();
-  });
-
   const alloweds = [ContextData.admin, ContextData.alice];
   const notAlloweds = [ContextData.guest];
 
   test.each(alloweds)("allowed %o", async user => {
-    const { errors } = await executeMutation({ user });
+    const { errors } = await executeMutation({
+      user,
+    });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -55,7 +54,9 @@ describe("authorization", () => {
   });
 
   test.each(notAlloweds)("not allowed %o", async user => {
-    const { errors } = await executeMutation({ user });
+    const { errors } = await executeMutation({
+      user,
+    });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
@@ -64,36 +65,37 @@ describe("authorization", () => {
 });
 
 describe("logic", () => {
-  beforeEach(async () => {
-    await clearTables();
-    await seedUsers();
-  });
+  beforeEach(resetUsers);
 
   test("logout deletes token", async () => {
-    const before = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });
+    const before = await prisma.user.findFirstOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.logout || data.logout.__typename !== "LogoutSuccess") {
-      fail();
-    }
+    expect(data?.logout?.__typename).toBe("LogoutSuccess");
 
-    const after = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });
+    const after = await prisma.user.findFirstOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     expect(before.token).not.toBeNull();
     expect(after.token).toBeNull();
   });
 
   test("logout does not changes other attrs", async () => {
-    const before = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });
+    const before = await prisma.user.findFirstOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     const { data } = await executeMutation({});
 
-    if (!data || !data.logout || data.logout.__typename !== "LogoutSuccess") {
-      fail();
-    }
+    expect(data?.logout?.__typename).toBe("LogoutSuccess");
 
-    const after = await prisma.user.findFirstOrThrow({ where: { id: DBData.admin.id } });
+    const after = await prisma.user.findFirstOrThrow({
+      where: { id: DBData.admin.id },
+    });
 
     expect(before.id).toBe(after.id);
     expect(before.name).toBe(after.name);
