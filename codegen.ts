@@ -26,6 +26,9 @@ const typescriptResolvers = {
     User: "@/graphql/types/mappers#User",
     Todo: "@/graphql/types/mappers#Todo",
   },
+  resolversNonOptionalTypename: {
+    unionMember: true,
+  },
 };
 
 const typescriptOperations = {

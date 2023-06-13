@@ -425,16 +425,16 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = ResolversObject<{
-  CompleteTodoResult: ( Omit<CompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } ) | ( TodoNotFoundError );
-  CreateTodoResult: ( Omit<CreateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } );
-  DeleteMeResult: ( DeleteMeSuccess );
-  DeleteTodoResult: ( DeleteTodoSuccess ) | ( TodoNotFoundError );
-  LoginResult: ( Omit<LoginSuccess, 'user'> & { user: RefType['User'] } ) | ( UserNotFoundError );
-  LogoutResult: ( Omit<LogoutSuccess, 'user'> & { user: RefType['User'] } );
-  SignupResult: ( EmailAlreadyTakenError ) | ( SignupSuccess );
-  UncompleteTodoResult: ( TodoNotFoundError ) | ( Omit<UncompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } );
-  UpdateMeResult: ( EmailAlreadyTakenError ) | ( Omit<UpdateMeSuccess, 'user'> & { user: RefType['User'] } );
-  UpdateTodoResult: ( TodoNotFoundError ) | ( Omit<UpdateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } );
+  CompleteTodoResult: ( Omit<CompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'CompleteTodoSuccess' } ) | ( TodoNotFoundError & { __typename: 'TodoNotFoundError' } );
+  CreateTodoResult: ( Omit<CreateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'CreateTodoSuccess' } );
+  DeleteMeResult: ( DeleteMeSuccess & { __typename: 'DeleteMeSuccess' } );
+  DeleteTodoResult: ( DeleteTodoSuccess & { __typename: 'DeleteTodoSuccess' } ) | ( TodoNotFoundError & { __typename: 'TodoNotFoundError' } );
+  LoginResult: ( Omit<LoginSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'LoginSuccess' } ) | ( UserNotFoundError & { __typename: 'UserNotFoundError' } );
+  LogoutResult: ( Omit<LogoutSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'LogoutSuccess' } );
+  SignupResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( SignupSuccess & { __typename: 'SignupSuccess' } );
+  UncompleteTodoResult: ( TodoNotFoundError & { __typename: 'TodoNotFoundError' } ) | ( Omit<UncompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'UncompleteTodoSuccess' } );
+  UpdateMeResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( Omit<UpdateMeSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'UpdateMeSuccess' } );
+  UpdateTodoResult: ( TodoNotFoundError & { __typename: 'TodoNotFoundError' } ) | ( Omit<UpdateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'UpdateTodoSuccess' } );
 }>;
 
 /** Mapping of interface types */
