@@ -1,5 +1,3 @@
-import { gql } from "graphql-tag";
-
 import type { UserQuery, UserQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { prisma } from "it/datasources";
@@ -15,7 +13,7 @@ const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
 
 const numSeedTodos = todos.length;
 
-const query = gql`
+const query = /* GraphQL */ `
   query User(
     $id: ID!
     $includeEmail: Boolean = false

@@ -1,5 +1,3 @@
-import { gql } from "graphql-tag";
-
 import type { SignupMutation, SignupMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
 import { prisma } from "it/datasources";
@@ -18,7 +16,7 @@ const resetUsers = async () => {
   await seedUsers();
 };
 
-const query = gql`
+const query = /* GraphQL */ `
   mutation Signup($input: SignupInput!) {
     signup(input: $input) {
       __typename

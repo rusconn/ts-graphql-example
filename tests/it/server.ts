@@ -11,7 +11,7 @@ type ExecuteOperationParams<TVariables> = {
 };
 
 export const executeSingleResultOperation =
-  (query: DocumentNode) =>
+  (query: DocumentNode | string) =>
   async <TData, TVariables>({
     variables,
     user = DBData.admin,

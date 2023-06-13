@@ -1,4 +1,3 @@
-import { gql } from "graphql-tag";
 import pick from "lodash/pick";
 
 import type { NodeQuery, NodeQueryVariables } from "it/graphql/types";
@@ -21,7 +20,7 @@ const todos = [
 const seedUsers = () => prisma.user.createMany({ data: users });
 const seedTodos = () => prisma.todo.createMany({ data: todos });
 
-const query = gql`
+const query = /* GraphQL */ `
   query Node($id: ID!) {
     node(id: $id) {
       id

@@ -1,5 +1,3 @@
-import { gql } from "graphql-tag";
-
 import type { UsersQuery, UsersQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { prisma } from "it/datasources";
@@ -13,7 +11,7 @@ const seedUsers = () => prisma.user.createMany({ data: users });
 
 const numSeed = users.length;
 
-const query = gql`
+const query = /* GraphQL */ `
   query Users($first: Int, $after: String, $last: Int, $before: String, $orderBy: UserOrder) {
     users(first: $first, last: $last, after: $after, before: $before, orderBy: $orderBy) {
       totalCount

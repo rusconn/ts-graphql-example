@@ -1,4 +1,3 @@
-import { gql } from "graphql-tag";
 import omit from "lodash/omit";
 
 import type { UncompleteTodoMutation, UncompleteTodoMutationVariables } from "it/graphql/types";
@@ -22,7 +21,7 @@ const todos = [
 const seedUsers = () => prisma.user.createMany({ data: users });
 const seedTodos = () => prisma.todo.createMany({ data: todos });
 
-const query = gql`
+const query = /* GraphQL */ `
   mutation UncompleteTodo($id: ID!) {
     uncompleteTodo(id: $id) {
       __typename

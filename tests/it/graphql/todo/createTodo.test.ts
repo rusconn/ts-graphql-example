@@ -1,5 +1,3 @@
-import { gql } from "graphql-tag";
-
 import type { CreateTodoMutation, CreateTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData } from "it/data";
 import { prisma } from "it/datasources";
@@ -13,7 +11,7 @@ const users = [DBData.admin, DBData.alice, DBData.bob];
 
 const seedUsers = () => prisma.user.createMany({ data: users });
 
-const query = gql`
+const query = /* GraphQL */ `
   mutation CreateTodo($input: CreateTodoInput!) {
     createTodo(input: $input) {
       __typename

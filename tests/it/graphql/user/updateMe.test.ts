@@ -1,4 +1,3 @@
-import { gql } from "graphql-tag";
 import omit from "lodash/omit";
 
 import type { UpdateMeMutation, UpdateMeMutationVariables } from "it/graphql/types";
@@ -18,7 +17,7 @@ const resetUsers = async () => {
   await seedUsers();
 };
 
-const query = gql`
+const query = /* GraphQL */ `
   mutation UpdateMe($input: UpdateMeInput!) {
     updateMe(input: $input) {
       __typename

@@ -1,5 +1,3 @@
-import { gql } from "graphql-tag";
-
 import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { prisma } from "it/datasources";
@@ -25,7 +23,7 @@ const resetTodos = async () => {
   await seedTodos();
 };
 
-const query = gql`
+const query = /* GraphQL */ `
   mutation DeleteTodo($id: ID!) {
     deleteTodo(id: $id) {
       __typename
