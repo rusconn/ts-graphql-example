@@ -14,7 +14,6 @@ const typescript = {
   avoidOptionals: {
     defaultValue: true,
   },
-  inputMaybeValue: "T | null | undefined", // null を指定する場合と、指定しない(=undefined)場合がある
   scalars,
   useTypeImports: true,
 };
