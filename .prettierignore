@@ -5,5 +5,6 @@ tsconfig.tsbuildinfo
 dist
 
 # additional ignores
+pnpm-lock.yaml
 src/graphql/types/schema.ts
 tests/it/graphql/types/schema.ts
