@@ -8,7 +8,7 @@ type WideTimestamps<T> = Omit<T, "createdAt" | "updatedAt"> & {
   updatedAt: Date | Scalar.DateTime;
 };
 
-export type User = WideTimestamps<Omit<Graph.User, "__typename" | "todos">>;
+export type User = WideTimestamps<Omit<Graph.User, "__typename" | "todo" | "todos">>;
 
 export type Todo = WideTimestamps<Omit<Graph.Todo, "__typename" | "user">> & {
   userId: DataSource.User["id"];
