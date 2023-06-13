@@ -2,7 +2,7 @@ import type { DateTime } from '@/graphql/types/scalars';
 import type { EmailAddress } from '@/graphql/types/scalars';
 import type { NonEmptyString } from '@/graphql/types/scalars';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import type { User as UserMapped, Todo as TodoMapped } from '@/graphql/types/mappers';
+import type { User as UserMapper, Todo as TodoMapper } from '@/graphql/types/mappers';
 import type { Context } from '@/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null | undefined;
@@ -440,7 +440,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = Resol
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = ResolversObject<{
   Error: ( EmailAlreadyTakenError ) | ( TodoNotFoundError ) | ( UserNotFoundError );
-  Node: ( TodoMapped ) | ( UserMapped );
+  Node: ( TodoMapper ) | ( UserMapper );
 }>;
 
 /** Mapping between all available schema types and the resolvers types */
@@ -477,7 +477,7 @@ export type ResolversTypes = ResolversObject<{
   SignupResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SignupResult']>;
   SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
-  Todo: ResolverTypeWrapper<TodoMapped>;
+  Todo: ResolverTypeWrapper<TodoMapper>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['TodoEdge']>, nodes: Array<ResolversTypes['Todo']> }>;
   TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node: ResolversTypes['Todo'] }>;
   TodoNotFoundError: ResolverTypeWrapper<TodoNotFoundError>;
@@ -492,7 +492,7 @@ export type ResolversTypes = ResolversObject<{
   UpdateTodoInput: UpdateTodoInput;
   UpdateTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTodoResult']>;
   UpdateTodoSuccess: ResolverTypeWrapper<Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
-  User: ResolverTypeWrapper<UserMapped>;
+  User: ResolverTypeWrapper<UserMapper>;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['UserEdge']>, nodes: Array<ResolversTypes['User']> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: ResolversTypes['User'] }>;
   UserNotFoundError: ResolverTypeWrapper<UserNotFoundError>;
@@ -532,7 +532,7 @@ export type ResolversParentTypes = ResolversObject<{
   SignupResult: ResolversUnionTypes<ResolversParentTypes>['SignupResult'];
   SignupSuccess: SignupSuccess;
   String: Scalars['String']['output'];
-  Todo: TodoMapped;
+  Todo: TodoMapper;
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['TodoEdge']>, nodes: Array<ResolversParentTypes['Todo']> };
   TodoEdge: Omit<TodoEdge, 'node'> & { node: ResolversParentTypes['Todo'] };
   TodoNotFoundError: TodoNotFoundError;
@@ -545,7 +545,7 @@ export type ResolversParentTypes = ResolversObject<{
   UpdateTodoInput: UpdateTodoInput;
   UpdateTodoResult: ResolversUnionTypes<ResolversParentTypes>['UpdateTodoResult'];
   UpdateTodoSuccess: Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
-  User: UserMapped;
+  User: UserMapper;
   UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['UserEdge']>, nodes: Array<ResolversParentTypes['User']> };
   UserEdge: Omit<UserEdge, 'node'> & { node: ResolversParentTypes['User'] };
   UserNotFoundError: UserNotFoundError;

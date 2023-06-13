@@ -22,7 +22,7 @@ const typescript = {
 const typescriptResolvers = {
   useIndexSignature: true,
   contextType: "@/types#Context",
-  mapperTypeSuffix: "Mapped", // prefix がなかったため suffix
+  mapperTypeSuffix: "Mapper",
   mappers: {
     User: "@/graphql/types/mappers#User",
     Todo: "@/graphql/types/mappers#Todo",
