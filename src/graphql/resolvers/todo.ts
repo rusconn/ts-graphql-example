@@ -126,15 +126,9 @@ export const resolvers: Graph.Resolvers = {
   },
   Todo: {
     user: async ({ userId }, _, { dataSources: { prisma } }) => {
-      // findUniqueOrThrow を使いたいが、バッチ化されない
-      // https://github.com/prisma/prisma/issues/16625
-      const user = await prisma.user.findUnique({
+      const user = await prisma.user.findUniqueOrThrow({
         where: { id: userId },
       });
-
-      if (!user) {
-        throw new Error(`user not found: ${userId}`);
-      }
 
       return toUserNode(user);
     },
@@ -152,27 +146,13 @@ export const resolvers: Graph.Resolvers = {
     todos: async (parent, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, userId, first, last, before, after } = parsers.User.todos(parent, args);
 
-      // findUniqueOrThrow を使いたいが、バッチ化されない
-      // https://github.com/prisma/prisma/issues/16625
-      const userPromise = prisma.user.findUnique({
+      const userPromise = prisma.user.findUniqueOrThrow({
         where: { id: userId },
       });
 
       return findManyCursorConnection<DataSource.Todo, Pick<Mapper.Todo, "id">, Mapper.Todo>(
-        async args_ => {
-          const todos = await userPromise.todos({ ...args_, orderBy });
-
-          if (!todos) throw new Error(`parent not found: ${userId}`);
-
-          return todos;
-        },
-        async () => {
-          const todos = await userPromise.todos();
-
-          if (!todos) throw new Error(`parent not found: ${userId}`);
-
-          return todos.length;
-        },
+        async args_ => userPromise.todos({ ...args_, orderBy }),
+        async () => (await userPromise.todos()).length,
         { first, last, before, after },
         {
           resolveInfo,
