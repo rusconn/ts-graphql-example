@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 
 import { loadFilesSync } from "@graphql-tools/load-files";
 import { mergeTypeDefs, mergeResolvers } from "@graphql-tools/merge";
