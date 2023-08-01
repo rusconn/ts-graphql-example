@@ -1,4 +1,4 @@
 import type * as DataSource from "@/datasources";
 
-export type Todo = DataSource.Todo;
-export type User = Omit<DataSource.User, "password" | "role">;
+export type Todo = Pick<DataSource.Todo, "id" | "userId">;
+export type User = Pick<DataSource.User, "id">;

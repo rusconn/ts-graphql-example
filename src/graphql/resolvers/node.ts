@@ -4,27 +4,19 @@ import parsers from "@/graphql/parsers/node";
 
 export const resolvers: Graph.Resolvers = {
   Query: {
-    node: async (_, args, { dataSources: { prisma }, user: contextUser }) => {
+    node: async (_, args, { user }) => {
       const { type, id } = parsers.Query.node(args);
 
       switch (type) {
         case "Todo": {
-          const todo = await prisma.todo.findUniqueOrThrow({
-            where: { id, userId: contextUser.id },
-          });
-
-          return { type, ...todo };
+          return { type, id, userId: user.id };
         }
         case "User": {
-          if (id !== contextUser.id) {
+          if (id !== user.id) {
             throw new DataSource.NotFoundError();
           }
 
-          const user = await prisma.user.findUniqueOrThrow({
-            where: { id },
-          });
-
-          return { type, ...user };
+          return { type, id };
         }
       }
     },

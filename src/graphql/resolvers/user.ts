@@ -10,27 +10,23 @@ import parsers from "@/graphql/parsers/user";
 
 export const resolvers: Graph.Resolvers = {
   Query: {
-    me: async (_, __, { user }) => {
-      // ミドルウェアでの権限チェックにより GUEST ではないことが保証される
-      // しかし型に影響しないのでアサーションが必要になっている
-      return user as Mapper.User;
+    me: (_, __, { user }) => {
+      return { id: user.id };
     },
     users: async (_, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.Query.users(args);
 
-      return findManyCursorConnection<DataSource.User, Pick<Mapper.User, "id">, Mapper.User>(
+      return findManyCursorConnection<DataSource.User, Mapper.User, Mapper.User>(
         args_ => prisma.user.findMany({ ...args_, orderBy }),
         () => prisma.user.count(),
         { first, last, before, after },
         { resolveInfo }
       );
     },
-    user: async (_, args, { dataSources: { prisma } }) => {
+    user: (_, args) => {
       const { id } = parsers.Query.user(args);
 
-      return prisma.user.findUniqueOrThrow({
-        where: { id },
-      });
+      return { id };
     },
   },
   Mutation: {
@@ -150,23 +146,47 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   User: {
-    id: ({ id }) => {
-      return adapters.User.id(id);
+    id: async ({ id }, _, { dataSources: { prisma } }) => {
+      const user = await prisma.user.findUniqueOrThrow({
+        where: { id },
+      });
+
+      return adapters.User.id(user.id);
     },
-    createdAt: ({ createdAt }) => {
-      return adapters.User.createdAt(createdAt);
+    createdAt: async ({ id }, _, { dataSources: { prisma } }) => {
+      const user = await prisma.user.findUniqueOrThrow({
+        where: { id },
+      });
+
+      return adapters.User.createdAt(user.createdAt);
     },
-    updatedAt: ({ updatedAt }) => {
-      return adapters.User.updatedAt(updatedAt);
+    updatedAt: async ({ id }, _, { dataSources: { prisma } }) => {
+      const user = await prisma.user.findUniqueOrThrow({
+        where: { id },
+      });
+
+      return adapters.User.updatedAt(user.updatedAt);
     },
-    name: ({ name }) => {
-      return adapters.User.name(name);
+    name: async ({ id }, _, { dataSources: { prisma } }) => {
+      const user = await prisma.user.findUniqueOrThrow({
+        where: { id },
+      });
+
+      return adapters.User.name(user.name);
     },
-    email: ({ email }) => {
-      return adapters.User.email(email);
+    email: async ({ id }, _, { dataSources: { prisma } }) => {
+      const user = await prisma.user.findUniqueOrThrow({
+        where: { id },
+      });
+
+      return adapters.User.email(user.email);
     },
-    token: ({ token }) => {
-      return adapters.User.token(token);
+    token: async ({ id }, _, { dataSources: { prisma } }) => {
+      const user = await prisma.user.findUniqueOrThrow({
+        where: { id },
+      });
+
+      return adapters.User.token(user.token);
     },
   },
 };
