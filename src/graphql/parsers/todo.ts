@@ -87,9 +87,6 @@ export default {
 
       const firstToUse = first == null && last == null ? 20 : first;
 
-      const beforeToUse = before ? parseTodoNodeId(before) : before;
-      const afterToUse = after ? parseTodoNodeId(after) : after;
-
       const directionToUse =
         orderBy.direction === Graph.OrderDirection.Asc
           ? DataSource.TodoSortOrder.asc
@@ -103,8 +100,8 @@ export default {
       return {
         first: firstToUse,
         last,
-        before: beforeToUse,
-        after: afterToUse,
+        before,
+        after,
         userId,
         orderBy: orderByToUse,
       };

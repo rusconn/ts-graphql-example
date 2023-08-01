@@ -2,7 +2,7 @@ import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection
 import { nanoid } from "nanoid";
 
 import * as DataSource from "@/datasources";
-import { toTodoNode, toTodoNodeId, toUserNode } from "@/graphql/adapters";
+import { toTodoNode, toUserNode } from "@/graphql/adapters";
 import type { Graph, Mapper } from "@/graphql/types";
 import parsers from "@/graphql/parsers/todo";
 
@@ -156,7 +156,6 @@ export const resolvers: Graph.Resolvers = {
         { first, last, before, after },
         {
           resolveInfo,
-          getCursor: record => ({ id: toTodoNodeId(record.id) }),
           recordToEdge: record => ({ node: toTodoNode(record) }),
         }
       );

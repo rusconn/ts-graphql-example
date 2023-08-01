@@ -24,7 +24,6 @@ export const resolvers: Graph.Resolvers = {
         { first, last, before, after },
         {
           resolveInfo,
-          getCursor: record => ({ id: toUserNodeId(record.id) }),
           recordToEdge: record => ({ node: toUserNode(record) }),
         }
       );
