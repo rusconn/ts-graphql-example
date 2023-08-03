@@ -1,10 +1,13 @@
-import { Todo, TodoStatus, Role, User, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+
+export { type Todo, TodoStatus, Role, type User } from "@prisma/client";
+
+export type TodoSelectScalar = Prisma.TodoSelectScalar;
+export type UserSelectScalar = Prisma.UserSelectScalar;
+export type SelectScalar = TodoSelectScalar | UserSelectScalar;
+
+export const TodoSortOrder = Prisma.SortOrder;
+export const UserSortOrder = Prisma.SortOrder;
 
 export * from "./errors";
 export * from "./prisma";
-
-const { SortOrder } = Prisma;
-export { type Todo, TodoStatus };
-export { Role, type User };
-export const TodoSortOrder = SortOrder;
-export const UserSortOrder = SortOrder;

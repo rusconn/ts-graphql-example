@@ -1,4 +1,9 @@
 import type * as DataSource from "@/datasources";
 
-export type Todo = Pick<DataSource.Todo, "id" | "userId">;
-export type User = Pick<DataSource.User, "id">;
+type WithSelect<T, U extends DataSource.SelectScalar> = T & { select?: U };
+
+type TodoKeys = Pick<DataSource.Todo, "id" | "userId">;
+type UserKeys = Pick<DataSource.User, "id">;
+
+export type Todo = WithSelect<TodoKeys, DataSource.TodoSelectScalar>;
+export type User = WithSelect<UserKeys, DataSource.UserSelectScalar>;

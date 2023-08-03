@@ -7,26 +7,32 @@ import * as DataSource from "@/datasources";
 import { adapters } from "@/graphql/adapters/user";
 import type { Graph, Mapper } from "@/graphql/types";
 import parsers from "@/graphql/parsers/user";
+import { selectInfo } from "@/graphql/utils";
 
 export const resolvers: Graph.Resolvers = {
   Query: {
-    me: (_, __, { user }) => {
-      return { id: user.id };
+    me: (_, __, { user }, info) => {
+      return { id: user.id, ...selectInfo(info) };
     },
     users: async (_, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.Query.users(args);
 
-      return findManyCursorConnection<DataSource.User, Mapper.User, Mapper.User>(
-        args_ => prisma.user.findMany({ ...args_, orderBy }),
+      return findManyCursorConnection<Mapper.User>(
+        args_ =>
+          prisma.user.findMany({
+            ...args_,
+            orderBy,
+            select: { id: true },
+          }),
         () => prisma.user.count(),
         { first, last, before, after },
         { resolveInfo }
       );
     },
-    user: (_, args) => {
+    user: (_, args, __, info) => {
       const { id } = parsers.Query.user(args);
 
-      return { id };
+      return { id, ...selectInfo(info) };
     },
   },
   Mutation: {
@@ -41,6 +47,7 @@ export const resolvers: Graph.Resolvers = {
             password: bcrypt.hashSync(password, passwordHashRoundsExponent),
             token: nanoid(),
           },
+          select: { id: true },
         });
 
         return {
@@ -68,6 +75,7 @@ export const resolvers: Graph.Resolvers = {
         const refreshedUser = await prisma.$transaction(async tx => {
           const user = await tx.user.findUniqueOrThrow({
             where: { email: data.email },
+            select: { password: true },
           });
 
           if (!bcrypt.compareSync(data.password, user.password)) {
@@ -77,6 +85,7 @@ export const resolvers: Graph.Resolvers = {
           return tx.user.update({
             where: { email: data.email },
             data: { token: nanoid() },
+            select: { id: true },
           });
         });
 
@@ -101,6 +110,7 @@ export const resolvers: Graph.Resolvers = {
       const user = await prisma.user.update({
         where: { id: contextUser.id },
         data: { token: null },
+        select: { id: true },
       });
 
       return {
@@ -115,6 +125,7 @@ export const resolvers: Graph.Resolvers = {
         const user = await prisma.user.update({
           where: { id: contextUser.id },
           data,
+          select: { id: true },
         });
 
         return {
@@ -137,6 +148,7 @@ export const resolvers: Graph.Resolvers = {
     deleteMe: async (_, __, { dataSources: { prisma }, user }) => {
       const deletedUser = await prisma.user.delete({
         where: { id: user.id },
+        select: { id: true },
       });
 
       return {
@@ -146,44 +158,50 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   User: {
-    id: async ({ id }, _, { dataSources: { prisma } }) => {
+    id: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
+        select: select as { id: true },
       });
 
       return adapters.User.id(user.id);
     },
-    createdAt: async ({ id }, _, { dataSources: { prisma } }) => {
+    createdAt: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
+        select: select as { createdAt: true },
       });
 
       return adapters.User.createdAt(user.createdAt);
     },
-    updatedAt: async ({ id }, _, { dataSources: { prisma } }) => {
+    updatedAt: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
+        select: select as { updatedAt: true },
       });
 
       return adapters.User.updatedAt(user.updatedAt);
     },
-    name: async ({ id }, _, { dataSources: { prisma } }) => {
+    name: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
+        select: select as { name: true },
       });
 
       return adapters.User.name(user.name);
     },
-    email: async ({ id }, _, { dataSources: { prisma } }) => {
+    email: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
+        select: select as { email: true },
       });
 
       return adapters.User.email(user.email);
     },
-    token: async ({ id }, _, { dataSources: { prisma } }) => {
+    token: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
+        select: select as { token: true },
       });
 
       return adapters.User.token(user.token);

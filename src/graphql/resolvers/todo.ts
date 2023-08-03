@@ -5,6 +5,7 @@ import * as DataSource from "@/datasources";
 import { adapters } from "@/graphql/adapters/todo";
 import type { Graph, Mapper } from "@/graphql/types";
 import parsers from "@/graphql/parsers/todo";
+import { selectInfo } from "@/graphql/utils";
 
 export const resolvers: Graph.Resolvers = {
   Mutation: {
@@ -13,6 +14,7 @@ export const resolvers: Graph.Resolvers = {
 
       const todo = await prisma.todo.create({
         data: { ...parsed, id: nanoid(), userId: user.id },
+        select: { id: true, userId: true },
       });
 
       return {
@@ -27,6 +29,7 @@ export const resolvers: Graph.Resolvers = {
         const todo = await prisma.todo.update({
           where: { id, userId: user.id },
           data,
+          select: { id: true, userId: true },
         });
 
         return {
@@ -52,6 +55,7 @@ export const resolvers: Graph.Resolvers = {
       try {
         const todo = await prisma.todo.delete({
           where: { id, userId: user.id },
+          select: { id: true },
         });
 
         return {
@@ -78,6 +82,7 @@ export const resolvers: Graph.Resolvers = {
         const todo = await prisma.todo.update({
           where: { id, userId: user.id },
           data,
+          select: { id: true, userId: true },
         });
 
         return {
@@ -104,6 +109,7 @@ export const resolvers: Graph.Resolvers = {
         const todo = await prisma.todo.update({
           where: { id, userId: user.id },
           data,
+          select: { id: true, userId: true },
         });
 
         return {
@@ -125,57 +131,63 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Todo: {
-    id: async ({ id, userId }, _, { dataSources: { prisma } }) => {
+    id: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
+        select: select as { id: true },
       });
 
       return adapters.Todo.id(todo.id);
     },
-    createdAt: async ({ id, userId }, _, { dataSources: { prisma } }) => {
+    createdAt: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
+        select: select as { createdAt: true },
       });
 
       return adapters.Todo.createdAt(todo.createdAt);
     },
-    updatedAt: async ({ id, userId }, _, { dataSources: { prisma } }) => {
+    updatedAt: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
+        select: select as { updatedAt: true },
       });
 
       return adapters.Todo.updatedAt(todo.updatedAt);
     },
-    title: async ({ id, userId }, _, { dataSources: { prisma } }) => {
+    title: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
+        select: select as { title: true },
       });
 
       return adapters.Todo.title(todo.title);
     },
-    description: async ({ id, userId }, _, { dataSources: { prisma } }) => {
+    description: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
+        select: select as { description: true },
       });
 
       return adapters.Todo.description(todo.description);
     },
-    status: async ({ id, userId }, _, { dataSources: { prisma } }) => {
+    status: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
+        select: select as { status: true },
       });
 
       return adapters.Todo.status(todo.status);
     },
-    user: ({ userId }) => {
-      return { id: userId };
+    user: ({ userId }, _, __, info) => {
+      return { id: userId, ...selectInfo(info) };
     },
   },
   User: {
-    todo: ({ id: userId }, args) => {
+    todo: ({ id: userId }, args, _, info) => {
       const { id } = parsers.User.todo(args);
 
-      return { id, userId };
+      return { id, userId, ...selectInfo(info) };
     },
     todos: async ({ id }, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.User.todos(args);
@@ -184,9 +196,14 @@ export const resolvers: Graph.Resolvers = {
         where: { id },
       });
 
-      return findManyCursorConnection<DataSource.Todo, Pick<Mapper.Todo, "id">, Mapper.Todo>(
-        async args_ => userPromise.todos({ ...args_, orderBy }),
-        async () => (await userPromise.todos()).length,
+      return findManyCursorConnection<Mapper.Todo>(
+        async args_ =>
+          userPromise.todos({
+            ...args_,
+            orderBy,
+            select: { id: true, userId: true },
+          }),
+        async () => (await userPromise.todos({ select: { id: true } })).length,
         { first, last, before, after },
         { resolveInfo }
       );

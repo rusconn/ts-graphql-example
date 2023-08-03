@@ -89,3 +89,10 @@ node interface は他のクエリとは異なり、どのタイプを返すべ�
 - GraphQL way から外れている気がすること
 
 等を考慮して採用しなかった。
+
+### API サーバー ⇄ DB 間におけるオーバーフェッチの防止
+
+Prisma の select オプションを利用した。\
+select オプションの値を作成するのに [Prisma select](https://paljs.com/plugins/select) を利用した。\
+ただし Union type であるフィールドには使わなかった。どうやら[サポートしていない](https://github.com/paljs/prisma-tools/issues/249)よう。\
+柔軟性に欠くので上記ライブラリは廃止するかもしれない。
