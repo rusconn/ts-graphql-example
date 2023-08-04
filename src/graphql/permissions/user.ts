@@ -1,8 +1,8 @@
 import { or, rule } from "graphql-shield";
 
 import type { Graph } from "@/graphql/types";
+import type { Context } from "@/graphql/types/resolvers";
 import { isAdmin, isGuest, isAuthenticated, newPermissionError } from "@/graphql/utils";
-import type { Context } from "@/types";
 
 type Parent = Graph.ResolversParentTypes["User"];
 

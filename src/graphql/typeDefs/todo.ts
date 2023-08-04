@@ -1,8 +1,8 @@
-import { makeOrderOptions, makeCursorConnections } from "@/graphql/utils";
+import { orderOptions, cursorConnections } from "@/graphql/utils";
 
 export default /* GraphQL */ `
-  ${makeCursorConnections("Todo", { totalCount: "Int!" })}
-  ${makeOrderOptions("Todo")}
+  ${cursorConnections("Todo", { totalCount: "Int!" })}
+  ${orderOptions("Todo")}
 
   extend type Mutation {
     createTodo(input: CreateTodoInput!): CreateTodoResult

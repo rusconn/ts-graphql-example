@@ -20,7 +20,7 @@ const typescript = {
 
 const typescriptResolvers = {
   useIndexSignature: true,
-  contextType: "@/types#Context",
+  contextType: "@/graphql/types/resolvers#Context",
   mapperTypeSuffix: "Mapper",
   mappers: {
     User: "@/graphql/types/mappers#User",

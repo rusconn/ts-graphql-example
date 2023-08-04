@@ -12,8 +12,10 @@ const basePrisma = new PrismaClient({
   ],
 });
 
+const blue = (s: string) => `\x1b[34m${s}\u001b[0m` as const;
+
 basePrisma.$on("query", e => {
-  console.log("\x1b[34mprisma:query\u001b[0m", {
+  console.log(blue("prisma:query"), {
     Query: `${e.query.replaceAll('"public".', "")}`,
     Params: isProd ? "***" : e.params,
     Duration: `${e.duration}ms`,

@@ -18,9 +18,9 @@ export const resolvers: Graph.Resolvers = {
       const { orderBy, first, last, before, after } = parsers.Query.users(args);
 
       return findManyCursorConnection<Mapper.User>(
-        args_ =>
+        findManyArgs =>
           prisma.user.findMany({
-            ...args_,
+            ...findManyArgs,
             orderBy,
             select: { id: true },
           }),

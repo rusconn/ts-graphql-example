@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql";
 import { rule } from "graphql-shield";
 
 import { Graph } from "@/graphql/types";
-import type { Context } from "@/types";
+import type { Context } from "@/graphql/types/resolvers";
 
 export const isAdmin = rule({ cache: "contextual" })((_, __, { user }: Context) => {
   return user.role === "ADMIN" || newPermissionError();

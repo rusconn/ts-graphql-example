@@ -197,9 +197,9 @@ export const resolvers: Graph.Resolvers = {
       });
 
       return findManyCursorConnection<Mapper.Todo>(
-        async args_ =>
+        async findManyArgs =>
           userPromise.todos({
-            ...args_,
+            ...findManyArgs,
             orderBy,
             select: { id: true, userId: true },
           }),

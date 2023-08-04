@@ -2,14 +2,15 @@ import type { DocumentNode } from "graphql";
 
 import { defaultContext } from "it/context";
 import { DBData } from "it/data";
-import type { Context } from "@/types";
+import type { Resolver } from "@/graphql/types";
 import { server } from "@/server";
 
 type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;
-  user?: Context["user"];
+  user?: Resolver.Context["user"];
 };
 
+/** デフォルトユーザーは admin */
 export const executeSingleResultOperation =
   (query: DocumentNode | string) =>
   async <TData, TVariables>({

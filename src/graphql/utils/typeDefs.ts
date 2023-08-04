@@ -1,6 +1,6 @@
 import type { TypeDef } from "@/graphql/types";
 
-export const makeCursorConnections = (
+export const cursorConnections = (
   type: TypeDef.NodeType,
   additionalConnectionFields: Record<string, string> = {},
   additionalEdgeFields: Record<string, string> = {}
@@ -9,17 +9,17 @@ export const makeCursorConnections = (
     pageInfo: PageInfo!
     edges: [${type}Edge!]!
     nodes: [${type}!]!
-    ${toFieldLines(additionalConnectionFields)}
+    ${fieldLines(additionalConnectionFields)}
   }
 
   type ${type}Edge {
     node: ${type}!
     cursor: String!
-    ${toFieldLines(additionalEdgeFields)}
+    ${fieldLines(additionalEdgeFields)}
   }
 `;
 
-export const makeOrderOptions = (
+export const orderOptions = (
   type: TypeDef.NodeType,
   additionaOrderFields: Record<string, string> = {},
   additionalOrderFieldFields: Record<string, string> = {}
@@ -27,17 +27,17 @@ export const makeOrderOptions = (
   input ${type}Order {
     field: ${type}OrderField!
     direction: OrderDirection!
-    ${toFieldLines(additionaOrderFields)}
+    ${fieldLines(additionaOrderFields)}
   }
 
   enum ${type}OrderField {
     CREATED_AT
     UPDATED_AT
-    ${toFieldLines(additionalOrderFieldFields)}
+    ${fieldLines(additionalOrderFieldFields)}
   }
 `;
 
-const toFieldLines = (fields: Record<string, string>) =>
+const fieldLines = (fields: Record<string, string>) =>
   Object.entries(fields)
     .map(([name, type]) => `${name}: ${type}`)
     .join("\n");

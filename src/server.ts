@@ -5,18 +5,16 @@ import { applyMiddleware } from "graphql-middleware";
 import { createComplexityLimitRule } from "graphql-validation-complexity";
 
 import { maxDepth, maxCost, alertCost } from "@/config";
-import { middlewares, schema } from "@/graphql";
-import type { Context } from "@/types";
+import { Resolver, middlewares, schema } from "@/graphql";
 import { isIntrospectionQuery } from "./utils";
 
-export const server = new ApolloServer<Context>({
+export const server = new ApolloServer<Resolver.Context>({
   schema: applyMiddleware(schema, ...middlewares),
   validationRules: [
     depthLimit(maxDepth),
     createComplexityLimitRule(maxCost, {
       onCost: cost => {
-        const logger = cost < alertCost ? console.log : console.warn;
-        logger({ cost });
+        (cost < alertCost ? console.log : console.warn)({ cost });
       },
     }),
   ],
@@ -29,7 +27,6 @@ export const server = new ApolloServer<Context>({
     // 内部の例外情報はクライアントに渡さない
     return omit(error, "extensions.thrown");
   },
-  // デフォルトでは in-memory なので、スケールアウトする場合は外部のキャッシュを指定する
   cache: undefined,
   // requestId を埋め込みたいのでコンテキストにセットしている
   logger: undefined,

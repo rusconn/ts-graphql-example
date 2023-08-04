@@ -3,7 +3,7 @@ import type { EmailAddress } from '@/graphql/types/scalars';
 import type { NonEmptyString } from '@/graphql/types/scalars';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import type { User as UserMapper, Todo as TodoMapper } from '@/graphql/types/mappers';
-import type { Context } from '@/types';
+import type { Context } from '@/graphql/types/resolvers';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
