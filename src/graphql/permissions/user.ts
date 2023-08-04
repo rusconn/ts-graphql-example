@@ -1,6 +1,5 @@
 import { or, rule } from "graphql-shield";
 
-import { toUserNodeId } from "@/graphql/adapters";
 import type { Graph } from "@/graphql/types";
 import { isAdmin, isGuest, isAuthenticated, newPermissionError } from "@/graphql/utils";
 import type { Context } from "@/types";
@@ -8,7 +7,7 @@ import type { Context } from "@/types";
 type Parent = Graph.ResolversParentTypes["User"];
 
 const isOwner = rule({ cache: "strict" })(({ id }: Parent, _, { user }: Context) => {
-  return id === toUserNodeId(user.id) || newPermissionError();
+  return id === user.id || newPermissionError();
 });
 
 export default {

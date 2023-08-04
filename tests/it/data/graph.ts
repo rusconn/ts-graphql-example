@@ -1,18 +1,15 @@
-import omit from "lodash/omit";
-
-import { toUserNode, toTodoNode } from "@/graphql/adapters";
-
 import * as DB from "./db";
+import { toTodoNode, toUserNode } from "./helpers";
 
 export const admin = toUserNode(DB.admin);
 export const alice = toUserNode(DB.alice);
 export const bob = toUserNode(DB.bob);
 
-export const adminTodo1 = omit(toTodoNode(DB.adminTodo1), ["userId"]);
-export const adminTodo2 = omit(toTodoNode(DB.adminTodo2), ["userId"]);
-export const adminTodo3 = omit(toTodoNode(DB.adminTodo3), ["userId"]);
-export const aliceTodo = omit(toTodoNode(DB.aliceTodo), ["userId"]);
-export const bobTodo = omit(toTodoNode(DB.bobTodo), ["userId"]);
+export const adminTodo1 = toTodoNode(DB.adminTodo1);
+export const adminTodo2 = toTodoNode(DB.adminTodo2);
+export const adminTodo3 = toTodoNode(DB.adminTodo3);
+export const aliceTodo = toTodoNode(DB.aliceTodo);
+export const bobTodo = toTodoNode(DB.bobTodo);
 
 export const validUserIds = [admin, alice, bob].map(({ id }) => id);
 

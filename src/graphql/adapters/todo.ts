@@ -1,17 +1,33 @@
 import * as DataSource from "@/datasources";
-import { Graph, Mapper } from "@/graphql/types";
-import { nonEmptyString } from "@/graphql/utils";
+import { Graph } from "@/graphql/types";
+import { dateTime, nonEmptyString } from "@/graphql/utils";
 import { splitSpecifiedNodeId, toSpecifiedNodeId } from "./node";
 
-export const toTodoNodeId = toSpecifiedNodeId("Todo");
+const toTodoNodeId = toSpecifiedNodeId("Todo");
 export const splitTodoNodeId = splitSpecifiedNodeId("Todo");
 
-export const toTodoNode = (todo: DataSource.Todo): Mapper.Todo => ({
-  ...todo,
-  id: toTodoNodeId(todo.id),
-  title: nonEmptyString(todo.title),
-  status: {
-    [DataSource.TodoStatus.DONE]: Graph.TodoStatus.Done,
-    [DataSource.TodoStatus.PENDING]: Graph.TodoStatus.Pending,
-  }[todo.status],
-});
+export const adapters = {
+  Todo: {
+    id: (id: DataSource.Todo["id"]) => {
+      return toTodoNodeId(id);
+    },
+    createdAt: (createdAt: DataSource.Todo["createdAt"]) => {
+      return dateTime(createdAt.toISOString());
+    },
+    updatedAt: (updatedAt: DataSource.Todo["updatedAt"]) => {
+      return dateTime(updatedAt.toISOString());
+    },
+    title: (title: DataSource.Todo["title"]) => {
+      return nonEmptyString(title);
+    },
+    description: (description: DataSource.Todo["description"]) => {
+      return description;
+    },
+    status: (status: DataSource.Todo["status"]) => {
+      return {
+        [DataSource.TodoStatus.DONE]: Graph.TodoStatus.Done,
+        [DataSource.TodoStatus.PENDING]: Graph.TodoStatus.Pending,
+      }[status];
+    },
+  },
+};

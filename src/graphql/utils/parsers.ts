@@ -1,6 +1,8 @@
 import type { ConnectionArguments } from "@devoxa/prisma-relay-cursor-connection";
 
-import { splitNodeId, splitTodoNodeId, splitUserNodeId } from "@/graphql/adapters";
+import { splitNodeId } from "@/graphql/adapters/node";
+import { splitTodoNodeId } from "@/graphql/adapters/todo";
+import { splitUserNodeId } from "@/graphql/adapters/user";
 import { ParseError } from "@/graphql/errors";
 import type { Graph } from "@/graphql/types";
 

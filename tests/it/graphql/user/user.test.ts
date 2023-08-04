@@ -222,7 +222,20 @@ describe("query without other nodes", () => {
       variables: { id: GraphData.admin.id, includeEmail: true, includeToken: true },
     });
 
-    expect(data?.user).toEqual(GraphData.admin);
+    if (!data || !data.user) {
+      fail();
+    }
+
+    // なぜか Date オブジェクトになっているので変換する
+    const actual = {
+      ...data.user,
+      // @ts-expect-error: ts(2352)
+      createdAt: (data.user.createdAt as Date).toISOString(),
+      // @ts-expect-error: ts(2352)
+      updatedAt: (data.user.updatedAt as Date).toISOString(),
+    };
+
+    expect(actual).toEqual(GraphData.admin);
   });
 
   it("should return not found error if not found", async () => {

@@ -1,9 +1,7 @@
 import * as DataSource from "@/datasources";
 import { ParseError } from "@/graphql/errors";
 import { Graph } from "@/graphql/types";
-import { parseConnectionArgs, parseTodoNodeId, parseUserNodeId } from "@/graphql/utils";
-
-type Parent = Graph.ResolversParentTypes["User"];
+import { parseConnectionArgs, parseTodoNodeId } from "@/graphql/utils";
 
 export default {
   Mutation: {
@@ -63,13 +61,11 @@ export default {
     },
   },
   User: {
-    todo: (parent: Parent, args: Graph.UserTodoArgs) => {
-      return { id: parseTodoNodeId(args.id), userId: parseUserNodeId(parent.id) };
+    todo: (args: Graph.UserTodoArgs) => {
+      return { id: parseTodoNodeId(args.id) };
     },
-    todos: (parent: Parent, args: Graph.UserTodosArgs) => {
+    todos: (args: Graph.UserTodosArgs) => {
       const { orderBy, ...connectionArgs } = args;
-
-      const userId = parseUserNodeId(parent.id);
 
       const { first, last, before, after } = parseConnectionArgs(connectionArgs);
 
@@ -102,7 +98,6 @@ export default {
         last,
         before,
         after,
-        userId,
         orderBy: orderByToUse,
       };
     },

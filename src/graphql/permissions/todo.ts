@@ -1,6 +1,5 @@
 import { or, rule } from "graphql-shield";
 
-import { toUserNodeId } from "@/graphql/adapters";
 import type { Graph } from "@/graphql/types";
 import { isAdmin, isAuthenticated, newPermissionError } from "@/graphql/utils";
 import type { Context } from "@/types";
@@ -13,7 +12,7 @@ const isTodoOwner = rule({ cache: "strict" })(({ userId }: ParentTodo, _, { user
 });
 
 const isUserOwner = rule({ cache: "strict" })(({ id }: ParentUser, _, { user }: Context) => {
-  return id === toUserNodeId(user.id) || newPermissionError();
+  return id === user.id || newPermissionError();
 });
 
 export default {

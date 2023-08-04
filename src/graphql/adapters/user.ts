@@ -1,19 +1,29 @@
 import type * as DataSource from "@/datasources";
-import type { Mapper } from "@/graphql/types";
-import { emailAddress, nonEmptyString } from "@/graphql/utils";
+import { dateTime, emailAddress, nonEmptyString } from "@/graphql/utils";
 import { splitSpecifiedNodeId, toSpecifiedNodeId } from "./node";
 
-export const toUserNodeId = toSpecifiedNodeId("User");
+const toUserNodeId = toSpecifiedNodeId("User");
 export const splitUserNodeId = splitSpecifiedNodeId("User");
 
-export const toUserNode = ({
-  role: _role,
-  password: _password,
-  ...user
-}: DataSource.User): Mapper.User => ({
-  ...user,
-  id: toUserNodeId(user.id),
-  name: nonEmptyString(user.name),
-  email: emailAddress(user.email),
-  token: user.token != null ? nonEmptyString(user.token) : user.token,
-});
+export const adapters = {
+  User: {
+    id: (id: DataSource.User["id"]) => {
+      return toUserNodeId(id);
+    },
+    createdAt: (createdAt: DataSource.User["createdAt"]) => {
+      return dateTime(createdAt.toISOString());
+    },
+    updatedAt: (updatedAt: DataSource.User["updatedAt"]) => {
+      return dateTime(updatedAt.toISOString());
+    },
+    name: (name: DataSource.User["name"]) => {
+      return nonEmptyString(name);
+    },
+    email: (email: DataSource.User["email"]) => {
+      return emailAddress(email);
+    },
+    token: (token: DataSource.User["token"]) => {
+      return token != null ? nonEmptyString(token) : token;
+    },
+  },
+};

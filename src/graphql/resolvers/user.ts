@@ -4,7 +4,7 @@ import { nanoid } from "nanoid";
 
 import { passwordHashRoundsExponent } from "@/config";
 import * as DataSource from "@/datasources";
-import { toUserNode, toUserNodeId } from "@/graphql/adapters";
+import { adapters } from "@/graphql/adapters/user";
 import type { Graph, Mapper } from "@/graphql/types";
 import parsers from "@/graphql/parsers/user";
 
@@ -13,7 +13,7 @@ export const resolvers: Graph.Resolvers = {
     me: async (_, __, { user }) => {
       // ミドルウェアでの権限チェックにより GUEST ではないことが保証される
       // しかし型に影響しないのでアサーションが必要になっている
-      return toUserNode(user as DataSource.User);
+      return user as Mapper.User;
     },
     users: async (_, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.Query.users(args);
@@ -22,20 +22,15 @@ export const resolvers: Graph.Resolvers = {
         args_ => prisma.user.findMany({ ...args_, orderBy }),
         () => prisma.user.count(),
         { first, last, before, after },
-        {
-          resolveInfo,
-          recordToEdge: record => ({ node: toUserNode(record) }),
-        }
+        { resolveInfo }
       );
     },
     user: async (_, args, { dataSources: { prisma } }) => {
       const { id } = parsers.Query.user(args);
 
-      const user = await prisma.user.findUniqueOrThrow({
+      return prisma.user.findUniqueOrThrow({
         where: { id },
       });
-
-      return toUserNode(user);
     },
   },
   Mutation: {
@@ -54,7 +49,7 @@ export const resolvers: Graph.Resolvers = {
 
         return {
           __typename: "SignupSuccess",
-          id: toUserNodeId(user.id),
+          id: adapters.User.id(user.id),
         };
       } catch (e) {
         // ほぼ確実に email の衝突
@@ -91,7 +86,7 @@ export const resolvers: Graph.Resolvers = {
 
         return {
           __typename: "LoginSuccess",
-          user: toUserNode(refreshedUser),
+          user: refreshedUser,
         };
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
@@ -114,7 +109,7 @@ export const resolvers: Graph.Resolvers = {
 
       return {
         __typename: "LogoutSuccess",
-        user: toUserNode(user),
+        user,
       };
     },
     updateMe: async (_, args, { dataSources: { prisma }, user: contextUser, logger }) => {
@@ -128,7 +123,7 @@ export const resolvers: Graph.Resolvers = {
 
         return {
           __typename: "UpdateMeSuccess",
-          user: toUserNode(user),
+          user,
         };
       } catch (e) {
         if (e instanceof DataSource.NotUniqueError) {
@@ -144,14 +139,34 @@ export const resolvers: Graph.Resolvers = {
       }
     },
     deleteMe: async (_, __, { dataSources: { prisma }, user }) => {
-      await prisma.user.delete({
+      const deletedUser = await prisma.user.delete({
         where: { id: user.id },
       });
 
       return {
         __typename: "DeleteMeSuccess",
-        id: toUserNodeId(user.id),
+        id: adapters.User.id(deletedUser.id),
       };
+    },
+  },
+  User: {
+    id: ({ id }) => {
+      return adapters.User.id(id);
+    },
+    createdAt: ({ createdAt }) => {
+      return adapters.User.createdAt(createdAt);
+    },
+    updatedAt: ({ updatedAt }) => {
+      return adapters.User.updatedAt(updatedAt);
+    },
+    name: ({ name }) => {
+      return adapters.User.name(name);
+    },
+    email: ({ email }) => {
+      return adapters.User.email(email);
+    },
+    token: ({ token }) => {
+      return adapters.User.token(token);
     },
   },
 };

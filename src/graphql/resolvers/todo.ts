@@ -2,7 +2,7 @@ import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection
 import { nanoid } from "nanoid";
 
 import * as DataSource from "@/datasources";
-import { toTodoNode, toUserNode } from "@/graphql/adapters";
+import { adapters } from "@/graphql/adapters/todo";
 import type { Graph, Mapper } from "@/graphql/types";
 import parsers from "@/graphql/parsers/todo";
 
@@ -17,7 +17,7 @@ export const resolvers: Graph.Resolvers = {
 
       return {
         __typename: "CreateTodoSuccess",
-        todo: toTodoNode(todo),
+        todo,
       };
     },
     updateTodo: async (_, args, { dataSources: { prisma }, user, logger }) => {
@@ -31,7 +31,7 @@ export const resolvers: Graph.Resolvers = {
 
         return {
           __typename: "UpdateTodoSuccess",
-          todo: toTodoNode(todo),
+          todo,
         };
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
@@ -50,13 +50,13 @@ export const resolvers: Graph.Resolvers = {
       const { id } = parsers.Mutation.deleteTodo(args);
 
       try {
-        await prisma.todo.delete({
+        const todo = await prisma.todo.delete({
           where: { id, userId: user.id },
         });
 
         return {
           __typename: "DeleteTodoSuccess",
-          id: args.id,
+          id: adapters.Todo.id(todo.id),
         };
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
@@ -82,7 +82,7 @@ export const resolvers: Graph.Resolvers = {
 
         return {
           __typename: "CompleteTodoSuccess",
-          todo: toTodoNode(todo),
+          todo,
         };
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
@@ -108,7 +108,7 @@ export const resolvers: Graph.Resolvers = {
 
         return {
           __typename: "UncompleteTodoSuccess",
-          todo: toTodoNode(todo),
+          todo,
         };
       } catch (e) {
         if (e instanceof DataSource.NotFoundError) {
@@ -125,39 +125,50 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Todo: {
+    id: ({ id }) => {
+      return adapters.Todo.id(id);
+    },
+    createdAt: ({ createdAt }) => {
+      return adapters.Todo.createdAt(createdAt);
+    },
+    updatedAt: ({ updatedAt }) => {
+      return adapters.Todo.updatedAt(updatedAt);
+    },
+    title: ({ title }) => {
+      return adapters.Todo.title(title);
+    },
+    description: ({ description }) => {
+      return adapters.Todo.description(description);
+    },
+    status: ({ status }) => {
+      return adapters.Todo.status(status);
+    },
     user: async ({ userId }, _, { dataSources: { prisma } }) => {
-      const user = await prisma.user.findUniqueOrThrow({
+      return prisma.user.findUniqueOrThrow({
         where: { id: userId },
       });
-
-      return toUserNode(user);
     },
   },
   User: {
-    todo: async (parent, args, { dataSources: { prisma } }) => {
-      const { id, userId } = parsers.User.todo(parent, args);
+    todo: async ({ id: userId }, args, { dataSources: { prisma } }) => {
+      const { id } = parsers.User.todo(args);
 
-      const todo = await prisma.todo.findUniqueOrThrow({
+      return prisma.todo.findUniqueOrThrow({
         where: { id, userId },
       });
-
-      return toTodoNode(todo);
     },
-    todos: async (parent, args, { dataSources: { prisma } }, resolveInfo) => {
-      const { orderBy, userId, first, last, before, after } = parsers.User.todos(parent, args);
+    todos: async ({ id }, args, { dataSources: { prisma } }, resolveInfo) => {
+      const { orderBy, first, last, before, after } = parsers.User.todos(args);
 
       const userPromise = prisma.user.findUniqueOrThrow({
-        where: { id: userId },
+        where: { id },
       });
 
       return findManyCursorConnection<DataSource.Todo, Pick<Mapper.Todo, "id">, Mapper.Todo>(
         async args_ => userPromise.todos({ ...args_, orderBy }),
         async () => (await userPromise.todos()).length,
         { first, last, before, after },
-        {
-          resolveInfo,
-          recordToEdge: record => ({ node: toTodoNode(record) }),
-        }
+        { resolveInfo }
       );
     },
   },

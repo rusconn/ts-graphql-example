@@ -1,6 +1,5 @@
 import * as DataSource from "@/datasources";
-import type { Graph } from "@/graphql/types";
-import { splitNodeId, toTodoNode, toUserNode } from "@/graphql/adapters";
+import type { Graph, TypeDef } from "@/graphql/types";
 import parsers from "@/graphql/parsers/node";
 
 export const resolvers: Graph.Resolvers = {
@@ -14,7 +13,7 @@ export const resolvers: Graph.Resolvers = {
             where: { id, userId: contextUser.id },
           });
 
-          return toTodoNode(todo);
+          return { type, ...todo };
         }
         case "User": {
           if (id !== contextUser.id) {
@@ -25,14 +24,15 @@ export const resolvers: Graph.Resolvers = {
             where: { id },
           });
 
-          return toUserNode(user);
+          return { type, ...user };
         }
       }
     },
   },
   Node: {
-    __resolveType: ({ id }) => {
-      return splitNodeId(id).type;
+    // @ts-expect-error: type はスキーマに無いが使いたい
+    __resolveType: ({ type }) => {
+      return type as TypeDef.NodeType;
     },
   },
 };
