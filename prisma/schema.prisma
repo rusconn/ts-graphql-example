@@ -19,8 +19,10 @@ model Todo {
 
   @@index([userId])
   @@index([id, userId])
-  @@index([createdAt(sort: Desc), id])
-  @@index([updatedAt(sort: Desc), id])
+  @@index([createdAt(sort: Asc), id(sort: Asc)], map: "Todo_createdAt_id_idx")
+  @@index([createdAt(sort: Desc), id(sort: Desc)], map: "Todo_createdAt_desc_id_desc_idx")
+  @@index([updatedAt(sort: Asc), id(sort: Asc)], map: "Todo_updatedAt_id_idx")
+  @@index([updatedAt(sort: Desc), id(sort: Desc)], map: "Todo_updatedAt_desc_id_desc_idx")
 }
 
 model User {
@@ -34,8 +36,10 @@ model User {
   id        String   @id @db.VarChar(255)
   todos     Todo[]
 
-  @@index([createdAt(sort: Desc), id])
-  @@index([updatedAt(sort: Desc), id])
+  @@index([createdAt(sort: Asc), id(sort: Asc)], map: "User_createdAt_id_idx")
+  @@index([createdAt(sort: Desc), id(sort: Desc)], map: "User_createdAt_desc_id_desc_idx")
+  @@index([updatedAt(sort: Asc), id(sort: Asc)], map: "User_updatedAt_id_idx")
+  @@index([updatedAt(sort: Desc), id(sort: Desc)], map: "User_updatedAt_desc_id_desc_idx")
 }
 
 enum TodoStatus {
