@@ -39,11 +39,11 @@ describe("authorization", () => {
     const allowedPatterns = [
       [ContextData.admin, GraphData.admin],
       [ContextData.admin, GraphData.alice],
-      [ContextData.alice, GraphData.admin],
       [ContextData.alice, GraphData.alice],
     ] as const;
 
     const notAllowedPatterns = [
+      [ContextData.alice, GraphData.admin],
       [ContextData.guest, GraphData.admin],
       [ContextData.guest, GraphData.alice],
     ] as const;

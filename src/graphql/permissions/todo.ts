@@ -24,6 +24,9 @@ export default {
     uncompleteTodo: isAuthenticated,
   },
   Todo: {
+    id: or(isAdmin, isTodoOwner),
+    createdAt: or(isAdmin, isTodoOwner),
+    updatedAt: or(isAdmin, isTodoOwner),
     title: isTodoOwner,
     description: isTodoOwner,
     status: isTodoOwner,
