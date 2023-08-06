@@ -104,7 +104,7 @@ export type NodeQueryVariables = Exact<{
 }>;
 
 
-export type NodeQuery = { node?: { title?: NonEmptyString | null, id: string } | { name?: NonEmptyString | null, id: string } | null };
+export type NodeQuery = { node?: { id: string } | { id: string } | null };
 
 export type CompleteTodoMutationVariables = Exact<{
   id: Scalars['ID']['input'];

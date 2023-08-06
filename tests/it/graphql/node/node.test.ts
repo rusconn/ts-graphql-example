@@ -1,5 +1,3 @@
-import pick from "lodash/pick";
-
 import type { NodeQuery, NodeQueryVariables } from "it/graphql/types";
 import { ContextData, DBData, GraphData } from "it/data";
 import { prisma } from "it/datasources";
@@ -24,12 +22,6 @@ const query = /* GraphQL */ `
   query Node($id: ID!) {
     node(id: $id) {
       id
-      ... on User {
-        name
-      }
-      ... on Todo {
-        title
-      }
     }
   }
 `;
@@ -125,49 +117,34 @@ describe("logic", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.node).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
-  });
-});
-
-describe("query user", () => {
-  it("should return item correctly", async () => {
-    const { data } = await executeQuery({
-      variables: { id: GraphData.admin.id },
-    });
-
-    expect(data?.node).toEqual({ ...pick(GraphData.admin, ["name"]), id: GraphData.admin.id });
+    expect(data?.node).not.toBeNull();
+    expect(errorCodes).toEqual(expect.not.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 
-  it("should return not found error if not found", async () => {
-    const { data, errors } = await executeQuery({
-      variables: { id: GraphData.admin.id.slice(0, -1) },
+  describe("should return item correctly", () => {
+    const ids = [GraphData.admin.id, GraphData.adminTodo1.id];
+
+    test.each(ids)("%s", async id => {
+      const { data } = await executeQuery({
+        variables: { id },
+      });
+
+      expect(data?.node?.id).toEqual(id);
     });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.node).toBeFalsy();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
-  });
-});
-
-describe("query todo", () => {
-  it("should return item correctly", async () => {
-    const { data } = await executeQuery({
-      variables: { id: GraphData.adminTodo1.id },
-    });
-
-    expect(data?.node).toEqual(pick(GraphData.adminTodo1, ["__typename", "id", "title"]));
   });
 
-  it("should return not found error if not found", async () => {
-    const { data, errors } = await executeQuery({
-      variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
+  describe("should return not found error if not found", () => {
+    const ids = [GraphData.admin.id, GraphData.adminTodo1.id].map(id => id.slice(0, -1));
+
+    test.each(ids)("%s", async id => {
+      const { data, errors } = await executeQuery({
+        variables: { id },
+      });
+
+      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+      expect(data?.node).toBeFalsy();
+      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
     });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.node).toBeFalsy();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
   });
 });

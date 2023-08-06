@@ -1,4 +1,3 @@
-import * as DataSource from "@/datasources";
 import type { Graph, TypeDef } from "@/graphql/types";
 import parsers from "@/graphql/parsers/node";
 
@@ -12,10 +11,6 @@ export const resolvers: Graph.Resolvers = {
           return { type, id, userId: user.id };
         }
         case "User": {
-          if (id !== user.id) {
-            throw new DataSource.NotFoundError();
-          }
-
           return { type, id };
         }
       }
