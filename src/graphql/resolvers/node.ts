@@ -3,17 +3,8 @@ import parsers from "@/graphql/parsers/node";
 
 export const resolvers: Graph.Resolvers = {
   Query: {
-    node: async (_, args, { user }) => {
-      const { type, id } = parsers.Query.node(args);
-
-      switch (type) {
-        case "Todo": {
-          return { type, id, userId: user.id };
-        }
-        case "User": {
-          return { type, id };
-        }
-      }
+    node: (_, args) => {
+      return parsers.Query.node(args);
     },
   },
   Node: {

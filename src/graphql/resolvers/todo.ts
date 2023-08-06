@@ -131,56 +131,65 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Todo: {
-    id: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
+    id: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
+        where: { id },
         select: select as { id: true },
       });
 
       return adapters.Todo.id(todo.id);
     },
-    createdAt: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
+    createdAt: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
+        where: { id },
         select: select as { createdAt: true },
       });
 
       return adapters.Todo.createdAt(todo.createdAt);
     },
-    updatedAt: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
+    updatedAt: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
+        where: { id },
         select: select as { updatedAt: true },
       });
 
       return adapters.Todo.updatedAt(todo.updatedAt);
     },
-    title: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
+    title: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
+        where: { id },
         select: select as { title: true },
       });
 
       return adapters.Todo.title(todo.title);
     },
-    description: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
+    description: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
+        where: { id },
         select: select as { description: true },
       });
 
       return adapters.Todo.description(todo.description);
     },
-    status: async ({ id, userId, select }, _, { dataSources: { prisma } }) => {
+    status: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
+        where: { id },
         select: select as { status: true },
       });
 
       return adapters.Todo.status(todo.status);
     },
-    user: ({ userId }, _, __, info) => {
-      return { id: userId, ...selectInfo(info) };
+    user: async ({ id, userId }, _, { dataSources: { prisma } }, info) => {
+      if (!userId) {
+        const todo = await prisma.todo.findUniqueOrThrow({
+          where: { id },
+          select: { userId: true },
+        });
+
+        return { id: todo.userId, ...selectInfo(info) };
+      } else {
+        return { id: userId, ...selectInfo(info) };
+      }
     },
   },
   User: {
