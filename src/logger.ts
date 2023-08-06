@@ -1,5 +1,5 @@
 import pino, { LoggerOptions, stdTimeFunctions } from "pino";
-import { nanoid } from "nanoid";
+import { ulid } from "ulid";
 
 import { isDev, isProd, isTest } from "@/config";
 
@@ -23,4 +23,4 @@ const options: LoggerOptions = {
     : undefined,
 };
 
-export const logger = pino(options).child({ requestId: nanoid() });
+export const logger = pino(options).child({ requestId: ulid() });

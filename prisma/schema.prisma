@@ -13,8 +13,8 @@ model Todo {
   title       String     @db.VarChar(255)
   description String     @default("")
   status      TodoStatus @default(PENDING)
-  id          String     @id @db.VarChar(255)
-  userId      String     @db.VarChar(255)
+  id          String     @id @db.Char(26)
+  userId      String     @db.Char(26)
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -30,9 +30,9 @@ model User {
   name      String   @db.VarChar(255)
   email     String   @unique @db.VarChar(255)
   password  String   @db.VarChar(255)
-  token     String?  @unique @db.VarChar(255)
+  token     String?  @unique @db.Char(26)
   role      Role     @default(USER)
-  id        String   @id @db.VarChar(255)
+  id        String   @id @db.Char(26)
   todos     Todo[]
 
   @@index([createdAt(sort: Asc), id(sort: Asc)], map: "User_createdAt_id_idx")

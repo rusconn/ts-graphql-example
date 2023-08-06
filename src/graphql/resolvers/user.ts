@@ -1,6 +1,6 @@
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 import bcrypt from "bcrypt";
-import { nanoid } from "nanoid";
+import { ulid } from "ulid";
 
 import { passwordHashRoundsExponent } from "@/config";
 import * as DataSource from "@/datasources";
@@ -43,9 +43,9 @@ export const resolvers: Graph.Resolvers = {
         const user = await prisma.user.create({
           data: {
             ...data,
-            id: nanoid(),
+            id: ulid(),
             password: bcrypt.hashSync(password, passwordHashRoundsExponent),
-            token: nanoid(),
+            token: ulid(),
           },
           select: { id: true },
         });
@@ -84,7 +84,7 @@ export const resolvers: Graph.Resolvers = {
 
           return tx.user.update({
             where: { email: data.email },
-            data: { token: nanoid() },
+            data: { token: ulid() },
             select: { id: true },
           });
         });

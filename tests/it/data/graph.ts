@@ -18,21 +18,21 @@ export const validTodoIds = [adminTodo1, adminTodo2, adminTodo3].map(({ id }) =>
 export const validNodeIds = [...validUserIds, ...validTodoIds];
 
 export const invalidUserIds = [
-  "Usr:a4kxogX92Wxe-kbUfDRX7",
-  "Usera4kxogX92Wxe-kbUfDRX7",
-  "a4kxogX92Wxe-kbUfDRX7",
-  ":a4kxogX92Wxe-kbUfDRX7",
-  "a4kxogX92Wxe-kbUfDRX7:User",
+  "Usr:01H75CPZGG1YW9W79M7WWT6KFB",
+  "User01H75CPZGG1YW9W79M7WWT6KFB",
+  "01H75CPZGG1YW9W79M7WWT6KFB",
+  ":01H75CPZGG1YW9W79M7WWT6KFB",
+  "01H75CPZGG1YW9W79M7WWT6KFB:User",
   "",
   validTodoIds[0],
 ] as const;
 
 export const invalidTodoIds = [
-  "Too:aHbtLGE7ANe1CSDbnhZQZ",
-  "TodoaHbtLGE7ANe1CSDbnhZQZ",
-  "aHbtLGE7ANe1CSDbnhZQZ",
-  ":aHbtLGE7ANe1CSDbnhZQZ",
-  "aHbtLGE7ANe1CSDbnhZQZ:Todo",
+  "Too:01H75CR8C6PQK7Z7RE4FBY1B4M",
+  "Todo01H75CR8C6PQK7Z7RE4FBY1B4M",
+  "01H75CR8C6PQK7Z7RE4FBY1B4M",
+  ":01H75CR8C6PQK7Z7RE4FBY1B4M",
+  "01H75CR8C6PQK7Z7RE4FBY1B4M:Todo",
   "",
   validUserIds[0],
 ] as const;

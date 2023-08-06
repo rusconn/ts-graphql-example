@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { nanoid } from "nanoid";
+import { ulid } from "ulid";
 
 import { passwordHashRoundsExponent } from "@/config";
 import { prisma, Role, User } from "@/datasources";
@@ -12,35 +12,35 @@ const main = async () => {
 const createUsers = async () => {
   const rawParams = [
     {
-      id: nanoid(),
+      id: ulid(),
       name: "admin",
       email: "admin@admin.com",
       rawPassword: "adminadmin",
-      token: nanoid(),
+      token: ulid(),
       role: Role.ADMIN,
     },
     {
-      id: nanoid(),
+      id: ulid(),
       name: "hoge",
       email: "hoge@hoge.com",
       rawPassword: "hogehoge",
-      token: nanoid(),
+      token: ulid(),
       role: Role.USER,
     },
     {
-      id: nanoid(),
+      id: ulid(),
       name: "piyo",
       email: "piyo@piyo.com",
       rawPassword: "piyopiyo",
-      token: nanoid(),
+      token: ulid(),
       role: Role.USER,
     },
     {
-      id: nanoid(),
+      id: ulid(),
       name: "fuga",
       email: "fuga@fuga.com",
       rawPassword: "fugafuga",
-      token: nanoid(),
+      token: ulid(),
       role: Role.USER,
     },
   ];
@@ -59,9 +59,9 @@ const createUsers = async () => {
 
 const createTodos = ([_adminId, userId1, userId2, _userId3]: User["id"][]) => {
   const params = [
-    { id: nanoid(), title: "hoge todo 1", description: "hoge desc 1", userId: userId1 },
-    { id: nanoid(), title: "piyo todo 1", description: "piyo desc 1", userId: userId2 },
-    { id: nanoid(), title: "piyo todo 2", description: "piyo desc 2", userId: userId2 },
+    { id: ulid(), title: "hoge todo 1", description: "hoge desc 1", userId: userId1 },
+    { id: ulid(), title: "piyo todo 1", description: "piyo desc 1", userId: userId2 },
+    { id: ulid(), title: "piyo todo 2", description: "piyo desc 2", userId: userId2 },
   ];
 
   const creates = params.map(data => prisma.todo.create({ data }));

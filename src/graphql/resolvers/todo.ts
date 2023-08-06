@@ -1,5 +1,5 @@
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
-import { nanoid } from "nanoid";
+import { ulid } from "ulid";
 
 import * as DataSource from "@/datasources";
 import { adapters } from "@/graphql/adapters/todo";
@@ -13,7 +13,7 @@ export const resolvers: Graph.Resolvers = {
       const parsed = parsers.Mutation.createTodo(args);
 
       const todo = await prisma.todo.create({
-        data: { ...parsed, id: nanoid(), userId: user.id },
+        data: { ...parsed, id: ulid(), userId: user.id },
         select: { id: true, userId: true },
       });
 
