@@ -5,10 +5,12 @@ import { applyMiddleware } from "graphql-middleware";
 import { createComplexityLimitRule } from "graphql-validation-complexity";
 
 import { maxDepth, maxCost, alertCost } from "@/config";
-import { Resolver, middlewares, schema } from "@/graphql";
-import { isIntrospectionQuery } from "./utils";
+import type { Context } from "@/modules/common/resolvers";
+import { middlewares } from "./middlewares";
+import { schema } from "./schema";
+import { isIntrospectionQuery } from "./generic/graphql";
 
-export const server = new ApolloServer<Resolver.Context>({
+export const server = new ApolloServer<Context>({
   schema: applyMiddleware(schema, ...middlewares),
   validationRules: [
     depthLimit(maxDepth),

@@ -2,12 +2,12 @@ import type { DocumentNode } from "graphql";
 
 import { defaultContext } from "it/context";
 import { DBData } from "it/data";
-import type { Resolver } from "@/graphql/types";
+import type { Context } from "@/modules/common/resolvers";
 import { server } from "@/server";
 
 type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;
-  user?: Resolver.Context["user"];
+  user?: Context["user"];
 };
 
 /** デフォルトユーザーは admin */

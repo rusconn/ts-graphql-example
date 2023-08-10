@@ -7,12 +7,6 @@ dependencies:
   '@devoxa/prisma-relay-cursor-connection':
     specifier: ^2.2.2
     version: 2.2.2(@prisma/client@5.1.0)
-  '@graphql-tools/load-files':
-    specifier: ^7.0.0
-    version: 7.0.0(graphql@16.6.0)
-  '@graphql-tools/merge':
-    specifier: ^9.0.0
-    version: 9.0.0(graphql@16.6.0)
   '@graphql-tools/schema':
     specifier: ^10.0.0
     version: 10.0.0(graphql@16.6.0)
@@ -1609,18 +1603,6 @@ packages:
       tslib: 2.5.3
       unixify: 1.0.0
     dev: true
-
-  /@graphql-tools/load-files@7.0.0(graphql@16.6.0):
-    resolution: {integrity: sha512-P98amERIwI7FD8Bsq6xUbz9Mj63W8qucfrE/WQjad5jFMZYdFFt46a99FFdfx8S/ZYgpAlj/AZbaTtWLitMgNQ==}
-    engines: {node: '>=16.0.0'}
-    peerDependencies:
-      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-    dependencies:
-      globby: 11.1.0
-      graphql: 16.6.0
-      tslib: 2.5.3
-      unixify: 1.0.0
-    dev: false
 
   /@graphql-tools/load@8.0.0(graphql@16.6.0):
     resolution: {integrity: sha512-Cy874bQJH0FP2Az7ELPM49iDzOljQmK1PPH6IuxsWzLSTxwTqd8dXA09dcVZrI7/LsN26heTY2R8q2aiiv0GxQ==}
@@ -6950,6 +6932,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       remove-trailing-separator: 1.1.0
+    dev: true
 
   /normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -7723,6 +7706,7 @@ packages:
 
   /remove-trailing-separator@1.1.0:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}
+    dev: true
 
   /remove-trailing-spaces@1.0.8:
     resolution: {integrity: sha512-O3vsMYfWighyFbTd8hk8VaSj9UAGENxAtX+//ugIst2RMk5e03h6RoIS+0ylsFxY1gvmPuAY/PO4It+gPEeySA==}
@@ -8615,6 +8599,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       normalize-path: 2.1.1
+    dev: true
 
   /unpipe@1.0.0:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}

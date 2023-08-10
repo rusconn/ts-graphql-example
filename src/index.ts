@@ -2,10 +2,11 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 import { GraphQLError } from "graphql";
 
 import { prisma } from "@/datasources";
-import { Graph, Resolver } from "@/graphql/types";
+import { isIntrospectionQuery } from "@/generic/graphql";
+import * as Graph from "@/modules/common/schema";
+import type { Context } from "@/modules/common/resolvers";
 import { logger } from "./logger";
 import { server } from "./server";
-import { isIntrospectionQuery } from "./utils";
 
 startStandaloneServer(server, {
   context: async ({ req, res }) => {
@@ -14,7 +15,7 @@ startStandaloneServer(server, {
     const { query } = req.body as { query: string | undefined };
 
     if (query && isIntrospectionQuery(query)) {
-      return {} as Resolver.Context;
+      return {} as Context;
     }
 
     // TODO: ここで消すのはおかしいと思うので場所を変更する。

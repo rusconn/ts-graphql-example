@@ -96,3 +96,22 @@ Prisma の select オプションを利用した。\
 select オプションの値を作成するのに [Prisma select](https://paljs.com/plugins/select) を利用した。\
 ただし Union type であるフィールドには使わなかった。どうやら[サポートしていない](https://github.com/paljs/prisma-tools/issues/249)よう。\
 柔軟性に欠くので上記ライブラリは廃止するかもしれない。
+
+### src ディレクトリの構成
+
+好みの問題でバレルはほとんど作成しなかった。
+
+```text
+src
+├── datasources - 各種データソース
+├── generic     - 他のプロジェクトでも使えそうな汎用ユーティリティ
+└── modules     - スキーマの主要なタイプのモジュール群
+    ├── common      - 複数のタイプで使うユーティリティ
+    └── todo        - Todo タイプのモジュール
+        ├── adapters.ts    - 各フィールドの型や値をスキーマのものへ変換
+        ├── parsers.ts     - 各フィールドの引数の検証・変換
+        ├── permissions.ts - 各フィールドの取得権限
+        ├── resolvers.ts   - 各フィールドのリゾルバ
+        └── typeDefs.ts    - スキーマ
+    └── user        - User タイプのモジュール
+```

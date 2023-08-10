@@ -1,7 +1,7 @@
 import type * as DataSource from "@/datasources";
-import { adapters as todoAdapters } from "@/graphql/adapters/todo";
-import { adapters as userAdapters } from "@/graphql/adapters/user";
-import type { Graph } from "@/graphql/types";
+import { adapters as todoAdapters } from "@/modules/todo/adapters";
+import { adapters as userAdapters } from "@/modules/user/adapters";
+import type * as Graph from "@/modules/common/schema";
 
 export const toTodoNode = (todo: DataSource.Todo): Graph.Todo => ({
   id: todoAdapters.Todo.id(todo.id),

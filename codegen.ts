@@ -5,9 +5,9 @@ const scalars = {
     input: "string",
     output: "string",
   },
-  DateTime: "@/graphql/types/scalars#DateTime",
-  EmailAddress: "@/graphql/types/scalars#EmailAddress",
-  NonEmptyString: "@/graphql/types/scalars#NonEmptyString",
+  DateTime: "@/modules/scalar/adapters#DateTime",
+  EmailAddress: "@/modules/scalar/adapters#EmailAddress",
+  NonEmptyString: "@/modules/scalar/adapters#NonEmptyString",
 };
 
 const typescript = {
@@ -20,11 +20,11 @@ const typescript = {
 
 const typescriptResolvers = {
   useIndexSignature: true,
-  contextType: "@/graphql/types/resolvers#Context",
+  contextType: "@/modules/common/resolvers#Context",
   mapperTypeSuffix: "Mapper",
   mappers: {
-    User: "@/graphql/types/mappers#User",
-    Todo: "@/graphql/types/mappers#Todo",
+    User: "@/modules/user/resolvers#User",
+    Todo: "@/modules/todo/resolvers#Todo",
   },
   resolversNonOptionalTypename: {
     unionMember: true,
@@ -39,15 +39,15 @@ const typescriptOperations = {
 const config: CodegenConfig = {
   schema: "http://localhost:4000/graphql",
   generates: {
-    "src/graphql/types/schema.ts": {
+    "src/modules/common/schema.ts": {
       plugins: ["typescript", "typescript-resolvers"],
       config: {
         ...typescript,
         ...typescriptResolvers,
       },
     },
-    "tests/it/graphql/types/schema.ts": {
-      documents: "tests/it/graphql/**/*.ts",
+    "tests/it/modules/schema.ts": {
+      documents: "tests/it/modules/**/*.ts",
       plugins: ["typescript", "typescript-operations"],
       config: {
         ...typescript,

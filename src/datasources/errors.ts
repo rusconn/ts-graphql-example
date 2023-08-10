@@ -1,6 +1,6 @@
-import { CustomError } from "@/errors";
+import ExtensibleCustomError from "extensible-custom-error";
 
-export class DataSourceError extends CustomError {}
+export class DataSourceError extends ExtensibleCustomError {}
 
 export class InputTooLongError extends DataSourceError {}
 export class NotFoundError extends DataSourceError {}
