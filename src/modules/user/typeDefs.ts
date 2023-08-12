@@ -1,8 +1,10 @@
 import { orderOptions, cursorConnections } from "../common/typeDefs";
 
+export const nodeType = "User";
+
 export default /* GraphQL */ `
-  ${cursorConnections("User", { totalCount: "Int!" })}
-  ${orderOptions("User")}
+  ${cursorConnections(nodeType, { totalCount: "Int!" })}
+  ${orderOptions(nodeType)}
 
   extend type Query {
     me: User

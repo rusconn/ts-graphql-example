@@ -1,8 +1,9 @@
 import * as DataSource from "@/datasources";
 import * as Graph from "../common/schema";
 import { parseConnectionArgs, ParseError, parseSomeNodeId } from "../common/parsers";
+import { nodeType } from "./typeDefs";
 
-export const parseTodoNodeId = parseSomeNodeId("Todo");
+export const parseTodoNodeId = parseSomeNodeId(nodeType);
 
 export const parsers = {
   Mutation: {

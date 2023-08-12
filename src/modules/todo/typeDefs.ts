@@ -1,8 +1,10 @@
 import { orderOptions, cursorConnections } from "../common/typeDefs";
 
+export const nodeType = "Todo";
+
 export default /* GraphQL */ `
-  ${cursorConnections("Todo", { totalCount: "Int!" })}
-  ${orderOptions("Todo")}
+  ${cursorConnections(nodeType, { totalCount: "Int!" })}
+  ${orderOptions(nodeType)}
 
   extend type Mutation {
     createTodo(input: CreateTodoInput!): CreateTodoResult

@@ -2,8 +2,9 @@ import * as DataSource from "@/datasources";
 import * as Graph from "../common/schema";
 import { toSpecifiedNodeId } from "../common/adapters";
 import { dateTime, nonEmptyString } from "../scalar/adapters";
+import { nodeType } from "./typeDefs";
 
-const toTodoNodeId = toSpecifiedNodeId("Todo");
+const toTodoNodeId = toSpecifiedNodeId(nodeType);
 
 export const adapters = {
   Todo: {
