@@ -1,20 +1,8 @@
 import * as DataSource from "@/datasources";
 import * as Graph from "../common/schema";
-import { parseConnectionArgs, ParseError, splitSpecifiedNodeId } from "../common/parsers";
+import { parseConnectionArgs, ParseError, parseSomeNodeId } from "../common/parsers";
 
-const splitUserNodeId = splitSpecifiedNodeId("User");
-
-export const parseUserNodeId = (id: Graph.User["id"]) => {
-  try {
-    return splitUserNodeId(id).id;
-  } catch (e) {
-    if (e instanceof Error) {
-      throw new ParseError(e);
-    }
-
-    throw e;
-  }
-};
+export const parseUserNodeId = parseSomeNodeId("User");
 
 export const parsers = {
   Query: {

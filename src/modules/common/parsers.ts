@@ -6,21 +6,19 @@ import { NodeType, nodeTypes, typeIdSep } from "./typeDefs";
 
 export class ParseError extends ExtensibleCustomError {}
 
-export const splitSpecifiedNodeId =
+export const parseSomeNodeId =
   <T extends NodeType>(nodeType: T) =>
   (nodeId: Graph.Node["id"]) => {
-    const { type, id } = splitNodeId(nodeId);
+    const { type, id } = parseNodeId(nodeId);
 
     if (type !== nodeType) {
       throw new ParseError(`invalid node id: ${nodeId}`);
     }
 
-    return { type, id } as T extends "Todo"
-      ? { type: "Todo"; id: string }
-      : { type: "User"; id: string };
+    return id;
   };
 
-export const splitNodeId = (nodeId: Graph.Node["id"]) => {
+export const parseNodeId = (nodeId: Graph.Node["id"]) => {
   const [type, id, ...rest] = nodeId.split(typeIdSep);
 
   if (!isValidNodeType(type) || id == null || id === "" || rest.length !== 0) {
