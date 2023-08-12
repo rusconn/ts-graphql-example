@@ -1,5 +1,4 @@
 import { ApolloServer } from "@apollo/server";
-import omit from "lodash/omit";
 import depthLimit from "graphql-depth-limit";
 import { applyMiddleware } from "graphql-middleware";
 import { createComplexityLimitRule } from "graphql-validation-complexity";
@@ -26,8 +25,7 @@ export const server = new ApolloServer<Context>({
       return { ...error, message: "Some errors occurred" };
     }
 
-    // 内部の例外情報はクライアントに渡さない
-    return omit(error, "extensions.thrown");
+    return error;
   },
   cache: undefined,
   // requestId を埋め込みたいのでコンテキストにセットしている

@@ -5,9 +5,9 @@ import * as DataSource from "@/datasources";
 import * as Graph from "@/modules/common/schema";
 import { ParseError } from "@/modules/common/parsers";
 import { permissions } from "./permissions";
+import { logger } from "./logger";
 
 const permissionAndErrorMiddleware = shield(permissions, {
-  // ログの為に埋め込んだ内部情報はサーバーの設定でレスポンスから除外すること
   fallbackError: (thrown, _parent, _args, _context, _info) => {
     if (thrown instanceof ParseError) {
       return new GraphQLError(thrown.message, {
@@ -36,8 +36,9 @@ const permissionAndErrorMiddleware = shield(permissions, {
     }
 
     // エラーでは無いものが投げられた
+    logger.error(thrown, "error info");
     return new GraphQLError("Internal server error", {
-      extensions: { code: Graph.ErrorCode.InternalServerError, thrown },
+      extensions: { code: Graph.ErrorCode.InternalServerError },
     });
   },
 });
