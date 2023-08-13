@@ -42,7 +42,9 @@ export const server = new ApolloServer<Context>({
 
         return {
           didEncounterErrors: async ({ contextValue: context, errors }) => {
-            context.logger.error(errors, "error info");
+            for (const error of errors) {
+              context.logger.error(error, "error info");
+            }
           },
           async willSendResponse({ response }) {
             // 脆弱性対策: https://qiita.com/tnishi97/items/9fb9b2e69689fbfb52e3
