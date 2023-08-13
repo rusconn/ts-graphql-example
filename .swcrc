@@ -13,5 +13,6 @@
   "module": {
     "type": "commonjs"
   },
-  "minify": true
+  "minify": true,
+  "sourceMaps": true
 }

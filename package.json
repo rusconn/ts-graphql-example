@@ -13,7 +13,7 @@
     "setup:husky": "husky install",
     "dev": "NODE_ENV=development nodemon --watch src --ext 'js,ts' --exec 'pnpm ts src/index.ts'",
     "build": "swc src --out-dir dist",
-    "start": "NODE_ENV=production node dist/index.js",
+    "start": "NODE_ENV=production node --enable-source-maps dist/index.js",
     "clean": "rm -rf dist/*",
     "codegen": "graphql-codegen",
     "studio": "pnpm prisma studio",
