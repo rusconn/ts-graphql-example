@@ -1,3 +1,4 @@
+import type { ID } from '@/modules/scalar/adapters';
 import type { DateTime } from '@/modules/scalar/parsers';
 import type { EmailAddress } from '@/modules/scalar/parsers';
 import type { NonEmptyString } from '@/modules/scalar/parsers';
@@ -16,7 +17,7 @@ export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string; }
+  ID: { input: string; output: ID; }
   String: { input: string; output: string; }
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }

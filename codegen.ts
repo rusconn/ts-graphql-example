@@ -8,7 +8,10 @@ const typescript: TypeScriptPluginConfig = {
     defaultValue: true,
   },
   scalars: {
-    ID: "string",
+    ID: {
+      input: "string",
+      output: "@/modules/scalar/adapters#ID",
+    },
     DateTime: {
       input: "@/modules/scalar/parsers#DateTime",
       output: "Date",

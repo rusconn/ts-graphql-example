@@ -8,7 +8,7 @@ export class ParseError extends ExtensibleCustomError {}
 
 export const parseSomeNodeId =
   <T extends NodeType>(nodeType: T) =>
-  (nodeId: Graph.Node["id"]) => {
+  (nodeId: Graph.Scalars["ID"]["input"]) => {
     const { type, id } = parseNodeId(nodeId);
 
     if (type !== nodeType) {
@@ -18,7 +18,7 @@ export const parseSomeNodeId =
     return id;
   };
 
-export const parseNodeId = (nodeId: Graph.Node["id"]) => {
+export const parseNodeId = (nodeId: Graph.Scalars["ID"]["input"]) => {
   const [type, id, ...rest] = nodeId.split(typeIdSep);
 
   if (!isValidNodeType(type) || id == null || id === "" || rest.length !== 0) {
