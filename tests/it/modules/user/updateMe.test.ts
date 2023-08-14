@@ -6,7 +6,6 @@ import { prisma } from "it/datasources";
 import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
-import { nonEmptyString, emailAddress } from "@/modules/scalar/parsers";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
@@ -44,7 +43,7 @@ const executeMutation = executeSingleResultOperation(query)<
 beforeAll(resetUsers);
 
 describe("authorization", () => {
-  const input = { name: nonEmptyString("foo") };
+  const input = { name: "foo" };
 
   const alloweds = [ContextData.admin, ContextData.alice, ContextData.bob] as const;
   const notAlloweds = [ContextData.guest] as const;
@@ -102,15 +101,9 @@ describe("validation", () => {
       { name: "name", email: "email@email.com", password: "a".repeat(passwordMaxCharacters + 1) },
     ];
 
-    test.each(valids)("valid %s", async ({ name, email, password }) => {
+    test.each(valids)("valid %s", async input => {
       const { errors } = await executeMutation({
-        variables: {
-          input: {
-            name: nonEmptyString(name),
-            email: emailAddress(email),
-            password: nonEmptyString(password),
-          },
-        },
+        variables: { input },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -118,15 +111,9 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
-    test.each(invalids)("invalid %s", async ({ name, email, password }) => {
+    test.each(invalids)("invalid %s", async input => {
       const { errors } = await executeMutation({
-        variables: {
-          input: {
-            name: nonEmptyString(name),
-            email: emailAddress(email),
-            password: nonEmptyString(password),
-          },
-        },
+        variables: { input },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -160,7 +147,7 @@ describe("logic", () => {
   beforeEach(resetUsers);
 
   test("email already exists", async () => {
-    const email = emailAddress(DBData.alice.email);
+    const { email } = DBData.alice;
 
     const { data } = await executeMutation({
       variables: { input: { email } },
@@ -170,8 +157,8 @@ describe("logic", () => {
   });
 
   it("should update using input", async () => {
-    const name = nonEmptyString("foo");
-    const email = emailAddress("foo@foo.com");
+    const name = "foo";
+    const email = "foo@foo.com";
 
     const { data } = await executeMutation({
       variables: { input: { name, email } },
@@ -213,7 +200,7 @@ describe("logic", () => {
     });
 
     const { data } = await executeMutation({
-      variables: { input: { name: nonEmptyString("bar") } },
+      variables: { input: { name: "bar" } },
     });
 
     expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
@@ -234,7 +221,7 @@ describe("logic", () => {
     });
 
     const { data } = await executeMutation({
-      variables: { input: { name: nonEmptyString("baz") } },
+      variables: { input: { name: "baz" } },
     });
 
     expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");

@@ -6,7 +6,6 @@ import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
-import { nonEmptyString } from "@/modules/scalar/parsers";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
@@ -54,7 +53,7 @@ beforeAll(async () => {
 
 describe("authorization", () => {
   const input = {
-    title: nonEmptyString("foo"),
+    title: "foo",
     description: "",
     status: Graph.TodoStatus.Done,
   };
@@ -97,7 +96,7 @@ describe("authorization", () => {
 describe("validation", () => {
   describe("$id", () => {
     const input = {
-      title: nonEmptyString("foo"),
+      title: "foo",
       description: "",
       status: Graph.TodoStatus.Done,
     };
@@ -136,7 +135,7 @@ describe("validation", () => {
       ["A", "A".repeat(descriptionMaxCharacters)],
       ["🅰", "🅰".repeat(descriptionMaxCharacters)],
     ].map(([title, description]) => ({
-      title: nonEmptyString(title),
+      title,
       description,
       status: Graph.TodoStatus.Done,
     }));
@@ -147,7 +146,7 @@ describe("validation", () => {
       ["A", "A".repeat(descriptionMaxCharacters + 1)],
       ["🅰", "🅰".repeat(descriptionMaxCharacters + 1)],
     ].map(([title, description]) => ({
-      title: nonEmptyString(title),
+      title,
       description,
       status: Graph.TodoStatus.Done,
     }));
@@ -174,8 +173,8 @@ describe("validation", () => {
 
     const validPartialInputs = [
       { description: "", status: Graph.TodoStatus.Done },
-      { status: Graph.TodoStatus.Done, title: nonEmptyString("x") },
-      { title: nonEmptyString("x"), description: "" },
+      { status: Graph.TodoStatus.Done, title: "x" },
+      { title: "x", description: "" },
     ];
 
     const invalidPartialInputs = [{ title: null }, { description: null }, { status: null }];
@@ -218,7 +217,7 @@ describe("logic", () => {
   );
 
   const input = {
-    title: nonEmptyString("bar"),
+    title: "bar",
     description: "baz",
     status: Graph.TodoStatus.Done,
   };

@@ -4,7 +4,6 @@ import { prisma } from "it/datasources";
 import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
-import { emailAddress, nonEmptyString } from "@/modules/scalar/parsers";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 
@@ -39,8 +38,8 @@ beforeAll(async () => {
 describe("authorization", () => {
   const variables = {
     input: {
-      email: emailAddress("email@email.com"),
-      password: nonEmptyString("password"),
+      email: "email@email.com",
+      password: "password",
     },
   };
 
@@ -79,15 +78,10 @@ describe("validation", () => {
       { email: "email@email.com", password: "a".repeat(passwordMaxCharacters + 1) },
     ];
 
-    test.each(valids)("valid %s", async ({ email, password }) => {
+    test.each(valids)("valid %s", async input => {
       const { errors } = await executeMutation({
         user: ContextData.guest,
-        variables: {
-          input: {
-            email: emailAddress(email),
-            password: nonEmptyString(password),
-          },
-        },
+        variables: { input },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -95,15 +89,10 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
-    test.each(invalids)("invalid %s", async ({ email, password }) => {
+    test.each(invalids)("invalid %s", async input => {
       const { errors } = await executeMutation({
         user: ContextData.guest,
-        variables: {
-          input: {
-            email: emailAddress(email),
-            password: nonEmptyString(password),
-          },
-        },
+        variables: { input },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -115,8 +104,8 @@ describe("validation", () => {
 
 describe("logic", () => {
   test("wrong email", async () => {
-    const wrongEmail = emailAddress(DBData.admin.email.slice(1));
-    const password = nonEmptyString("adminadmin");
+    const wrongEmail = DBData.admin.email.slice(1);
+    const password = "adminadmin";
 
     const { data } = await executeMutation({
       variables: { input: { email: wrongEmail, password } },
@@ -126,8 +115,8 @@ describe("logic", () => {
   });
 
   test("wrong password", async () => {
-    const email = emailAddress(DBData.admin.email);
-    const wrongPassword = nonEmptyString("dminadmin");
+    const { email } = DBData.admin;
+    const wrongPassword = "dminadmin";
 
     const { data } = await executeMutation({
       variables: { input: { email, password: wrongPassword } },
@@ -137,8 +126,8 @@ describe("logic", () => {
   });
 
   test("correct input", async () => {
-    const email = emailAddress(DBData.admin.email);
-    const password = nonEmptyString("adminadmin");
+    const { email } = DBData.admin;
+    const password = "adminadmin";
 
     const { data } = await executeMutation({
       variables: { input: { email, password } },
@@ -152,8 +141,8 @@ describe("logic", () => {
       where: { id: DBData.admin.id },
     });
 
-    const email = emailAddress(DBData.admin.email);
-    const password = nonEmptyString("adminadmin");
+    const { email } = DBData.admin;
+    const password = "adminadmin";
 
     const { data } = await executeMutation({
       variables: { input: { email, password } },
@@ -176,8 +165,8 @@ describe("logic", () => {
       where: { id: DBData.admin.id },
     });
 
-    const email = emailAddress(DBData.admin.email);
-    const password = nonEmptyString("adminadmin");
+    const { email } = DBData.admin;
+    const password = "adminadmin";
 
     const { data } = await executeMutation({
       variables: { input: { email, password } },

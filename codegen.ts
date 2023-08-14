@@ -40,6 +40,15 @@ const typescriptResolvers: TypeScriptResolversPluginConfig = {
 
 const typescriptOperations: TypeScriptDocumentsPluginConfig = {
   onlyOperationTypes: true,
+  scalars: {
+    ID: "string",
+    DateTime: {
+      input: "string",
+      output: "Date",
+    },
+    EmailAddress: "string",
+    NonEmptyString: "string",
+  },
   skipTypename: true,
 };
 

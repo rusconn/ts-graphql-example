@@ -5,7 +5,6 @@ import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as DataSource from "@/datasources";
 import * as Graph from "@/modules/common/schema";
-import { nonEmptyString, emailAddress } from "@/modules/scalar/parsers";
 import { parseUserNodeId } from "@/modules/user/parsers";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
@@ -41,9 +40,9 @@ beforeAll(resetUsers);
 describe("authorization", () => {
   const variables = {
     input: {
-      name: nonEmptyString("foo"),
-      email: emailAddress("guest@guest.com"),
-      password: nonEmptyString("password"),
+      name: "foo",
+      email: "guest@guest.com",
+      password: "password",
     },
   };
 
@@ -105,16 +104,10 @@ describe("validation", () => {
       { name: "name", email: "email@email.com", password: "a".repeat(passwordMaxCharacters + 1) },
     ];
 
-    test.each(valids)("valid %s", async ({ name, email, password }) => {
+    test.each(valids)("valid %s", async input => {
       const { errors } = await executeMutation({
         user: ContextData.guest,
-        variables: {
-          input: {
-            name: nonEmptyString(name),
-            email: emailAddress(email),
-            password: nonEmptyString(password),
-          },
-        },
+        variables: { input },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -122,16 +115,10 @@ describe("validation", () => {
       expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
     });
 
-    test.each(invalids)("invalid %s", async ({ name, email, password }) => {
+    test.each(invalids)("invalid %s", async input => {
       const { errors } = await executeMutation({
         user: ContextData.guest,
-        variables: {
-          input: {
-            name: nonEmptyString(name),
-            email: emailAddress(email),
-            password: nonEmptyString(password),
-          },
-        },
+        variables: { input },
       });
 
       const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -145,9 +132,9 @@ describe("logic", () => {
   beforeEach(resetUsers);
 
   test("email already exists", async () => {
-    const name = nonEmptyString("foo");
-    const email = emailAddress(DBData.admin.email);
-    const password = nonEmptyString("password");
+    const name = "foo";
+    const { email } = DBData.admin;
+    const password = "password";
 
     const { data } = await executeMutation({
       user: ContextData.guest,
@@ -158,9 +145,9 @@ describe("logic", () => {
   });
 
   it("should create user using input", async () => {
-    const name = nonEmptyString("foo");
-    const email = emailAddress("foo@foo.com");
-    const password = nonEmptyString("password");
+    const name = "foo";
+    const email = "foo@foo.com";
+    const password = "password";
 
     const { data } = await executeMutation({
       user: ContextData.guest,
@@ -182,9 +169,9 @@ describe("logic", () => {
   });
 
   test("role should be USER by default", async () => {
-    const name = nonEmptyString("bar");
-    const email = emailAddress("bar@bar.com");
-    const password = nonEmptyString("password");
+    const name = "bar";
+    const email = "bar@bar.com";
+    const password = "password";
 
     const { data } = await executeMutation({
       user: ContextData.guest,

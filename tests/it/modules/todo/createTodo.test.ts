@@ -5,7 +5,6 @@ import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as DataSource from "@/datasources";
 import * as Graph from "@/modules/common/schema";
-import { nonEmptyString } from "@/modules/scalar/parsers";
 import { parseTodoNodeId } from "@/modules/todo/parsers";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
@@ -40,7 +39,7 @@ beforeAll(async () => {
 
 describe("authorization", () => {
   const input = {
-    title: nonEmptyString("title"),
+    title: "title",
     description: "",
   };
 
@@ -83,14 +82,14 @@ describe("validation", () => {
       ["🅰".repeat(titleMaxCharacters), ""],
       ["A", "A".repeat(descriptionMaxCharacters)],
       ["🅰", "🅰".repeat(descriptionMaxCharacters)],
-    ].map(([title, description]) => ({ title: nonEmptyString(title), description }));
+    ].map(([title, description]) => ({ title, description }));
 
     const invalids = [
       ["A".repeat(titleMaxCharacters + 1), ""],
       ["🅰".repeat(titleMaxCharacters + 1), ""],
       ["A", "A".repeat(descriptionMaxCharacters + 1)],
       ["🅰", "🅰".repeat(descriptionMaxCharacters + 1)],
-    ].map(([title, description]) => ({ title: nonEmptyString(title), description }));
+    ].map(([title, description]) => ({ title, description }));
 
     test.each(valids)("valid %s", async input => {
       const { errors } = await executeMutation({
@@ -116,7 +115,7 @@ describe("validation", () => {
 
 describe("logic", () => {
   const input = {
-    title: nonEmptyString("foo"),
+    title: "foo",
     description: "bar",
   };
 
