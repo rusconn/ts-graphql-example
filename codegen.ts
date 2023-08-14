@@ -1,24 +1,22 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
+import type { TypeScriptPluginConfig } from "@graphql-codegen/typescript";
+import type { TypeScriptResolversPluginConfig } from "@graphql-codegen/typescript-resolvers";
+import type { TypeScriptDocumentsPluginConfig } from "@graphql-codegen/typescript-operations";
 
-const scalars = {
-  ID: {
-    input: "string",
-    output: "string",
-  },
-  DateTime: "@/modules/scalar/adapters#DateTime",
-  EmailAddress: "@/modules/scalar/adapters#EmailAddress",
-  NonEmptyString: "@/modules/scalar/adapters#NonEmptyString",
-};
-
-const typescript = {
+const typescript: TypeScriptPluginConfig = {
   avoidOptionals: {
     defaultValue: true,
   },
-  scalars,
+  scalars: {
+    ID: "string",
+    DateTime: "@/modules/scalar/adapters#DateTime",
+    EmailAddress: "@/modules/scalar/adapters#EmailAddress",
+    NonEmptyString: "@/modules/scalar/adapters#NonEmptyString",
+  },
   useTypeImports: true,
 };
 
-const typescriptResolvers = {
+const typescriptResolvers: TypeScriptResolversPluginConfig = {
   useIndexSignature: true,
   contextType: "@/modules/common/resolvers#Context",
   mapperTypeSuffix: "Mapper",
@@ -31,7 +29,7 @@ const typescriptResolvers = {
   },
 };
 
-const typescriptOperations = {
+const typescriptOperations: TypeScriptDocumentsPluginConfig = {
   onlyOperationTypes: true,
   skipTypename: true,
 };
