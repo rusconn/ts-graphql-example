@@ -5,18 +5,18 @@ import type * as Graph from "@/modules/common/schema";
 
 export const toTodoNode = (todo: DataSource.Todo): Graph.Todo => ({
   id: todoAdapters.Todo.id(todo.id),
-  createdAt: todoAdapters.Todo.createdAt(todo.createdAt),
-  updatedAt: todoAdapters.Todo.updatedAt(todo.updatedAt),
-  title: todoAdapters.Todo.title(todo.title),
-  description: todoAdapters.Todo.description(todo.description),
+  createdAt: todo.createdAt,
+  updatedAt: todo.updatedAt,
+  title: todo.title,
+  description: todo.description,
   status: todoAdapters.Todo.status(todo.status),
 });
 
 export const toUserNode = (user: DataSource.User): Graph.User => ({
   id: userAdapters.User.id(user.id),
-  createdAt: userAdapters.User.createdAt(user.createdAt),
-  updatedAt: userAdapters.User.updatedAt(user.updatedAt),
-  name: userAdapters.User.name(user.name),
-  email: userAdapters.User.email(user.email),
-  token: userAdapters.User.token(user.token),
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
+  name: user.name,
+  email: user.email,
+  token: user.token,
 });

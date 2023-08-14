@@ -148,7 +148,7 @@ export const resolvers: Graph.Resolvers = {
         select: select as { createdAt: true },
       });
 
-      return adapters.Todo.createdAt(todo.createdAt);
+      return todo.createdAt;
     },
     updatedAt: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
@@ -156,7 +156,7 @@ export const resolvers: Graph.Resolvers = {
         select: select as { updatedAt: true },
       });
 
-      return adapters.Todo.updatedAt(todo.updatedAt);
+      return todo.updatedAt;
     },
     title: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
@@ -164,7 +164,7 @@ export const resolvers: Graph.Resolvers = {
         select: select as { title: true },
       });
 
-      return adapters.Todo.title(todo.title);
+      return todo.title;
     },
     description: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
@@ -172,7 +172,7 @@ export const resolvers: Graph.Resolvers = {
         select: select as { description: true },
       });
 
-      return adapters.Todo.description(todo.description);
+      return todo.description;
     },
     status: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const todo = await prisma.todo.findUniqueOrThrow({

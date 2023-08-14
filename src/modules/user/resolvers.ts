@@ -175,7 +175,7 @@ export const resolvers: Graph.Resolvers = {
         select: select as { createdAt: true },
       });
 
-      return adapters.User.createdAt(user.createdAt);
+      return user.createdAt;
     },
     updatedAt: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
@@ -183,7 +183,7 @@ export const resolvers: Graph.Resolvers = {
         select: select as { updatedAt: true },
       });
 
-      return adapters.User.updatedAt(user.updatedAt);
+      return user.updatedAt;
     },
     name: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
@@ -191,7 +191,7 @@ export const resolvers: Graph.Resolvers = {
         select: select as { name: true },
       });
 
-      return adapters.User.name(user.name);
+      return user.name;
     },
     email: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
@@ -199,7 +199,7 @@ export const resolvers: Graph.Resolvers = {
         select: select as { email: true },
       });
 
-      return adapters.User.email(user.email);
+      return user.email;
     },
     token: async ({ id, select }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
@@ -207,7 +207,7 @@ export const resolvers: Graph.Resolvers = {
         select: select as { token: true },
       });
 
-      return adapters.User.token(user.token);
+      return user.token;
     },
   },
 };

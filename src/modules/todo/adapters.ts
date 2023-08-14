@@ -10,18 +10,6 @@ export const adapters = {
     id: (id: DataSource.Todo["id"]) => {
       return toTodoNodeId(id);
     },
-    createdAt: (createdAt: DataSource.Todo["createdAt"]) => {
-      return createdAt;
-    },
-    updatedAt: (updatedAt: DataSource.Todo["updatedAt"]) => {
-      return updatedAt;
-    },
-    title: (title: DataSource.Todo["title"]) => {
-      return title;
-    },
-    description: (description: DataSource.Todo["description"]) => {
-      return description;
-    },
     status: (status: DataSource.Todo["status"]) => {
       return {
         [DataSource.TodoStatus.DONE]: Graph.TodoStatus.Done,
