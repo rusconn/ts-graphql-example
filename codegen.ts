@@ -9,9 +9,18 @@ const typescript: TypeScriptPluginConfig = {
   },
   scalars: {
     ID: "string",
-    DateTime: "@/modules/scalar/adapters#DateTime",
-    EmailAddress: "@/modules/scalar/adapters#EmailAddress",
-    NonEmptyString: "@/modules/scalar/adapters#NonEmptyString",
+    DateTime: {
+      input: "@/modules/scalar/parsers#DateTime",
+      output: "Date",
+    },
+    EmailAddress: {
+      input: "@/modules/scalar/parsers#EmailAddress",
+      output: "string",
+    },
+    NonEmptyString: {
+      input: "@/modules/scalar/parsers#NonEmptyString",
+      output: "string",
+    },
   },
   useTypeImports: true,
 };

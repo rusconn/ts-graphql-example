@@ -1,6 +1,6 @@
-import type { DateTime } from '@/modules/scalar/adapters';
-import type { EmailAddress } from '@/modules/scalar/adapters';
-import type { NonEmptyString } from '@/modules/scalar/adapters';
+import type { DateTime } from '@/modules/scalar/parsers';
+import type { EmailAddress } from '@/modules/scalar/parsers';
+import type { NonEmptyString } from '@/modules/scalar/parsers';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import type { User as UserMapper } from '@/modules/user/resolvers';
 import type { Todo as TodoMapper } from '@/modules/todo/resolvers';
@@ -21,9 +21,9 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  DateTime: { input: DateTime; output: DateTime; }
-  EmailAddress: { input: EmailAddress; output: EmailAddress; }
-  NonEmptyString: { input: NonEmptyString; output: NonEmptyString; }
+  DateTime: { input: DateTime; output: Date; }
+  EmailAddress: { input: EmailAddress; output: string; }
+  NonEmptyString: { input: NonEmptyString; output: string; }
 };
 
 export type CompleteTodoResult = CompleteTodoSuccess | TodoNotFoundError;

@@ -5,7 +5,7 @@ import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as DataSource from "@/datasources";
 import * as Graph from "@/modules/common/schema";
-import { nonEmptyString, emailAddress } from "@/modules/scalar/adapters";
+import { nonEmptyString, emailAddress } from "@/modules/scalar/parsers";
 import { parseUserNodeId } from "@/modules/user/parsers";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];

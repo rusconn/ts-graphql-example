@@ -1,7 +1,6 @@
 import * as DataSource from "@/datasources";
 import * as Graph from "../common/schema";
 import { toSpecifiedNodeId } from "../common/adapters";
-import { dateTime, nonEmptyString } from "../scalar/adapters";
 import { nodeType } from "./typeDefs";
 
 const toTodoNodeId = toSpecifiedNodeId(nodeType);
@@ -12,13 +11,13 @@ export const adapters = {
       return toTodoNodeId(id);
     },
     createdAt: (createdAt: DataSource.Todo["createdAt"]) => {
-      return dateTime(createdAt.toISOString());
+      return createdAt;
     },
     updatedAt: (updatedAt: DataSource.Todo["updatedAt"]) => {
-      return dateTime(updatedAt.toISOString());
+      return updatedAt;
     },
     title: (title: DataSource.Todo["title"]) => {
-      return nonEmptyString(title);
+      return title;
     },
     description: (description: DataSource.Todo["description"]) => {
       return description;

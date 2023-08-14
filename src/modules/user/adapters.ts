@@ -1,6 +1,5 @@
 import type * as DataSource from "@/datasources";
 import { toSpecifiedNodeId } from "../common/adapters";
-import { dateTime, emailAddress, nonEmptyString } from "../scalar/adapters";
 import { nodeType } from "./typeDefs";
 
 const toUserNodeId = toSpecifiedNodeId(nodeType);
@@ -11,19 +10,19 @@ export const adapters = {
       return toUserNodeId(id);
     },
     createdAt: (createdAt: DataSource.User["createdAt"]) => {
-      return dateTime(createdAt.toISOString());
+      return createdAt;
     },
     updatedAt: (updatedAt: DataSource.User["updatedAt"]) => {
-      return dateTime(updatedAt.toISOString());
+      return updatedAt;
     },
     name: (name: DataSource.User["name"]) => {
-      return nonEmptyString(name);
+      return name;
     },
     email: (email: DataSource.User["email"]) => {
-      return emailAddress(email);
+      return email;
     },
     token: (token: DataSource.User["token"]) => {
-      return token != null ? nonEmptyString(token) : token;
+      return token;
     },
   },
 };

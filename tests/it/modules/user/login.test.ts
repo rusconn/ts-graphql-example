@@ -4,7 +4,7 @@ import { prisma } from "it/datasources";
 import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
-import { emailAddress, nonEmptyString } from "@/modules/scalar/adapters";
+import { emailAddress, nonEmptyString } from "@/modules/scalar/parsers";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
 

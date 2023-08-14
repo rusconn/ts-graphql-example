@@ -5,7 +5,7 @@ import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as DataSource from "@/datasources";
 import * as Graph from "@/modules/common/schema";
-import { nonEmptyString } from "@/modules/scalar/adapters";
+import { nonEmptyString } from "@/modules/scalar/parsers";
 import { parseTodoNodeId } from "@/modules/todo/parsers";
 
 const users = [DBData.admin, DBData.alice, DBData.bob];
