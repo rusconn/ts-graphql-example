@@ -1,15 +1,15 @@
 import * as DB from "./db";
-import { toTodoNode, toUserNode } from "./helpers";
+import { todoNode, userNode } from "./helpers";
 
-export const admin = toUserNode(DB.admin);
-export const alice = toUserNode(DB.alice);
-export const bob = toUserNode(DB.bob);
+export const admin = userNode(DB.admin);
+export const alice = userNode(DB.alice);
+export const bob = userNode(DB.bob);
 
-export const adminTodo1 = toTodoNode(DB.adminTodo1);
-export const adminTodo2 = toTodoNode(DB.adminTodo2);
-export const adminTodo3 = toTodoNode(DB.adminTodo3);
-export const aliceTodo = toTodoNode(DB.aliceTodo);
-export const bobTodo = toTodoNode(DB.bobTodo);
+export const adminTodo1 = todoNode(DB.adminTodo1);
+export const adminTodo2 = todoNode(DB.adminTodo2);
+export const adminTodo3 = todoNode(DB.adminTodo3);
+export const aliceTodo = todoNode(DB.aliceTodo);
+export const bobTodo = todoNode(DB.bobTodo);
 
 export const validUserIds = [admin, alice, bob].map(({ id }) => id);
 
