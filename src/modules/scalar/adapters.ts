@@ -1,3 +1,3 @@
-import type { Newtype } from "@/generic/types";
+import type { Opaque } from "type-fest";
 
-export type ID = Newtype<"ID", string>;
+export type ID = Opaque<string, "ID">;

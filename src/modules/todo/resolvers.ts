@@ -1,5 +1,6 @@
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 import { ulid } from "ulid";
+import type { SetOptional } from "type-fest";
 
 import * as DataSource from "@/datasources";
 import type * as Graph from "../common/schema";
@@ -8,7 +9,7 @@ import { adapters } from "./adapters";
 import { parsers } from "./parsers";
 
 export type Todo = WithSelect<TodoKeys, DataSource.TodoSelectScalar>;
-type TodoKeys = Pick<DataSource.Todo, "id"> & Partial<Pick<DataSource.Todo, "userId">>;
+type TodoKeys = SetOptional<Pick<DataSource.Todo, "id" | "userId">, "userId">;
 
 export const resolvers: Graph.Resolvers = {
   Mutation: {

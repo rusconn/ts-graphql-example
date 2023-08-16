@@ -1,5 +1,5 @@
-import type { Newtype } from "@/generic/types";
+import type { Opaque } from "type-fest";
 
-export type DateTime = Newtype<"DateTime", string>;
-export type EmailAddress = Newtype<"EmailAddress", string>;
-export type NonEmptyString = Newtype<"NonEmptyString", string>;
+export type DateTime = Opaque<string, "DateTime">;
+export type EmailAddress = Opaque<string, "EmailAddress">;
+export type NonEmptyString = Opaque<string, "NonEmptyString">;
