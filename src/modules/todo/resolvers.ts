@@ -1,6 +1,5 @@
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 import { ulid } from "ulid";
-import type { SetOptional } from "type-fest";
 
 import * as DataSource from "@/datasources";
 import type * as Graph from "../common/schema";
@@ -8,8 +7,9 @@ import { selectInfo, WithSelect } from "../common/resolvers";
 import { adapters } from "./adapters";
 import { parsers } from "./parsers";
 
-export type Todo = WithSelect<TodoKeys, DataSource.TodoSelectScalar>;
-type TodoKeys = SetOptional<Pick<DataSource.Todo, "id" | "userId">, "userId">;
+export type Todo = WithSelect<TodoKeys & TodoPermissionCheckFields, DataSource.TodoSelectScalar>;
+type TodoKeys = Pick<DataSource.Todo, "id">;
+type TodoPermissionCheckFields = Pick<DataSource.Todo, "userId">;
 
 export const resolvers: Graph.Resolvers = {
   Mutation: {
@@ -183,17 +183,8 @@ export const resolvers: Graph.Resolvers = {
 
       return adapters.Todo.status(todo.status);
     },
-    user: async ({ id, userId }, _, { dataSources: { prisma } }, info) => {
-      if (!userId) {
-        const todo = await prisma.todo.findUniqueOrThrow({
-          where: { id },
-          select: { userId: true },
-        });
-
-        return { id: todo.userId, ...selectInfo(info) };
-      } else {
-        return { id: userId, ...selectInfo(info) };
-      }
+    user: async ({ userId }, _, __, info) => {
+      return { id: userId, ...selectInfo(info) };
     },
   },
   User: {

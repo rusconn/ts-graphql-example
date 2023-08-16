@@ -9,8 +9,9 @@ import { selectInfo, WithSelect } from "../common/resolvers";
 import { adapters } from "./adapters";
 import { parsers } from "./parsers";
 
-export type User = WithSelect<UserKeys, DataSource.UserSelectScalar>;
+export type User = WithSelect<UserKeys & UserPermissionCheckFields, DataSource.UserSelectScalar>;
 type UserKeys = Pick<DataSource.User, "id">;
+type UserPermissionCheckFields = Pick<DataSource.User, "id">;
 
 export const resolvers: Graph.Resolvers = {
   Query: {
