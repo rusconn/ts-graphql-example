@@ -18,6 +18,7 @@ model Todo {
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([id, userId])
   @@index([createdAt(sort: Asc), id(sort: Asc)], map: "Todo_createdAt_id_idx")
   @@index([createdAt(sort: Desc), id(sort: Desc)], map: "Todo_createdAt_desc_id_desc_idx")
   @@index([updatedAt(sort: Asc), id(sort: Asc)], map: "Todo_updatedAt_id_idx")

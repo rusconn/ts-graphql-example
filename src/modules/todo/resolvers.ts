@@ -7,7 +7,7 @@ import { forbiddenError } from "../common/permissions";
 import { adapters } from "./adapters";
 import { parsers } from "./parsers";
 
-export type Todo = Pick<DataSource.Todo, "id">;
+export type Todo = Pick<DataSource.Todo, "id"> & Partial<Pick<DataSource.Todo, "userId">>;
 
 export const resolvers: Graph.Resolvers = {
   Mutation: {
@@ -133,9 +133,9 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Todo: {
-    id: async ({ id }, _, { dataSources: { prisma }, user }) => {
+    id: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id },
+        where: { id, userId },
       });
 
       if (user.role !== "ADMIN" && user.id !== todo.userId) {
@@ -144,9 +144,9 @@ export const resolvers: Graph.Resolvers = {
 
       return adapters.Todo.id(todo.id);
     },
-    createdAt: async ({ id }, _, { dataSources: { prisma }, user }) => {
+    createdAt: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id },
+        where: { id, userId },
       });
 
       if (user.role !== "ADMIN" && user.id !== todo.userId) {
@@ -155,9 +155,9 @@ export const resolvers: Graph.Resolvers = {
 
       return todo.createdAt;
     },
-    updatedAt: async ({ id }, _, { dataSources: { prisma }, user }) => {
+    updatedAt: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id },
+        where: { id, userId },
       });
 
       if (user.role !== "ADMIN" && user.id !== todo.userId) {
@@ -166,9 +166,9 @@ export const resolvers: Graph.Resolvers = {
 
       return todo.updatedAt;
     },
-    title: async ({ id }, _, { dataSources: { prisma }, user }) => {
+    title: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id },
+        where: { id, userId },
       });
 
       if (user.id !== todo.userId) {
@@ -177,9 +177,9 @@ export const resolvers: Graph.Resolvers = {
 
       return todo.title;
     },
-    description: async ({ id }, _, { dataSources: { prisma }, user }) => {
+    description: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id },
+        where: { id, userId },
       });
 
       if (user.id !== todo.userId) {
@@ -188,9 +188,9 @@ export const resolvers: Graph.Resolvers = {
 
       return todo.description;
     },
-    status: async ({ id }, _, { dataSources: { prisma }, user }) => {
+    status: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id },
+        where: { id, userId },
       });
 
       if (user.id !== todo.userId) {
@@ -199,9 +199,9 @@ export const resolvers: Graph.Resolvers = {
 
       return adapters.Todo.status(todo.status);
     },
-    user: async ({ id }, _, { dataSources: { prisma }, user }) => {
+    user: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id },
+        where: { id, userId },
       });
 
       if (user.role !== "ADMIN" && user.id !== todo.userId) {
@@ -212,10 +212,10 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   User: {
-    todo: (_, args) => {
+    todo: ({ id: userId }, args) => {
       const { id } = parsers.User.todo(args);
 
-      return { id };
+      return { id, userId };
     },
     todos: async ({ id }, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.User.todos(args);
