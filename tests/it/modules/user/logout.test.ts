@@ -5,16 +5,7 @@ import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
 
-const users = [DBData.admin, DBData.alice, DBData.bob];
-
-const seedUsers = () => prisma.user.createMany({ data: users });
-
-const resetUsers = async () => {
-  await clearUsers();
-  await seedUsers();
-};
-
-const query = /* GraphQL */ `
+const executeMutation = executeSingleResultOperation(/* GraphQL */ `
   mutation Logout {
     logout {
       __typename
@@ -28,12 +19,20 @@ const query = /* GraphQL */ `
       }
     }
   }
-`;
+`)<LogoutMutation, LogoutMutationVariables>;
 
-const executeMutation = executeSingleResultOperation(query)<
-  LogoutMutation,
-  LogoutMutationVariables
->;
+const testData = {
+  users: [DBData.admin, DBData.alice, DBData.bob],
+};
+
+const seedData = {
+  users: () => prisma.user.createMany({ data: testData.users }),
+};
+
+const resetUsers = async () => {
+  await clearUsers();
+  await seedData.users();
+};
 
 beforeAll(resetUsers);
 

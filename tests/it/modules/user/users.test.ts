@@ -5,13 +5,7 @@ import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
 
-const users = [DBData.admin, DBData.alice, DBData.bob];
-
-const seedUsers = () => prisma.user.createMany({ data: users });
-
-const numSeed = users.length;
-
-const query = /* GraphQL */ `
+const executeQuery = executeSingleResultOperation(/* GraphQL */ `
   query Users($first: Int, $after: String, $last: Int, $before: String, $orderBy: UserOrder) {
     users(first: $first, last: $last, after: $after, before: $before, orderBy: $orderBy) {
       totalCount
@@ -29,13 +23,19 @@ const query = /* GraphQL */ `
       }
     }
   }
-`;
+`)<UsersQuery, UsersQueryVariables>;
 
-const executeQuery = executeSingleResultOperation(query)<UsersQuery, UsersQueryVariables>;
+const testData = {
+  users: [DBData.admin, DBData.alice, DBData.bob],
+};
+
+const seedData = {
+  users: () => prisma.user.createMany({ data: testData.users }),
+};
 
 beforeAll(async () => {
   await clearUsers();
-  await seedUsers();
+  await seedData.users();
 });
 
 describe("authorization", () => {
@@ -99,7 +99,7 @@ describe("validation", () => {
 
 describe("number of items", () => {
   it("should affected by first option", async () => {
-    const first = numSeed - 1;
+    const first = testData.users.length - 1;
 
     const { data } = await executeQuery({
       variables: { first },
@@ -109,7 +109,7 @@ describe("number of items", () => {
   });
 
   it("should affected by last option", async () => {
-    const last = numSeed - 1;
+    const last = testData.users.length - 1;
 
     const { data } = await executeQuery({
       variables: { last },
@@ -154,9 +154,9 @@ describe("order of items", () => {
 
 describe("pagination", () => {
   it("should not works by default", async () => {
-    const first = numSeed - 1;
+    const first = testData.users.length - 1;
 
-    const makeExecution = () =>
+    const execute = () =>
       executeQuery({
         variables: {
           first,
@@ -164,8 +164,8 @@ describe("pagination", () => {
         },
       });
 
-    const { data: data1 } = await makeExecution();
-    const { data: data2 } = await makeExecution();
+    const { data: data1 } = await execute();
+    const { data: data2 } = await execute();
 
     expect(data1?.users?.edges).toHaveLength(first);
     expect(data2?.users?.edges).toHaveLength(first);

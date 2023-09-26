@@ -5,25 +5,7 @@ import { clearTables, clearTodos } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
 
-const users = [DBData.admin, DBData.alice, DBData.bob];
-
-const todos = [
-  DBData.adminTodo1,
-  DBData.adminTodo2,
-  DBData.adminTodo3,
-  DBData.aliceTodo,
-  DBData.bobTodo,
-];
-
-const seedUsers = () => prisma.user.createMany({ data: users });
-const seedTodos = () => prisma.todo.createMany({ data: todos });
-
-const resetTodos = async () => {
-  await clearTodos();
-  await seedTodos();
-};
-
-const query = /* GraphQL */ `
+const executeMutation = executeSingleResultOperation(/* GraphQL */ `
   mutation DeleteTodo($id: ID!) {
     deleteTodo(id: $id) {
       __typename
@@ -35,18 +17,34 @@ const query = /* GraphQL */ `
       }
     }
   }
-`;
+`)<DeleteTodoMutation, DeleteTodoMutationVariables>;
+
+const testData = {
+  users: [DBData.admin, DBData.alice, DBData.bob],
+  todos: [
+    DBData.adminTodo1,
+    DBData.adminTodo2,
+    DBData.adminTodo3,
+    DBData.aliceTodo,
+    DBData.bobTodo,
+  ],
+};
+
+const seedData = {
+  users: () => prisma.user.createMany({ data: testData.users }),
+  todos: () => prisma.todo.createMany({ data: testData.todos }),
+};
+
+const resetTodos = async () => {
+  await clearTodos();
+  await seedData.todos();
+};
 
 beforeAll(async () => {
   await clearTables();
-  await seedUsers();
-  await seedTodos();
+  await seedData.users();
+  await seedData.todos();
 });
-
-const executeMutation = executeSingleResultOperation(query)<
-  DeleteTodoMutation,
-  DeleteTodoMutationVariables
->;
 
 describe("authorization", () => {
   beforeEach(resetTodos);

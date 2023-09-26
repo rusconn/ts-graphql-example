@@ -5,33 +5,34 @@ import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
 
-const users = [DBData.admin, DBData.alice, DBData.bob];
-
-const todos = [
-  DBData.adminTodo1,
-  DBData.adminTodo2,
-  DBData.adminTodo3,
-  DBData.aliceTodo,
-  DBData.bobTodo,
-];
-
-const seedUsers = () => prisma.user.createMany({ data: users });
-const seedTodos = () => prisma.todo.createMany({ data: todos });
-
-const query = /* GraphQL */ `
+const executeQuery = executeSingleResultOperation(/* GraphQL */ `
   query Node($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`;
+`)<NodeQuery, NodeQueryVariables>;
 
-const executeQuery = executeSingleResultOperation(query)<NodeQuery, NodeQueryVariables>;
+const testData = {
+  users: [DBData.admin, DBData.alice, DBData.bob],
+  todos: [
+    DBData.adminTodo1,
+    DBData.adminTodo2,
+    DBData.adminTodo3,
+    DBData.aliceTodo,
+    DBData.bobTodo,
+  ],
+};
+
+const seedData = {
+  users: () => prisma.user.createMany({ data: testData.users }),
+  todos: () => prisma.todo.createMany({ data: testData.todos }),
+};
 
 beforeAll(async () => {
   await clearTables();
-  await seedUsers();
-  await seedTodos();
+  await seedData.users();
+  await seedData.todos();
 });
 
 describe("authorization", () => {

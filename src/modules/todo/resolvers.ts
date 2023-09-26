@@ -3,7 +3,7 @@ import { ulid } from "ulid";
 
 import * as DataSource from "@/datasources";
 import type * as Graph from "../common/schema";
-import { newPermissionError } from "../common/permissions";
+import { forbiddenError } from "../common/permissions";
 import { adapters } from "./adapters";
 import { parsers } from "./parsers";
 
@@ -139,7 +139,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       if (user.role !== "ADMIN" && user.id !== todo.userId) {
-        throw newPermissionError();
+        throw forbiddenError();
       }
 
       return adapters.Todo.id(todo.id);
@@ -150,7 +150,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       if (user.role !== "ADMIN" && user.id !== todo.userId) {
-        throw newPermissionError();
+        throw forbiddenError();
       }
 
       return todo.createdAt;
@@ -161,7 +161,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       if (user.role !== "ADMIN" && user.id !== todo.userId) {
-        throw newPermissionError();
+        throw forbiddenError();
       }
 
       return todo.updatedAt;
@@ -172,7 +172,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       if (user.id !== todo.userId) {
-        throw newPermissionError();
+        throw forbiddenError();
       }
 
       return todo.title;
@@ -183,7 +183,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       if (user.id !== todo.userId) {
-        throw newPermissionError();
+        throw forbiddenError();
       }
 
       return todo.description;
@@ -194,7 +194,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       if (user.id !== todo.userId) {
-        throw newPermissionError();
+        throw forbiddenError();
       }
 
       return adapters.Todo.status(todo.status);
@@ -205,7 +205,7 @@ export const resolvers: Graph.Resolvers = {
       });
 
       if (user.role !== "ADMIN" && user.id !== todo.userId) {
-        throw newPermissionError();
+        throw forbiddenError();
       }
 
       return { id: todo.userId };
@@ -220,18 +220,15 @@ export const resolvers: Graph.Resolvers = {
     todos: async ({ id }, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.User.todos(args);
 
-      const userPromise = prisma.user.findUniqueOrThrow({
-        where: { id },
-      });
-
       return findManyCursorConnection<Todo>(
         async findManyArgs =>
-          userPromise.todos({
+          prisma.todo.findMany({
             ...findManyArgs,
+            where: { userId: id },
             orderBy,
-            select: { id: true, userId: true },
+            select: { id: true },
           }),
-        async () => (await userPromise.todos({ select: { id: true } })).length,
+        () => prisma.todo.count({ where: { userId: id } }),
         { first, last, before, after },
         { resolveInfo }
       );

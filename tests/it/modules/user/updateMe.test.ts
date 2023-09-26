@@ -7,16 +7,7 @@ import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
 
-const users = [DBData.admin, DBData.alice, DBData.bob];
-
-const seedUsers = () => prisma.user.createMany({ data: users });
-
-const resetUsers = async () => {
-  await clearUsers();
-  await seedUsers();
-};
-
-const query = /* GraphQL */ `
+const executeMutation = executeSingleResultOperation(/* GraphQL */ `
   mutation UpdateMe($input: UpdateMeInput!) {
     updateMe(input: $input) {
       __typename
@@ -33,12 +24,20 @@ const query = /* GraphQL */ `
       }
     }
   }
-`;
+`)<UpdateMeMutation, UpdateMeMutationVariables>;
 
-const executeMutation = executeSingleResultOperation(query)<
-  UpdateMeMutation,
-  UpdateMeMutationVariables
->;
+const testData = {
+  users: [DBData.admin, DBData.alice, DBData.bob],
+};
+
+const seedData = {
+  users: () => prisma.user.createMany({ data: testData.users }),
+};
+
+const resetUsers = async () => {
+  await clearUsers();
+  await seedData.users();
+};
 
 beforeAll(resetUsers);
 

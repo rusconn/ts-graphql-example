@@ -70,21 +70,21 @@ export const resolvers: Graph.Resolvers = {
       }
     },
     login: async (_, args, { dataSources: { prisma }, logger }) => {
-      const data = parsers.Mutation.login(args);
+      const { email, password } = parsers.Mutation.login(args);
 
       try {
         const refreshedUser = await prisma.$transaction(async tx => {
           const user = await tx.user.findUniqueOrThrow({
-            where: { email: data.email },
+            where: { email },
             select: { password: true },
           });
 
-          if (!bcrypt.compareSync(data.password, user.password)) {
+          if (!bcrypt.compareSync(password, user.password)) {
             throw new DataSource.NotFoundError();
           }
 
           return tx.user.update({
-            where: { email: data.email },
+            where: { email },
             data: { token: ulid() },
             select: { id: true },
           });

@@ -5,11 +5,7 @@ import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
 
-const users = [DBData.admin, DBData.alice, DBData.bob];
-
-const seedUsers = () => prisma.user.createMany({ data: users });
-
-const query = /* GraphQL */ `
+const executeQuery = executeSingleResultOperation(/* GraphQL */ `
   query UserNode($id: ID!, $includeToken: Boolean = false) {
     node(id: $id) {
       __typename
@@ -23,14 +19,20 @@ const query = /* GraphQL */ `
       }
     }
   }
-`;
+`)<UserNodeQuery, UserNodeQueryVariables>;
+
+const testData = {
+  users: [DBData.admin, DBData.alice, DBData.bob],
+};
+
+const seedData = {
+  users: () => prisma.user.createMany({ data: testData.users }),
+};
 
 beforeAll(async () => {
   await clearTables();
-  await seedUsers();
+  await seedData.users();
 });
-
-const executeQuery = executeSingleResultOperation(query)<UserNodeQuery, UserNodeQueryVariables>;
 
 describe("authorization", () => {
   const allowedPatterns = [

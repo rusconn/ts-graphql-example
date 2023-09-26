@@ -7,11 +7,7 @@ import * as DataSource from "@/datasources";
 import * as Graph from "@/modules/common/schema";
 import { parseTodoNodeId } from "@/modules/todo/parsers";
 
-const users = [DBData.admin, DBData.alice, DBData.bob];
-
-const seedUsers = () => prisma.user.createMany({ data: users });
-
-const query = /* GraphQL */ `
+const executeMutation = executeSingleResultOperation(/* GraphQL */ `
   mutation CreateTodo($input: CreateTodoInput!) {
     createTodo(input: $input) {
       __typename
@@ -25,16 +21,19 @@ const query = /* GraphQL */ `
       }
     }
   }
-`;
+`)<CreateTodoMutation, CreateTodoMutationVariables>;
 
-const executeMutation = executeSingleResultOperation(query)<
-  CreateTodoMutation,
-  CreateTodoMutationVariables
->;
+const testData = {
+  users: [DBData.admin, DBData.alice, DBData.bob],
+};
+
+const seedData = {
+  users: () => prisma.user.createMany({ data: testData.users }),
+};
 
 beforeAll(async () => {
   await clearTables();
-  await seedUsers();
+  await seedData.users();
 });
 
 describe("authorization", () => {

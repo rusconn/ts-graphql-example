@@ -2,6 +2,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 
 import { isProd } from "@/config";
 import * as DataSource from "@/datasources";
+import { blue } from "@/generic/console";
 
 const basePrisma = new PrismaClient({
   log: [
@@ -11,8 +12,6 @@ const basePrisma = new PrismaClient({
     { level: "error", emit: "stdout" },
   ],
 });
-
-const blue = (s: string) => `\x1b[34m${s}\u001b[0m` as const;
 
 basePrisma.$on("query", e => {
   console.log(blue("prisma:query"), {

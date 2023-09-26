@@ -5,11 +5,7 @@ import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
 
-const users = [DBData.admin, DBData.alice, DBData.bob];
-
-const seedUsers = () => prisma.user.createMany({ data: users });
-
-const query = /* GraphQL */ `
+const executeMutation = executeSingleResultOperation(/* GraphQL */ `
   mutation Login($input: LoginInput!) {
     login(input: $input) {
       __typename
@@ -26,13 +22,19 @@ const query = /* GraphQL */ `
       }
     }
   }
-`;
+`)<LoginMutation, LoginMutationVariables>;
 
-const executeMutation = executeSingleResultOperation(query)<LoginMutation, LoginMutationVariables>;
+const testData = {
+  users: [DBData.admin, DBData.alice, DBData.bob],
+};
+
+const seedData = {
+  users: () => prisma.user.createMany({ data: testData.users }),
+};
 
 beforeAll(async () => {
   await clearUsers();
-  await seedUsers();
+  await seedData.users();
 });
 
 describe("authorization", () => {

@@ -7,16 +7,7 @@ import * as DataSource from "@/datasources";
 import * as Graph from "@/modules/common/schema";
 import { parseUserNodeId } from "@/modules/user/parsers";
 
-const users = [DBData.admin, DBData.alice, DBData.bob];
-
-const seedUsers = () => prisma.user.createMany({ data: users });
-
-const resetUsers = async () => {
-  await clearUsers();
-  await seedUsers();
-};
-
-const query = /* GraphQL */ `
+const executeMutation = executeSingleResultOperation(/* GraphQL */ `
   mutation Signup($input: SignupInput!) {
     signup(input: $input) {
       __typename
@@ -28,12 +19,20 @@ const query = /* GraphQL */ `
       }
     }
   }
-`;
+`)<SignupMutation, SignupMutationVariables>;
 
-const executeMutation = executeSingleResultOperation(query)<
-  SignupMutation,
-  SignupMutationVariables
->;
+const testData = {
+  users: [DBData.admin, DBData.alice, DBData.bob],
+};
+
+const seedData = {
+  users: () => prisma.user.createMany({ data: testData.users }),
+};
+
+const resetUsers = async () => {
+  await clearUsers();
+  await seedData.users();
+};
 
 beforeAll(resetUsers);
 

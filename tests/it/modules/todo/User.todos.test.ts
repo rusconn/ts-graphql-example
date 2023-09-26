@@ -1,20 +1,12 @@
-import type { UesrTodosQuery, UesrTodosQueryVariables } from "it/modules/schema";
+import type { UserTodosQuery, UserTodosQueryVariables } from "it/modules/schema";
 import { ContextData, DBData, GraphData } from "it/data";
 import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
 
-const users = [DBData.admin, DBData.alice, DBData.bob];
-const todos = [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3];
-
-const seedUsers = () => prisma.user.createMany({ data: users });
-const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
-
-const numSeedTodos = todos.length;
-
-const query = /* GraphQL */ `
-  query UesrTodos(
+const executeQuery = executeSingleResultOperation(/* GraphQL */ `
+  query UserTodos(
     $id: ID!
     $first: Int
     $after: String
@@ -43,15 +35,23 @@ const query = /* GraphQL */ `
       }
     }
   }
-`;
+`)<UserTodosQuery, UserTodosQueryVariables>;
+
+const testData = {
+  users: [DBData.admin, DBData.alice, DBData.bob],
+  todos: [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3],
+};
+
+const seedData = {
+  users: () => prisma.user.createMany({ data: testData.users }),
+  todos: () => prisma.todo.createMany({ data: testData.todos }),
+};
 
 beforeAll(async () => {
   await clearTables();
-  await seedUsers();
-  await seedAdminTodos();
+  await seedData.users();
+  await seedData.todos();
 });
-
-const executeQuery = executeSingleResultOperation(query)<UesrTodosQuery, UesrTodosQueryVariables>;
 
 describe("authorization", () => {
   const allowedPatterns = [
@@ -131,7 +131,7 @@ describe("validation", () => {
 describe("logic", () => {
   describe("number of items", () => {
     it("should affected by first option", async () => {
-      const first = numSeedTodos - 1;
+      const first = testData.todos.length - 1;
 
       const { data } = await executeQuery({
         variables: { id: GraphData.admin.id, first },
@@ -145,7 +145,7 @@ describe("logic", () => {
     });
 
     it("should affected by last option", async () => {
-      const last = numSeedTodos - 1;
+      const last = testData.todos.length - 1;
 
       const { data } = await executeQuery({
         variables: { id: GraphData.admin.id, last },
@@ -202,15 +202,15 @@ describe("logic", () => {
 
   describe("pagination", () => {
     it("should not works by default", async () => {
-      const first = numSeedTodos - 1;
+      const first = testData.todos.length - 1;
 
-      const makeExecution = () =>
+      const execute = () =>
         executeQuery({
           variables: { id: GraphData.admin.id, first },
         });
 
-      const { data: data1 } = await makeExecution();
-      const { data: data2 } = await makeExecution();
+      const { data: data1 } = await execute();
+      const { data: data2 } = await execute();
 
       if (data1?.node?.__typename !== "User") {
         fail();

@@ -6,18 +6,7 @@ import { executeSingleResultOperation } from "it/server";
 import * as Graph from "@/modules/common/schema";
 import { parseUserNodeId } from "@/modules/user/parsers";
 
-const users = [DBData.admin, DBData.alice, DBData.bob];
-const todos = [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3];
-
-const seedUsers = () => prisma.user.createMany({ data: users });
-const seedAdminTodos = () => prisma.todo.createMany({ data: todos });
-
-const resetUsers = async () => {
-  await clearUsers();
-  await seedUsers();
-};
-
-const query = /* GraphQL */ `
+const executeMutation = executeSingleResultOperation(/* GraphQL */ `
   mutation DeleteMe {
     deleteMe {
       __typename
@@ -26,12 +15,22 @@ const query = /* GraphQL */ `
       }
     }
   }
-`;
+`)<DeleteMeMutation, DeleteMeMutationVariables>;
 
-const executeMutation = executeSingleResultOperation(query)<
-  DeleteMeMutation,
-  DeleteMeMutationVariables
->;
+const testData = {
+  users: [DBData.admin, DBData.alice, DBData.bob],
+  todos: [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3],
+};
+
+const seedData = {
+  users: () => prisma.user.createMany({ data: testData.users }),
+  todos: () => prisma.todo.createMany({ data: testData.todos }),
+};
+
+const resetUsers = async () => {
+  await clearUsers();
+  await seedData.users();
+};
 
 beforeAll(resetUsers);
 
@@ -103,7 +102,7 @@ describe("logic", () => {
   });
 
   it("should delete his resources", async () => {
-    await seedAdminTodos();
+    await seedData.todos();
 
     const before = await prisma.todo.count({
       where: { userId: DBData.admin.id },

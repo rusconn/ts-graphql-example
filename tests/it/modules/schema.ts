@@ -113,15 +113,15 @@ export type TodoNodeQueryVariables = Exact<{
 
 export type TodoNodeQuery = { node?: { __typename: 'Todo', createdAt: Date, updatedAt: Date, title?: string | null, description?: string | null, status?: TodoStatus | null, id: string, user?: { id: string } | null } | { __typename: 'User', id: string } | null };
 
-export type UesrTodoQueryVariables = Exact<{
+export type UserTodoQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   todoId: Scalars['ID']['input'];
 }>;
 
 
-export type UesrTodoQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todo?: { id: string, user?: { id: string } | null } | null } | null };
+export type UserTodoQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todo?: { id: string, user?: { id: string } | null } | null } | null };
 
-export type UesrTodosQueryVariables = Exact<{
+export type UserTodosQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   first?: InputMaybe<Scalars['Int']['input']>;
   after?: InputMaybe<Scalars['String']['input']>;
@@ -131,7 +131,7 @@ export type UesrTodosQueryVariables = Exact<{
 }>;
 
 
-export type UesrTodosQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string } }> } | null } | null };
+export type UserTodosQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string } }> } | null } | null };
 
 export type CompleteTodoMutationVariables = Exact<{
   id: Scalars['ID']['input'];

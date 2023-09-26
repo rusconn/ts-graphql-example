@@ -2,12 +2,12 @@ import { allow, or, rule } from "graphql-shield";
 
 import type * as Graph from "../common/schema";
 import type { Context } from "../common/resolvers";
-import { isAdmin, isGuest, isAuthenticated, newPermissionError } from "../common/permissions";
+import { isAdmin, isGuest, isAuthenticated, forbiddenError } from "../common/permissions";
 
 type Parent = Graph.ResolversParentTypes["User"];
 
 const isOwner = rule({ cache: "strict" })(({ id }: Parent, _, { user }: Context) => {
-  return id === user.id || newPermissionError();
+  return id === user.id || forbiddenError();
 });
 
 export default {
@@ -29,6 +29,6 @@ export default {
     updatedAt: or(isAdmin, isOwner),
     name: or(isAdmin, isOwner),
     email: or(isAdmin, isOwner),
-    token: or(isOwner, isGuest),
+    token: or(isGuest, isOwner),
   },
 };
