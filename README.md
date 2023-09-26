@@ -90,12 +90,11 @@ node interface は他のクエリとは異なり、どのタイプを返すべ�
 
 等を考慮して採用しなかった。
 
-### API サーバー ⇄ DB 間におけるオーバーフェッチの防止
+### API サーバー ⇄ DB 間におけるオーバーフェッチ
 
-Prisma の select オプションを利用した。\
-select オプションの値を作成するのに [Prisma select](https://paljs.com/plugins/select) を利用した。\
-ただし Union type であるフィールドには使わなかった。どうやら[サポートしていない](https://github.com/paljs/prisma-tools/issues/249)よう。\
-柔軟性に欠くので上記ライブラリは廃止するかもしれない。
+GraphQLResolveInfo の解析により DB からの取得列を絞れそうだが、難易度やコードの複雑化に対する恩恵が小さいと判断し、許容することにした: [Prisma 公式のパフォーマンスに関する見解](https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance#using-select-to-limit-number-of-columns-returned)
+
+なお [Prisma select](https://paljs.com/plugins/select) を使えば簡単に実現できそうだが、どうやら[Union types をサポートしていない](https://github.com/paljs/prisma-tools/issues/249)ようなので採用しなかった。GraphQL のスキーマと DB のスキーマが密結合してしまうという問題もあった。
 
 ### src ディレクトリの構成
 

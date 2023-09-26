@@ -43,7 +43,6 @@
     "@apollo/server": "^4.9.0",
     "@devoxa/prisma-relay-cursor-connection": "^2.2.2",
     "@graphql-tools/schema": "^10.0.0",
-    "@paljs/plugins": "^5.3.3",
     "@prisma/client": "5.1.0",
     "bcrypt": "^5.1.0",
     "extensible-custom-error": "^0.0.7",

@@ -5,18 +5,17 @@ import { ulid } from "ulid";
 import { passwordHashRoundsExponent } from "@/config";
 import * as DataSource from "@/datasources";
 import type * as Graph from "../common/schema";
-import { selectInfo, WithSelect } from "../common/resolvers";
 import { adapters } from "./adapters";
 import { parsers } from "./parsers";
 
-export type User = WithSelect<UserKeys & UserPermissionCheckFields, DataSource.UserSelectScalar>;
+export type User = UserKeys & UserPermissionCheckFields;
 type UserKeys = Pick<DataSource.User, "id">;
 type UserPermissionCheckFields = Pick<DataSource.User, "id">;
 
 export const resolvers: Graph.Resolvers = {
   Query: {
-    me: (_, __, { user }, info) => {
-      return { id: user.id, ...selectInfo(info) };
+    me: (_, __, { user }) => {
+      return { id: user.id };
     },
     users: async (_, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.Query.users(args);
@@ -33,10 +32,10 @@ export const resolvers: Graph.Resolvers = {
         { resolveInfo }
       );
     },
-    user: (_, args, __, info) => {
+    user: (_, args) => {
       const { id } = parsers.Query.user(args);
 
-      return { id, ...selectInfo(info) };
+      return { id };
     },
   },
   Mutation: {
@@ -162,50 +161,44 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   User: {
-    id: async ({ id, select }, _, { dataSources: { prisma } }) => {
+    id: async ({ id }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
-        select: select as { id: true },
       });
 
       return adapters.User.id(user.id);
     },
-    createdAt: async ({ id, select }, _, { dataSources: { prisma } }) => {
+    createdAt: async ({ id }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
-        select: select as { createdAt: true },
       });
 
       return user.createdAt;
     },
-    updatedAt: async ({ id, select }, _, { dataSources: { prisma } }) => {
+    updatedAt: async ({ id }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
-        select: select as { updatedAt: true },
       });
 
       return user.updatedAt;
     },
-    name: async ({ id, select }, _, { dataSources: { prisma } }) => {
+    name: async ({ id }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
-        select: select as { name: true },
       });
 
       return user.name;
     },
-    email: async ({ id, select }, _, { dataSources: { prisma } }) => {
+    email: async ({ id }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
-        select: select as { email: true },
       });
 
       return user.email;
     },
-    token: async ({ id, select }, _, { dataSources: { prisma } }) => {
+    token: async ({ id }, _, { dataSources: { prisma } }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
-        select: select as { token: true },
       });
 
       return user.token;
