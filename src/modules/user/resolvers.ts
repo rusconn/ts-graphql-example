@@ -8,9 +8,7 @@ import type * as Graph from "../common/schema";
 import { adapters } from "./adapters";
 import { parsers } from "./parsers";
 
-export type User = UserKeys & UserPermissionCheckFields;
-type UserKeys = Pick<DataSource.User, "id">;
-type UserPermissionCheckFields = Pick<DataSource.User, "id">;
+export type User = Pick<DataSource.User, "id">;
 
 export const resolvers: Graph.Resolvers = {
   Query: {

@@ -3,12 +3,11 @@ import { ulid } from "ulid";
 
 import * as DataSource from "@/datasources";
 import type * as Graph from "../common/schema";
+import { newPermissionError } from "../common/permissions";
 import { adapters } from "./adapters";
 import { parsers } from "./parsers";
 
-export type Todo = TodoKeys & TodoPermissionCheckFields;
-type TodoKeys = Pick<DataSource.Todo, "id">;
-type TodoPermissionCheckFields = Pick<DataSource.Todo, "userId">;
+export type Todo = Pick<DataSource.Todo, "id">;
 
 export const resolvers: Graph.Resolvers = {
   Mutation: {
@@ -17,7 +16,7 @@ export const resolvers: Graph.Resolvers = {
 
       const todo = await prisma.todo.create({
         data: { ...parsed, id: ulid(), userId: user.id },
-        select: { id: true, userId: true },
+        select: { id: true },
       });
 
       return {
@@ -32,7 +31,7 @@ export const resolvers: Graph.Resolvers = {
         const todo = await prisma.todo.update({
           where: { id, userId: user.id },
           data,
-          select: { id: true, userId: true },
+          select: { id: true },
         });
 
         return {
@@ -85,7 +84,7 @@ export const resolvers: Graph.Resolvers = {
         const todo = await prisma.todo.update({
           where: { id, userId: user.id },
           data,
-          select: { id: true, userId: true },
+          select: { id: true },
         });
 
         return {
@@ -112,7 +111,7 @@ export const resolvers: Graph.Resolvers = {
         const todo = await prisma.todo.update({
           where: { id, userId: user.id },
           data,
-          select: { id: true, userId: true },
+          select: { id: true },
         });
 
         return {
@@ -134,57 +133,89 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Todo: {
-    id: async ({ id }, _, { dataSources: { prisma } }) => {
+    id: async ({ id }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id },
       });
+
+      if (user.role !== "ADMIN" && user.id !== todo.userId) {
+        throw newPermissionError();
+      }
 
       return adapters.Todo.id(todo.id);
     },
-    createdAt: async ({ id }, _, { dataSources: { prisma } }) => {
+    createdAt: async ({ id }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id },
       });
+
+      if (user.role !== "ADMIN" && user.id !== todo.userId) {
+        throw newPermissionError();
+      }
 
       return todo.createdAt;
     },
-    updatedAt: async ({ id }, _, { dataSources: { prisma } }) => {
+    updatedAt: async ({ id }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id },
       });
+
+      if (user.role !== "ADMIN" && user.id !== todo.userId) {
+        throw newPermissionError();
+      }
 
       return todo.updatedAt;
     },
-    title: async ({ id }, _, { dataSources: { prisma } }) => {
+    title: async ({ id }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id },
       });
+
+      if (user.id !== todo.userId) {
+        throw newPermissionError();
+      }
 
       return todo.title;
     },
-    description: async ({ id }, _, { dataSources: { prisma } }) => {
+    description: async ({ id }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id },
       });
+
+      if (user.id !== todo.userId) {
+        throw newPermissionError();
+      }
 
       return todo.description;
     },
-    status: async ({ id }, _, { dataSources: { prisma } }) => {
+    status: async ({ id }, _, { dataSources: { prisma }, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id },
       });
 
+      if (user.id !== todo.userId) {
+        throw newPermissionError();
+      }
+
       return adapters.Todo.status(todo.status);
     },
-    user: ({ userId }) => {
-      return { id: userId };
+    user: async ({ id }, _, { dataSources: { prisma }, user }) => {
+      const todo = await prisma.todo.findUniqueOrThrow({
+        where: { id },
+      });
+
+      if (user.role !== "ADMIN" && user.id !== todo.userId) {
+        throw newPermissionError();
+      }
+
+      return { id: todo.userId };
     },
   },
   User: {
-    todo: ({ id: userId }, args) => {
+    todo: (_, args) => {
       const { id } = parsers.User.todo(args);
 
-      return { id, userId };
+      return { id };
     },
     todos: async ({ id }, args, { dataSources: { prisma } }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.User.todos(args);
