@@ -17,6 +17,7 @@
     "strict": true,
     "importsNotUsedAsValues": "error",
     "skipLibCheck": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "sourceMap": true
   }
 }
