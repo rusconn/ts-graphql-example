@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 import { shield } from "graphql-shield";
 
-import * as DataSource from "@/datasources";
+import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 import { ParseError } from "@/modules/common/parsers";
 import { permissions } from "./permissions";
@@ -16,7 +16,7 @@ const permissionAndErrorMiddleware = shield(permissions, {
       });
     }
 
-    if (thrown instanceof DataSource.NotFoundError) {
+    if (thrown instanceof Prisma.NotExistsError) {
       return new GraphQLError("Not found", {
         originalError: thrown,
         extensions: { code: Graph.ErrorCode.NotFound },

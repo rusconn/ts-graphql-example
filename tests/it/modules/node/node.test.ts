@@ -1,8 +1,8 @@
 import type { NodeQuery, NodeQueryVariables } from "it/modules/schema";
 import { ContextData, DBData, GraphData } from "it/data";
-import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
+import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
 const executeQuery = executeSingleResultOperation(/* GraphQL */ `

@@ -1,4 +1,4 @@
-import * as DataSource from "@/datasources";
+import * as Prisma from "@/prisma";
 import * as Graph from "../common/schema";
 import { parseConnectionArgs, ParseError, parseSomeNodeId } from "../common/parsers";
 import { nodeType } from "./typeDefs";
@@ -28,8 +28,8 @@ export const parsers = {
 
       const directionToUse =
         orderBy.direction === Graph.OrderDirection.Asc
-          ? DataSource.UserSortOrder.asc
-          : DataSource.UserSortOrder.desc;
+          ? Prisma.Prisma.SortOrder.asc
+          : Prisma.Prisma.SortOrder.desc;
 
       const orderByToUse =
         orderBy.field === Graph.UserOrderField.UpdatedAt
@@ -68,7 +68,7 @@ export const parsers = {
         throw new ParseError("`password` must be up to 50 characteres");
       }
 
-      return { name, email, password, role: DataSource.Role.USER };
+      return { name, email, password, role: Prisma.Role.USER };
     },
     login: (args: Graph.MutationLoginArgs) => {
       const { email, password } = args.input;

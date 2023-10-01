@@ -1,17 +1,17 @@
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 import { ulid } from "ulid";
 
-import * as DataSource from "@/datasources";
+import * as Prisma from "@/prisma";
 import type * as Graph from "../common/schema";
 import { forbiddenError } from "../common/permissions";
 import { adapters } from "./adapters";
 import { parsers } from "./parsers";
 
-export type Todo = Pick<DataSource.Todo, "id"> & Partial<Pick<DataSource.Todo, "userId">>;
+export type Todo = Pick<Prisma.Todo, "id"> & Partial<Pick<Prisma.Todo, "userId">>;
 
 export const resolvers: Graph.Resolvers = {
   Mutation: {
-    createTodo: async (_, args, { dataSources: { prisma }, user }) => {
+    createTodo: async (_, args, { prisma, user }) => {
       const parsed = parsers.Mutation.createTodo(args);
 
       const todo = await prisma.todo.create({
@@ -24,7 +24,7 @@ export const resolvers: Graph.Resolvers = {
         todo,
       };
     },
-    updateTodo: async (_, args, { dataSources: { prisma }, user, logger }) => {
+    updateTodo: async (_, args, { prisma, user, logger }) => {
       const { id, ...data } = parsers.Mutation.updateTodo(args);
 
       try {
@@ -39,7 +39,7 @@ export const resolvers: Graph.Resolvers = {
           todo,
         };
       } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
+        if (e instanceof Prisma.NotExistsError) {
           logger.error(e, "error info");
 
           return {
@@ -51,7 +51,7 @@ export const resolvers: Graph.Resolvers = {
         throw e;
       }
     },
-    deleteTodo: async (_, args, { dataSources: { prisma }, user, logger }) => {
+    deleteTodo: async (_, args, { prisma, user, logger }) => {
       const { id } = parsers.Mutation.deleteTodo(args);
 
       try {
@@ -65,7 +65,7 @@ export const resolvers: Graph.Resolvers = {
           id: adapters.Todo.id(todo.id),
         };
       } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
+        if (e instanceof Prisma.NotExistsError) {
           logger.error(e, "error info");
 
           return {
@@ -77,7 +77,7 @@ export const resolvers: Graph.Resolvers = {
         throw e;
       }
     },
-    completeTodo: async (_, args, { dataSources: { prisma }, user, logger }) => {
+    completeTodo: async (_, args, { prisma, user, logger }) => {
       const { id, ...data } = parsers.Mutation.completeTodo(args);
 
       try {
@@ -92,7 +92,7 @@ export const resolvers: Graph.Resolvers = {
           todo,
         };
       } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
+        if (e instanceof Prisma.NotExistsError) {
           logger.error(e, "error info");
 
           return {
@@ -104,7 +104,7 @@ export const resolvers: Graph.Resolvers = {
         throw e;
       }
     },
-    uncompleteTodo: async (_, args, { dataSources: { prisma }, user, logger }) => {
+    uncompleteTodo: async (_, args, { prisma, user, logger }) => {
       const { id, ...data } = parsers.Mutation.uncompleteTodo(args);
 
       try {
@@ -119,7 +119,7 @@ export const resolvers: Graph.Resolvers = {
           todo,
         };
       } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
+        if (e instanceof Prisma.NotExistsError) {
           logger.error(e, "error info");
 
           return {
@@ -133,7 +133,7 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Todo: {
-    id: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
+    id: async ({ id, userId }, _, { prisma, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
       });
@@ -144,7 +144,7 @@ export const resolvers: Graph.Resolvers = {
 
       return adapters.Todo.id(todo.id);
     },
-    createdAt: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
+    createdAt: async ({ id, userId }, _, { prisma, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
       });
@@ -155,7 +155,7 @@ export const resolvers: Graph.Resolvers = {
 
       return todo.createdAt;
     },
-    updatedAt: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
+    updatedAt: async ({ id, userId }, _, { prisma, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
       });
@@ -166,7 +166,7 @@ export const resolvers: Graph.Resolvers = {
 
       return todo.updatedAt;
     },
-    title: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
+    title: async ({ id, userId }, _, { prisma, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
       });
@@ -177,7 +177,7 @@ export const resolvers: Graph.Resolvers = {
 
       return todo.title;
     },
-    description: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
+    description: async ({ id, userId }, _, { prisma, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
       });
@@ -188,7 +188,7 @@ export const resolvers: Graph.Resolvers = {
 
       return todo.description;
     },
-    status: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
+    status: async ({ id, userId }, _, { prisma, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
       });
@@ -199,7 +199,7 @@ export const resolvers: Graph.Resolvers = {
 
       return adapters.Todo.status(todo.status);
     },
-    user: async ({ id, userId }, _, { dataSources: { prisma }, user }) => {
+    user: async ({ id, userId }, _, { prisma, user }) => {
       const todo = await prisma.todo.findUniqueOrThrow({
         where: { id, userId },
       });
@@ -217,7 +217,7 @@ export const resolvers: Graph.Resolvers = {
 
       return { id, userId };
     },
-    todos: async ({ id }, args, { dataSources: { prisma } }, resolveInfo) => {
+    todos: async ({ id }, args, { prisma }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.User.todos(args);
 
       return findManyCursorConnection<Todo>(

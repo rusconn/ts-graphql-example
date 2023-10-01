@@ -1,8 +1,9 @@
 import type { DocumentNode } from "graphql";
 
-import { defaultContext } from "it/context";
 import { DBData } from "it/data";
 import type { Context } from "@/modules/common/resolvers";
+import { logger } from "@/logger";
+import { prisma } from "@/prisma";
 import { server } from "@/server";
 
 type ExecuteOperationParams<TVariables> = {
@@ -19,7 +20,7 @@ export const executeSingleResultOperation =
   }: ExecuteOperationParams<TVariables>) => {
     const res = await server.executeOperation<TData, TVariables>(
       { query, variables },
-      { contextValue: { ...defaultContext, user } }
+      { contextValue: { prisma, user, logger } }
     );
 
     if (res.body.kind !== "single") {

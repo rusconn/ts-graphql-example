@@ -1,4 +1,4 @@
-import * as DataSource from "@/datasources";
+import * as Prisma from "@/prisma";
 import * as Graph from "../common/schema";
 import { nodeId } from "../common/adapters";
 import { nodeType } from "./typeDefs";
@@ -7,13 +7,13 @@ const todoNodeId = nodeId(nodeType);
 
 export const adapters = {
   Todo: {
-    id: (id: DataSource.Todo["id"]) => {
+    id: (id: Prisma.Todo["id"]) => {
       return todoNodeId(id);
     },
-    status: (status: DataSource.Todo["status"]) => {
+    status: (status: Prisma.Todo["status"]) => {
       return {
-        [DataSource.TodoStatus.DONE]: Graph.TodoStatus.Done,
-        [DataSource.TodoStatus.PENDING]: Graph.TodoStatus.Pending,
+        [Prisma.TodoStatus.DONE]: Graph.TodoStatus.Done,
+        [Prisma.TodoStatus.PENDING]: Graph.TodoStatus.Pending,
       }[status];
     },
   },

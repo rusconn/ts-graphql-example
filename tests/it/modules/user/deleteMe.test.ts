@@ -1,8 +1,8 @@
 import type { DeleteMeMutation, DeleteMeMutationVariables } from "it/modules/schema";
 import { ContextData, DBData } from "it/data";
-import { prisma } from "it/datasources";
 import { clearUsers } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
+import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 import { parseUserNodeId } from "@/modules/user/parsers";
 

@@ -1,9 +1,9 @@
 import type { CreateTodoMutation, CreateTodoMutationVariables } from "it/modules/schema";
 import { ContextData, DBData } from "it/data";
-import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
-import * as DataSource from "@/datasources";
+import { prisma } from "@/prisma";
+import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 import { parseTodoNodeId } from "@/modules/todo/parsers";
 
@@ -152,6 +152,6 @@ describe("logic", () => {
       where: { id },
     });
 
-    expect(todo.status).toBe(DataSource.TodoStatus.PENDING);
+    expect(todo.status).toBe(Prisma.TodoStatus.PENDING);
   });
 });

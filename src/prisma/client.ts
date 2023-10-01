@@ -1,8 +1,8 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
 import { isProd } from "@/config";
-import * as DataSource from "@/datasources";
 import { blue } from "@/generic/console";
+import * as Errors from "./errors";
 
 const basePrisma = new PrismaClient({
   log: [
@@ -31,14 +31,14 @@ export const prisma = basePrisma.$extends({
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           switch (e.code) {
             case "P2000":
-              throw new DataSource.InputTooLongError(e);
+              throw new Errors.InputTooLongError(e);
             case "P2001":
             case "P2025":
-              throw new DataSource.NotFoundError(e);
+              throw new Errors.NotExistsError(e);
             case "P2002":
-              throw new DataSource.NotUniqueError(e);
+              throw new Errors.NotUniqueError(e);
             default:
-              throw new DataSource.DataSourceError(e);
+              throw new Errors.PrismaError(e);
           }
         }
 

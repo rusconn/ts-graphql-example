@@ -1,4 +1,4 @@
-import { prisma } from "./datasources";
+import { prisma } from "@/prisma";
 
 export const clearTables = async () => {
   // CASCADE Todo

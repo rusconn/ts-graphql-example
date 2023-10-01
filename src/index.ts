@@ -1,10 +1,10 @@
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { GraphQLError } from "graphql";
 
-import { prisma } from "@/datasources";
 import { isIntrospectionQuery } from "@/generic/graphql";
 import * as Graph from "@/modules/common/schema";
 import type { Context } from "@/modules/common/resolvers";
+import { prisma } from "@/prisma";
 import { logger } from "./logger";
 import { server } from "./server";
 
@@ -42,13 +42,7 @@ startStandaloneServer(server, {
       user = { id: "GUEST", role: "GUEST" } as const;
     }
 
-    return {
-      logger,
-      user,
-      dataSources: {
-        prisma,
-      },
-    };
+    return { prisma, user, logger };
   },
 })
   .then(({ url }) => console.log(`🚀  Server ready at ${url}`))

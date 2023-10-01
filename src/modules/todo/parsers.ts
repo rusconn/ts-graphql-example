@@ -1,4 +1,4 @@
-import * as DataSource from "@/datasources";
+import * as Prisma from "@/prisma";
 import * as Graph from "../common/schema";
 import { parseConnectionArgs, ParseError, parseSomeNodeId } from "../common/parsers";
 import { nodeType } from "./typeDefs";
@@ -56,10 +56,10 @@ export const parsers = {
       return { id: parseTodoNodeId(id) };
     },
     completeTodo: ({ id }: Graph.MutationCompleteTodoArgs) => {
-      return { id: parseTodoNodeId(id), status: DataSource.TodoStatus.DONE };
+      return { id: parseTodoNodeId(id), status: Prisma.TodoStatus.DONE };
     },
     uncompleteTodo: ({ id }: Graph.MutationUncompleteTodoArgs) => {
-      return { id: parseTodoNodeId(id), status: DataSource.TodoStatus.PENDING };
+      return { id: parseTodoNodeId(id), status: Prisma.TodoStatus.PENDING };
     },
   },
   User: {
@@ -87,8 +87,8 @@ export const parsers = {
 
       const directionToUse =
         orderBy.direction === Graph.OrderDirection.Asc
-          ? DataSource.TodoSortOrder.asc
-          : DataSource.TodoSortOrder.desc;
+          ? Prisma.Prisma.SortOrder.asc
+          : Prisma.Prisma.SortOrder.desc;
 
       const orderByToUse =
         orderBy.field === Graph.TodoOrderField.CreatedAt

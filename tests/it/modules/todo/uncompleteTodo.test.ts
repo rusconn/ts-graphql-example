@@ -2,10 +2,10 @@ import omit from "lodash/omit";
 
 import type { UncompleteTodoMutation, UncompleteTodoMutationVariables } from "it/modules/schema";
 import { ContextData, DBData, GraphData } from "it/data";
-import { prisma } from "it/datasources";
 import { clearTables } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
-import * as DataSource from "@/datasources";
+import { prisma } from "@/prisma";
+import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
 const executeMutation = executeSingleResultOperation(/* GraphQL */ `
@@ -121,7 +121,7 @@ describe("logic", () => {
     await prisma.todo.update({
       where: { id: DBData.adminTodo1.id },
       data: {
-        status: DataSource.TodoStatus.DONE,
+        status: Prisma.TodoStatus.DONE,
       },
     });
   });

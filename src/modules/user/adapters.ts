@@ -1,4 +1,4 @@
-import type * as DataSource from "@/datasources";
+import type * as Prisma from "@/prisma";
 import { nodeId } from "../common/adapters";
 import { nodeType } from "./typeDefs";
 
@@ -6,7 +6,7 @@ const userNodeId = nodeId(nodeType);
 
 export const adapters = {
   User: {
-    id: (id: DataSource.User["id"]) => {
+    id: (id: Prisma.User["id"]) => {
       return userNodeId(id);
     },
   },

@@ -3,19 +3,19 @@ import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
 import { passwordHashRoundsExponent } from "@/config";
-import * as DataSource from "@/datasources";
+import * as Prisma from "@/prisma";
 import type * as Graph from "../common/schema";
 import { adapters } from "./adapters";
 import { parsers } from "./parsers";
 
-export type User = Pick<DataSource.User, "id">;
+export type User = Pick<Prisma.User, "id">;
 
 export const resolvers: Graph.Resolvers = {
   Query: {
     me: (_, __, { user }) => {
       return { id: user.id };
     },
-    users: async (_, args, { dataSources: { prisma } }, resolveInfo) => {
+    users: async (_, args, { prisma }, resolveInfo) => {
       const { orderBy, first, last, before, after } = parsers.Query.users(args);
 
       return findManyCursorConnection<User>(
@@ -37,7 +37,7 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Mutation: {
-    signup: async (_, args, { dataSources: { prisma }, logger }) => {
+    signup: async (_, args, { prisma, logger }) => {
       const { password, ...data } = parsers.Mutation.signup(args);
 
       try {
@@ -57,7 +57,7 @@ export const resolvers: Graph.Resolvers = {
         };
       } catch (e) {
         // ほぼ確実に email の衝突
-        if (e instanceof DataSource.NotUniqueError) {
+        if (e instanceof Prisma.NotUniqueError) {
           logger.error(e, "error info");
 
           return {
@@ -69,7 +69,7 @@ export const resolvers: Graph.Resolvers = {
         throw e;
       }
     },
-    login: async (_, args, { dataSources: { prisma }, logger }) => {
+    login: async (_, args, { prisma, logger }) => {
       const { email, password } = parsers.Mutation.login(args);
 
       try {
@@ -79,7 +79,7 @@ export const resolvers: Graph.Resolvers = {
         });
 
         if (!bcrypt.compareSync(password, user.password)) {
-          throw new DataSource.NotFoundError();
+          throw new Prisma.NotExistsError();
         }
 
         const refreshedUser = prisma.user.update({
@@ -93,7 +93,7 @@ export const resolvers: Graph.Resolvers = {
           user: refreshedUser,
         };
       } catch (e) {
-        if (e instanceof DataSource.NotFoundError) {
+        if (e instanceof Prisma.NotExistsError) {
           logger.error(e, "error info");
 
           return {
@@ -105,7 +105,7 @@ export const resolvers: Graph.Resolvers = {
         throw e;
       }
     },
-    logout: async (_, __, { dataSources: { prisma }, user: contextUser }) => {
+    logout: async (_, __, { prisma, user: contextUser }) => {
       const user = await prisma.user.update({
         where: { id: contextUser.id },
         data: { token: null },
@@ -117,7 +117,7 @@ export const resolvers: Graph.Resolvers = {
         user,
       };
     },
-    updateMe: async (_, args, { dataSources: { prisma }, user: contextUser, logger }) => {
+    updateMe: async (_, args, { prisma, user: contextUser, logger }) => {
       const data = parsers.Mutation.updateMe(args);
 
       try {
@@ -132,7 +132,7 @@ export const resolvers: Graph.Resolvers = {
           user,
         };
       } catch (e) {
-        if (e instanceof DataSource.NotUniqueError) {
+        if (e instanceof Prisma.NotUniqueError) {
           logger.error(e, "error info");
 
           return {
@@ -144,7 +144,7 @@ export const resolvers: Graph.Resolvers = {
         throw e;
       }
     },
-    deleteMe: async (_, __, { dataSources: { prisma }, user }) => {
+    deleteMe: async (_, __, { prisma, user }) => {
       const deletedUser = await prisma.user.delete({
         where: { id: user.id },
         select: { id: true },
@@ -157,42 +157,42 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   User: {
-    id: async ({ id }, _, { dataSources: { prisma } }) => {
+    id: async ({ id }, _, { prisma }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });
 
       return adapters.User.id(user.id);
     },
-    createdAt: async ({ id }, _, { dataSources: { prisma } }) => {
+    createdAt: async ({ id }, _, { prisma }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });
 
       return user.createdAt;
     },
-    updatedAt: async ({ id }, _, { dataSources: { prisma } }) => {
+    updatedAt: async ({ id }, _, { prisma }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });
 
       return user.updatedAt;
     },
-    name: async ({ id }, _, { dataSources: { prisma } }) => {
+    name: async ({ id }, _, { prisma }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });
 
       return user.name;
     },
-    email: async ({ id }, _, { dataSources: { prisma } }) => {
+    email: async ({ id }, _, { prisma }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });
 
       return user.email;
     },
-    token: async ({ id }, _, { dataSources: { prisma } }) => {
+    token: async ({ id }, _, { prisma }) => {
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });

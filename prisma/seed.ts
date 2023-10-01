@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
 import { passwordHashRoundsExponent } from "@/config";
-import { prisma, Role, User } from "@/datasources";
+import { prisma, Role, User } from "@/prisma";
 
 const main = async () => {
   const users = await createUsers();

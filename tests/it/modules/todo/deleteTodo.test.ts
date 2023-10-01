@@ -1,8 +1,8 @@
 import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "it/modules/schema";
 import { ContextData, DBData, GraphData } from "it/data";
-import { prisma } from "it/datasources";
 import { clearTables, clearTodos } from "it/helpers";
 import { executeSingleResultOperation } from "it/server";
+import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
 const executeMutation = executeSingleResultOperation(/* GraphQL */ `

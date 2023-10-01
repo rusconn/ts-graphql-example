@@ -26,7 +26,6 @@ Prisma Studio は `pnpm studio` で起動しておくこと。
 
 ```text
 src
-├── datasources - 各種データソース
 ├── generic     - 他のプロジェクトでも使えそうな汎用ユーティリティ
 └── modules     - スキーマの主要なタイプのモジュール群
     ├── common      - 複数のタイプで使うユーティリティ
@@ -37,6 +36,7 @@ src
         ├── resolvers.ts   - 各フィールドのリゾルバ
         └── typeDefs.ts    - スキーマ
     └── user        - User タイプのモジュール
+└── prisma　     - Prisma 関連おまとめ
 ```
 
 ### データフェッチ戦略
