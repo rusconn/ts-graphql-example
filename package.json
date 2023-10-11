@@ -43,7 +43,7 @@
     "@apollo/server": "^4.9.4",
     "@devoxa/prisma-relay-cursor-connection": "^2.2.2",
     "@graphql-tools/schema": "^10.0.0",
-    "@prisma/client": "5.1.0",
+    "@prisma/client": "5.4.2",
     "bcrypt": "^5.1.0",
     "extensible-custom-error": "^0.0.7",
     "graphql": "^16.8.1",
@@ -54,7 +54,7 @@
     "graphql-validation-complexity": "^0.4.2",
     "lodash": "^4.17.21",
     "pino": "^8.1.0",
-    "prisma": "5.1.0",
+    "prisma": "5.4.2",
     "ulid": "^2.3.0"
   },
   "devDependencies": {
