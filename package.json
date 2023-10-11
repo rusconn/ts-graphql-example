@@ -40,13 +40,13 @@
     "format": "prettier --cache './**/*.{js,ts,json,yml,md}'"
   },
   "dependencies": {
-    "@apollo/server": "^4.9.0",
+    "@apollo/server": "^4.9.4",
     "@devoxa/prisma-relay-cursor-connection": "^2.2.2",
     "@graphql-tools/schema": "^10.0.0",
     "@prisma/client": "5.1.0",
     "bcrypt": "^5.1.0",
     "extensible-custom-error": "^0.0.7",
-    "graphql": "^16.6.0",
+    "graphql": "^16.8.1",
     "graphql-depth-limit": "^1.1.0",
     "graphql-middleware": "^6.1.31",
     "graphql-scalars": "^1.17.0",
