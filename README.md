@@ -39,6 +39,16 @@ src
 └── prisma　     - Prisma 関連おまとめ
 ```
 
+### フィールドの nullability
+
+データの部分的な取得をサポートする為、基本的に nullable とした。\
+取得できなかったフィールドに対するフォールバックはクライアントが決める。
+
+- クライアントが部分取得を求めていないことがわかっている
+- フィールドの欠けたデータが意味を成さない
+
+等の場合は non-nullable とする。
+
 ### データフェッチ戦略
 
 [GraphQL Resolvers: Best Practices](https://medium.com/paypal-tech/graphql-resolvers-best-practices-cd36fdbcef55) を参考にデザインした。
