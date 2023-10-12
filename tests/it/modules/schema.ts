@@ -111,7 +111,7 @@ export type TodoNodeQueryVariables = Exact<{
 }>;
 
 
-export type TodoNodeQuery = { node?: { __typename: 'Todo', createdAt: Date, updatedAt: Date, title?: string | null, description?: string | null, status?: TodoStatus | null, id: string, user?: { id: string } | null } | { __typename: 'User', id: string } | null };
+export type TodoNodeQuery = { node?: { __typename: 'Todo', createdAt?: Date | null, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null, id: string, user?: { id: string } | null } | { __typename: 'User', id: string } | null };
 
 export type UserTodoQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -138,7 +138,7 @@ export type CompleteTodoMutationVariables = Exact<{
 }>;
 
 
-export type CompleteTodoMutation = { completeTodo?: { __typename: 'CompleteTodoSuccess', todo: { id: string, updatedAt: Date, title?: string | null, description?: string | null, status?: TodoStatus | null } } | { __typename: 'TodoNotFoundError', message: string } | null };
+export type CompleteTodoMutation = { completeTodo?: { __typename: 'CompleteTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | { __typename: 'TodoNotFoundError', message: string } | null };
 
 export type CreateTodoMutationVariables = Exact<{
   input: CreateTodoInput;
@@ -159,7 +159,7 @@ export type UncompleteTodoMutationVariables = Exact<{
 }>;
 
 
-export type UncompleteTodoMutation = { uncompleteTodo?: { __typename: 'TodoNotFoundError', message: string } | { __typename: 'UncompleteTodoSuccess', todo: { id: string, updatedAt: Date, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+export type UncompleteTodoMutation = { uncompleteTodo?: { __typename: 'TodoNotFoundError', message: string } | { __typename: 'UncompleteTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type UpdateTodoMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -167,7 +167,7 @@ export type UpdateTodoMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodoMutation = { updateTodo?: { __typename: 'TodoNotFoundError', message: string } | { __typename: 'UpdateTodoSuccess', todo: { id: string, updatedAt: Date, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+export type UpdateTodoMutation = { updateTodo?: { __typename: 'TodoNotFoundError', message: string } | { __typename: 'UpdateTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type UserNodeQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -175,7 +175,7 @@ export type UserNodeQueryVariables = Exact<{
 }>;
 
 
-export type UserNodeQuery = { node?: { __typename: 'Todo', id: string } | { __typename: 'User', createdAt: Date, updatedAt: Date, name?: string | null, email?: string | null, token?: string | null, id: string } | null };
+export type UserNodeQuery = { node?: { __typename: 'Todo', id: string } | { __typename: 'User', createdAt?: Date | null, updatedAt?: Date | null, name?: string | null, email?: string | null, token?: string | null, id: string } | null };
 
 export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -211,7 +211,7 @@ export type UpdateMeMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMeMutation = { updateMe?: { __typename: 'EmailAlreadyTakenError', message: string } | { __typename: 'UpdateMeSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt: Date } } | null };
+export type UpdateMeMutation = { updateMe?: { __typename: 'EmailAlreadyTakenError', message: string } | { __typename: 'UpdateMeSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } } | null };
 
 export type UserQueryVariables = Exact<{
   id: Scalars['ID']['input'];

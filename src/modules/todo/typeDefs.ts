@@ -19,8 +19,8 @@ export default /* GraphQL */ `
 
   type Todo implements Node {
     id: ID!
-    createdAt: DateTime!
-    updatedAt: DateTime!
+    createdAt: DateTime
+    updatedAt: DateTime
     title: NonEmptyString
     description: String
     status: TodoStatus

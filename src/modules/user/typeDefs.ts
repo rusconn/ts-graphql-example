@@ -38,8 +38,8 @@ export default /* GraphQL */ `
 
   type User implements Node {
     id: ID!
-    createdAt: DateTime!
-    updatedAt: DateTime!
+    createdAt: DateTime
+    updatedAt: DateTime
     name: NonEmptyString
     email: EmailAddress
     token: NonEmptyString
