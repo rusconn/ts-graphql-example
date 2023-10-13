@@ -20,7 +20,7 @@ export const executeSingleResultOperation =
   }: ExecuteOperationParams<TVariables>) => {
     const res = await server.executeOperation<TData, TVariables>(
       { query, variables },
-      { contextValue: { prisma, user, logger } }
+      { contextValue: { prisma, user, logger: logger() } }
     );
 
     if (res.body.kind !== "single") {

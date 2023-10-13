@@ -42,7 +42,7 @@ startStandaloneServer(server, {
       user = { id: "GUEST", role: "GUEST" } as const;
     }
 
-    return { prisma, user, logger };
+    return { prisma, user, logger: logger() };
   },
 })
   .then(({ url }) => console.log(`🚀  Server ready at ${url}`))
