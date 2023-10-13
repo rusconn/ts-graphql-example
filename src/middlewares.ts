@@ -4,11 +4,12 @@ import { shield } from "graphql-shield";
 import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 import { ParseError } from "@/modules/common/parsers";
+import type { Context } from "@/modules/common/resolvers";
 import { permissions } from "./permissions";
-import { logger } from "./logger";
 
-const permissionAndErrorMiddleware = shield(permissions, {
-  fallbackError: (thrown, _parent, _args, _context, _info) => {
+const permissionAndErrorMiddleware = shield<unknown, Context>(permissions, {
+  // @ts-expect-error Context 型の付け方がわからなかった。動きはするよう。
+  fallbackError: (thrown, _parent, _args, { logger }: Context, _info) => {
     if (thrown instanceof ParseError) {
       return new GraphQLError(thrown.message, {
         originalError: thrown,
