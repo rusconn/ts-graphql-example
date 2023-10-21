@@ -14,7 +14,6 @@
     "dev": "NODE_ENV=development nodemon --watch src --ext 'js,ts' --exec 'pnpm ts src/main.ts'",
     "build": "swc src --delete-dir-on-start --copy-files --out-dir dist",
     "start": "NODE_ENV=production node --enable-source-maps dist/main.js",
-    "clean": "rm -rf dist/*",
     "codegen": "graphql-codegen",
     "studio": "pnpm prisma studio",
     "test": "NODE_ENV=test run-s test:*",
