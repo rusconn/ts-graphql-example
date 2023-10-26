@@ -9,6 +9,12 @@ export type ServerContext = Record<string, never>;
 
 export type UserContext = {
   prisma: Prisma.PrismaClient;
-  user: Pick<Prisma.User, "id" | "role"> | { id: "GUEST"; role: "GUEST" };
+  user: ContextUser;
   logger: Logger;
 };
+
+export type ContextUser = Admin | User | Guest;
+
+export type Admin = Pick<Prisma.User, "id"> & { role: "ADMIN" };
+export type User = Pick<Prisma.User, "id"> & { role: "USER" };
+export type Guest = { id: "GUEST"; role: "GUEST" };

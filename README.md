@@ -31,8 +31,8 @@ src
     ├── common      - 複数のタイプで使うユーティリティ
     └── todo        - Todo タイプのモジュール
         ├── adapters.ts    - 各フィールドの型や値をスキーマのものへ変換
+        ├── authorizers.ts - 各フィールドの利用許可・拒否
         ├── parsers.ts     - 各フィールドの引数の検証・変換
-        ├── permissions.ts - 各フィールドの取得権限
         ├── resolvers.ts   - 各フィールドのリゾルバ
         └── typeDefs.ts    - スキーマ
     └── user        - User タイプのモジュール

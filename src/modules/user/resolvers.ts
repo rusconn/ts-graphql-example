@@ -6,6 +6,7 @@ import { passwordHashRoundsExponent } from "@/config";
 import * as Prisma from "@/prisma";
 import type * as Graph from "../common/schema";
 import { adapters } from "./adapters";
+import { authorizers } from "./authorizers";
 import { parsers } from "./parsers";
 
 export type User = Pick<Prisma.User, "id">;
@@ -13,9 +14,13 @@ export type User = Pick<Prisma.User, "id">;
 export const resolvers: Graph.Resolvers = {
   Query: {
     me: (_, __, { user }) => {
-      return { id: user.id };
+      const authed = authorizers.Query.me(user);
+
+      return { id: authed.id };
     },
-    users: async (_, args, { prisma }, resolveInfo) => {
+    users: async (_, args, { prisma, user }, resolveInfo) => {
+      authorizers.Query.users(user);
+
       const { orderBy, first, last, before, after } = parsers.Query.users(args);
 
       return findManyCursorConnection<User>(
@@ -30,18 +35,22 @@ export const resolvers: Graph.Resolvers = {
         { resolveInfo }
       );
     },
-    user: (_, args) => {
+    user: (_, args, { user }) => {
+      authorizers.Query.user(user);
+
       const { id } = parsers.Query.user(args);
 
       return { id };
     },
   },
   Mutation: {
-    signup: async (_, args, { prisma, logger }) => {
+    signup: async (_, args, { prisma, user, logger }) => {
+      authorizers.Mutation.signup(user);
+
       const { password, ...data } = parsers.Mutation.signup(args);
 
       try {
-        const user = await prisma.user.create({
+        const signed = await prisma.user.create({
           data: {
             ...data,
             id: ulid(),
@@ -53,7 +62,7 @@ export const resolvers: Graph.Resolvers = {
 
         return {
           __typename: "SignupSuccess",
-          id: adapters.User.id(user.id),
+          id: adapters.User.id(signed.id),
         };
       } catch (e) {
         // ほぼ確実に email の衝突
@@ -69,16 +78,18 @@ export const resolvers: Graph.Resolvers = {
         throw e;
       }
     },
-    login: async (_, args, { prisma, logger }) => {
+    login: async (_, args, { prisma, user, logger }) => {
+      authorizers.Mutation.login(user);
+
       const { email, password } = parsers.Mutation.login(args);
 
       try {
-        const user = await prisma.user.findUniqueOrThrow({
+        const found = await prisma.user.findUniqueOrThrow({
           where: { email },
           select: { password: true },
         });
 
-        if (!bcrypt.compareSync(password, user.password)) {
+        if (!bcrypt.compareSync(password, found.password)) {
           throw new Prisma.NotExistsError();
         }
 
@@ -106,8 +117,10 @@ export const resolvers: Graph.Resolvers = {
       }
     },
     logout: async (_, __, { prisma, user: contextUser }) => {
+      const authed = authorizers.Mutation.logout(contextUser);
+
       const user = await prisma.user.update({
-        where: { id: contextUser.id },
+        where: { id: authed.id },
         data: { token: null },
         select: { id: true },
       });
@@ -118,11 +131,13 @@ export const resolvers: Graph.Resolvers = {
       };
     },
     updateMe: async (_, args, { prisma, user: contextUser, logger }) => {
+      const authed = authorizers.Mutation.updateMe(contextUser);
+
       const data = parsers.Mutation.updateMe(args);
 
       try {
         const user = await prisma.user.update({
-          where: { id: contextUser.id },
+          where: { id: authed.id },
           data,
           select: { id: true },
         });
@@ -145,8 +160,10 @@ export const resolvers: Graph.Resolvers = {
       }
     },
     deleteMe: async (_, __, { prisma, user }) => {
+      const authed = authorizers.Mutation.deleteMe(user);
+
       const deletedUser = await prisma.user.delete({
-        where: { id: user.id },
+        where: { id: authed.id },
         select: { id: true },
       });
 
@@ -157,42 +174,54 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   User: {
-    id: async ({ id }, _, { prisma }) => {
+    id: async ({ id }, _, { prisma, user: contextUser }) => {
+      authorizers.User.id(contextUser, id);
+
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });
 
       return adapters.User.id(user.id);
     },
-    createdAt: async ({ id }, _, { prisma }) => {
+    createdAt: async ({ id }, _, { prisma, user: contextUser }) => {
+      authorizers.User.createdAt(contextUser, id);
+
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });
 
       return user.createdAt;
     },
-    updatedAt: async ({ id }, _, { prisma }) => {
+    updatedAt: async ({ id }, _, { prisma, user: contextUser }) => {
+      authorizers.User.updatedAt(contextUser, id);
+
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });
 
       return user.updatedAt;
     },
-    name: async ({ id }, _, { prisma }) => {
+    name: async ({ id }, _, { prisma, user: contextUser }) => {
+      authorizers.User.name(contextUser, id);
+
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });
 
       return user.name;
     },
-    email: async ({ id }, _, { prisma }) => {
+    email: async ({ id }, _, { prisma, user: contextUser }) => {
+      authorizers.User.email(contextUser, id);
+
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });
 
       return user.email;
     },
-    token: async ({ id }, _, { prisma }) => {
+    token: async ({ id }, _, { prisma, user: contextUser }) => {
+      authorizers.User.token(contextUser, id);
+
       const user = await prisma.user.findUniqueOrThrow({
         where: { id },
       });

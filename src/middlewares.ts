@@ -1,13 +1,23 @@
 import { GraphQLError } from "graphql";
-import { shield } from "graphql-shield";
+import type { IMiddleware } from "graphql-middleware";
 
 import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";
+import { AuthorizationError } from "@/modules/common/authorizers";
 import { ParseError } from "@/modules/common/parsers";
-import { permissions } from "./permissions";
 
-const permissionAndErrorMiddleware = shield(permissions, {
-  fallbackError: (thrown, _parent, _args, _context, _info) => {
+const errorHandling: IMiddleware = async (resolve, root, args, context, info) => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/return-await
+    return await resolve(root, args, context, info);
+  } catch (thrown) {
+    if (thrown instanceof AuthorizationError) {
+      return new GraphQLError("Forbidden", {
+        originalError: thrown,
+        extensions: { code: Graph.ErrorCode.Forbidden },
+      });
+    }
+
     if (thrown instanceof ParseError) {
       return new GraphQLError(thrown.message, {
         originalError: thrown,
@@ -39,7 +49,7 @@ const permissionAndErrorMiddleware = shield(permissions, {
       originalError: new Error(JSON.stringify(thrown)),
       extensions: { code: Graph.ErrorCode.InternalServerError },
     });
-  },
-});
+  }
+};
 
-export const middlewares = [permissionAndErrorMiddleware];
+export const middlewares = [errorHandling];

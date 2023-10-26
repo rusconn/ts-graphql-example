@@ -3,8 +3,8 @@ import { ulid } from "ulid";
 
 import * as Prisma from "@/prisma";
 import type * as Graph from "../common/schema";
-import { forbiddenError } from "../common/permissions";
 import { adapters } from "./adapters";
+import { authorizers } from "./authorizers";
 import { parsers } from "./parsers";
 
 export type Todo = Pick<Prisma.Todo, "id"> & Partial<Pick<Prisma.Todo, "userId">>;
@@ -12,10 +12,12 @@ export type Todo = Pick<Prisma.Todo, "id"> & Partial<Pick<Prisma.Todo, "userId">
 export const resolvers: Graph.Resolvers = {
   Mutation: {
     createTodo: async (_, args, { prisma, user }) => {
+      const authed = authorizers.Mutation.createTodo(user);
+
       const parsed = parsers.Mutation.createTodo(args);
 
       const todo = await prisma.todo.create({
-        data: { ...parsed, id: ulid(), userId: user.id },
+        data: { ...parsed, id: ulid(), userId: authed.id },
         select: { id: true },
       });
 
@@ -25,11 +27,13 @@ export const resolvers: Graph.Resolvers = {
       };
     },
     updateTodo: async (_, args, { prisma, user, logger }) => {
+      const authed = authorizers.Mutation.updateTodo(user);
+
       const { id, ...data } = parsers.Mutation.updateTodo(args);
 
       try {
         const todo = await prisma.todo.update({
-          where: { id, userId: user.id },
+          where: { id, userId: authed.id },
           data,
           select: { id: true },
         });
@@ -52,11 +56,13 @@ export const resolvers: Graph.Resolvers = {
       }
     },
     deleteTodo: async (_, args, { prisma, user, logger }) => {
+      const authed = authorizers.Mutation.deleteTodo(user);
+
       const { id } = parsers.Mutation.deleteTodo(args);
 
       try {
         const todo = await prisma.todo.delete({
-          where: { id, userId: user.id },
+          where: { id, userId: authed.id },
           select: { id: true },
         });
 
@@ -78,11 +84,13 @@ export const resolvers: Graph.Resolvers = {
       }
     },
     completeTodo: async (_, args, { prisma, user, logger }) => {
+      const authed = authorizers.Mutation.completeTodo(user);
+
       const { id, ...data } = parsers.Mutation.completeTodo(args);
 
       try {
         const todo = await prisma.todo.update({
-          where: { id, userId: user.id },
+          where: { id, userId: authed.id },
           data,
           select: { id: true },
         });
@@ -105,11 +113,13 @@ export const resolvers: Graph.Resolvers = {
       }
     },
     uncompleteTodo: async (_, args, { prisma, user, logger }) => {
+      const authed = authorizers.Mutation.uncompleteTodo(user);
+
       const { id, ...data } = parsers.Mutation.uncompleteTodo(args);
 
       try {
         const todo = await prisma.todo.update({
-          where: { id, userId: user.id },
+          where: { id, userId: authed.id },
           data,
           select: { id: true },
         });
@@ -138,9 +148,7 @@ export const resolvers: Graph.Resolvers = {
         where: { id, userId },
       });
 
-      if (user.role !== "ADMIN" && user.id !== todo.userId) {
-        throw forbiddenError();
-      }
+      authorizers.Todo.id(user, todo);
 
       return adapters.Todo.id(todo.id);
     },
@@ -149,9 +157,7 @@ export const resolvers: Graph.Resolvers = {
         where: { id, userId },
       });
 
-      if (user.role !== "ADMIN" && user.id !== todo.userId) {
-        throw forbiddenError();
-      }
+      authorizers.Todo.createdAt(user, todo);
 
       return todo.createdAt;
     },
@@ -160,9 +166,7 @@ export const resolvers: Graph.Resolvers = {
         where: { id, userId },
       });
 
-      if (user.role !== "ADMIN" && user.id !== todo.userId) {
-        throw forbiddenError();
-      }
+      authorizers.Todo.updatedAt(user, todo);
 
       return todo.updatedAt;
     },
@@ -171,9 +175,7 @@ export const resolvers: Graph.Resolvers = {
         where: { id, userId },
       });
 
-      if (user.id !== todo.userId) {
-        throw forbiddenError();
-      }
+      authorizers.Todo.title(user, todo);
 
       return todo.title;
     },
@@ -182,9 +184,7 @@ export const resolvers: Graph.Resolvers = {
         where: { id, userId },
       });
 
-      if (user.id !== todo.userId) {
-        throw forbiddenError();
-      }
+      authorizers.Todo.description(user, todo);
 
       return todo.description;
     },
@@ -193,9 +193,7 @@ export const resolvers: Graph.Resolvers = {
         where: { id, userId },
       });
 
-      if (user.id !== todo.userId) {
-        throw forbiddenError();
-      }
+      authorizers.Todo.status(user, todo);
 
       return adapters.Todo.status(todo.status);
     },
@@ -204,20 +202,22 @@ export const resolvers: Graph.Resolvers = {
         where: { id, userId },
       });
 
-      if (user.role !== "ADMIN" && user.id !== todo.userId) {
-        throw forbiddenError();
-      }
+      authorizers.Todo.user(user, todo);
 
       return { id: todo.userId };
     },
   },
   User: {
-    todo: ({ id: userId }, args) => {
+    todo: ({ id: userId }, args, { user }) => {
+      authorizers.User.todo(user, userId);
+
       const { id } = parsers.User.todo(args);
 
       return { id, userId };
     },
-    todos: async ({ id }, args, { prisma }, resolveInfo) => {
+    todos: async ({ id }, args, { prisma, user }, resolveInfo) => {
+      authorizers.User.todos(user, id);
+
       const { orderBy, first, last, before, after } = parsers.User.todos(args);
 
       return findManyCursorConnection<Todo>(
