@@ -3,11 +3,14 @@ import { ulid } from "ulid";
 
 import * as Prisma from "@/prisma";
 import type * as Graph from "../common/schema";
+import { isFull, full, Full } from "../common/resolvers";
 import { adapters } from "./adapters";
 import { authorizers } from "./authorizers";
 import { parsers } from "./parsers";
 
-export type Todo = Pick<Prisma.Todo, "id"> & Partial<Pick<Prisma.Todo, "userId">>;
+export type Todo =
+  | (Pick<Prisma.Todo, "id"> & Partial<Pick<Prisma.Todo, "userId">>)
+  | Full<Prisma.Todo>;
 
 export const resolvers: Graph.Resolvers = {
   Mutation: {
@@ -18,12 +21,11 @@ export const resolvers: Graph.Resolvers = {
 
       const todo = await prisma.todo.create({
         data: { ...parsed, id: ulid(), userId: authed.id },
-        select: { id: true },
       });
 
       return {
         __typename: "CreateTodoSuccess",
-        todo,
+        todo: full(todo),
       };
     },
     updateTodo: async (_, args, { prisma, user, logger }) => {
@@ -35,12 +37,11 @@ export const resolvers: Graph.Resolvers = {
         const todo = await prisma.todo.update({
           where: { id, userId: authed.id },
           data,
-          select: { id: true },
         });
 
         return {
           __typename: "UpdateTodoSuccess",
-          todo,
+          todo: full(todo),
         };
       } catch (e) {
         if (e instanceof Prisma.NotExistsError) {
@@ -92,12 +93,11 @@ export const resolvers: Graph.Resolvers = {
         const todo = await prisma.todo.update({
           where: { id, userId: authed.id },
           data,
-          select: { id: true },
         });
 
         return {
           __typename: "CompleteTodoSuccess",
-          todo,
+          todo: full(todo),
         };
       } catch (e) {
         if (e instanceof Prisma.NotExistsError) {
@@ -121,12 +121,11 @@ export const resolvers: Graph.Resolvers = {
         const todo = await prisma.todo.update({
           where: { id, userId: authed.id },
           data,
-          select: { id: true },
         });
 
         return {
           __typename: "UncompleteTodoSuccess",
-          todo,
+          todo: full(todo),
         };
       } catch (e) {
         if (e instanceof Prisma.NotExistsError) {
@@ -143,64 +142,78 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Todo: {
-    id: async ({ id, userId }, _, { prisma, user }) => {
-      const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
-      });
+    id: async (parent, _, { prisma, user }) => {
+      const todo = isFull(parent)
+        ? parent
+        : await prisma.todo.findUniqueOrThrow({
+            where: { id: parent.id, userId: parent.userId },
+          });
 
       authorizers.Todo.id(user, todo);
 
       return adapters.Todo.id(todo.id);
     },
-    createdAt: async ({ id, userId }, _, { prisma, user }) => {
-      const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
-      });
+    createdAt: async (parent, _, { prisma, user }) => {
+      const todo = isFull(parent)
+        ? parent
+        : await prisma.todo.findUniqueOrThrow({
+            where: { id: parent.id, userId: parent.userId },
+          });
 
       authorizers.Todo.createdAt(user, todo);
 
       return todo.createdAt;
     },
-    updatedAt: async ({ id, userId }, _, { prisma, user }) => {
-      const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
-      });
+    updatedAt: async (parent, _, { prisma, user }) => {
+      const todo = isFull(parent)
+        ? parent
+        : await prisma.todo.findUniqueOrThrow({
+            where: { id: parent.id, userId: parent.userId },
+          });
 
       authorizers.Todo.updatedAt(user, todo);
 
       return todo.updatedAt;
     },
-    title: async ({ id, userId }, _, { prisma, user }) => {
-      const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
-      });
+    title: async (parent, _, { prisma, user }) => {
+      const todo = isFull(parent)
+        ? parent
+        : await prisma.todo.findUniqueOrThrow({
+            where: { id: parent.id, userId: parent.userId },
+          });
 
       authorizers.Todo.title(user, todo);
 
       return todo.title;
     },
-    description: async ({ id, userId }, _, { prisma, user }) => {
-      const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
-      });
+    description: async (parent, _, { prisma, user }) => {
+      const todo = isFull(parent)
+        ? parent
+        : await prisma.todo.findUniqueOrThrow({
+            where: { id: parent.id, userId: parent.userId },
+          });
 
       authorizers.Todo.description(user, todo);
 
       return todo.description;
     },
-    status: async ({ id, userId }, _, { prisma, user }) => {
-      const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
-      });
+    status: async (parent, _, { prisma, user }) => {
+      const todo = isFull(parent)
+        ? parent
+        : await prisma.todo.findUniqueOrThrow({
+            where: { id: parent.id, userId: parent.userId },
+          });
 
       authorizers.Todo.status(user, todo);
 
       return adapters.Todo.status(todo.status);
     },
-    user: async ({ id, userId }, _, { prisma, user }) => {
-      const todo = await prisma.todo.findUniqueOrThrow({
-        where: { id, userId },
-      });
+    user: async (parent, _, { prisma, user }) => {
+      const todo = isFull(parent)
+        ? parent
+        : await prisma.todo.findUniqueOrThrow({
+            where: { id: parent.id, userId: parent.userId },
+          });
 
       authorizers.Todo.user(user, todo);
 
@@ -220,14 +233,15 @@ export const resolvers: Graph.Resolvers = {
 
       const { orderBy, first, last, before, after } = parsers.User.todos(args);
 
-      return findManyCursorConnection<Todo>(
+      return findManyCursorConnection(
         async findManyArgs =>
-          prisma.todo.findMany({
-            ...findManyArgs,
-            where: { userId: id },
-            orderBy,
-            select: { id: true },
-          }),
+          prisma.todo
+            .findMany({
+              ...findManyArgs,
+              where: { userId: id },
+              orderBy,
+            })
+            .then(todos => todos.map(full)),
         () => prisma.todo.count({ where: { userId: id } }),
         { first, last, before, after },
         { resolveInfo }

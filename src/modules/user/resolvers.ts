@@ -5,31 +5,33 @@ import { ulid } from "ulid";
 import { passwordHashRoundsExponent } from "@/config";
 import * as Prisma from "@/prisma";
 import type * as Graph from "../common/schema";
+import { Full, full, isFull } from "../common/resolvers";
 import { adapters } from "./adapters";
 import { authorizers } from "./authorizers";
 import { parsers } from "./parsers";
 
-export type User = Pick<Prisma.User, "id">;
+export type User = Pick<Prisma.User, "id"> | Full<Prisma.User>;
 
 export const resolvers: Graph.Resolvers = {
   Query: {
     me: (_, __, { user }) => {
       const authed = authorizers.Query.me(user);
 
-      return { id: authed.id };
+      return full(authed);
     },
     users: async (_, args, { prisma, user }, resolveInfo) => {
       authorizers.Query.users(user);
 
       const { orderBy, first, last, before, after } = parsers.Query.users(args);
 
-      return findManyCursorConnection<User>(
+      return findManyCursorConnection(
         findManyArgs =>
-          prisma.user.findMany({
-            ...findManyArgs,
-            orderBy,
-            select: { id: true },
-          }),
+          prisma.user
+            .findMany({
+              ...findManyArgs,
+              orderBy,
+            })
+            .then(users => users.map(full)),
         () => prisma.user.count(),
         { first, last, before, after },
         { resolveInfo }
@@ -96,12 +98,11 @@ export const resolvers: Graph.Resolvers = {
         const refreshedUser = await prisma.user.update({
           where: { email },
           data: { token: ulid() },
-          select: { id: true },
         });
 
         return {
           __typename: "LoginSuccess",
-          user: refreshedUser,
+          user: full(refreshedUser),
         };
       } catch (e) {
         if (e instanceof Prisma.NotExistsError) {
@@ -122,12 +123,11 @@ export const resolvers: Graph.Resolvers = {
       const user = await prisma.user.update({
         where: { id: authed.id },
         data: { token: null },
-        select: { id: true },
       });
 
       return {
         __typename: "LogoutSuccess",
-        user,
+        user: full(user),
       };
     },
     updateMe: async (_, args, { prisma, user: contextUser, logger }) => {
@@ -139,12 +139,11 @@ export const resolvers: Graph.Resolvers = {
         const user = await prisma.user.update({
           where: { id: authed.id },
           data,
-          select: { id: true },
         });
 
         return {
           __typename: "UpdateMeSuccess",
-          user,
+          user: full(user),
         };
       } catch (e) {
         if (e instanceof Prisma.NotUniqueError) {
@@ -174,57 +173,69 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   User: {
-    id: async ({ id }, _, { prisma, user: contextUser }) => {
-      authorizers.User.id(contextUser, id);
+    id: async (parent, _, { prisma, user: contextUser }) => {
+      authorizers.User.id(contextUser, parent.id);
 
-      const user = await prisma.user.findUniqueOrThrow({
-        where: { id },
-      });
+      const user = isFull(parent)
+        ? parent
+        : await prisma.user.findUniqueOrThrow({
+            where: { id: parent.id },
+          });
 
       return adapters.User.id(user.id);
     },
-    createdAt: async ({ id }, _, { prisma, user: contextUser }) => {
-      authorizers.User.createdAt(contextUser, id);
+    createdAt: async (parent, _, { prisma, user: contextUser }) => {
+      authorizers.User.createdAt(contextUser, parent.id);
 
-      const user = await prisma.user.findUniqueOrThrow({
-        where: { id },
-      });
+      const user = isFull(parent)
+        ? parent
+        : await prisma.user.findUniqueOrThrow({
+            where: { id: parent.id },
+          });
 
       return user.createdAt;
     },
-    updatedAt: async ({ id }, _, { prisma, user: contextUser }) => {
-      authorizers.User.updatedAt(contextUser, id);
+    updatedAt: async (parent, _, { prisma, user: contextUser }) => {
+      authorizers.User.updatedAt(contextUser, parent.id);
 
-      const user = await prisma.user.findUniqueOrThrow({
-        where: { id },
-      });
+      const user = isFull(parent)
+        ? parent
+        : await prisma.user.findUniqueOrThrow({
+            where: { id: parent.id },
+          });
 
       return user.updatedAt;
     },
-    name: async ({ id }, _, { prisma, user: contextUser }) => {
-      authorizers.User.name(contextUser, id);
+    name: async (parent, _, { prisma, user: contextUser }) => {
+      authorizers.User.name(contextUser, parent.id);
 
-      const user = await prisma.user.findUniqueOrThrow({
-        where: { id },
-      });
+      const user = isFull(parent)
+        ? parent
+        : await prisma.user.findUniqueOrThrow({
+            where: { id: parent.id },
+          });
 
       return user.name;
     },
-    email: async ({ id }, _, { prisma, user: contextUser }) => {
-      authorizers.User.email(contextUser, id);
+    email: async (parent, _, { prisma, user: contextUser }) => {
+      authorizers.User.email(contextUser, parent.id);
 
-      const user = await prisma.user.findUniqueOrThrow({
-        where: { id },
-      });
+      const user = isFull(parent)
+        ? parent
+        : await prisma.user.findUniqueOrThrow({
+            where: { id: parent.id },
+          });
 
       return user.email;
     },
-    token: async ({ id }, _, { prisma, user: contextUser }) => {
-      authorizers.User.token(contextUser, id);
+    token: async (parent, _, { prisma, user: contextUser }) => {
+      authorizers.User.token(contextUser, parent.id);
 
-      const user = await prisma.user.findUniqueOrThrow({
-        where: { id },
-      });
+      const user = isFull(parent)
+        ? parent
+        : await prisma.user.findUniqueOrThrow({
+            where: { id: parent.id },
+          });
 
       return user.token;
     },

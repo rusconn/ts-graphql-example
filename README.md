@@ -65,6 +65,11 @@ src
 
 等を考慮して採用しなかった。
 
+#### 追記
+
+スループット向上の為、葉ではないリゾルバによるデータフェッチをある程度許容することにした。謂わば投機的データフェッチ。\
+コードの単純さを優先する場合は葉のみに絞った方が良いが、パフォーマンスを改善してみたくなった。
+
 ### API サーバー ⇄ DB 間におけるオーバーフェッチ
 
 resolveInfo の解析により DB からの取得列を絞れそうだが、難易度やコードの複雑化に対する恩恵が小さいと判断し、許容することにした: [Prisma 公式のパフォーマンスに関する見解](https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance#using-select-to-limit-number-of-columns-returned)
