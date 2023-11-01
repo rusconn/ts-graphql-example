@@ -4,12 +4,10 @@ import { shield } from "graphql-shield";
 import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 import { ParseError } from "@/modules/common/parsers";
-import type { Context } from "@/modules/common/resolvers";
 import { permissions } from "./permissions";
 
-const permissionAndErrorMiddleware = shield<unknown, Context>(permissions, {
-  // @ts-expect-error Context 型の付け方がわからなかった。動きはするよう。
-  fallbackError: (thrown, _parent, _args, { logger }: Context, _info) => {
+const permissionAndErrorMiddleware = shield(permissions, {
+  fallbackError: (thrown, _parent, _args, _context, _info) => {
     if (thrown instanceof ParseError) {
       return new GraphQLError(thrown.message, {
         originalError: thrown,
@@ -37,8 +35,8 @@ const permissionAndErrorMiddleware = shield<unknown, Context>(permissions, {
     }
 
     // エラーでは無いものが投げられた
-    logger.error(thrown, "error info");
     return new GraphQLError("Internal server error", {
+      originalError: new Error(JSON.stringify(thrown)),
       extensions: { code: Graph.ErrorCode.InternalServerError },
     });
   },
