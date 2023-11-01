@@ -105,6 +105,11 @@ describe("validation", () => {
 });
 
 describe("logic", () => {
+  beforeEach(async () => {
+    await clearUsers();
+    await seedData.users();
+  });
+
   test("wrong email", async () => {
     const wrongEmail = DBData.admin.email.slice(1);
     const password = "adminadmin";

@@ -1,31 +1,46 @@
-import type { DocumentNode } from "graphql";
+import { parse } from "graphql";
+import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 
-import { DBData } from "it/data";
-import type { Context } from "@/modules/common/resolvers";
-import { logger } from "@/logger";
-import { prisma } from "@/prisma";
-import { server } from "@/server";
+import { ContextData } from "it/data";
+import type { UserContext } from "@/modules/common/resolvers";
+import { yoga } from "@/server";
 
 type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;
-  user?: Context["user"];
+  user?: typeof ContextData.admin | typeof ContextData.guest;
 };
 
 /** デフォルトユーザーは admin */
 export const executeSingleResultOperation =
-  (query: DocumentNode | string) =>
+  (query: string) =>
   async <TData, TVariables>({
     variables,
-    user = DBData.admin,
+    user = ContextData.admin,
   }: ExecuteOperationParams<TVariables>) => {
-    const res = await server.executeOperation<TData, TVariables>(
-      { query, variables },
-      { contextValue: { prisma, user, logger: logger() } }
-    );
+    const result = await executor<TData, TVariables, UserContext>({
+      document: parse(query),
+      variables,
+      extensions:
+        "token" in user && user.token != null
+          ? { headers: { authorization: `Bearer ${user.token}` } }
+          : {},
+    });
 
-    if (res.body.kind !== "single") {
-      throw new Error("not single");
-    }
+    assertSingleResult(result);
 
-    return res.body.singleResult;
+    return result;
   };
+
+const executor = buildHTTPExecutor({
+  // linter に従うと正しく動かない
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  fetch: yoga.fetch,
+});
+
+function assertSingleResult<TResult extends object>(
+  result: TResult | AsyncIterable<TResult>
+): asserts result is TResult {
+  if (Symbol.asyncIterator in result) {
+    throw new Error("Expected single result");
+  }
+}

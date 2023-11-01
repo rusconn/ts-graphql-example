@@ -1,60 +1,89 @@
-import { ApolloServer } from "@apollo/server";
-import depthLimit from "graphql-depth-limit";
+import { createServer } from "node:http";
+
+import { useErrorHandler } from "@envelop/core";
+import { EnvelopArmorPlugin as useArmor } from "@escape.tech/graphql-armor";
+import { GraphQLError } from "graphql";
 import { applyMiddleware } from "graphql-middleware";
-import { createComplexityLimitRule } from "graphql-validation-complexity";
+import { createYoga, useLogger } from "graphql-yoga";
+import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
 
-import { maxDepth, maxCost, alertCost } from "@/config";
-import type { Context } from "@/modules/common/resolvers";
+import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers";
+import * as Graph from "@/modules/common/schema";
+import { makeLogger } from "./logger";
 import { middlewares } from "./middlewares";
+import { prisma } from "./prisma";
 import { schema } from "./schema";
-import { isIntrospectionQuery } from "./generic/graphql";
+import { isProd, maxCost, maxDepth } from "./config";
 
-export const server = new ApolloServer<Context>({
+export const yoga = createYoga<ServerContext, UserContext>({
   schema: applyMiddleware(schema, ...middlewares),
-  validationRules: [
-    depthLimit(maxDepth),
-    createComplexityLimitRule(maxCost, {
-      onCost: cost => {
-        (cost < alertCost ? console.log : console.warn)({ cost });
-      },
-    }),
-  ],
-  formatError: error => {
-    // message で内部実装がバレ得るのでマスクする
-    if (error.message.startsWith("Context creation failed: ")) {
-      return { ...error, message: "Some errors occurred" };
+  context: async ({ request }) => {
+    const token = request.headers.get("authorization")?.replace("Bearer ", "");
+
+    let user;
+
+    if (token) {
+      const maybeUser = await prisma.user.findUnique({
+        where: { token },
+        select: { id: true, role: true },
+      });
+
+      if (!maybeUser) {
+        throw new GraphQLError("Authentication error", {
+          extensions: { code: Graph.ErrorCode.AuthenticationError },
+        });
+      }
+
+      user = maybeUser;
+    } else {
+      user = { id: "GUEST", role: "GUEST" } as const;
     }
 
-    return error;
+    return { prisma, user, logger: makeLogger() };
   },
-  cache: undefined,
-  // requestId を埋め込みたいのでコンテキストにセットしている
-  logger: undefined,
+  // requestId を使いたいので自分でログする
+  logging: false,
   plugins: [
-    {
-      async requestDidStart({ contextValue, request }) {
-        const { logger, user } = contextValue;
-        const { query, variables } = request;
+    useDisableIntrospection({
+      isDisabled: () => isProd,
+    }),
+    useArmor({
+      costLimit: { maxCost },
+      maxDepth: { n: maxDepth },
+    }),
+    useLogger({
+      logFn: (
+        eventName: "execute-start" | "execute-end" | "subscribe-start" | "subscribe-end",
+        { args }
+      ) => {
+        if (eventName === "execute-start" || eventName === "subscribe-start") {
+          const { contextValue } = args as { contextValue: Context };
+          const { logger, user, params } = contextValue;
+          const { query, variables } = params;
 
-        if (query && !isIntrospectionQuery(query)) {
           logger.info({ userId: user.id, query, variables }, "request info");
         }
-
-        return {
-          didEncounterErrors: async ({ contextValue: context, errors }) => {
-            for (const error of errors) {
-              context.logger.error(error, "error info");
-            }
-          },
-          async willSendResponse({ response }) {
-            // 脆弱性対策: https://qiita.com/tnishi97/items/9fb9b2e69689fbfb52e3
-            response.http.headers
-              .set("X-Content-Type-Options", "nosniff") // XSS
-              .set("X-Frame-Options", "DENY") // クリックジャッキング
-              .set("Strict-Transport-Security", "max-age=31536000; includeSubdomains"); // https
-          },
-        };
       },
-    },
+      skipIntrospection: true,
+    }),
+    useErrorHandler(({ errors, context, phase }) => {
+      if (phase === "context") {
+        for (const error of errors) {
+          console.error(error);
+        }
+      }
+
+      if (phase === "execution") {
+        const { contextValue } = context as { contextValue: Context };
+        const { logger } = contextValue;
+
+        for (const error of errors) {
+          logger.error(error, "error info");
+        }
+      }
+    }),
   ],
 });
+
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+export const server = createServer(yoga);

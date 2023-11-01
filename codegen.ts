@@ -14,7 +14,7 @@ const typescript: TypeScriptPluginConfig = {
     },
     DateTime: {
       input: "@/modules/scalar/parsers#DateTime",
-      output: "Date",
+      output: "Date | DateTime", // DateTime リゾルバーが Date -> DateTime する
     },
     EmailAddress: {
       input: "@/modules/scalar/parsers#EmailAddress",

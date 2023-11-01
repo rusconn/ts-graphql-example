@@ -22,7 +22,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  DateTime: { input: DateTime; output: Date; }
+  DateTime: { input: DateTime; output: Date | DateTime; }
   EmailAddress: { input: EmailAddress; output: string; }
   NonEmptyString: { input: NonEmptyString; output: string; }
 };

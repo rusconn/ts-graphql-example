@@ -1,6 +1,6 @@
-# apollo prisma test
+# ts-graphql-example
 
-Apollo Server と Prisma を使って GraphQL API を作る。
+TypeScript を使って GraphQL API を作る。
 
 とりあえず簡単な Todo アプリのバックエンドを想定して作る。\
 アプリのシップではなく、設計や実装のノウハウを手に入れることが目的。
@@ -13,7 +13,7 @@ docker compose up -d
 pnpm run setup && pnpm dev
 ```
 
-クエリの実行は [Web コンソール](http://localhost:4000) で。  
+クエリの実行は [Web コンソール](http://localhost:4000/graphql) で。  
 token を Authorization ヘッダへ Bearer でセットしておくこと。  
 token は [Prisma Studio](http://localhost:5555) で取得する。  
 Prisma Studio は `pnpm studio` で起動しておくこと。
