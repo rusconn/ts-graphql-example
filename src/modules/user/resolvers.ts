@@ -82,7 +82,7 @@ export const resolvers: Graph.Resolvers = {
           throw new Prisma.NotExistsError();
         }
 
-        const refreshedUser = prisma.user.update({
+        const refreshedUser = await prisma.user.update({
           where: { email },
           data: { token: ulid() },
           select: { id: true },
