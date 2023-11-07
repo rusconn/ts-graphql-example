@@ -6,6 +6,7 @@ import { GraphQLError } from "graphql";
 import { applyMiddleware } from "graphql-middleware";
 import { createYoga, useLogger } from "graphql-yoga";
 import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
+import { ulid } from "ulid";
 
 import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers";
 import * as Graph from "@/modules/common/schema";
@@ -36,7 +37,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
 
       user = maybeUser;
     } else {
-      user = { id: "GUEST", role: "GUEST" } as const;
+      user = { id: ulid(), role: "GUEST" } as const;
     }
 
     return { prisma, user, logger: makeLogger() };
@@ -61,7 +62,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
           const { logger, user, params } = contextValue;
           const { query, variables } = params;
 
-          logger.info({ userId: user.id, query, variables }, "request info");
+          logger.info({ userId: user.id, role: user.role, query, variables }, "request info");
         }
       },
       skipIntrospection: true,

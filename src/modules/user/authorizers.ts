@@ -23,14 +23,6 @@ const isAdminOrUserOwner = (user: ContextUser, id: ParentUserId) => {
   }
 };
 
-const isGuestOrUserOwner = (user: ContextUser, id: ParentUserId) => {
-  try {
-    return isGuest(user);
-  } catch {
-    return isUserOwner(user, id);
-  }
-};
-
 export const authorizers = {
   Query: {
     me: isAuthenticated,
@@ -50,6 +42,6 @@ export const authorizers = {
     updatedAt: isAdminOrUserOwner,
     name: isAdminOrUserOwner,
     email: isAdminOrUserOwner,
-    token: isGuestOrUserOwner,
+    token: isUserOwner,
   },
 };

@@ -45,7 +45,7 @@ export const resolvers: Graph.Resolvers = {
   },
   Mutation: {
     signup: async (_, args, { prisma, user, logger }) => {
-      authorizers.Mutation.signup(user);
+      const authed = authorizers.Mutation.signup(user);
 
       const { password, ...data } = parsers.Mutation.signup(args);
 
@@ -53,7 +53,7 @@ export const resolvers: Graph.Resolvers = {
         const signed = await prisma.user.create({
           data: {
             ...data,
-            id: ulid(),
+            id: authed.id,
             password: bcrypt.hashSync(password, passwordHashRoundsExponent),
             token: ulid(),
           },
