@@ -37,17 +37,11 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const input = {
-    title: "title",
-    description: "",
-  };
+  const input = { title: "title", description: "" };
 
-  const alloweds = [ContextData.admin, ContextData.alice, ContextData.bob] as const;
-  const notAllowed = [ContextData.guest] as const;
-
-  test.each(alloweds)("allowed %o %o", async user => {
+  test("not AuthorizationError -> not Forbidden", async () => {
     const { errors } = await executeMutation({
-      user,
+      user: ContextData.alice,
       variables: { input },
     });
 
@@ -56,9 +50,9 @@ describe("authorization", () => {
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowed)("not allowed %o %o", async user => {
+  test("AuthorizationError -> Forbidden", async () => {
     const { errors } = await executeMutation({
-      user,
+      user: ContextData.guest,
       variables: { input },
     });
 
@@ -69,46 +63,27 @@ describe("authorization", () => {
 });
 
 describe("validation", () => {
-  describe("$input", () => {
-    // 文字数は文字列の長さやバイト数とは異なるので注意
-    // https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/length#unicode
-    // 合字は複数文字とカウントしていいものとする
-    const titleMaxCharacters = 100;
-    const descriptionMaxCharacters = 5000;
+  const titleMax = 100;
+  const validInput = { title: "title", description: "description" };
 
-    const valids = [
-      ["A".repeat(titleMaxCharacters), ""],
-      ["🅰".repeat(titleMaxCharacters), ""],
-      ["A", "A".repeat(descriptionMaxCharacters)],
-      ["🅰", "🅰".repeat(descriptionMaxCharacters)],
-    ].map(([title, description]) => ({ title, description }));
-
-    const invalids = [
-      ["A".repeat(titleMaxCharacters + 1), ""],
-      ["🅰".repeat(titleMaxCharacters + 1), ""],
-      ["A", "A".repeat(descriptionMaxCharacters + 1)],
-      ["🅰", "🅰".repeat(descriptionMaxCharacters + 1)],
-    ].map(([title, description]) => ({ title, description }));
-
-    test.each(valids)("valid %s", async input => {
-      const { errors } = await executeMutation({
-        variables: { input },
-      });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("not ParseError -> not BadUserInput", async () => {
+    const { errors } = await executeMutation({
+      variables: { input: { ...validInput } },
     });
 
-    test.each(invalids)("invalid %s", async input => {
-      const { errors } = await executeMutation({
-        variables: { input },
-      });
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  });
 
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("ParseError -> BadUserInput", async () => {
+    const { errors } = await executeMutation({
+      variables: { input: { ...validInput, title: "A".repeat(titleMax + 1) } },
     });
+
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
   });
 });
 

@@ -51,22 +51,10 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const allowedPatterns = [
-    [ContextData.admin, GraphData.adminTodo1],
-    [ContextData.admin, GraphData.aliceTodo],
-    [ContextData.alice, GraphData.adminTodo1],
-    [ContextData.alice, GraphData.aliceTodo],
-  ] as const;
-
-  const notAllowedPatterns = [
-    [ContextData.guest, GraphData.adminTodo1],
-    [ContextData.guest, GraphData.aliceTodo],
-  ] as const;
-
-  test.each(allowedPatterns)("allowed %o %o", async (user, { id }) => {
+  test("not AuthorizationError -> not Forbidden", async () => {
     const { errors } = await executeMutation({
-      user,
-      variables: { id },
+      user: ContextData.alice,
+      variables: { id: GraphData.aliceTodo.id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -74,10 +62,10 @@ describe("authorization", () => {
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowedPatterns)("not allowed %o %o", async (user, { id }) => {
+  test("AuthorizationError -> Forbidden", async () => {
     const { errors } = await executeMutation({
-      user,
-      variables: { id },
+      user: ContextData.guest,
+      variables: { id: GraphData.aliceTodo.id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -87,26 +75,24 @@ describe("authorization", () => {
 });
 
 describe("validation", () => {
-  describe("$id", () => {
-    test.each(GraphData.validTodoIds)("valid %s", async id => {
-      const { errors } = await executeMutation({
-        variables: { id },
-      });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("not ParseError -> not BadUserInput", async () => {
+    const { errors } = await executeMutation({
+      variables: { id: GraphData.validTodoIds[0] },
     });
 
-    test.each(GraphData.invalidTodoIds)("invalid %s", async id => {
-      const { errors } = await executeMutation({
-        variables: { id },
-      });
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  });
 
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("ParseError -> BadUserInput", async () => {
+    const { errors } = await executeMutation({
+      variables: { id: GraphData.invalidTodoIds[0] },
     });
+
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
   });
 });
 

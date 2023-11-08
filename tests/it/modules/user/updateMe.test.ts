@@ -44,12 +44,9 @@ beforeAll(resetUsers);
 describe("authorization", () => {
   const input = { name: "foo" };
 
-  const alloweds = [ContextData.admin, ContextData.alice, ContextData.bob] as const;
-  const notAlloweds = [ContextData.guest] as const;
-
-  test.each(alloweds)("allowed %o %o", async user => {
+  test("not AuthorizationError -> not Forbidden", async () => {
     const { errors } = await executeMutation({
-      user,
+      user: ContextData.alice,
       variables: { input },
     });
 
@@ -58,9 +55,9 @@ describe("authorization", () => {
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAlloweds)("not allowed %o %o", async user => {
+  test("AuthorizationError -> Forbidden", async () => {
     const { errors } = await executeMutation({
-      user,
+      user: ContextData.guest,
       variables: { input },
     });
 
@@ -71,74 +68,24 @@ describe("authorization", () => {
 });
 
 describe("validation", () => {
-  describe("$input", () => {
-    // 文字数は文字列の長さやバイト数とは異なるので注意
-    // https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/length#unicode
-    // 合字は複数文字とカウントしていいものとする
-    const nameMaxCharacters = 100;
-    const emailMaxCharacters = 100;
-    const passwordMinCharacters = 8;
-    const passwordMaxCharacters = 50;
-
-    const valids = [
-      { name: "A".repeat(nameMaxCharacters), email: "email@email.com", password: "password" },
-      { name: "🅰".repeat(nameMaxCharacters), email: "email@email.com", password: "password" },
-      { name: "name", email: `${"a".repeat(emailMaxCharacters - 5)}@a.jp`, password: "password" },
-      { name: "name", email: "email@email.com", password: "a".repeat(passwordMinCharacters) },
-      { name: "name", email: "email@email.com", password: "a".repeat(passwordMaxCharacters) },
-    ];
-
-    const invalids = [
-      { name: "A".repeat(nameMaxCharacters + 1), email: "email@email.com", password: "password" },
-      { name: "🅰".repeat(nameMaxCharacters + 1), email: "email@email.com", password: "password" },
-      {
-        name: "name",
-        email: `${"a".repeat(emailMaxCharacters - 5 + 1)}@a.jp`,
-        password: "password",
-      },
-      { name: "name", email: "email@email.com", password: "a".repeat(passwordMinCharacters - 1) },
-      { name: "name", email: "email@email.com", password: "a".repeat(passwordMaxCharacters + 1) },
-    ];
-
-    test.each(valids)("valid %s", async input => {
-      const { errors } = await executeMutation({
-        variables: { input },
-      });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("not ParseError -> not BadUserInput", async () => {
+    const { errors } = await executeMutation({
+      variables: { input: { name: "name" } },
     });
 
-    test.each(invalids)("invalid %s", async input => {
-      const { errors } = await executeMutation({
-        variables: { input },
-      });
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  });
 
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("ParseError -> BadUserInput", async () => {
+    const { errors } = await executeMutation({
+      variables: { input: { name: null } },
     });
 
-    test("null name should cause input error", async () => {
-      const { errors } = await executeMutation({
-        variables: { input: { name: null } },
-      });
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-    });
-
-    test("absent name should not cause input error", async () => {
-      const { errors } = await executeMutation({
-        variables: { input: {} },
-      });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-    });
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
   });
 });
 

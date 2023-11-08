@@ -39,12 +39,9 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const alloweds = [ContextData.admin];
-  const notAlloweds = [ContextData.alice, ContextData.bob, ContextData.guest];
-
-  test.each(alloweds)("allowed %s", async user => {
+  test("not AuthorizationError -> not Forbidden", async () => {
     const { data, errors } = await executeQuery({
-      user,
+      user: ContextData.admin,
       variables: { first: 1 },
     });
 
@@ -54,9 +51,9 @@ describe("authorization", () => {
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAlloweds)("not allowed %s", async user => {
+  test("AuthorizationError -> Forbidden", async () => {
     const { data, errors } = await executeQuery({
-      user,
+      user: ContextData.alice,
       variables: { first: 1 },
     });
 
@@ -68,15 +65,9 @@ describe("authorization", () => {
 });
 
 describe("validation", () => {
-  const firstMax = 30;
-  const lastMax = 30;
-
-  const valids = [{ first: firstMax }, { last: lastMax }];
-  const invalids = [{}, { first: firstMax + 1 }, { last: lastMax + 1 }];
-
-  test.each(valids)("valid %o", async variables => {
+  test("not ParseError -> not BadUserInput", async () => {
     const { data, errors } = await executeQuery({
-      variables,
+      variables: { first: 10 },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -85,9 +76,9 @@ describe("validation", () => {
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
   });
 
-  test.each(invalids)("invalid %o", async variables => {
+  test("ParseError -> BadUserInput", async () => {
     const { data, errors } = await executeQuery({
-      variables,
+      variables: {},
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);

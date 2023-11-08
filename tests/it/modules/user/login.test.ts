@@ -45,11 +45,9 @@ describe("authorization", () => {
     },
   };
 
-  const alloweds = [ContextData.admin, ContextData.alice, ContextData.guest];
-
-  test.each(alloweds)("allowed %o", async user => {
+  test("not AuthorizationError -> not Forbidden", async () => {
     const { errors } = await executeMutation({
-      user,
+      user: ContextData.alice,
       variables,
     });
 
@@ -60,47 +58,29 @@ describe("authorization", () => {
 });
 
 describe("validation", () => {
-  describe("$input", () => {
-    const emailMaxCharacters = 100;
-    const passwordMinCharacters = 8;
-    const passwordMaxCharacters = 50;
+  const passMin = 8;
+  const validInput = { email: "email@email.com", password: "password" };
 
-    const valids = [
-      { email: `${"a".repeat(emailMaxCharacters - 5)}@a.jp`, password: "password" },
-      { email: "email@email.com", password: "a".repeat(passwordMinCharacters) },
-      { email: "email@email.com", password: "a".repeat(passwordMaxCharacters) },
-    ];
-
-    const invalids = [
-      {
-        email: `${"a".repeat(emailMaxCharacters - 5 + 1)}@a.jp`,
-        password: "password",
-      },
-      { email: "email@email.com", password: "a".repeat(passwordMinCharacters - 1) },
-      { email: "email@email.com", password: "a".repeat(passwordMaxCharacters + 1) },
-    ];
-
-    test.each(valids)("valid %s", async input => {
-      const { errors } = await executeMutation({
-        user: ContextData.guest,
-        variables: { input },
-      });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("not ParseError -> not BadUserInput", async () => {
+    const { errors } = await executeMutation({
+      user: ContextData.guest,
+      variables: { input: { ...validInput } },
     });
 
-    test.each(invalids)("invalid %s", async input => {
-      const { errors } = await executeMutation({
-        user: ContextData.guest,
-        variables: { input },
-      });
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  });
 
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("ParseError -> BadUserInput", async () => {
+    const { errors } = await executeMutation({
+      user: ContextData.guest,
+      variables: { input: { ...validInput, password: "A".repeat(passMin - 1) } },
     });
+
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
   });
 });
 

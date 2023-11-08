@@ -5,6 +5,9 @@
     "node": "18.16.0",
     "pnpm": "8.5.1"
   },
+  "scriptsComments": {
+    "build": "--ignore が効かない: https://github.com/swc-project/cli/issues/20"
+  },
   "scripts": {
     "setup": "pnpm install && NODE_ENV=development run-s setup:*",
     "setup:migrate": "pnpm migrate:reset ",
@@ -12,13 +15,15 @@
     "setup:seed": "pnpm seed",
     "setup:husky": "husky install",
     "dev": "NODE_ENV=development nodemon --watch src --ext 'js,ts' --exec 'pnpm ts src/main.ts'",
-    "build": "swc src --delete-dir-on-start --copy-files --out-dir dist",
+    "build": "swc src --ignore '**/*.test.ts' --delete-dir-on-start --copy-files --out-dir dist",
     "start": "NODE_ENV=production node --enable-source-maps dist/main.js",
     "codegen": "graphql-codegen",
     "studio": "pnpm prisma studio",
-    "test": "NODE_ENV=test run-s test:*",
-    "test:migrate": "DB_NAME=testdb pnpm migrate:reset",
-    "test:run": "DB_NAME=testdb jest -i --silent",
+    "test": "pnpm test:ut && pnpm test:it",
+    "test:ut": "NODE_ENV=test jest --silent src",
+    "test:it": "NODE_ENV=test run-s test:it:*",
+    "test:it:migrate": "DB_NAME=testdb pnpm migrate:reset",
+    "test:it:run": "DB_NAME=testdb jest -i --silent tests/it",
     "check": "run-s check:*",
     "check:generate": "pnpm generate",
     "check:typecheck": "pnpm typecheck",

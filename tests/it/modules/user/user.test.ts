@@ -27,23 +27,10 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const allowedPatterns = [
-    [ContextData.admin, GraphData.admin],
-    [ContextData.admin, GraphData.alice],
-  ] as const;
-
-  const notAllowedPatterns = [
-    [ContextData.alice, GraphData.admin],
-    [ContextData.alice, GraphData.alice],
-    [ContextData.alice, GraphData.bob],
-    [ContextData.guest, GraphData.admin],
-    [ContextData.guest, GraphData.alice],
-  ] as const;
-
-  test.each(allowedPatterns)("allowed %o %o", async (user, { id }) => {
+  test("not AuthorizationError -> not Forbidden", async () => {
     const { data, errors } = await executeQuery({
-      user,
-      variables: { id },
+      user: ContextData.admin,
+      variables: { id: GraphData.alice.id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -52,10 +39,10 @@ describe("authorization", () => {
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowedPatterns)("not allowed %o %o", async (user, { id }) => {
+  test("AuthorizationError -> Forbidden", async () => {
     const { data, errors } = await executeQuery({
-      user,
-      variables: { id },
+      user: ContextData.alice,
+      variables: { id: GraphData.alice.id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -66,28 +53,26 @@ describe("authorization", () => {
 });
 
 describe("validation", () => {
-  describe("$id", () => {
-    test.each(GraphData.validUserIds)("valid %s", async id => {
-      const { data, errors } = await executeQuery({
-        variables: { id },
-      });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(data?.user).not.toBeFalsy();
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("not ParseError -> not BadUserInput", async () => {
+    const { data, errors } = await executeQuery({
+      variables: { id: GraphData.validUserIds[0] },
     });
 
-    test.each(GraphData.invalidUserIds)("invalid %s", async id => {
-      const { data, errors } = await executeQuery({
-        variables: { id },
-      });
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    expect(data?.user).not.toBeFalsy();
+    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  });
 
-      expect(data?.user).toBeFalsy();
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("ParseError -> BadUserInput", async () => {
+    const { data, errors } = await executeQuery({
+      variables: { id: GraphData.invalidUserIds[0] },
     });
+
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+    expect(data?.user).toBeFalsy();
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
   });
 });
 

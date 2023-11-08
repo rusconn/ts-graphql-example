@@ -38,22 +38,10 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const allowedPatterns = [
-    [ContextData.admin, GraphData.admin.id, GraphData.adminTodo1.id],
-    [ContextData.alice, GraphData.alice.id, GraphData.aliceTodo.id],
-    [ContextData.admin, GraphData.alice.id, GraphData.aliceTodo.id],
-  ] as const;
-
-  const notAllowedPatterns = [
-    [ContextData.alice, GraphData.admin.id, GraphData.adminTodo1.id],
-    [ContextData.guest, GraphData.admin.id, GraphData.adminTodo1.id],
-    [ContextData.guest, GraphData.alice.id, GraphData.aliceTodo.id],
-  ] as const;
-
-  test.each(allowedPatterns)("allowed %o %s %s", async (user, id, todoId) => {
+  test("not AuthorizationError -> not Forbidden", async () => {
     const { errors } = await executeQuery({
-      user,
-      variables: { id, todoId },
+      user: ContextData.alice,
+      variables: { id: GraphData.alice.id, todoId: GraphData.aliceTodo.id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -61,10 +49,10 @@ describe("authorization", () => {
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowedPatterns)("not allowed %o %s %s", async (user, id, todoId) => {
+  test("AuthorizationError -> Forbidden", async () => {
     const { errors } = await executeQuery({
-      user,
-      variables: { id, todoId },
+      user: ContextData.alice,
+      variables: { id: GraphData.admin.id, todoId: GraphData.adminTodo1.id },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -74,26 +62,24 @@ describe("authorization", () => {
 });
 
 describe("validation", () => {
-  describe("$todoId", () => {
-    test.each(GraphData.validTodoIds)("valid %s", async todoId => {
-      const { errors } = await executeQuery({
-        variables: { id: GraphData.admin.id, todoId },
-      });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("not ParseError -> not BadUserInput", async () => {
+    const { errors } = await executeQuery({
+      variables: { id: GraphData.admin.id, todoId: GraphData.validTodoIds[0] },
     });
 
-    test.each(GraphData.invalidTodoIds)("invalid %s", async todoId => {
-      const { errors } = await executeQuery({
-        variables: { id: GraphData.admin.id, todoId },
-      });
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  });
 
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  test("ParseError -> BadUserInput", async () => {
+    const { errors } = await executeQuery({
+      variables: { id: GraphData.admin.id, todoId: GraphData.invalidTodoIds[0] },
     });
+
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
   });
 });
 

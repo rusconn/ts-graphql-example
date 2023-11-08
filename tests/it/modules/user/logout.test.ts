@@ -37,12 +37,9 @@ const resetUsers = async () => {
 beforeAll(resetUsers);
 
 describe("authorization", () => {
-  const alloweds = [ContextData.admin, ContextData.alice];
-  const notAlloweds = [ContextData.guest];
-
-  test.each(alloweds)("allowed %o", async user => {
+  test("not AuthorizationError -> not Forbidden", async () => {
     const { errors } = await executeMutation({
-      user,
+      user: ContextData.alice,
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -50,9 +47,9 @@ describe("authorization", () => {
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAlloweds)("not allowed %o", async user => {
+  test("AuthorizationError -> Forbidden", async () => {
     const { errors } = await executeMutation({
-      user,
+      user: ContextData.guest,
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
