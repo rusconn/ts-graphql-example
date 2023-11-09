@@ -1,7 +1,7 @@
-import type { CreateTodoMutation, CreateTodoMutationVariables } from "it/modules/schema";
-import { ContextData, DBData } from "it/data";
-import { clearTables } from "it/helpers";
-import { executeSingleResultOperation } from "it/server";
+import type { CreateTodoMutation, CreateTodoMutationVariables } from "tests/modules/schema";
+import { ContextData, DBData } from "tests/data";
+import { clearTables } from "tests/helpers";
+import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";

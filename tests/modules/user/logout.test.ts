@@ -1,7 +1,7 @@
-import type { LogoutMutation, LogoutMutationVariables } from "it/modules/schema";
-import { ContextData, DBData } from "it/data";
-import { clearUsers } from "it/helpers";
-import { executeSingleResultOperation } from "it/server";
+import type { LogoutMutation, LogoutMutationVariables } from "tests/modules/schema";
+import { ContextData, DBData } from "tests/data";
+import { clearUsers } from "tests/helpers";
+import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 

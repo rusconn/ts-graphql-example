@@ -9,7 +9,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "it/*": ["tests/it/*"]
+      "tests/*": ["tests/*"]
     },
     "isolatedModules": true,
     "esModuleInterop": true,

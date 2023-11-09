@@ -1,4 +1,4 @@
-import { admin, alice, guest } from "it/data/context";
+import { admin, alice, guest } from "tests/data/context";
 import { AuthorizationError as AuthErr } from "../common/authorizers";
 import { authorizers as auth } from "./authorizers";
 

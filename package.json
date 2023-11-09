@@ -23,7 +23,7 @@
     "test:ut": "NODE_ENV=test jest --silent src",
     "test:it": "NODE_ENV=test run-s test:it:*",
     "test:it:migrate": "DB_NAME=testdb pnpm migrate:reset",
-    "test:it:run": "DB_NAME=testdb jest -i --silent tests/it",
+    "test:it:run": "DB_NAME=testdb jest -i --silent tests",
     "check": "run-s check:*",
     "check:generate": "pnpm generate",
     "check:typecheck": "pnpm typecheck",

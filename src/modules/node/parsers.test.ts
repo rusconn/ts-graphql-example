@@ -1,4 +1,4 @@
-import { validNodeIds, invalidIds } from "it/data/graph";
+import { validNodeIds, invalidIds } from "tests/data/graph";
 import { ParseError as ParseErr } from "../common/parsers";
 import { parsers as parse } from "./parsers";
 

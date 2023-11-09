@@ -1,7 +1,7 @@
 import { parse } from "graphql";
 import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 
-import { ContextData } from "it/data";
+import { ContextData } from "tests/data";
 import type { UserContext } from "@/modules/common/resolvers";
 import { yoga } from "@/server";
 

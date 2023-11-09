@@ -1,5 +1,5 @@
-import { admin, alice, guest } from "it/data/context";
-import { adminTodo1 as adminTodo, aliceTodo } from "it/data/db";
+import { admin, alice, guest } from "tests/data/context";
+import { adminTodo1 as adminTodo, aliceTodo } from "tests/data/db";
 import { AuthorizationError as AuthErr } from "../common/authorizers";
 import { authorizers as auth } from "./authorizers";
 

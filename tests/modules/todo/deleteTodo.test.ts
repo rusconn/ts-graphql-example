@@ -1,32 +1,23 @@
-import omit from "lodash/omit";
-
-import type { UncompleteTodoMutation, UncompleteTodoMutationVariables } from "it/modules/schema";
-import { ContextData, DBData, GraphData } from "it/data";
-import { clearTables } from "it/helpers";
-import { executeSingleResultOperation } from "it/server";
+import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "tests/modules/schema";
+import { ContextData, DBData, GraphData } from "tests/data";
+import { clearTables, clearTodos } from "tests/helpers";
+import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
-import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
 const executeMutation = executeSingleResultOperation(/* GraphQL */ `
-  mutation UncompleteTodo($id: ID!) {
-    uncompleteTodo(id: $id) {
+  mutation DeleteTodo($id: ID!) {
+    deleteTodo(id: $id) {
       __typename
-      ... on UncompleteTodoSuccess {
-        todo {
-          id
-          updatedAt
-          title
-          description
-          status
-        }
+      ... on DeleteTodoSuccess {
+        id
       }
       ... on TodoNotFoundError {
         message
       }
     }
   }
-`)<UncompleteTodoMutation, UncompleteTodoMutationVariables>;
+`)<DeleteTodoMutation, DeleteTodoMutationVariables>;
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],
@@ -44,6 +35,11 @@ const seedData = {
   todos: () => prisma.todo.createMany({ data: testData.todos }),
 };
 
+const resetTodos = async () => {
+  await clearTodos();
+  await seedData.todos();
+};
+
 beforeAll(async () => {
   await clearTables();
   await seedData.users();
@@ -51,6 +47,8 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
+  beforeEach(resetTodos);
+
   test("not AuthorizationError -> not Forbidden", async () => {
     const { errors } = await executeMutation({
       user: ContextData.alice,
@@ -75,6 +73,8 @@ describe("authorization", () => {
 });
 
 describe("validation", () => {
+  beforeEach(resetTodos);
+
   test("not ParseError -> not BadUserInput", async () => {
     const { errors } = await executeMutation({
       variables: { id: GraphData.validTodoIds[0] },
@@ -97,27 +97,14 @@ describe("validation", () => {
 });
 
 describe("logic", () => {
-  beforeEach(async () => {
-    await prisma.todo.upsert({
-      where: { id: DBData.adminTodo1.id },
-      create: DBData.adminTodo1,
-      update: DBData.adminTodo1,
-    });
-
-    await prisma.todo.update({
-      where: { id: DBData.adminTodo1.id },
-      data: {
-        status: Prisma.TodoStatus.DONE,
-      },
-    });
-  });
+  beforeEach(resetTodos);
 
   test("not exists", async () => {
     const { data } = await executeMutation({
       variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
     });
 
-    expect(data?.uncompleteTodo?.__typename).toBe("TodoNotFoundError");
+    expect(data?.deleteTodo?.__typename).toBe("TodoNotFoundError");
   });
 
   test("exists, but not owned", async () => {
@@ -125,68 +112,39 @@ describe("logic", () => {
       variables: { id: GraphData.aliceTodo.id },
     });
 
-    expect(data?.uncompleteTodo?.__typename).toBe("TodoNotFoundError");
+    expect(data?.deleteTodo?.__typename).toBe("TodoNotFoundError");
   });
 
-  it("should update status", async () => {
-    const before = await prisma.todo.findUniqueOrThrow({
+  it("should delete todo", async () => {
+    const { data } = await executeMutation({
+      variables: { id: GraphData.adminTodo1.id },
+    });
+
+    expect(data?.deleteTodo?.__typename).toBe("DeleteTodoSuccess");
+
+    const todo = await prisma.todo.findUnique({
       where: { id: DBData.adminTodo1.id },
     });
+
+    expect(todo).toBeNull();
+  });
+
+  it("should not delete others", async () => {
+    const before = await prisma.todo.count();
 
     const { data } = await executeMutation({
       variables: { id: GraphData.adminTodo1.id },
     });
 
-    expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
+    expect(data?.deleteTodo?.__typename).toBe("DeleteTodoSuccess");
 
-    const after = await prisma.todo.findUniqueOrThrow({
+    const todo = await prisma.todo.findUnique({
       where: { id: DBData.adminTodo1.id },
     });
 
-    expect(before.status).toBe(Graph.TodoStatus.Done);
-    expect(after.status).toBe(Graph.TodoStatus.Pending);
-  });
+    const after = await prisma.todo.count();
 
-  it("should update updatedAt", async () => {
-    const before = await prisma.todo.findUniqueOrThrow({
-      where: { id: DBData.adminTodo1.id },
-    });
-
-    const { data } = await executeMutation({
-      variables: { id: GraphData.adminTodo1.id },
-    });
-
-    expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
-
-    const after = await prisma.todo.findUniqueOrThrow({
-      where: { id: DBData.adminTodo1.id },
-    });
-
-    const beforeUpdatedAt = before.updatedAt.getTime();
-    const afterUpdatedAt = after.updatedAt.getTime();
-
-    expect(afterUpdatedAt).toBeGreaterThan(beforeUpdatedAt);
-  });
-
-  it("should not update other attrs", async () => {
-    const before = await prisma.todo.findUniqueOrThrow({
-      where: { id: DBData.adminTodo1.id },
-    });
-
-    const { data } = await executeMutation({
-      variables: { id: GraphData.adminTodo1.id },
-    });
-
-    expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
-
-    const after = await prisma.todo.findUniqueOrThrow({
-      where: { id: DBData.adminTodo1.id },
-    });
-
-    // これらのフィールドは変化する想定
-    const beforeToCompare = omit(before, ["status", "updatedAt"]);
-    const afterToCompare = omit(after, ["status", "updatedAt"]);
-
-    expect(afterToCompare).toStrictEqual(beforeToCompare);
+    expect(todo).toBeNull();
+    expect(after).toBe(before - 1);
   });
 });

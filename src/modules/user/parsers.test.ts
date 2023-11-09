@@ -1,4 +1,4 @@
-import { validUserIds, invalidUserIds } from "it/data/graph";
+import { validUserIds, invalidUserIds } from "tests/data/graph";
 import { ParseError as ParseErr } from "../common/parsers";
 import * as Graph from "../common/schema";
 import { parsers as parse } from "./parsers";

@@ -7,4 +7,4 @@ dist
 # additional ignores
 pnpm-lock.yaml
 src/modules/common/schema.ts
-tests/it/modules/schema.ts
+tests/modules/schema.ts

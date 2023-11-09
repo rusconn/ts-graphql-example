@@ -65,8 +65,8 @@ const config: CodegenConfig = {
         ...typescriptResolvers,
       },
     },
-    "tests/it/modules/schema.ts": {
-      documents: "tests/it/modules/**/*.ts",
+    "tests/modules/schema.ts": {
+      documents: "tests/modules/**/*.ts",
       plugins: ["typescript", "typescript-operations"],
       config: {
         ...typescript,

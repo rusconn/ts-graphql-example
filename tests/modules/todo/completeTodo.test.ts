@@ -1,9 +1,9 @@
 import omit from "lodash/omit";
 
-import type { CompleteTodoMutation, CompleteTodoMutationVariables } from "it/modules/schema";
-import { ContextData, DBData, GraphData } from "it/data";
-import { clearTables } from "it/helpers";
-import { executeSingleResultOperation } from "it/server";
+import type { CompleteTodoMutation, CompleteTodoMutationVariables } from "tests/modules/schema";
+import { ContextData, DBData, GraphData } from "tests/data";
+import { clearTables } from "tests/helpers";
+import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
