@@ -7,7 +7,10 @@ import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 import { parseTodoNodeId } from "@/modules/todo/parsers";
 
-const executeMutation = executeSingleResultOperation(/* GraphQL */ `
+const executeMutation = executeSingleResultOperation<
+  CreateTodoMutation,
+  CreateTodoMutationVariables
+>(/* GraphQL */ `
   mutation CreateTodo($input: CreateTodoInput!) {
     createTodo(input: $input) {
       __typename
@@ -21,7 +24,7 @@ const executeMutation = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<CreateTodoMutation, CreateTodoMutationVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],

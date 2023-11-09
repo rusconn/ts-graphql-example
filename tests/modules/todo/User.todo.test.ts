@@ -5,7 +5,10 @@ import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
-const executeQuery = executeSingleResultOperation(/* GraphQL */ `
+const executeQuery = executeSingleResultOperation<
+  UserTodoQuery,
+  UserTodoQueryVariables
+>(/* GraphQL */ `
   query UserTodo($id: ID!, $todoId: ID!) {
     node(id: $id) {
       __typename
@@ -19,7 +22,7 @@ const executeQuery = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<UserTodoQuery, UserTodoQueryVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],
@@ -115,12 +118,12 @@ describe("logic", () => {
   });
 
   describe("exists, but not owned", () => {
-    const notOwnedPatterns = [
+    const patterns = [
       [ContextData.admin, GraphData.admin.id, GraphData.aliceTodo.id],
       [ContextData.alice, GraphData.alice.id, GraphData.adminTodo1.id],
     ] as const;
 
-    test.each(notOwnedPatterns)("%o %s %s", async (user, id, todoId) => {
+    test.each(patterns)("%o %s %s", async (user, id, todoId) => {
       const { data, errors } = await executeQuery({
         user,
         variables: { id, todoId },

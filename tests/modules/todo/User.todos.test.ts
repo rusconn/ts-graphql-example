@@ -5,7 +5,10 @@ import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
-const executeQuery = executeSingleResultOperation(/* GraphQL */ `
+const executeQuery = executeSingleResultOperation<
+  UserTodosQuery,
+  UserTodosQueryVariables
+>(/* GraphQL */ `
   query UserTodos(
     $id: ID!
     $first: Int
@@ -35,7 +38,7 @@ const executeQuery = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<UserTodosQuery, UserTodosQueryVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],

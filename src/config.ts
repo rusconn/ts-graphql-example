@@ -17,15 +17,12 @@ const passwordHashRoundsExponent = Number(PASSWORD_HASH_ROUNDS_EXPONENT ?? "10")
 if (Number.isNaN(port)) {
   throw new Error("Invalid PORT");
 }
-
 if (Number.isNaN(maxDepth)) {
   throw new Error("Invalid MAX_DEPTH");
 }
-
 if (Number.isNaN(maxCost)) {
   throw new Error("Invalid MAX_COST");
 }
-
 if (
   Number.isNaN(passwordHashRoundsExponent) ||
   passwordHashRoundsExponent < 10 ||
@@ -33,7 +30,6 @@ if (
 ) {
   throw new Error("Invalid PASSWORD_HASH_ROUNDS_EXPONENT");
 }
-
 if (!NODE_ENV || !isValidNodeEnv(NODE_ENV)) {
   throw new Error("Invalid NODE_ENV");
 }

@@ -8,7 +8,10 @@ import { prisma } from "@/prisma";
 import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
-const executeMutation = executeSingleResultOperation(/* GraphQL */ `
+const executeMutation = executeSingleResultOperation<
+  UncompleteTodoMutation,
+  UncompleteTodoMutationVariables
+>(/* GraphQL */ `
   mutation UncompleteTodo($id: ID!) {
     uncompleteTodo(id: $id) {
       __typename
@@ -26,7 +29,7 @@ const executeMutation = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<UncompleteTodoMutation, UncompleteTodoMutationVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],

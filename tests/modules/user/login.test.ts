@@ -5,7 +5,10 @@ import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
-const executeMutation = executeSingleResultOperation(/* GraphQL */ `
+const executeMutation = executeSingleResultOperation<
+  LoginMutation,
+  LoginMutationVariables
+>(/* GraphQL */ `
   mutation Login($input: LoginInput!) {
     login(input: $input) {
       __typename
@@ -22,7 +25,7 @@ const executeMutation = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<LoginMutation, LoginMutationVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],

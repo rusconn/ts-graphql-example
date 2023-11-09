@@ -6,7 +6,10 @@ import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 import { parseUserNodeId } from "@/modules/user/parsers";
 
-const executeMutation = executeSingleResultOperation(/* GraphQL */ `
+const executeMutation = executeSingleResultOperation<
+  DeleteMeMutation,
+  DeleteMeMutationVariables
+>(/* GraphQL */ `
   mutation DeleteMe {
     deleteMe {
       __typename
@@ -15,7 +18,7 @@ const executeMutation = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<DeleteMeMutation, DeleteMeMutationVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],

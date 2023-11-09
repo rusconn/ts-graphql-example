@@ -7,7 +7,10 @@ import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
-const executeMutation = executeSingleResultOperation(/* GraphQL */ `
+const executeMutation = executeSingleResultOperation<
+  CompleteTodoMutation,
+  CompleteTodoMutationVariables
+>(/* GraphQL */ `
   mutation CompleteTodo($id: ID!) {
     completeTodo(id: $id) {
       __typename
@@ -25,7 +28,7 @@ const executeMutation = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<CompleteTodoMutation, CompleteTodoMutationVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],

@@ -5,7 +5,7 @@ import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
-const executeQuery = executeSingleResultOperation(/* GraphQL */ `
+const executeQuery = executeSingleResultOperation<UsersQuery, UsersQueryVariables>(/* GraphQL */ `
   query Users($first: Int, $after: String, $last: Int, $before: String, $orderBy: UserOrder) {
     users(first: $first, last: $last, after: $after, before: $before, orderBy: $orderBy) {
       totalCount
@@ -23,7 +23,7 @@ const executeQuery = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<UsersQuery, UsersQueryVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],

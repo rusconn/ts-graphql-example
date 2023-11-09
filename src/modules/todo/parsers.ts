@@ -8,14 +8,11 @@ export const parseTodoNodeId = parseSomeNodeId(nodeType);
 export const parsers = {
   Mutation: {
     createTodo: (args: Graph.MutationCreateTodoArgs) => {
-      const {
-        input: { title, description },
-      } = args;
+      const { title, description } = args.input;
 
       if ([...title].length > 100) {
         throw new ParseError("`title` must be up to 100 characters");
       }
-
       if ([...description].length > 5000) {
         throw new ParseError("`description` must be up to 5000 characters");
       }
@@ -23,29 +20,23 @@ export const parsers = {
       return { title, description };
     },
     updateTodo: (args: Graph.MutationUpdateTodoArgs) => {
-      const {
-        id,
-        input: { title, description, status },
-      } = args;
+      const { id, input } = args;
+      const { title, description, status } = input;
 
       const idToUse = parseTodoNodeId(id);
 
       if (title === null) {
         throw new ParseError("`title` must be not null");
       }
-
       if (description === null) {
         throw new ParseError("`description` must be not null");
       }
-
       if (status === null) {
         throw new ParseError("`status` must be not null");
       }
-
       if (title && [...title].length > 100) {
         throw new ParseError("`title` must be up to 100 characters");
       }
-
       if (description && [...description].length > 5000) {
         throw new ParseError("`description` must be up to 5000 characters");
       }
@@ -74,11 +65,9 @@ export const parsers = {
       if (first == null && last == null) {
         throw new ParseError("`first` or `last` value required");
       }
-
       if (first && first > 50) {
         throw new ParseError("`first` must be up to 50");
       }
-
       if (last && last > 50) {
         throw new ParseError("`last` must be up to 50");
       }
@@ -95,13 +84,7 @@ export const parsers = {
           ? [{ createdAt: directionToUse }, { id: directionToUse }]
           : [{ updatedAt: directionToUse }, { id: directionToUse }];
 
-      return {
-        first: firstToUse,
-        last,
-        before,
-        after,
-        orderBy: orderByToUse,
-      };
+      return { first: firstToUse, last, before, after, orderBy: orderByToUse };
     },
   },
 };

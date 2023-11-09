@@ -5,7 +5,10 @@ import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
-const executeQuery = executeSingleResultOperation(/* GraphQL */ `
+const executeQuery = executeSingleResultOperation<
+  UserNodeQuery,
+  UserNodeQueryVariables
+>(/* GraphQL */ `
   query UserNode($id: ID!, $includeToken: Boolean = false) {
     node(id: $id) {
       __typename
@@ -19,7 +22,7 @@ const executeQuery = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<UserNodeQuery, UserNodeQueryVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],
@@ -35,20 +38,20 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const allowedPatterns = [
+  const allow = [
     [ContextData.admin, GraphData.admin.id, { includeToken: true }],
     [ContextData.alice, GraphData.alice.id, { includeToken: true }],
     [ContextData.admin, GraphData.alice.id, {}],
   ] as const;
 
-  const notAllowedPatterns = [
+  const deny = [
     [ContextData.admin, GraphData.alice.id, { includeToken: true }],
     [ContextData.alice, GraphData.admin.id, {}],
     [ContextData.guest, GraphData.admin.id, {}],
     [ContextData.guest, GraphData.alice.id, {}],
   ] as const;
 
-  test.each(allowedPatterns)("allowed %o %s %o", async (user, id, options) => {
+  test.each(allow)("allowed %o %s %o", async (user, id, options) => {
     const { errors } = await executeQuery({
       user,
       variables: { id, ...options },
@@ -59,7 +62,7 @@ describe("authorization", () => {
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowedPatterns)("not allowed %o %s %o", async (user, id, options) => {
+  test.each(deny)("not allowed %o %s %o", async (user, id, options) => {
     const { errors } = await executeQuery({
       user,
       variables: { id, ...options },

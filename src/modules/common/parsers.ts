@@ -39,26 +39,21 @@ export const parseConnectionArgs = ({ first, last, before, after }: ConnectionAr
   if (first != null && last != null) {
     throw new ParseError('Only one of "first" and "last" can be set');
   }
-
   if (after != null && before != null) {
     throw new ParseError('Only one of "after" and "before" can be set');
   }
-
   // If `after` is set, `first` has to be set
   if (after != null && first == null) {
     throw new ParseError('"after" needs to be used with "first"');
   }
-
   // If `before` is set, `last` has to be set
   if (before != null && last == null) {
     throw new ParseError('"before" needs to be used with "last"');
   }
-
   // `first` and `last` have to be positive
   if (first != null && first <= 0) {
     throw new ParseError('"first" has to be positive');
   }
-
   if (last != null && last <= 0) {
     throw new ParseError('"last" has to be positive');
   }

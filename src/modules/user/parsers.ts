@@ -15,11 +15,9 @@ export const parsers = {
       if (first == null && last == null) {
         throw new ParseError("`first` or `last` value required");
       }
-
       if (first && first > 30) {
         throw new ParseError("`first` must be up to 30");
       }
-
       if (last && last > 30) {
         throw new ParseError("`last` must be up to 30");
       }
@@ -36,13 +34,7 @@ export const parsers = {
           ? [{ updatedAt: directionToUse }, { id: directionToUse }]
           : [{ createdAt: directionToUse }, { id: directionToUse }];
 
-      return {
-        first: firstToUse,
-        last,
-        before,
-        after,
-        orderBy: orderByToUse,
-      };
+      return { first: firstToUse, last, before, after, orderBy: orderByToUse };
     },
     user: ({ id }: Graph.QueryUserArgs) => {
       return { id: parseUserNodeId(id) };
@@ -55,15 +47,12 @@ export const parsers = {
       if ([...name].length > 100) {
         throw new ParseError("`name` must be up to 100 characteres");
       }
-
       if ([...email].length > 100) {
         throw new ParseError("`email` must be up to 100 characteres");
       }
-
       if ([...password].length < 8) {
         throw new ParseError("`password` must be at least 8 characteres");
       }
-
       if ([...password].length > 50) {
         throw new ParseError("`password` must be up to 50 characteres");
       }
@@ -76,11 +65,9 @@ export const parsers = {
       if ([...email].length > 100) {
         throw new ParseError("`email` must be up to 100 characteres");
       }
-
       if ([...password].length < 8) {
         throw new ParseError("`password` must be at least 8 characteres");
       }
-
       if ([...password].length > 50) {
         throw new ParseError("`password` must be up to 50 characteres");
       }
@@ -88,34 +75,26 @@ export const parsers = {
       return { email, password };
     },
     updateMe: (args: Graph.MutationUpdateMeArgs) => {
-      const {
-        input: { name, email, password },
-      } = args;
+      const { name, email, password } = args.input;
 
       if (name === null) {
         throw new ParseError("`name` must be not null");
       }
-
       if (name && [...name].length > 100) {
         throw new ParseError("`name` must be up to 100 characteres");
       }
-
       if (email === null) {
         throw new ParseError("`email` must be not null");
       }
-
       if (email && [...email].length > 100) {
         throw new ParseError("`email` must be up to 100 characteres");
       }
-
       if (password === null) {
         throw new ParseError("`password` must be not null");
       }
-
       if (password && [...password].length < 8) {
         throw new ParseError("`password` must be at least 8 characteres");
       }
-
       if (password && [...password].length > 50) {
         throw new ParseError("`password` must be up to 50 characteres");
       }

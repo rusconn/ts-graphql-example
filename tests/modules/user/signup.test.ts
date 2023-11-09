@@ -7,7 +7,10 @@ import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 import { parseUserNodeId } from "@/modules/user/parsers";
 
-const executeMutation = executeSingleResultOperation(/* GraphQL */ `
+const executeMutation = executeSingleResultOperation<
+  SignupMutation,
+  SignupMutationVariables
+>(/* GraphQL */ `
   mutation Signup($input: SignupInput!) {
     signup(input: $input) {
       __typename
@@ -19,7 +22,7 @@ const executeMutation = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<SignupMutation, SignupMutationVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],

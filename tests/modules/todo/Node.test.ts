@@ -5,7 +5,10 @@ import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
-const executeQuery = executeSingleResultOperation(/* GraphQL */ `
+const executeQuery = executeSingleResultOperation<
+  TodoNodeQuery,
+  TodoNodeQueryVariables
+>(/* GraphQL */ `
   query TodoNode(
     $id: ID!
     $includeTitle: Boolean = false
@@ -27,7 +30,7 @@ const executeQuery = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<TodoNodeQuery, TodoNodeQueryVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],
@@ -46,7 +49,7 @@ beforeAll(async () => {
 });
 
 describe("authorization", () => {
-  const allowedPatterns = [
+  const allow = [
     [ContextData.admin, GraphData.adminTodo1.id, { includeTitle: true }],
     [ContextData.admin, GraphData.adminTodo1.id, { includeDescription: true }],
     [ContextData.admin, GraphData.adminTodo1.id, { includeStatus: true }],
@@ -56,7 +59,7 @@ describe("authorization", () => {
     [ContextData.admin, GraphData.aliceTodo.id, {}],
   ] as const;
 
-  const notAllowedPatterns = [
+  const deny = [
     [ContextData.alice, GraphData.adminTodo1.id, {}],
     [ContextData.guest, GraphData.adminTodo1.id, {}],
     [ContextData.guest, GraphData.aliceTodo.id, {}],
@@ -65,7 +68,7 @@ describe("authorization", () => {
     [ContextData.admin, GraphData.aliceTodo.id, { includeStatus: true }],
   ] as const;
 
-  test.each(allowedPatterns)("allowed %o %s %o", async (user, id, options) => {
+  test.each(allow)("allowed %o %s %o", async (user, id, options) => {
     const { errors } = await executeQuery({
       user,
       variables: { id, ...options },
@@ -76,7 +79,7 @@ describe("authorization", () => {
     expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
   });
 
-  test.each(notAllowedPatterns)("not allowed %o %s %o", async (user, id, options) => {
+  test.each(deny)("not allowed %o %s %o", async (user, id, options) => {
     const { errors } = await executeQuery({
       user,
       variables: { id, ...options },

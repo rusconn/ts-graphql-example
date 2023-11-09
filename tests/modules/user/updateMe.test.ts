@@ -7,7 +7,10 @@ import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
-const executeMutation = executeSingleResultOperation(/* GraphQL */ `
+const executeMutation = executeSingleResultOperation<
+  UpdateMeMutation,
+  UpdateMeMutationVariables
+>(/* GraphQL */ `
   mutation UpdateMe($input: UpdateMeInput!) {
     updateMe(input: $input) {
       __typename
@@ -24,7 +27,7 @@ const executeMutation = executeSingleResultOperation(/* GraphQL */ `
       }
     }
   }
-`)<UpdateMeMutation, UpdateMeMutationVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],

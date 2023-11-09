@@ -5,13 +5,13 @@ import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
 
-const executeQuery = executeSingleResultOperation(/* GraphQL */ `
+const executeQuery = executeSingleResultOperation<MeQuery, MeQueryVariables>(/* GraphQL */ `
   query Me {
     me {
       id
     }
   }
-`)<MeQuery, MeQueryVariables>;
+`);
 
 const testData = {
   users: [DBData.admin, DBData.alice, DBData.bob],
