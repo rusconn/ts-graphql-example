@@ -103,36 +103,6 @@ export type NodeQueryVariables = Exact<{
 
 export type NodeQuery = { node?: { id: string } | { id: string } | null };
 
-export type TodoNodeQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-  includeTitle?: InputMaybe<Scalars['Boolean']['input']>;
-  includeDescription?: InputMaybe<Scalars['Boolean']['input']>;
-  includeStatus?: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-export type TodoNodeQuery = { node?: { __typename: 'Todo', createdAt?: Date | null, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null, id: string, user?: { id: string } | null } | { __typename: 'User', id: string } | null };
-
-export type UserTodoQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-  todoId: Scalars['ID']['input'];
-}>;
-
-
-export type UserTodoQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todo?: { id: string, user?: { id: string } | null } | null } | null };
-
-export type UserTodosQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-  first?: InputMaybe<Scalars['Int']['input']>;
-  after?: InputMaybe<Scalars['String']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  orderBy?: InputMaybe<TodoOrder>;
-}>;
-
-
-export type UserTodosQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string } }> } | null } | null };
-
 export type CompleteTodoMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -169,13 +139,74 @@ export type UpdateTodoMutationVariables = Exact<{
 
 export type UpdateTodoMutation = { updateTodo?: { __typename: 'TodoNotFoundError', message: string } | { __typename: 'UpdateTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
 
-export type UserNodeQueryVariables = Exact<{
+export type TodoCreatedAtQueryVariables = Exact<{
   id: Scalars['ID']['input'];
-  includeToken?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-export type UserNodeQuery = { node?: { __typename: 'Todo', id: string } | { __typename: 'User', createdAt?: Date | null, updatedAt?: Date | null, name?: string | null, email?: string | null, token?: string | null, id: string } | null };
+export type TodoCreatedAtQuery = { node?: { __typename: 'Todo', createdAt?: Date | null } | { __typename: 'User' } | null };
+
+export type TodoDescriptionQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TodoDescriptionQuery = { node?: { __typename: 'Todo', description?: string | null } | { __typename: 'User' } | null };
+
+export type TodoIdQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TodoIdQuery = { node?: { __typename: 'Todo', id: string } | { __typename: 'User', id: string } | null };
+
+export type TodoStatusQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TodoStatusQuery = { node?: { __typename: 'Todo', status?: TodoStatus | null } | { __typename: 'User' } | null };
+
+export type TodoTitleQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TodoTitleQuery = { node?: { __typename: 'Todo', title?: string | null } | { __typename: 'User' } | null };
+
+export type TodoUpdatedAtQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TodoUpdatedAtQuery = { node?: { __typename: 'Todo', updatedAt?: Date | null } | { __typename: 'User' } | null };
+
+export type TodoUserQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TodoUserQuery = { node?: { __typename: 'Todo', user?: { id: string } | null } | { __typename: 'User' } | null };
+
+export type UserTodoQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  todoId: Scalars['ID']['input'];
+}>;
+
+
+export type UserTodoQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todo?: { id: string, user?: { id: string } | null } | null } | null };
+
+export type UserTodosQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  orderBy?: InputMaybe<TodoOrder>;
+}>;
+
+
+export type UserTodosQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todos?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string } }> } | null } | null };
 
 export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -194,11 +225,6 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 export type LogoutMutation = { logout?: { __typename: 'LogoutSuccess', user: { id: string, name?: string | null, email?: string | null, token?: string | null } } | null };
 
-export type MeQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type MeQuery = { me?: { id: string } | null };
-
 export type SignupMutationVariables = Exact<{
   input: SignupInput;
 }>;
@@ -212,6 +238,11 @@ export type UpdateMeMutationVariables = Exact<{
 
 
 export type UpdateMeMutation = { updateMe?: { __typename: 'EmailAlreadyTakenError', message: string } | { __typename: 'UpdateMeSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } } | null };
+
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = { me?: { id: string } | null };
 
 export type UserQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -230,3 +261,45 @@ export type UsersQueryVariables = Exact<{
 
 
 export type UsersQuery = { users?: { totalCount: number, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string, node: { id: string } }> } | null };
+
+export type UserCreatedAtQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type UserCreatedAtQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', createdAt?: Date | null } | null };
+
+export type UserEmailQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type UserEmailQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', email?: string | null } | null };
+
+export type UserIdQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type UserIdQuery = { node?: { __typename: 'Todo', id: string } | { __typename: 'User', id: string } | null };
+
+export type UserNameQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type UserNameQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', name?: string | null } | null };
+
+export type UserTokenQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type UserTokenQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', token?: string | null } | null };
+
+export type UserUpdatedAtQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type UserUpdatedAtQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', updatedAt?: Date | null } | null };
