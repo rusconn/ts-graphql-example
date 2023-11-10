@@ -1,3 +1,5 @@
+import { describe, test, expect, beforeAll } from "vitest";
+
 import type { NodeQuery, NodeQueryVariables } from "tests/modules/schema";
 import { ContextData, DBData, GraphData } from "tests/data";
 import { clearTables } from "tests/helpers";

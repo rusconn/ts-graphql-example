@@ -1,3 +1,5 @@
+import { describe, test, expect } from "vitest";
+
 import { admin, alice, guest } from "tests/data/context";
 import { AuthorizationError as AuthErr } from "../common/authorizers";
 import { authorizers as auth } from "./authorizers";

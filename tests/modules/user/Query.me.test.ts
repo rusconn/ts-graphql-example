@@ -1,3 +1,5 @@
+import { describe, test, expect, beforeAll } from "vitest";
+
 import type { MeQuery, MeQueryVariables } from "tests/modules/schema";
 import { ContextData, DBData } from "tests/data";
 import { clearUsers } from "tests/helpers";

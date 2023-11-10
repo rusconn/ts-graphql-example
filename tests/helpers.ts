@@ -12,3 +12,7 @@ export const clearTodos = async () => {
 export const clearUsers = async () => {
   await prisma.user.deleteMany();
 };
+
+export function fail(): never {
+  throw new Error();
+}

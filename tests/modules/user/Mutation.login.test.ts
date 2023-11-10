@@ -1,3 +1,5 @@
+import { describe, test, expect, beforeAll, beforeEach } from "vitest";
+
 import type { LoginMutation, LoginMutationVariables } from "tests/modules/schema";
 import { ContextData, DBData } from "tests/data";
 import { clearUsers } from "tests/helpers";

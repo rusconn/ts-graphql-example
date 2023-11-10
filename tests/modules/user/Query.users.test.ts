@@ -1,3 +1,5 @@
+import { describe, test, it, expect, beforeAll } from "vitest";
+
 import type { UsersQuery, UsersQueryVariables } from "tests/modules/schema";
 import { ContextData, DBData, GraphData } from "tests/data";
 import { clearUsers } from "tests/helpers";

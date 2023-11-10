@@ -1,4 +1,5 @@
 import { omit } from "remeda";
+import { describe, test, it, expect, beforeAll, beforeEach } from "vitest";
 
 import type { CompleteTodoMutation, CompleteTodoMutationVariables } from "tests/modules/schema";
 import { ContextData, DBData, GraphData } from "tests/data";
@@ -99,13 +100,13 @@ describe("validation", () => {
 });
 
 describe("logic", () => {
-  beforeEach(() =>
-    prisma.todo.upsert({
+  beforeEach(async () => {
+    await prisma.todo.upsert({
       where: { id: DBData.adminTodo1.id },
       create: DBData.adminTodo1,
       update: DBData.adminTodo1,
-    })
-  );
+    });
+  });
 
   test("not exists", async () => {
     const { data } = await executeMutation({

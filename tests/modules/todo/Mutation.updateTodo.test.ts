@@ -1,4 +1,5 @@
 import { omit } from "remeda";
+import { describe, test, it, expect, beforeAll, beforeEach } from "vitest";
 
 import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "tests/modules/schema";
 import { ContextData, DBData, GraphData } from "tests/data";
@@ -137,13 +138,13 @@ describe("validation", () => {
 });
 
 describe("logic", () => {
-  beforeEach(() =>
-    prisma.todo.upsert({
+  beforeEach(async () => {
+    await prisma.todo.upsert({
       where: { id: DBData.adminTodo1.id },
       create: DBData.adminTodo1,
       update: DBData.adminTodo1,
-    })
-  );
+    });
+  });
 
   const input = {
     title: "bar",

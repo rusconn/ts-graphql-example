@@ -1,6 +1,8 @@
+import { describe, test, it, expect, beforeAll, beforeEach } from "vitest";
+
 import type { SignupMutation, SignupMutationVariables } from "tests/modules/schema";
 import { ContextData, DBData } from "tests/data";
-import { clearUsers } from "tests/helpers";
+import { clearUsers, fail } from "tests/helpers";
 import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Prisma from "@/prisma";
