@@ -31,14 +31,14 @@ export const prisma = basePrisma.$extends({
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           switch (e.code) {
             case "P2000":
-              throw new Errors.InputTooLongError(e);
+              throw new Errors.InputTooLongError(e.message, { cause: e });
             case "P2001":
             case "P2025":
-              throw new Errors.NotExistsError(e);
+              throw new Errors.NotExistsError(e.message, { cause: e });
             case "P2002":
-              throw new Errors.NotUniqueError(e);
+              throw new Errors.NotUniqueError(e.message, { cause: e });
             default:
-              throw new Errors.PrismaError(e);
+              throw new Errors.PrismaError(e.message, { cause: e });
           }
         }
 

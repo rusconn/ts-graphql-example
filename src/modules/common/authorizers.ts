@@ -1,8 +1,13 @@
-import ExtensibleCustomError from "extensible-custom-error";
-
 import type { ContextUser } from "./resolvers";
 
-export class AuthorizationError extends ExtensibleCustomError {}
+export class AuthorizationError extends Error {
+  override readonly name = "AuthorizationError" as const;
+
+  constructor(message?: string, options?: { cause?: Error }) {
+    super(message, options);
+    this.cause = options?.cause;
+  }
+}
 
 export const allow = (user: ContextUser) => user;
 

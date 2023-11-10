@@ -1,10 +1,16 @@
 import type { ConnectionArguments } from "@devoxa/prisma-relay-cursor-connection";
-import ExtensibleCustomError from "extensible-custom-error";
 
 import type * as Graph from "./schema";
 import { NodeType, nodeTypes, typeIdSep } from "./typeDefs";
 
-export class ParseError extends ExtensibleCustomError {}
+export class ParseError extends Error {
+  override readonly name = "ParseError" as const;
+
+  constructor(message: string, options?: { cause?: Error }) {
+    super(message, options);
+    this.cause = options?.cause;
+  }
+}
 
 export const parseSomeNodeId =
   <T extends NodeType>(nodeType: T) =>

@@ -22,9 +22,6 @@ dependencies:
   bcrypt:
     specifier: ^5.1.1
     version: 5.1.1
-  extensible-custom-error:
-    specifier: ^0.0.7
-    version: 0.0.7
   graphql:
     specifier: ^16.8.1
     version: 16.8.1
@@ -4249,10 +4246,6 @@ packages:
       ext-list: 2.2.2
       sort-keys-length: 1.0.1
     dev: true
-
-  /extensible-custom-error@0.0.7:
-    resolution: {integrity: sha512-1tgubPkgC+Qi2nUpulI7hGddHh0fA8hXu3P0LBUq2pamZL52KSJZqMu8Q3CiA6kf7Irn/CU1fJe6y4igHCwu4Q==}
-    dev: false
 
   /external-editor@3.1.0:
     resolution: {integrity: sha512-hMQ4CX1p1izmuLYyZqLMO/qGNw10wSv9QDCPfzXfyFrOaCSSoRfqE1Kf1s5an66J5JZC62NewG+mK49jOCtQew==}
