@@ -1,4 +1,4 @@
-import omit from "lodash/omit";
+import { omit } from "remeda";
 
 import type { UpdateMeMutation, UpdateMeMutationVariables } from "tests/modules/schema";
 import { ContextData, DBData } from "tests/data";

@@ -1,4 +1,4 @@
-import omit from "lodash/omit";
+import { omit } from "remeda";
 
 import type { UncompleteTodoMutation, UncompleteTodoMutationVariables } from "tests/modules/schema";
 import { ContextData, DBData, GraphData } from "tests/data";

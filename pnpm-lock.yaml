@@ -78,9 +78,6 @@ devDependencies:
   '@types/jest':
     specifier: ^29.5.2
     version: 29.5.2
-  '@types/lodash':
-    specifier: ^4.14.178
-    version: 4.14.178
   '@typescript-eslint/eslint-plugin':
     specifier: ^5.30.6
     version: 5.30.6(@typescript-eslint/parser@5.30.6)(eslint@8.20.0)(typescript@4.7.4)
@@ -114,9 +111,6 @@ devDependencies:
   lint-staged:
     specifier: '>=13.0.3'
     version: 13.0.3
-  lodash:
-    specifier: ^4.17.21
-    version: 4.17.21
   nodemon:
     specifier: ^2.0.20
     version: 2.0.20
@@ -129,6 +123,9 @@ devDependencies:
   prettier:
     specifier: 2.7.1
     version: 2.7.1
+  remeda:
+    specifier: ^1.29.0
+    version: 1.29.0
   type-fest:
     specifier: ^4.2.0
     version: 4.2.0
@@ -2563,10 +2560,6 @@ packages:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
       '@types/node': 20.3.0
-    dev: true
-
-  /@types/lodash@4.14.178:
-    resolution: {integrity: sha512-0d5Wd09ItQWH1qFbEyQ7oTQ3GZrMfth5JkbN3EvTKLXcHLRDSXeLnlvlOn0wvxVIwK5o2M8JzP/OWz7T3NRsbw==}
     dev: true
 
   /@types/node@20.3.0:
@@ -6784,6 +6777,10 @@ packages:
       invariant: 2.2.4
     transitivePeerDependencies:
       - encoding
+    dev: true
+
+  /remeda@1.29.0:
+    resolution: {integrity: sha512-M3LQ14KtMdQ1879lj/kKji3zBk158s7Rwg963mEkTfQFMxnKrIEAMxJfo/+0sp/+uGgN/KMVU2MBA4LNjqf8YQ==}
     dev: true
 
   /remedial@1.0.8:
