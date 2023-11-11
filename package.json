@@ -20,7 +20,7 @@
     "codegen": "graphql-codegen",
     "studio": "pnpm prisma studio",
     "test": "pnpm test:ut && pnpm test:it",
-    "test:ut": "NODE_ENV=test vitest --run --silent --dir src",
+    "test:ut": "NODE_ENV=test vitest --run --silent --single-thread --dir src",
     "test:it": "NODE_ENV=test run-s test:it:*",
     "test:it:migrate": "DB_NAME=testdb pnpm migrate:reset",
     "test:it:run": "DB_NAME=testdb vitest --run --silent --single-thread --dir tests",

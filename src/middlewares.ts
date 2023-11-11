@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql";
 import type { IMiddleware } from "graphql-middleware";
 
 import * as Prisma from "@/prisma";
-import * as Graph from "@/modules/common/schema";
+import { ErrorCode } from "@/modules/common/schema";
 import { AuthorizationError } from "@/modules/common/authorizers";
 import { ParseError } from "@/modules/common/parsers";
 
@@ -14,21 +14,21 @@ const errorHandling: IMiddleware = async (resolve, root, args, context, info) =>
     if (thrown instanceof AuthorizationError) {
       return new GraphQLError("Forbidden", {
         originalError: thrown,
-        extensions: { code: Graph.ErrorCode.Forbidden },
+        extensions: { code: ErrorCode.Forbidden },
       });
     }
 
     if (thrown instanceof ParseError) {
       return new GraphQLError(thrown.message, {
         originalError: thrown,
-        extensions: { code: Graph.ErrorCode.BadUserInput },
+        extensions: { code: ErrorCode.BadUserInput },
       });
     }
 
     if (thrown instanceof Prisma.NotExistsError) {
       return new GraphQLError("Not found", {
         originalError: thrown,
-        extensions: { code: Graph.ErrorCode.NotFound },
+        extensions: { code: ErrorCode.NotFound },
       });
     }
 
@@ -40,14 +40,14 @@ const errorHandling: IMiddleware = async (resolve, root, args, context, info) =>
     if (thrown instanceof Error) {
       return new GraphQLError("Internal server error", {
         originalError: thrown,
-        extensions: { code: Graph.ErrorCode.InternalServerError },
+        extensions: { code: ErrorCode.InternalServerError },
       });
     }
 
     // エラーでは無いものが投げられた
     return new GraphQLError("Internal server error", {
       originalError: new Error(JSON.stringify(thrown)),
-      extensions: { code: Graph.ErrorCode.InternalServerError },
+      extensions: { code: ErrorCode.InternalServerError },
     });
   }
 };

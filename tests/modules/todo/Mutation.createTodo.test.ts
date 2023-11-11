@@ -7,7 +7,7 @@ import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Prisma from "@/prisma";
 import * as Graph from "@/modules/common/schema";
-import { parseTodoNodeId } from "@/modules/todo/parsers";
+import { parseTodoNodeId } from "@/modules/todo/common/parser";
 
 const executeMutation = executeSingleResultOperation<
   CreateTodoMutation,

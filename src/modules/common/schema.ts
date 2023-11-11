@@ -1,11 +1,11 @@
-import type { ID } from '@/modules/scalar/adapters';
-import type { DateTime } from '@/modules/scalar/parsers';
-import type { EmailAddress } from '@/modules/scalar/parsers';
-import type { NonEmptyString } from '@/modules/scalar/parsers';
+import type { ID } from '@/modules/scalar';
+import type { DateTime } from '@/modules/scalar';
+import type { EmailAddress } from '@/modules/scalar';
+import type { NonEmptyString } from '@/modules/scalar';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import type { Node as NodeMapper } from '@/modules/node/resolvers';
-import type { User as UserMapper } from '@/modules/user/resolvers';
-import type { Todo as TodoMapper } from '@/modules/todo/resolvers';
+import type { Node as NodeMapper } from '@/modules/node/common/resolver';
+import type { Todo as TodoMapper } from '@/modules/todo/common/resolver';
+import type { User as UserMapper } from '@/modules/user/common/resolver';
 import type { Context } from '@/modules/common/resolvers';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;

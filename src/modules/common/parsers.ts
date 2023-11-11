@@ -1,6 +1,6 @@
 import type { ConnectionArguments } from "@devoxa/prisma-relay-cursor-connection";
 
-import type * as Graph from "./schema";
+import type { Scalars } from "./schema";
 import { NodeType, nodeTypes, typeIdSep } from "./typeDefs";
 
 export class ParseError extends Error {
@@ -14,7 +14,7 @@ export class ParseError extends Error {
 
 export const parseSomeNodeId =
   <T extends NodeType>(nodeType: T) =>
-  (nodeId: Graph.Scalars["ID"]["input"]) => {
+  (nodeId: Scalars["ID"]["input"]) => {
     const { type, id } = parseNodeId(nodeId);
 
     if (type !== nodeType) {
@@ -24,7 +24,7 @@ export const parseSomeNodeId =
     return id;
   };
 
-export const parseNodeId = (nodeId: Graph.Scalars["ID"]["input"]) => {
+export const parseNodeId = (nodeId: Scalars["ID"]["input"]) => {
   const [type, id, ...rest] = nodeId.split(typeIdSep);
 
   if (!isValidNodeType(type) || id == null || id === "" || rest.length !== 0) {

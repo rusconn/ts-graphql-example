@@ -1,4 +1,4 @@
-import type { ID } from "../scalar/adapters";
+import type { ID } from "../scalar";
 import { NodeType, typeIdSep } from "./typeDefs";
 
 export const nodeId =

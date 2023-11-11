@@ -9,7 +9,7 @@ import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspect
 import { ulid } from "ulid";
 
 import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers";
-import * as Graph from "@/modules/common/schema";
+import { ErrorCode } from "@/modules/common/schema";
 import { makeLogger } from "./logger";
 import { middlewares } from "./middlewares";
 import { prisma } from "./prisma";
@@ -30,7 +30,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
 
       if (!maybeUser) {
         throw new GraphQLError("Authentication error", {
-          extensions: { code: Graph.ErrorCode.AuthenticationError },
+          extensions: { code: ErrorCode.AuthenticationError },
         });
       }
 

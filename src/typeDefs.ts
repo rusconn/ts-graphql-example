@@ -1,9 +1,9 @@
-import node from "./modules/node/typeDefs";
-import scalar from "./modules/scalar/typeDefs";
-import todo from "./modules/todo/typeDefs";
-import user from "./modules/user/typeDefs";
+import * as node from "./modules/node";
+import * as scalar from "./modules/scalar";
+import * as todo from "./modules/todo";
+import * as user from "./modules/user";
 
-const misc = /* GraphQL */ `
+const typeDef = /* GraphQL */ `
   type Query
   type Mutation
 
@@ -32,4 +32,4 @@ const misc = /* GraphQL */ `
   }
 `;
 
-export const typeDefs = [node, scalar, todo, user, misc];
+export const typeDefs = [typeDef, node.typeDefs, scalar.typeDefs, todo.typeDefs, user.typeDefs];

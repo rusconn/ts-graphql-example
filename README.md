@@ -20,25 +20,6 @@ Prisma Studio は `pnpm studio` で起動しておくこと。
 
 ## 設計記録
 
-### src ディレクトリの構成
-
-好みの問題でバレルはほとんど作成しなかった。
-
-```text
-src
-├── generic     - 他のプロジェクトでも使えそうな汎用ユーティリティ
-└── modules     - スキーマの主要なタイプのモジュール群
-    ├── common      - 複数のタイプで使うユーティリティ
-    └── todo        - Todo タイプのモジュール
-        ├── adapters.ts    - 各フィールドの型や値をスキーマのものへ変換
-        ├── authorizers.ts - 各フィールドの利用許可・拒否
-        ├── parsers.ts     - 各フィールドの引数の検証・変換
-        ├── resolvers.ts   - 各フィールドのリゾルバ
-        └── typeDefs.ts    - スキーマ
-    └── user        - User タイプのモジュール
-└── prisma　     - Prisma 関連おまとめ
-```
-
 ### フィールドの nullability
 
 データの部分的な取得をサポートする為、基本的に nullable とした。\

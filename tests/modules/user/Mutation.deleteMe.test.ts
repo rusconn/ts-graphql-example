@@ -6,7 +6,7 @@ import { clearUsers, fail } from "tests/helpers";
 import { executeSingleResultOperation } from "tests/server";
 import { prisma } from "@/prisma";
 import * as Graph from "@/modules/common/schema";
-import { parseUserNodeId } from "@/modules/user/parsers";
+import { parseUserNodeId } from "@/modules/user/common/parser";
 
 const executeMutation = executeSingleResultOperation<
   DeleteMeMutation,
