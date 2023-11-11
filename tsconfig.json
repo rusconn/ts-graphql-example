@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
     "incremental": true,
-    "target": "es2016",
-    "lib": ["esnext"],
+    "skipLibCheck": true,
+    "sourceMap": true, // これが無いと開発サーバーのスタックトレースがずれる
+    "target": "ES2021",
+    "lib": ["ESNext"],
     "module": "CommonJS",
-    "rootDir": ".",
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -14,10 +17,6 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "importsNotUsedAsValues": "error",
-    "skipLibCheck": true,
-    "experimentalDecorators": true,
-    "sourceMap": true
+    "importsNotUsedAsValues": "error"
   }
 }

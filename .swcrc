@@ -4,7 +4,7 @@
     "parser": {
       "syntax": "typescript"
     },
-    "target": "es2016",
+    "target": "es2021",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
