@@ -8,6 +8,14 @@ import { adapters } from "./adapters";
 import { authorizers } from "./authorizers";
 import { parsers } from "./parsers";
 
+const fullTodo = async (prisma: Prisma.PrismaClient, parent: Todo) => {
+  return isFull(parent)
+    ? parent
+    : prisma.todo.findUniqueOrThrow({
+        where: { id: parent.id, userId: parent.userId },
+      });
+};
+
 export type Todo =
   | (Pick<Prisma.Todo, "id"> & Partial<Pick<Prisma.Todo, "userId">>)
   | Full<Prisma.Todo>;
@@ -143,77 +151,49 @@ export const resolvers: Graph.Resolvers = {
   },
   Todo: {
     id: async (parent, _, { prisma, user }) => {
-      const todo = isFull(parent)
-        ? parent
-        : await prisma.todo.findUniqueOrThrow({
-            where: { id: parent.id, userId: parent.userId },
-          });
+      const todo = await fullTodo(prisma, parent);
 
       authorizers.Todo.id(user, todo);
 
       return adapters.Todo.id(todo.id);
     },
     createdAt: async (parent, _, { prisma, user }) => {
-      const todo = isFull(parent)
-        ? parent
-        : await prisma.todo.findUniqueOrThrow({
-            where: { id: parent.id, userId: parent.userId },
-          });
+      const todo = await fullTodo(prisma, parent);
 
       authorizers.Todo.createdAt(user, todo);
 
       return todo.createdAt;
     },
     updatedAt: async (parent, _, { prisma, user }) => {
-      const todo = isFull(parent)
-        ? parent
-        : await prisma.todo.findUniqueOrThrow({
-            where: { id: parent.id, userId: parent.userId },
-          });
+      const todo = await fullTodo(prisma, parent);
 
       authorizers.Todo.updatedAt(user, todo);
 
       return todo.updatedAt;
     },
     title: async (parent, _, { prisma, user }) => {
-      const todo = isFull(parent)
-        ? parent
-        : await prisma.todo.findUniqueOrThrow({
-            where: { id: parent.id, userId: parent.userId },
-          });
+      const todo = await fullTodo(prisma, parent);
 
       authorizers.Todo.title(user, todo);
 
       return todo.title;
     },
     description: async (parent, _, { prisma, user }) => {
-      const todo = isFull(parent)
-        ? parent
-        : await prisma.todo.findUniqueOrThrow({
-            where: { id: parent.id, userId: parent.userId },
-          });
+      const todo = await fullTodo(prisma, parent);
 
       authorizers.Todo.description(user, todo);
 
       return todo.description;
     },
     status: async (parent, _, { prisma, user }) => {
-      const todo = isFull(parent)
-        ? parent
-        : await prisma.todo.findUniqueOrThrow({
-            where: { id: parent.id, userId: parent.userId },
-          });
+      const todo = await fullTodo(prisma, parent);
 
       authorizers.Todo.status(user, todo);
 
       return adapters.Todo.status(todo.status);
     },
     user: async (parent, _, { prisma, user }) => {
-      const todo = isFull(parent)
-        ? parent
-        : await prisma.todo.findUniqueOrThrow({
-            where: { id: parent.id, userId: parent.userId },
-          });
+      const todo = await fullTodo(prisma, parent);
 
       authorizers.Todo.user(user, todo);
 

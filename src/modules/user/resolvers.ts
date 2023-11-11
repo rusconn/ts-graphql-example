@@ -10,6 +10,14 @@ import { adapters } from "./adapters";
 import { authorizers } from "./authorizers";
 import { parsers } from "./parsers";
 
+const fullUser = async (prisma: Prisma.PrismaClient, parent: User) => {
+  return isFull(parent)
+    ? parent
+    : prisma.user.findUniqueOrThrow({
+        where: { id: parent.id },
+      });
+};
+
 export type User = Pick<Prisma.User, "id"> | Full<Prisma.User>;
 
 export const resolvers: Graph.Resolvers = {
@@ -176,66 +184,42 @@ export const resolvers: Graph.Resolvers = {
     id: async (parent, _, { prisma, user: contextUser }) => {
       authorizers.User.id(contextUser, parent.id);
 
-      const user = isFull(parent)
-        ? parent
-        : await prisma.user.findUniqueOrThrow({
-            where: { id: parent.id },
-          });
+      const user = await fullUser(prisma, parent);
 
       return adapters.User.id(user.id);
     },
     createdAt: async (parent, _, { prisma, user: contextUser }) => {
       authorizers.User.createdAt(contextUser, parent.id);
 
-      const user = isFull(parent)
-        ? parent
-        : await prisma.user.findUniqueOrThrow({
-            where: { id: parent.id },
-          });
+      const user = await fullUser(prisma, parent);
 
       return user.createdAt;
     },
     updatedAt: async (parent, _, { prisma, user: contextUser }) => {
       authorizers.User.updatedAt(contextUser, parent.id);
 
-      const user = isFull(parent)
-        ? parent
-        : await prisma.user.findUniqueOrThrow({
-            where: { id: parent.id },
-          });
+      const user = await fullUser(prisma, parent);
 
       return user.updatedAt;
     },
     name: async (parent, _, { prisma, user: contextUser }) => {
       authorizers.User.name(contextUser, parent.id);
 
-      const user = isFull(parent)
-        ? parent
-        : await prisma.user.findUniqueOrThrow({
-            where: { id: parent.id },
-          });
+      const user = await fullUser(prisma, parent);
 
       return user.name;
     },
     email: async (parent, _, { prisma, user: contextUser }) => {
       authorizers.User.email(contextUser, parent.id);
 
-      const user = isFull(parent)
-        ? parent
-        : await prisma.user.findUniqueOrThrow({
-            where: { id: parent.id },
-          });
+      const user = await fullUser(prisma, parent);
 
       return user.email;
     },
     token: async (parent, _, { prisma, user: contextUser }) => {
       authorizers.User.token(contextUser, parent.id);
 
-      const user = isFull(parent)
-        ? parent
-        : await prisma.user.findUniqueOrThrow({
-            where: { id: parent.id },
-          });
+      const user = await fullUser(prisma, parent);
 
       return user.token;
     },
