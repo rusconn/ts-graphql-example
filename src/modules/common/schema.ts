@@ -3,6 +3,7 @@ import type { DateTime } from '@/modules/scalar/parsers';
 import type { EmailAddress } from '@/modules/scalar/parsers';
 import type { NonEmptyString } from '@/modules/scalar/parsers';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
+import type { Node as NodeMapper } from '@/modules/node/resolvers';
 import type { User as UserMapper } from '@/modules/user/resolvers';
 import type { Todo as TodoMapper } from '@/modules/todo/resolvers';
 import type { Context } from '@/modules/common/resolvers';
@@ -470,7 +471,7 @@ export type ResolversTypes = ResolversObject<{
   LogoutResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LogoutResult']>;
   LogoutSuccess: ResolverTypeWrapper<Omit<LogoutSuccess, 'user'> & { user: ResolversTypes['User'] }>;
   Mutation: ResolverTypeWrapper<{}>;
-  Node: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Node']>;
+  Node: ResolverTypeWrapper<NodeMapper>;
   NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']['output']>;
   OrderDirection: OrderDirection;
   PageInfo: ResolverTypeWrapper<PageInfo>;
@@ -526,7 +527,7 @@ export type ResolversParentTypes = ResolversObject<{
   LogoutResult: ResolversUnionTypes<ResolversParentTypes>['LogoutResult'];
   LogoutSuccess: Omit<LogoutSuccess, 'user'> & { user: ResolversParentTypes['User'] };
   Mutation: {};
-  Node: ResolversInterfaceTypes<ResolversParentTypes>['Node'];
+  Node: NodeMapper;
   NonEmptyString: Scalars['NonEmptyString']['output'];
   PageInfo: PageInfo;
   Query: {};

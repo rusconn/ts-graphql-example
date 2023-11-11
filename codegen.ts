@@ -33,6 +33,7 @@ const typescriptResolvers: TypeScriptResolversPluginConfig = {
   contextType: "@/modules/common/resolvers#Context",
   mapperTypeSuffix: "Mapper",
   mappers: {
+    Node: "@/modules/node/resolvers#Node",
     User: "@/modules/user/resolvers#User",
     Todo: "@/modules/todo/resolvers#Todo",
   },

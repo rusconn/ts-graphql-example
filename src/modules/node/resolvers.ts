@@ -3,6 +3,8 @@ import type { NodeType } from "../common/typeDefs";
 import { authorizers } from "./authorizers";
 import { parsers } from "./parsers";
 
+export type Node = { type: NodeType; id: string };
+
 export const resolvers: Graph.Resolvers = {
   Query: {
     node: (_, args, { user }) => {
@@ -14,9 +16,8 @@ export const resolvers: Graph.Resolvers = {
     },
   },
   Node: {
-    // @ts-expect-error: type はスキーマに無いが使いたい
     __resolveType: ({ type }) => {
-      return type as NodeType;
+      return type;
     },
   },
 };
