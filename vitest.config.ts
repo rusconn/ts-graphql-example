@@ -1,16 +1,6 @@
 import { defineConfig } from "vitest/config";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  resolve: {
-    alias: [
-      {
-        find: /@\/(.*)/,
-        replacement: "src/$1",
-      },
-      {
-        find: /tests\/(.*)/,
-        replacement: "tests/$1",
-      },
-    ],
-  },
+  plugins: [tsconfigPaths()],
 });
