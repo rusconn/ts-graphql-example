@@ -1,5 +1,3 @@
-import { describe, test, expect } from "vitest";
-
 import { admin, alice, guest } from "tests/data/context.js";
 import { AuthorizationError as AuthErr } from "../common/authorizers.js";
 import { authorizer as auth } from "./User.token.js";

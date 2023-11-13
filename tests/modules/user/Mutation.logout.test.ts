@@ -1,5 +1,3 @@
-import { describe, test, expect, beforeAll, beforeEach } from "vitest";
-
 import type { LogoutMutation, LogoutMutationVariables } from "tests/modules/schema.js";
 import { ContextData, DBData } from "tests/data/mod.js";
 import { clearUsers } from "tests/helpers.js";

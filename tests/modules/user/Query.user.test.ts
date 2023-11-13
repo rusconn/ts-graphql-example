@@ -1,5 +1,3 @@
-import { describe, test, it, expect, beforeAll } from "vitest";
-
 import type { UserQuery, UserQueryVariables } from "tests/modules/schema.js";
 import { ContextData, DBData, GraphData } from "tests/data/mod.js";
 import { clearTables, fail } from "tests/helpers.js";

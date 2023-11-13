@@ -1,5 +1,3 @@
-import { describe, test, it, expect, beforeAll, beforeEach } from "vitest";
-
 import type { DeleteMeMutation, DeleteMeMutationVariables } from "tests/modules/schema.js";
 import { ContextData, DBData } from "tests/data/mod.js";
 import { clearUsers, fail } from "tests/helpers.js";

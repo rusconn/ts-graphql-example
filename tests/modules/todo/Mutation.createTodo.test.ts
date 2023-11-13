@@ -1,5 +1,3 @@
-import { describe, test, it, expect, beforeAll } from "vitest";
-
 import type { CreateTodoMutation, CreateTodoMutationVariables } from "tests/modules/schema.js";
 import { ContextData, DBData } from "tests/data/mod.js";
 import { clearTables, fail } from "tests/helpers.js";

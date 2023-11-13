@@ -1,5 +1,3 @@
-import { describe, test, it, expect, beforeAll, beforeEach } from "vitest";
-
 import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "tests/modules/schema.js";
 import { ContextData, DBData, GraphData } from "tests/data/mod.js";
 import { clearTables, clearTodos } from "tests/helpers.js";
