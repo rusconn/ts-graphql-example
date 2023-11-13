@@ -41,7 +41,9 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
       select: { password: true },
     });
 
-    if (!bcrypt.compareSync(parsed.password, found.password)) {
+    const match = await bcrypt.compare(parsed.password, found.password);
+
+    if (!match) {
       throw new Prisma.NotExistsError();
     }
 

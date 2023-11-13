@@ -35,10 +35,12 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   const { password, ...data } = parser(args);
 
   try {
+    const hashed = await bcrypt.hash(password, passwordHashRoundsExponent);
+
     const created = await context.prisma.user.create({
       data: {
         id: authed.id,
-        password: bcrypt.hashSync(password, passwordHashRoundsExponent),
+        password: hashed,
         token: ulid(),
         ...data,
       },
