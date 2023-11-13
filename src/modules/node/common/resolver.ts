@@ -1,3 +1,3 @@
-import type { NodeType } from "../../common/typeDefs";
+import type { NodeType } from "../../common/typeDefs.js";
 
 export type Node = { type: NodeType; id: string };

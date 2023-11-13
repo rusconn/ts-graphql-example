@@ -1,6 +1,6 @@
-import type { UserResolvers } from "../common/schema";
-import * as todo from "./User.todo";
-import * as todos from "./User.todos";
+import type { UserResolvers } from "../common/schema.js";
+import * as todo from "./User.todo.js";
+import * as todos from "./User.todos.js";
 
 export const typeDefs = [todo.typeDef, todos.typeDef];
 

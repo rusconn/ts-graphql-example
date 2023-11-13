@@ -1,7 +1,7 @@
-import * as Prisma from "@/prisma";
-import { TodoResolvers, TodoStatus } from "../common/schema";
-import { isTodoOwner } from "./common/authorizer";
-import { fullTodo } from "./common/fuller";
+import * as Prisma from "@/prisma/mod.js";
+import { TodoResolvers, TodoStatus } from "../common/schema.js";
+import { isTodoOwner } from "./common/authorizer.js";
+import { fullTodo } from "./common/fuller.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {

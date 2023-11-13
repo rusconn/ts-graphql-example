@@ -1,11 +1,11 @@
 import { describe, test, expect, beforeAll } from "vitest";
 
-import type { MeQuery, MeQueryVariables } from "tests/modules/schema";
-import { ContextData, DBData } from "tests/data";
-import { clearUsers } from "tests/helpers";
-import { executeSingleResultOperation } from "tests/server";
-import { prisma } from "@/prisma";
-import * as Graph from "@/modules/common/schema";
+import type { MeQuery, MeQueryVariables } from "tests/modules/schema.js";
+import { ContextData, DBData } from "tests/data/mod.js";
+import { clearUsers } from "tests/helpers.js";
+import { executeSingleResultOperation } from "tests/server.js";
+import { prisma } from "@/prisma/mod.js";
+import * as Graph from "@/modules/common/schema.js";
 
 const executeQuery = executeSingleResultOperation<MeQuery, MeQueryVariables>(/* GraphQL */ `
   query Me {

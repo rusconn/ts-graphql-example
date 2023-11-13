@@ -1,9 +1,9 @@
 import { describe, test, expect } from "vitest";
 
-import { admin, alice, guest } from "tests/data/context";
-import { adminTodo1 as adminTodo, aliceTodo } from "tests/data/db";
-import { AuthorizationError as AuthErr } from "../common/authorizers";
-import { authorizer as auth } from "./Todo.title";
+import { admin, alice, guest } from "tests/data/context.js";
+import { adminTodo1 as adminTodo, aliceTodo } from "tests/data/db.js";
+import { AuthorizationError as AuthErr } from "../common/authorizers.js";
+import { authorizer as auth } from "./Todo.title.js";
 
 describe("Authorization", () => {
   const allow = [

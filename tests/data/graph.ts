@@ -1,5 +1,5 @@
-import * as DB from "./db";
-import { todoNode, userNode } from "./helpers";
+import * as DB from "./db.js";
+import { todoNode, userNode } from "./helpers.js";
 
 export const admin = userNode(DB.admin);
 export const alice = userNode(DB.alice);

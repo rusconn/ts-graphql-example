@@ -1,6 +1,6 @@
-import { isAdmin } from "../common/authorizers";
-import type { QueryResolvers, QueryUserArgs } from "../common/schema";
-import { parseUserNodeId } from "./common/parser";
+import { isAdmin } from "../common/authorizers.js";
+import type { QueryResolvers, QueryUserArgs } from "../common/schema.js";
+import { parseUserNodeId } from "./common/parser.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {

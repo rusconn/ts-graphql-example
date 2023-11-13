@@ -1,10 +1,10 @@
 import { describe, test, expect } from "vitest";
 
-import { admin, alice, guest } from "tests/data/context";
-import { validUserIds, invalidUserIds } from "tests/data/graph";
-import { AuthorizationError as AuthErr } from "../common/authorizers";
-import { ParseError as ParseErr } from "../common/parsers";
-import { authorizer as auth, parser as parse } from "./Query.user";
+import { admin, alice, guest } from "tests/data/context.js";
+import { validUserIds, invalidUserIds } from "tests/data/graph.js";
+import { AuthorizationError as AuthErr } from "../common/authorizers.js";
+import { ParseError as ParseErr } from "../common/parsers.js";
+import { authorizer as auth, parser as parse } from "./Query.user.js";
 
 describe("Authorization", () => {
   const allow = [admin];

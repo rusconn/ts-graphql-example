@@ -1,6 +1,6 @@
-import { isAdmin, AuthorizationError } from "../../common/authorizers";
-import type { ContextUser } from "../../common/resolvers";
-import type { ResolversParentTypes } from "../../common/schema";
+import { isAdmin, AuthorizationError } from "../../common/authorizers.js";
+import type { ContextUser } from "../../common/resolvers.js";
+import type { ResolversParentTypes } from "../../common/schema.js";
 
 type ParentUser = ResolversParentTypes["User"];
 

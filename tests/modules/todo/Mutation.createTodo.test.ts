@@ -1,13 +1,13 @@
 import { describe, test, it, expect, beforeAll } from "vitest";
 
-import type { CreateTodoMutation, CreateTodoMutationVariables } from "tests/modules/schema";
-import { ContextData, DBData } from "tests/data";
-import { clearTables, fail } from "tests/helpers";
-import { executeSingleResultOperation } from "tests/server";
-import { prisma } from "@/prisma";
-import * as Prisma from "@/prisma";
-import * as Graph from "@/modules/common/schema";
-import { parseTodoNodeId } from "@/modules/todo/common/parser";
+import type { CreateTodoMutation, CreateTodoMutationVariables } from "tests/modules/schema.js";
+import { ContextData, DBData } from "tests/data/mod.js";
+import { clearTables, fail } from "tests/helpers.js";
+import { executeSingleResultOperation } from "tests/server.js";
+import { prisma } from "@/prisma/mod.js";
+import * as Prisma from "@/prisma/mod.js";
+import * as Graph from "@/modules/common/schema.js";
+import { parseTodoNodeId } from "@/modules/todo/common/parser.js";
 
 const executeMutation = executeSingleResultOperation<
   CreateTodoMutation,

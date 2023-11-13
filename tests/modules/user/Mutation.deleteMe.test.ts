@@ -1,12 +1,12 @@
 import { describe, test, it, expect, beforeAll, beforeEach } from "vitest";
 
-import type { DeleteMeMutation, DeleteMeMutationVariables } from "tests/modules/schema";
-import { ContextData, DBData } from "tests/data";
-import { clearUsers, fail } from "tests/helpers";
-import { executeSingleResultOperation } from "tests/server";
-import { prisma } from "@/prisma";
-import * as Graph from "@/modules/common/schema";
-import { parseUserNodeId } from "@/modules/user/common/parser";
+import type { DeleteMeMutation, DeleteMeMutationVariables } from "tests/modules/schema.js";
+import { ContextData, DBData } from "tests/data/mod.js";
+import { clearUsers, fail } from "tests/helpers.js";
+import { executeSingleResultOperation } from "tests/server.js";
+import { prisma } from "@/prisma/mod.js";
+import * as Graph from "@/modules/common/schema.js";
+import { parseUserNodeId } from "@/modules/user/common/parser.js";
 
 const executeMutation = executeSingleResultOperation<
   DeleteMeMutation,

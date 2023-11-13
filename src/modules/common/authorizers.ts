@@ -1,4 +1,4 @@
-import type { ContextUser } from "./resolvers";
+import type { ContextUser } from "./resolvers.js";
 
 export class AuthorizationError extends Error {
   override readonly name = "AuthorizationError" as const;

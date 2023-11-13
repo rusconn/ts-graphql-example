@@ -1,6 +1,6 @@
-import type * as Prisma from "@/prisma";
-import { isFull } from "../../common/resolvers";
-import type { ResolversParentTypes } from "../../common/schema";
+import type * as Prisma from "@/prisma/mod.js";
+import { isFull } from "../../common/resolvers.js";
+import type { ResolversParentTypes } from "../../common/schema.js";
 
 type ParentUser = ResolversParentTypes["User"];
 

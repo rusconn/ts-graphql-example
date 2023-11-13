@@ -1,10 +1,10 @@
-import type { UserResolvers } from "../common/schema";
-import * as createdAt from "./User.createdAt";
-import * as email from "./User.email";
-import * as id from "./User.id";
-import * as name from "./User.name";
-import * as token from "./User.token";
-import * as updatedAt from "./User.updatedAt";
+import type { UserResolvers } from "../common/schema.js";
+import * as createdAt from "./User.createdAt.js";
+import * as email from "./User.email.js";
+import * as id from "./User.id.js";
+import * as name from "./User.name.js";
+import * as token from "./User.token.js";
+import * as updatedAt from "./User.updatedAt.js";
 
 const typeDef = /* GraphQL */ `
   type User implements Node

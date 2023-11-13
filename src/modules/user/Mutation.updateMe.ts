@@ -1,8 +1,8 @@
-import * as Prisma from "@/prisma";
-import { isAuthenticated } from "../common/authorizers";
-import { ParseError } from "../common/parsers";
-import { full } from "../common/resolvers";
-import type { MutationResolvers, MutationUpdateMeArgs } from "../common/schema";
+import * as Prisma from "@/prisma/mod.js";
+import { isAuthenticated } from "../common/authorizers.js";
+import { ParseError } from "../common/parsers.js";
+import { full } from "../common/resolvers.js";
+import type { MutationResolvers, MutationUpdateMeArgs } from "../common/schema.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

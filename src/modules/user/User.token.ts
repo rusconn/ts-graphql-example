@@ -1,6 +1,6 @@
-import type { UserResolvers } from "../common/schema";
-import { isUserOwner } from "./common/authorizer";
-import { fullUser } from "./common/fuller";
+import type { UserResolvers } from "../common/schema.js";
+import { isUserOwner } from "./common/authorizer.js";
+import { fullUser } from "./common/fuller.js";
 
 export const typeDef = /* GraphQL */ `
   extend type User {

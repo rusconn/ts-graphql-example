@@ -1,6 +1,6 @@
-import { isAuthenticated } from "../common/authorizers";
-import { parseNodeId } from "../common/parsers";
-import type { QueryResolvers, QueryNodeArgs } from "../common/schema";
+import { isAuthenticated } from "../common/authorizers.js";
+import { parseNodeId } from "../common/parsers.js";
+import type { QueryResolvers, QueryNodeArgs } from "../common/schema.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {

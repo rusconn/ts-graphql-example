@@ -1,9 +1,9 @@
-import type { MutationResolvers } from "../common/schema";
-import * as deleteMe from "./Mutation.deleteMe";
-import * as login from "./Mutation.login";
-import * as logout from "./Mutation.logout";
-import * as signup from "./Mutation.signup";
-import * as updateMe from "./Mutation.updateMe";
+import type { MutationResolvers } from "../common/schema.js";
+import * as deleteMe from "./Mutation.deleteMe.js";
+import * as login from "./Mutation.login.js";
+import * as logout from "./Mutation.logout.js";
+import * as signup from "./Mutation.signup.js";
+import * as updateMe from "./Mutation.updateMe.js";
 
 const typeDef = /* GraphQL */ `
   type EmailAlreadyTakenError implements Error {

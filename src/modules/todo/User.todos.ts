@@ -1,11 +1,11 @@
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
-import * as Prisma from "@/prisma";
-import { parseConnectionArgs, ParseError } from "../common/parsers";
-import { full } from "../common/resolvers";
-import { UserResolvers, UserTodosArgs, OrderDirection, TodoOrderField } from "../common/schema";
-import { cursorConnections, orderOptions } from "../common/typeDefs";
-import { isAdminOrUserOwner } from "./common/authorizer";
+import * as Prisma from "@/prisma/mod.js";
+import { parseConnectionArgs, ParseError } from "../common/parsers.js";
+import { full } from "../common/resolvers.js";
+import { UserResolvers, UserTodosArgs, OrderDirection, TodoOrderField } from "../common/schema.js";
+import { cursorConnections, orderOptions } from "../common/typeDefs.js";
+import { isAdminOrUserOwner } from "./common/authorizer.js";
 
 export const typeDef = /* GraphQL */ `
   extend type User {

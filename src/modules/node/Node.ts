@@ -1,5 +1,5 @@
-import type { NodeResolvers } from "../common/schema";
-import * as __resolveType from "./Node.__resolveType";
+import type { NodeResolvers } from "../common/schema.js";
+import * as __resolveType from "./Node.__resolveType.js";
 
 const typeDef = /* GraphQL */ `
   interface Node {

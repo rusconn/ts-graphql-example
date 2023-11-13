@@ -1,12 +1,12 @@
 import { omit } from "remeda";
 import { describe, test, it, expect, beforeAll, beforeEach } from "vitest";
 
-import type { UpdateMeMutation, UpdateMeMutationVariables } from "tests/modules/schema";
-import { ContextData, DBData } from "tests/data";
-import { clearUsers } from "tests/helpers";
-import { executeSingleResultOperation } from "tests/server";
-import { prisma } from "@/prisma";
-import * as Graph from "@/modules/common/schema";
+import type { UpdateMeMutation, UpdateMeMutationVariables } from "tests/modules/schema.js";
+import { ContextData, DBData } from "tests/data/mod.js";
+import { clearUsers } from "tests/helpers.js";
+import { executeSingleResultOperation } from "tests/server.js";
+import { prisma } from "@/prisma/mod.js";
+import * as Graph from "@/modules/common/schema.js";
 
 const executeMutation = executeSingleResultOperation<
   UpdateMeMutation,

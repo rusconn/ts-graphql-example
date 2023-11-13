@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
-import { passwordHashRoundsExponent } from "@/config";
-import * as Prisma from "@/prisma";
-import { isGuest } from "../common/authorizers";
-import { ParseError } from "../common/parsers";
-import type { MutationResolvers, MutationSignupArgs } from "../common/schema";
-import { userNodeId } from "./common/adapter";
+import { passwordHashRoundsExponent } from "@/config.js";
+import * as Prisma from "@/prisma/mod.js";
+import { isGuest } from "../common/authorizers.js";
+import { ParseError } from "../common/parsers.js";
+import type { MutationResolvers, MutationSignupArgs } from "../common/schema.js";
+import { userNodeId } from "./common/adapter.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

@@ -1,4 +1,4 @@
-import * as DBData from "./db";
+import * as DBData from "./db.js";
 
 export const { admin, alice, bob } = DBData;
 

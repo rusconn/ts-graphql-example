@@ -1,8 +1,8 @@
 import { describe, test, expect } from "vitest";
 
-import { admin, alice, guest } from "tests/data/context";
-import { AuthorizationError as AuthErr } from "../common/authorizers";
-import { authorizer as auth } from "./Query.me";
+import { admin, alice, guest } from "tests/data/context.js";
+import { AuthorizationError as AuthErr } from "../common/authorizers.js";
+import { authorizer as auth } from "./Query.me.js";
 
 describe("Authorization", () => {
   const allow = [admin, alice];

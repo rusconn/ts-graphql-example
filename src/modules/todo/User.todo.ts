@@ -1,6 +1,6 @@
-import type { UserResolvers } from "../common/schema";
-import { isAdminOrUserOwner } from "./common/authorizer";
-import { parseTodoNodeId } from "./common/parser";
+import type { UserResolvers } from "../common/schema.js";
+import { isAdminOrUserOwner } from "./common/authorizer.js";
+import { parseTodoNodeId } from "./common/parser.js";
 
 export const typeDef = /* GraphQL */ `
   extend type User {

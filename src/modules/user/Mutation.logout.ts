@@ -1,6 +1,6 @@
-import { isAuthenticated } from "../common/authorizers";
-import type { MutationResolvers } from "../common/schema";
-import { full } from "../common/resolvers";
+import { isAuthenticated } from "../common/authorizers.js";
+import type { MutationResolvers } from "../common/schema.js";
+import { full } from "../common/resolvers.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

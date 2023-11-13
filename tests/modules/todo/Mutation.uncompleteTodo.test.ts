@@ -1,13 +1,16 @@
 import { omit } from "remeda";
 import { describe, test, it, expect, beforeAll, beforeEach } from "vitest";
 
-import type { UncompleteTodoMutation, UncompleteTodoMutationVariables } from "tests/modules/schema";
-import { ContextData, DBData, GraphData } from "tests/data";
-import { clearTables } from "tests/helpers";
-import { executeSingleResultOperation } from "tests/server";
-import { prisma } from "@/prisma";
-import * as Prisma from "@/prisma";
-import * as Graph from "@/modules/common/schema";
+import type {
+  UncompleteTodoMutation,
+  UncompleteTodoMutationVariables,
+} from "tests/modules/schema.js";
+import { ContextData, DBData, GraphData } from "tests/data/mod.js";
+import { clearTables } from "tests/helpers.js";
+import { executeSingleResultOperation } from "tests/server.js";
+import { prisma } from "@/prisma/mod.js";
+import * as Prisma from "@/prisma/mod.js";
+import * as Graph from "@/modules/common/schema.js";
 
 const executeMutation = executeSingleResultOperation<
   UncompleteTodoMutation,

@@ -1,6 +1,6 @@
-import type { TodoResolvers } from "../common/schema";
-import { isTodoOwner } from "./common/authorizer";
-import { fullTodo } from "./common/fuller";
+import type { TodoResolvers } from "../common/schema.js";
+import { isTodoOwner } from "./common/authorizer.js";
+import { fullTodo } from "./common/fuller.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {

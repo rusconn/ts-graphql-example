@@ -1,10 +1,10 @@
 import { describe, test, expect } from "vitest";
 
-import { admin, alice, guest } from "tests/data/context";
-import { AuthorizationError as AuthErr } from "../common/authorizers";
-import { ParseError as ParseErr } from "../common/parsers";
-import type { MutationLoginArgs } from "../common/schema";
-import { authorizer as auth, parser as parse } from "./Mutation.login";
+import { admin, alice, guest } from "tests/data/context.js";
+import { AuthorizationError as AuthErr } from "../common/authorizers.js";
+import { ParseError as ParseErr } from "../common/parsers.js";
+import type { MutationLoginArgs } from "../common/schema.js";
+import { authorizer as auth, parser as parse } from "./Mutation.login.js";
 
 describe("Authorization", () => {
   const allow = [admin, alice, guest];

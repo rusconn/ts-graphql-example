@@ -1,11 +1,11 @@
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
-import * as Prisma from "@/prisma";
-import { allow } from "../common/authorizers";
-import { ParseError } from "../common/parsers";
-import type { MutationResolvers, MutationLoginArgs } from "../common/schema";
-import { full } from "../common/resolvers";
+import * as Prisma from "@/prisma/mod.js";
+import { allow } from "../common/authorizers.js";
+import { ParseError } from "../common/parsers.js";
+import type { MutationResolvers, MutationLoginArgs } from "../common/schema.js";
+import { full } from "../common/resolvers.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

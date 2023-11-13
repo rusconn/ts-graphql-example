@@ -1,8 +1,8 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
-import { isProd } from "@/config";
-import { blue } from "@/generic/console";
-import * as Errors from "./errors";
+import { isProd } from "@/config.js";
+import { blue } from "@/generic/console.js";
+import * as Errors from "./errors.js";
 
 const basePrisma = new PrismaClient({
   log: [

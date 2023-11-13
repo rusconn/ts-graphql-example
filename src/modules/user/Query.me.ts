@@ -1,6 +1,6 @@
-import { isAuthenticated } from "../common/authorizers";
-import { full } from "../common/resolvers";
-import type { QueryResolvers } from "../common/schema";
+import { isAuthenticated } from "../common/authorizers.js";
+import { full } from "../common/resolvers.js";
+import type { QueryResolvers } from "../common/schema.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {

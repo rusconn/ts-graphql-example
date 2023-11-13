@@ -10,18 +10,18 @@ const typescript: TypeScriptPluginConfig = {
   scalars: {
     ID: {
       input: "string",
-      output: "@/modules/scalar#ID",
+      output: "@/modules/scalar/mod.js#ID",
     },
     DateTime: {
-      input: "@/modules/scalar#DateTime",
+      input: "@/modules/scalar/mod.js#DateTime",
       output: "Date | DateTime", // DateTime リゾルバーが Date -> DateTime する
     },
     EmailAddress: {
-      input: "@/modules/scalar#EmailAddress",
+      input: "@/modules/scalar/mod.js#EmailAddress",
       output: "string",
     },
     NonEmptyString: {
-      input: "@/modules/scalar#NonEmptyString",
+      input: "@/modules/scalar/mod.js#NonEmptyString",
       output: "string",
     },
   },
@@ -30,12 +30,12 @@ const typescript: TypeScriptPluginConfig = {
 
 const typescriptResolvers: TypeScriptResolversPluginConfig = {
   useIndexSignature: true,
-  contextType: "@/modules/common/resolvers#Context",
+  contextType: "@/modules/common/resolvers.js#Context",
   mapperTypeSuffix: "Mapper",
   mappers: {
-    Node: "@/modules/node/common/resolver#Node",
-    Todo: "@/modules/todo/common/resolver#Todo",
-    User: "@/modules/user/common/resolver#User",
+    Node: "@/modules/node/common/resolver.js#Node",
+    Todo: "@/modules/todo/common/resolver.js#Todo",
+    User: "@/modules/user/common/resolver.js#User",
   },
   resolversNonOptionalTypename: {
     unionMember: true,
@@ -75,6 +75,7 @@ const config: CodegenConfig = {
       },
     },
   },
+  emitLegacyCommonJSImports: false,
 };
 
 export default config;

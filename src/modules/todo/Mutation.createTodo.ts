@@ -1,9 +1,9 @@
 import { ulid } from "ulid";
 
-import { isAuthenticated } from "../common/authorizers";
-import { ParseError } from "../common/parsers";
-import { full } from "../common/resolvers";
-import type { MutationResolvers, MutationCreateTodoArgs } from "../common/schema";
+import { isAuthenticated } from "../common/authorizers.js";
+import { ParseError } from "../common/parsers.js";
+import { full } from "../common/resolvers.js";
+import type { MutationResolvers, MutationCreateTodoArgs } from "../common/schema.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
