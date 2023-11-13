@@ -39,9 +39,9 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
   };
 };
 
-export const authorizer = isAuthenticated;
+const authorizer = isAuthenticated;
 
-export const parser = (args: MutationCreateTodoArgs) => {
+const parser = (args: MutationCreateTodoArgs) => {
   const { title, description } = args.input;
 
   if ([...title].length > 100) {
@@ -53,3 +53,53 @@ export const parser = (args: MutationCreateTodoArgs) => {
 
   return { title, description };
 };
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { ParseError: ParseErr } = await import("../common/parsers.js");
+
+  describe("Authorization", () => {
+    const allow = [admin, alice];
+
+    const deny = [guest];
+
+    test.each(allow)("allow %#", user => {
+      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", user => {
+      expect(() => authorizer(user)).toThrow(AuthErr);
+    });
+  });
+
+  describe("Parsing", () => {
+    const titleMax = 100;
+    const descMax = 5000;
+
+    const validInput = { title: "title", description: "description" };
+
+    const valid = [
+      { ...validInput },
+      { ...validInput, title: "A".repeat(titleMax) },
+      { ...validInput, title: "🅰".repeat(titleMax) },
+      { ...validInput, description: "A".repeat(descMax) },
+      { ...validInput, description: "🅰".repeat(descMax) },
+    ] as MutationCreateTodoArgs["input"][];
+
+    const invalid = [
+      { ...validInput, title: "A".repeat(titleMax + 1) },
+      { ...validInput, title: "🅰".repeat(titleMax + 1) },
+      { ...validInput, description: "A".repeat(descMax + 1) },
+      { ...validInput, description: "🅰".repeat(descMax + 1) },
+    ] as MutationCreateTodoArgs["input"][];
+
+    test.each(valid)("valid %#", input => {
+      expect(() => parser({ input })).not.toThrow(ParseErr);
+    });
+
+    test.each(invalid)("invalid %#", input => {
+      expect(() => parser({ input })).toThrow(ParseErr);
+    });
+  });
+}

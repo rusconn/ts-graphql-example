@@ -48,9 +48,9 @@ export const resolver: QueryResolvers["users"] = (_parent, args, context, resolv
   );
 };
 
-export const authorizer = isAdmin;
+const authorizer = isAdmin;
 
-export const parser = (args: QueryUsersArgs) => {
+const parser = (args: QueryUsersArgs) => {
   const { orderBy, ...connectionArgs } = args;
 
   const { first, last, before, after } = parseConnectionArgs(connectionArgs);
@@ -79,3 +79,52 @@ export const parser = (args: QueryUsersArgs) => {
 
   return { first: firstToUse, last, before, after, orderBy: orderByToUse };
 };
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { ParseError: ParseErr } = await import("../common/parsers.js");
+
+  describe("Authorization", () => {
+    const allow = [admin];
+
+    const deny = [alice, guest];
+
+    test.each(allow)("allow %#", user => {
+      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", user => {
+      expect(() => authorizer(user)).toThrow(AuthErr);
+    });
+  });
+
+  describe("Parsing", () => {
+    const firstMax = 30;
+    const lastMax = 30;
+
+    const valid = [{ first: 10 }, { last: 10 }, { first: firstMax }, { last: lastMax }];
+
+    const invalid = [
+      {},
+      { first: null },
+      { last: null },
+      { first: null, last: null },
+      { first: firstMax + 1 },
+      { last: lastMax + 1 },
+    ];
+
+    const orderBy = {
+      field: UserOrderField.CreatedAt,
+      direction: OrderDirection.Desc,
+    };
+
+    test.each(valid)("valid %#", args => {
+      expect(() => parser({ ...args, orderBy })).not.toThrow(ParseErr);
+    });
+
+    test.each(invalid)("invalid %#", args => {
+      expect(() => parser({ ...args, orderBy })).toThrow(ParseErr);
+    });
+  });
+}

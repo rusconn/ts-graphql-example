@@ -45,10 +45,41 @@ export const resolver: MutationResolvers["deleteTodo"] = async (_parent, args, c
   }
 };
 
-export const authorizer = isAuthenticated;
+const authorizer = isAuthenticated;
 
-export const parser = (args: MutationDeleteTodoArgs) => {
+const parser = (args: MutationDeleteTodoArgs) => {
   return { id: parseTodoNodeId(args.id) };
 };
 
-export const adapter = todoNodeId;
+const adapter = todoNodeId;
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { validTodoIds, invalidTodoIds } = await import("tests/data/graph.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { ParseError: ParseErr } = await import("../common/parsers.js");
+
+  describe("Authorization", () => {
+    const allow = [admin, alice];
+
+    const deny = [guest];
+
+    test.each(allow)("allow %#", user => {
+      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", user => {
+      expect(() => authorizer(user)).toThrow(AuthErr);
+    });
+  });
+
+  describe("Parsing", () => {
+    test.each(validTodoIds)("valid %#", id => {
+      expect(() => parser({ id })).not.toThrow(ParseErr);
+    });
+
+    test.each(invalidTodoIds)("invalid %#", id => {
+      expect(() => parser({ id })).toThrow(ParseErr);
+    });
+  });
+}

@@ -29,6 +29,25 @@ export const resolver: MutationResolvers["deleteMe"] = async (_parent, _args, co
   };
 };
 
-export const authorizer = isAuthenticated;
+const authorizer = isAuthenticated;
 
-export const adapter = userNodeId;
+const adapter = userNodeId;
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+
+  describe("Authorization", () => {
+    const allow = [admin, alice];
+
+    const deny = [guest];
+
+    test.each(allow)("allow %#", user => {
+      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", user => {
+      expect(() => authorizer(user)).toThrow(AuthErr);
+    });
+  });
+}

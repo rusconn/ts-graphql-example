@@ -14,4 +14,23 @@ export const resolver: QueryResolvers["me"] = (_parent, _args, context) => {
   return full(authed);
 };
 
-export const authorizer = isAuthenticated;
+const authorizer = isAuthenticated;
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+
+  describe("Authorization", () => {
+    const allow = [admin, alice];
+
+    const deny = [guest];
+
+    test.each(allow)("allow %#", user => {
+      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", user => {
+      expect(() => authorizer(user)).toThrow(AuthErr);
+    });
+  });
+}

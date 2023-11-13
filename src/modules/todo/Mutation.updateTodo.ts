@@ -56,9 +56,9 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
   }
 };
 
-export const authorizer = isAuthenticated;
+const authorizer = isAuthenticated;
 
-export const parser = (args: MutationUpdateTodoArgs) => {
+const parser = (args: MutationUpdateTodoArgs) => {
   const { id, input } = args;
   const { title, description, status } = input;
 
@@ -82,3 +82,79 @@ export const parser = (args: MutationUpdateTodoArgs) => {
 
   return { id: idToUse, title, description, status };
 };
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { validTodoIds, invalidTodoIds } = await import("tests/data/graph.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { ParseError: ParseErr } = await import("../common/parsers.js");
+  const { TodoStatus } = await import("../common/schema.js");
+
+  describe("Authorization", () => {
+    const allow = [admin, alice];
+
+    const deny = [guest];
+
+    test.each(allow)("allow %#", user => {
+      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", user => {
+      expect(() => authorizer(user)).toThrow(AuthErr);
+    });
+  });
+
+  describe("Parsing", () => {
+    describe("id", () => {
+      const input = {
+        title: "title",
+        description: "description",
+        status: TodoStatus.Done,
+      } as MutationUpdateTodoArgs["input"];
+
+      test.each(validTodoIds)("valid %#", id => {
+        expect(() => parser({ id, input })).not.toThrow(ParseErr);
+      });
+
+      test.each(invalidTodoIds)("invalid %#", id => {
+        expect(() => parser({ id, input })).toThrow(ParseErr);
+      });
+    });
+
+    describe("input", () => {
+      const titleMax = 100;
+      const descMax = 5000;
+
+      const id = validTodoIds[0];
+
+      const valid = [
+        { title: "title" },
+        { description: "description" },
+        { status: TodoStatus.Done },
+        { title: "title", description: "description", status: TodoStatus.Done },
+        { title: "A".repeat(titleMax) },
+        { title: "🅰".repeat(titleMax) },
+        { description: "A".repeat(descMax) },
+        { description: "🅰".repeat(descMax) },
+      ] as MutationUpdateTodoArgs["input"][];
+
+      const invalid = [
+        { title: null },
+        { description: null },
+        { status: null },
+        { title: "A".repeat(titleMax + 1) },
+        { title: "🅰".repeat(titleMax + 1) },
+        { description: "A".repeat(descMax + 1) },
+        { description: "🅰".repeat(descMax + 1) },
+      ] as MutationUpdateTodoArgs["input"][];
+
+      test.each(valid)("valid %#", input => {
+        expect(() => parser({ id, input })).not.toThrow(ParseErr);
+      });
+
+      test.each(invalid)("invalid %#", input => {
+        expect(() => parser({ id, input })).toThrow(ParseErr);
+      });
+    });
+  });
+}

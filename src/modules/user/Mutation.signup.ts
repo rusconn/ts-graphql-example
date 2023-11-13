@@ -66,9 +66,9 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   }
 };
 
-export const authorizer = isGuest;
+const authorizer = isGuest;
 
-export const parser = (args: MutationSignupArgs) => {
+const parser = (args: MutationSignupArgs) => {
   const { name, email, password } = args.input;
 
   if ([...name].length > 100) {
@@ -87,4 +87,60 @@ export const parser = (args: MutationSignupArgs) => {
   return { name, email, password, role: Prisma.Role.USER };
 };
 
-export const adapter = userNodeId;
+const adapter = userNodeId;
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { ParseError: ParseErr } = await import("../common/parsers.js");
+
+  describe("Authorization", () => {
+    const allow = [guest];
+
+    const deny = [admin, alice];
+
+    test.each(allow)("allow %#", user => {
+      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", user => {
+      expect(() => authorizer(user)).toThrow(AuthErr);
+    });
+  });
+
+  describe("Parsing", () => {
+    const nameMax = 100;
+    const emailMax = 100;
+    const passMin = 8;
+    const passMax = 50;
+
+    const validInput = { name: "name", email: "email@email.com", password: "password" };
+
+    const valid = [
+      { ...validInput },
+      { ...validInput, name: "A".repeat(nameMax) },
+      { ...validInput, name: "🅰".repeat(nameMax) },
+      { ...validInput, email: `${"A".repeat(emailMax - 10)}@email.com` },
+      { ...validInput, email: `${"🅰".repeat(emailMax - 10)}@email.com` },
+      { ...validInput, password: "A".repeat(passMin) },
+      { ...validInput, password: "🅰".repeat(passMax) },
+    ] as MutationSignupArgs["input"][];
+
+    const invalid = [
+      { ...validInput, name: "A".repeat(nameMax + 1) },
+      { ...validInput, name: "🅰".repeat(nameMax + 1) },
+      { ...validInput, email: `${"A".repeat(emailMax - 10 + 1)}@email.com` },
+      { ...validInput, email: `${"🅰".repeat(emailMax - 10 + 1)}@email.com` },
+      { ...validInput, password: "A".repeat(passMin - 1) },
+      { ...validInput, password: "🅰".repeat(passMax + 1) },
+    ] as MutationSignupArgs["input"][];
+
+    test.each(valid)("valid %#", input => {
+      expect(() => parser({ input })).not.toThrow(ParseErr);
+    });
+
+    test.each(invalid)("invalid %#", input => {
+      expect(() => parser({ input })).toThrow(ParseErr);
+    });
+  });
+}

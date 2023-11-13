@@ -16,4 +16,31 @@ export const resolver: UserResolvers["email"] = async (parent, _args, context) =
   return user.email;
 };
 
-export const authorizer = isAdminOrUserOwner;
+const authorizer = isAdminOrUserOwner;
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+
+  describe("Authorization", () => {
+    const allow = [
+      [admin, admin],
+      [admin, alice],
+      [alice, alice],
+    ] as const;
+
+    const deny = [
+      [alice, admin],
+      [guest, admin],
+      [guest, alice],
+    ] as const;
+
+    test.each(allow)("allow %#", (user, parent) => {
+      expect(() => authorizer(user, parent)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", (user, parent) => {
+      expect(() => authorizer(user, parent)).toThrow(AuthErr);
+    });
+  });
+}

@@ -16,8 +16,39 @@ export const resolver: QueryResolvers["node"] = (_parent, args, context) => {
   return { type, id };
 };
 
-export const authorizer = isAuthenticated;
+const authorizer = isAuthenticated;
 
-export const parser = (args: QueryNodeArgs) => {
+const parser = (args: QueryNodeArgs) => {
   return parseNodeId(args.id);
 };
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { validNodeIds, invalidIds } = await import("tests/data/graph.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { ParseError: ParseErr } = await import("../common/parsers.js");
+
+  describe("Authorization", () => {
+    const allow = [admin, alice];
+
+    const deny = [guest];
+
+    test.each(allow)("allow %#", user => {
+      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", user => {
+      expect(() => authorizer(user)).toThrow(AuthErr);
+    });
+  });
+
+  describe("Parsing", () => {
+    test.each(validNodeIds)("valid %#", id => {
+      expect(() => parser({ id })).not.toThrow(ParseErr);
+    });
+
+    test.each(invalidIds)("invalid %#", id => {
+      expect(() => parser({ id })).toThrow(ParseErr);
+    });
+  });
+}

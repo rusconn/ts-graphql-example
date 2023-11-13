@@ -55,9 +55,9 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
   }
 };
 
-export const authorizer = isAuthenticated;
+const authorizer = isAuthenticated;
 
-export const parser = (args: MutationUpdateMeArgs) => {
+const parser = (args: MutationUpdateMeArgs) => {
   const { name, email, password } = args.input;
 
   if (name === null) {
@@ -84,3 +84,63 @@ export const parser = (args: MutationUpdateMeArgs) => {
 
   return { name, email, password };
 };
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { ParseError: ParseErr } = await import("../common/parsers.js");
+
+  describe("Authorization", () => {
+    const allow = [admin, alice];
+
+    const deny = [guest];
+
+    test.each(allow)("allow %#", user => {
+      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", user => {
+      expect(() => authorizer(user)).toThrow(AuthErr);
+    });
+  });
+
+  describe("Parsing", () => {
+    const nameMax = 100;
+    const emailMax = 100;
+    const passMin = 8;
+    const passMax = 50;
+
+    const valid = [
+      { name: "name" },
+      { email: "email@email.com" },
+      { password: "password" },
+      { name: "name", email: "email@email.com", password: "password" },
+      { name: "A".repeat(nameMax) },
+      { name: "🅰".repeat(nameMax) },
+      { email: `${"A".repeat(emailMax - 10)}@email.com` },
+      { email: `${"🅰".repeat(emailMax - 10)}@email.com` },
+      { password: "A".repeat(passMin) },
+      { password: "🅰".repeat(passMax) },
+    ] as MutationUpdateMeArgs["input"][];
+
+    const invalid = [
+      { name: null },
+      { email: null },
+      { password: null },
+      { name: "A".repeat(nameMax + 1) },
+      { name: "🅰".repeat(nameMax + 1) },
+      { email: `${"A".repeat(emailMax - 10 + 1)}@email.com` },
+      { email: `${"🅰".repeat(emailMax - 10 + 1)}@email.com` },
+      { password: "A".repeat(passMin - 1) },
+      { password: "🅰".repeat(passMax + 1) },
+    ] as MutationUpdateMeArgs["input"][];
+
+    test.each(valid)("valid %#", input => {
+      expect(() => parser({ input })).not.toThrow(ParseErr);
+    });
+
+    test.each(invalid)("invalid %#", input => {
+      expect(() => parser({ input })).toThrow(ParseErr);
+    });
+  });
+}

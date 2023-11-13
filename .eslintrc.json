@@ -19,7 +19,7 @@
     "import/extensions": "off",
     "import/no-extraneous-dependencies": [
       "error",
-      { "devDependencies": ["vite.config.ts", "tests/**/*.ts", "**/*.test.ts", "**/*.spec.ts"] }
+      { "devDependencies": ["vite.config.ts", "tests/**/*.ts"] }
     ],
     "import/prefer-default-export": "off",
     // 臨機応変に書きたい

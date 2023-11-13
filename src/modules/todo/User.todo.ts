@@ -16,6 +16,45 @@ export const resolver: UserResolvers["todo"] = (parent, args, context) => {
   return { id, userId: parent.id };
 };
 
-export const authorizer = isAdminOrUserOwner;
+const authorizer = isAdminOrUserOwner;
 
-export const parser = parseTodoNodeId;
+const parser = parseTodoNodeId;
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { validTodoIds, invalidTodoIds } = await import("tests/data/graph.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { ParseError: ParseErr } = await import("../common/parsers.js");
+
+  describe("Authorization", () => {
+    const allow = [
+      [admin, admin],
+      [admin, alice],
+      [alice, alice],
+    ] as const;
+
+    const deny = [
+      [alice, admin],
+      [guest, admin],
+      [guest, alice],
+    ] as const;
+
+    test.each(allow)("allow %#", (user, parent) => {
+      expect(() => authorizer(user, parent)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", (user, parent) => {
+      expect(() => authorizer(user, parent)).toThrow(AuthErr);
+    });
+  });
+
+  describe("Parsing", () => {
+    test.each(validTodoIds)("valid %#", id => {
+      expect(() => parser(id)).not.toThrow(ParseErr);
+    });
+
+    test.each(invalidTodoIds)("invalid %#", id => {
+      expect(() => parser(id)).toThrow(ParseErr);
+    });
+  });
+}

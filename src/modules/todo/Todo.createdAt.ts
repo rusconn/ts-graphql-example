@@ -16,4 +16,32 @@ export const resolver: TodoResolvers["createdAt"] = async (parent, _args, contex
   return todo.createdAt;
 };
 
-export const authorizer = isAdminOrTodoOwner;
+const authorizer = isAdminOrTodoOwner;
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { adminTodo1: adminTodo, aliceTodo } = await import("tests/data/db.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+
+  describe("Authorization", () => {
+    const allow = [
+      [admin, adminTodo],
+      [admin, aliceTodo],
+      [alice, aliceTodo],
+    ] as const;
+
+    const deny = [
+      [alice, adminTodo],
+      [guest, adminTodo],
+      [guest, aliceTodo],
+    ] as const;
+
+    test.each(allow)("allow %#", (user, todo) => {
+      expect(() => authorizer(user, todo)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", (user, todo) => {
+      expect(() => authorizer(user, todo)).toThrow(AuthErr);
+    });
+  });
+}

@@ -1,6 +1,6 @@
-import * as Prisma from "@/prisma/mod.js";
-import { TodoResolvers, TodoStatus } from "../common/schema.js";
+import type { TodoResolvers } from "../common/schema.js";
 import { isTodoOwner } from "./common/authorizer.js";
+import { todoStatus } from "./common/adapter.js";
 import { fullTodo } from "./common/fuller.js";
 
 export const typeDef = /* GraphQL */ `
@@ -22,11 +22,34 @@ export const resolver: TodoResolvers["status"] = async (parent, _args, context) 
   return adapter(todo.status);
 };
 
-export const authorizer = isTodoOwner;
+const authorizer = isTodoOwner;
 
-export const adapter = (status: Prisma.Todo["status"]) => {
-  return {
-    [Prisma.TodoStatus.DONE]: TodoStatus.Done,
-    [Prisma.TodoStatus.PENDING]: TodoStatus.Pending,
-  }[status];
-};
+const adapter = todoStatus;
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { adminTodo1: adminTodo, aliceTodo } = await import("tests/data/db.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+
+  describe("Authorization", () => {
+    const allow = [
+      [admin, adminTodo],
+      [alice, aliceTodo],
+    ] as const;
+
+    const deny = [
+      [admin, aliceTodo],
+      [alice, adminTodo],
+      [guest, adminTodo],
+      [guest, aliceTodo],
+    ] as const;
+
+    test.each(allow)("allow %#", (user, todo) => {
+      expect(() => authorizer(user, todo)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", (user, todo) => {
+      expect(() => authorizer(user, todo)).toThrow(AuthErr);
+    });
+  });
+}

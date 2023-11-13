@@ -4,8 +4,8 @@ import { ulid } from "ulid";
 import * as Prisma from "@/prisma/mod.js";
 import { allow } from "../common/authorizers.js";
 import { ParseError } from "../common/parsers.js";
-import type { MutationResolvers, MutationLoginArgs } from "../common/schema.js";
 import { full } from "../common/resolvers.js";
+import type { MutationResolvers, MutationLoginArgs } from "../common/schema.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -70,9 +70,9 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
   }
 };
 
-export const authorizer = allow;
+const authorizer = allow;
 
-export const parser = (args: MutationLoginArgs) => {
+const parser = (args: MutationLoginArgs) => {
   const { email, password } = args.input;
 
   if ([...email].length > 100) {
@@ -87,3 +87,48 @@ export const parser = (args: MutationLoginArgs) => {
 
   return { email, password };
 };
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { ParseError: ParseErr } = await import("../common/parsers.js");
+
+  describe("Authorization", () => {
+    const allows = [admin, alice, guest];
+
+    test.each(allows)("allow %#", user => {
+      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    });
+  });
+
+  describe("Parsing", () => {
+    const emailMax = 100;
+    const passMin = 8;
+    const passMax = 50;
+
+    const validInput = { email: "email@email.com", password: "password" };
+
+    const valid = [
+      { ...validInput },
+      { ...validInput, email: `${"A".repeat(emailMax - 10)}@email.com` },
+      { ...validInput, email: `${"🅰".repeat(emailMax - 10)}@email.com` },
+      { ...validInput, password: "A".repeat(passMin) },
+      { ...validInput, password: "🅰".repeat(passMax) },
+    ] as MutationLoginArgs["input"][];
+
+    const invalid = [
+      { ...validInput, email: `${"A".repeat(emailMax - 10 + 1)}@email.com` },
+      { ...validInput, email: `${"🅰".repeat(emailMax - 10 + 1)}@email.com` },
+      { ...validInput, password: "A".repeat(passMin - 1) },
+      { ...validInput, password: "🅰".repeat(passMax + 1) },
+    ] as MutationLoginArgs["input"][];
+
+    test.each(valid)("valid %#", input => {
+      expect(() => parser({ input })).not.toThrow(ParseErr);
+    });
+
+    test.each(invalid)("invalid %#", input => {
+      expect(() => parser({ input })).toThrow(ParseErr);
+    });
+  });
+}

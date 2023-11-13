@@ -6,9 +6,6 @@
     "node": "18.16.0",
     "pnpm": "8.5.1"
   },
-  "scriptsComments": {
-    "build": "--ignore が効かない: https://github.com/swc-project/cli/issues/20"
-  },
   "scripts": {
     "setup": "pnpm install && NODE_ENV=development run-s setup:*",
     "setup:migrate": "pnpm migrate:reset ",
@@ -16,7 +13,7 @@
     "setup:seed": "pnpm seed",
     "setup:husky": "husky install",
     "dev": "NODE_ENV=development pnpm ts --watch src/main.ts",
-    "build": "swc src --ignore '**/*.test.ts' --delete-dir-on-start --copy-files --out-dir dist",
+    "build": "vite build",
     "start": "NODE_ENV=production node --enable-source-maps dist/main.js",
     "codegen": "graphql-codegen-esm",
     "studio": "pnpm prisma studio",
@@ -66,8 +63,6 @@
     "@graphql-codegen/typescript-operations": "^4.0.0",
     "@graphql-codegen/typescript-resolvers": "4.0.0",
     "@graphql-tools/executor-http": "^1.0.3",
-    "@swc/cli": "^0.1.62",
-    "@swc/core": "^1.3.62",
     "@types/bcrypt": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",

@@ -16,4 +16,32 @@ export const resolver: UserResolvers["token"] = async (parent, _args, context) =
   return user.token;
 };
 
-export const authorizer = isUserOwner;
+const authorizer = isUserOwner;
+
+if (import.meta.vitest) {
+  const { admin, alice, guest } = await import("tests/data/context.js");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+
+  describe("Authorization", () => {
+    const allow = [
+      [admin, admin],
+      [alice, alice],
+      [guest, guest],
+    ] as const;
+
+    const deny = [
+      [admin, alice],
+      [alice, admin],
+      [guest, admin],
+      [guest, alice],
+    ] as const;
+
+    test.each(allow)("allow %#", (user, parent) => {
+      expect(() => authorizer(user, parent)).not.toThrow(AuthErr);
+    });
+
+    test.each(deny)("deny %#", (user, parent) => {
+      expect(() => authorizer(user, parent)).toThrow(AuthErr);
+    });
+  });
+}
