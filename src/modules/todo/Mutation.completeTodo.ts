@@ -1,7 +1,7 @@
 import * as Prisma from "@/prisma/mod.ts";
 import { isAuthenticated } from "../common/authorizers.ts";
 import { full } from "../common/resolvers.ts";
-import type { MutationResolvers, MutationCompleteTodoArgs } from "../common/schema.ts";
+import type { MutationResolvers } from "../common/schema.ts";
 import { parseTodoNodeId } from "./common/parser.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -17,14 +17,14 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["completeTodo"] = async (_parent, args, context) => {
-  const authed = authorizer(context.user);
+  const authed = isAuthenticated(context.user);
 
-  const parsed = parser(args);
+  const id = parseTodoNodeId(args.id);
 
   try {
     const todo = await context.prisma.todo.update({
-      where: { id: parsed.id, userId: authed.id },
-      data: parsed,
+      where: { id, userId: authed.id },
+      data: { status: Prisma.TodoStatus.DONE },
     });
 
     return {
@@ -45,39 +45,52 @@ export const resolver: MutationResolvers["completeTodo"] = async (_parent, args,
   }
 };
 
-const authorizer = isAuthenticated;
-
-const parser = (args: MutationCompleteTodoArgs) => {
-  return { id: parseTodoNodeId(args.id), status: Prisma.TodoStatus.DONE };
-};
-
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");
   const { validTodoIds, invalidTodoIds } = await import("tests/data/graph.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { ParseError: ParseErr } = await import("../common/parsers.ts");
+  const { dummyContext } = await import("../common/tests.ts");
+
+  type Args = Parameters<typeof resolver>[1];
+  type Params = Parameters<typeof dummyContext>[0];
+
+  const valid = {
+    args: { id: validTodoIds[0] },
+    user: admin,
+  };
+
+  const resolve = ({
+    args = valid.args,
+    user = valid.user,
+  }: {
+    args?: Args;
+    user?: Params["user"];
+  }) => {
+    return resolver({}, args, dummyContext({ user }));
+  };
 
   describe("Authorization", () => {
-    const allow = [admin, alice];
+    const allows = [admin, alice];
 
-    const deny = [guest];
+    const denys = [guest];
 
-    test.each(allow)("allow %#", user => {
-      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    test.each(allows)("allows %#", user => {
+      void expect(resolve({ user })).resolves.not.toThrow(AuthErr);
     });
 
-    test.each(deny)("deny %#", user => {
-      expect(() => authorizer(user)).toThrow(AuthErr);
+    test.each(denys)("denys %#", user => {
+      void expect(resolve({ user })).rejects.toThrow(AuthErr);
     });
   });
 
   describe("Parsing", () => {
-    test.each(validTodoIds)("valid %#", id => {
-      expect(() => parser({ id })).not.toThrow(ParseErr);
+    test.each(validTodoIds)("valids %#", id => {
+      void expect(resolve({ args: { id } })).resolves.not.toThrow(ParseErr);
     });
 
-    test.each(invalidTodoIds)("invalid %#", id => {
-      expect(() => parser({ id })).toThrow(ParseErr);
+    test.each(invalidTodoIds)("invalids %#", id => {
+      void expect(resolve({ args: { id } })).rejects.toThrow(ParseErr);
     });
   });
 }

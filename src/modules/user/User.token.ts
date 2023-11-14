@@ -9,39 +9,50 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["token"] = async (parent, _args, context) => {
-  authorizer(context.user, parent);
+  isUserOwner(context.user, parent);
 
   const user = await fullUser(context.prisma, parent);
 
   return user.token;
 };
 
-const authorizer = isUserOwner;
-
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
+  const { key } = await import("../common/resolvers.ts");
+  const { dummyContext } = await import("../common/tests.ts");
+
+  type Parent = Parameters<typeof resolver>[0];
+  type Params = Parameters<typeof dummyContext>[0];
+
+  const resolve = ({ parent, user }: { parent: Parent; user: Params["user"] }) => {
+    const prisma = {
+      user: { findUniqueOrThrow: async () => parent },
+    } as unknown as Params["prisma"];
+
+    return resolver(parent, {}, dummyContext({ prisma, user }));
+  };
 
   describe("Authorization", () => {
-    const allow = [
+    const allows = [
       [admin, admin],
       [alice, alice],
       [guest, guest],
     ] as const;
 
-    const deny = [
+    const denys = [
       [admin, alice],
       [alice, admin],
       [guest, admin],
       [guest, alice],
     ] as const;
 
-    test.each(allow)("allow %#", (user, parent) => {
-      expect(() => authorizer(user, parent)).not.toThrow(AuthErr);
+    test.each(allows)("allows %#", (user, parent) => {
+      void expect(resolve({ parent: key(parent), user })).resolves.not.toThrow(AuthErr);
     });
 
-    test.each(deny)("deny %#", (user, parent) => {
-      expect(() => authorizer(user, parent)).toThrow(AuthErr);
+    test.each(denys)("denys %#", (user, parent) => {
+      void expect(resolve({ parent: key(parent), user })).rejects.toThrow(AuthErr);
     });
   });
 }

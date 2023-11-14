@@ -2,7 +2,7 @@ import * as Prisma from "@/prisma/mod.ts";
 import { isAuthenticated } from "../common/authorizers.ts";
 import { ParseError } from "../common/parsers.ts";
 import { full } from "../common/resolvers.ts";
-import type { MutationResolvers, MutationUpdateTodoArgs } from "../common/schema.ts";
+import type { MutationResolvers } from "../common/schema.ts";
 import { parseTodoNodeId } from "./common/parser.ts";
 
 const TITLE_MAX = 100;
@@ -31,14 +31,32 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, context) => {
-  const authed = authorizer(context.user);
+  const authed = isAuthenticated(context.user);
 
-  const parsed = parser(args);
+  const id = parseTodoNodeId(args.id);
+
+  const { title, description, status } = args.input;
+
+  if (title === null) {
+    throw new ParseError('"title" must be not null');
+  }
+  if (description === null) {
+    throw new ParseError('"description" must be not null');
+  }
+  if (status === null) {
+    throw new ParseError('"status" must be not null');
+  }
+  if (title && [...title].length > TITLE_MAX) {
+    throw new ParseError(`"title" must be up to ${TITLE_MAX} characters`);
+  }
+  if (description && [...description].length > DESC_MAX) {
+    throw new ParseError(`"description" must be up to ${DESC_MAX} characters`);
+  }
 
   try {
     const todo = await context.prisma.todo.update({
-      where: { id: parsed.id, userId: authed.id },
-      data: parsed,
+      where: { id, userId: authed.id },
+      data: { title, description, status },
     });
 
     return {
@@ -59,101 +77,90 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
   }
 };
 
-const authorizer = isAuthenticated;
-
-const parser = (args: MutationUpdateTodoArgs) => {
-  const { id, input } = args;
-  const { title, description, status } = input;
-
-  const idToUse = parseTodoNodeId(id);
-
-  if (title === null) {
-    throw new ParseError('"title" must be not null');
-  }
-  if (description === null) {
-    throw new ParseError('"description" must be not null');
-  }
-  if (status === null) {
-    throw new ParseError('"status" must be not null');
-  }
-  if (title && [...title].length > TITLE_MAX) {
-    throw new ParseError(`"title" must be up to ${TITLE_MAX} characters`);
-  }
-  if (description && [...description].length > DESC_MAX) {
-    throw new ParseError(`"description" must be up to ${DESC_MAX} characters`);
-  }
-
-  return { id: idToUse, title, description, status };
-};
-
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");
   const { validTodoIds, invalidTodoIds } = await import("tests/data/graph.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { ParseError: ParseErr } = await import("../common/parsers.ts");
   const { TodoStatus } = await import("../common/schema.ts");
+  const { dummyContext } = await import("../common/tests.ts");
+
+  type Args = Parameters<typeof resolver>[1];
+  type Params = Parameters<typeof dummyContext>[0];
+
+  const valid = {
+    args: { id: validTodoIds[0], input: {} },
+    user: admin,
+  };
+
+  const resolve = ({
+    args = valid.args,
+    user = valid.user,
+  }: {
+    args?: Args;
+    user?: Params["user"];
+  }) => {
+    return resolver({}, args, dummyContext({ user }));
+  };
 
   describe("Authorization", () => {
-    const allow = [admin, alice];
+    const allows = [admin, alice];
 
-    const deny = [guest];
+    const denys = [guest];
 
-    test.each(allow)("allow %#", user => {
-      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    test.each(allows)("allows %#", user => {
+      void expect(resolve({ user })).resolves.not.toThrow(AuthErr);
     });
 
-    test.each(deny)("deny %#", user => {
-      expect(() => authorizer(user)).toThrow(AuthErr);
+    test.each(denys)("denys %#", user => {
+      void expect(resolve({ user })).rejects.toThrow(AuthErr);
     });
   });
 
   describe("Parsing", () => {
     describe("id", () => {
-      const input = {
-        title: "title",
-        description: "description",
-        status: TodoStatus.Done,
-      } as MutationUpdateTodoArgs["input"];
+      const { input } = valid.args;
 
-      test.each(validTodoIds)("valid %#", id => {
-        expect(() => parser({ id, input })).not.toThrow(ParseErr);
+      test.each(validTodoIds)("valids %#", id => {
+        void expect(resolve({ args: { id, input } })).resolves.not.toThrow(ParseErr);
       });
 
-      test.each(invalidTodoIds)("invalid %#", id => {
-        expect(() => parser({ id, input })).toThrow(ParseErr);
+      test.each(invalidTodoIds)("invalids %#", id => {
+        void expect(resolve({ args: { id, input } })).rejects.toThrow(ParseErr);
       });
     });
 
     describe("input", () => {
-      const id = validTodoIds[0];
+      const { id, input: validInput } = valid.args;
 
-      const valid = [
-        { title: "title" },
-        { description: "description" },
-        { status: TodoStatus.Done },
-        { title: "title", description: "description", status: TodoStatus.Done },
-        { title: "A".repeat(TITLE_MAX) },
-        { title: "🅰".repeat(TITLE_MAX) },
-        { description: "A".repeat(DESC_MAX) },
-        { description: "🅰".repeat(DESC_MAX) },
-      ] as MutationUpdateTodoArgs["input"][];
+      const valids = [
+        { ...validInput },
+        { ...validInput, title: "title" },
+        { ...validInput, description: "description" },
+        { ...validInput, status: TodoStatus.Done },
+        { ...validInput, title: "title", description: "description", status: TodoStatus.Done },
+        { ...validInput, title: "A".repeat(TITLE_MAX) },
+        { ...validInput, title: "🅰".repeat(TITLE_MAX) },
+        { ...validInput, description: "A".repeat(DESC_MAX) },
+        { ...validInput, description: "🅰".repeat(DESC_MAX) },
+      ] as Args["input"][];
 
-      const invalid = [
-        { title: null },
-        { description: null },
-        { status: null },
-        { title: "A".repeat(TITLE_MAX + 1) },
-        { title: "🅰".repeat(TITLE_MAX + 1) },
-        { description: "A".repeat(DESC_MAX + 1) },
-        { description: "🅰".repeat(DESC_MAX + 1) },
-      ] as MutationUpdateTodoArgs["input"][];
+      const invalids = [
+        { ...validInput, title: null },
+        { ...validInput, description: null },
+        { ...validInput, status: null },
+        { ...validInput, title: "A".repeat(TITLE_MAX + 1) },
+        { ...validInput, title: "🅰".repeat(TITLE_MAX + 1) },
+        { ...validInput, description: "A".repeat(DESC_MAX + 1) },
+        { ...validInput, description: "🅰".repeat(DESC_MAX + 1) },
+      ] as Args["input"][];
 
-      test.each(valid)("valid %#", input => {
-        expect(() => parser({ id, input })).not.toThrow(ParseErr);
+      test.each(valids)("valids %#", input => {
+        void expect(resolve({ args: { id, input } })).resolves.not.toThrow(ParseErr);
       });
 
-      test.each(invalid)("invalid %#", input => {
-        expect(() => parser({ id, input })).toThrow(ParseErr);
+      test.each(invalids)("invalids %#", input => {
+        void expect(resolve({ args: { id, input } })).rejects.toThrow(ParseErr);
       });
     });
   });

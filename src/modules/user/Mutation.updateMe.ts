@@ -2,7 +2,7 @@ import * as Prisma from "@/prisma/mod.ts";
 import { isAuthenticated } from "../common/authorizers.ts";
 import { ParseError } from "../common/parsers.ts";
 import { full } from "../common/resolvers.ts";
-import type { MutationResolvers, MutationUpdateMeArgs } from "../common/schema.ts";
+import type { MutationResolvers } from "../common/schema.ts";
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 100;
@@ -32,37 +32,8 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["updateMe"] = async (_parent, args, context) => {
-  const authed = authorizer(context.user);
+  const authed = isAuthenticated(context.user);
 
-  const parsed = parser(args);
-
-  try {
-    const updated = await context.prisma.user.update({
-      where: { id: authed.id },
-      data: parsed,
-    });
-
-    return {
-      __typename: "UpdateMeSuccess",
-      user: full(updated),
-    };
-  } catch (e) {
-    if (e instanceof Prisma.NotUniqueError) {
-      context.logger.error(e, "error info");
-
-      return {
-        __typename: "EmailAlreadyTakenError",
-        message: "specified email already taken",
-      };
-    }
-
-    throw e;
-  }
-};
-
-const authorizer = isAuthenticated;
-
-const parser = (args: MutationUpdateMeArgs) => {
   const { name, email, password } = args.input;
 
   if (name === null) {
@@ -87,30 +58,71 @@ const parser = (args: MutationUpdateMeArgs) => {
     throw new ParseError(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
-  return { name, email, password };
+  try {
+    const updated = await context.prisma.user.update({
+      where: { id: authed.id },
+      data: { name, email, password },
+    });
+
+    return {
+      __typename: "UpdateMeSuccess",
+      user: full(updated),
+    };
+  } catch (e) {
+    if (e instanceof Prisma.NotUniqueError) {
+      context.logger.error(e, "error info");
+
+      return {
+        __typename: "EmailAlreadyTakenError",
+        message: "specified email already taken",
+      };
+    }
+
+    throw e;
+  }
 };
 
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { ParseError: ParseErr } = await import("../common/parsers.ts");
+  const { dummyContext } = await import("../common/tests.ts");
+
+  type Args = Parameters<typeof resolver>[1];
+  type Params = Parameters<typeof dummyContext>[0];
+
+  const valid = {
+    args: { input: {} },
+    user: admin,
+  };
+
+  const resolve = ({
+    args = valid.args,
+    user = valid.user,
+  }: {
+    args?: Args;
+    user?: Params["user"];
+  }) => {
+    return resolver({}, args, dummyContext({ user }));
+  };
 
   describe("Authorization", () => {
-    const allow = [admin, alice];
+    const allows = [admin, alice];
 
-    const deny = [guest];
+    const denys = [guest];
 
-    test.each(allow)("allow %#", user => {
-      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    test.each(allows)("allows %#", user => {
+      void expect(resolve({ user })).resolves.not.toThrow(AuthErr);
     });
 
-    test.each(deny)("deny %#", user => {
-      expect(() => authorizer(user)).toThrow(AuthErr);
+    test.each(denys)("denys %#", user => {
+      void expect(resolve({ user })).rejects.toThrow(AuthErr);
     });
   });
 
   describe("Parsing", () => {
-    const valid = [
+    const valids = [
+      {},
       { name: "name" },
       { email: "email@email.com" },
       { password: "password" },
@@ -121,9 +133,9 @@ if (import.meta.vitest) {
       { email: `${"🅰".repeat(EMAIL_MAX - 10)}@email.com` },
       { password: "A".repeat(PASS_MIN) },
       { password: "🅰".repeat(PASS_MAX) },
-    ] as MutationUpdateMeArgs["input"][];
+    ] as Args["input"][];
 
-    const invalid = [
+    const invalids = [
       { name: null },
       { email: null },
       { password: null },
@@ -133,14 +145,14 @@ if (import.meta.vitest) {
       { email: `${"🅰".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
       { password: "A".repeat(PASS_MIN - 1) },
       { password: "🅰".repeat(PASS_MAX + 1) },
-    ] as MutationUpdateMeArgs["input"][];
+    ] as Args["input"][];
 
-    test.each(valid)("valid %#", input => {
-      expect(() => parser({ input })).not.toThrow(ParseErr);
+    test.each(valids)("valids %#", input => {
+      void expect(resolve({ args: { input } })).resolves.not.toThrow(ParseErr);
     });
 
-    test.each(invalid)("invalid %#", input => {
-      expect(() => parser({ input })).toThrow(ParseErr);
+    test.each(invalids)("invalids %#", input => {
+      void expect(resolve({ args: { input } })).rejects.toThrow(ParseErr);
     });
   });
 }

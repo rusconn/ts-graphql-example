@@ -11,37 +11,44 @@ export const typeDef = /* GraphQL */ `
 export const resolver: TodoResolvers["description"] = async (parent, _args, context) => {
   const todo = await fullTodo(context.prisma, parent);
 
-  authorizer(context.user, todo);
+  isTodoOwner(context.user, todo);
 
   return todo.description;
 };
-
-const authorizer = isTodoOwner;
 
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");
   const { adminTodo1: adminTodo, aliceTodo } = await import("tests/data/db.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
+  const { full } = await import("../common/resolvers.ts");
+  const { dummyContext } = await import("../common/tests.ts");
+
+  type Parent = Parameters<typeof resolver>[0];
+  type Params = Parameters<typeof dummyContext>[0];
+
+  const resolve = ({ parent, user }: { parent: Parent; user: Params["user"] }) => {
+    return resolver(parent, {}, dummyContext({ user }));
+  };
 
   describe("Authorization", () => {
-    const allow = [
+    const allows = [
       [admin, adminTodo],
       [alice, aliceTodo],
     ] as const;
 
-    const deny = [
+    const denys = [
       [admin, aliceTodo],
       [alice, adminTodo],
       [guest, adminTodo],
       [guest, aliceTodo],
     ] as const;
 
-    test.each(allow)("allow %#", (user, todo) => {
-      expect(() => authorizer(user, todo)).not.toThrow(AuthErr);
+    test.each(allows)("allows %#", (user, parent) => {
+      void expect(resolve({ parent: full(parent), user })).resolves.not.toThrow(AuthErr);
     });
 
-    test.each(deny)("deny %#", (user, todo) => {
-      expect(() => authorizer(user, todo)).toThrow(AuthErr);
+    test.each(denys)("denys %#", (user, parent) => {
+      void expect(resolve({ parent: full(parent), user })).rejects.toThrow(AuthErr);
     });
   });
 }

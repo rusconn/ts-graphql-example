@@ -3,7 +3,7 @@ import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection
 import * as Prisma from "@/prisma/mod.ts";
 import { parseConnectionArgs, ParseError } from "../common/parsers.ts";
 import { full } from "../common/resolvers.ts";
-import type { UserResolvers, UserTodosArgs } from "../common/schema.ts";
+import type { UserResolvers } from "../common/schema.ts";
 import { OrderDirection, TodoOrderField } from "../common/schema.ts";
 import { cursorConnections, orderOptions } from "../common/typeDefs.ts";
 import { isAdminOrUserOwner } from "./common/authorizer.ts";
@@ -29,31 +29,8 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["todos"] = async (parent, args, context, info) => {
-  authorizer(context.user, parent);
+  isAdminOrUserOwner(context.user, parent);
 
-  const { first, after, last, before, orderBy } = parser(args);
-
-  return findManyCursorConnection(
-    findManyArgs =>
-      context.prisma.todo
-        .findMany({
-          ...findManyArgs,
-          where: { userId: parent.id },
-          orderBy,
-        })
-        .then(todos => todos.map(full)),
-    () =>
-      context.prisma.todo.count({
-        where: { userId: parent.id },
-      }),
-    { first, after, last, before },
-    { resolveInfo: info }
-  );
-};
-
-const authorizer = isAdminOrUserOwner;
-
-const parser = (args: UserTodosArgs) => {
   const { orderBy, ...connectionArgs } = args;
 
   const { first, after, last, before } = parseConnectionArgs(connectionArgs);
@@ -78,40 +55,84 @@ const parser = (args: UserTodosArgs) => {
     [TodoOrderField.UpdatedAt]: [{ updatedAt: direction }, { id: direction }],
   }[orderBy.field];
 
-  return { first, after, last, before, orderBy: orderByToUse };
+  return findManyCursorConnection(
+    findManyArgs =>
+      context.prisma.todo
+        .findMany({
+          ...findManyArgs,
+          where: { userId: parent.id },
+          orderBy: orderByToUse,
+        })
+        .then(todos => todos.map(full)),
+    () =>
+      context.prisma.todo.count({
+        where: { userId: parent.id },
+      }),
+    { first, after, last, before },
+    { resolveInfo: info }
+  );
 };
 
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { ParseError: ParseErr } = await import("../common/parsers.ts");
+  const { dummyContext } = await import("../common/tests.ts");
+
+  type Parent = Parameters<typeof resolver>[0];
+  type Args = Parameters<typeof resolver>[1];
+  type Params = Parameters<typeof dummyContext>[0];
+
+  const valid = {
+    parent: full(admin),
+    args: {
+      first: 10,
+      orderBy: {
+        field: TodoOrderField.UpdatedAt,
+        direction: OrderDirection.Desc,
+      },
+    },
+    user: admin,
+  };
+
+  const resolve = ({
+    parent = valid.parent,
+    args = valid.args,
+    user = valid.user,
+  }: {
+    parent?: Parent;
+    args?: Args;
+    user?: Params["user"];
+  }) => {
+    return resolver(parent, args, dummyContext({ user }));
+  };
 
   describe("Authorization", () => {
-    const allow = [
+    const allows = [
       [admin, admin],
       [admin, alice],
       [alice, alice],
     ] as const;
 
-    const deny = [
+    const denys = [
       [alice, admin],
       [guest, admin],
       [guest, alice],
     ] as const;
 
-    test.each(allow)("allow %#", (user, parent) => {
-      expect(() => authorizer(user, parent)).not.toThrow(AuthErr);
+    test.each(allows)("allows %#", (user, parent) => {
+      void expect(resolve({ parent: full(parent), user })).resolves.not.toThrow(AuthErr);
     });
 
-    test.each(deny)("deny %#", (user, parent) => {
-      expect(() => authorizer(user, parent)).toThrow(AuthErr);
+    test.each(denys)("denys %#", (user, parent) => {
+      void expect(resolve({ parent: full(parent), user })).rejects.toThrow(AuthErr);
     });
   });
 
   describe("Parsing", () => {
-    const valid = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
+    const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
 
-    const invalid = [
+    const invalids = [
       {},
       { first: null },
       { last: null },
@@ -120,17 +141,14 @@ if (import.meta.vitest) {
       { last: LAST_MAX + 1 },
     ];
 
-    const orderBy = {
-      field: TodoOrderField.UpdatedAt,
-      direction: OrderDirection.Desc,
-    };
+    const { orderBy } = valid.args;
 
-    test.each(valid)("valid %#", args => {
-      expect(() => parser({ ...args, orderBy })).not.toThrow(ParseErr);
+    test.each(valids)("valids %#", args => {
+      void expect(resolve({ args: { ...args, orderBy } })).resolves.not.toThrow(ParseErr);
     });
 
-    test.each(invalid)("invalid %#", args => {
-      expect(() => parser({ ...args, orderBy })).toThrow(ParseErr);
+    test.each(invalids)("invalids %#", args => {
+      void expect(resolve({ args: { ...args, orderBy } })).rejects.toThrow(ParseErr);
     });
   });
 }

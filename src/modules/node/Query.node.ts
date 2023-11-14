@@ -1,6 +1,6 @@
 import { isAuthenticated } from "../common/authorizers.ts";
 import { parseNodeId } from "../common/parsers.ts";
-import type { QueryResolvers, QueryNodeArgs } from "../common/schema.ts";
+import type { QueryResolvers } from "../common/schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
@@ -9,17 +9,11 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["node"] = (_parent, args, context) => {
-  authorizer(context.user);
+  isAuthenticated(context.user);
 
-  const { type, id } = parser(args);
+  const { type, id } = parseNodeId(args.id);
 
   return { type, id };
-};
-
-const authorizer = isAuthenticated;
-
-const parser = (args: QueryNodeArgs) => {
-  return parseNodeId(args.id);
 };
 
 if (import.meta.vitest) {
@@ -27,28 +21,47 @@ if (import.meta.vitest) {
   const { validNodeIds, invalidIds } = await import("tests/data/graph.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { ParseError: ParseErr } = await import("../common/parsers.ts");
+  const { dummyContext } = await import("../common/tests.ts");
+
+  type Args = Parameters<typeof resolver>[1];
+  type Params = Parameters<typeof dummyContext>[0];
+
+  const valid = {
+    args: { id: validNodeIds[0] },
+    user: admin,
+  };
+
+  const resolve = ({
+    args = valid.args,
+    user = valid.user,
+  }: {
+    args?: Args;
+    user?: Params["user"];
+  }) => {
+    return resolver({}, args, dummyContext({ user }));
+  };
 
   describe("Authorization", () => {
-    const allow = [admin, alice];
+    const allows = [admin, alice];
 
-    const deny = [guest];
+    const denys = [guest];
 
-    test.each(allow)("allow %#", user => {
-      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    test.each(allows)("allows %#", user => {
+      expect(() => resolve({ user })).not.toThrow(AuthErr);
     });
 
-    test.each(deny)("deny %#", user => {
-      expect(() => authorizer(user)).toThrow(AuthErr);
+    test.each(denys)("denys %#", user => {
+      expect(() => resolve({ user })).toThrow(AuthErr);
     });
   });
 
   describe("Parsing", () => {
-    test.each(validNodeIds)("valid %#", id => {
-      expect(() => parser({ id })).not.toThrow(ParseErr);
+    test.each(validNodeIds)("valids %#", id => {
+      expect(() => resolve({ args: { id } })).not.toThrow(ParseErr);
     });
 
-    test.each(invalidIds)("invalid %#", id => {
-      expect(() => parser({ id })).toThrow(ParseErr);
+    test.each(invalidIds)("invalids %#", id => {
+      expect(() => resolve({ args: { id } })).toThrow(ParseErr);
     });
   });
 }

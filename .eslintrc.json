@@ -16,6 +16,7 @@
   "rules": {
     "no-console": "off",
     "no-else-return": "off",
+    "no-void": "off",
     "import/extensions": "off",
     "import/no-extraneous-dependencies": [
       "error",

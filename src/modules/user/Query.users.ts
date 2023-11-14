@@ -4,7 +4,7 @@ import * as Prisma from "@/prisma/mod.ts";
 import { isAdmin } from "../common/authorizers.ts";
 import { parseConnectionArgs, ParseError } from "../common/parsers.ts";
 import { full } from "../common/resolvers.ts";
-import type { QueryResolvers, QueryUsersArgs } from "../common/schema.ts";
+import type { QueryResolvers } from "../common/schema.ts";
 import { OrderDirection, UserOrderField } from "../common/schema.ts";
 import { cursorConnections, orderOptions } from "../common/typeDefs.ts";
 
@@ -29,27 +29,8 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
-  authorizer(context.user);
+  isAdmin(context.user);
 
-  const { first, after, last, before, orderBy } = parser(args);
-
-  return findManyCursorConnection(
-    findManyArgs =>
-      context.prisma.user
-        .findMany({
-          ...findManyArgs,
-          orderBy,
-        })
-        .then(users => users.map(full)),
-    () => context.prisma.user.count(),
-    { first, after, last, before },
-    { resolveInfo: info }
-  );
-};
-
-const authorizer = isAdmin;
-
-const parser = (args: QueryUsersArgs) => {
   const { orderBy, ...connectionArgs } = args;
 
   const { first, after, last, before } = parseConnectionArgs(connectionArgs);
@@ -74,32 +55,68 @@ const parser = (args: QueryUsersArgs) => {
     [UserOrderField.UpdatedAt]: [{ updatedAt: direction }, { id: direction }],
   }[orderBy.field];
 
-  return { first, after, last, before, orderBy: orderByToUse };
+  return findManyCursorConnection(
+    findManyArgs =>
+      context.prisma.user
+        .findMany({
+          ...findManyArgs,
+          orderBy: orderByToUse,
+        })
+        .then(users => users.map(full)),
+    () => context.prisma.user.count(),
+    { first, after, last, before },
+    { resolveInfo: info }
+  );
 };
 
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { ParseError: ParseErr } = await import("../common/parsers.ts");
+  const { dummyContext } = await import("../common/tests.ts");
+
+  type Args = Parameters<typeof resolver>[1];
+  type Params = Parameters<typeof dummyContext>[0];
+
+  const valid = {
+    args: {
+      first: 10,
+      orderBy: {
+        field: UserOrderField.CreatedAt,
+        direction: OrderDirection.Desc,
+      },
+    },
+    user: admin,
+  };
+
+  const resolve = ({
+    args = valid.args,
+    user = valid.user,
+  }: {
+    args?: Args;
+    user?: Params["user"];
+  }) => {
+    return resolver({}, args, dummyContext({ user }));
+  };
 
   describe("Authorization", () => {
-    const allow = [admin];
+    const allows = [admin];
 
-    const deny = [alice, guest];
+    const denys = [alice, guest];
 
-    test.each(allow)("allow %#", user => {
-      expect(() => authorizer(user)).not.toThrow(AuthErr);
+    test.each(allows)("allows %#", user => {
+      void expect(resolve({ user })).resolves.not.toThrow(AuthErr);
     });
 
-    test.each(deny)("deny %#", user => {
-      expect(() => authorizer(user)).toThrow(AuthErr);
+    test.each(denys)("denys %#", user => {
+      void expect(resolve({ user })).rejects.toThrow(AuthErr);
     });
   });
 
   describe("Parsing", () => {
-    const valid = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
+    const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
 
-    const invalid = [
+    const invalids = [
       {},
       { first: null },
       { last: null },
@@ -108,17 +125,14 @@ if (import.meta.vitest) {
       { last: LAST_MAX + 1 },
     ];
 
-    const orderBy = {
-      field: UserOrderField.CreatedAt,
-      direction: OrderDirection.Desc,
-    };
+    const { orderBy } = valid.args;
 
-    test.each(valid)("valid %#", args => {
-      expect(() => parser({ ...args, orderBy })).not.toThrow(ParseErr);
+    test.each(valids)("valids %#", args => {
+      void expect(resolve({ args: { ...args, orderBy } })).resolves.not.toThrow(ParseErr);
     });
 
-    test.each(invalid)("invalid %#", args => {
-      expect(() => parser({ ...args, orderBy })).toThrow(ParseErr);
+    test.each(invalids)("invalids %#", args => {
+      void expect(resolve({ args: { ...args, orderBy } })).rejects.toThrow(ParseErr);
     });
   });
 }

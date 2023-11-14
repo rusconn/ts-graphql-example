@@ -31,6 +31,7 @@ const typescript: TypeScriptPluginConfig = {
 const typescriptResolvers: TypeScriptResolversPluginConfig = {
   useIndexSignature: true,
   contextType: "@/modules/common/resolvers.ts#Context",
+  optionalInfoArgument: true,
   mapperTypeSuffix: "Mapper",
   mappers: {
     Node: "@/modules/node/common/resolver.ts#Node",

@@ -18,7 +18,7 @@
     "codegen": "graphql-codegen-esm",
     "studio": "prisma studio",
     "test": "run-s test:ut test:it",
-    "test:ut": "NODE_ENV=test vitest --run --silent --single-thread --dir src",
+    "test:ut": "NODE_ENV=test PASSWORD_HASH_ROUNDS_EXPONENT=4 vitest --run --silent --single-thread --dir src",
     "test:it": "NODE_ENV=test PASSWORD_HASH_ROUNDS_EXPONENT=4 DB_NAME=testdb run-s test:it:*",
     "test:it:migrate": "pnpm migrate:reset",
     "test:it:run": "vitest --run --silent --single-thread --dir tests",
