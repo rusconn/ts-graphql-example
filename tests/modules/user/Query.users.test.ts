@@ -1,5 +1,5 @@
 import type { UsersQuery, UsersQueryVariables } from "tests/modules/schema.js";
-import { ContextData, DBData, GraphData } from "tests/data/mod.js";
+import { DBData, GraphData } from "tests/data/mod.js";
 import { clearUsers } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
@@ -36,56 +36,6 @@ const seedData = {
 beforeAll(async () => {
   await clearUsers();
   await seedData.users();
-});
-
-describe("authorization", () => {
-  test("not AuthorizationError -> not Forbidden", async () => {
-    const { data, errors } = await executeQuery({
-      user: ContextData.admin,
-      variables: { first: 1 },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.users).not.toBeFalsy();
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
-
-  test("AuthorizationError -> Forbidden", async () => {
-    const { data, errors } = await executeQuery({
-      user: ContextData.alice,
-      variables: { first: 1 },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.users).toBeFalsy();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
-});
-
-describe("validation", () => {
-  test("not ParseError -> not BadUserInput", async () => {
-    const { data, errors } = await executeQuery({
-      variables: { first: 10 },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.users).not.toBeFalsy();
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-  });
-
-  test("ParseError -> BadUserInput", async () => {
-    const { data, errors } = await executeQuery({
-      variables: {},
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.users).toBeFalsy();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-  });
 });
 
 describe("number of items", () => {

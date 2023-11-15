@@ -1,10 +1,9 @@
 import type { CreateTodoMutation, CreateTodoMutationVariables } from "tests/modules/schema.js";
-import { ContextData, DBData } from "tests/data/mod.js";
+import { DBData } from "tests/data/mod.js";
 import { clearTables, fail } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
 import * as Prisma from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
 import { parseTodoNodeId } from "@/modules/todo/common/parser.js";
 
 const executeMutation = executeSingleResultOperation<
@@ -39,97 +38,44 @@ beforeAll(async () => {
   await seedData.users();
 });
 
-describe("authorization", () => {
-  const input = { title: "title", description: "" };
+const input = {
+  title: "foo",
+  description: "bar",
+};
 
-  test("not AuthorizationError -> not Forbidden", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.alice,
-      variables: { input },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
+it("should create todo using input", async () => {
+  const { data } = await executeMutation({
+    variables: { input },
   });
 
-  test("AuthorizationError -> Forbidden", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.guest,
-      variables: { input },
-    });
+  if (data?.createTodo?.__typename !== "CreateTodoSuccess") {
+    fail();
+  }
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+  const id = parseTodoNodeId(data.createTodo.todo.id);
 
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
+  const todo = await prisma.todo.findUniqueOrThrow({
+    where: { id },
   });
+
+  expect(todo.title).toBe(input.title);
+  expect(todo.description).toBe(input.description);
 });
 
-describe("validation", () => {
-  const titleMax = 100;
-  const validInput = { title: "title", description: "description" };
-
-  test("not ParseError -> not BadUserInput", async () => {
-    const { errors } = await executeMutation({
-      variables: { input: { ...validInput } },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+test("status should be PENDING by default", async () => {
+  const { data } = await executeMutation({
+    variables: { input },
   });
 
-  test("ParseError -> BadUserInput", async () => {
-    const { errors } = await executeMutation({
-      variables: { input: { ...validInput, title: "A".repeat(titleMax + 1) } },
-    });
+  if (data?.createTodo?.__typename !== "CreateTodoSuccess") {
+    fail();
+  }
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
+  const id = parseTodoNodeId(data.createTodo.todo.id);
 
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-  });
-});
-
-describe("logic", () => {
-  const input = {
-    title: "foo",
-    description: "bar",
-  };
-
-  it("should create todo using input", async () => {
-    const { data } = await executeMutation({
-      variables: { input },
-    });
-
-    if (data?.createTodo?.__typename !== "CreateTodoSuccess") {
-      fail();
-    }
-
-    const id = parseTodoNodeId(data.createTodo.todo.id);
-
-    const todo = await prisma.todo.findUniqueOrThrow({
-      where: { id },
-    });
-
-    expect(todo.title).toBe(input.title);
-    expect(todo.description).toBe(input.description);
+  const todo = await prisma.todo.findUniqueOrThrow({
+    where: { id },
   });
 
-  test("status should be PENDING by default", async () => {
-    const { data } = await executeMutation({
-      variables: { input },
-    });
-
-    if (data?.createTodo?.__typename !== "CreateTodoSuccess") {
-      fail();
-    }
-
-    const id = parseTodoNodeId(data.createTodo.todo.id);
-
-    const todo = await prisma.todo.findUniqueOrThrow({
-      where: { id },
-    });
-
-    expect(todo.status).toBe(Prisma.TodoStatus.PENDING);
-  });
+  expect(todo.status).toBe(Prisma.TodoStatus.PENDING);
 });

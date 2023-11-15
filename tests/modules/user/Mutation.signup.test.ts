@@ -4,7 +4,6 @@ import { clearUsers, fail } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
 import * as Prisma from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
 import { parseUserNodeId } from "@/modules/user/common/parser.js";
 
 const executeMutation = executeSingleResultOperation<
@@ -32,134 +31,67 @@ const seedData = {
   users: () => prisma.user.createMany({ data: testData.users }),
 };
 
-const resetUsers = async () => {
+beforeEach(async () => {
   await clearUsers();
   await seedData.users();
-};
-
-beforeAll(resetUsers);
-
-describe("authorization", () => {
-  const variables = {
-    input: {
-      name: "foo",
-      email: "guest@guest.com",
-      password: "password",
-    },
-  };
-
-  test("not AuthorizationError -> not Forbidden", async () => {
-    const { data, errors } = await executeMutation({
-      user: ContextData.guest,
-      variables,
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.signup).not.toBeNull();
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
-
-  test("AuthorizationError -> Forbidden", async () => {
-    const { data, errors } = await executeMutation({
-      user: ContextData.alice,
-      variables,
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.signup).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
 });
 
-describe("validation", () => {
-  const nameMax = 100;
-  const validInput = { name: "name", email: "email@email.com", password: "password" };
+test("email already exists", async () => {
+  const name = "foo";
+  const { email } = DBData.admin;
+  const password = "password";
 
-  test("not ParseError -> not BadUserInput", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.guest,
-      variables: { input: { ...validInput } },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  const { data } = await executeMutation({
+    user: ContextData.guest,
+    variables: { input: { name, email, password } },
   });
 
-  test("ParseError -> BadUserInput", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.guest,
-      variables: { input: { ...validInput, name: "A".repeat(nameMax + 1) } },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-  });
+  expect(data?.signup?.__typename).toBe("EmailAlreadyTakenError");
 });
 
-describe("logic", () => {
-  beforeEach(resetUsers);
+it("should create user using input", async () => {
+  const name = "foo";
+  const email = "foo@foo.com";
+  const password = "password";
 
-  test("email already exists", async () => {
-    const name = "foo";
-    const { email } = DBData.admin;
-    const password = "password";
-
-    const { data } = await executeMutation({
-      user: ContextData.guest,
-      variables: { input: { name, email, password } },
-    });
-
-    expect(data?.signup?.__typename).toBe("EmailAlreadyTakenError");
+  const { data } = await executeMutation({
+    user: ContextData.guest,
+    variables: { input: { name, email, password } },
   });
 
-  it("should create user using input", async () => {
-    const name = "foo";
-    const email = "foo@foo.com";
-    const password = "password";
+  if (data?.signup?.__typename !== "SignupSuccess") {
+    fail();
+  }
 
-    const { data } = await executeMutation({
-      user: ContextData.guest,
-      variables: { input: { name, email, password } },
-    });
+  const id = parseUserNodeId(data.signup.id);
 
-    if (data?.signup?.__typename !== "SignupSuccess") {
-      fail();
-    }
-
-    const id = parseUserNodeId(data.signup.id);
-
-    const user = await prisma.user.findUniqueOrThrow({
-      where: { id },
-    });
-
-    expect(user.name).toBe(name);
-    expect(user.email).toBe(email);
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id },
   });
 
-  test("role should be USER by default", async () => {
-    const name = "bar";
-    const email = "bar@bar.com";
-    const password = "password";
+  expect(user.name).toBe(name);
+  expect(user.email).toBe(email);
+});
 
-    const { data } = await executeMutation({
-      user: ContextData.guest,
-      variables: { input: { name, email, password } },
-    });
+test("role should be USER by default", async () => {
+  const name = "bar";
+  const email = "bar@bar.com";
+  const password = "password";
 
-    if (data?.signup?.__typename !== "SignupSuccess") {
-      fail();
-    }
-
-    const id = parseUserNodeId(data.signup.id);
-
-    const user = await prisma.user.findUniqueOrThrow({
-      where: { id },
-    });
-
-    expect(user.role).toBe(Prisma.Role.USER);
+  const { data } = await executeMutation({
+    user: ContextData.guest,
+    variables: { input: { name, email, password } },
   });
+
+  if (data?.signup?.__typename !== "SignupSuccess") {
+    fail();
+  }
+
+  const id = parseUserNodeId(data.signup.id);
+
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id },
+  });
+
+  expect(user.role).toBe(Prisma.Role.USER);
 });

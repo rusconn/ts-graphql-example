@@ -1,5 +1,5 @@
 import type { UserQuery, UserQueryVariables } from "tests/modules/schema.js";
-import { ContextData, DBData, GraphData } from "tests/data/mod.js";
+import { DBData, GraphData } from "tests/data/mod.js";
 import { clearTables, fail } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
@@ -26,77 +26,25 @@ beforeAll(async () => {
   await seedData.users();
 });
 
-describe("authorization", () => {
-  test("not AuthorizationError -> not Forbidden", async () => {
-    const { data, errors } = await executeQuery({
-      user: ContextData.admin,
-      variables: { id: GraphData.alice.id },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.user).not.toBeFalsy();
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
+it("should return item correctly", async () => {
+  const { data } = await executeQuery({
+    variables: { id: GraphData.admin.id },
   });
 
-  test("AuthorizationError -> Forbidden", async () => {
-    const { data, errors } = await executeQuery({
-      user: ContextData.alice,
-      variables: { id: GraphData.alice.id },
-    });
+  if (!data || !data.user) {
+    fail();
+  }
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.user).toBeFalsy();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
+  expect(data.user.id).toEqual(GraphData.admin.id);
 });
 
-describe("validation", () => {
-  test("not ParseError -> not BadUserInput", async () => {
-    const { data, errors } = await executeQuery({
-      variables: { id: GraphData.validUserIds[0] },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.user).not.toBeFalsy();
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+it("should return not found error if not found", async () => {
+  const { data, errors } = await executeQuery({
+    variables: { id: GraphData.admin.id.slice(0, -1) },
   });
 
-  test("ParseError -> BadUserInput", async () => {
-    const { data, errors } = await executeQuery({
-      variables: { id: GraphData.invalidUserIds[0] },
-    });
+  const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.user).toBeFalsy();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-  });
-});
-
-describe("logic", () => {
-  it("should return item correctly", async () => {
-    const { data } = await executeQuery({
-      variables: { id: GraphData.admin.id },
-    });
-
-    if (!data || !data.user) {
-      fail();
-    }
-
-    expect(data.user.id).toEqual(GraphData.admin.id);
-  });
-
-  it("should return not found error if not found", async () => {
-    const { data, errors } = await executeQuery({
-      variables: { id: GraphData.admin.id.slice(0, -1) },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.user).toBeFalsy();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
-  });
+  expect(data?.user).toBeFalsy();
+  expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
 });

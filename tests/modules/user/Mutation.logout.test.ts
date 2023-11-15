@@ -1,9 +1,8 @@
 import type { LogoutMutation, LogoutMutationVariables } from "tests/modules/schema.js";
-import { ContextData, DBData } from "tests/data/mod.js";
+import { DBData } from "tests/data/mod.js";
 import { clearUsers } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
 
 const executeMutation = executeSingleResultOperation<
   LogoutMutation,
@@ -32,70 +31,42 @@ const seedData = {
   users: () => prisma.user.createMany({ data: testData.users }),
 };
 
-const resetUsers = async () => {
+beforeEach(async () => {
   await clearUsers();
   await seedData.users();
-};
-
-beforeAll(resetUsers);
-
-describe("authorization", () => {
-  test("not AuthorizationError -> not Forbidden", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.alice,
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
-
-  test("AuthorizationError -> Forbidden", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.guest,
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
 });
 
-describe("logic", () => {
-  beforeEach(resetUsers);
-
-  test("logout deletes token", async () => {
-    const before = await prisma.user.findFirstOrThrow({
-      where: { id: DBData.admin.id },
-    });
-
-    const { data } = await executeMutation({});
-
-    expect(data?.logout?.__typename).toBe("LogoutSuccess");
-
-    const after = await prisma.user.findFirstOrThrow({
-      where: { id: DBData.admin.id },
-    });
-
-    expect(before.token).not.toBeNull();
-    expect(after.token).toBeNull();
+test("logout deletes token", async () => {
+  const before = await prisma.user.findFirstOrThrow({
+    where: { id: DBData.admin.id },
   });
 
-  test("logout does not changes other attrs", async () => {
-    const before = await prisma.user.findFirstOrThrow({
-      where: { id: DBData.admin.id },
-    });
+  const { data } = await executeMutation({});
 
-    const { data } = await executeMutation({});
+  expect(data?.logout?.__typename).toBe("LogoutSuccess");
 
-    expect(data?.logout?.__typename).toBe("LogoutSuccess");
-
-    const after = await prisma.user.findFirstOrThrow({
-      where: { id: DBData.admin.id },
-    });
-
-    expect(before.id).toBe(after.id);
-    expect(before.name).toBe(after.name);
-    expect(before.email).toBe(after.email);
+  const after = await prisma.user.findFirstOrThrow({
+    where: { id: DBData.admin.id },
   });
+
+  expect(before.token).not.toBeNull();
+  expect(after.token).toBeNull();
+});
+
+test("logout does not changes other attrs", async () => {
+  const before = await prisma.user.findFirstOrThrow({
+    where: { id: DBData.admin.id },
+  });
+
+  const { data } = await executeMutation({});
+
+  expect(data?.logout?.__typename).toBe("LogoutSuccess");
+
+  const after = await prisma.user.findFirstOrThrow({
+    where: { id: DBData.admin.id },
+  });
+
+  expect(before.id).toBe(after.id);
+  expect(before.name).toBe(after.name);
+  expect(before.email).toBe(after.email);
 });

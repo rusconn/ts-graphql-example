@@ -239,11 +239,6 @@ export type UpdateMeMutationVariables = Exact<{
 
 export type UpdateMeMutation = { updateMe?: { __typename: 'EmailAlreadyTakenError', message: string } | { __typename: 'UpdateMeSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } } | null };
 
-export type MeQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type MeQuery = { me?: { id: string } | null };
-
 export type UserQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;

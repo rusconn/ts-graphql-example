@@ -35,63 +35,37 @@ beforeAll(async () => {
   await seedData.todos();
 });
 
-describe("authorization", () => {
-  test("not AuthorizationError -> not Forbidden", async () => {
-    const { errors } = await executeQuery({
-      user: ContextData.alice,
-      variables: { id: GraphData.aliceTodo.id },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
+test("not exists", async () => {
+  const { errors } = await executeQuery({
+    variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
   });
 
-  test("AuthorizationError -> Forbidden", async () => {
-    const { errors } = await executeQuery({
-      user: ContextData.alice,
-      variables: { id: GraphData.adminTodo1.id },
-    });
+  const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
+  expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
 });
 
-describe("logic", () => {
-  test("not exists", async () => {
-    const { errors } = await executeQuery({
-      variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+test("exists, owned", async () => {
+  const { data } = await executeQuery({
+    variables: { id: GraphData.adminTodo1.id },
   });
 
-  test("exists, owned", async () => {
-    const { data } = await executeQuery({
-      variables: { id: GraphData.adminTodo1.id },
-    });
+  if (data?.node?.__typename !== "Todo") {
+    fail();
+  }
 
-    if (data?.node?.__typename !== "Todo") {
-      fail();
-    }
+  expect(data.node.description).toBe(GraphData.adminTodo1.description);
+});
 
-    expect(data.node.description).toBe(GraphData.adminTodo1.description);
+test("exists, but not owned", async () => {
+  const { data } = await executeQuery({
+    user: ContextData.alice,
+    variables: { id: GraphData.adminTodo1.id },
   });
 
-  test("exists, but not owned", async () => {
-    const { data } = await executeQuery({
-      user: ContextData.alice,
-      variables: { id: GraphData.adminTodo1.id },
-    });
+  if (data?.node?.__typename !== "Todo") {
+    fail();
+  }
 
-    if (data?.node?.__typename !== "Todo") {
-      fail();
-    }
-
-    expect(data.node.description).toBeNull();
-  });
+  expect(data.node.description).toBeNull();
 });

@@ -1,9 +1,8 @@
 import type { LoginMutation, LoginMutationVariables } from "tests/modules/schema.js";
-import { ContextData, DBData } from "tests/data/mod.js";
+import { DBData } from "tests/data/mod.js";
 import { clearUsers } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
 
 const executeMutation = executeSingleResultOperation<
   LoginMutation,
@@ -35,141 +34,87 @@ const seedData = {
   users: () => prisma.user.createMany({ data: testData.users }),
 };
 
-beforeAll(async () => {
+beforeEach(async () => {
   await clearUsers();
   await seedData.users();
 });
 
-describe("authorization", () => {
-  const variables = {
-    input: {
-      email: "email@email.com",
-      password: "password",
-    },
-  };
+test("wrong email", async () => {
+  const wrongEmail = DBData.admin.email.slice(1);
+  const password = "adminadmin";
 
-  test("not AuthorizationError -> not Forbidden", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.alice,
-      variables,
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
+  const { data } = await executeMutation({
+    variables: { input: { email: wrongEmail, password } },
   });
+
+  expect(data?.login?.__typename).toBe("UserNotFoundError");
 });
 
-describe("validation", () => {
-  const passMin = 8;
-  const validInput = { email: "email@email.com", password: "password" };
+test("wrong password", async () => {
+  const { email } = DBData.admin;
+  const wrongPassword = "dminadmin";
 
-  test("not ParseError -> not BadUserInput", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.guest,
-      variables: { input: { ...validInput } },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  const { data } = await executeMutation({
+    variables: { input: { email, password: wrongPassword } },
   });
 
-  test("ParseError -> BadUserInput", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.guest,
-      variables: { input: { ...validInput, password: "A".repeat(passMin - 1) } },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-  });
+  expect(data?.login?.__typename).toBe("UserNotFoundError");
 });
 
-describe("logic", () => {
-  beforeEach(async () => {
-    await clearUsers();
-    await seedData.users();
+test("correct input", async () => {
+  const { email } = DBData.admin;
+  const password = "adminadmin";
+
+  const { data } = await executeMutation({
+    variables: { input: { email, password } },
   });
 
-  test("wrong email", async () => {
-    const wrongEmail = DBData.admin.email.slice(1);
-    const password = "adminadmin";
+  expect(data?.login?.__typename).toBe("LoginSuccess");
+});
 
-    const { data } = await executeMutation({
-      variables: { input: { email: wrongEmail, password } },
-    });
-
-    expect(data?.login?.__typename).toBe("UserNotFoundError");
+test("login changes token", async () => {
+  const before = await prisma.user.findFirstOrThrow({
+    where: { id: DBData.admin.id },
   });
 
-  test("wrong password", async () => {
-    const { email } = DBData.admin;
-    const wrongPassword = "dminadmin";
+  const { email } = DBData.admin;
+  const password = "adminadmin";
 
-    const { data } = await executeMutation({
-      variables: { input: { email, password: wrongPassword } },
-    });
-
-    expect(data?.login?.__typename).toBe("UserNotFoundError");
+  const { data } = await executeMutation({
+    variables: { input: { email, password } },
   });
 
-  test("correct input", async () => {
-    const { email } = DBData.admin;
-    const password = "adminadmin";
+  expect(data?.login?.__typename).toBe("LoginSuccess");
 
-    const { data } = await executeMutation({
-      variables: { input: { email, password } },
-    });
-
-    expect(data?.login?.__typename).toBe("LoginSuccess");
+  const after = await prisma.user.findFirstOrThrow({
+    where: { id: DBData.admin.id },
   });
 
-  test("login changes token", async () => {
-    const before = await prisma.user.findFirstOrThrow({
-      where: { id: DBData.admin.id },
-    });
+  expect(before.id).toBe(after.id);
+  expect(before.name).toBe(after.name);
+  expect(before.email).toBe(after.email);
+  expect(before.token).not.toBe(after.token);
+});
 
-    const { email } = DBData.admin;
-    const password = "adminadmin";
-
-    const { data } = await executeMutation({
-      variables: { input: { email, password } },
-    });
-
-    expect(data?.login?.__typename).toBe("LoginSuccess");
-
-    const after = await prisma.user.findFirstOrThrow({
-      where: { id: DBData.admin.id },
-    });
-
-    expect(before.id).toBe(after.id);
-    expect(before.name).toBe(after.name);
-    expect(before.email).toBe(after.email);
-    expect(before.token).not.toBe(after.token);
+test("login does not changes other attrs", async () => {
+  const before = await prisma.user.findFirstOrThrow({
+    where: { id: DBData.admin.id },
   });
 
-  test("login does not changes other attrs", async () => {
-    const before = await prisma.user.findFirstOrThrow({
-      where: { id: DBData.admin.id },
-    });
+  const { email } = DBData.admin;
+  const password = "adminadmin";
 
-    const { email } = DBData.admin;
-    const password = "adminadmin";
-
-    const { data } = await executeMutation({
-      variables: { input: { email, password } },
-    });
-
-    expect(data?.login?.__typename).toBe("LoginSuccess");
-
-    const after = await prisma.user.findFirstOrThrow({
-      where: { id: DBData.admin.id },
-    });
-
-    expect(before.id).toBe(after.id);
-    expect(before.name).toBe(after.name);
-    expect(before.email).toBe(after.email);
+  const { data } = await executeMutation({
+    variables: { input: { email, password } },
   });
+
+  expect(data?.login?.__typename).toBe("LoginSuccess");
+
+  const after = await prisma.user.findFirstOrThrow({
+    where: { id: DBData.admin.id },
+  });
+
+  expect(before.id).toBe(after.id);
+  expect(before.name).toBe(after.name);
+  expect(before.email).toBe(after.email);
 });

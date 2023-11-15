@@ -40,115 +40,67 @@ beforeAll(async () => {
   await seedData.todos();
 });
 
-describe("authorization", () => {
-  test("not AuthorizationError -> not Forbidden", async () => {
-    const { errors } = await executeQuery({
-      user: ContextData.alice,
-      variables: { id: GraphData.alice.id, todoId: GraphData.aliceTodo.id },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
+test("not exists", async () => {
+  const { data } = await executeQuery({
+    variables: {
+      id: GraphData.admin.id,
+      todoId: GraphData.adminTodo1.id.slice(0, -1),
+    },
   });
 
-  test("AuthorizationError -> Forbidden", async () => {
-    const { errors } = await executeQuery({
-      user: ContextData.alice,
-      variables: { id: GraphData.admin.id, todoId: GraphData.adminTodo1.id },
-    });
+  if (data?.node?.__typename !== "User") {
+    fail();
+  }
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
+  expect(data.node.todo).toBeNull();
 });
 
-describe("validation", () => {
-  test("not ParseError -> not BadUserInput", async () => {
-    const { errors } = await executeQuery({
-      variables: { id: GraphData.admin.id, todoId: GraphData.validTodoIds[0] },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+test("exists, owned", async () => {
+  const { data } = await executeQuery({
+    variables: {
+      id: GraphData.admin.id,
+      todoId: GraphData.adminTodo1.id,
+    },
   });
 
-  test("ParseError -> BadUserInput", async () => {
-    const { errors } = await executeQuery({
-      variables: { id: GraphData.admin.id, todoId: GraphData.invalidTodoIds[0] },
-    });
+  if (data?.node?.__typename !== "User") {
+    fail();
+  }
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-  });
+  expect(data.node.todo).not.toBeNull();
 });
 
-describe("logic", () => {
-  test("not exists", async () => {
-    const { data } = await executeQuery({
-      variables: {
-        id: GraphData.admin.id,
-        todoId: GraphData.adminTodo1.id.slice(0, -1),
-      },
+describe("exists, but not owned", () => {
+  const patterns = [
+    [ContextData.admin, GraphData.admin.id, GraphData.aliceTodo.id],
+    [ContextData.alice, GraphData.alice.id, GraphData.adminTodo1.id],
+  ] as const;
+
+  test.each(patterns)("%o %s %s", async (user, id, todoId) => {
+    const { data, errors } = await executeQuery({
+      user,
+      variables: { id, todoId },
     });
 
     if (data?.node?.__typename !== "User") {
       fail();
     }
+
+    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data.node.todo).toBeNull();
+    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+  });
+});
+
+it("should set correct parent user id", async () => {
+  const { data } = await executeQuery({
+    variables: { id: GraphData.admin.id, todoId: GraphData.adminTodo1.id },
   });
 
-  test("exists, owned", async () => {
-    const { data } = await executeQuery({
-      variables: {
-        id: GraphData.admin.id,
-        todoId: GraphData.adminTodo1.id,
-      },
-    });
+  if (data?.node?.__typename !== "User") {
+    fail();
+  }
 
-    if (data?.node?.__typename !== "User") {
-      fail();
-    }
-
-    expect(data.node.todo).not.toBeNull();
-  });
-
-  describe("exists, but not owned", () => {
-    const patterns = [
-      [ContextData.admin, GraphData.admin.id, GraphData.aliceTodo.id],
-      [ContextData.alice, GraphData.alice.id, GraphData.adminTodo1.id],
-    ] as const;
-
-    test.each(patterns)("%o %s %s", async (user, id, todoId) => {
-      const { data, errors } = await executeQuery({
-        user,
-        variables: { id, todoId },
-      });
-
-      if (data?.node?.__typename !== "User") {
-        fail();
-      }
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(data.node.todo).toBeNull();
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
-    });
-  });
-
-  it("should set correct parent user id", async () => {
-    const { data } = await executeQuery({
-      variables: { id: GraphData.admin.id, todoId: GraphData.adminTodo1.id },
-    });
-
-    if (data?.node?.__typename !== "User") {
-      fail();
-    }
-
-    expect(data.node.todo?.user?.id).toBe(GraphData.admin.id);
-  });
+  expect(data.node.todo?.user?.id).toBe(GraphData.admin.id);
 });

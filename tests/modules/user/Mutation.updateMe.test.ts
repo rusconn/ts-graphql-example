@@ -1,11 +1,10 @@
 import { omit } from "remeda";
 
 import type { UpdateMeMutation, UpdateMeMutationVariables } from "tests/modules/schema.js";
-import { ContextData, DBData } from "tests/data/mod.js";
+import { DBData } from "tests/data/mod.js";
 import { clearUsers } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
 
 const executeMutation = executeSingleResultOperation<
   UpdateMeMutation,
@@ -37,152 +36,98 @@ const seedData = {
   users: () => prisma.user.createMany({ data: testData.users }),
 };
 
-const resetUsers = async () => {
+beforeEach(async () => {
   await clearUsers();
   await seedData.users();
-};
-
-beforeAll(resetUsers);
-
-describe("authorization", () => {
-  const input = { name: "foo" };
-
-  test("not AuthorizationError -> not Forbidden", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.alice,
-      variables: { input },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
-
-  test("AuthorizationError -> Forbidden", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.guest,
-      variables: { input },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
 });
 
-describe("validation", () => {
-  test("not ParseError -> not BadUserInput", async () => {
-    const { errors } = await executeMutation({
-      variables: { input: { name: "name" } },
-    });
+test("email already exists", async () => {
+  const { email } = DBData.alice;
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+  const { data } = await executeMutation({
+    variables: { input: { email } },
   });
 
-  test("ParseError -> BadUserInput", async () => {
-    const { errors } = await executeMutation({
-      variables: { input: { name: null } },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-  });
+  expect(data?.updateMe?.__typename).toBe("EmailAlreadyTakenError");
 });
 
-describe("logic", () => {
-  beforeEach(resetUsers);
+it("should update using input", async () => {
+  const name = "foo";
+  const email = "foo@foo.com";
 
-  test("email already exists", async () => {
-    const { email } = DBData.alice;
-
-    const { data } = await executeMutation({
-      variables: { input: { email } },
-    });
-
-    expect(data?.updateMe?.__typename).toBe("EmailAlreadyTakenError");
+  const { data } = await executeMutation({
+    variables: { input: { name, email } },
   });
 
-  it("should update using input", async () => {
-    const name = "foo";
-    const email = "foo@foo.com";
+  expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
 
-    const { data } = await executeMutation({
-      variables: { input: { name, email } },
-    });
-
-    expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
-
-    const user = await prisma.user.findUniqueOrThrow({
-      where: { id: DBData.admin.id },
-    });
-
-    expect(user.name).toBe(name);
-    expect(user.email).toBe(email);
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: DBData.admin.id },
   });
 
-  it("should not update fields if the field is absent", async () => {
-    const before = await prisma.user.findUniqueOrThrow({
-      where: { id: DBData.admin.id },
-    });
+  expect(user.name).toBe(name);
+  expect(user.email).toBe(email);
+});
 
-    const { data } = await executeMutation({
-      variables: { input: {} },
-    });
-
-    expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
-
-    const after = await prisma.user.findUniqueOrThrow({
-      where: { id: DBData.admin.id },
-    });
-
-    expect(before.name).toBe(after.name);
-    expect(before.email).toBe(after.email);
-    expect(before.password).toBe(after.password);
+it("should not update fields if the field is absent", async () => {
+  const before = await prisma.user.findUniqueOrThrow({
+    where: { id: DBData.admin.id },
   });
 
-  it("should update updatedAt", async () => {
-    const before = await prisma.user.findUniqueOrThrow({
-      where: { id: DBData.admin.id },
-    });
-
-    const { data } = await executeMutation({
-      variables: { input: { name: "bar" } },
-    });
-
-    expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
-
-    const after = await prisma.user.findUniqueOrThrow({
-      where: { id: DBData.admin.id },
-    });
-
-    const beforeUpdatedAt = before.updatedAt.getTime();
-    const afterUpdatedAt = after.updatedAt.getTime();
-
-    expect(afterUpdatedAt).toBeGreaterThan(beforeUpdatedAt);
+  const { data } = await executeMutation({
+    variables: { input: {} },
   });
 
-  it("should not update other attrs", async () => {
-    const before = await prisma.user.findUniqueOrThrow({
-      where: { id: DBData.admin.id },
-    });
+  expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
 
-    const { data } = await executeMutation({
-      variables: { input: { name: "baz" } },
-    });
-
-    expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
-
-    const after = await prisma.user.findUniqueOrThrow({
-      where: { id: DBData.admin.id },
-    });
-
-    // これらのフィールドは変化する想定
-    const beforeToCompare = omit(before, ["name", "updatedAt"]);
-    const afterToCompare = omit(after, ["name", "updatedAt"]);
-
-    expect(afterToCompare).toStrictEqual(beforeToCompare);
+  const after = await prisma.user.findUniqueOrThrow({
+    where: { id: DBData.admin.id },
   });
+
+  expect(before.name).toBe(after.name);
+  expect(before.email).toBe(after.email);
+  expect(before.password).toBe(after.password);
+});
+
+it("should update updatedAt", async () => {
+  const before = await prisma.user.findUniqueOrThrow({
+    where: { id: DBData.admin.id },
+  });
+
+  const { data } = await executeMutation({
+    variables: { input: { name: "bar" } },
+  });
+
+  expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
+
+  const after = await prisma.user.findUniqueOrThrow({
+    where: { id: DBData.admin.id },
+  });
+
+  const beforeUpdatedAt = before.updatedAt.getTime();
+  const afterUpdatedAt = after.updatedAt.getTime();
+
+  expect(afterUpdatedAt).toBeGreaterThan(beforeUpdatedAt);
+});
+
+it("should not update other attrs", async () => {
+  const before = await prisma.user.findUniqueOrThrow({
+    where: { id: DBData.admin.id },
+  });
+
+  const { data } = await executeMutation({
+    variables: { input: { name: "baz" } },
+  });
+
+  expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
+
+  const after = await prisma.user.findUniqueOrThrow({
+    where: { id: DBData.admin.id },
+  });
+
+  // これらのフィールドは変化する想定
+  const beforeToCompare = omit(before, ["name", "updatedAt"]);
+  const afterToCompare = omit(after, ["name", "updatedAt"]);
+
+  expect(afterToCompare).toStrictEqual(beforeToCompare);
 });

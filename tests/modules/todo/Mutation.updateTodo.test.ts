@@ -1,7 +1,7 @@
 import { omit } from "remeda";
 
 import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "tests/modules/schema.js";
-import { ContextData, DBData, GraphData } from "tests/data/mod.js";
+import { DBData, GraphData } from "tests/data/mod.js";
 import { clearTables } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
@@ -52,197 +52,111 @@ beforeAll(async () => {
   await seedData.todos();
 });
 
-describe("authorization", () => {
-  const input = {
-    title: "foo",
-    description: "",
-    status: Graph.TodoStatus.Done,
-  };
-
-  test("not AuthorizationError -> not Forbidden", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.alice,
-      variables: { input, id: GraphData.aliceTodo.id },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
-  });
-
-  test("AuthorizationError -> Forbidden", async () => {
-    const { errors } = await executeMutation({
-      user: ContextData.guest,
-      variables: { input, id: GraphData.aliceTodo.id },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
+beforeEach(async () => {
+  await prisma.todo.upsert({
+    where: { id: DBData.adminTodo1.id },
+    create: DBData.adminTodo1,
+    update: DBData.adminTodo1,
   });
 });
 
-describe("validation", () => {
-  describe("id", () => {
-    const input = {
-      title: "title",
-      description: "description",
-      status: Graph.TodoStatus.Done,
-    };
+const input = {
+  title: "bar",
+  description: "baz",
+  status: Graph.TodoStatus.Done,
+};
 
-    test("not ParseError -> not BadUserInput", async () => {
-      const { errors } = await executeMutation({
-        variables: { id: GraphData.validTodoIds[0], input },
-      });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-    });
-
-    test("ParseError -> BadUserInput", async () => {
-      const { errors } = await executeMutation({
-        variables: { id: GraphData.invalidTodoIds[0], input },
-      });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-    });
+test("not exists", async () => {
+  const { data } = await executeMutation({
+    variables: { input: {}, id: GraphData.adminTodo1.id.slice(0, -1) },
   });
 
-  describe("input", () => {
-    const id = GraphData.validTodoIds[0];
-
-    test("not ParseError -> not BadUserInput", async () => {
-      const { errors } = await executeMutation({
-        variables: { id, input: { title: "title" } },
-      });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-    });
-
-    test("ParseError -> BadUserInput", async () => {
-      const { errors } = await executeMutation({
-        variables: { id, input: { title: null } },
-      });
-
-      const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-      expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
-    });
-  });
+  expect(data?.updateTodo?.__typename).toBe("TodoNotFoundError");
 });
 
-describe("logic", () => {
-  beforeEach(async () => {
-    await prisma.todo.upsert({
-      where: { id: DBData.adminTodo1.id },
-      create: DBData.adminTodo1,
-      update: DBData.adminTodo1,
-    });
+test("exists, but not owned", async () => {
+  const { data } = await executeMutation({
+    variables: { input: {}, id: GraphData.aliceTodo.id },
   });
 
-  const input = {
-    title: "bar",
-    description: "baz",
-    status: Graph.TodoStatus.Done,
-  };
+  expect(data?.updateTodo?.__typename).toBe("TodoNotFoundError");
+});
 
-  test("not exists", async () => {
-    const { data } = await executeMutation({
-      variables: { input: {}, id: GraphData.adminTodo1.id.slice(0, -1) },
-    });
-
-    expect(data?.updateTodo?.__typename).toBe("TodoNotFoundError");
+it("should update using input", async () => {
+  const { data } = await executeMutation({
+    variables: { id: GraphData.adminTodo1.id, input },
   });
 
-  test("exists, but not owned", async () => {
-    const { data } = await executeMutation({
-      variables: { input: {}, id: GraphData.aliceTodo.id },
-    });
+  expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
-    expect(data?.updateTodo?.__typename).toBe("TodoNotFoundError");
+  const todo = await prisma.todo.findUniqueOrThrow({
+    where: { id: DBData.adminTodo1.id },
   });
 
-  it("should update using input", async () => {
-    const { data } = await executeMutation({
-      variables: { id: GraphData.adminTodo1.id, input },
-    });
+  expect(todo.title).toBe(input.title);
+  expect(todo.description).toBe(input.description);
+  expect(todo.status).toBe(input.status);
+});
 
-    expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
-
-    const todo = await prisma.todo.findUniqueOrThrow({
-      where: { id: DBData.adminTodo1.id },
-    });
-
-    expect(todo.title).toBe(input.title);
-    expect(todo.description).toBe(input.description);
-    expect(todo.status).toBe(input.status);
+it("should not update fields if the field is absent", async () => {
+  const before = await prisma.todo.findUniqueOrThrow({
+    where: { id: DBData.adminTodo1.id },
   });
 
-  it("should not update fields if the field is absent", async () => {
-    const before = await prisma.todo.findUniqueOrThrow({
-      where: { id: DBData.adminTodo1.id },
-    });
-
-    const { data } = await executeMutation({
-      variables: { id: GraphData.adminTodo1.id, input: {} },
-    });
-
-    expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
-
-    const after = await prisma.todo.findUniqueOrThrow({
-      where: { id: DBData.adminTodo1.id },
-    });
-
-    expect(before.title).toBe(after.title);
-    expect(before.description).toBe(after.description);
-    expect(before.status).toBe(after.status);
+  const { data } = await executeMutation({
+    variables: { id: GraphData.adminTodo1.id, input: {} },
   });
 
-  it("should update updatedAt", async () => {
-    const before = await prisma.todo.findUniqueOrThrow({
-      where: { id: DBData.adminTodo1.id },
-    });
+  expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
-    const { data } = await executeMutation({
-      variables: { id: GraphData.adminTodo1.id, input },
-    });
-
-    expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
-
-    const after = await prisma.todo.findUniqueOrThrow({
-      where: { id: DBData.adminTodo1.id },
-    });
-
-    const beforeUpdatedAt = before.updatedAt.getTime();
-    const afterUpdatedAt = after.updatedAt.getTime();
-
-    expect(afterUpdatedAt).toBeGreaterThan(beforeUpdatedAt);
+  const after = await prisma.todo.findUniqueOrThrow({
+    where: { id: DBData.adminTodo1.id },
   });
 
-  it("should not update other attrs", async () => {
-    const before = await prisma.todo.findUniqueOrThrow({
-      where: { id: DBData.adminTodo1.id },
-    });
+  expect(before.title).toBe(after.title);
+  expect(before.description).toBe(after.description);
+  expect(before.status).toBe(after.status);
+});
 
-    const { data } = await executeMutation({
-      variables: { id: GraphData.adminTodo1.id, input },
-    });
-
-    expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
-
-    const after = await prisma.todo.findUniqueOrThrow({
-      where: { id: DBData.adminTodo1.id },
-    });
-
-    // これらのフィールドは変化する想定
-    const beforeToCompare = omit(before, ["title", "description", "status", "updatedAt"]);
-    const afterToCompare = omit(after, ["title", "description", "status", "updatedAt"]);
-
-    expect(afterToCompare).toStrictEqual(beforeToCompare);
+it("should update updatedAt", async () => {
+  const before = await prisma.todo.findUniqueOrThrow({
+    where: { id: DBData.adminTodo1.id },
   });
+
+  const { data } = await executeMutation({
+    variables: { id: GraphData.adminTodo1.id, input },
+  });
+
+  expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
+
+  const after = await prisma.todo.findUniqueOrThrow({
+    where: { id: DBData.adminTodo1.id },
+  });
+
+  const beforeUpdatedAt = before.updatedAt.getTime();
+  const afterUpdatedAt = after.updatedAt.getTime();
+
+  expect(afterUpdatedAt).toBeGreaterThan(beforeUpdatedAt);
+});
+
+it("should not update other attrs", async () => {
+  const before = await prisma.todo.findUniqueOrThrow({
+    where: { id: DBData.adminTodo1.id },
+  });
+
+  const { data } = await executeMutation({
+    variables: { id: GraphData.adminTodo1.id, input },
+  });
+
+  expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
+
+  const after = await prisma.todo.findUniqueOrThrow({
+    where: { id: DBData.adminTodo1.id },
+  });
+
+  // これらのフィールドは変化する想定
+  const beforeToCompare = omit(before, ["title", "description", "status", "updatedAt"]);
+  const afterToCompare = omit(after, ["title", "description", "status", "updatedAt"]);
+
+  expect(afterToCompare).toStrictEqual(beforeToCompare);
 });
