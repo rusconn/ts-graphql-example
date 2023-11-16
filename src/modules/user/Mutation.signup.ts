@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
-import { passwordHashRoundsExponent } from "@/config.js";
-import * as Prisma from "@/prisma/mod.js";
-import { isGuest } from "../common/authorizers.js";
-import { ParseError } from "../common/parsers.js";
-import type { MutationResolvers, MutationSignupArgs } from "../common/schema.js";
-import { userNodeId } from "./common/adapter.js";
+import { passwordHashRoundsExponent } from "@/config.ts";
+import * as Prisma from "@/prisma/mod.ts";
+import { isGuest } from "../common/authorizers.ts";
+import { ParseError } from "../common/parsers.ts";
+import type { MutationResolvers, MutationSignupArgs } from "../common/schema.ts";
+import { userNodeId } from "./common/adapter.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -90,9 +90,9 @@ const parser = (args: MutationSignupArgs) => {
 const adapter = userNodeId;
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.js");
-  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
-  const { ParseError: ParseErr } = await import("../common/parsers.js");
+  const { admin, alice, guest } = await import("tests/data/context.ts");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
+  const { ParseError: ParseErr } = await import("../common/parsers.ts");
 
   describe("Authorization", () => {
     const allow = [guest];

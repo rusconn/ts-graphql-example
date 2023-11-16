@@ -1,6 +1,6 @@
-import * as Prisma from "@/prisma/mod.js";
-import { nodeId } from "../../common/adapters.js";
-import { TodoStatus } from "../../common/schema.js";
+import * as Prisma from "@/prisma/mod.ts";
+import { nodeId } from "../../common/adapters.ts";
+import { TodoStatus } from "../../common/schema.ts";
 
 export const todoNodeId = nodeId("Todo");
 

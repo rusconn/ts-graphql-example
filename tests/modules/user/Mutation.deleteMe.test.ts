@@ -1,9 +1,9 @@
-import type { DeleteMeMutation, DeleteMeMutationVariables } from "tests/modules/schema.js";
-import { DBData } from "tests/data/mod.js";
-import { clearUsers, fail } from "tests/helpers.js";
-import { executeSingleResultOperation } from "tests/server.js";
-import { prisma } from "@/prisma/mod.js";
-import { parseUserNodeId } from "@/modules/user/common/parser.js";
+import type { DeleteMeMutation, DeleteMeMutationVariables } from "tests/modules/schema.ts";
+import { DBData } from "tests/data/mod.ts";
+import { clearUsers, fail } from "tests/helpers.ts";
+import { executeSingleResultOperation } from "tests/server.ts";
+import { prisma } from "@/prisma/mod.ts";
+import { parseUserNodeId } from "@/modules/user/common/parser.ts";
 
 const executeMutation = executeSingleResultOperation<
   DeleteMeMutation,

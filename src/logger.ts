@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { type LoggerOptions, pino, stdTimeFunctions } from "pino";
 
-import { isDev, isProd, isTest } from "@/config.js";
+import { isDev, isProd, isTest } from "@/config.ts";
 
 const options: LoggerOptions = {
   enabled: !isTest,

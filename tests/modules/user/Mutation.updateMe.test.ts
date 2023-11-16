@@ -1,10 +1,10 @@
 import { omit } from "remeda";
 
-import type { UpdateMeMutation, UpdateMeMutationVariables } from "tests/modules/schema.js";
-import { DBData } from "tests/data/mod.js";
-import { clearUsers } from "tests/helpers.js";
-import { executeSingleResultOperation } from "tests/server.js";
-import { prisma } from "@/prisma/mod.js";
+import type { UpdateMeMutation, UpdateMeMutationVariables } from "tests/modules/schema.ts";
+import { DBData } from "tests/data/mod.ts";
+import { clearUsers } from "tests/helpers.ts";
+import { executeSingleResultOperation } from "tests/server.ts";
+import { prisma } from "@/prisma/mod.ts";
 
 const executeMutation = executeSingleResultOperation<
   UpdateMeMutation,

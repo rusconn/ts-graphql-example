@@ -1,6 +1,6 @@
-import type { User } from "@/prisma/mod.js";
-import { isAdmin, AuthorizationError } from "../../common/authorizers.js";
-import type { ContextUser } from "../../common/resolvers.js";
+import type { User } from "@/prisma/mod.ts";
+import { isAdmin, AuthorizationError } from "../../common/authorizers.ts";
+import type { ContextUser } from "../../common/resolvers.ts";
 
 export const isAdminOrUserOwner = (user: ContextUser, parent: Pick<User, "id">) => {
   try {

@@ -1,7 +1,7 @@
-import * as node from "./modules/node/mod.js";
-import * as scalar from "./modules/scalar/mod.js";
-import * as todo from "./modules/todo/mod.js";
-import * as user from "./modules/user/mod.js";
+import * as node from "./modules/node/mod.ts";
+import * as scalar from "./modules/scalar/mod.ts";
+import * as todo from "./modules/todo/mod.ts";
+import * as user from "./modules/user/mod.ts";
 
 const typeDef = /* GraphQL */ `
   type Query

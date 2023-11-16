@@ -1,12 +1,12 @@
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
-import * as Prisma from "@/prisma/mod.js";
-import { parseConnectionArgs, ParseError } from "../common/parsers.js";
-import { full } from "../common/resolvers.js";
-import type { UserResolvers, UserTodosArgs } from "../common/schema.js";
-import { OrderDirection, TodoOrderField } from "../common/schema.js";
-import { cursorConnections, orderOptions } from "../common/typeDefs.js";
-import { isAdminOrUserOwner } from "./common/authorizer.js";
+import * as Prisma from "@/prisma/mod.ts";
+import { parseConnectionArgs, ParseError } from "../common/parsers.ts";
+import { full } from "../common/resolvers.ts";
+import type { UserResolvers, UserTodosArgs } from "../common/schema.ts";
+import { OrderDirection, TodoOrderField } from "../common/schema.ts";
+import { cursorConnections, orderOptions } from "../common/typeDefs.ts";
+import { isAdminOrUserOwner } from "./common/authorizer.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -78,9 +78,9 @@ const parser = (args: UserTodosArgs) => {
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.js");
-  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
-  const { ParseError: ParseErr } = await import("../common/parsers.js");
+  const { admin, alice, guest } = await import("tests/data/context.ts");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
+  const { ParseError: ParseErr } = await import("../common/parsers.ts");
 
   describe("Authorization", () => {
     const allow = [

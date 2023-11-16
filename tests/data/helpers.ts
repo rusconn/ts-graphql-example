@@ -1,8 +1,8 @@
-import type * as Prisma from "@/prisma/mod.js";
-import type * as Graph from "@/modules/common/schema.js";
-import type { DateTime } from "@/modules/scalar/mod.js";
-import { todoNodeId, todoStatus } from "@/modules/todo/common/adapter.js";
-import { userNodeId } from "@/modules/user/common/adapter.js";
+import type * as Prisma from "@/prisma/mod.ts";
+import type * as Graph from "@/modules/common/schema.ts";
+import type { DateTime } from "@/modules/scalar/mod.ts";
+import { todoNodeId, todoStatus } from "@/modules/todo/common/adapter.ts";
+import { userNodeId } from "@/modules/user/common/adapter.ts";
 
 export const todoNode = (todo: Prisma.Todo): Graph.Todo => ({
   id: todoNodeId(todo.id),

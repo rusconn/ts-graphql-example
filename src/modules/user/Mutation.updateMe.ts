@@ -1,8 +1,8 @@
-import * as Prisma from "@/prisma/mod.js";
-import { isAuthenticated } from "../common/authorizers.js";
-import { ParseError } from "../common/parsers.js";
-import { full } from "../common/resolvers.js";
-import type { MutationResolvers, MutationUpdateMeArgs } from "../common/schema.js";
+import * as Prisma from "@/prisma/mod.ts";
+import { isAuthenticated } from "../common/authorizers.ts";
+import { ParseError } from "../common/parsers.ts";
+import { full } from "../common/resolvers.ts";
+import type { MutationResolvers, MutationUpdateMeArgs } from "../common/schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -86,9 +86,9 @@ const parser = (args: MutationUpdateMeArgs) => {
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.js");
-  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
-  const { ParseError: ParseErr } = await import("../common/parsers.js");
+  const { admin, alice, guest } = await import("tests/data/context.ts");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
+  const { ParseError: ParseErr } = await import("../common/parsers.ts");
 
   describe("Authorization", () => {
     const allow = [admin, alice];

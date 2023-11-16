@@ -1,10 +1,10 @@
-import type { CreateTodoMutation, CreateTodoMutationVariables } from "tests/modules/schema.js";
-import { DBData } from "tests/data/mod.js";
-import { clearTables, fail } from "tests/helpers.js";
-import { executeSingleResultOperation } from "tests/server.js";
-import { prisma } from "@/prisma/mod.js";
-import * as Prisma from "@/prisma/mod.js";
-import { parseTodoNodeId } from "@/modules/todo/common/parser.js";
+import type { CreateTodoMutation, CreateTodoMutationVariables } from "tests/modules/schema.ts";
+import { DBData } from "tests/data/mod.ts";
+import { clearTables, fail } from "tests/helpers.ts";
+import { executeSingleResultOperation } from "tests/server.ts";
+import { prisma } from "@/prisma/mod.ts";
+import * as Prisma from "@/prisma/mod.ts";
+import { parseTodoNodeId } from "@/modules/todo/common/parser.ts";
 
 const executeMutation = executeSingleResultOperation<
   CreateTodoMutation,

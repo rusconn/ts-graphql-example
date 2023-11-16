@@ -1,5 +1,5 @@
-import type { QueryResolvers } from "../common/schema.js";
-import * as node from "./Query.node.js";
+import type { QueryResolvers } from "../common/schema.ts";
+import * as node from "./Query.node.ts";
 
 export const typeDefs = [node.typeDef];
 

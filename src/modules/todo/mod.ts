@@ -1,7 +1,7 @@
-import type { Resolvers } from "../common/schema.js";
-import * as Mutation from "./Mutation.js";
-import * as Todo from "./Todo.js";
-import * as User from "./User.js";
+import type { Resolvers } from "../common/schema.ts";
+import * as Mutation from "./Mutation.ts";
+import * as Todo from "./Todo.ts";
+import * as User from "./User.ts";
 
 export const typeDefs = [Mutation.typeDefs, Todo.typeDefs, User.typeDefs];
 

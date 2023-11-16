@@ -1,7 +1,7 @@
 import type { ConnectionArguments } from "@devoxa/prisma-relay-cursor-connection";
 
-import type { Scalars } from "./schema.js";
-import { type NodeType, nodeTypes, typeIdSep } from "./typeDefs.js";
+import type { Scalars } from "./schema.ts";
+import { type NodeType, nodeTypes, typeIdSep } from "./typeDefs.ts";
 
 export class ParseError extends Error {
   override readonly name = "ParseError" as const;

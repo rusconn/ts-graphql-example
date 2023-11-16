@@ -1,7 +1,7 @@
-import { key } from "../common/resolvers.js";
-import type { UserResolvers } from "../common/schema.js";
-import { isAdminOrUserOwner } from "./common/authorizer.js";
-import { parseTodoNodeId } from "./common/parser.js";
+import { key } from "../common/resolvers.ts";
+import type { UserResolvers } from "../common/schema.ts";
+import { isAdminOrUserOwner } from "./common/authorizer.ts";
+import { parseTodoNodeId } from "./common/parser.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -22,10 +22,10 @@ const authorizer = isAdminOrUserOwner;
 const parser = parseTodoNodeId;
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.js");
-  const { validTodoIds, invalidTodoIds } = await import("tests/data/graph.js");
-  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
-  const { ParseError: ParseErr } = await import("../common/parsers.js");
+  const { admin, alice, guest } = await import("tests/data/context.ts");
+  const { validTodoIds, invalidTodoIds } = await import("tests/data/graph.ts");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
+  const { ParseError: ParseErr } = await import("../common/parsers.ts");
 
   describe("Authorization", () => {
     const allow = [

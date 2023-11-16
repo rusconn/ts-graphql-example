@@ -1,11 +1,11 @@
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
-import * as Prisma from "@/prisma/mod.js";
-import { allow } from "../common/authorizers.js";
-import { ParseError } from "../common/parsers.js";
-import { full } from "../common/resolvers.js";
-import type { MutationResolvers, MutationLoginArgs } from "../common/schema.js";
+import * as Prisma from "@/prisma/mod.ts";
+import { allow } from "../common/authorizers.ts";
+import { ParseError } from "../common/parsers.ts";
+import { full } from "../common/resolvers.ts";
+import type { MutationResolvers, MutationLoginArgs } from "../common/schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -89,9 +89,9 @@ const parser = (args: MutationLoginArgs) => {
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.js");
-  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
-  const { ParseError: ParseErr } = await import("../common/parsers.js");
+  const { admin, alice, guest } = await import("tests/data/context.ts");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
+  const { ParseError: ParseErr } = await import("../common/parsers.ts");
 
   describe("Authorization", () => {
     const allows = [admin, alice, guest];

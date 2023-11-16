@@ -1,5 +1,5 @@
-import { port } from "./config.js";
-import { server } from "./server.js";
+import { port } from "./config.ts";
+import { server } from "./server.ts";
 
 server.listen(port, () => {
   console.info(`Server is running on http://localhost:${port}/graphql`);

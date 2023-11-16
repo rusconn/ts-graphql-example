@@ -1,5 +1,5 @@
-import type * as Prisma from "@/prisma/mod.js";
-import { type Key, type Full, isFull } from "../../common/resolvers.js";
+import type * as Prisma from "@/prisma/mod.ts";
+import { type Key, type Full, isFull } from "../../common/resolvers.ts";
 
 export type User = Key<Pick<Prisma.User, "id">> | Full<Prisma.User>;
 

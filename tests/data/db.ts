@@ -1,4 +1,4 @@
-import * as Prisma from "@/prisma/mod.js";
+import * as Prisma from "@/prisma/mod.ts";
 
 export const admin: Prisma.User = {
   id: "01H75CPZGG1YW9W79M7WWT6KFB",

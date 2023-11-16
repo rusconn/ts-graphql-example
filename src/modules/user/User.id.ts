@@ -1,7 +1,7 @@
-import type { UserResolvers } from "../common/schema.js";
-import { userNodeId } from "./common/adapter.js";
-import { isAdminOrUserOwner } from "./common/authorizer.js";
-import { fullUser } from "./common/resolver.js";
+import type { UserResolvers } from "../common/schema.ts";
+import { userNodeId } from "./common/adapter.ts";
+import { isAdminOrUserOwner } from "./common/authorizer.ts";
+import { fullUser } from "./common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -22,8 +22,8 @@ const authorizer = isAdminOrUserOwner;
 const adapter = userNodeId;
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.js");
-  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { admin, alice, guest } = await import("tests/data/context.ts");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
 
   describe("Authorization", () => {
     const allow = [

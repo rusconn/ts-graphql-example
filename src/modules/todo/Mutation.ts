@@ -1,9 +1,9 @@
-import type { MutationResolvers } from "../common/schema.js";
-import * as completeTodo from "./Mutation.completeTodo.js";
-import * as createTodo from "./Mutation.createTodo.js";
-import * as deleteTodo from "./Mutation.deleteTodo.js";
-import * as uncompleteTodo from "./Mutation.uncompleteTodo.js";
-import * as updateTodo from "./Mutation.updateTodo.js";
+import type { MutationResolvers } from "../common/schema.ts";
+import * as completeTodo from "./Mutation.completeTodo.ts";
+import * as createTodo from "./Mutation.createTodo.ts";
+import * as deleteTodo from "./Mutation.deleteTodo.ts";
+import * as uncompleteTodo from "./Mutation.uncompleteTodo.ts";
+import * as updateTodo from "./Mutation.updateTodo.ts";
 
 const typeDef = /* GraphQL */ `
   type TodoNotFoundError implements Error {

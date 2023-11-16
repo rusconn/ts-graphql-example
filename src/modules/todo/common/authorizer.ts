@@ -1,6 +1,6 @@
-import type { Todo, User } from "@/prisma/mod.js";
-import { isAdmin, AuthorizationError } from "../../common/authorizers.js";
-import type { ContextUser } from "../../common/resolvers.js";
+import type { Todo, User } from "@/prisma/mod.ts";
+import { isAdmin, AuthorizationError } from "../../common/authorizers.ts";
+import type { ContextUser } from "../../common/resolvers.ts";
 
 export const isAdminOrTodoOwner = (user: ContextUser, todo: Pick<Todo, "userId">) => {
   try {

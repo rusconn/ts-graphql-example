@@ -1,7 +1,7 @@
-import type { QueryResolvers } from "../common/schema.js";
-import * as me from "./Query.me.js";
-import * as user from "./Query.user.js";
-import * as users from "./Query.users.js";
+import type { QueryResolvers } from "../common/schema.ts";
+import * as me from "./Query.me.ts";
+import * as user from "./Query.user.ts";
+import * as users from "./Query.users.ts";
 
 export const typeDefs = [me.typeDef, user.typeDef, users.typeDef];
 

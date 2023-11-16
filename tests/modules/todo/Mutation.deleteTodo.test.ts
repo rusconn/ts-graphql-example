@@ -1,8 +1,8 @@
-import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "tests/modules/schema.js";
-import { DBData, GraphData } from "tests/data/mod.js";
-import { clearTables, clearTodos } from "tests/helpers.js";
-import { executeSingleResultOperation } from "tests/server.js";
-import { prisma } from "@/prisma/mod.js";
+import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "tests/modules/schema.ts";
+import { DBData, GraphData } from "tests/data/mod.ts";
+import { clearTables, clearTodos } from "tests/helpers.ts";
+import { executeSingleResultOperation } from "tests/server.ts";
+import { prisma } from "@/prisma/mod.ts";
 
 const executeMutation = executeSingleResultOperation<
   DeleteTodoMutation,

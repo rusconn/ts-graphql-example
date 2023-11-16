@@ -1,6 +1,6 @@
-import { isAuthenticated } from "../common/authorizers.js";
-import { full } from "../common/resolvers.js";
-import type { QueryResolvers } from "../common/schema.js";
+import { isAuthenticated } from "../common/authorizers.ts";
+import { full } from "../common/resolvers.ts";
+import type { QueryResolvers } from "../common/schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
@@ -17,8 +17,8 @@ export const resolver: QueryResolvers["me"] = (_parent, _args, context) => {
 const authorizer = isAuthenticated;
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.js");
-  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { admin, alice, guest } = await import("tests/data/context.ts");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
 
   describe("Authorization", () => {
     const allow = [admin, alice];

@@ -1,6 +1,6 @@
-import { isAuthenticated } from "../common/authorizers.js";
-import { parseNodeId } from "../common/parsers.js";
-import type { QueryResolvers, QueryNodeArgs } from "../common/schema.js";
+import { isAuthenticated } from "../common/authorizers.ts";
+import { parseNodeId } from "../common/parsers.ts";
+import type { QueryResolvers, QueryNodeArgs } from "../common/schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
@@ -23,10 +23,10 @@ const parser = (args: QueryNodeArgs) => {
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.js");
-  const { validNodeIds, invalidIds } = await import("tests/data/graph.js");
-  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
-  const { ParseError: ParseErr } = await import("../common/parsers.js");
+  const { admin, alice, guest } = await import("tests/data/context.ts");
+  const { validNodeIds, invalidIds } = await import("tests/data/graph.ts");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
+  const { ParseError: ParseErr } = await import("../common/parsers.ts");
 
   describe("Authorization", () => {
     const allow = [admin, alice];

@@ -8,13 +8,13 @@ import { createYoga, useLogger } from "graphql-yoga";
 import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
 import { ulid } from "ulid";
 
-import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers.js";
-import { ErrorCode } from "@/modules/common/schema.js";
-import { makeLogger } from "./logger.js";
-import { middlewares } from "./middlewares.js";
-import { prisma } from "./prisma/mod.js";
-import { schema } from "./schema.js";
-import { isProd, maxCost, maxDepth } from "./config.js";
+import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers.ts";
+import { ErrorCode } from "@/modules/common/schema.ts";
+import { makeLogger } from "./logger.ts";
+import { middlewares } from "./middlewares.ts";
+import { prisma } from "./prisma/mod.ts";
+import { schema } from "./schema.ts";
+import { isProd, maxCost, maxDepth } from "./config.ts";
 
 export const yoga = createYoga<ServerContext, UserContext>({
   schema: applyMiddleware(schema, ...middlewares),

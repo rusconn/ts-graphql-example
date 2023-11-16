@@ -1,7 +1,7 @@
-import type { Resolvers } from "../common/schema.js";
-import * as DateTime from "./DateTime.js";
-import * as EmailAddress from "./EmailAddress.js";
-import * as NonEmptyString from "./NonEmptyString.js";
+import type { Resolvers } from "../common/schema.ts";
+import * as DateTime from "./DateTime.ts";
+import * as EmailAddress from "./EmailAddress.ts";
+import * as NonEmptyString from "./NonEmptyString.ts";
 
 export const typeDefs = [DateTime.typeDef, EmailAddress.typeDef, NonEmptyString.typeDef];
 
@@ -11,8 +11,8 @@ export const resolvers: Resolvers = {
   NonEmptyString: NonEmptyString.resolver,
 };
 
-export type { DateTime } from "./DateTime.js";
-export type { EmailAddress } from "./EmailAddress.js";
-export type { NonEmptyString } from "./NonEmptyString.js";
+export type { DateTime } from "./DateTime.ts";
+export type { EmailAddress } from "./EmailAddress.ts";
+export type { NonEmptyString } from "./NonEmptyString.ts";
 
-export type { ID } from "./ID.js";
+export type { ID } from "./ID.ts";

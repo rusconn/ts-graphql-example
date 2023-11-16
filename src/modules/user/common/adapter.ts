@@ -1,3 +1,3 @@
-import { nodeId } from "../../common/adapters.js";
+import { nodeId } from "../../common/adapters.ts";
 
 export const userNodeId = nodeId("User");

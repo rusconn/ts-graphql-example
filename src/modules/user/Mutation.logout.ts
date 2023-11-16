@@ -1,6 +1,6 @@
-import { isAuthenticated } from "../common/authorizers.js";
-import { full } from "../common/resolvers.js";
-import type { MutationResolvers } from "../common/schema.js";
+import { isAuthenticated } from "../common/authorizers.ts";
+import { full } from "../common/resolvers.ts";
+import type { MutationResolvers } from "../common/schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -31,8 +31,8 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
 const authorizer = isAuthenticated;
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.js");
-  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { admin, alice, guest } = await import("tests/data/context.ts");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
 
   describe("Authorization", () => {
     const allow = [admin, alice];

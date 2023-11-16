@@ -1,9 +1,9 @@
-import type { TodoIdQuery, TodoIdQueryVariables } from "tests/modules/schema.js";
-import { ContextData, DBData, GraphData } from "tests/data/mod.js";
-import { clearTables, fail } from "tests/helpers.js";
-import { executeSingleResultOperation } from "tests/server.js";
-import { prisma } from "@/prisma/mod.js";
-import { ErrorCode } from "@/modules/common/schema.js";
+import type { TodoIdQuery, TodoIdQueryVariables } from "tests/modules/schema.ts";
+import { ContextData, DBData, GraphData } from "tests/data/mod.ts";
+import { clearTables, fail } from "tests/helpers.ts";
+import { executeSingleResultOperation } from "tests/server.ts";
+import { prisma } from "@/prisma/mod.ts";
+import { ErrorCode } from "@/modules/common/schema.ts";
 
 const executeQuery = executeSingleResultOperation<TodoIdQuery, TodoIdQueryVariables>(/* GraphQL */ `
   query TodoId($id: ID!) {

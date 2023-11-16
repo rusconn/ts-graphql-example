@@ -1,7 +1,7 @@
-import { key } from "../common/resolvers.js";
-import type { TodoResolvers } from "../common/schema.js";
-import { isAdminOrTodoOwner } from "./common/authorizer.js";
-import { fullTodo } from "./common/resolver.js";
+import { key } from "../common/resolvers.ts";
+import type { TodoResolvers } from "../common/schema.ts";
+import { isAdminOrTodoOwner } from "./common/authorizer.ts";
+import { fullTodo } from "./common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
@@ -20,9 +20,9 @@ export const resolver: TodoResolvers["user"] = async (parent, _args, context) =>
 const authorizer = isAdminOrTodoOwner;
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.js");
-  const { adminTodo1: adminTodo, aliceTodo } = await import("tests/data/db.js");
-  const { AuthorizationError: AuthErr } = await import("../common/authorizers.js");
+  const { admin, alice, guest } = await import("tests/data/context.ts");
+  const { adminTodo1: adminTodo, aliceTodo } = await import("tests/data/db.ts");
+  const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
 
   describe("Authorization", () => {
     const allow = [

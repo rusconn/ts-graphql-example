@@ -1,4 +1,4 @@
-import { prisma } from "@/prisma/mod.js";
+import { prisma } from "@/prisma/mod.ts";
 
 export const clearTables = async () => {
   // CASCADE Todo

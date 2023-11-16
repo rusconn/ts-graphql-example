@@ -1,3 +1,3 @@
-export * as ContextData from "./context.js";
-export * as DBData from "./db.js";
-export * as GraphData from "./graph.js";
+export * as ContextData from "./context.ts";
+export * as DBData from "./db.ts";
+export * as GraphData from "./graph.ts";

@@ -3,13 +3,13 @@ import { omit } from "remeda";
 import type {
   UncompleteTodoMutation,
   UncompleteTodoMutationVariables,
-} from "tests/modules/schema.js";
-import { DBData, GraphData } from "tests/data/mod.js";
-import { clearTables } from "tests/helpers.js";
-import { executeSingleResultOperation } from "tests/server.js";
-import { prisma } from "@/prisma/mod.js";
-import * as Prisma from "@/prisma/mod.js";
-import { TodoStatus } from "@/modules/common/schema.js";
+} from "tests/modules/schema.ts";
+import { DBData, GraphData } from "tests/data/mod.ts";
+import { clearTables } from "tests/helpers.ts";
+import { executeSingleResultOperation } from "tests/server.ts";
+import { prisma } from "@/prisma/mod.ts";
+import * as Prisma from "@/prisma/mod.ts";
+import { TodoStatus } from "@/modules/common/schema.ts";
 
 const executeMutation = executeSingleResultOperation<
   UncompleteTodoMutation,
