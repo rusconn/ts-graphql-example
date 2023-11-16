@@ -22,14 +22,8 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice, DBData.bob],
-  todos: [
-    DBData.adminTodo1,
-    DBData.adminTodo2,
-    DBData.adminTodo3,
-    DBData.aliceTodo,
-    DBData.bobTodo,
-  ],
+  users: [DBData.admin, DBData.alice],
+  todos: [DBData.adminTodo1, DBData.aliceTodo],
 };
 
 const seedData = {

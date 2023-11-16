@@ -3,7 +3,7 @@ import { ContextData, DBData, GraphData } from "tests/data/mod.js";
 import { clearTables } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
+import { ErrorCode } from "@/modules/common/schema.js";
 
 const executeQuery = executeSingleResultOperation<NodeQuery, NodeQueryVariables>(/* GraphQL */ `
   query Node($id: ID!) {
@@ -34,7 +34,7 @@ describe("error handling", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
+    expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.Forbidden]));
   });
 
   test("AuthorizationError -> Forbidden", async () => {
@@ -46,7 +46,7 @@ describe("error handling", () => {
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data?.node).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.Forbidden]));
+    expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.Forbidden]));
   });
 
   test("not ParseError -> not BadUserInput", async () => {
@@ -56,7 +56,7 @@ describe("error handling", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(errorCodes).not.toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+    expect(errorCodes).not.toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
   });
 
   test("ParseError -> BadUserInput", async () => {
@@ -66,7 +66,7 @@ describe("error handling", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.node).toBeFalsy();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.BadUserInput]));
+    expect(data?.node).toBeNull();
+    expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.BadUserInput]));
   });
 });

@@ -5,7 +5,7 @@ import { DBData, GraphData } from "tests/data/mod.js";
 import { clearTables } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
+import { TodoStatus } from "@/modules/common/schema.js";
 
 const executeMutation = executeSingleResultOperation<
   CompleteTodoMutation,
@@ -31,14 +31,8 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice, DBData.bob],
-  todos: [
-    DBData.adminTodo1,
-    DBData.adminTodo2,
-    DBData.adminTodo3,
-    DBData.aliceTodo,
-    DBData.bobTodo,
-  ],
+  users: [DBData.admin, DBData.alice],
+  todos: [DBData.adminTodo1, DBData.aliceTodo],
 };
 
 const seedData = {
@@ -91,8 +85,8 @@ it("should update status", async () => {
     where: { id: DBData.adminTodo1.id },
   });
 
-  expect(before.status).toBe(Graph.TodoStatus.Pending);
-  expect(after.status).toBe(Graph.TodoStatus.Done);
+  expect(before.status).toBe(TodoStatus.Pending);
+  expect(after.status).toBe(TodoStatus.Done);
 });
 
 it("should update updatedAt", async () => {

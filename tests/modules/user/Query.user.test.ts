@@ -3,7 +3,7 @@ import { DBData, GraphData } from "tests/data/mod.js";
 import { clearTables, fail } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
+import { ErrorCode } from "@/modules/common/schema.js";
 
 const executeQuery = executeSingleResultOperation<UserQuery, UserQueryVariables>(/* GraphQL */ `
   query User($id: ID!) {
@@ -14,7 +14,7 @@ const executeQuery = executeSingleResultOperation<UserQuery, UserQueryVariables>
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice, DBData.bob],
+  users: [DBData.admin],
 };
 
 const seedData = {
@@ -45,6 +45,6 @@ it("should return not found error if not found", async () => {
 
   const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-  expect(data?.user).toBeFalsy();
-  expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+  expect(data?.user).toBeNull();
+  expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
 });

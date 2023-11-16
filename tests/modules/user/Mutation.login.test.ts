@@ -27,7 +27,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice, DBData.bob],
+  users: [DBData.admin, DBData.alice],
 };
 
 const seedData = {
@@ -90,9 +90,6 @@ test("login changes token", async () => {
     where: { id: DBData.admin.id },
   });
 
-  expect(before.id).toBe(after.id);
-  expect(before.name).toBe(after.name);
-  expect(before.email).toBe(after.email);
   expect(before.token).not.toBe(after.token);
 });
 

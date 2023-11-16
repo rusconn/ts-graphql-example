@@ -3,7 +3,7 @@ import { DBData, GraphData } from "tests/data/mod.js";
 import { clearTables } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
+import { ErrorCode } from "@/modules/common/schema.js";
 
 const executeQuery = executeSingleResultOperation<NodeQuery, NodeQueryVariables>(/* GraphQL */ `
   query Node($id: ID!) {
@@ -14,14 +14,8 @@ const executeQuery = executeSingleResultOperation<NodeQuery, NodeQueryVariables>
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice, DBData.bob],
-  todos: [
-    DBData.adminTodo1,
-    DBData.adminTodo2,
-    DBData.adminTodo3,
-    DBData.aliceTodo,
-    DBData.bobTodo,
-  ],
+  users: [DBData.admin, DBData.alice],
+  todos: [DBData.adminTodo1],
 };
 
 const seedData = {
@@ -43,7 +37,7 @@ test("not exists", async () => {
   const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
   expect(data?.node).toBeNull();
-  expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+  expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
 });
 
 test("exists, but not owned", async () => {
@@ -54,7 +48,7 @@ test("exists, but not owned", async () => {
   const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
   expect(data?.node).not.toBeNull();
-  expect(errorCodes).toEqual(expect.not.arrayContaining([Graph.ErrorCode.NotFound]));
+  expect(errorCodes).toEqual(expect.not.arrayContaining([ErrorCode.NotFound]));
 });
 
 describe("should return item correctly", () => {
@@ -79,7 +73,7 @@ describe("should return not found error if not found", () => {
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-    expect(data?.node).toBeFalsy();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+    expect(data?.node).toBeNull();
+    expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
   });
 });

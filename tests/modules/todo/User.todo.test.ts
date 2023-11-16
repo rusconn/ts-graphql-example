@@ -3,7 +3,7 @@ import { ContextData, DBData, GraphData } from "tests/data/mod.js";
 import { clearTables, fail } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
+import { ErrorCode } from "@/modules/common/schema.js";
 
 const executeQuery = executeSingleResultOperation<
   UserTodoQuery,
@@ -25,7 +25,7 @@ const executeQuery = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice, DBData.bob],
+  users: [DBData.admin, DBData.alice],
   todos: [DBData.adminTodo1, DBData.aliceTodo],
 };
 
@@ -89,7 +89,7 @@ describe("exists, but not owned", () => {
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
     expect(data.node.todo).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+    expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
   });
 });
 

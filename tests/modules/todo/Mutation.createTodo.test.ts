@@ -26,7 +26,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice, DBData.bob],
+  users: [DBData.admin],
 };
 
 const seedData = {

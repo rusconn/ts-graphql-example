@@ -3,7 +3,7 @@ import { ContextData, DBData, GraphData } from "tests/data/mod.js";
 import { clearTables, fail } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
+import { ErrorCode } from "@/modules/common/schema.js";
 
 const executeQuery = executeSingleResultOperation<
   UserNameQuery,
@@ -39,7 +39,7 @@ test("not exists", async () => {
 
   const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-  expect(errorCodes).toEqual(expect.arrayContaining([Graph.ErrorCode.NotFound]));
+  expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
 });
 
 test("exists, owned", async () => {

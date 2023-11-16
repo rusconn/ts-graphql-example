@@ -5,7 +5,7 @@ import { DBData, GraphData } from "tests/data/mod.js";
 import { clearTables } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
+import { TodoStatus } from "@/modules/common/schema.js";
 
 const executeMutation = executeSingleResultOperation<
   UpdateTodoMutation,
@@ -31,14 +31,8 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice, DBData.bob],
-  todos: [
-    DBData.adminTodo1,
-    DBData.adminTodo2,
-    DBData.adminTodo3,
-    DBData.aliceTodo,
-    DBData.bobTodo,
-  ],
+  users: [DBData.admin, DBData.alice],
+  todos: [DBData.adminTodo1, DBData.aliceTodo],
 };
 
 const seedData = {
@@ -63,7 +57,7 @@ beforeEach(async () => {
 const input = {
   title: "bar",
   description: "baz",
-  status: Graph.TodoStatus.Done,
+  status: TodoStatus.Done,
 };
 
 test("not exists", async () => {

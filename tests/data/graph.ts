@@ -3,15 +3,13 @@ import { todoNode, userNode } from "./helpers.js";
 
 export const admin = userNode(DB.admin);
 export const alice = userNode(DB.alice);
-export const bob = userNode(DB.bob);
 
 export const adminTodo1 = todoNode(DB.adminTodo1);
 export const adminTodo2 = todoNode(DB.adminTodo2);
 export const adminTodo3 = todoNode(DB.adminTodo3);
 export const aliceTodo = todoNode(DB.aliceTodo);
-export const bobTodo = todoNode(DB.bobTodo);
 
-export const validUserIds = [admin, alice, bob].map(({ id }) => id);
+export const validUserIds = [admin, alice].map(({ id }) => id);
 
 export const validTodoIds = [adminTodo1, adminTodo2, adminTodo3].map(({ id }) => id);
 

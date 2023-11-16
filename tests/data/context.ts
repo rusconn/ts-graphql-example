@@ -1,6 +1,6 @@
 import * as DBData from "./db.js";
 
-export const { admin, alice, bob } = DBData;
+export const { admin, alice } = DBData;
 
 export const guest = {
   id: "01HEMZ1X89Q2AAMHWBE5AZ02BP",

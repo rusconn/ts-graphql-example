@@ -23,13 +23,6 @@ if (Number.isNaN(maxDepth)) {
 if (Number.isNaN(maxCost)) {
   throw new Error("Invalid MAX_COST");
 }
-if (
-  Number.isNaN(passwordHashRoundsExponent) ||
-  passwordHashRoundsExponent < 10 ||
-  passwordHashRoundsExponent > 14
-) {
-  throw new Error("Invalid PASSWORD_HASH_ROUNDS_EXPONENT");
-}
 if (!NODE_ENV || !isValidNodeEnv(NODE_ENV)) {
   throw new Error("Invalid NODE_ENV");
 }
@@ -37,5 +30,13 @@ if (!NODE_ENV || !isValidNodeEnv(NODE_ENV)) {
 const isDev = NODE_ENV === "development";
 const isTest = NODE_ENV === "test";
 const isProd = NODE_ENV === "production";
+
+if (
+  Number.isNaN(passwordHashRoundsExponent) ||
+  (isProd && passwordHashRoundsExponent < 10) ||
+  (isProd && passwordHashRoundsExponent > 14)
+) {
+  throw new Error("Invalid PASSWORD_HASH_ROUNDS_EXPONENT");
+}
 
 export { port, maxDepth, maxCost, passwordHashRoundsExponent, isDev, isTest, isProd };

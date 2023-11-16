@@ -3,7 +3,7 @@ import { DBData, GraphData } from "tests/data/mod.js";
 import { clearTables, fail } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
+import { TodoOrderField, OrderDirection } from "@/modules/common/schema.js";
 
 const executeQuery = executeSingleResultOperation<
   UserTodosQuery,
@@ -41,7 +41,7 @@ const executeQuery = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice, DBData.bob],
+  users: [DBData.admin, DBData.alice],
   todos: [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3],
 };
 
@@ -90,22 +90,22 @@ describe("order of items", () => {
   const patterns = [
     [{}, [GraphData.adminTodo1, GraphData.adminTodo3, GraphData.adminTodo2]], // defaults to updatedAt desc
     [
-      { orderBy: { field: Graph.TodoOrderField.CreatedAt, direction: Graph.OrderDirection.Asc } },
+      { orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Asc } },
       [GraphData.adminTodo1, GraphData.adminTodo2, GraphData.adminTodo3],
     ],
     [
       {
-        orderBy: { field: Graph.TodoOrderField.CreatedAt, direction: Graph.OrderDirection.Desc },
+        orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Desc },
       },
       [GraphData.adminTodo3, GraphData.adminTodo2, GraphData.adminTodo1],
     ],
     [
-      { orderBy: { field: Graph.TodoOrderField.UpdatedAt, direction: Graph.OrderDirection.Asc } },
+      { orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Asc } },
       [GraphData.adminTodo2, GraphData.adminTodo3, GraphData.adminTodo1],
     ],
     [
       {
-        orderBy: { field: Graph.TodoOrderField.UpdatedAt, direction: Graph.OrderDirection.Desc },
+        orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Desc },
       },
       [GraphData.adminTodo1, GraphData.adminTodo3, GraphData.adminTodo2],
     ],

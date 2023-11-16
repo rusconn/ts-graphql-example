@@ -4,26 +4,23 @@ import type { DateTime } from "@/modules/scalar/mod.js";
 import { todoNodeId, todoStatus } from "@/modules/todo/common/adapter.js";
 import { userNodeId } from "@/modules/user/common/adapter.js";
 
-export const todoNode = (todo: Prisma.Todo): DateTimed<Graph.Todo> => ({
+export const todoNode = (todo: Prisma.Todo): Graph.Todo => ({
   id: todoNodeId(todo.id),
-  createdAt: todo.createdAt.toISOString() as DateTime,
-  updatedAt: todo.updatedAt.toISOString() as DateTime,
+  createdAt: dateTime(todo.createdAt),
+  updatedAt: dateTime(todo.updatedAt),
   title: todo.title,
   description: todo.description,
   status: todoStatus(todo.status),
 });
 
-export const userNode = (user: Prisma.User): DateTimed<Graph.User> => ({
+export const userNode = (user: Prisma.User): Graph.User => ({
   id: userNodeId(user.id),
-  createdAt: user.createdAt.toISOString() as DateTime,
-  updatedAt: user.updatedAt.toISOString() as DateTime,
+  createdAt: dateTime(user.createdAt),
+  updatedAt: dateTime(user.updatedAt),
   name: user.name,
   email: user.email,
   token: user.token,
 });
 
 // DateTime リゾルバーによる変換のシミュレーション
-type DateTimed<T> = T & {
-  createdAt: DateTime;
-  updatedAt: DateTime;
-};
+const dateTime = (date: Date) => date.toISOString() as DateTime;

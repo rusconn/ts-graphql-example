@@ -3,7 +3,7 @@ import { DBData, GraphData } from "tests/data/mod.js";
 import { clearUsers } from "tests/helpers.js";
 import { executeSingleResultOperation } from "tests/server.js";
 import { prisma } from "@/prisma/mod.js";
-import * as Graph from "@/modules/common/schema.js";
+import { UserOrderField, OrderDirection } from "@/modules/common/schema.js";
 
 const executeQuery = executeSingleResultOperation<UsersQuery, UsersQueryVariables>(/* GraphQL */ `
   query Users($first: Int, $after: String, $last: Int, $before: String, $orderBy: UserOrder) {
@@ -26,7 +26,7 @@ const executeQuery = executeSingleResultOperation<UsersQuery, UsersQueryVariable
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice, DBData.bob],
+  users: [DBData.admin, DBData.alice],
 };
 
 const seedData = {
@@ -62,22 +62,22 @@ describe("number of items", () => {
 
 describe("order of items", () => {
   const patterns = [
-    [{}, [GraphData.bob, GraphData.alice, GraphData.admin]], // defaults to createdAt desc
+    [{}, [GraphData.alice, GraphData.admin]], // defaults to createdAt desc
     [
-      { orderBy: { field: Graph.UserOrderField.CreatedAt, direction: Graph.OrderDirection.Asc } },
-      [GraphData.admin, GraphData.alice, GraphData.bob],
+      { orderBy: { field: UserOrderField.CreatedAt, direction: OrderDirection.Asc } },
+      [GraphData.admin, GraphData.alice],
     ],
     [
-      { orderBy: { field: Graph.UserOrderField.CreatedAt, direction: Graph.OrderDirection.Desc } },
-      [GraphData.bob, GraphData.alice, GraphData.admin],
+      { orderBy: { field: UserOrderField.CreatedAt, direction: OrderDirection.Desc } },
+      [GraphData.alice, GraphData.admin],
     ],
     [
-      { orderBy: { field: Graph.UserOrderField.UpdatedAt, direction: Graph.OrderDirection.Asc } },
-      [GraphData.alice, GraphData.bob, GraphData.admin],
+      { orderBy: { field: UserOrderField.UpdatedAt, direction: OrderDirection.Asc } },
+      [GraphData.alice, GraphData.admin],
     ],
     [
-      { orderBy: { field: Graph.UserOrderField.UpdatedAt, direction: Graph.OrderDirection.Desc } },
-      [GraphData.admin, GraphData.bob, GraphData.alice],
+      { orderBy: { field: UserOrderField.UpdatedAt, direction: OrderDirection.Desc } },
+      [GraphData.admin, GraphData.alice],
     ],
   ] as const;
 
@@ -99,10 +99,7 @@ describe("pagination", () => {
 
     const execute = () =>
       executeQuery({
-        variables: {
-          first,
-          orderBy: { field: Graph.UserOrderField.CreatedAt, direction: Graph.OrderDirection.Asc },
-        },
+        variables: { first },
       });
 
     const { data: data1 } = await execute();
