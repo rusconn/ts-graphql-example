@@ -1,10 +1,8 @@
+import type { User } from "@/prisma/mod.js";
 import { isAdmin, AuthorizationError } from "../../common/authorizers.js";
 import type { ContextUser } from "../../common/resolvers.js";
-import type { ResolversParentTypes } from "../../common/schema.js";
 
-type ParentUser = ResolversParentTypes["User"];
-
-export const isAdminOrUserOwner = (user: ContextUser, parent: ParentUser) => {
+export const isAdminOrUserOwner = (user: ContextUser, parent: Pick<User, "id">) => {
   try {
     return isAdmin(user);
   } catch {
@@ -12,7 +10,7 @@ export const isAdminOrUserOwner = (user: ContextUser, parent: ParentUser) => {
   }
 };
 
-export const isUserOwner = (user: ContextUser, parent: ParentUser) => {
+export const isUserOwner = (user: ContextUser, parent: Pick<User, "id">) => {
   if (user.id === parent.id) return user;
   throw new AuthorizationError();
 };

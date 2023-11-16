@@ -1,9 +1,6 @@
-import type { Todo } from "@/prisma/mod.js";
-import type { ResolversParentTypes } from "../../common/schema.js";
+import type { Todo, User } from "@/prisma/mod.js";
 import { isAdmin, AuthorizationError } from "../../common/authorizers.js";
 import type { ContextUser } from "../../common/resolvers.js";
-
-type ParentUser = ResolversParentTypes["User"];
 
 export const isAdminOrTodoOwner = (user: ContextUser, todo: Pick<Todo, "userId">) => {
   try {
@@ -18,7 +15,7 @@ export const isTodoOwner = (user: ContextUser, todo: Pick<Todo, "userId">) => {
   throw new AuthorizationError();
 };
 
-export const isAdminOrUserOwner = (user: ContextUser, parent: ParentUser) => {
+export const isAdminOrUserOwner = (user: ContextUser, parent: Pick<User, "id">) => {
   try {
     return isAdmin(user);
   } catch {
@@ -26,7 +23,7 @@ export const isAdminOrUserOwner = (user: ContextUser, parent: ParentUser) => {
   }
 };
 
-const isUserOwner = (user: ContextUser, parent: ParentUser) => {
+const isUserOwner = (user: ContextUser, parent: Pick<User, "id">) => {
   if (user.id === parent.id) return user;
   throw new AuthorizationError();
 };

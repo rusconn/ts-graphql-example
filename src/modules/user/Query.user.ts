@@ -1,4 +1,5 @@
 import { isAdmin } from "../common/authorizers.js";
+import { key } from "../common/resolvers.js";
 import type { QueryResolvers, QueryUserArgs } from "../common/schema.js";
 import { parseUserNodeId } from "./common/parser.js";
 
@@ -13,7 +14,7 @@ export const resolver: QueryResolvers["user"] = (_parent, args, context) => {
 
   const { id } = parser(args);
 
-  return { id };
+  return key({ id });
 };
 
 const authorizer = isAdmin;

@@ -29,7 +29,7 @@ export const typeDef = /* GraphQL */ `
   ${cursorConnections("User", { totalCount: "Int!" })}
 `;
 
-export const resolver: QueryResolvers["users"] = (_parent, args, context, resolveInfo) => {
+export const resolver: QueryResolvers["users"] = async (_parent, args, context, resolveInfo) => {
   authorizer(context.user);
 
   const { orderBy, first, last, before, after } = parser(args);

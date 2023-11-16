@@ -1,6 +1,7 @@
+import { key } from "../common/resolvers.js";
 import type { TodoResolvers } from "../common/schema.js";
 import { isAdminOrTodoOwner } from "./common/authorizer.js";
-import { fullTodo } from "./common/fuller.js";
+import { fullTodo } from "./common/resolver.js";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
@@ -13,7 +14,7 @@ export const resolver: TodoResolvers["user"] = async (parent, _args, context) =>
 
   authorizer(context.user, todo);
 
-  return { id: todo.userId };
+  return key({ id: todo.userId });
 };
 
 const authorizer = isAdminOrTodoOwner;

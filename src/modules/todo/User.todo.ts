@@ -1,3 +1,4 @@
+import { key } from "../common/resolvers.js";
 import type { UserResolvers } from "../common/schema.js";
 import { isAdminOrUserOwner } from "./common/authorizer.js";
 import { parseTodoNodeId } from "./common/parser.js";
@@ -13,7 +14,7 @@ export const resolver: UserResolvers["todo"] = (parent, args, context) => {
 
   const id = parser(args.id);
 
-  return { id, userId: parent.id };
+  return key({ id, userId: parent.id });
 };
 
 const authorizer = isAdminOrUserOwner;

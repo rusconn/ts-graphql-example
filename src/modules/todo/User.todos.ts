@@ -30,7 +30,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, re
   const { first, last, before, after, orderBy } = parser(args);
 
   return findManyCursorConnection(
-    async findManyArgs =>
+    findManyArgs =>
       context.prisma.todo
         .findMany({
           ...findManyArgs,

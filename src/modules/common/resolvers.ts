@@ -19,14 +19,17 @@ export type Admin = Prisma.User & { role: "ADMIN" };
 export type User = Prisma.User & { role: "USER" };
 export type Guest = Pick<Prisma.User, "id"> & { role: "GUEST" };
 
-export type Full<T> = { __full: true } & T;
+export type Key<T extends object> = { __type: "key" } & T;
+export type Full<T extends object> = { __type: "full" } & T;
 
-export const full = <T extends FullModel>(data: T): Full<T> => {
-  return { __full: true, ...data };
+export const key = <T extends object>(data: T): Key<T> => {
+  return { __type: "key", ...data };
 };
 
-export const isFull = <T, U extends Full<FullModel>>(data: T | U): data is U => {
-  return "__full" in data;
+export const full = <T extends object>(data: T): Full<T> => {
+  return { __type: "full", ...data };
 };
 
-type FullModel = Prisma.Todo | Prisma.User;
+export const isFull = <T extends Key<object>, U extends Full<object>>(data: T | U): data is U => {
+  return data.__type === "full";
+};
