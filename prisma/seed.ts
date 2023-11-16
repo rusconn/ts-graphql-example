@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
 import { passwordHashRoundsExponent } from "@/config.js";
-import { prisma, Role, User } from "@/prisma/mod.js";
+import { type User, prisma, Role } from "@/prisma/mod.js";
 
 const main = async () => {
   const users = await createUsers();

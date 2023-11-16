@@ -3,7 +3,8 @@ import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection
 import * as Prisma from "@/prisma/mod.js";
 import { parseConnectionArgs, ParseError } from "../common/parsers.js";
 import { full } from "../common/resolvers.js";
-import { UserResolvers, UserTodosArgs, OrderDirection, TodoOrderField } from "../common/schema.js";
+import type { UserResolvers, UserTodosArgs } from "../common/schema.js";
+import { OrderDirection, TodoOrderField } from "../common/schema.js";
 import { cursorConnections, orderOptions } from "../common/typeDefs.js";
 import { isAdminOrUserOwner } from "./common/authorizer.js";
 

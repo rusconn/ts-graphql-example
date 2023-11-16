@@ -12,7 +12,7 @@ type ExecuteOperationParams<TVariables> = {
 
 /** デフォルトユーザーは admin */
 export const executeSingleResultOperation =
-  <TData, TVariables>(query: string) =>
+  <TData, TVariables extends object>(query: string) =>
   async ({ variables, user = ContextData.admin }: ExecuteOperationParams<TVariables>) => {
     const result = await executor<TData, TVariables, UserContext>({
       document: parse(query),

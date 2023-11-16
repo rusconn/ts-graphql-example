@@ -4,12 +4,8 @@ import * as Prisma from "@/prisma/mod.js";
 import { isAdmin } from "../common/authorizers.js";
 import { parseConnectionArgs, ParseError } from "../common/parsers.js";
 import { full } from "../common/resolvers.js";
-import {
-  QueryResolvers,
-  QueryUsersArgs,
-  OrderDirection,
-  UserOrderField,
-} from "../common/schema.js";
+import type { QueryResolvers, QueryUsersArgs } from "../common/schema.js";
+import { OrderDirection, UserOrderField } from "../common/schema.js";
 import { cursorConnections, orderOptions } from "../common/typeDefs.js";
 
 export const typeDef = /* GraphQL */ `

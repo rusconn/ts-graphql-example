@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import { pino, LoggerOptions, stdTimeFunctions } from "pino";
+import { type LoggerOptions, pino, stdTimeFunctions } from "pino";
 
 import { isDev, isProd, isTest } from "@/config.js";
 
