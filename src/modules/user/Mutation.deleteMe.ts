@@ -1,4 +1,4 @@
-import { isAuthenticated } from "../common/authorizers.ts";
+import { authAuthenticated } from "../common/authorizers.ts";
 import type { MutationResolvers } from "../common/schema.ts";
 import { userNodeId } from "./common/adapter.ts";
 
@@ -16,7 +16,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["deleteMe"] = async (_parent, _args, context) => {
-  const authed = isAuthenticated(context.user);
+  const authed = authAuthenticated(context.user);
 
   const deleted = await context.prisma.user.delete({
     where: { id: authed.id },

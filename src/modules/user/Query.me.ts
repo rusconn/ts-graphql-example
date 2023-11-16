@@ -1,4 +1,4 @@
-import { isAuthenticated } from "../common/authorizers.ts";
+import { authAuthenticated } from "../common/authorizers.ts";
 import { full } from "../common/resolvers.ts";
 import type { QueryResolvers } from "../common/schema.ts";
 
@@ -9,7 +9,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["me"] = (_parent, _args, context) => {
-  const authed = isAuthenticated(context.user);
+  const authed = authAuthenticated(context.user);
 
   return full(authed);
 };

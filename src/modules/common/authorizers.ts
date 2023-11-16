@@ -9,24 +9,24 @@ export class AuthorizationError extends Error {
   }
 }
 
-export const allow = (user: ContextUser) => user;
+export const auth = (user: ContextUser) => user;
 
-export const isAdmin = (user: ContextUser) => {
+export const authAdmin = (user: ContextUser) => {
   if (user.role === "ADMIN") return user;
   throw new AuthorizationError();
 };
 
-export const isUser = (user: ContextUser) => {
+export const authUser = (user: ContextUser) => {
   if (user.role === "USER") return user;
   throw new AuthorizationError();
 };
 
-export const isGuest = (user: ContextUser) => {
+export const authGuest = (user: ContextUser) => {
   if (user.role === "GUEST") return user;
   throw new AuthorizationError();
 };
 
-export const isAuthenticated = (user: ContextUser) => {
+export const authAuthenticated = (user: ContextUser) => {
   if (user.role !== "GUEST") return user;
   throw new AuthorizationError();
 };

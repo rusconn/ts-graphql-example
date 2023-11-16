@@ -1,5 +1,5 @@
 import type { TodoResolvers } from "../common/schema.ts";
-import { isTodoOwner } from "./common/authorizer.ts";
+import { authTodoOwner } from "./common/authorizer.ts";
 import { fullTodo } from "./common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -11,7 +11,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: TodoResolvers["title"] = async (parent, _args, context) => {
   const todo = await fullTodo(context.prisma, parent);
 
-  isTodoOwner(context.user, todo);
+  authTodoOwner(context.user, todo);
 
   return todo.title;
 };

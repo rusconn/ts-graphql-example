@@ -1,6 +1,6 @@
 import { key } from "../common/resolvers.ts";
 import type { UserResolvers } from "../common/schema.ts";
-import { isAdminOrUserOwner } from "./common/authorizer.ts";
+import { authAdminOrUserOwner } from "./common/authorizer.ts";
 import { parseTodoNodeId } from "./common/parser.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -10,7 +10,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["todo"] = (parent, args, context) => {
-  isAdminOrUserOwner(context.user, parent);
+  authAdminOrUserOwner(context.user, parent);
 
   const id = parseTodoNodeId(args.id);
 

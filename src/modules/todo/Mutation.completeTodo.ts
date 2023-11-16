@@ -1,5 +1,5 @@
 import * as Prisma from "@/prisma/mod.ts";
-import { isAuthenticated } from "../common/authorizers.ts";
+import { authAuthenticated } from "../common/authorizers.ts";
 import { full } from "../common/resolvers.ts";
 import type { MutationResolvers } from "../common/schema.ts";
 import { parseTodoNodeId } from "./common/parser.ts";
@@ -17,7 +17,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["completeTodo"] = async (_parent, args, context) => {
-  const authed = isAuthenticated(context.user);
+  const authed = authAuthenticated(context.user);
 
   const id = parseTodoNodeId(args.id);
 

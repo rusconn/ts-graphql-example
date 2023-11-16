@@ -6,7 +6,7 @@ import { full } from "../common/resolvers.ts";
 import type { UserResolvers } from "../common/schema.ts";
 import { OrderDirection, TodoOrderField } from "../common/schema.ts";
 import { cursorConnections, orderOptions } from "../common/typeDefs.ts";
-import { isAdminOrUserOwner } from "./common/authorizer.ts";
+import { authAdminOrUserOwner } from "./common/authorizer.ts";
 
 const FIRST_MAX = 50;
 const LAST_MAX = 50;
@@ -29,7 +29,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["todos"] = async (parent, args, context, info) => {
-  isAdminOrUserOwner(context.user, parent);
+  authAdminOrUserOwner(context.user, parent);
 
   const { orderBy, ...connectionArgs } = args;
 

@@ -1,6 +1,6 @@
 import type { UserResolvers } from "../common/schema.ts";
 import { userNodeId } from "./common/adapter.ts";
-import { isAdminOrUserOwner } from "./common/authorizer.ts";
+import { authAdminOrUserOwner } from "./common/authorizer.ts";
 import { fullUser } from "./common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -10,7 +10,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["id"] = async (parent, _args, context) => {
-  isAdminOrUserOwner(context.user, parent);
+  authAdminOrUserOwner(context.user, parent);
 
   const user = await fullUser(context.prisma, parent);
 

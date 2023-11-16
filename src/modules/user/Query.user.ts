@@ -1,4 +1,4 @@
-import { isAdmin } from "../common/authorizers.ts";
+import { authAdmin } from "../common/authorizers.ts";
 import { key } from "../common/resolvers.ts";
 import type { QueryResolvers } from "../common/schema.ts";
 import { parseUserNodeId } from "./common/parser.ts";
@@ -10,7 +10,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["user"] = (_parent, args, context) => {
-  isAdmin(context.user);
+  authAdmin(context.user);
 
   const id = parseUserNodeId(args.id);
 

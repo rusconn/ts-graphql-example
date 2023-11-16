@@ -1,4 +1,4 @@
-import { isAuthenticated } from "../common/authorizers.ts";
+import { authAuthenticated } from "../common/authorizers.ts";
 import { parseNodeId } from "../common/parsers.ts";
 import type { QueryResolvers } from "../common/schema.ts";
 
@@ -9,7 +9,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["node"] = (_parent, args, context) => {
-  isAuthenticated(context.user);
+  authAuthenticated(context.user);
 
   const { type, id } = parseNodeId(args.id);
 

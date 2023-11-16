@@ -1,6 +1,6 @@
 import { ulid } from "ulid";
 
-import { isAuthenticated } from "../common/authorizers.ts";
+import { authAuthenticated } from "../common/authorizers.ts";
 import { ParseError } from "../common/parsers.ts";
 import { full } from "../common/resolvers.ts";
 import type { MutationResolvers } from "../common/schema.ts";
@@ -28,7 +28,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["createTodo"] = async (_parent, args, context) => {
-  const authed = isAuthenticated(context.user);
+  const authed = authAuthenticated(context.user);
 
   const { title, description } = args.input;
 

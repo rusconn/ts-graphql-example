@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
 import * as Prisma from "@/prisma/mod.ts";
-import { allow } from "../common/authorizers.ts";
+import { auth } from "../common/authorizers.ts";
 import { ParseError } from "../common/parsers.ts";
 import { full } from "../common/resolvers.ts";
 import type { MutationResolvers } from "../common/schema.ts";
@@ -35,7 +35,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["login"] = async (_parent, args, context) => {
-  allow(context.user);
+  auth(context.user);
 
   const { email, password } = args.input;
 

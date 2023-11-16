@@ -3,7 +3,7 @@ import { ulid } from "ulid";
 
 import { passwordHashRoundsExponent } from "@/config.ts";
 import * as Prisma from "@/prisma/mod.ts";
-import { isGuest } from "../common/authorizers.ts";
+import { authGuest } from "../common/authorizers.ts";
 import { ParseError } from "../common/parsers.ts";
 import type { MutationResolvers } from "../common/schema.ts";
 import { userNodeId } from "./common/adapter.ts";
@@ -35,7 +35,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["signup"] = async (_parent, args, context) => {
-  const authed = isGuest(context.user);
+  const authed = authGuest(context.user);
 
   const { name, email, password } = args.input;
 
