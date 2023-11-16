@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
+    "target": "ES2021",
     "strict": true,
     "noEmit": true,
     "incremental": true,
     "skipLibCheck": true,
     "lib": ["ESNext"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
