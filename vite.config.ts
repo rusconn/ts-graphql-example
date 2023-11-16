@@ -9,7 +9,7 @@ export default defineConfig({
     target: compilerOptions.target,
     sourcemap: true,
     rollupOptions: {
-      external: [...["node:http", "node:crypto", "node:process"], ...Object.keys(dependencies)],
+      external: [...["node:crypto", "node:process"], ...Object.keys(dependencies)],
     },
     lib: {
       entry: "src/main",

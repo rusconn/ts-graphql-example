@@ -1,5 +1,3 @@
-import { createServer } from "node:http";
-
 import { useErrorHandler } from "@envelop/core";
 import { EnvelopArmorPlugin as useArmor } from "@escape.tech/graphql-armor";
 import { GraphQLError } from "graphql";
@@ -7,6 +5,7 @@ import { applyMiddleware } from "graphql-middleware";
 import { createYoga, useLogger } from "graphql-yoga";
 import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
 import { ulid } from "ulid";
+import { App } from "uWebSockets.js";
 
 import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers.ts";
 import { ErrorCode } from "@/modules/common/schema.ts";
@@ -85,5 +84,4 @@ export const yoga = createYoga<ServerContext, UserContext>({
   ],
 });
 
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-export const server = createServer(yoga);
+export const server = App().any("/*", yoga);
