@@ -17,7 +17,6 @@
     "types": ["vite/client", "vitest/importMeta", "vitest/globals"],
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
-    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true
   }

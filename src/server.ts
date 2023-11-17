@@ -24,17 +24,17 @@ export const yoga = createYoga<ServerContext, UserContext>({
     let user;
 
     if (token) {
-      const maybeUser = await prisma.user.findUnique({
+      const found = await prisma.user.findUnique({
         where: { token },
       });
 
-      if (!maybeUser) {
+      if (!found) {
         throw new GraphQLError("Authentication error", {
           extensions: { code: ErrorCode.AuthenticationError },
         });
       }
 
-      user = maybeUser;
+      user = found;
     } else {
       user = { id: ulid(), role: "GUEST" } as const;
     }

@@ -1,10 +1,10 @@
 import process from "node:process";
 
+type NodeEnv = typeof validNodeEnvs[number];
+
 const validNodeEnvs = ["development", "test", "production"] as const;
 
-export type NodeEnv = typeof validNodeEnvs[number];
-
-const isValidNodeEnv = (val: string): val is NodeEnv =>
+const isValidNodeEnv = (val: string | undefined): val is NodeEnv =>
   val != null && validNodeEnvs.includes(val as NodeEnv);
 
 const { PORT, MAX_DEPTH, MAX_COST, NODE_ENV, PASSWORD_HASH_ROUNDS_EXPONENT } = process.env;
@@ -23,7 +23,7 @@ if (Number.isNaN(maxDepth)) {
 if (Number.isNaN(maxCost)) {
   throw new Error("Invalid MAX_COST");
 }
-if (!NODE_ENV || !isValidNodeEnv(NODE_ENV)) {
+if (!isValidNodeEnv(NODE_ENV)) {
   throw new Error("Invalid NODE_ENV");
 }
 

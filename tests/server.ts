@@ -2,23 +2,23 @@ import { parse } from "graphql";
 import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 
 import { ContextData } from "tests/data/mod.ts";
-import type { UserContext } from "@/modules/common/resolvers.ts";
+import type { ContextUser } from "@/modules/common/resolvers.ts";
 import { yoga } from "@/server.ts";
 
 type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;
-  user?: typeof ContextData.admin | typeof ContextData.guest;
+  user?: ContextUser;
 };
 
 /** デフォルトユーザーは admin */
 export const executeSingleResultOperation =
   <TData, TVariables extends object>(query: string) =>
   async ({ variables, user = ContextData.admin }: ExecuteOperationParams<TVariables>) => {
-    const result = await executor<TData, TVariables, UserContext>({
+    const result = await executor<TData, TVariables>({
       document: parse(query),
       variables,
       extensions:
-        "token" in user && user.token != null
+        user.role !== "GUEST" && user.token != null
           ? { headers: { authorization: `Bearer ${user.token}` } }
           : {},
     });

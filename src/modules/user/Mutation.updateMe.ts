@@ -4,6 +4,11 @@ import { ParseError } from "../common/parsers.ts";
 import { full } from "../common/resolvers.ts";
 import type { MutationResolvers, MutationUpdateMeArgs } from "../common/schema.ts";
 
+const NAME_MAX = 100;
+const EMAIL_MAX = 100;
+const PASS_MIN = 8;
+const PASS_MAX = 50;
+
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     "指定したフィールドのみ更新する"
@@ -11,11 +16,11 @@ export const typeDef = /* GraphQL */ `
   }
 
   input UpdateMeInput {
-    "100文字まで、null は入力エラー"
+    "${NAME_MAX}文字まで、null は入力エラー"
     name: NonEmptyString
-    "100文字まで、既に存在する場合はエラー、null は入力エラー"
+    "${EMAIL_MAX}文字まで、既に存在する場合はエラー、null は入力エラー"
     email: EmailAddress
-    "8文字以上、50文字まで、null は入力エラー"
+    "${PASS_MIN}文字以上、${PASS_MAX}文字まで、null は入力エラー"
     password: NonEmptyString
   }
 
@@ -61,25 +66,25 @@ const parser = (args: MutationUpdateMeArgs) => {
   const { name, email, password } = args.input;
 
   if (name === null) {
-    throw new ParseError("`name` must be not null");
+    throw new ParseError('"name" must be not null');
   }
-  if (name && [...name].length > 100) {
-    throw new ParseError("`name` must be up to 100 characteres");
+  if (name && [...name].length > NAME_MAX) {
+    throw new ParseError(`"name" must be up to ${NAME_MAX} characteres`);
   }
   if (email === null) {
-    throw new ParseError("`email` must be not null");
+    throw new ParseError('"email" must be not null');
   }
-  if (email && [...email].length > 100) {
-    throw new ParseError("`email` must be up to 100 characteres");
+  if (email && [...email].length > EMAIL_MAX) {
+    throw new ParseError(`"email" must be up to ${EMAIL_MAX} characteres`);
   }
   if (password === null) {
-    throw new ParseError("`password` must be not null");
+    throw new ParseError('"password" must be not null');
   }
-  if (password && [...password].length < 8) {
-    throw new ParseError("`password` must be at least 8 characteres");
+  if (password && [...password].length < PASS_MIN) {
+    throw new ParseError(`"password" must be at least ${PASS_MIN} characteres`);
   }
-  if (password && [...password].length > 50) {
-    throw new ParseError("`password` must be up to 50 characteres");
+  if (password && [...password].length > PASS_MAX) {
+    throw new ParseError(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
   return { name, email, password };
@@ -105,34 +110,29 @@ if (import.meta.vitest) {
   });
 
   describe("Parsing", () => {
-    const nameMax = 100;
-    const emailMax = 100;
-    const passMin = 8;
-    const passMax = 50;
-
     const valid = [
       { name: "name" },
       { email: "email@email.com" },
       { password: "password" },
       { name: "name", email: "email@email.com", password: "password" },
-      { name: "A".repeat(nameMax) },
-      { name: "🅰".repeat(nameMax) },
-      { email: `${"A".repeat(emailMax - 10)}@email.com` },
-      { email: `${"🅰".repeat(emailMax - 10)}@email.com` },
-      { password: "A".repeat(passMin) },
-      { password: "🅰".repeat(passMax) },
+      { name: "A".repeat(NAME_MAX) },
+      { name: "🅰".repeat(NAME_MAX) },
+      { email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
+      { email: `${"🅰".repeat(EMAIL_MAX - 10)}@email.com` },
+      { password: "A".repeat(PASS_MIN) },
+      { password: "🅰".repeat(PASS_MAX) },
     ] as MutationUpdateMeArgs["input"][];
 
     const invalid = [
       { name: null },
       { email: null },
       { password: null },
-      { name: "A".repeat(nameMax + 1) },
-      { name: "🅰".repeat(nameMax + 1) },
-      { email: `${"A".repeat(emailMax - 10 + 1)}@email.com` },
-      { email: `${"🅰".repeat(emailMax - 10 + 1)}@email.com` },
-      { password: "A".repeat(passMin - 1) },
-      { password: "🅰".repeat(passMax + 1) },
+      { name: "A".repeat(NAME_MAX + 1) },
+      { name: "🅰".repeat(NAME_MAX + 1) },
+      { email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
+      { email: `${"🅰".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
+      { password: "A".repeat(PASS_MIN - 1) },
+      { password: "🅰".repeat(PASS_MAX + 1) },
     ] as MutationUpdateMeArgs["input"][];
 
     test.each(valid)("valid %#", input => {

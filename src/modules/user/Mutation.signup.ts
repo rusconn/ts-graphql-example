@@ -8,17 +8,22 @@ import { ParseError } from "../common/parsers.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../common/schema.ts";
 import { userNodeId } from "./common/adapter.ts";
 
+const NAME_MAX = 100;
+const EMAIL_MAX = 100;
+const PASS_MIN = 8;
+const PASS_MAX = 50;
+
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     signup(input: SignupInput!): SignupResult
   }
 
   input SignupInput {
-    "100文字まで"
+    "${NAME_MAX}文字まで"
     name: NonEmptyString!
-    "100文字まで、既に存在する場合はエラー"
+    "${EMAIL_MAX}文字まで、既に存在する場合はエラー"
     email: EmailAddress!
-    "8文字以上、50文字まで"
+    "${PASS_MIN}文字以上、${PASS_MAX}文字まで"
     password: NonEmptyString!
   }
 
@@ -38,18 +43,13 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     const hashed = await bcrypt.hash(password, passwordHashRoundsExponent);
 
     const created = await context.prisma.user.create({
-      data: {
-        id: authed.id,
-        password: hashed,
-        token: ulid(),
-        ...data,
-      },
+      data: { id: authed.id, password: hashed, token: ulid(), ...data },
       select: { id: true },
     });
 
     return {
       __typename: "SignupSuccess",
-      id: adapter(created.id),
+      id: userNodeId(created.id),
     };
   } catch (e) {
     // ほぼ確実に email の衝突
@@ -71,23 +71,21 @@ const authorizer = isGuest;
 const parser = (args: MutationSignupArgs) => {
   const { name, email, password } = args.input;
 
-  if ([...name].length > 100) {
-    throw new ParseError("`name` must be up to 100 characteres");
+  if ([...name].length > NAME_MAX) {
+    throw new ParseError(`"name" must be up to ${NAME_MAX} characteres`);
   }
-  if ([...email].length > 100) {
-    throw new ParseError("`email` must be up to 100 characteres");
+  if ([...email].length > EMAIL_MAX) {
+    throw new ParseError(`"email" must be up to ${EMAIL_MAX} characteres`);
   }
-  if ([...password].length < 8) {
-    throw new ParseError("`password` must be at least 8 characteres");
+  if ([...password].length < PASS_MIN) {
+    throw new ParseError(`"password" must be at least ${PASS_MIN} characteres`);
   }
-  if ([...password].length > 50) {
-    throw new ParseError("`password` must be up to 50 characteres");
+  if ([...password].length > PASS_MAX) {
+    throw new ParseError(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
   return { name, email, password, role: Prisma.Role.USER };
 };
-
-const adapter = userNodeId;
 
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");
@@ -109,30 +107,25 @@ if (import.meta.vitest) {
   });
 
   describe("Parsing", () => {
-    const nameMax = 100;
-    const emailMax = 100;
-    const passMin = 8;
-    const passMax = 50;
-
     const validInput = { name: "name", email: "email@email.com", password: "password" };
 
     const valid = [
       { ...validInput },
-      { ...validInput, name: "A".repeat(nameMax) },
-      { ...validInput, name: "🅰".repeat(nameMax) },
-      { ...validInput, email: `${"A".repeat(emailMax - 10)}@email.com` },
-      { ...validInput, email: `${"🅰".repeat(emailMax - 10)}@email.com` },
-      { ...validInput, password: "A".repeat(passMin) },
-      { ...validInput, password: "🅰".repeat(passMax) },
+      { ...validInput, name: "A".repeat(NAME_MAX) },
+      { ...validInput, name: "🅰".repeat(NAME_MAX) },
+      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
+      { ...validInput, email: `${"🅰".repeat(EMAIL_MAX - 10)}@email.com` },
+      { ...validInput, password: "A".repeat(PASS_MIN) },
+      { ...validInput, password: "🅰".repeat(PASS_MAX) },
     ] as MutationSignupArgs["input"][];
 
     const invalid = [
-      { ...validInput, name: "A".repeat(nameMax + 1) },
-      { ...validInput, name: "🅰".repeat(nameMax + 1) },
-      { ...validInput, email: `${"A".repeat(emailMax - 10 + 1)}@email.com` },
-      { ...validInput, email: `${"🅰".repeat(emailMax - 10 + 1)}@email.com` },
-      { ...validInput, password: "A".repeat(passMin - 1) },
-      { ...validInput, password: "🅰".repeat(passMax + 1) },
+      { ...validInput, name: "A".repeat(NAME_MAX + 1) },
+      { ...validInput, name: "🅰".repeat(NAME_MAX + 1) },
+      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
+      { ...validInput, email: `${"🅰".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
+      { ...validInput, password: "A".repeat(PASS_MIN - 1) },
+      { ...validInput, password: "🅰".repeat(PASS_MAX + 1) },
     ] as MutationSignupArgs["input"][];
 
     test.each(valid)("valid %#", input => {

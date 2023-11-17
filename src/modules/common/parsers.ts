@@ -40,8 +40,7 @@ const isValidNodeType = (val: string): val is NodeType => {
 
 // @devoxa/prisma-relay-cursor-connection がバリデーション部分のコードを export していないのでコピーしてきた
 // バリデーションは事前に行い、上記ライブラリの使用時にバリデーションエラーが発生しないことを保証する
-// ライブラリのコードなのでテストはしない
-export const parseConnectionArgs = ({ first, last, before, after }: ConnectionArguments) => {
+export const parseConnectionArgs = ({ first, after, last, before }: ConnectionArguments) => {
   if (first != null && last != null) {
     throw new ParseError('Only one of "first" and "last" can be set');
   }
@@ -64,5 +63,5 @@ export const parseConnectionArgs = ({ first, last, before, after }: ConnectionAr
     throw new ParseError('"last" has to be positive');
   }
 
-  return { first, last, before, after };
+  return { first, after, last, before };
 };

@@ -25,13 +25,11 @@ export const resolver: MutationResolvers["deleteMe"] = async (_parent, _args, co
 
   return {
     __typename: "DeleteMeSuccess",
-    id: adapter(deleted.id),
+    id: userNodeId(deleted.id),
   };
 };
 
 const authorizer = isAuthenticated;
-
-const adapter = userNodeId;
 
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");

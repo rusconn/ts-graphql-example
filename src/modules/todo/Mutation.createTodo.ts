@@ -5,15 +5,18 @@ import { ParseError } from "../common/parsers.ts";
 import { full } from "../common/resolvers.ts";
 import type { MutationResolvers, MutationCreateTodoArgs } from "../common/schema.ts";
 
+const TITLE_MAX = 100;
+const DESC_MAX = 5000;
+
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     createTodo(input: CreateTodoInput!): CreateTodoResult
   }
 
   input CreateTodoInput {
-    "100文字まで"
+    "${TITLE_MAX}文字まで"
     title: NonEmptyString!
-    "5000文字まで"
+    "${DESC_MAX}文字まで"
     description: String!
   }
 
@@ -44,11 +47,11 @@ const authorizer = isAuthenticated;
 const parser = (args: MutationCreateTodoArgs) => {
   const { title, description } = args.input;
 
-  if ([...title].length > 100) {
-    throw new ParseError("`title` must be up to 100 characters");
+  if ([...title].length > TITLE_MAX) {
+    throw new ParseError(`"title" must be up to ${TITLE_MAX} characters`);
   }
-  if ([...description].length > 5000) {
-    throw new ParseError("`description` must be up to 5000 characters");
+  if ([...description].length > DESC_MAX) {
+    throw new ParseError(`"description" must be up to ${DESC_MAX} characters`);
   }
 
   return { title, description };
@@ -74,24 +77,21 @@ if (import.meta.vitest) {
   });
 
   describe("Parsing", () => {
-    const titleMax = 100;
-    const descMax = 5000;
-
     const validInput = { title: "title", description: "description" };
 
     const valid = [
       { ...validInput },
-      { ...validInput, title: "A".repeat(titleMax) },
-      { ...validInput, title: "🅰".repeat(titleMax) },
-      { ...validInput, description: "A".repeat(descMax) },
-      { ...validInput, description: "🅰".repeat(descMax) },
+      { ...validInput, title: "A".repeat(TITLE_MAX) },
+      { ...validInput, title: "🅰".repeat(TITLE_MAX) },
+      { ...validInput, description: "A".repeat(DESC_MAX) },
+      { ...validInput, description: "🅰".repeat(DESC_MAX) },
     ] as MutationCreateTodoArgs["input"][];
 
     const invalid = [
-      { ...validInput, title: "A".repeat(titleMax + 1) },
-      { ...validInput, title: "🅰".repeat(titleMax + 1) },
-      { ...validInput, description: "A".repeat(descMax + 1) },
-      { ...validInput, description: "🅰".repeat(descMax + 1) },
+      { ...validInput, title: "A".repeat(TITLE_MAX + 1) },
+      { ...validInput, title: "🅰".repeat(TITLE_MAX + 1) },
+      { ...validInput, description: "A".repeat(DESC_MAX + 1) },
+      { ...validInput, description: "🅰".repeat(DESC_MAX + 1) },
     ] as MutationCreateTodoArgs["input"][];
 
     test.each(valid)("valid %#", input => {

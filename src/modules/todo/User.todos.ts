@@ -8,13 +8,16 @@ import { OrderDirection, TodoOrderField } from "../common/schema.ts";
 import { cursorConnections, orderOptions } from "../common/typeDefs.ts";
 import { isAdminOrUserOwner } from "./common/authorizer.ts";
 
+const FIRST_MAX = 50;
+const LAST_MAX = 50;
+
 export const typeDef = /* GraphQL */ `
   extend type User {
     todos(
-      "max: 50"
+      "max: ${FIRST_MAX}"
       first: Int
       after: String
-      "max: 50"
+      "max: ${LAST_MAX}"
       last: Int
       before: String
       orderBy: TodoOrder! = { field: UPDATED_AT, direction: DESC }
@@ -25,10 +28,10 @@ export const typeDef = /* GraphQL */ `
   ${cursorConnections("Todo", { totalCount: "Int!" })}
 `;
 
-export const resolver: UserResolvers["todos"] = async (parent, args, context, resolveInfo) => {
+export const resolver: UserResolvers["todos"] = async (parent, args, context, info) => {
   authorizer(context.user, parent);
 
-  const { first, last, before, after, orderBy } = parser(args);
+  const { first, after, last, before, orderBy } = parser(args);
 
   return findManyCursorConnection(
     findManyArgs =>
@@ -39,9 +42,12 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, re
           orderBy,
         })
         .then(todos => todos.map(full)),
-    () => context.prisma.todo.count({ where: { userId: parent.id } }),
-    { first, last, before, after },
-    { resolveInfo }
+    () =>
+      context.prisma.todo.count({
+        where: { userId: parent.id },
+      }),
+    { first, after, last, before },
+    { resolveInfo: info }
   );
 };
 
@@ -50,31 +56,29 @@ const authorizer = isAdminOrUserOwner;
 const parser = (args: UserTodosArgs) => {
   const { orderBy, ...connectionArgs } = args;
 
-  const { first, last, before, after } = parseConnectionArgs(connectionArgs);
+  const { first, after, last, before } = parseConnectionArgs(connectionArgs);
 
   if (first == null && last == null) {
-    throw new ParseError("`first` or `last` value required");
+    throw new ParseError('"first" or "last" value required');
   }
-  if (first && first > 50) {
-    throw new ParseError("`first` must be up to 50");
+  if (first && first > FIRST_MAX) {
+    throw new ParseError(`"first" must be up to ${FIRST_MAX}`);
   }
-  if (last && last > 50) {
-    throw new ParseError("`last` must be up to 50");
+  if (last && last > LAST_MAX) {
+    throw new ParseError(`"last" must be up to ${LAST_MAX}`);
   }
 
-  const firstToUse = first == null && last == null ? 20 : first;
+  const direction = {
+    [OrderDirection.Asc]: Prisma.Prisma.SortOrder.asc,
+    [OrderDirection.Desc]: Prisma.Prisma.SortOrder.desc,
+  }[orderBy.direction];
 
-  const directionToUse =
-    orderBy.direction === OrderDirection.Asc
-      ? Prisma.Prisma.SortOrder.asc
-      : Prisma.Prisma.SortOrder.desc;
+  const orderByToUse = {
+    [TodoOrderField.CreatedAt]: [{ createdAt: direction }, { id: direction }],
+    [TodoOrderField.UpdatedAt]: [{ updatedAt: direction }, { id: direction }],
+  }[orderBy.field];
 
-  const orderByToUse =
-    orderBy.field === TodoOrderField.CreatedAt
-      ? [{ createdAt: directionToUse }, { id: directionToUse }]
-      : [{ updatedAt: directionToUse }, { id: directionToUse }];
-
-  return { first: firstToUse, last, before, after, orderBy: orderByToUse };
+  return { first, after, last, before, orderBy: orderByToUse };
 };
 
 if (import.meta.vitest) {
@@ -105,18 +109,15 @@ if (import.meta.vitest) {
   });
 
   describe("Parsing", () => {
-    const firstMax = 50;
-    const lastMax = 50;
-
-    const valid = [{ first: 10 }, { last: 10 }, { first: firstMax }, { last: lastMax }];
+    const valid = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
 
     const invalid = [
       {},
       { first: null },
       { last: null },
       { first: null, last: null },
-      { first: firstMax + 1 },
-      { last: lastMax + 1 },
+      { first: FIRST_MAX + 1 },
+      { last: LAST_MAX + 1 },
     ];
 
     const orderBy = {

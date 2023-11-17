@@ -7,15 +7,19 @@ import { ParseError } from "../common/parsers.ts";
 import { full } from "../common/resolvers.ts";
 import type { MutationResolvers, MutationLoginArgs } from "../common/schema.ts";
 
+const EMAIL_MAX = 100;
+const PASS_MIN = 8;
+const PASS_MAX = 50;
+
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     login(input: LoginInput!): LoginResult
   }
 
   input LoginInput {
-    "100文字まで"
+    "${EMAIL_MAX}文字まで"
     email: EmailAddress!
-    "8文字以上、50文字まで"
+    "${PASS_MIN}文字以上、${PASS_MAX}文字まで"
     password: NonEmptyString!
   }
 
@@ -75,14 +79,14 @@ const authorizer = allow;
 const parser = (args: MutationLoginArgs) => {
   const { email, password } = args.input;
 
-  if ([...email].length > 100) {
-    throw new ParseError("`email` must be up to 100 characteres");
+  if ([...email].length > EMAIL_MAX) {
+    throw new ParseError(`"email" must be up to ${EMAIL_MAX} characteres`);
   }
-  if ([...password].length < 8) {
-    throw new ParseError("`password` must be at least 8 characteres");
+  if ([...password].length < PASS_MIN) {
+    throw new ParseError(`"password" must be at least ${PASS_MIN} characteres`);
   }
-  if ([...password].length > 50) {
-    throw new ParseError("`password` must be up to 50 characteres");
+  if ([...password].length > PASS_MAX) {
+    throw new ParseError(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
   return { email, password };
@@ -102,25 +106,21 @@ if (import.meta.vitest) {
   });
 
   describe("Parsing", () => {
-    const emailMax = 100;
-    const passMin = 8;
-    const passMax = 50;
-
     const validInput = { email: "email@email.com", password: "password" };
 
     const valid = [
       { ...validInput },
-      { ...validInput, email: `${"A".repeat(emailMax - 10)}@email.com` },
-      { ...validInput, email: `${"🅰".repeat(emailMax - 10)}@email.com` },
-      { ...validInput, password: "A".repeat(passMin) },
-      { ...validInput, password: "🅰".repeat(passMax) },
+      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
+      { ...validInput, email: `${"🅰".repeat(EMAIL_MAX - 10)}@email.com` },
+      { ...validInput, password: "A".repeat(PASS_MIN) },
+      { ...validInput, password: "🅰".repeat(PASS_MAX) },
     ] as MutationLoginArgs["input"][];
 
     const invalid = [
-      { ...validInput, email: `${"A".repeat(emailMax - 10 + 1)}@email.com` },
-      { ...validInput, email: `${"🅰".repeat(emailMax - 10 + 1)}@email.com` },
-      { ...validInput, password: "A".repeat(passMin - 1) },
-      { ...validInput, password: "🅰".repeat(passMax + 1) },
+      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
+      { ...validInput, email: `${"🅰".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
+      { ...validInput, password: "A".repeat(PASS_MIN - 1) },
+      { ...validInput, password: "🅰".repeat(PASS_MAX + 1) },
     ] as MutationLoginArgs["input"][];
 
     test.each(valid)("valid %#", input => {

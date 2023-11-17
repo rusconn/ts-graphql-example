@@ -15,7 +15,7 @@ pnpm run setup && pnpm dev
 
 クエリの実行は [Web コンソール](http://localhost:4000/graphql) で。  
 token を Authorization ヘッダへ Bearer でセットしておくこと。  
-token は [Prisma Studio](http://localhost:5555) で取得する。  
+token は [seed スクリプト](./prisma/seed.ts) から取得する。
 Prisma Studio は `pnpm studio` で起動しておくこと。
 
 ## 設計記録

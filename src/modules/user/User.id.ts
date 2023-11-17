@@ -14,12 +14,10 @@ export const resolver: UserResolvers["id"] = async (parent, _args, context) => {
 
   const user = await fullUser(context.prisma, parent);
 
-  return adapter(user.id);
+  return userNodeId(user.id);
 };
 
 const authorizer = isAdminOrUserOwner;
-
-const adapter = userNodeId;
 
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");

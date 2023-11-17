@@ -8,13 +8,16 @@ import type { QueryResolvers, QueryUsersArgs } from "../common/schema.ts";
 import { OrderDirection, UserOrderField } from "../common/schema.ts";
 import { cursorConnections, orderOptions } from "../common/typeDefs.ts";
 
+const FIRST_MAX = 30;
+const LAST_MAX = 30;
+
 export const typeDef = /* GraphQL */ `
   extend type Query {
     users(
-      "max: 30"
+      "max: ${FIRST_MAX}"
       first: Int
       after: String
-      "max: 30"
+      "max: ${LAST_MAX}"
       last: Int
       before: String
       orderBy: UserOrder! = { field: CREATED_AT, direction: DESC }
@@ -25,10 +28,10 @@ export const typeDef = /* GraphQL */ `
   ${cursorConnections("User", { totalCount: "Int!" })}
 `;
 
-export const resolver: QueryResolvers["users"] = async (_parent, args, context, resolveInfo) => {
+export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
   authorizer(context.user);
 
-  const { orderBy, first, last, before, after } = parser(args);
+  const { first, after, last, before, orderBy } = parser(args);
 
   return findManyCursorConnection(
     findManyArgs =>
@@ -39,8 +42,8 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
         })
         .then(users => users.map(full)),
     () => context.prisma.user.count(),
-    { first, last, before, after },
-    { resolveInfo }
+    { first, after, last, before },
+    { resolveInfo: info }
   );
 };
 
@@ -49,31 +52,29 @@ const authorizer = isAdmin;
 const parser = (args: QueryUsersArgs) => {
   const { orderBy, ...connectionArgs } = args;
 
-  const { first, last, before, after } = parseConnectionArgs(connectionArgs);
+  const { first, after, last, before } = parseConnectionArgs(connectionArgs);
 
   if (first == null && last == null) {
-    throw new ParseError("`first` or `last` value required");
+    throw new ParseError('"first" or "last" value required');
   }
-  if (first && first > 30) {
-    throw new ParseError("`first` must be up to 30");
+  if (first && first > FIRST_MAX) {
+    throw new ParseError(`"first" must be up to ${FIRST_MAX}`);
   }
-  if (last && last > 30) {
-    throw new ParseError("`last` must be up to 30");
+  if (last && last > LAST_MAX) {
+    throw new ParseError(`"last" must be up to ${LAST_MAX}`);
   }
 
-  const firstToUse = first == null && last == null ? 10 : first;
+  const direction = {
+    [OrderDirection.Asc]: Prisma.Prisma.SortOrder.asc,
+    [OrderDirection.Desc]: Prisma.Prisma.SortOrder.desc,
+  }[orderBy.direction];
 
-  const directionToUse =
-    orderBy.direction === OrderDirection.Asc
-      ? Prisma.Prisma.SortOrder.asc
-      : Prisma.Prisma.SortOrder.desc;
+  const orderByToUse = {
+    [UserOrderField.CreatedAt]: [{ createdAt: direction }, { id: direction }],
+    [UserOrderField.UpdatedAt]: [{ updatedAt: direction }, { id: direction }],
+  }[orderBy.field];
 
-  const orderByToUse =
-    orderBy.field === UserOrderField.UpdatedAt
-      ? [{ updatedAt: directionToUse }, { id: directionToUse }]
-      : [{ createdAt: directionToUse }, { id: directionToUse }];
-
-  return { first: firstToUse, last, before, after, orderBy: orderByToUse };
+  return { first, after, last, before, orderBy: orderByToUse };
 };
 
 if (import.meta.vitest) {
@@ -96,18 +97,15 @@ if (import.meta.vitest) {
   });
 
   describe("Parsing", () => {
-    const firstMax = 30;
-    const lastMax = 30;
-
-    const valid = [{ first: 10 }, { last: 10 }, { first: firstMax }, { last: lastMax }];
+    const valid = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
 
     const invalid = [
       {},
       { first: null },
       { last: null },
       { first: null, last: null },
-      { first: firstMax + 1 },
-      { last: lastMax + 1 },
+      { first: FIRST_MAX + 1 },
+      { last: LAST_MAX + 1 },
     ];
 
     const orderBy = {

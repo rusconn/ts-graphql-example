@@ -29,7 +29,7 @@ export const resolver: MutationResolvers["deleteTodo"] = async (_parent, args, c
 
     return {
       __typename: "DeleteTodoSuccess",
-      id: adapter(todo.id),
+      id: todoNodeId(todo.id),
     };
   } catch (e) {
     if (e instanceof Prisma.NotExistsError) {
@@ -50,8 +50,6 @@ const authorizer = isAuthenticated;
 const parser = (args: MutationDeleteTodoArgs) => {
   return { id: parseTodoNodeId(args.id) };
 };
-
-const adapter = todoNodeId;
 
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");

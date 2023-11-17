@@ -19,12 +19,10 @@ export const resolver: TodoResolvers["status"] = async (parent, _args, context) 
 
   authorizer(context.user, todo);
 
-  return adapter(todo.status);
+  return todoStatus(todo.status);
 };
 
 const authorizer = isTodoOwner;
-
-const adapter = todoStatus;
 
 if (import.meta.vitest) {
   const { admin, alice, guest } = await import("tests/data/context.ts");

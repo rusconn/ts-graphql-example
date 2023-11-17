@@ -5,6 +5,9 @@ import { full } from "../common/resolvers.ts";
 import type { MutationResolvers, MutationUpdateTodoArgs } from "../common/schema.ts";
 import { parseTodoNodeId } from "./common/parser.ts";
 
+const TITLE_MAX = 100;
+const DESC_MAX = 5000;
+
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     "指定したフィールドのみ更新する"
@@ -12,9 +15,9 @@ export const typeDef = /* GraphQL */ `
   }
 
   input UpdateTodoInput {
-    "100文字まで、null は入力エラー"
+    "${TITLE_MAX}文字まで、null は入力エラー"
     title: NonEmptyString
-    "5000文字まで、null は入力エラー"
+    "${DESC_MAX}文字まで、null は入力エラー"
     description: String
     "null は入力エラー"
     status: TodoStatus
@@ -65,19 +68,19 @@ const parser = (args: MutationUpdateTodoArgs) => {
   const idToUse = parseTodoNodeId(id);
 
   if (title === null) {
-    throw new ParseError("`title` must be not null");
+    throw new ParseError('"title" must be not null');
   }
   if (description === null) {
-    throw new ParseError("`description` must be not null");
+    throw new ParseError('"description" must be not null');
   }
   if (status === null) {
-    throw new ParseError("`status` must be not null");
+    throw new ParseError('"status" must be not null');
   }
-  if (title && [...title].length > 100) {
-    throw new ParseError("`title` must be up to 100 characters");
+  if (title && [...title].length > TITLE_MAX) {
+    throw new ParseError(`"title" must be up to ${TITLE_MAX} characters`);
   }
-  if (description && [...description].length > 5000) {
-    throw new ParseError("`description` must be up to 5000 characters");
+  if (description && [...description].length > DESC_MAX) {
+    throw new ParseError(`"description" must be up to ${DESC_MAX} characters`);
   }
 
   return { id: idToUse, title, description, status };
@@ -122,9 +125,6 @@ if (import.meta.vitest) {
     });
 
     describe("input", () => {
-      const titleMax = 100;
-      const descMax = 5000;
-
       const id = validTodoIds[0];
 
       const valid = [
@@ -132,20 +132,20 @@ if (import.meta.vitest) {
         { description: "description" },
         { status: TodoStatus.Done },
         { title: "title", description: "description", status: TodoStatus.Done },
-        { title: "A".repeat(titleMax) },
-        { title: "🅰".repeat(titleMax) },
-        { description: "A".repeat(descMax) },
-        { description: "🅰".repeat(descMax) },
+        { title: "A".repeat(TITLE_MAX) },
+        { title: "🅰".repeat(TITLE_MAX) },
+        { description: "A".repeat(DESC_MAX) },
+        { description: "🅰".repeat(DESC_MAX) },
       ] as MutationUpdateTodoArgs["input"][];
 
       const invalid = [
         { title: null },
         { description: null },
         { status: null },
-        { title: "A".repeat(titleMax + 1) },
-        { title: "🅰".repeat(titleMax + 1) },
-        { description: "A".repeat(descMax + 1) },
-        { description: "🅰".repeat(descMax + 1) },
+        { title: "A".repeat(TITLE_MAX + 1) },
+        { title: "🅰".repeat(TITLE_MAX + 1) },
+        { description: "A".repeat(DESC_MAX + 1) },
+        { description: "🅰".repeat(DESC_MAX + 1) },
       ] as MutationUpdateTodoArgs["input"][];
 
       test.each(valid)("valid %#", input => {

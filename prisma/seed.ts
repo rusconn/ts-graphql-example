@@ -1,72 +1,77 @@
 import bcrypt from "bcrypt";
-import { ulid } from "ulid";
 
 import { passwordHashRoundsExponent } from "@/config.ts";
-import { type User, prisma, Role } from "@/prisma/mod.ts";
+import { type User, prisma, Role, TodoStatus } from "@/prisma/mod.ts";
 
 const main = async () => {
   const users = await createUsers();
-  await createTodos(users.map(({ id }) => id));
+  await createTodos(users);
 };
 
 const createUsers = async () => {
-  const rawParams = [
+  const rawData = [
     {
-      id: ulid(),
+      id: "01HFFYQP8GEG9ATV44YH6XNJ1V",
       name: "admin",
       email: "admin@admin.com",
       rawPassword: "adminadmin",
-      token: ulid(),
+      token: "01HFFYQP8HTEHXJJ3DSTVPPBC0",
       role: Role.ADMIN,
     },
     {
-      id: ulid(),
+      id: "01HFFYQP8H8628NYKTK2ZCNCBV",
       name: "hoge",
       email: "hoge@hoge.com",
       rawPassword: "hogehoge",
-      token: ulid(),
+      token: "01HFFYQP8H9PRG5DKFES044S5D",
       role: Role.USER,
     },
     {
-      id: ulid(),
+      id: "01HFFYQP8JMVAJ11XVZXDXVGQR",
       name: "piyo",
       email: "piyo@piyo.com",
       rawPassword: "piyopiyo",
-      token: ulid(),
-      role: Role.USER,
-    },
-    {
-      id: ulid(),
-      name: "fuga",
-      email: "fuga@fuga.com",
-      rawPassword: "fugafuga",
-      token: ulid(),
+      token: "01HFFYQP8JW273G541HW4TREQY",
       role: Role.USER,
     },
   ];
 
-  const paramPromises = rawParams.map(async ({ rawPassword, ...rest }) => ({
+  const dataPromises = rawData.map(async ({ rawPassword, ...rest }) => ({
     ...rest,
     password: await bcrypt.hash(rawPassword, passwordHashRoundsExponent),
   }));
 
-  const params = await Promise.all(paramPromises);
+  const data = await Promise.all(dataPromises);
 
-  const creates = params.map(data => prisma.user.create({ data }));
+  await prisma.user.createMany({ data });
 
-  return Promise.all(creates);
+  return data;
 };
 
-const createTodos = ([_adminId, userId1, userId2, _userId3]: User["id"][]) => {
-  const params = [
-    { id: ulid(), title: "hoge todo 1", description: "hoge desc 1", userId: userId1 },
-    { id: ulid(), title: "piyo todo 1", description: "piyo desc 1", userId: userId2 },
-    { id: ulid(), title: "piyo todo 2", description: "piyo desc 2", userId: userId2 },
+const createTodos = async ([_admin, hoge, piyo]: Pick<User, "id">[]) => {
+  const data = [
+    {
+      id: "01HFFZ0ABV8BJPJX50Z2PJ3DR9",
+      title: "hoge todo 1",
+      description: "hoge desc 1",
+      userId: hoge.id,
+    },
+    {
+      id: "01HFFZ0ABVVD5HPAARMZR74PHG",
+      title: "piyo todo 1",
+      description: "piyo desc 1",
+      status: TodoStatus.DONE,
+      userId: piyo.id,
+    },
+    {
+      id: "01HFFZ0ABV43SDH3EGT46AM6P1",
+      title: "piyo todo 2",
+      description: "piyo desc 2",
+      userId: piyo.id,
+    },
   ];
 
-  const creates = params.map(data => prisma.todo.create({ data }));
-
-  return Promise.all(creates);
+  await prisma.todo.createMany({ data });
 };
 
-main().catch(console.error);
+await main();
