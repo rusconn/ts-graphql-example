@@ -12,12 +12,7 @@ const executeMutation = executeSingleResultOperation<
     login(input: $input) {
       __typename
       ... on LoginSuccess {
-        user {
-          id
-          name
-          email
-          token
-        }
+        token
       }
       ... on UserNotFoundError {
         message

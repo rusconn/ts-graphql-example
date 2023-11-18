@@ -4,7 +4,6 @@ import { ulid } from "ulid";
 import * as Prisma from "@/prisma/mod.ts";
 import { auth } from "../common/authorizers.ts";
 import { ParseError } from "../common/parsers.ts";
-import { full } from "../common/resolvers.ts";
 import type { MutationResolvers } from "../common/schema.ts";
 
 const EMAIL_MAX = 100;
@@ -26,7 +25,7 @@ export const typeDef = /* GraphQL */ `
   union LoginResult = LoginSuccess | UserNotFoundError
 
   type LoginSuccess {
-    user: User!
+    token: NonEmptyString!
   }
 
   type UserNotFoundError implements Error {
@@ -64,11 +63,12 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     const updated = await context.prisma.user.update({
       where: { email },
       data: { token: ulid() },
+      select: { token: true },
     });
 
     return {
       __typename: "LoginSuccess",
-      user: full(updated),
+      token: updated.token!,
     };
   } catch (e) {
     if (e instanceof Prisma.NotExistsError) {
