@@ -230,7 +230,7 @@ export type SignupMutationVariables = Exact<{
 }>;
 
 
-export type SignupMutation = { signup?: { __typename: 'EmailAlreadyTakenError', message: string } | { __typename: 'SignupSuccess', id: string } | null };
+export type SignupMutation = { signup?: { __typename: 'EmailAlreadyTakenError', message: string } | { __typename: 'SignupSuccess', token: string } | null };
 
 export type UpdateMeMutationVariables = Exact<{
   input: UpdateMeInput;

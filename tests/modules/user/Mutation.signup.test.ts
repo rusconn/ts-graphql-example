@@ -4,7 +4,6 @@ import { clearUsers, fail } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";
 import * as Prisma from "@/prisma/mod.ts";
-import { parseUserNodeId } from "@/modules/user/common/parser.ts";
 
 const executeMutation = executeSingleResultOperation<
   SignupMutation,
@@ -14,7 +13,7 @@ const executeMutation = executeSingleResultOperation<
     signup(input: $input) {
       __typename
       ... on SignupSuccess {
-        id
+        token
       }
       ... on EmailAlreadyTakenError {
         message
@@ -63,10 +62,10 @@ it("should create user using input", async () => {
     fail();
   }
 
-  const id = parseUserNodeId(data.signup.id);
+  const { token } = data.signup;
 
   const user = await prisma.user.findUniqueOrThrow({
-    where: { id },
+    where: { token },
   });
 
   expect(user.name).toBe(name);
@@ -87,10 +86,10 @@ test("role should be USER by default", async () => {
     fail();
   }
 
-  const id = parseUserNodeId(data.signup.id);
+  const { token } = data.signup;
 
   const user = await prisma.user.findUniqueOrThrow({
-    where: { id },
+    where: { token },
   });
 
   expect(user.role).toBe(Prisma.Role.USER);

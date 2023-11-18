@@ -6,7 +6,6 @@ import * as Prisma from "@/prisma/mod.ts";
 import { authGuest } from "../common/authorizers.ts";
 import { ParseError } from "../common/parsers.ts";
 import type { MutationResolvers } from "../common/schema.ts";
-import { userNodeId } from "./common/adapter.ts";
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 100;
@@ -30,7 +29,7 @@ export const typeDef = /* GraphQL */ `
   union SignupResult = SignupSuccess | EmailAlreadyTakenError
 
   type SignupSuccess {
-    id: ID!
+    token: NonEmptyString!
   }
 `;
 
@@ -64,12 +63,12 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
         role: Prisma.Role.USER,
         token: ulid(),
       },
-      select: { id: true },
+      select: { token: true },
     });
 
     return {
       __typename: "SignupSuccess",
-      id: userNodeId(created.id),
+      token: created.token!,
     };
   } catch (e) {
     // ほぼ確実に email の衝突

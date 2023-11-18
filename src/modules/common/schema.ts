@@ -216,7 +216,7 @@ export type SignupResult = EmailAlreadyTakenError | SignupSuccess;
 
 export type SignupSuccess = {
   __typename?: 'SignupSuccess';
-  id: Scalars['ID']['output'];
+  token: Scalars['NonEmptyString']['output'];
 };
 
 export type Todo = Node & {
@@ -669,7 +669,7 @@ export type SignupResultResolvers<ContextType = Context, ParentType extends Reso
 }>;
 
 export type SignupSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupSuccess'] = ResolversParentTypes['SignupSuccess']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['NonEmptyString'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
