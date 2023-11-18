@@ -1,6 +1,7 @@
 {
   "recommendations": [
     "davidanson.vscode-markdownlint",
+    "ms-azuretools.vscode-docker",
     "irongeek.vscode-env",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",

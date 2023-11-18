@@ -39,7 +39,7 @@
     "ts": "vite-node",
     "typecheck": "tsc",
     "lint": "eslint . --cache --ext '.js,.ts'",
-    "format": "prettier --cache './**/*.{js,ts,json,yml,md}'"
+    "format": "prettier --cache './**/*.{js,ts,json,yml,yaml,md}'"
   },
   "dependencies": {
     "@devoxa/prisma-relay-cursor-connection": "^2.2.2",

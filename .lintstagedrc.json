@@ -1,5 +1,5 @@
 {
-  "*.ts": "sh -c 'tsc --noEmit'",
+  "*.ts": "sh -c 'tsc'",
   "*.{js,ts}": "eslint --cache --fix",
-  "*.{js,ts,json,yml,md}": "prettier --cache --write"
+  "*.{js,ts,json,yml,yaml,md}": "prettier --cache --write"
 }
