@@ -1,4 +1,8 @@
+import type { DateTime } from "../scalar/mod.ts";
 import type { Context } from "./resolvers.ts";
+
+// DateTime リゾルバーによる変換のシミュレーション
+export const dateTime = (date: Date) => date.toISOString() as DateTime;
 
 export const dummyContext = ({
   prisma = dummyPrisma,

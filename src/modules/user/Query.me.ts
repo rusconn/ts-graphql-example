@@ -15,9 +15,9 @@ export const resolver: QueryResolvers["me"] = (_parent, _args, context) => {
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { dummyContext } = await import("../common/tests.ts");
+  const { context } = await import("./common/test.ts");
 
   type Params = Parameters<typeof dummyContext>[0];
 
@@ -26,9 +26,9 @@ if (import.meta.vitest) {
   };
 
   describe("Authorization", () => {
-    const allows = [admin, alice];
+    const allows = [context.admin, context.alice];
 
-    const denys = [guest];
+    const denys = [context.guest];
 
     test.each(allows)("allows %#", user => {
       expect(() => resolve({ user })).not.toThrow(AuthErr);

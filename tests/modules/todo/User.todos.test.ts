@@ -1,5 +1,5 @@
 import type { UserTodosQuery, UserTodosQueryVariables } from "tests/modules/schema.ts";
-import { DBData, GraphData } from "tests/data/mod.ts";
+import { DBData, GraphData } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";
@@ -42,7 +42,7 @@ const executeQuery = executeSingleResultOperation<
 
 const testData = {
   users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo1, DBData.adminTodo2, DBData.adminTodo3],
+  todos: [DBData.adminTodo, DBData.adminTodo2, DBData.adminTodo3],
 };
 
 const seedData = {
@@ -88,26 +88,26 @@ describe("number of items", () => {
 
 describe("order of items", () => {
   const patterns = [
-    [{}, [GraphData.adminTodo1, GraphData.adminTodo3, GraphData.adminTodo2]], // defaults to updatedAt desc
+    [{}, [GraphData.adminTodo, GraphData.adminTodo3, GraphData.adminTodo2]], // defaults to updatedAt desc
     [
       { orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Asc } },
-      [GraphData.adminTodo1, GraphData.adminTodo2, GraphData.adminTodo3],
+      [GraphData.adminTodo, GraphData.adminTodo2, GraphData.adminTodo3],
     ],
     [
       {
         orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Desc },
       },
-      [GraphData.adminTodo3, GraphData.adminTodo2, GraphData.adminTodo1],
+      [GraphData.adminTodo3, GraphData.adminTodo2, GraphData.adminTodo],
     ],
     [
       { orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Asc } },
-      [GraphData.adminTodo2, GraphData.adminTodo3, GraphData.adminTodo1],
+      [GraphData.adminTodo2, GraphData.adminTodo3, GraphData.adminTodo],
     ],
     [
       {
         orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Desc },
       },
-      [GraphData.adminTodo1, GraphData.adminTodo3, GraphData.adminTodo2],
+      [GraphData.adminTodo, GraphData.adminTodo3, GraphData.adminTodo2],
     ],
   ] as const;
 

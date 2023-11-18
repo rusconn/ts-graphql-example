@@ -18,18 +18,17 @@ export const resolver: QueryResolvers["user"] = (_parent, args, context) => {
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.ts");
-  const { validUserIds, invalidUserIds } = await import("tests/data/graph.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { ParseError: ParseErr } = await import("../common/parsers.ts");
   const { dummyContext } = await import("../common/tests.ts");
+  const { context, validUserIds, invalidUserIds } = await import("./common/test.ts");
 
   type Args = Parameters<typeof resolver>[1];
   type Params = Parameters<typeof dummyContext>[0];
 
   const valid = {
     args: { id: validUserIds[0] },
-    user: admin,
+    user: context.admin,
   };
 
   const resolve = ({
@@ -43,9 +42,9 @@ if (import.meta.vitest) {
   };
 
   describe("Authorization", () => {
-    const allows = [admin];
+    const allows = [context.admin];
 
-    const denys = [alice, guest];
+    const denys = [context.alice, context.guest];
 
     test.each(allows)("allows %#", user => {
       expect(() => resolve({ user })).not.toThrow(AuthErr);

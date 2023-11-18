@@ -1,5 +1,5 @@
 import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "tests/modules/schema.ts";
-import { DBData, GraphData } from "tests/data/mod.ts";
+import { DBData, GraphData } from "tests/data.ts";
 import { clearTables, clearTodos } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";
@@ -23,7 +23,7 @@ const executeMutation = executeSingleResultOperation<
 
 const testData = {
   users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo1, DBData.aliceTodo],
+  todos: [DBData.adminTodo, DBData.aliceTodo],
 };
 
 const seedData = {
@@ -44,7 +44,7 @@ beforeEach(async () => {
 
 test("not exists", async () => {
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
+    variables: { id: GraphData.adminTodo.id.slice(0, -1) },
   });
 
   expect(data?.deleteTodo?.__typename).toBe("TodoNotFoundError");
@@ -60,13 +60,13 @@ test("exists, but not owned", async () => {
 
 it("should delete todo", async () => {
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo1.id },
+    variables: { id: GraphData.adminTodo.id },
   });
 
   expect(data?.deleteTodo?.__typename).toBe("DeleteTodoSuccess");
 
   const todo = await prisma.todo.findUnique({
-    where: { id: DBData.adminTodo1.id },
+    where: { id: DBData.adminTodo.id },
   });
 
   expect(todo).toBeNull();
@@ -76,13 +76,13 @@ it("should not delete others", async () => {
   const before = await prisma.todo.count();
 
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo1.id },
+    variables: { id: GraphData.adminTodo.id },
   });
 
   expect(data?.deleteTodo?.__typename).toBe("DeleteTodoSuccess");
 
   const todo = await prisma.todo.findUnique({
-    where: { id: DBData.adminTodo1.id },
+    where: { id: DBData.adminTodo.id },
   });
 
   const after = await prisma.todo.count();

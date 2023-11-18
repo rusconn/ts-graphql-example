@@ -1,5 +1,5 @@
 import type { SignupMutation, SignupMutationVariables } from "tests/modules/schema.ts";
-import { ContextData, DBData } from "tests/data/mod.ts";
+import { ContextData, DBData } from "tests/data.ts";
 import { clearUsers, fail } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";

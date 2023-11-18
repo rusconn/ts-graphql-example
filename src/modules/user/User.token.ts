@@ -17,10 +17,10 @@ export const resolver: UserResolvers["token"] = async (parent, _args, context) =
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { full } = await import("../common/resolvers.ts");
   const { dummyContext } = await import("../common/tests.ts");
+  const { context, db } = await import("./common/test.ts");
 
   type Parent = Parameters<typeof resolver>[0];
   type Params = Parameters<typeof dummyContext>[0];
@@ -35,15 +35,15 @@ if (import.meta.vitest) {
 
   describe("Authorization", () => {
     const allows = [
-      [admin, admin],
-      [alice, alice],
+      [context.admin, db.admin],
+      [context.alice, db.alice],
     ] as const;
 
     const denys = [
-      [admin, alice],
-      [alice, admin],
-      [guest, admin],
-      [guest, alice],
+      [context.admin, db.alice],
+      [context.alice, db.admin],
+      [context.guest, db.admin],
+      [context.guest, db.alice],
     ] as const;
 
     test.each(allows)("allows %#", (user, parent) => {

@@ -30,14 +30,14 @@ export const resolver: MutationResolvers["deleteMe"] = async (_parent, _args, co
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { dummyContext } = await import("../common/tests.ts");
+  const { context } = await import("./common/test.ts");
 
   type Params = Parameters<typeof dummyContext>[0];
 
   const valid = {
-    user: admin,
+    user: context.admin,
   };
 
   const resolve = ({ user = valid.user }: { user?: Params["user"] }) => {
@@ -45,9 +45,9 @@ if (import.meta.vitest) {
   };
 
   describe("Authorization", () => {
-    const allows = [admin, alice];
+    const allows = [context.admin, context.alice];
 
-    const denys = [guest];
+    const denys = [context.guest];
 
     test.each(allows)("allows %#", user => {
       void expect(resolve({ user })).resolves.not.toThrow(AuthErr);

@@ -17,11 +17,11 @@ export const resolver: TodoResolvers["description"] = async (parent, _args, cont
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.ts");
-  const { adminTodo1: adminTodo, aliceTodo } = await import("tests/data/db.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { full } = await import("../common/resolvers.ts");
   const { dummyContext } = await import("../common/tests.ts");
+  const { context } = await import("../user/common/test.ts");
+  const { db } = await import("./common/test.ts");
 
   type Parent = Parameters<typeof resolver>[0];
   type Params = Parameters<typeof dummyContext>[0];
@@ -32,15 +32,15 @@ if (import.meta.vitest) {
 
   describe("Authorization", () => {
     const allows = [
-      [admin, adminTodo],
-      [alice, aliceTodo],
+      [context.admin, db.adminTodo],
+      [context.alice, db.aliceTodo],
     ] as const;
 
     const denys = [
-      [admin, aliceTodo],
-      [alice, adminTodo],
-      [guest, adminTodo],
-      [guest, aliceTodo],
+      [context.admin, db.aliceTodo],
+      [context.alice, db.adminTodo],
+      [context.guest, db.adminTodo],
+      [context.guest, db.aliceTodo],
     ] as const;
 
     test.each(allows)("allows %#", (user, parent) => {

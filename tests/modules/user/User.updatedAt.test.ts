@@ -1,5 +1,5 @@
 import type { UserUpdatedAtQuery, UserUpdatedAtQueryVariables } from "tests/modules/schema.ts";
-import { ContextData, DBData, GraphData } from "tests/data/mod.ts";
+import { ContextData, DBData, GraphData } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";

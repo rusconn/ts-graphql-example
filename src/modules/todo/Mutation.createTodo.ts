@@ -50,17 +50,17 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { ParseError: ParseErr } = await import("../common/parsers.ts");
   const { dummyContext } = await import("../common/tests.ts");
+  const { context } = await import("../user/common/test.ts");
 
   type Args = Parameters<typeof resolver>[1];
   type Params = Parameters<typeof dummyContext>[0];
 
   const valid = {
     args: { input: { title: "title", description: "description" } } as Args,
-    user: admin,
+    user: context.admin,
   };
 
   const resolve = ({
@@ -74,9 +74,9 @@ if (import.meta.vitest) {
   };
 
   describe("Authorization", () => {
-    const allows = [admin, alice];
+    const allows = [context.admin, context.alice];
 
-    const denys = [guest];
+    const denys = [context.guest];
 
     test.each(allows)("allows %#", user => {
       void expect(resolve({ user })).resolves.not.toThrow(AuthErr);

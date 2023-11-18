@@ -1,5 +1,5 @@
 import type { DeleteMeMutation, DeleteMeMutationVariables } from "tests/modules/schema.ts";
-import { DBData } from "tests/data/mod.ts";
+import { DBData } from "tests/data.ts";
 import { clearUsers, fail } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";
@@ -21,7 +21,7 @@ const executeMutation = executeSingleResultOperation<
 
 const testData = {
   users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo1],
+  todos: [DBData.adminTodo],
 };
 
 const seedData = {

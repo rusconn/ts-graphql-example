@@ -86,17 +86,17 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { ParseError: ParseErr } = await import("../common/parsers.ts");
   const { dummyContext } = await import("../common/tests.ts");
+  const { context } = await import("./common/test.ts");
 
   type Args = Parameters<typeof resolver>[1];
   type Params = Parameters<typeof dummyContext>[0];
 
   const valid = {
     args: { input: { name: "name", email: "email@email.com", password: "password" } } as Args,
-    user: guest,
+    user: context.guest,
   };
 
   const resolve = ({
@@ -110,9 +110,9 @@ if (import.meta.vitest) {
   };
 
   describe("Authorization", () => {
-    const allows = [guest];
+    const allows = [context.guest];
 
-    const denys = [admin, alice];
+    const denys = [context.admin, context.alice];
 
     test.each(allows)("allows %#", user => {
       void expect(resolve({ user })).resolves.not.toThrow(AuthErr);

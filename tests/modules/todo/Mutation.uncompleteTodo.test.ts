@@ -4,7 +4,7 @@ import type {
   UncompleteTodoMutation,
   UncompleteTodoMutationVariables,
 } from "tests/modules/schema.ts";
-import { DBData, GraphData } from "tests/data/mod.ts";
+import { DBData, GraphData } from "tests/data.ts";
 import { clearTables } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";
@@ -36,7 +36,7 @@ const executeMutation = executeSingleResultOperation<
 
 const testData = {
   users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo1, DBData.aliceTodo],
+  todos: [DBData.adminTodo, DBData.aliceTodo],
 };
 
 const seedData = {
@@ -52,14 +52,14 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await prisma.todo.update({
-    where: { id: DBData.adminTodo1.id },
+    where: { id: DBData.adminTodo.id },
     data: { status: Prisma.TodoStatus.DONE },
   });
 });
 
 test("not exists", async () => {
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo1.id.slice(0, -1) },
+    variables: { id: GraphData.adminTodo.id.slice(0, -1) },
   });
 
   expect(data?.uncompleteTodo?.__typename).toBe("TodoNotFoundError");
@@ -75,17 +75,17 @@ test("exists, but not owned", async () => {
 
 it("should update status", async () => {
   const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo1.id },
+    where: { id: DBData.adminTodo.id },
   });
 
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo1.id },
+    variables: { id: GraphData.adminTodo.id },
   });
 
   expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
 
   const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo1.id },
+    where: { id: DBData.adminTodo.id },
   });
 
   expect(before.status).toBe(TodoStatus.Done);
@@ -94,17 +94,17 @@ it("should update status", async () => {
 
 it("should update updatedAt", async () => {
   const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo1.id },
+    where: { id: DBData.adminTodo.id },
   });
 
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo1.id },
+    variables: { id: GraphData.adminTodo.id },
   });
 
   expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
 
   const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo1.id },
+    where: { id: DBData.adminTodo.id },
   });
 
   const beforeUpdatedAt = before.updatedAt.getTime();
@@ -115,17 +115,17 @@ it("should update updatedAt", async () => {
 
 it("should not update other attrs", async () => {
   const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo1.id },
+    where: { id: DBData.adminTodo.id },
   });
 
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo1.id },
+    variables: { id: GraphData.adminTodo.id },
   });
 
   expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
 
   const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo1.id },
+    where: { id: DBData.adminTodo.id },
   });
 
   // これらのフィールドは変化する想定

@@ -1,5 +1,5 @@
 import type { NodeQuery, NodeQueryVariables } from "tests/modules/schema.ts";
-import { ContextData, DBData, GraphData } from "tests/data/mod.ts";
+import { ContextData, DBData, GraphData, validNodeIds, invalidNodeIds } from "tests/data.ts";
 import { clearTables } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";
@@ -51,7 +51,7 @@ describe("error handling", () => {
 
   test("not ParseError -> not BadUserInput", async () => {
     const { errors } = await executeQuery({
-      variables: { id: GraphData.validNodeIds[0] },
+      variables: { id: validNodeIds[0] },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -61,7 +61,7 @@ describe("error handling", () => {
 
   test("ParseError -> BadUserInput", async () => {
     const { data, errors } = await executeQuery({
-      variables: { id: GraphData.invalidIds[0] },
+      variables: { id: invalidNodeIds[0] },
     });
 
     const errorCodes = errors?.map(({ extensions }) => extensions?.code);

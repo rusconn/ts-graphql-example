@@ -74,17 +74,17 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { ParseError: ParseErr } = await import("../common/parsers.ts");
   const { dummyContext } = await import("../common/tests.ts");
+  const { context, db } = await import("../user/common/test.ts");
 
   type Parent = Parameters<typeof resolver>[0];
   type Args = Parameters<typeof resolver>[1];
   type Params = Parameters<typeof dummyContext>[0];
 
   const valid = {
-    parent: full(admin),
+    parent: full(db.admin),
     args: {
       first: 10,
       orderBy: {
@@ -92,7 +92,7 @@ if (import.meta.vitest) {
         direction: OrderDirection.Desc,
       },
     },
-    user: admin,
+    user: context.admin,
   };
 
   const resolve = ({
@@ -109,15 +109,15 @@ if (import.meta.vitest) {
 
   describe("Authorization", () => {
     const allows = [
-      [admin, admin],
-      [admin, alice],
-      [alice, alice],
+      [context.admin, db.admin],
+      [context.admin, db.alice],
+      [context.alice, db.alice],
     ] as const;
 
     const denys = [
-      [alice, admin],
-      [guest, admin],
-      [guest, alice],
+      [context.alice, db.admin],
+      [context.guest, db.admin],
+      [context.guest, db.alice],
     ] as const;
 
     test.each(allows)("allows %#", (user, parent) => {

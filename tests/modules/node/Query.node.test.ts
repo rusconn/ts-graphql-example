@@ -1,5 +1,5 @@
 import type { NodeQuery, NodeQueryVariables } from "tests/modules/schema.ts";
-import { DBData, GraphData } from "tests/data/mod.ts";
+import { DBData, GraphData } from "tests/data.ts";
 import { clearTables } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";
@@ -15,7 +15,7 @@ const executeQuery = executeSingleResultOperation<NodeQuery, NodeQueryVariables>
 
 const testData = {
   users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo1],
+  todos: [DBData.adminTodo],
 };
 
 const seedData = {
@@ -52,7 +52,7 @@ test("exists, but not owned", async () => {
 });
 
 describe("should return item correctly", () => {
-  const ids = [GraphData.admin.id, GraphData.adminTodo1.id];
+  const ids = [GraphData.admin.id, GraphData.adminTodo.id];
 
   test.each(ids)("%s", async id => {
     const { data } = await executeQuery({
@@ -64,7 +64,7 @@ describe("should return item correctly", () => {
 });
 
 describe("should return not found error if not found", () => {
-  const ids = [GraphData.admin.id, GraphData.adminTodo1.id].map(id => id.slice(0, -1));
+  const ids = [GraphData.admin.id, GraphData.adminTodo.id].map(id => id.slice(0, -1));
 
   test.each(ids)("%s", async id => {
     const { data, errors } = await executeQuery({

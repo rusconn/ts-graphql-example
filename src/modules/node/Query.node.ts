@@ -17,18 +17,18 @@ export const resolver: QueryResolvers["node"] = (_parent, args, context) => {
 };
 
 if (import.meta.vitest) {
-  const { admin, alice, guest } = await import("tests/data/context.ts");
-  const { validNodeIds, invalidIds } = await import("tests/data/graph.ts");
   const { AuthorizationError: AuthErr } = await import("../common/authorizers.ts");
   const { ParseError: ParseErr } = await import("../common/parsers.ts");
   const { dummyContext } = await import("../common/tests.ts");
+  const { context } = await import("../user/common/test.ts");
+  const { validNodeIds, invalidNodeIds } = await import("./common/test.ts");
 
   type Args = Parameters<typeof resolver>[1];
   type Params = Parameters<typeof dummyContext>[0];
 
   const valid = {
     args: { id: validNodeIds[0] },
-    user: admin,
+    user: context.admin,
   };
 
   const resolve = ({
@@ -42,9 +42,9 @@ if (import.meta.vitest) {
   };
 
   describe("Authorization", () => {
-    const allows = [admin, alice];
+    const allows = [context.admin, context.alice];
 
-    const denys = [guest];
+    const denys = [context.guest];
 
     test.each(allows)("allows %#", user => {
       expect(() => resolve({ user })).not.toThrow(AuthErr);
@@ -60,7 +60,7 @@ if (import.meta.vitest) {
       expect(() => resolve({ args: { id } })).not.toThrow(ParseErr);
     });
 
-    test.each(invalidIds)("invalids %#", id => {
+    test.each(invalidNodeIds)("invalids %#", id => {
       expect(() => resolve({ args: { id } })).toThrow(ParseErr);
     });
   });

@@ -1,5 +1,5 @@
 import type { UsersQuery, UsersQueryVariables } from "tests/modules/schema.ts";
-import { DBData, GraphData } from "tests/data/mod.ts";
+import { DBData, GraphData } from "tests/data.ts";
 import { clearUsers } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";

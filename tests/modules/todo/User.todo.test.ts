@@ -1,5 +1,5 @@
 import type { UserTodoQuery, UserTodoQueryVariables } from "tests/modules/schema.ts";
-import { ContextData, DBData, GraphData } from "tests/data/mod.ts";
+import { ContextData, DBData, GraphData } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";
@@ -26,7 +26,7 @@ const executeQuery = executeSingleResultOperation<
 
 const testData = {
   users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo1, DBData.aliceTodo],
+  todos: [DBData.adminTodo, DBData.aliceTodo],
 };
 
 const seedData = {
@@ -44,7 +44,7 @@ test("not exists", async () => {
   const { data } = await executeQuery({
     variables: {
       id: GraphData.admin.id,
-      todoId: GraphData.adminTodo1.id.slice(0, -1),
+      todoId: GraphData.adminTodo.id.slice(0, -1),
     },
   });
 
@@ -59,7 +59,7 @@ test("exists, owned", async () => {
   const { data } = await executeQuery({
     variables: {
       id: GraphData.admin.id,
-      todoId: GraphData.adminTodo1.id,
+      todoId: GraphData.adminTodo.id,
     },
   });
 
@@ -73,7 +73,7 @@ test("exists, owned", async () => {
 describe("exists, but not owned", () => {
   const patterns = [
     [ContextData.admin, GraphData.admin.id, GraphData.aliceTodo.id],
-    [ContextData.alice, GraphData.alice.id, GraphData.adminTodo1.id],
+    [ContextData.alice, GraphData.alice.id, GraphData.adminTodo.id],
   ] as const;
 
   test.each(patterns)("%o %s %s", async (user, id, todoId) => {
@@ -95,7 +95,7 @@ describe("exists, but not owned", () => {
 
 it("should set correct parent user id", async () => {
   const { data } = await executeQuery({
-    variables: { id: GraphData.admin.id, todoId: GraphData.adminTodo1.id },
+    variables: { id: GraphData.admin.id, todoId: GraphData.adminTodo.id },
   });
 
   if (data?.node?.__typename !== "User") {
