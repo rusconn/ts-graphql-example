@@ -6,6 +6,6 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "graphql.vscode-graphql",
-    "prisma.prisma"
+    "ajmnz.prisma-import"
   ]
 }

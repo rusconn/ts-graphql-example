@@ -1,0 +1,23 @@
+import { Todo } from "../todo/todo"
+
+model User {
+  id        String   @id @pg.Char(26)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @pg.VarChar(255)
+  email     String   @unique @pg.VarChar(255)
+  password  String   @pg.VarChar(255)
+  token     String?  @unique @pg.Char(26)
+  role      Role     @default(USER)
+  todos     Todo[]
+
+  @@index([createdAt(sort: Asc), id(sort: Asc)], map: "User_createdAt_id_idx")
+  @@index([updatedAt(sort: Asc), id(sort: Asc)], map: "User_updatedAt_id_idx")
+  @@index([createdAt(sort: Desc), id(sort: Desc)], map: "User_createdAt_desc_id_desc_idx")
+  @@index([updatedAt(sort: Desc), id(sort: Desc)], map: "User_updatedAt_desc_id_desc_idx")
+}
+
+enum Role {
+  ADMIN
+  USER
+}

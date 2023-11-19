@@ -1,0 +1,24 @@
+import { User } from "../user/user"
+
+model Todo {
+  id          String     @id @pg.Char(26)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  title       String     @pg.VarChar(255)
+  description String     @default("")
+  status      TodoStatus @default(PENDING)
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String     @pg.Char(26)
+
+  @@index([userId])
+  @@index([id, userId])
+  @@index([createdAt(sort: Asc), id(sort: Asc)], map: "Todo_createdAt_id_idx")
+  @@index([updatedAt(sort: Asc), id(sort: Asc)], map: "Todo_updatedAt_id_idx")
+  @@index([createdAt(sort: Desc), id(sort: Desc)], map: "Todo_createdAt_desc_id_desc_idx")
+  @@index([updatedAt(sort: Desc), id(sort: Desc)], map: "Todo_updatedAt_desc_id_desc_idx")
+}
+
+enum TodoStatus {
+  DONE
+  PENDING
+}
