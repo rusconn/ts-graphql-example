@@ -7,6 +7,7 @@
     "pnpm": "8.5.1"
   },
   "prisma": {
+    "seed": "pnpm ts prisma/seed.ts",
     "import": {
       "schemas": "./src/modules/**/*.prisma",
       "output": "./prisma/schema.prisma"
@@ -16,7 +17,6 @@
     "setup": "pnpm install && NODE_ENV=development run-s setup:*",
     "setup:migrate": "pnpm migrate:reset ",
     "setup:generate": "pnpm generate",
-    "setup:seed": "pnpm seed",
     "setup:husky": "husky install",
     "dev": "NODE_ENV=development pnpm ts --watch src/main.ts",
     "build": "vite build",
@@ -26,7 +26,7 @@
     "test": "run-s test:ut test:it",
     "test:ut": "NODE_ENV=test PASSWORD_HASH_ROUNDS_EXPONENT=4 vitest --run --silent --single-thread --dir src",
     "test:it": "NODE_ENV=test PASSWORD_HASH_ROUNDS_EXPONENT=4 DB_NAME=testdb run-s test:it:*",
-    "test:it:migrate": "pnpm migrate:reset",
+    "test:it:migrate": "pnpm migrate:reset --skip-seed",
     "test:it:run": "vitest --run --silent --single-thread --dir tests",
     "check": "run-s check:*",
     "check:generate": "pnpm generate",
@@ -42,7 +42,7 @@
     "migrate:reset": "prisma migrate reset --force",
     "generate": "prisma generate",
     "merge": "prisma-import --force",
-    "seed": "pnpm ts prisma/seed.ts",
+    "seed": "prisma db seed",
     "ts": "vite-node",
     "typecheck": "tsc",
     "lint": "eslint . --cache --ext '.js,.ts'",
