@@ -1,6 +1,6 @@
 import type { Resolvers } from "../common/schema.ts";
-import * as Node from "./Node.ts";
-import * as Query from "./Query.ts";
+import * as Node from "./Node/_mod.ts";
+import * as Query from "./Query/_mod.ts";
 
 export const typeDefs = [Node.typeDefs, Query.typeDefs];
 
