@@ -60,7 +60,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
         name,
         email,
         password: hashed,
-        role: Prisma.Role.USER,
+        role: Prisma.UserRole.USER,
         token: ulid(),
       },
       select: { token: true },

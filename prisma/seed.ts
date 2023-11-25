@@ -1,4 +1,4 @@
-import { prisma, Role, TodoStatus } from "@/prisma/mod.ts";
+import { prisma, UserRole, TodoStatus } from "@/prisma/mod.ts";
 
 const main = async () => {
   const data = [
@@ -9,7 +9,7 @@ const main = async () => {
       /** raw: adminadmin */
       password: "$2b$10$4YuHiiiZiodsyu7mx18d/OX7CaLC5uH61XX2nHddWabigsfDh87me",
       token: "01HFFYQP8HTEHXJJ3DSTVPPBC0",
-      role: Role.ADMIN,
+      role: UserRole.ADMIN,
       todos: [],
     },
     {
@@ -19,7 +19,7 @@ const main = async () => {
       /** raw: hogehoge */
       password: "$2b$10$RjosB2FTBUCsjBsZm0OmiO3jpWqNmt54ybRybC5C1LnUkERwOSzji",
       token: "01HFFYQP8H9PRG5DKFES044S5D",
-      role: Role.USER,
+      role: UserRole.USER,
       todos: [
         {
           id: "01HFFZ0ABV8BJPJX50Z2PJ3DR9",
@@ -35,7 +35,7 @@ const main = async () => {
       /** raw: piyopiyo */
       password: "$2b$10$tt1xSvAUjwVuBzxaUi.yMugSpVGmka/XfgxtSamq4Zeei7XOC5RK.",
       token: "01HFFYQP8JW273G541HW4TREQY",
-      role: Role.USER,
+      role: UserRole.USER,
       todos: [
         {
           id: "01HFFZ0ABVVD5HPAARMZR74PHG",

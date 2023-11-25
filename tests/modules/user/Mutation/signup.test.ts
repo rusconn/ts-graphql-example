@@ -92,5 +92,5 @@ test("role should be USER by default", async () => {
     where: { token },
   });
 
-  expect(user.role).toBe(Prisma.Role.USER);
+  expect(user.role).toBe(Prisma.UserRole.USER);
 });

@@ -8,7 +8,7 @@ model User {
   email     String   @unique @pg.VarChar(255)
   password  String   @pg.VarChar(255)
   token     String?  @unique @pg.Char(26)
-  role      Role     @default(USER)
+  role      UserRole @default(USER)
   todos     Todo[]
 
   @@index([createdAt(sort: Asc), id(sort: Asc)], map: "User_createdAt_id_idx")
@@ -17,7 +17,7 @@ model User {
   @@index([updatedAt(sort: Desc), id(sort: Desc)], map: "User_updatedAt_desc_id_desc_idx")
 }
 
-enum Role {
+enum UserRole {
   ADMIN
   USER
 }
