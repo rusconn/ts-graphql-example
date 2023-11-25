@@ -8,7 +8,7 @@ import * as updatedAt from "./updatedAt.ts";
 import * as user from "./user.ts";
 
 const typeDef = /* GraphQL */ `
-  type Todo implements Node
+  type Todo
 `;
 
 export const typeDefs = [

@@ -4,7 +4,7 @@ import { authAdminOrUserOwner } from "../common/authorizer.ts";
 import { fullUser } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
-  extend type User {
+  extend type User implements Node {
     id: ID!
   }
 `;

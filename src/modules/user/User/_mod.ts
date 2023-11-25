@@ -7,7 +7,7 @@ import * as token from "./token.ts";
 import * as updatedAt from "./updatedAt.ts";
 
 const typeDef = /* GraphQL */ `
-  type User implements Node
+  type User
 `;
 
 export const typeDefs = [

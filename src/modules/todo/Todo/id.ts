@@ -4,7 +4,7 @@ import { authAdminOrTodoOwner } from "../common/authorizer.ts";
 import { fullTodo } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
-  extend type Todo {
+  extend type Todo implements Node {
     id: ID!
   }
 `;
