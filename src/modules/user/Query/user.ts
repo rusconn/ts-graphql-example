@@ -44,13 +44,13 @@ if (import.meta.vitest) {
   describe("Authorization", () => {
     const allows = [context.admin];
 
-    const denys = [context.alice, context.guest];
+    const denies = [context.alice, context.guest];
 
     test.each(allows)("allows %#", user => {
       expect(() => resolve({ user })).not.toThrow(AuthErr);
     });
 
-    test.each(denys)("denys %#", user => {
+    test.each(denies)("denies %#", user => {
       expect(() => resolve({ user })).toThrow(AuthErr);
     });
   });

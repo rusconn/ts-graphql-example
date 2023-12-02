@@ -36,7 +36,7 @@ if (import.meta.vitest) {
       [context.alice, db.alice],
     ] as const;
 
-    const denys = [
+    const denies = [
       [context.alice, db.admin],
       [context.guest, db.admin],
       [context.guest, db.alice],
@@ -46,7 +46,7 @@ if (import.meta.vitest) {
       void expect(resolve({ parent: full(parent), user })).resolves.not.toThrow(AuthErr);
     });
 
-    test.each(denys)("denys %#", (user, parent) => {
+    test.each(denies)("denies %#", (user, parent) => {
       void expect(resolve({ parent: full(parent), user })).rejects.toThrow(AuthErr);
     });
   });
