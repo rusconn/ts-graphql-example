@@ -1,5 +1,0 @@
-{
-  "*.ts": "sh -c 'tsc'",
-  "*.{js,ts}": "eslint --cache --fix",
-  "*.{js,ts,json,yml,yaml,md}": "prettier --cache --write"
-}
