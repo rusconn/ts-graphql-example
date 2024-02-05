@@ -1,9 +1,10 @@
-import type { UserTodosQuery, UserTodosQueryVariables } from "tests/modules/schema.ts";
+import { OrderDirection, TodoOrderField } from "@/modules/common/schema.ts";
+import { prisma } from "@/prisma/mod.ts";
+
 import { DBData, GraphData } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
+import type { UserTodosQuery, UserTodosQueryVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
-import { prisma } from "@/prisma/mod.ts";
-import { TodoOrderField, OrderDirection } from "@/modules/common/schema.ts";
 
 const executeQuery = executeSingleResultOperation<
   UserTodosQuery,

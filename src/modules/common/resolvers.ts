@@ -1,5 +1,5 @@
-import type { Logger } from "pino";
 import type { YogaInitialContext } from "graphql-yoga";
+import type { Logger } from "pino";
 
 import type * as Prisma from "@/prisma/mod.ts";
 

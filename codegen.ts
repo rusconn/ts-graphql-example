@@ -1,7 +1,7 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 import type { TypeScriptPluginConfig } from "@graphql-codegen/typescript";
-import type { TypeScriptResolversPluginConfig } from "@graphql-codegen/typescript-resolvers";
 import type { TypeScriptDocumentsPluginConfig } from "@graphql-codegen/typescript-operations";
+import type { TypeScriptResolversPluginConfig } from "@graphql-codegen/typescript-resolvers";
 
 const typescript: TypeScriptPluginConfig = {
   avoidOptionals: {

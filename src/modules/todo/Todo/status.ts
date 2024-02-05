@@ -1,6 +1,6 @@
 import type { TodoResolvers } from "../../common/schema.ts";
-import { authTodoOwner } from "../common/authorizer.ts";
 import { todoStatus } from "../common/adapter.ts";
+import { authTodoOwner } from "../common/authorizer.ts";
 import { fullTodo } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `

@@ -1,7 +1,7 @@
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
 import * as Prisma from "@/prisma/mod.ts";
-import { parseConnectionArgs, ParseError } from "../../common/parsers.ts";
+import { ParseError, parseConnectionArgs } from "../../common/parsers.ts";
 import { full } from "../../common/resolvers.ts";
 import type { UserResolvers } from "../../common/schema.ts";
 import { OrderDirection, TodoOrderField } from "../../common/schema.ts";

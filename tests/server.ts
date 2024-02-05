@@ -1,9 +1,10 @@
-import { parse } from "graphql";
 import { buildHTTPExecutor } from "@graphql-tools/executor-http";
+import { parse } from "graphql";
 
-import { ContextData } from "tests/data.ts";
 import type { ContextUser } from "@/modules/common/resolvers.ts";
 import { yoga } from "@/server.ts";
+
+import { ContextData } from "tests/data.ts";
 
 type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;

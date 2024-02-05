@@ -1,15 +1,16 @@
 import { omit } from "remeda";
 
+import { TodoStatus } from "@/modules/common/schema.ts";
+import { prisma } from "@/prisma/mod.ts";
+import * as Prisma from "@/prisma/mod.ts";
+
+import { DBData, GraphData } from "tests/data.ts";
+import { clearTables } from "tests/helpers.ts";
 import type {
   UncompleteTodoMutation,
   UncompleteTodoMutationVariables,
 } from "tests/modules/schema.ts";
-import { DBData, GraphData } from "tests/data.ts";
-import { clearTables } from "tests/helpers.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
-import { prisma } from "@/prisma/mod.ts";
-import * as Prisma from "@/prisma/mod.ts";
-import { TodoStatus } from "@/modules/common/schema.ts";
 
 const executeMutation = executeSingleResultOperation<
   UncompleteTodoMutation,

@@ -1,10 +1,10 @@
 import { GraphQLError } from "graphql";
 import type { IMiddleware } from "graphql-middleware";
 
-import * as Prisma from "@/prisma/mod.ts";
 import { AuthorizationError } from "@/modules/common/authorizers.ts";
 import { ParseError } from "@/modules/common/parsers.ts";
 import { ErrorCode } from "@/modules/common/schema.ts";
+import * as Prisma from "@/prisma/mod.ts";
 
 const errorHandling: IMiddleware = async (resolve, root, args, context, info) => {
   try {

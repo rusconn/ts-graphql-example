@@ -1,9 +1,10 @@
-import type { UserQuery, UserQueryVariables } from "tests/modules/schema.ts";
+import { ErrorCode } from "@/modules/common/schema.ts";
+import { prisma } from "@/prisma/mod.ts";
+
 import { DBData, GraphData } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
+import type { UserQuery, UserQueryVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
-import { prisma } from "@/prisma/mod.ts";
-import { ErrorCode } from "@/modules/common/schema.ts";
 
 const executeQuery = executeSingleResultOperation<UserQuery, UserQueryVariables>(/* GraphQL */ `
   query User($id: ID!) {

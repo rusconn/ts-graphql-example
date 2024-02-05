@@ -1,9 +1,10 @@
-import type { SignupMutation, SignupMutationVariables } from "tests/modules/schema.ts";
-import { ContextData, DBData } from "tests/data.ts";
-import { clearUsers, fail } from "tests/helpers.ts";
-import { executeSingleResultOperation } from "tests/server.ts";
 import { prisma } from "@/prisma/mod.ts";
 import * as Prisma from "@/prisma/mod.ts";
+
+import { ContextData, DBData } from "tests/data.ts";
+import { clearUsers, fail } from "tests/helpers.ts";
+import type { SignupMutation, SignupMutationVariables } from "tests/modules/schema.ts";
+import { executeSingleResultOperation } from "tests/server.ts";
 
 const executeMutation = executeSingleResultOperation<
   SignupMutation,

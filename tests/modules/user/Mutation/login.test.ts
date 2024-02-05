@@ -1,8 +1,9 @@
-import type { LoginMutation, LoginMutationVariables } from "tests/modules/schema.ts";
+import { prisma } from "@/prisma/mod.ts";
+
 import { DBData } from "tests/data.ts";
 import { clearUsers } from "tests/helpers.ts";
+import type { LoginMutation, LoginMutationVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
-import { prisma } from "@/prisma/mod.ts";
 
 const executeMutation = executeSingleResultOperation<
   LoginMutation,

@@ -1,12 +1,12 @@
 import { useErrorHandler } from "@envelop/core";
 import { useGraphQlJit } from "@envelop/graphql-jit";
 import { EnvelopArmorPlugin as useArmor } from "@escape.tech/graphql-armor";
+import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
 import { GraphQLError } from "graphql";
 import { applyMiddleware } from "graphql-middleware";
 import { createYoga, useLogger } from "graphql-yoga";
-import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
-import { ulid } from "ulid";
 import { App } from "uWebSockets.js";
+import { ulid } from "ulid";
 
 import type {
   Context,
@@ -15,11 +15,11 @@ import type {
   UserContext,
 } from "@/modules/common/resolvers.ts";
 import { ErrorCode } from "@/modules/common/schema.ts";
+import { isProd, maxCost, maxDepth } from "./config.ts";
 import { makeLogger } from "./logger.ts";
 import { middlewares } from "./middlewares.ts";
 import { prisma } from "./prisma/mod.ts";
 import { schema } from "./schema.ts";
-import { isProd, maxCost, maxDepth } from "./config.ts";
 
 export const yoga = createYoga<ServerContext, UserContext>({
   schema: applyMiddleware(schema, ...middlewares),

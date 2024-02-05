@@ -1,5 +1,5 @@
 import type * as Prisma from "@/prisma/mod.ts";
-import { type Key, type Full, isFull } from "../../common/resolvers.ts";
+import { type Full, type Key, isFull } from "../../common/resolvers.ts";
 
 export type Todo =
   | Key<Pick<Prisma.Todo, "id"> & Partial<Pick<Prisma.Todo, "userId">>>

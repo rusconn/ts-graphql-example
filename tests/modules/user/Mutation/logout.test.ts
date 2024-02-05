@@ -1,8 +1,9 @@
-import type { LogoutMutation, LogoutMutationVariables } from "tests/modules/schema.ts";
+import { prisma } from "@/prisma/mod.ts";
+
 import { DBData } from "tests/data.ts";
 import { clearUsers } from "tests/helpers.ts";
+import type { LogoutMutation, LogoutMutationVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
-import { prisma } from "@/prisma/mod.ts";
 
 const executeMutation = executeSingleResultOperation<
   LogoutMutation,

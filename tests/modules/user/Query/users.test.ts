@@ -1,9 +1,10 @@
-import type { UsersQuery, UsersQueryVariables } from "tests/modules/schema.ts";
+import { OrderDirection, UserOrderField } from "@/modules/common/schema.ts";
+import { prisma } from "@/prisma/mod.ts";
+
 import { DBData, GraphData } from "tests/data.ts";
 import { clearUsers } from "tests/helpers.ts";
+import type { UsersQuery, UsersQueryVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
-import { prisma } from "@/prisma/mod.ts";
-import { UserOrderField, OrderDirection } from "@/modules/common/schema.ts";
 
 const executeQuery = executeSingleResultOperation<UsersQuery, UsersQueryVariables>(/* GraphQL */ `
   query Users($first: Int, $after: String, $last: Int, $before: String, $orderBy: UserOrder) {

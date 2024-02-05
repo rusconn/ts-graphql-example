@@ -1,4 +1,4 @@
-import { prisma, UserRole, TodoStatus } from "@/prisma/mod.ts";
+import { TodoStatus, UserRole, prisma } from "@/prisma/mod.ts";
 
 const main = async () => {
   const data = [

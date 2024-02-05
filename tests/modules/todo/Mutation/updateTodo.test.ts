@@ -1,11 +1,12 @@
 import { omit } from "remeda";
 
-import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "tests/modules/schema.ts";
+import { TodoStatus } from "@/modules/common/schema.ts";
+import { prisma } from "@/prisma/mod.ts";
+
 import { DBData, GraphData } from "tests/data.ts";
 import { clearTables } from "tests/helpers.ts";
+import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
-import { prisma } from "@/prisma/mod.ts";
-import { TodoStatus } from "@/modules/common/schema.ts";
 
 const executeMutation = executeSingleResultOperation<
   UpdateTodoMutation,

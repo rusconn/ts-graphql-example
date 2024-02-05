@@ -1,5 +1,5 @@
 import type { Todo, User } from "@/prisma/mod.ts";
-import { authAdmin, AuthorizationError } from "../../common/authorizers.ts";
+import { AuthorizationError, authAdmin } from "../../common/authorizers.ts";
 import type { ContextUser } from "../../common/resolvers.ts";
 
 export const authAdminOrTodoOwner = (user: ContextUser, todo: Pick<Todo, "userId">) => {
