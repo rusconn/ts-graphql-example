@@ -1,0 +1,28 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
+  "files": {
+    "ignore": ["dist", "src/modules/common/schema.ts", "tests/modules/schema.ts"]
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "noUnusedVariables": "error"
+      },
+      "style": {
+        "noUselessElse": "off"
+      },
+      "nursery": {
+        "noUnusedImports": "error",
+        "useNodejsImportProtocol": "error"
+      }
+    }
+  },
+  "organizeImports": {
+    "enabled": false
+  },
+  "formatter": {
+    "enabled": false
+  }
+}

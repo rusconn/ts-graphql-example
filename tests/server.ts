@@ -29,8 +29,6 @@ export const executeSingleResultOperation =
   };
 
 const executor = buildHTTPExecutor({
-  // linter に従うと正しく動かない
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   fetch: yoga.fetch,
 });
 

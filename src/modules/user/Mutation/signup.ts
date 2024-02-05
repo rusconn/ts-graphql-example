@@ -54,21 +54,22 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   try {
     const hashed = await bcrypt.hash(password, passwordHashRoundsExponent);
 
-    const created = await context.prisma.user.create({
+    const token = ulid();
+
+    await context.prisma.user.create({
       data: {
         id: authed.id,
         name,
         email,
         password: hashed,
         role: Prisma.UserRole.USER,
-        token: ulid(),
+        token,
       },
-      select: { token: true },
     });
 
     return {
       __typename: "SignupSuccess",
-      token: created.token!,
+      token,
     };
   } catch (e) {
     // ほぼ確実に email の衝突

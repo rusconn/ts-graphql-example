@@ -1,6 +1,5 @@
 node_modules
 tsconfig.tsbuildinfo
 .env
-.eslintcache
 .pnpm-debug.log*
 dist

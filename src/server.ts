@@ -8,7 +8,12 @@ import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspect
 import { ulid } from "ulid";
 import { App } from "uWebSockets.js";
 
-import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers.ts";
+import type {
+  Context,
+  ContextUser,
+  ServerContext,
+  UserContext,
+} from "@/modules/common/resolvers.ts";
 import { ErrorCode } from "@/modules/common/schema.ts";
 import { makeLogger } from "./logger.ts";
 import { middlewares } from "./middlewares.ts";
@@ -21,7 +26,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
   context: async ({ request }) => {
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
-    let user;
+    let user: ContextUser;
 
     if (token) {
       const found = await prisma.user.findUnique({
@@ -36,7 +41,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
 
       user = found;
     } else {
-      user = { id: ulid(), role: "GUEST" } as const;
+      user = { id: ulid(), role: "GUEST" };
     }
 
     return { prisma, user, logger: makeLogger() };

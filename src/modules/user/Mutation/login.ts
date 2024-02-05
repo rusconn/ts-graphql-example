@@ -60,15 +60,16 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
       throw new Prisma.NotExistsError();
     }
 
-    const updated = await context.prisma.user.update({
+    const token = ulid();
+
+    await context.prisma.user.update({
       where: { email },
-      data: { token: ulid() },
-      select: { token: true },
+      data: { token },
     });
 
     return {
       __typename: "LoginSuccess",
-      token: updated.token!,
+      token,
     };
   } catch (e) {
     if (e instanceof Prisma.NotExistsError) {

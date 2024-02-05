@@ -8,7 +8,6 @@ import { ErrorCode } from "@/modules/common/schema.ts";
 
 const errorHandling: IMiddleware = async (resolve, root, args, context, info) => {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/return-await
     return await resolve(root, args, context, info);
   } catch (thrown) {
     if (thrown instanceof AuthorizationError) {

@@ -3,7 +3,7 @@
     "davidanson.vscode-markdownlint",
     "ms-azuretools.vscode-docker",
     "irongeek.vscode-env",
-    "dbaeumer.vscode-eslint",
+    "biomejs.biome",
     "esbenp.prettier-vscode",
     "graphql.vscode-graphql",
     "ajmnz.prisma-import"
