@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
   "files": {
-    "ignore": ["dist", "src/modules/common/schema.ts", "tests/modules/schema.ts"]
+    "ignore": [".vscode", "dist", "src/modules/common/schema.ts", "tests/modules/schema.ts"]
   },
   "linter": {
     "enabled": true,
