@@ -5,6 +5,12 @@ TypeScript を使って GraphQL API を作る。
 とりあえず簡単な Todo アプリのバックエンドを想定して作る。\
 アプリのシップではなく、設計や実装のノウハウを手に入れることが目的。
 
+## 事前準備
+
+```shell
+corepack enable
+```
+
 ## 起動方法
 
 ```shell
