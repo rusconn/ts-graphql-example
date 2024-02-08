@@ -2,11 +2,10 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 import { dependencies } from "./package.json";
-import { compilerOptions } from "./tsconfig.json";
 
 export default defineConfig({
   build: {
-    target: compilerOptions.target,
+    target: "es2021",
     sourcemap: true,
     rollupOptions: {
       external: [/^node:.+/, ...Object.keys(dependencies)],
