@@ -5,7 +5,7 @@ import { dependencies } from "./package.json";
 
 export default defineConfig({
   build: {
-    target: "es2021",
+    target: "es2022",
     sourcemap: true,
     rollupOptions: {
       external: [/^node:.+/, ...Object.keys(dependencies)],
