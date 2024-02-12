@@ -54,6 +54,9 @@ devDependencies:
   '@biomejs/biome':
     specifier: 1.5.3
     version: 1.5.3
+  '@faker-js/faker':
+    specifier: ^8.4.1
+    version: 8.4.1
   '@graphql-codegen/cli':
     specifier: 4.0.1
     version: 4.0.1(@babel/core@7.23.3)(graphql@16.8.1)
@@ -1329,6 +1332,11 @@ packages:
       '@escape.tech/graphql-armor-max-tokens': 2.2.0
       graphql: 16.8.1
     dev: false
+
+  /@faker-js/faker@8.4.1:
+    resolution: {integrity: sha512-XQ3cU+Q8Uqmrbf2e0cIC/QN43sTBSC8KF12u29Mb47tWrt2hAgBXSgpZMj4Ao8Uk0iJcU99QsOCaIL8934obCg==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0, npm: '>=6.14.13'}
+    dev: true
 
   /@graphql-codegen/cli@4.0.1(@babel/core@7.23.3)(graphql@16.8.1):
     resolution: {integrity: sha512-/H4imnGOl3hoPXLKmIiGUnXpmBmeIClSZie/YHDzD5N59cZlGGJlIOOrUlOTDpJx5JNU1MTQcRjyTToOYM5IfA==}
