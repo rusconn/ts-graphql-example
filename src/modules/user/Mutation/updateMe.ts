@@ -1,6 +1,6 @@
 import * as Prisma from "@/prisma/mod.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
-import { ParseError } from "../../common/parsers.ts";
+import { parseErr } from "../../common/parsers.ts";
 import { full } from "../../common/resolvers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 
@@ -37,25 +37,25 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
   const { name, email, password } = args.input;
 
   if (name === null) {
-    throw new ParseError('"name" must be not null');
+    throw parseErr('"name" must be not null');
   }
   if (name && [...name].length > NAME_MAX) {
-    throw new ParseError(`"name" must be up to ${NAME_MAX} characteres`);
+    throw parseErr(`"name" must be up to ${NAME_MAX} characteres`);
   }
   if (email === null) {
-    throw new ParseError('"email" must be not null');
+    throw parseErr('"email" must be not null');
   }
   if (email && [...email].length > EMAIL_MAX) {
-    throw new ParseError(`"email" must be up to ${EMAIL_MAX} characteres`);
+    throw parseErr(`"email" must be up to ${EMAIL_MAX} characteres`);
   }
   if (password === null) {
-    throw new ParseError('"password" must be not null');
+    throw parseErr('"password" must be not null');
   }
   if (password && [...password].length < PASS_MIN) {
-    throw new ParseError(`"password" must be at least ${PASS_MIN} characteres`);
+    throw parseErr(`"password" must be at least ${PASS_MIN} characteres`);
   }
   if (password && [...password].length > PASS_MAX) {
-    throw new ParseError(`"password" must be up to ${PASS_MAX} characteres`);
+    throw parseErr(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
   try {
@@ -83,8 +83,7 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
 };
 
 if (import.meta.vitest) {
-  const { AuthorizationError: AuthErr } = await import("../../common/authorizers.ts");
-  const { ParseError: ParseErr } = await import("../../common/parsers.ts");
+  const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../common/test.ts");
 
@@ -111,12 +110,17 @@ if (import.meta.vitest) {
 
     const denies = [context.guest];
 
-    test.each(allows)("allows %#", user => {
-      void expect(resolve({ user })).resolves.not.toThrow(AuthErr);
+    test.each(allows)("allows %#", async user => {
+      await resolve({ user });
     });
 
-    test.each(denies)("denies %#", user => {
-      void expect(resolve({ user })).rejects.toThrow(AuthErr);
+    test.each(denies)("denies %#", async user => {
+      expect.assertions(1);
+      try {
+        await resolve({ user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
     });
   });
 
@@ -147,12 +151,17 @@ if (import.meta.vitest) {
       { password: "🅰".repeat(PASS_MAX + 1) },
     ] as Args["input"][];
 
-    test.each(valids)("valids %#", input => {
-      void expect(resolve({ args: { input } })).resolves.not.toThrow(ParseErr);
+    test.each(valids)("valids %#", async input => {
+      await resolve({ args: { input } });
     });
 
-    test.each(invalids)("invalids %#", input => {
-      void expect(resolve({ args: { input } })).rejects.toThrow(ParseErr);
+    test.each(invalids)("invalids %#", async input => {
+      expect.assertions(1);
+      try {
+        await resolve({ args: { input } });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+      }
     });
   });
 }

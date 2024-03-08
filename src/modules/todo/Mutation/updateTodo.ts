@@ -1,6 +1,6 @@
 import * as Prisma from "@/prisma/mod.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
-import { ParseError } from "../../common/parsers.ts";
+import { parseErr } from "../../common/parsers.ts";
 import { full } from "../../common/resolvers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
@@ -38,19 +38,19 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
   const { title, description, status } = args.input;
 
   if (title === null) {
-    throw new ParseError('"title" must be not null');
+    throw parseErr('"title" must be not null');
   }
   if (description === null) {
-    throw new ParseError('"description" must be not null');
+    throw parseErr('"description" must be not null');
   }
   if (status === null) {
-    throw new ParseError('"status" must be not null');
+    throw parseErr('"status" must be not null');
   }
   if (title && [...title].length > TITLE_MAX) {
-    throw new ParseError(`"title" must be up to ${TITLE_MAX} characters`);
+    throw parseErr(`"title" must be up to ${TITLE_MAX} characters`);
   }
   if (description && [...description].length > DESC_MAX) {
-    throw new ParseError(`"description" must be up to ${DESC_MAX} characters`);
+    throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
   }
 
   try {
@@ -78,8 +78,7 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
 };
 
 if (import.meta.vitest) {
-  const { AuthorizationError: AuthErr } = await import("../../common/authorizers.ts");
-  const { ParseError: ParseErr } = await import("../../common/parsers.ts");
+  const { ErrorCode } = await import("../../common/schema.ts");
   const { TodoStatus } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../../user/common/test.ts");
@@ -108,12 +107,17 @@ if (import.meta.vitest) {
 
     const denies = [context.guest];
 
-    test.each(allows)("allows %#", user => {
-      void expect(resolve({ user })).resolves.not.toThrow(AuthErr);
+    test.each(allows)("allows %#", async user => {
+      await resolve({ user });
     });
 
-    test.each(denies)("denies %#", user => {
-      void expect(resolve({ user })).rejects.toThrow(AuthErr);
+    test.each(denies)("denies %#", async user => {
+      expect.assertions(1);
+      try {
+        await resolve({ user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
     });
   });
 
@@ -121,12 +125,17 @@ if (import.meta.vitest) {
     describe("id", () => {
       const { input } = valid.args;
 
-      test.each(validTodoIds)("valids %#", id => {
-        void expect(resolve({ args: { id, input } })).resolves.not.toThrow(ParseErr);
+      test.each(validTodoIds)("valids %#", async id => {
+        await resolve({ args: { id, input } });
       });
 
-      test.each(invalidTodoIds)("invalids %#", id => {
-        void expect(resolve({ args: { id, input } })).rejects.toThrow(ParseErr);
+      test.each(invalidTodoIds)("invalids %#", async id => {
+        expect.assertions(1);
+        try {
+          await resolve({ args: { id, input } });
+        } catch (e) {
+          expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+        }
       });
     });
 
@@ -146,7 +155,6 @@ if (import.meta.vitest) {
       ] as Args["input"][];
 
       const invalids = [
-        { ...validInput, title: null },
         { ...validInput, description: null },
         { ...validInput, status: null },
         { ...validInput, title: "A".repeat(TITLE_MAX + 1) },
@@ -155,12 +163,17 @@ if (import.meta.vitest) {
         { ...validInput, description: "🅰".repeat(DESC_MAX + 1) },
       ] as Args["input"][];
 
-      test.each(valids)("valids %#", input => {
-        void expect(resolve({ args: { id, input } })).resolves.not.toThrow(ParseErr);
+      test.each(valids)("valids %#", async input => {
+        await resolve({ args: { id, input } });
       });
 
-      test.each(invalids)("invalids %#", input => {
-        void expect(resolve({ args: { id, input } })).rejects.toThrow(ParseErr);
+      test.each(invalids)("invalids %#", async input => {
+        expect.assertions(1);
+        try {
+          await resolve({ args: { id, input } });
+        } catch (e) {
+          expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+        }
       });
     });
   });

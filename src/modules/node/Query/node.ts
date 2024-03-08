@@ -17,8 +17,7 @@ export const resolver: QueryResolvers["node"] = (_parent, args, context) => {
 };
 
 if (import.meta.vitest) {
-  const { AuthorizationError: AuthErr } = await import("../../common/authorizers.ts");
-  const { ParseError: ParseErr } = await import("../../common/parsers.ts");
+  const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../../user/common/test.ts");
   const { validNodeIds, invalidNodeIds } = await import("../common/test.ts");
@@ -47,21 +46,31 @@ if (import.meta.vitest) {
     const denies = [context.guest];
 
     test.each(allows)("allows %#", user => {
-      expect(() => resolve({ user })).not.toThrow(AuthErr);
+      resolve({ user });
     });
 
     test.each(denies)("denies %#", user => {
-      expect(() => resolve({ user })).toThrow(AuthErr);
+      expect.assertions(1);
+      try {
+        resolve({ user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
     });
   });
 
   describe("Parsing", () => {
     test.each(validNodeIds)("valids %#", id => {
-      expect(() => resolve({ args: { id } })).not.toThrow(ParseErr);
+      resolve({ args: { id } });
     });
 
     test.each(invalidNodeIds)("invalids %#", id => {
-      expect(() => resolve({ args: { id } })).toThrow(ParseErr);
+      expect.assertions(1);
+      try {
+        resolve({ args: { id } });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+      }
     });
   });
 }

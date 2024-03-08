@@ -1,9 +1,9 @@
 import { useErrorHandler } from "@envelop/core";
 import { useGraphQlJit } from "@envelop/graphql-jit";
 import { EnvelopArmorPlugin as useArmor } from "@escape.tech/graphql-armor";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
 import { GraphQLError } from "graphql";
-import { applyMiddleware } from "graphql-middleware";
 import { createYoga, useLogger } from "graphql-yoga";
 import { App } from "uWebSockets.js";
 import { ulid } from "ulid";
@@ -17,12 +17,12 @@ import type {
 import { ErrorCode } from "@/modules/common/schema.ts";
 import { isProd, maxCost, maxDepth } from "./config.ts";
 import { makeLogger } from "./logger.ts";
-import { middlewares } from "./middlewares.ts";
 import { prisma } from "./prisma/mod.ts";
-import { schema } from "./schema.ts";
+import { resolvers } from "./resolvers.ts";
+import { typeDefs } from "./typeDefs.ts";
 
 export const yoga = createYoga<ServerContext, UserContext>({
-  schema: applyMiddleware(schema, ...middlewares),
+  schema: makeExecutableSchema({ typeDefs, resolvers }),
   context: async ({ request }) => {
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 

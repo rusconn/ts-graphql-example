@@ -18,8 +18,8 @@ export const resolver: UserResolvers["id"] = async (parent, _args, context) => {
 };
 
 if (import.meta.vitest) {
-  const { AuthorizationError: AuthErr } = await import("../../common/authorizers.ts");
   const { full } = await import("../../common/resolvers.ts");
+  const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context, db } = await import("../common/test.ts");
 
@@ -43,12 +43,17 @@ if (import.meta.vitest) {
       [context.guest, db.alice],
     ] as const;
 
-    test.each(allows)("allows %#", (user, parent) => {
-      void expect(resolve({ parent: full(parent), user })).resolves.not.toThrow(AuthErr);
+    test.each(allows)("allows %#", async (user, parent) => {
+      await resolve({ parent: full(parent), user });
     });
 
-    test.each(denies)("denies %#", (user, parent) => {
-      void expect(resolve({ parent: full(parent), user })).rejects.toThrow(AuthErr);
+    test.each(denies)("denies %#", async (user, parent) => {
+      expect.assertions(1);
+      try {
+        await resolve({ parent: full(parent), user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
     });
   });
 }

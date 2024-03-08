@@ -3,7 +3,7 @@ import { ulid } from "ulid";
 
 import * as Prisma from "@/prisma/mod.ts";
 import { auth } from "../../common/authorizers.ts";
-import { ParseError } from "../../common/parsers.ts";
+import { parseErr } from "../../common/parsers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 
 const EMAIL_MAX = 100;
@@ -39,13 +39,13 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
   const { email, password } = args.input;
 
   if ([...email].length > EMAIL_MAX) {
-    throw new ParseError(`"email" must be up to ${EMAIL_MAX} characteres`);
+    throw parseErr(`"email" must be up to ${EMAIL_MAX} characteres`);
   }
   if ([...password].length < PASS_MIN) {
-    throw new ParseError(`"password" must be at least ${PASS_MIN} characteres`);
+    throw parseErr(`"password" must be at least ${PASS_MIN} characteres`);
   }
   if ([...password].length > PASS_MAX) {
-    throw new ParseError(`"password" must be up to ${PASS_MAX} characteres`);
+    throw parseErr(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
   try {
@@ -86,8 +86,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 };
 
 if (import.meta.vitest) {
-  const { AuthorizationError: AuthErr } = await import("../../common/authorizers.ts");
-  const { ParseError: ParseErr } = await import("../../common/parsers.ts");
+  const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../common/test.ts");
 
@@ -116,8 +115,8 @@ if (import.meta.vitest) {
   describe("Authorization", () => {
     const allows = [context.admin, context.alice, context.guest];
 
-    test.each(allows)("allows %#", user => {
-      void expect(resolve({ user })).resolves.not.toThrow(AuthErr);
+    test.each(allows)("allows %#", async user => {
+      await resolve({ user });
     });
   });
 
@@ -139,12 +138,17 @@ if (import.meta.vitest) {
       { ...validInput, password: "🅰".repeat(PASS_MAX + 1) },
     ] as Args["input"][];
 
-    test.each(valids)("valids %#", input => {
-      void expect(resolve({ args: { input } })).resolves.not.toThrow(ParseErr);
+    test.each(valids)("valids %#", async input => {
+      await resolve({ args: { input } });
     });
 
-    test.each(invalids)("invalids %#", input => {
-      void expect(resolve({ args: { input } })).rejects.toThrow(ParseErr);
+    test.each(invalids)("invalids %#", async input => {
+      expect.assertions(1);
+      try {
+        await resolve({ args: { input } });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+      }
     });
   });
 }

@@ -18,9 +18,8 @@ export const resolver: UserResolvers["todo"] = (parent, args, context) => {
 };
 
 if (import.meta.vitest) {
-  const { AuthorizationError: AuthErr } = await import("../../common/authorizers.ts");
-  const { ParseError: ParseErr } = await import("../../common/parsers.ts");
   const { full } = await import("../../common/resolvers.ts");
+  const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context, db } = await import("../../user/common/test.ts");
   const { validTodoIds, invalidTodoIds } = await import("../common/test.ts");
@@ -61,21 +60,31 @@ if (import.meta.vitest) {
     ] as const;
 
     test.each(allows)("allows %#", (user, parent) => {
-      expect(() => resolve({ parent: full(parent), user })).not.toThrow(AuthErr);
+      resolve({ parent: full(parent), user });
     });
 
     test.each(denies)("denies %#", (user, parent) => {
-      expect(() => resolve({ parent: full(parent), user })).toThrow(AuthErr);
+      expect.assertions(1);
+      try {
+        resolve({ parent: full(parent), user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
     });
   });
 
   describe("Parsing", () => {
     test.each(validTodoIds)("valids %#", id => {
-      expect(() => resolve({ args: { id } })).not.toThrow(ParseErr);
+      resolve({ args: { id } });
     });
 
     test.each(invalidTodoIds)("invalids %#", id => {
-      expect(() => resolve({ args: { id } })).toThrow(ParseErr);
+      expect.assertions(1);
+      try {
+        resolve({ args: { id } });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+      }
     });
   });
 }

@@ -46,8 +46,7 @@ export const resolver: MutationResolvers["uncompleteTodo"] = async (_parent, arg
 };
 
 if (import.meta.vitest) {
-  const { AuthorizationError: AuthErr } = await import("../../common/authorizers.ts");
-  const { ParseError: ParseErr } = await import("../../common/parsers.ts");
+  const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../../user/common/test.ts");
   const { validTodoIds, invalidTodoIds } = await import("../common/test.ts");
@@ -75,22 +74,32 @@ if (import.meta.vitest) {
 
     const denies = [context.guest];
 
-    test.each(allows)("allows %#", user => {
-      void expect(resolve({ user })).resolves.not.toThrow(AuthErr);
+    test.each(allows)("allows %#", async user => {
+      await resolve({ user });
     });
 
-    test.each(denies)("denies %#", user => {
-      void expect(resolve({ user })).rejects.toThrow(AuthErr);
+    test.each(denies)("denies %#", async user => {
+      expect.assertions(1);
+      try {
+        await resolve({ user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
     });
   });
 
   describe("Parsing", () => {
-    test.each(validTodoIds)("valids %#", id => {
-      void expect(resolve({ args: { id } })).resolves.not.toThrow(ParseErr);
+    test.each(validTodoIds)("valids %#", async id => {
+      await resolve({ args: { id } });
     });
 
-    test.each(invalidTodoIds)("invalids %#", id => {
-      void expect(resolve({ args: { id } })).rejects.toThrow(ParseErr);
+    test.each(invalidTodoIds)("invalids %#", async id => {
+      expect.assertions(1);
+      try {
+        await resolve({ args: { id } });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+      }
     });
   });
 }

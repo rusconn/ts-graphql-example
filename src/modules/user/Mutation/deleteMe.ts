@@ -30,7 +30,7 @@ export const resolver: MutationResolvers["deleteMe"] = async (_parent, _args, co
 };
 
 if (import.meta.vitest) {
-  const { AuthorizationError: AuthErr } = await import("../../common/authorizers.ts");
+  const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../common/test.ts");
 
@@ -49,12 +49,17 @@ if (import.meta.vitest) {
 
     const denies = [context.guest];
 
-    test.each(allows)("allows %#", user => {
-      void expect(resolve({ user })).resolves.not.toThrow(AuthErr);
+    test.each(allows)("allows %#", async user => {
+      await resolve({ user });
     });
 
-    test.each(denies)("denies %#", user => {
-      void expect(resolve({ user })).rejects.toThrow(AuthErr);
+    test.each(denies)("denies %#", async user => {
+      expect.assertions(1);
+      try {
+        await resolve({ user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
     });
   });
 }

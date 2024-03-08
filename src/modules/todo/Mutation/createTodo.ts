@@ -1,7 +1,7 @@
 import { ulid } from "ulid";
 
 import { authAuthenticated } from "../../common/authorizers.ts";
-import { ParseError } from "../../common/parsers.ts";
+import { parseErr } from "../../common/parsers.ts";
 import { full } from "../../common/resolvers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 
@@ -33,10 +33,10 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
   const { title, description } = args.input;
 
   if ([...title].length > TITLE_MAX) {
-    throw new ParseError(`"title" must be up to ${TITLE_MAX} characters`);
+    throw parseErr(`"title" must be up to ${TITLE_MAX} characters`);
   }
   if ([...description].length > DESC_MAX) {
-    throw new ParseError(`"description" must be up to ${DESC_MAX} characters`);
+    throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
   }
 
   const todo = await context.prisma.todo.create({
@@ -50,8 +50,7 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
 };
 
 if (import.meta.vitest) {
-  const { AuthorizationError: AuthErr } = await import("../../common/authorizers.ts");
-  const { ParseError: ParseErr } = await import("../../common/parsers.ts");
+  const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../../user/common/test.ts");
 
@@ -78,12 +77,17 @@ if (import.meta.vitest) {
 
     const denies = [context.guest];
 
-    test.each(allows)("allows %#", user => {
-      void expect(resolve({ user })).resolves.not.toThrow(AuthErr);
+    test.each(allows)("allows %#", async user => {
+      await resolve({ user });
     });
 
-    test.each(denies)("denies %#", user => {
-      void expect(resolve({ user })).rejects.toThrow(AuthErr);
+    test.each(denies)("denies %#", async user => {
+      expect.assertions(1);
+      try {
+        await resolve({ user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
     });
   });
 
@@ -105,12 +109,17 @@ if (import.meta.vitest) {
       { ...validInput, description: "🅰".repeat(DESC_MAX + 1) },
     ] as Args["input"][];
 
-    test.each(valids)("valids %#", input => {
-      void expect(resolve({ args: { input } })).resolves.not.toThrow(ParseErr);
+    test.each(valids)("valids %#", async input => {
+      await resolve({ args: { input } });
     });
 
-    test.each(invalids)("invalids %#", input => {
-      void expect(resolve({ args: { input } })).rejects.toThrow(ParseErr);
+    test.each(invalids)("invalids %#", async input => {
+      expect.assertions(1);
+      try {
+        await resolve({ args: { input } });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+      }
     });
   });
 }

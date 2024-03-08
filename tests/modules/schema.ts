@@ -28,7 +28,6 @@ export enum ErrorCode {
   AuthenticationError = 'AUTHENTICATION_ERROR',
   BadUserInput = 'BAD_USER_INPUT',
   Forbidden = 'FORBIDDEN',
-  InternalServerError = 'INTERNAL_SERVER_ERROR',
   NotFound = 'NOT_FOUND'
 }
 

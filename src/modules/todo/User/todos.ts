@@ -1,7 +1,7 @@
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
 import * as Prisma from "@/prisma/mod.ts";
-import { ParseError, parseConnectionArgs } from "../../common/parsers.ts";
+import { parseConnectionArgs, parseErr } from "../../common/parsers.ts";
 import { full } from "../../common/resolvers.ts";
 import type { UserResolvers } from "../../common/schema.ts";
 import { OrderDirection, TodoOrderField } from "../../common/schema.ts";
@@ -36,13 +36,13 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
   const { first, after, last, before } = parseConnectionArgs(connectionArgs);
 
   if (first == null && last == null) {
-    throw new ParseError('"first" or "last" value required');
+    throw parseErr('"first" or "last" value required');
   }
   if (first && first > FIRST_MAX) {
-    throw new ParseError(`"first" must be up to ${FIRST_MAX}`);
+    throw parseErr(`"first" must be up to ${FIRST_MAX}`);
   }
   if (last && last > LAST_MAX) {
-    throw new ParseError(`"last" must be up to ${LAST_MAX}`);
+    throw parseErr(`"last" must be up to ${LAST_MAX}`);
   }
 
   const direction = {
@@ -74,8 +74,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
 };
 
 if (import.meta.vitest) {
-  const { AuthorizationError: AuthErr } = await import("../../common/authorizers.ts");
-  const { ParseError: ParseErr } = await import("../../common/parsers.ts");
+  const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context, db } = await import("../../user/common/test.ts");
 
@@ -120,12 +119,17 @@ if (import.meta.vitest) {
       [context.guest, db.alice],
     ] as const;
 
-    test.each(allows)("allows %#", (user, parent) => {
-      void expect(resolve({ parent: full(parent), user })).resolves.not.toThrow(AuthErr);
+    test.each(allows)("allows %#", async (user, parent) => {
+      await resolve({ parent: full(parent), user });
     });
 
-    test.each(denies)("denies %#", (user, parent) => {
-      void expect(resolve({ parent: full(parent), user })).rejects.toThrow(AuthErr);
+    test.each(denies)("denies %#", async (user, parent) => {
+      expect.assertions(1);
+      try {
+        await resolve({ parent: full(parent), user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
     });
   });
 
@@ -143,12 +147,17 @@ if (import.meta.vitest) {
 
     const { orderBy } = valid.args;
 
-    test.each(valids)("valids %#", args => {
-      void expect(resolve({ args: { ...args, orderBy } })).resolves.not.toThrow(ParseErr);
+    test.each(valids)("valids %#", async args => {
+      await resolve({ args: { ...args, orderBy } });
     });
 
-    test.each(invalids)("invalids %#", args => {
-      void expect(resolve({ args: { ...args, orderBy } })).rejects.toThrow(ParseErr);
+    test.each(invalids)("invalids %#", async args => {
+      expect.assertions(1);
+      try {
+        await resolve({ args: { ...args, orderBy } });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+      }
     });
   });
 }

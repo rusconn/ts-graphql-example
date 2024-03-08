@@ -1,16 +1,13 @@
 import type { ConnectionArguments } from "@devoxa/prisma-relay-cursor-connection";
+import { GraphQLError } from "graphql";
 
-import type { Scalars } from "./schema.ts";
+import { ErrorCode, type Scalars } from "./schema.ts";
 import { type NodeType, nodeTypes, typeIdSep } from "./typeDefs.ts";
 
-export class ParseError extends Error {
-  override readonly name = "ParseError" as const;
-
-  constructor(message: string, options?: { cause?: Error }) {
-    super(message, options);
-    this.cause = options?.cause;
-  }
-}
+export const parseErr = (message: string) =>
+  new GraphQLError(message, {
+    extensions: { code: ErrorCode.BadUserInput },
+  });
 
 export const parseSomeNodeId =
   <T extends NodeType>(nodeType: T) =>
@@ -18,7 +15,7 @@ export const parseSomeNodeId =
     const { type, id } = parseNodeId(nodeId);
 
     if (type !== nodeType) {
-      throw new ParseError(`invalid node id: ${nodeId}`);
+      throw parseErr(`invalid node id: ${nodeId}`);
     }
 
     return id;
@@ -28,7 +25,7 @@ export const parseNodeId = (nodeId: Scalars["ID"]["input"]) => {
   const [type, id, ...rest] = nodeId.split(typeIdSep);
 
   if (!isValidNodeType(type) || id == null || id === "" || rest.length !== 0) {
-    throw new ParseError(`invalid node id: ${nodeId}`);
+    throw parseErr(`invalid node id: ${nodeId}`);
   }
 
   return { type, id };
@@ -42,25 +39,25 @@ const isValidNodeType = (val: string): val is NodeType => {
 // バリデーションは事前に行い、上記ライブラリの使用時にバリデーションエラーが発生しないことを保証する
 export const parseConnectionArgs = ({ first, after, last, before }: ConnectionArguments) => {
   if (first != null && last != null) {
-    throw new ParseError('Only one of "first" and "last" can be set');
+    throw parseErr('Only one of "first" and "last" can be set');
   }
   if (after != null && before != null) {
-    throw new ParseError('Only one of "after" and "before" can be set');
+    throw parseErr('Only one of "after" and "before" can be set');
   }
   // If `after` is set, `first` has to be set
   if (after != null && first == null) {
-    throw new ParseError('"after" needs to be used with "first"');
+    throw parseErr('"after" needs to be used with "first"');
   }
   // If `before` is set, `last` has to be set
   if (before != null && last == null) {
-    throw new ParseError('"before" needs to be used with "last"');
+    throw parseErr('"before" needs to be used with "last"');
   }
   // `first` and `last` have to be positive
   if (first != null && first <= 0) {
-    throw new ParseError('"first" has to be positive');
+    throw parseErr('"first" has to be positive');
   }
   if (last != null && last <= 0) {
-    throw new ParseError('"last" has to be positive');
+    throw parseErr('"last" has to be positive');
   }
 
   return { first, after, last, before };

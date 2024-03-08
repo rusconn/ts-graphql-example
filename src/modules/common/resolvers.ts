@@ -1,7 +1,14 @@
+import { GraphQLError } from "graphql";
 import type { YogaInitialContext } from "graphql-yoga";
 import type { Logger } from "pino";
 
 import type * as Prisma from "@/prisma/mod.ts";
+import { ErrorCode } from "./schema";
+
+export const notFoundErr = () =>
+  new GraphQLError("Not found", {
+    extensions: { code: ErrorCode.NotFound },
+  });
 
 export type Context = YogaInitialContext & ServerContext & UserContext;
 

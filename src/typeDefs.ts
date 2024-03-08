@@ -28,7 +28,6 @@ const typeDef = /* GraphQL */ `
     AUTHENTICATION_ERROR
     FORBIDDEN
     NOT_FOUND
-    INTERNAL_SERVER_ERROR
   }
 `;
 

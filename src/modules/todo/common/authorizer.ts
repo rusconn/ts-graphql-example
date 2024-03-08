@@ -1,5 +1,5 @@
 import type { Todo, User } from "@/prisma/mod.ts";
-import { AuthorizationError, authAdmin } from "../../common/authorizers.ts";
+import { authAdmin, authErr } from "../../common/authorizers.ts";
 import type { ContextUser } from "../../common/resolvers.ts";
 
 export const authAdminOrTodoOwner = (user: ContextUser, todo: Pick<Todo, "userId">) => {
@@ -12,7 +12,7 @@ export const authAdminOrTodoOwner = (user: ContextUser, todo: Pick<Todo, "userId
 
 export const authTodoOwner = (user: ContextUser, todo: Pick<Todo, "userId">) => {
   if (user.id === todo.userId) return user;
-  throw new AuthorizationError();
+  throw authErr();
 };
 
 export const authAdminOrUserOwner = (user: ContextUser, parent: Pick<User, "id">) => {
@@ -25,5 +25,5 @@ export const authAdminOrUserOwner = (user: ContextUser, parent: Pick<User, "id">
 
 const authUserOwner = (user: ContextUser, parent: Pick<User, "id">) => {
   if (user.id === parent.id) return user;
-  throw new AuthorizationError();
+  throw authErr();
 };

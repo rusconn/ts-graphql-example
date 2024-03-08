@@ -4,7 +4,7 @@ import { ulid } from "ulid";
 import { passwordHashRoundsExponent } from "@/config.ts";
 import * as Prisma from "@/prisma/mod.ts";
 import { authGuest } from "../../common/authorizers.ts";
-import { ParseError } from "../../common/parsers.ts";
+import { parseErr } from "../../common/parsers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 
 const NAME_MAX = 100;
@@ -39,16 +39,16 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   const { name, email, password } = args.input;
 
   if ([...name].length > NAME_MAX) {
-    throw new ParseError(`"name" must be up to ${NAME_MAX} characteres`);
+    throw parseErr(`"name" must be up to ${NAME_MAX} characteres`);
   }
   if ([...email].length > EMAIL_MAX) {
-    throw new ParseError(`"email" must be up to ${EMAIL_MAX} characteres`);
+    throw parseErr(`"email" must be up to ${EMAIL_MAX} characteres`);
   }
   if ([...password].length < PASS_MIN) {
-    throw new ParseError(`"password" must be at least ${PASS_MIN} characteres`);
+    throw parseErr(`"password" must be at least ${PASS_MIN} characteres`);
   }
   if ([...password].length > PASS_MAX) {
-    throw new ParseError(`"password" must be up to ${PASS_MAX} characteres`);
+    throw parseErr(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
   try {
@@ -87,8 +87,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 };
 
 if (import.meta.vitest) {
-  const { AuthorizationError: AuthErr } = await import("../../common/authorizers.ts");
-  const { ParseError: ParseErr } = await import("../../common/parsers.ts");
+  const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../common/test.ts");
 
@@ -115,12 +114,17 @@ if (import.meta.vitest) {
 
     const denies = [context.admin, context.alice];
 
-    test.each(allows)("allows %#", user => {
-      void expect(resolve({ user })).resolves.not.toThrow(AuthErr);
+    test.each(allows)("allows %#", async user => {
+      await resolve({ user });
     });
 
-    test.each(denies)("denies %#", user => {
-      void expect(resolve({ user })).rejects.toThrow(AuthErr);
+    test.each(denies)("denies %#", async user => {
+      expect.assertions(1);
+      try {
+        await resolve({ user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
     });
   });
 
@@ -146,12 +150,17 @@ if (import.meta.vitest) {
       { ...validInput, password: "🅰".repeat(PASS_MAX + 1) },
     ] as Args["input"][];
 
-    test.each(valids)("valids %#", input => {
-      void expect(resolve({ args: { input } })).resolves.not.toThrow(ParseErr);
+    test.each(valids)("valids %#", async input => {
+      await resolve({ args: { input } });
     });
 
-    test.each(invalids)("invalids %#", input => {
-      void expect(resolve({ args: { input } })).rejects.toThrow(ParseErr);
+    test.each(invalids)("invalids %#", async input => {
+      expect.assertions(1);
+      try {
+        await resolve({ args: { input } });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+      }
     });
   });
 }
