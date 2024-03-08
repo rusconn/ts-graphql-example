@@ -1,5 +1,4 @@
 import { useErrorHandler } from "@envelop/core";
-import { useGraphQlJit } from "@envelop/graphql-jit";
 import { EnvelopArmorPlugin as useArmor } from "@escape.tech/graphql-armor";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
@@ -49,7 +48,6 @@ export const yoga = createYoga<ServerContext, UserContext>({
   // requestId を使いたいので自分でログする
   logging: false,
   plugins: [
-    useGraphQlJit(),
     useDisableIntrospection({
       isDisabled: () => isProd,
     }),
