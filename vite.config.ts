@@ -22,7 +22,12 @@ export default defineConfig({
   test: {
     globals: true,
     silent: true,
-    singleThread: true,
+    poolOptions: {
+      threads: {
+        useAtomics: true,
+        singleThread: true,
+      },
+    },
     watch: false,
     includeSource: ["**/*.ts"],
   },
