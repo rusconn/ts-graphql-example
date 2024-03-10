@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
 import { TodoStatus, UserRole, prisma } from "@/prisma/mod.ts";
@@ -90,7 +89,7 @@ const fakeDataOne = (nth: number) => {
       lastName: lastName + nth, // make unique
       allowSpecialCharacters: true,
     }),
-    password: bcrypt.hashSync(faker.string.alphanumeric({ length: 8, casing: "mixed" }), 4),
+    password: "dummy",
     token: ulid(),
     role: UserRole.USER,
     createdAt: faker.date.past(),
