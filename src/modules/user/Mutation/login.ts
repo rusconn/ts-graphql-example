@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
-import * as Prisma from "@/prisma/mod.ts";
 import { auth } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
@@ -48,41 +47,38 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     throw parseErr(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
-  try {
-    const found = await context.prisma.user.findUniqueOrThrow({
-      where: { email },
-      select: { password: true },
-    });
+  const found = await context.prisma.user.findUnique({
+    where: { email },
+    select: { password: true },
+  });
 
-    const match = await bcrypt.compare(password, found.password);
-
-    if (!match) {
-      throw new Prisma.NotExistsError();
-    }
-
-    const token = ulid();
-
-    await context.prisma.user.update({
-      where: { email },
-      data: { token },
-    });
-
+  if (!found) {
     return {
-      __typename: "LoginSuccess",
-      token,
+      __typename: "UserNotFoundError",
+      message: "user not found",
     };
-  } catch (e) {
-    if (e instanceof Prisma.NotExistsError) {
-      context.logger.error(e, "error info");
-
-      return {
-        __typename: "UserNotFoundError",
-        message: "user not found",
-      };
-    }
-
-    throw e;
   }
+
+  const match = await bcrypt.compare(password, found.password);
+
+  if (!match) {
+    return {
+      __typename: "UserNotFoundError",
+      message: "user not found",
+    };
+  }
+
+  const token = ulid();
+
+  await context.prisma.user.update({
+    where: { email },
+    data: { token },
+  });
+
+  return {
+    __typename: "LoginSuccess",
+    token,
+  };
 };
 
 if (import.meta.vitest) {
@@ -106,7 +102,7 @@ if (import.meta.vitest) {
     user?: Params["user"];
   }) => {
     const prisma = {
-      user: { findUniqueOrThrow: async () => ({ password: args.input.password }) },
+      user: { findUnique: async () => ({ password: args.input.password }) },
     } as unknown as Params["prisma"];
 
     return resolver({}, args, dummyContext({ prisma, user }));

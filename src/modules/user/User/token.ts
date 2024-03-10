@@ -27,7 +27,7 @@ if (import.meta.vitest) {
 
   const resolve = ({ parent, user }: { parent: Parent; user: Params["user"] }) => {
     const prisma = {
-      user: { findUniqueOrThrow: async () => parent },
+      user: { findUnique: async () => parent },
     } as unknown as Params["prisma"];
 
     return resolver(parent, {}, dummyContext({ prisma, user }));

@@ -51,39 +51,35 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     throw parseErr(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
-  try {
-    const hashed = await bcrypt.hash(password, passwordHashRoundsExponent);
+  const found = await context.prisma.user.findUnique({
+    where: { email },
+  });
 
-    const token = ulid();
-
-    await context.prisma.user.create({
-      data: {
-        id: authed.id,
-        name,
-        email,
-        password: hashed,
-        role: Prisma.UserRole.USER,
-        token,
-      },
-    });
-
+  if (found) {
     return {
-      __typename: "SignupSuccess",
-      token,
+      __typename: "EmailAlreadyTakenError",
+      message: "specified email already taken",
     };
-  } catch (e) {
-    // ほぼ確実に email の衝突
-    if (e instanceof Prisma.NotUniqueError) {
-      context.logger.error(e, "error info");
-
-      return {
-        __typename: "EmailAlreadyTakenError",
-        message: "specified email already taken",
-      };
-    }
-
-    throw e;
   }
+
+  const hashed = await bcrypt.hash(password, passwordHashRoundsExponent);
+  const token = ulid();
+
+  await context.prisma.user.create({
+    data: {
+      id: authed.id,
+      name,
+      email,
+      password: hashed,
+      role: Prisma.UserRole.USER,
+      token,
+    },
+  });
+
+  return {
+    __typename: "SignupSuccess",
+    token,
+  };
 };
 
 if (import.meta.vitest) {

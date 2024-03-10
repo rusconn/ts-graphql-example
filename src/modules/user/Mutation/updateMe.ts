@@ -1,4 +1,3 @@
-import * as Prisma from "@/prisma/mod.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import { full } from "../../common/resolvers.ts";
@@ -58,28 +57,28 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
     throw parseErr(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
-  try {
-    const updated = await context.prisma.user.update({
-      where: { id: authed.id },
-      data: { name, email, password },
+  if (email) {
+    const found = await context.prisma.user.findUnique({
+      where: { email },
     });
 
-    return {
-      __typename: "UpdateMeSuccess",
-      user: full(updated),
-    };
-  } catch (e) {
-    if (e instanceof Prisma.NotUniqueError) {
-      context.logger.error(e, "error info");
-
+    if (found) {
       return {
         __typename: "EmailAlreadyTakenError",
         message: "specified email already taken",
       };
     }
-
-    throw e;
   }
+
+  const updated = await context.prisma.user.update({
+    where: { id: authed.id },
+    data: { name, email, password },
+  });
+
+  return {
+    __typename: "UpdateMeSuccess",
+    user: full(updated),
+  };
 };
 
 if (import.meta.vitest) {

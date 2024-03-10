@@ -1,6 +1,5 @@
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
-import * as Prisma from "@/prisma/mod.ts";
 import { authAdmin } from "../../common/authorizers.ts";
 import { parseConnectionArgs, parseErr } from "../../common/parsers.ts";
 import { full } from "../../common/resolvers.ts";
@@ -46,8 +45,8 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
   }
 
   const direction = {
-    [OrderDirection.Asc]: Prisma.Prisma.SortOrder.asc,
-    [OrderDirection.Desc]: Prisma.Prisma.SortOrder.desc,
+    [OrderDirection.Asc]: "asc" as const,
+    [OrderDirection.Desc]: "desc" as const,
   }[orderBy.direction];
 
   const orderByToUse = {
@@ -57,15 +56,16 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 
   return findManyCursorConnection(
     findManyArgs =>
-      context.prisma.user
-        .findMany({
-          ...findManyArgs,
-          orderBy: orderByToUse,
-        })
-        .then(users => users.map(full)),
+      context.prisma.user.findMany({
+        ...findManyArgs,
+        orderBy: orderByToUse,
+      }),
     () => context.prisma.user.count(),
     { first, after, last, before },
-    { resolveInfo: info }
+    {
+      recordToEdge: record => ({ node: full(record) }),
+      resolveInfo: info,
+    }
   );
 };
 

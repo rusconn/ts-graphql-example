@@ -1,4 +1,3 @@
-import * as Prisma from "@/prisma/mod.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import { full } from "../../common/resolvers.ts";
@@ -53,28 +52,26 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
     throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
   }
 
-  try {
-    const todo = await context.prisma.todo.update({
-      where: { id, userId: authed.id },
-      data: { title, description, status },
-    });
+  const found = await context.prisma.todo.findUnique({
+    where: { id, userId: authed.id },
+  });
 
+  if (!found) {
     return {
-      __typename: "UpdateTodoSuccess",
-      todo: full(todo),
+      __typename: "TodoNotFoundError",
+      message: "todo not found",
     };
-  } catch (e) {
-    if (e instanceof Prisma.NotExistsError) {
-      context.logger.error(e, "error info");
-
-      return {
-        __typename: "TodoNotFoundError",
-        message: "todo not found",
-      };
-    }
-
-    throw e;
   }
+
+  const todo = await context.prisma.todo.update({
+    where: { id, userId: authed.id },
+    data: { title, description, status },
+  });
+
+  return {
+    __typename: "UpdateTodoSuccess",
+    todo: full(todo),
+  };
 };
 
 if (import.meta.vitest) {

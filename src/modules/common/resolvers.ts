@@ -15,7 +15,7 @@ export type Context = YogaInitialContext & ServerContext & UserContext;
 export type ServerContext = Record<string, never>;
 
 export type UserContext = {
-  prisma: Prisma.PrismaClient;
+  prisma: typeof Prisma.prisma;
   user: ContextUser;
   logger: Logger;
 };

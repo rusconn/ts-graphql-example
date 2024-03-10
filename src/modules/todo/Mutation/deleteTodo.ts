@@ -1,4 +1,3 @@
-import * as Prisma from "@/prisma/mod.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 import { todoNodeId } from "../common/adapter.ts";
@@ -21,28 +20,26 @@ export const resolver: MutationResolvers["deleteTodo"] = async (_parent, args, c
 
   const id = parseTodoNodeId(args.id);
 
-  try {
-    const todo = await context.prisma.todo.delete({
-      where: { id, userId: authed.id },
-      select: { id: true },
-    });
+  const found = await context.prisma.todo.findUnique({
+    where: { id, userId: authed.id },
+  });
 
+  if (!found) {
     return {
-      __typename: "DeleteTodoSuccess",
-      id: todoNodeId(todo.id),
+      __typename: "TodoNotFoundError",
+      message: "todo not found",
     };
-  } catch (e) {
-    if (e instanceof Prisma.NotExistsError) {
-      context.logger.error(e, "error info");
-
-      return {
-        __typename: "TodoNotFoundError",
-        message: "todo not found",
-      };
-    }
-
-    throw e;
   }
+
+  const todo = await context.prisma.todo.delete({
+    where: { id, userId: authed.id },
+    select: { id: true },
+  });
+
+  return {
+    __typename: "DeleteTodoSuccess",
+    id: todoNodeId(todo.id),
+  };
 };
 
 if (import.meta.vitest) {

@@ -21,28 +21,26 @@ export const resolver: MutationResolvers["completeTodo"] = async (_parent, args,
 
   const id = parseTodoNodeId(args.id);
 
-  try {
-    const todo = await context.prisma.todo.update({
-      where: { id, userId: authed.id },
-      data: { status: Prisma.TodoStatus.DONE },
-    });
+  const found = await context.prisma.todo.findUnique({
+    where: { id, userId: authed.id },
+  });
 
+  if (!found) {
     return {
-      __typename: "CompleteTodoSuccess",
-      todo: full(todo),
+      __typename: "TodoNotFoundError",
+      message: "todo not found",
     };
-  } catch (e) {
-    if (e instanceof Prisma.NotExistsError) {
-      context.logger.error(e, "error info");
-
-      return {
-        __typename: "TodoNotFoundError",
-        message: "todo not found",
-      };
-    }
-
-    throw e;
   }
+
+  const todo = await context.prisma.todo.update({
+    where: { id, userId: authed.id },
+    data: { status: Prisma.TodoStatus.DONE },
+  });
+
+  return {
+    __typename: "CompleteTodoSuccess",
+    todo: full(todo),
+  };
 };
 
 if (import.meta.vitest) {

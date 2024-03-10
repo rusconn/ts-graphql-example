@@ -2,4 +2,3 @@
 export * from "@prisma/client";
 
 export * from "./client.ts";
-export * from "./errors.ts";

@@ -1,24 +1,24 @@
+import type { SetOptional } from "type-fest";
+
 import * as Prisma from "@/prisma/mod.ts";
-import { type Full, type Key, isFull, notFoundErr } from "../../common/resolvers.ts";
+import { type Context, type Full, type Key, isFull, notFoundErr } from "../../common/resolvers.ts";
 
 export type Todo =
-  | Key<Pick<Prisma.Todo, "id"> & Partial<Pick<Prisma.Todo, "userId">>>
+  | Key<SetOptional<Pick<Prisma.Todo, "id" | "userId">, "userId">>
   | Full<Prisma.Todo>;
 
-export const fullTodo = async (prisma: Prisma.PrismaClient, parent: Todo) => {
+export const fullTodo = async (prisma: Context["prisma"], parent: Todo) => {
   if (isFull(parent)) {
     return parent;
   }
 
-  try {
-    return await prisma.todo.findUniqueOrThrow({
-      where: { id: parent.id, userId: parent.userId },
-    });
-  } catch (e) {
-    if (e instanceof Prisma.NotExistsError) {
-      throw notFoundErr();
-    }
+  const todo = await prisma.todo.findUnique({
+    where: { id: parent.id, userId: parent.userId },
+  });
 
-    throw e;
+  if (!todo) {
+    throw notFoundErr();
   }
+
+  return todo;
 };
