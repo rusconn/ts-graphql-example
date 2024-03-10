@@ -60,9 +60,11 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
   }
 
   if (email) {
-    const found = await context.prisma.user.findUnique({
-      where: { email },
-    });
+    const found = await context.db
+      .selectFrom("User")
+      .where("email", "=", email)
+      .select("id")
+      .executeTakeFirst();
 
     if (found) {
       return {
@@ -74,10 +76,12 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
 
   const hashed = password ? await bcrypt.hash(password, passHashExp) : undefined;
 
-  const updated = await context.prisma.user.update({
-    where: { id: authed.id },
-    data: { name, email, password: hashed },
-  });
+  const updated = await context.db
+    .updateTable("User")
+    .where("id", "=", authed.id)
+    .set({ name, email, password: hashed })
+    .returningAll()
+    .executeTakeFirstOrThrow();
 
   return {
     __typename: "UpdateMeSuccess",

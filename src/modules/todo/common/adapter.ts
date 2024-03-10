@@ -1,12 +1,13 @@
-import * as Prisma from "@/prisma/mod.ts";
+import * as DB from "@/db/mod.ts";
 import { nodeId } from "../../common/adapters.ts";
 import { TodoStatus } from "../../common/schema.ts";
+import type { Todo } from "./resolver.ts";
 
 export const todoNodeId = nodeId("Todo");
 
-export const todoStatus = (status: Prisma.Todo["status"]) => {
+export const todoStatus = (status: Todo["status"]) => {
   return {
-    [Prisma.TodoStatus.DONE]: TodoStatus.Done,
-    [Prisma.TodoStatus.PENDING]: TodoStatus.Pending,
+    [DB.TodoStatus.DONE]: TodoStatus.Done,
+    [DB.TodoStatus.PENDING]: TodoStatus.Pending,
   }[status];
 };

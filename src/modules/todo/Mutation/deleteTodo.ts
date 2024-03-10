@@ -20,26 +20,22 @@ export const resolver: MutationResolvers["deleteTodo"] = async (_parent, args, c
 
   const id = parseTodoNodeId(args.id);
 
-  const found = await context.prisma.todo.findUnique({
-    where: { id, userId: authed.id },
-  });
+  const todo = await context.db
+    .deleteFrom("Todo")
+    .where("id", "=", id)
+    .where("userId", "=", authed.id)
+    .returning("id")
+    .executeTakeFirst();
 
-  if (!found) {
-    return {
-      __typename: "TodoNotFoundError",
-      message: "todo not found",
-    };
-  }
-
-  const todo = await context.prisma.todo.delete({
-    where: { id, userId: authed.id },
-    select: { id: true },
-  });
-
-  return {
-    __typename: "DeleteTodoSuccess",
-    id: todoNodeId(todo.id),
-  };
+  return todo
+    ? {
+        __typename: "DeleteTodoSuccess",
+        id: todoNodeId(todo.id),
+      }
+    : {
+        __typename: "TodoNotFoundError",
+        message: "todo not found",
+      };
 };
 
 if (import.meta.vitest) {

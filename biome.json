@@ -1,7 +1,13 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
   "files": {
-    "ignore": [".vscode", "dist", "src/modules/common/schema.ts", "tests/modules/schema.ts"]
+    "ignore": [
+      ".vscode",
+      "dist",
+      "src/db/types.ts",
+      "src/modules/common/schema.ts",
+      "tests/modules/schema.ts"
+    ]
   },
   "linter": {
     "enabled": true,
@@ -11,6 +17,7 @@
         "noUnusedVariables": "error"
       },
       "style": {
+        "noNonNullAssertion": "off",
         "noUselessElse": "off"
       },
       "nursery": {

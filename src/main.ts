@@ -1,8 +1,8 @@
 import process from "node:process";
 
 import { port } from "./config.ts";
+import { db } from "./db/mod.ts";
 import { logger } from "./logger.ts";
-import { prisma } from "./prisma/mod.ts";
 import { server } from "./server.ts";
 
 server.listen(port, () => {
@@ -11,7 +11,7 @@ server.listen(port, () => {
 
 const shutdown = async () => {
   server.close();
-  await prisma.$disconnect();
+  await db.destroy();
   logger.flush();
 };
 

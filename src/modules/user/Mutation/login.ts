@@ -47,10 +47,11 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     throw parseErr(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
-  const found = await context.prisma.user.findUnique({
-    where: { email },
-    select: { password: true },
-  });
+  const found = await context.db
+    .selectFrom("User")
+    .where("email", "=", email)
+    .select("password")
+    .executeTakeFirst();
 
   if (!found) {
     return {
@@ -70,10 +71,12 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   const token = ulid();
 
-  await context.prisma.user.update({
-    where: { email },
-    data: { token },
-  });
+  await context.db
+    .updateTable("User")
+    .where("email", "=", email)
+    .set({ token })
+    .returning("token")
+    .executeTakeFirstOrThrow();
 
   return {
     __typename: "LoginSuccess",
@@ -101,11 +104,17 @@ if (import.meta.vitest) {
     args?: Args;
     user?: Params["user"];
   }) => {
-    const prisma = {
-      user: { findUnique: async () => ({ password: args.input.password }) },
-    } as unknown as Params["prisma"];
+    const db = {
+      selectFrom: () => ({
+        where: () => ({
+          select: () => ({
+            executeTakeFirst: async () => ({ password: args.input.password }),
+          }),
+        }),
+      }),
+    } as unknown as Params["db"];
 
-    return resolver({}, args, dummyContext({ prisma, user }));
+    return resolver({}, args, dummyContext({ db, user }));
   };
 
   describe("Authorization", () => {

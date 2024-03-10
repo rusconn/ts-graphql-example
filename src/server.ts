@@ -10,8 +10,8 @@ import { App } from "uWebSockets.js";
 import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers.ts";
 import { ErrorCode } from "@/modules/common/schema.ts";
 import { isProd, maxCost, maxDepth } from "./config.ts";
+import { createLoaders, db } from "./db/mod.ts";
 import { logger } from "./logger.ts";
-import { prisma } from "./prisma/mod.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
 
@@ -25,23 +25,15 @@ export const yoga = createYoga<ServerContext, UserContext>({
   context: async ({ request }) => {
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
-    let user: Context["user"];
+    const user: Context["user"] = token
+      ? await db
+          .selectFrom("User")
+          .where("token", "=", token)
+          .selectAll()
+          .executeTakeFirstOrThrow(authenErr)
+      : { id: undefined, role: "GUEST" };
 
-    if (token) {
-      const found = await prisma.user.findUnique({
-        where: { token },
-      });
-
-      if (!found) {
-        throw authenErr();
-      }
-
-      user = found;
-    } else {
-      user = { id: undefined, role: "GUEST" };
-    }
-
-    return { requestId: randomUUID(), prisma, user };
+    return { requestId: randomUUID(), db, loaders: createLoaders(db), user };
   },
   // 自分でログする
   logging: false,

@@ -44,9 +44,12 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
     throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
   }
 
-  const count = await context.prisma.todo.count({
-    where: { userId: authed.id },
-  });
+  const count = await context.db
+    .selectFrom("Todo")
+    .where("userId", "=", authed.id)
+    .select(({ fn }) => fn.countAll().as("count"))
+    .executeTakeFirstOrThrow()
+    .then(result => Number(result.count));
 
   if (count >= TODOS_MAX) {
     return {
@@ -55,9 +58,20 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
     };
   }
 
-  const todo = await context.prisma.todo.create({
-    data: { id: ulid(), userId: authed.id, title, description },
-  });
+  const now = new Date();
+
+  const todo = await context.db
+    .insertInto("Todo")
+    .values({
+      id: ulid(),
+      createdAt: now,
+      updatedAt: now,
+      userId: authed.id,
+      title,
+      description,
+    })
+    .returningAll()
+    .executeTakeFirstOrThrow();
 
   return {
     __typename: "CreateTodoSuccess",
@@ -79,15 +93,15 @@ if (import.meta.vitest) {
   };
 
   const resolve = ({
-    prisma,
+    db,
     args = valid.args,
     user = valid.user,
   }: {
-    prisma?: Params["prisma"];
+    db?: Params["db"];
     args?: Args;
     user?: Params["user"];
   }) => {
-    return resolver({}, args, dummyContext({ prisma, user }));
+    return resolver({}, args, dummyContext({ db, user }));
   };
 
   describe("Authorization", () => {
@@ -144,27 +158,37 @@ if (import.meta.vitest) {
   describe("Maximum num todos", () => {
     const validInput = valid.args.input;
 
-    const createPrisma = (num: number) =>
+    const createDb = (num: number) =>
       ({
-        todo: {
-          count: async () => num,
-          create: async () => {},
-        },
-      }) as unknown as Params["prisma"];
+        selectFrom: () => ({
+          where: () => ({
+            select: () => ({
+              executeTakeFirstOrThrow: async () => ({ count: num }),
+            }),
+          }),
+        }),
+        insertInto: () => ({
+          values: () => ({
+            returningAll: () => ({
+              executeTakeFirstOrThrow: async () => {},
+            }),
+          }),
+        }),
+      }) as unknown as Params["db"];
 
     const notExceededs = [0, 1, TODOS_MAX - 1];
     const exceededs = [TODOS_MAX, TODOS_MAX + 1];
 
     test.each(notExceededs)("notExceededs %#", async num => {
-      const prisma = createPrisma(num);
+      const db = createDb(num);
 
-      await resolve({ prisma, args: { input: validInput } });
+      await resolve({ db, args: { input: validInput } });
     });
 
     test.each(exceededs)("exceededs %#", async num => {
-      const prisma = createPrisma(num);
+      const db = createDb(num);
 
-      const result = await resolve({ prisma, args: { input: validInput } });
+      const result = await resolve({ db, args: { input: validInput } });
 
       expect(result?.__typename === "TodoLimitExceededError").toBe(true);
     });

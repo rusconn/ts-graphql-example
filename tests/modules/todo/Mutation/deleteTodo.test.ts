@@ -1,4 +1,4 @@
-import { prisma } from "@/prisma/mod.ts";
+import { db } from "@/db/mod.ts";
 
 import { Data } from "tests/data.ts";
 import { clearTables, clearTodos } from "tests/helpers.ts";
@@ -28,8 +28,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => prisma.user.createMany({ data: testData.users }),
-  todos: () => prisma.todo.createMany({ data: testData.todos }),
+  users: () => db.insertInto("User").values(testData.users).execute(),
+  todos: () => db.insertInto("Todo").values(testData.todos).execute(),
 };
 
 beforeAll(async () => {
@@ -66,15 +66,20 @@ it("should delete todo", async () => {
 
   expect(data?.deleteTodo?.__typename).toBe("DeleteTodoSuccess");
 
-  const todo = await prisma.todo.findUnique({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const todo = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirst();
 
-  expect(todo).toBeNull();
+  expect(todo).toBeUndefined();
 });
 
 it("should not delete others", async () => {
-  const before = await prisma.todo.count();
+  const before = await db
+    .selectFrom("Todo")
+    .select(({ fn }) => fn.countAll().as("count"))
+    .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
     variables: { id: Data.graph.adminTodo.id },
@@ -82,12 +87,20 @@ it("should not delete others", async () => {
 
   expect(data?.deleteTodo?.__typename).toBe("DeleteTodoSuccess");
 
-  const todo = await prisma.todo.findUnique({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const todo = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirst();
 
-  const after = await prisma.todo.count();
+  const after = await db
+    .selectFrom("Todo")
+    .select(({ fn }) => fn.countAll().as("count"))
+    .executeTakeFirstOrThrow();
 
-  expect(todo).toBeNull();
-  expect(after).toBe(before - 1);
+  const beforeCount = Number(before.count);
+  const afterCount = Number(after.count);
+
+  expect(todo).toBeUndefined();
+  expect(afterCount).toBe(beforeCount - 1);
 });

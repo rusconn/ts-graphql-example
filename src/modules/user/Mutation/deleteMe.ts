@@ -18,10 +18,11 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["deleteMe"] = async (_parent, _args, context) => {
   const authed = authAuthenticated(context);
 
-  const deleted = await context.prisma.user.delete({
-    where: { id: authed.id },
-    select: { id: true },
-  });
+  const deleted = await context.db
+    .deleteFrom("User")
+    .where("id", "=", authed.id)
+    .returning("id")
+    .executeTakeFirstOrThrow();
 
   return {
     __typename: "DeleteMeSuccess",

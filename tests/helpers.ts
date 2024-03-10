@@ -1,4 +1,4 @@
-import { prisma } from "@/prisma/mod.ts";
+import { db } from "@/db/mod.ts";
 
 export const clearTables = async () => {
   // CASCADE Todo
@@ -6,11 +6,11 @@ export const clearTables = async () => {
 };
 
 export const clearTodos = async () => {
-  await prisma.todo.deleteMany();
+  await db.deleteFrom("Todo").executeTakeFirstOrThrow();
 };
 
 export const clearUsers = async () => {
-  await prisma.user.deleteMany();
+  await db.deleteFrom("User").executeTakeFirstOrThrow();
 };
 
 export function fail(): never {

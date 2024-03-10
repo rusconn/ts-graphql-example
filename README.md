@@ -38,9 +38,7 @@ Prisma Studio は `pnpm studio` で起動しておくこと。
 
 ### API サーバー ⇄ DB 間におけるオーバーフェッチ
 
-resolveInfo の解析により DB からの取得列を絞れそうだが、難易度やコードの複雑化に対する恩恵が小さいと判断し、許容することにした: [Prisma 公式のパフォーマンスに関する見解](https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance#using-select-to-limit-number-of-columns-returned)
-
-なお [Prisma select](https://paljs.com/plugins/select) を使えば簡単に実現できそうだが、どうやら [Union types をサポートしていない](https://github.com/paljs/prisma-tools/issues/249)ようなので採用しなかった。GraphQL のスキーマと DB のスキーマが密結合してしまうという問題もあった。
+resolveInfo の解析により DB からの取得列を絞れそうだが、コードの複雑化に対する恩恵が小さいと判断し、許容することにした。
 
 ### node interface と ID フォーマット
 
@@ -81,4 +79,29 @@ Language agnostic にスキーマを定義し、マイグレーション出来�
 TS であればスキーマ定義をもとに型付きのクライアントを生成出来る。\
 別の言語向けに生成するサードパーティーライブラリもあるよう。
 
-複数のデータソースを統一して扱うというビジョンがあるようだが、本当に実現できるのかちょっと疑っている。
+今回は下記理由によりクライアントの使用を避けた。
+
+- SQL が汚い
+- バッチ化の自由度が低い
+- ライブラリのサイズが大きいのでデプロイ環境を選ぶ
+- マルチに使える分 API がややわかりにくい
+
+特にバッチ化の自由度が低いのは致命的で、
+
+```graphql
+{
+  users(first: 30) {
+    nodes {
+      todos(first: 50) {
+        nodes {
+          id
+        }
+      }
+    }
+  }
+}
+```
+
+上記クエリにおいて、各 User の **すべての** Todo を読み込んでオンメモリで件数を絞り込むよう。各 User の Todo の件数が大きい場合、著しいオーバーヘッドが発生する。効率的に読み込むには、各 User の Todo を first 件数分だけ取得する SELECT 文を UNION によって結合する必要がある。
+
+今回は DB クライアントに kysely を使ったが、UNION で複数の SELECT 文を結合する機能が欠けているようなので @prisma/client と状況は変わらない。残念です…。

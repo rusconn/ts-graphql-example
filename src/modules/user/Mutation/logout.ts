@@ -16,10 +16,12 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["logout"] = async (_parent, _args, context) => {
   const authed = authAuthenticated(context);
 
-  const updated = await context.prisma.user.update({
-    where: { id: authed.id },
-    data: { token: null },
-  });
+  const updated = await context.db
+    .updateTable("User")
+    .where("id", "=", authed.id)
+    .set({ token: null })
+    .returningAll()
+    .executeTakeFirstOrThrow();
 
   return {
     __typename: "LogoutSuccess",

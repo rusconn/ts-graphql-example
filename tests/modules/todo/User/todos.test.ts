@@ -1,5 +1,5 @@
-import { OrderDirection, TodoOrderField } from "@/modules/common/schema.ts";
-import { prisma } from "@/prisma/mod.ts";
+import { db } from "@/db/mod.ts";
+import { OrderDirection, type PageInfo, TodoOrderField } from "@/modules/common/schema.ts";
 
 import { Data } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
@@ -47,8 +47,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => prisma.user.createMany({ data: testData.users }),
-  todos: () => prisma.todo.createMany({ data: testData.todos }),
+  users: () => db.insertInto("User").values(testData.users).execute(),
+  todos: () => db.insertInto("Todo").values(testData.todos).execute(),
 };
 
 beforeAll(async () => {
@@ -95,9 +95,7 @@ describe("order of items", () => {
       [Data.graph.adminTodo, Data.graph.adminTodo2, Data.graph.adminTodo3],
     ],
     [
-      {
-        orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Desc },
-      },
+      { orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Desc } },
       [Data.graph.adminTodo3, Data.graph.adminTodo2, Data.graph.adminTodo],
     ],
     [
@@ -105,9 +103,7 @@ describe("order of items", () => {
       [Data.graph.adminTodo2, Data.graph.adminTodo3, Data.graph.adminTodo],
     ],
     [
-      {
-        orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Desc },
-      },
+      { orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Desc } },
       [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2],
     ],
   ] as const;
@@ -151,5 +147,154 @@ describe("pagination", () => {
     expect(data1.node.todos?.edges).toHaveLength(first);
     expect(data2.node.todos?.edges).toHaveLength(first);
     expect(data1).toStrictEqual(data2);
+  });
+
+  describe("cursor", () => {
+    const patterns = [
+      [
+        {
+          id: Data.graph.admin.id,
+          first: 2,
+          orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Asc },
+        },
+        {
+          length: 2,
+          ids: [Data.graph.adminTodo2.id, Data.graph.adminTodo3.id],
+          pageInfo: {
+            hasNextPage: true,
+            hasPreviousPage: false,
+            startCursor: Data.db.adminTodo2.id,
+            endCursor: Data.db.adminTodo3.id,
+          },
+        },
+        (pageInfo: PageInfo) => ({ after: pageInfo.endCursor }),
+        {
+          length: 1,
+          ids: [Data.graph.adminTodo.id],
+          pageInfo: {
+            hasNextPage: false,
+            hasPreviousPage: true,
+            startCursor: Data.db.adminTodo.id,
+            endCursor: Data.db.adminTodo.id,
+          },
+        },
+      ],
+      [
+        {
+          id: Data.graph.admin.id,
+          first: 2,
+          orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Desc },
+        },
+        {
+          length: 2,
+          ids: [Data.graph.adminTodo.id, Data.graph.adminTodo3.id],
+          pageInfo: {
+            hasNextPage: true,
+            hasPreviousPage: false,
+            startCursor: Data.db.adminTodo.id,
+            endCursor: Data.db.adminTodo3.id,
+          },
+        },
+        (pageInfo: PageInfo) => ({ after: pageInfo.endCursor }),
+        {
+          length: 1,
+          ids: [Data.graph.adminTodo2.id],
+          pageInfo: {
+            hasNextPage: false,
+            hasPreviousPage: true,
+            startCursor: Data.db.adminTodo2.id,
+            endCursor: Data.db.adminTodo2.id,
+          },
+        },
+      ],
+      [
+        {
+          id: Data.graph.admin.id,
+          last: 2,
+          orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Asc },
+        },
+        {
+          length: 2,
+          ids: [Data.graph.adminTodo3.id, Data.graph.adminTodo.id],
+          pageInfo: {
+            hasNextPage: false,
+            hasPreviousPage: true,
+            startCursor: Data.db.adminTodo3.id,
+            endCursor: Data.db.adminTodo.id,
+          },
+        },
+        (pageInfo: PageInfo) => ({ before: pageInfo.startCursor }),
+        {
+          length: 1,
+          ids: [Data.graph.adminTodo2.id],
+          pageInfo: {
+            hasNextPage: true,
+            hasPreviousPage: false,
+            startCursor: Data.db.adminTodo2.id,
+            endCursor: Data.db.adminTodo2.id,
+          },
+        },
+      ],
+      [
+        {
+          id: Data.graph.admin.id,
+          last: 2,
+          orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Desc },
+        },
+        {
+          length: 2,
+          ids: [Data.graph.adminTodo3.id, Data.graph.adminTodo2.id],
+          pageInfo: {
+            hasNextPage: false,
+            hasPreviousPage: true,
+            startCursor: Data.db.adminTodo3.id,
+            endCursor: Data.db.adminTodo2.id,
+          },
+        },
+        (pageInfo: PageInfo) => ({ before: pageInfo.startCursor }),
+        {
+          length: 1,
+          ids: [Data.graph.adminTodo.id],
+          pageInfo: {
+            hasNextPage: true,
+            hasPreviousPage: false,
+            startCursor: Data.db.adminTodo.id,
+            endCursor: Data.db.adminTodo.id,
+          },
+        },
+      ],
+    ] as const;
+
+    test.each(patterns)(
+      "patterns %#",
+      async (variables, firstExpect, additionals, secondExpect) => {
+        const { data: data1 } = await executeQuery({
+          variables,
+        });
+
+        if (!data1 || data1.node?.__typename !== "User" || !data1.node.todos) {
+          fail();
+        }
+
+        expect(data1.node.todos.edges?.length).toBe(firstExpect.length);
+        expect(data1.node.todos.pageInfo).toStrictEqual(firstExpect.pageInfo);
+        expect(data1.node.todos.edges?.map(edge => edge?.node?.id)).toStrictEqual(firstExpect.ids);
+
+        const { data: data2 } = await executeQuery({
+          variables: {
+            ...variables,
+            ...additionals(data1.node.todos.pageInfo),
+          },
+        });
+
+        if (!data2 || data2.node?.__typename !== "User" || !data2.node.todos) {
+          fail();
+        }
+
+        expect(data2.node.todos.edges?.length).toBe(secondExpect.length);
+        expect(data2.node.todos.pageInfo).toStrictEqual(secondExpect.pageInfo);
+        expect(data2.node.todos.edges?.map(edge => edge?.node?.id)).toStrictEqual(secondExpect.ids);
+      },
+    );
   });
 });

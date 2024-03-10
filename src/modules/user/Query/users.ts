@@ -1,7 +1,6 @@
-import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
-
 import { authAdmin } from "../../common/authorizers.ts";
-import { parseConnectionArgs, parseErr } from "../../common/parsers.ts";
+import { getCursorConnections } from "../../common/cursor.ts";
+import { parseErr } from "../../common/parsers.ts";
 import type { QueryResolvers } from "../../common/schema.ts";
 import { OrderDirection, UserOrderField } from "../../common/schema.ts";
 import { cursorConnections, orderOptions } from "../../common/typeDefs.ts";
@@ -29,13 +28,8 @@ export const typeDef = /* GraphQL */ `
 export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
   authAdmin(context);
 
-  const { orderBy, ...connectionArgs } = args;
+  const { orderBy, first, after, last, before } = args;
 
-  const { first, after, last, before } = parseConnectionArgs(connectionArgs);
-
-  if (first == null && last == null) {
-    throw parseErr('"first" or "last" value required');
-  }
   if (first && first > FIRST_MAX) {
     throw parseErr(`"first" must be up to ${FIRST_MAX}`);
   }
@@ -43,23 +37,56 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
     throw parseErr(`"last" must be up to ${LAST_MAX}`);
   }
 
-  const direction = {
-    [OrderDirection.Asc]: "asc" as const,
-    [OrderDirection.Desc]: "desc" as const,
-  }[orderBy.direction];
+  return await getCursorConnections(
+    async ({ cursor, limit, offset, backward }) => {
+      const [direction, columnComp, idComp] = {
+        [OrderDirection.Asc]: ["asc", ">", ">="] as const,
+        [OrderDirection.Desc]: ["desc", "<", "<="] as const,
+      }[
+        backward
+          ? orderBy.direction === OrderDirection.Asc
+            ? OrderDirection.Desc
+            : OrderDirection.Asc
+          : orderBy.direction
+      ];
 
-  const orderByToUse = {
-    [UserOrderField.CreatedAt]: [{ createdAt: direction }, { id: direction }],
-    [UserOrderField.UpdatedAt]: [{ updatedAt: direction }, { id: direction }],
-  }[orderBy.field];
+      const orderColumn = {
+        [UserOrderField.CreatedAt]: "createdAt" as const,
+        [UserOrderField.UpdatedAt]: "updatedAt" as const,
+      }[orderBy.field];
 
-  return findManyCursorConnection(
-    findManyArgs =>
-      context.prisma.user.findMany({
-        ...findManyArgs,
-        orderBy: orderByToUse,
-      }),
-    () => context.prisma.user.count(),
+      const cursorRecord = cursor
+        ? context.db.selectFrom("User").where("id", "=", cursor.id)
+        : undefined;
+
+      return await context.db
+        .selectFrom("User")
+        .$if(cursorRecord != null, qb =>
+          qb.where(({ eb }) =>
+            eb.or([
+              eb(orderColumn, columnComp, cursorRecord!.select(orderColumn)),
+              eb.and([
+                eb(orderColumn, "=", cursorRecord!.select(orderColumn)),
+                eb("id", idComp, cursorRecord!.select("id")),
+              ]),
+            ]),
+          ),
+        )
+        .orderBy(orderColumn, direction)
+        .orderBy("id", direction)
+        .$if(limit != null, qb => qb.limit(limit!))
+        .$if(offset != null, qb => qb.offset(offset!))
+        .selectAll()
+        .execute()
+        .then(result => (backward ? result.reverse() : result));
+    },
+    () =>
+      context.db
+        .selectFrom("User")
+        .select(({ fn }) => fn.countAll().as("count"))
+        .executeTakeFirstOrThrow()
+        .then(result => Number(result.count)),
+    parseErr,
     { first, after, last, before },
     { resolveInfo: info },
   );
@@ -116,14 +143,7 @@ if (import.meta.vitest) {
   describe("Parsing", () => {
     const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
 
-    const invalids = [
-      {},
-      { first: null },
-      { last: null },
-      { first: null, last: null },
-      { first: FIRST_MAX + 1 },
-      { last: LAST_MAX + 1 },
-    ];
+    const invalids = [{ first: FIRST_MAX + 1 }, { last: LAST_MAX + 1 }];
 
     const { orderBy } = valid.args;
 

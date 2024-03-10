@@ -1,17 +1,10 @@
-import type { SetOptional } from "type-fest";
-
-import * as Prisma from "@/prisma/mod.ts";
+import * as DB from "@/db/mod.ts";
 import { type Context, notFoundErr } from "../../common/resolvers.ts";
 
-export type Todo = Prisma.Todo;
+export type Todo = DB.TodoSelect;
 
-export const getTodo = async (
-  context: Pick<Context, "prisma">,
-  key: SetOptional<Pick<Todo, "id" | "userId">, "userId">,
-) => {
-  const todo = await context.prisma.todo.findUnique({
-    where: { id: key.id, userId: key.userId },
-  });
+export const getTodo = async (context: Pick<Context, "loaders">, key: DB.TodoKey) => {
+  const todo = await context.loaders.todo.load(key);
 
   if (!todo) {
     throw notFoundErr();

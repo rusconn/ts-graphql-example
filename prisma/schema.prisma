@@ -7,8 +7,9 @@
 // common.prisma
 //
 
-generator client {
-  provider = "prisma-client-js"
+generator kysely {
+  provider = "prisma-kysely"
+  output   = "../src/db"
 }
 
 datasource pg {
@@ -22,8 +23,8 @@ datasource pg {
 
 model Todo {
   id          String     @id @pg.Char(26)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime
+  updatedAt   DateTime
   title       String     @pg.VarChar(255)
   description String     @default("")
   status      TodoStatus @default(PENDING)
@@ -46,8 +47,8 @@ enum TodoStatus {
 
 model User {
   id        String   @id @pg.Char(26)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime
+  updatedAt DateTime
   name      String   @pg.VarChar(255)
   email     String   @unique @pg.VarChar(255)
   password  String   @pg.VarChar(255)

@@ -1,4 +1,4 @@
-import { prisma } from "@/prisma/mod.ts";
+import { db } from "@/db/mod.ts";
 
 import { Data } from "tests/data.ts";
 import { clearUsers } from "tests/helpers.ts";
@@ -27,7 +27,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => prisma.user.createMany({ data: testData.users }),
+  users: () => db.insertInto("User").values(testData.users).execute(),
 };
 
 beforeEach(async () => {
@@ -69,9 +69,11 @@ test("correct input", async () => {
 });
 
 test("login changes token", async () => {
-  const before = await prisma.user.findFirstOrThrow({
-    where: { id: Data.db.admin.id },
-  });
+  const before = await db
+    .selectFrom("User")
+    .where("id", "=", Data.db.admin.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   const { email } = Data.db.admin;
   const password = "adminadmin";
@@ -82,17 +84,21 @@ test("login changes token", async () => {
 
   expect(data?.login?.__typename).toBe("LoginSuccess");
 
-  const after = await prisma.user.findFirstOrThrow({
-    where: { id: Data.db.admin.id },
-  });
+  const after = await db
+    .selectFrom("User")
+    .where("id", "=", Data.db.admin.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   expect(before.token).not.toBe(after.token);
 });
 
 test("login does not changes other attrs", async () => {
-  const before = await prisma.user.findFirstOrThrow({
-    where: { id: Data.db.admin.id },
-  });
+  const before = await db
+    .selectFrom("User")
+    .where("id", "=", Data.db.admin.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   const { email } = Data.db.admin;
   const password = "adminadmin";
@@ -103,9 +109,11 @@ test("login does not changes other attrs", async () => {
 
   expect(data?.login?.__typename).toBe("LoginSuccess");
 
-  const after = await prisma.user.findFirstOrThrow({
-    where: { id: Data.db.admin.id },
-  });
+  const after = await db
+    .selectFrom("User")
+    .where("id", "=", Data.db.admin.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   expect(before.id).toBe(after.id);
   expect(before.name).toBe(after.name);

@@ -2,49 +2,109 @@ import type { Context } from "./resolvers.ts";
 
 export const dummyContext = ({
   requestId = "18676CF1-FC39-4E96-B980-C80728E3B97D",
-  prisma = dummyPrisma,
+  db = dummyDb,
+  loaders = dummyLoaders,
   user,
 }: {
   requestId?: Context["requestId"];
-  prisma?: Context["prisma"];
+  db?: object;
+  loaders?: object;
   user: Context["user"];
 }) => {
-  return { requestId, prisma, user } as Context;
+  return { requestId, db, loaders, user } as Context;
 };
 
-const dummyPrismaActions = {
-  findUnique: async () => ({ id: "dummy" }),
-  findUniqueOrThrow: async () => ({ id: "dummy" }),
-  findMany: async () => [],
-  findFirst: async () => ({ id: "dummy" }),
-  findFirstOrThrow: async () => ({ id: "dummy" }),
-  create: async () => ({ id: "dummy" }),
-  createMany: async () => ({ count: 0 }),
-  update: async () => ({ id: "dummy" }),
-  updateMany: async () => ({ count: 0 }),
-  upsert: async () => ({ id: "dummy" }),
-  delete: async () => ({ id: "dummy" }),
-  deleteMany: async () => ({ count: 0 }),
-  executeRaw: async () => {},
-  queryRaw: async () => {},
-  aggregate: async () => {},
-  count: async () => 0,
-  runCommandRaw: async () => {},
-  findRaw: async () => {},
-  groupBy: async () => {},
+const dummyLoaders = {
+  todo: {
+    load: async () => ({ id: "dummy" }),
+  },
+  user: {
+    load: async () => ({ id: "dummy" }),
+  },
+  userTodos: () => ({
+    load: async () => [],
+  }),
+  userTodosCount: {
+    load: async () => 0,
+  },
 };
 
-const dummyPrisma = {
-  $on: async () => {},
-  $connect: async () => {},
-  $disconnect: async () => {},
-  $use: async () => {},
-  $executeRaw: async () => {},
-  $executeRawUnsafe: async () => {},
-  $queryRaw: async () => {},
-  $queryRawUnsafe: async () => {},
-  $transaction: async () => {},
-  $extends: async () => {},
-  todo: dummyPrismaActions,
-  user: dummyPrismaActions,
-} as unknown as Context["prisma"];
+const dummyDb = {
+  selectFrom: () => dummySelectQueryBuilder,
+  insertInto: () => dummyInsertQueryBuilder,
+  updateTable: () => dummyUpdateQueryBuilder,
+  deleteFrom: () => dummyDeleteQueryBuilder,
+  transaction: () => dummyTransactionBuilder,
+};
+
+const dummySelectQueryBuilder = {
+  where: () => dummySelectQueryBuilder,
+  whereRef: () => dummySelectQueryBuilder,
+  having: () => dummySelectQueryBuilder,
+  select: () => dummySelectQueryBuilder,
+  selectAll: () => dummySelectQueryBuilder,
+  distinct: () => dummySelectQueryBuilder,
+  orderBy: () => dummySelectQueryBuilder,
+  groupBy: () => dummySelectQueryBuilder,
+  limit: () => dummySelectQueryBuilder,
+  offset: () => dummySelectQueryBuilder,
+  union: () => dummySelectQueryBuilder,
+  unionAll: () => dummySelectQueryBuilder,
+  intersect: () => dummySelectQueryBuilder,
+  intersectAll: () => dummySelectQueryBuilder,
+  except: () => dummySelectQueryBuilder,
+  exceptAll: () => dummySelectQueryBuilder,
+  clearSelect: () => dummySelectQueryBuilder,
+  clearWhere: () => dummySelectQueryBuilder,
+  clearLimit: () => dummySelectQueryBuilder,
+  clearOffset: () => dummySelectQueryBuilder,
+  clearOrderBy: () => dummySelectQueryBuilder,
+  $if: () => dummySelectQueryBuilder,
+  execute: async () => [{ id: "dummy" }],
+  executeTakeFirst: async () => ({ id: "dummy" }),
+  executeTakeFirstOrThrow: async () => ({ id: "dummy" }),
+};
+
+const dummyInsertQueryBuilder = {
+  values: () => dummyInsertQueryBuilder,
+  columns: () => dummyInsertQueryBuilder,
+  defaultValues: () => dummyInsertQueryBuilder,
+  returning: () => dummyInsertQueryBuilder,
+  returningAll: () => dummyInsertQueryBuilder,
+  $if: () => dummyInsertQueryBuilder,
+  execute: async () => [{ id: "dummy" }],
+  executeTakeFirst: async () => ({ id: "dummy" }),
+  executeTakeFirstOrThrow: async () => ({ id: "dummy" }),
+};
+
+const dummyUpdateQueryBuilder = {
+  where: () => dummyUpdateQueryBuilder,
+  whereRef: () => dummyUpdateQueryBuilder,
+  clearWhere: () => dummyUpdateQueryBuilder,
+  set: () => dummyUpdateQueryBuilder,
+  returning: () => dummyUpdateQueryBuilder,
+  returningAll: () => dummyUpdateQueryBuilder,
+  $if: () => dummyUpdateQueryBuilder,
+  execute: async () => [{ id: "dummy" }],
+  executeTakeFirst: async () => ({ id: "dummy" }),
+  executeTakeFirstOrThrow: async () => ({ id: "dummy" }),
+};
+
+const dummyDeleteQueryBuilder = {
+  where: () => dummyDeleteQueryBuilder,
+  whereRef: () => dummyDeleteQueryBuilder,
+  clearWhere: () => dummyDeleteQueryBuilder,
+  returning: () => dummyDeleteQueryBuilder,
+  returningAll: () => dummyDeleteQueryBuilder,
+  orderBy: () => dummyDeleteQueryBuilder,
+  limit: () => dummyDeleteQueryBuilder,
+  $if: () => dummyDeleteQueryBuilder,
+  execute: async () => [{ id: "dummy" }],
+  executeTakeFirst: async () => ({ id: "dummy" }),
+  executeTakeFirstOrThrow: async () => ({ id: "dummy" }),
+};
+
+const dummyTransactionBuilder = {
+  setIsolationLevel: () => dummyTransactionBuilder,
+  execute: async () => ({ id: "dummy" }),
+};

@@ -4,7 +4,8 @@ import { GraphQLError } from "graphql";
 import type { YogaInitialContext } from "graphql-yoga";
 import type { EmptyObject } from "type-fest";
 
-import type * as Prisma from "@/prisma/mod.ts";
+import type { db } from "@/db/mod.ts";
+import type * as DB from "@/db/mod.ts";
 import { ErrorCode } from "./schema.ts";
 
 export const notFoundErr = () =>
@@ -18,10 +19,11 @@ export type ServerContext = EmptyObject;
 
 export type UserContext = {
   requestId: ReturnType<typeof randomUUID>;
-  prisma: typeof Prisma.prisma;
+  db: typeof db;
+  loaders: ReturnType<typeof DB.createLoaders>;
   user: Admin | User | Guest;
 };
 
-type Admin = Prisma.User & { role: "ADMIN" };
-type User = Prisma.User & { role: "USER" };
+type Admin = DB.UserSelect & { role: "ADMIN" };
+type User = DB.UserSelect & { role: "USER" };
 type Guest = { id: undefined; role: "GUEST" };

@@ -1,5 +1,5 @@
+import { db } from "@/db/mod.ts";
 import { ErrorCode } from "@/modules/common/schema.ts";
-import { prisma } from "@/prisma/mod.ts";
 
 import { Data } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
@@ -25,7 +25,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => prisma.user.createMany({ data: testData.users }),
+  users: () => db.insertInto("User").values(testData.users).execute(),
 };
 
 beforeAll(async () => {

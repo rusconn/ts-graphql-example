@@ -1,4 +1,4 @@
-import { prisma } from "@/prisma/mod.ts";
+import { db } from "@/db/mod.ts";
 import * as todo from "./seeds/todo.ts";
 import * as user from "./seeds/user.ts";
 
@@ -12,5 +12,5 @@ try {
 } catch (e) {
   console.error(e);
 } finally {
-  await prisma.$disconnect();
+  await db.destroy();
 }

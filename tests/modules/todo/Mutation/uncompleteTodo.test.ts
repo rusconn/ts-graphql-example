@@ -1,8 +1,8 @@
 import { omit } from "remeda";
 
+import { db } from "@/db/mod.ts";
+import * as DB from "@/db/mod.ts";
 import { TodoStatus } from "@/modules/common/schema.ts";
-import { prisma } from "@/prisma/mod.ts";
-import * as Prisma from "@/prisma/mod.ts";
 
 import { Data } from "tests/data.ts";
 import { clearTables } from "tests/helpers.ts";
@@ -41,8 +41,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => prisma.user.createMany({ data: testData.users }),
-  todos: () => prisma.todo.createMany({ data: testData.todos }),
+  users: () => db.insertInto("User").values(testData.users).execute(),
+  todos: () => db.insertInto("Todo").values(testData.todos).execute(),
 };
 
 beforeAll(async () => {
@@ -52,10 +52,11 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  await prisma.todo.update({
-    where: { id: Data.db.adminTodo.id },
-    data: { status: Prisma.TodoStatus.DONE },
-  });
+  await db
+    .updateTable("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .set({ status: DB.TodoStatus.DONE })
+    .executeTakeFirstOrThrow();
 });
 
 test("not exists", async () => {
@@ -75,9 +76,11 @@ test("exists, but not owned", async () => {
 });
 
 it("should update status", async () => {
-  const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const before = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
     variables: { id: Data.graph.adminTodo.id },
@@ -85,18 +88,22 @@ it("should update status", async () => {
 
   expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
 
-  const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const after = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   expect(before.status).toBe(TodoStatus.Done);
   expect(after.status).toBe(TodoStatus.Pending);
 });
 
 it("should update updatedAt", async () => {
-  const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const before = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
     variables: { id: Data.graph.adminTodo.id },
@@ -104,9 +111,11 @@ it("should update updatedAt", async () => {
 
   expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
 
-  const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const after = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   const beforeUpdatedAt = before.updatedAt.getTime();
   const afterUpdatedAt = after.updatedAt.getTime();
@@ -115,9 +124,11 @@ it("should update updatedAt", async () => {
 });
 
 it("should not update other attrs", async () => {
-  const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const before = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
     variables: { id: Data.graph.adminTodo.id },
@@ -125,9 +136,11 @@ it("should not update other attrs", async () => {
 
   expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
 
-  const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const after = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   // これらのフィールドは変化する想定
   const beforeToCompare = omit(before, ["status", "updatedAt"]);

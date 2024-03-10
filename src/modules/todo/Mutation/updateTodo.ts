@@ -51,26 +51,23 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
     throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
   }
 
-  const found = await context.prisma.todo.findUnique({
-    where: { id, userId: authed.id },
-  });
+  const todo = await context.db
+    .updateTable("Todo")
+    .where("id", "=", id)
+    .where("userId", "=", authed.id)
+    .set({ title, description, status })
+    .returningAll()
+    .executeTakeFirst();
 
-  if (!found) {
-    return {
-      __typename: "TodoNotFoundError",
-      message: "todo not found",
-    };
-  }
-
-  const todo = await context.prisma.todo.update({
-    where: { id, userId: authed.id },
-    data: { title, description, status },
-  });
-
-  return {
-    __typename: "UpdateTodoSuccess",
-    todo,
-  };
+  return todo
+    ? {
+        __typename: "UpdateTodoSuccess",
+        todo,
+      }
+    : {
+        __typename: "TodoNotFoundError",
+        message: "todo not found",
+      };
 };
 
 if (import.meta.vitest) {

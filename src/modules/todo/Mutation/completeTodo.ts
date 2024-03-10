@@ -1,4 +1,4 @@
-import * as Prisma from "@/prisma/mod.ts";
+import * as DB from "@/db/mod.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
@@ -20,26 +20,23 @@ export const resolver: MutationResolvers["completeTodo"] = async (_parent, args,
 
   const id = parseTodoNodeId(args.id);
 
-  const found = await context.prisma.todo.findUnique({
-    where: { id, userId: authed.id },
-  });
+  const todo = await context.db
+    .updateTable("Todo")
+    .where("id", "=", id)
+    .where("userId", "=", authed.id)
+    .set({ status: DB.TodoStatus.DONE })
+    .returningAll()
+    .executeTakeFirst();
 
-  if (!found) {
-    return {
-      __typename: "TodoNotFoundError",
-      message: "todo not found",
-    };
-  }
-
-  const todo = await context.prisma.todo.update({
-    where: { id, userId: authed.id },
-    data: { status: Prisma.TodoStatus.DONE },
-  });
-
-  return {
-    __typename: "CompleteTodoSuccess",
-    todo,
-  };
+  return todo
+    ? {
+        __typename: "CompleteTodoSuccess",
+        todo,
+      }
+    : {
+        __typename: "TodoNotFoundError",
+        message: "todo not found",
+      };
 };
 
 if (import.meta.vitest) {

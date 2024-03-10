@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
 import { passHashExp } from "@/config.ts";
-import * as Prisma from "@/prisma/mod.ts";
+import * as DB from "@/db/mod.ts";
 import { authGuest } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
@@ -51,9 +51,11 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     throw parseErr(`"password" must be up to ${PASS_MAX} characteres`);
   }
 
-  const found = await context.prisma.user.findUnique({
-    where: { email },
-  });
+  const found = await context.db
+    .selectFrom("User")
+    .where("email", "=", email)
+    .select("id")
+    .executeTakeFirst();
 
   if (found) {
     return {
@@ -63,18 +65,23 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   }
 
   const hashed = await bcrypt.hash(password, passHashExp);
+  const now = new Date();
   const token = ulid();
 
-  await context.prisma.user.create({
-    data: {
+  await context.db
+    .insertInto("User")
+    .values({
       id: ulid(),
+      createdAt: now,
+      updatedAt: now,
       name,
       email,
       password: hashed,
-      role: Prisma.UserRole.USER,
+      role: DB.UserRole.USER,
       token,
-    },
-  });
+    })
+    .returning("token")
+    .executeTakeFirstOrThrow();
 
   return {
     __typename: "SignupSuccess",

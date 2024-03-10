@@ -1,5 +1,5 @@
-import { prisma } from "@/prisma/mod.ts";
-import * as Prisma from "@/prisma/mod.ts";
+import { db } from "@/db/mod.ts";
+import * as DB from "@/db/mod.ts";
 
 import { Data } from "tests/data.ts";
 import { clearUsers, fail } from "tests/helpers.ts";
@@ -28,7 +28,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => prisma.user.createMany({ data: testData.users }),
+  users: () => db.insertInto("User").values(testData.users).execute(),
 };
 
 beforeEach(async () => {
@@ -65,9 +65,11 @@ it("should create user using input", async () => {
 
   const { token } = data.signup;
 
-  const user = await prisma.user.findUniqueOrThrow({
-    where: { token },
-  });
+  const user = await db
+    .selectFrom("User")
+    .where("token", "=", token)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   expect(user.name).toBe(name);
   expect(user.email).toBe(email);
@@ -89,9 +91,11 @@ test("role should be USER by default", async () => {
 
   const { token } = data.signup;
 
-  const user = await prisma.user.findUniqueOrThrow({
-    where: { token },
-  });
+  const user = await db
+    .selectFrom("User")
+    .where("token", "=", token)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
-  expect(user.role).toBe(Prisma.UserRole.USER);
+  expect(user.role).toBe(DB.UserRole.USER);
 });

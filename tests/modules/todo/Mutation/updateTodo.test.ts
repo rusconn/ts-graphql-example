@@ -1,7 +1,7 @@
 import { omit } from "remeda";
 
+import { db } from "@/db/mod.ts";
 import { TodoStatus } from "@/modules/common/schema.ts";
-import { prisma } from "@/prisma/mod.ts";
 
 import { Data } from "tests/data.ts";
 import { clearTables } from "tests/helpers.ts";
@@ -37,8 +37,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => prisma.user.createMany({ data: testData.users }),
-  todos: () => prisma.todo.createMany({ data: testData.todos }),
+  users: () => db.insertInto("User").values(testData.users).execute(),
+  todos: () => db.insertInto("Todo").values(testData.todos).execute(),
 };
 
 beforeAll(async () => {
@@ -48,11 +48,11 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  await prisma.todo.upsert({
-    where: { id: Data.db.adminTodo.id },
-    create: Data.db.adminTodo,
-    update: Data.db.adminTodo,
-  });
+  await db
+    .insertInto("Todo")
+    .values(Data.db.adminTodo)
+    .onConflict(oc => oc.column("id").doUpdateSet(Data.db.adminTodo))
+    .executeTakeFirstOrThrow();
 });
 
 const input = {
@@ -84,9 +84,11 @@ it("should update using input", async () => {
 
   expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
-  const todo = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const todo = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   expect(todo.title).toBe(input.title);
   expect(todo.description).toBe(input.description);
@@ -94,9 +96,11 @@ it("should update using input", async () => {
 });
 
 it("should not update fields if the field is absent", async () => {
-  const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const before = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
     variables: { id: Data.graph.adminTodo.id, input: {} },
@@ -104,9 +108,11 @@ it("should not update fields if the field is absent", async () => {
 
   expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
-  const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const after = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   expect(before.title).toBe(after.title);
   expect(before.description).toBe(after.description);
@@ -114,9 +120,11 @@ it("should not update fields if the field is absent", async () => {
 });
 
 it("should update updatedAt", async () => {
-  const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const before = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
     variables: { id: Data.graph.adminTodo.id, input },
@@ -124,9 +132,11 @@ it("should update updatedAt", async () => {
 
   expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
-  const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const after = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   const beforeUpdatedAt = before.updatedAt.getTime();
   const afterUpdatedAt = after.updatedAt.getTime();
@@ -135,9 +145,11 @@ it("should update updatedAt", async () => {
 });
 
 it("should not update other attrs", async () => {
-  const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const before = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
     variables: { id: Data.graph.adminTodo.id, input },
@@ -145,9 +157,11 @@ it("should not update other attrs", async () => {
 
   expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
-  const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: Data.db.adminTodo.id },
-  });
+  const after = await db
+    .selectFrom("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   // これらのフィールドは変化する想定
   const beforeToCompare = omit(before, ["title", "description", "status", "updatedAt"]);

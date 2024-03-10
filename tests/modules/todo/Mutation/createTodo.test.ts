@@ -1,6 +1,6 @@
+import { db } from "@/db/mod.ts";
+import * as DB from "@/db/mod.ts";
 import { parseTodoNodeId } from "@/modules/todo/common/parser.ts";
-import { prisma } from "@/prisma/mod.ts";
-import * as Prisma from "@/prisma/mod.ts";
 
 import { Data } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
@@ -31,7 +31,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => prisma.user.createMany({ data: testData.users }),
+  users: () => db.insertInto("User").values(testData.users).execute(),
 };
 
 beforeAll(async () => {
@@ -55,9 +55,11 @@ it("should create todo using input", async () => {
 
   const id = parseTodoNodeId(data.createTodo.todo.id);
 
-  const todo = await prisma.todo.findUniqueOrThrow({
-    where: { id },
-  });
+  const todo = await db
+    .selectFrom("Todo")
+    .where("id", "=", id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
   expect(todo.title).toBe(input.title);
   expect(todo.description).toBe(input.description);
@@ -74,9 +76,11 @@ test("status should be PENDING by default", async () => {
 
   const id = parseTodoNodeId(data.createTodo.todo.id);
 
-  const todo = await prisma.todo.findUniqueOrThrow({
-    where: { id },
-  });
+  const todo = await db
+    .selectFrom("Todo")
+    .where("id", "=", id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
 
-  expect(todo.status).toBe(Prisma.TodoStatus.PENDING);
+  expect(todo.status).toBe(DB.TodoStatus.PENDING);
 });

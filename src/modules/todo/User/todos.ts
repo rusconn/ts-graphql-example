@@ -1,6 +1,5 @@
-import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
-
-import { parseConnectionArgs, parseErr } from "../../common/parsers.ts";
+import { getCursorConnections } from "../../common/cursor.ts";
+import { parseErr } from "../../common/parsers.ts";
 import type { UserResolvers } from "../../common/schema.ts";
 import { OrderDirection, TodoOrderField } from "../../common/schema.ts";
 import { cursorConnections, orderOptions } from "../../common/typeDefs.ts";
@@ -29,13 +28,8 @@ export const typeDef = /* GraphQL */ `
 export const resolver: UserResolvers["todos"] = async (parent, args, context, info) => {
   authAdminOrUserOwner(context, parent);
 
-  const { orderBy, ...connectionArgs } = args;
+  const { orderBy, first, after, last, before } = args;
 
-  const { first, after, last, before } = parseConnectionArgs(connectionArgs);
-
-  if (first == null && last == null) {
-    throw parseErr('"first" or "last" value required');
-  }
   if (first && first > FIRST_MAX) {
     throw parseErr(`"first" must be up to ${FIRST_MAX}`);
   }
@@ -43,35 +37,31 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
     throw parseErr(`"last" must be up to ${LAST_MAX}`);
   }
 
-  const direction = {
-    [OrderDirection.Asc]: "asc" as const,
-    [OrderDirection.Desc]: "desc" as const,
-  }[orderBy.direction];
+  return await getCursorConnections(
+    async ({ backward, ...rest }) => {
+      const [direction, columnComp, idComp] = {
+        [OrderDirection.Asc]: ["asc", ">", ">="] as const,
+        [OrderDirection.Desc]: ["desc", "<", "<="] as const,
+      }[
+        backward
+          ? orderBy.direction === OrderDirection.Asc
+            ? OrderDirection.Desc
+            : OrderDirection.Asc
+          : orderBy.direction
+      ];
 
-  const orderByToUse = {
-    [TodoOrderField.CreatedAt]: [{ createdAt: direction }, { id: direction }],
-    [TodoOrderField.UpdatedAt]: [{ updatedAt: direction }, { id: direction }],
-  }[orderBy.field];
+      const orderColumn = {
+        [TodoOrderField.CreatedAt]: "createdAt" as const,
+        [TodoOrderField.UpdatedAt]: "updatedAt" as const,
+      }[orderBy.field];
 
-  return findManyCursorConnection(
-    findManyArgs =>
-      context.prisma.user
-        .findUniqueOrThrow({
-          where: { id: parent.id },
-        })
-        .todos({
-          ...findManyArgs,
-          orderBy: orderByToUse,
-        }),
-    () =>
-      context.prisma.user
-        .findUniqueOrThrow({
-          where: { id: parent.id },
-        })
-        .todos({
-          select: { id: true },
-        })
-        .then(todos => todos.length),
+      return await context.loaders
+        .userTodos({ ...rest, orderColumn, direction, columnComp, idComp })
+        .load(parent)
+        .then(result => (backward ? result.reverse() : result));
+    },
+    () => context.loaders.userTodosCount.load(parent),
+    parseErr,
     { first, after, last, before },
     { resolveInfo: info },
   );
@@ -107,15 +97,7 @@ if (import.meta.vitest) {
     args?: Args;
     user?: Params["user"];
   }) => {
-    const prisma = {
-      user: {
-        findUniqueOrThrow: () => ({
-          todos: async () => [],
-        }),
-      },
-    } as unknown as Params["prisma"];
-
-    return resolver(parent, args, dummyContext({ prisma, user }));
+    return resolver(parent, args, dummyContext({ user }));
   };
 
   describe("Authorization", () => {
@@ -148,14 +130,7 @@ if (import.meta.vitest) {
   describe("Parsing", () => {
     const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
 
-    const invalids = [
-      {},
-      { first: null },
-      { last: null },
-      { first: null, last: null },
-      { first: FIRST_MAX + 1 },
-      { last: LAST_MAX + 1 },
-    ];
+    const invalids = [{ first: FIRST_MAX + 1 }, { last: LAST_MAX + 1 }];
 
     const { orderBy } = valid.args;
 

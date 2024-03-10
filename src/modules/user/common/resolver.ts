@@ -1,12 +1,10 @@
-import * as Prisma from "@/prisma/mod.ts";
+import * as DB from "@/db/mod.ts";
 import { type Context, notFoundErr } from "../../common/resolvers.ts";
 
-export type User = Prisma.User;
+export type User = DB.UserSelect;
 
-export const getUser = async (context: Pick<Context, "prisma">, key: Pick<User, "id">) => {
-  const user = await context.prisma.user.findUnique({
-    where: { id: key.id },
-  });
+export const getUser = async (context: Pick<Context, "loaders">, key: DB.UserKey) => {
+  const user = await context.loaders.user.load(key);
 
   if (!user) {
     throw notFoundErr();

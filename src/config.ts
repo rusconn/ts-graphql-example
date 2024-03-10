@@ -8,7 +8,7 @@ const isValidNodeEnv = (val: string | undefined): val is NodeEnv => {
   return val != null && validNodeEnvs.includes(val as NodeEnv);
 };
 
-const { PORT, MAX_DEPTH, MAX_COST, NODE_ENV, PASS_HASH_EXP } = process.env;
+const { PORT, MAX_DEPTH, MAX_COST, NODE_ENV, PASS_HASH_EXP, DB_PORT, DB_NAME } = process.env;
 
 const port = Number(PORT ?? "4000");
 const maxDepth = Number(MAX_DEPTH ?? "10");
@@ -36,4 +36,6 @@ if (Number.isNaN(passHashExp) || (isProd && (passHashExp < 10 || 14 < passHashEx
   throw new Error("Invalid PASS_HASH_EXP");
 }
 
-export { port, maxDepth, maxCost, passHashExp, isDev, isTest, isProd };
+const connectionString = `postgresql://postgres:pass@localhost:${DB_PORT}/${DB_NAME}`;
+
+export { port, maxDepth, maxCost, passHashExp, isDev, isTest, isProd, connectionString };

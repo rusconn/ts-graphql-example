@@ -2,8 +2,8 @@ import { User } from "user"
 
 model Todo {
   id          String     @id @pg.Char(26)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime
+  updatedAt   DateTime
   title       String     @pg.VarChar(255)
   description String     @default("")
   status      TodoStatus @default(PENDING)

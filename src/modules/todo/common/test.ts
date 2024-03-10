@@ -1,4 +1,4 @@
-import * as Prisma from "@/prisma/mod.ts";
+import * as DB from "@/db/mod.ts";
 import { db as users } from "../../user/common/test.ts";
 import { todoNodeId } from "./adapter.ts";
 
@@ -9,7 +9,7 @@ export const db = {
     updatedAt: new Date(6),
     title: "admin todo 1",
     description: "admin todo 1",
-    status: Prisma.TodoStatus.PENDING,
+    status: DB.TodoStatus.PENDING,
     userId: users.admin.id,
   },
   adminTodo2: {
@@ -18,7 +18,7 @@ export const db = {
     updatedAt: new Date(2),
     title: "admin todo 2",
     description: "admin todo 2",
-    status: Prisma.TodoStatus.PENDING,
+    status: DB.TodoStatus.PENDING,
     userId: users.admin.id,
   },
   adminTodo3: {
@@ -27,7 +27,7 @@ export const db = {
     updatedAt: new Date(3),
     title: "admin todo 3",
     description: "admin todo 3",
-    status: Prisma.TodoStatus.PENDING,
+    status: DB.TodoStatus.PENDING,
     userId: users.admin.id,
   },
   aliceTodo: {
@@ -36,7 +36,7 @@ export const db = {
     updatedAt: new Date(4),
     title: "alice todo",
     description: "alice todo 1",
-    status: Prisma.TodoStatus.PENDING,
+    status: DB.TodoStatus.PENDING,
     userId: users.alice.id,
   },
 } as const;

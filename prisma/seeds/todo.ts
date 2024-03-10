@@ -1,13 +1,16 @@
 import { faker } from "@faker-js/faker";
+import { chunk } from "remeda";
 import { ulid } from "ulid";
 
-import { TodoStatus, type User, prisma } from "@/prisma/mod.ts";
+import { TodoStatus, type User, db } from "@/db/mod.ts";
 import { randInt } from "./common.ts";
 
 export const seed = async (userIds: User["id"][]) => {
   const handTodos = [
     {
       id: "01HFFZ0ABV8BJPJX50Z2PJ3DR9",
+      createdAt: new Date(3),
+      updatedAt: new Date(7),
       title: "hoge todo 1",
       description: "hoge desc 1",
       status: TodoStatus.PENDING,
@@ -15,6 +18,8 @@ export const seed = async (userIds: User["id"][]) => {
     },
     {
       id: "01HFFZ0ABVVD5HPAARMZR74PHG",
+      createdAt: new Date(4),
+      updatedAt: new Date(4),
       title: "piyo todo 1",
       description: "piyo desc 1",
       status: TodoStatus.DONE,
@@ -22,6 +27,8 @@ export const seed = async (userIds: User["id"][]) => {
     },
     {
       id: "01HFFZ0ABV43SDH3EGT46AM6P1",
+      createdAt: new Date(5),
+      updatedAt: new Date(6),
       title: "piyo todo 2",
       description: "piyo desc 2",
       status: TodoStatus.PENDING,
@@ -33,7 +40,11 @@ export const seed = async (userIds: User["id"][]) => {
 
   const todos = [...handTodos, ...fakeTodos];
 
-  await prisma.todo.createMany({ data: todos });
+  // 一度に insert する件数が多いとエラーが発生するので小分けにしている
+  const chunks = chunk(todos, 5_000);
+  const inserts = chunks.map(ts => db.insertInto("Todo").values(ts).execute());
+
+  await Promise.all(inserts);
 };
 
 const fakeData = (userIds: User["id"][]) => {

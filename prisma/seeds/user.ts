@@ -1,12 +1,15 @@
 import { faker } from "@faker-js/faker";
+import { chunk } from "remeda";
 import { ulid } from "ulid";
 
-import { UserRole, prisma } from "@/prisma/mod.ts";
+import { UserRole, db } from "@/db/mod.ts";
 
 export const seed = async () => {
   const handUsers = [
     {
       id: "01HFFYQP8GEG9ATV44YH6XNJ1V",
+      createdAt: new Date(0),
+      updatedAt: new Date(4),
       name: "admin",
       email: "admin@admin.com",
       /** raw: adminadmin */
@@ -16,6 +19,8 @@ export const seed = async () => {
     },
     {
       id: "01HFFYQP8H8628NYKTK2ZCNCBV",
+      createdAt: new Date(1),
+      updatedAt: new Date(1),
       name: "hoge",
       email: "hoge@hoge.com",
       /** raw: hogehoge */
@@ -25,6 +30,8 @@ export const seed = async () => {
     },
     {
       id: "01HFFYQP8JMVAJ11XVZXDXVGQR",
+      createdAt: new Date(2),
+      updatedAt: new Date(3),
       name: "piyo",
       email: "piyo@piyo.com",
       /** raw: piyopiyo */
@@ -38,7 +45,11 @@ export const seed = async () => {
 
   const users = [...handUsers, ...fakeUsers];
 
-  await prisma.user.createMany({ data: users });
+  // 一度に insert する件数が多いとエラーが発生するので小分けにしている
+  const chunks = chunk(users, 5_000);
+  const inserts = chunks.map(us => db.insertInto("User").values(us).execute());
+
+  await Promise.all(inserts);
 
   return fakeUsers.map(user => user.id);
 };
