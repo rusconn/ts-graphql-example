@@ -9,7 +9,7 @@
   "prisma": {
     "seed": "pnpm ts prisma/seed.ts",
     "import": {
-      "schemas": "./src/modules/**/*.prisma",
+      "schemas": "./prisma/schemas/*.prisma",
       "output": "./prisma/schema.prisma"
     }
   },

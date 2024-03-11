@@ -1,4 +1,4 @@
-import { Todo } from "../todo/todo"
+import { Todo } from "todo"
 
 model User {
   id        String   @id @pg.Char(26)
