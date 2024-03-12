@@ -55,15 +55,23 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
 
   return findManyCursorConnection(
     findManyArgs =>
-      context.prisma.todo.findMany({
-        ...findManyArgs,
-        where: { userId: parent.id },
-        orderBy: orderByToUse,
-      }),
+      context.prisma.user
+        .findUniqueOrThrow({
+          where: { id: parent.id },
+        })
+        .todos({
+          ...findManyArgs,
+          orderBy: orderByToUse,
+        }),
     () =>
-      context.prisma.todo.count({
-        where: { userId: parent.id },
-      }),
+      context.prisma.user
+        .findUniqueOrThrow({
+          where: { id: parent.id },
+        })
+        .todos({
+          select: { id: true },
+        })
+        .then(todos => todos.length),
     { first, after, last, before },
     { resolveInfo: info },
   );
@@ -99,7 +107,15 @@ if (import.meta.vitest) {
     args?: Args;
     user?: Params["user"];
   }) => {
-    return resolver(parent, args, dummyContext({ user }));
+    const prisma = {
+      user: {
+        findUniqueOrThrow: () => ({
+          todos: async () => [],
+        }),
+      },
+    } as unknown as Params["prisma"];
+
+    return resolver(parent, args, dummyContext({ prisma, user }));
   };
 
   describe("Authorization", () => {
