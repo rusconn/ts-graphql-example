@@ -1,5 +1,4 @@
 import { authAdmin } from "../../common/authorizers.ts";
-import { key } from "../../common/resolvers.ts";
 import type { QueryResolvers } from "../../common/schema.ts";
 import { parseUserNodeId } from "../common/parser.ts";
 
@@ -14,7 +13,7 @@ export const resolver: QueryResolvers["user"] = (_parent, args, context) => {
 
   const id = parseUserNodeId(args.id);
 
-  return key({ id });
+  return { id };
 };
 
 if (import.meta.vitest) {

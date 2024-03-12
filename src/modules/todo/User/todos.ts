@@ -1,7 +1,6 @@
 import { findManyCursorConnection } from "@devoxa/prisma-relay-cursor-connection";
 
 import { parseConnectionArgs, parseErr } from "../../common/parsers.ts";
-import { full } from "../../common/resolvers.ts";
 import type { UserResolvers } from "../../common/schema.ts";
 import { OrderDirection, TodoOrderField } from "../../common/schema.ts";
 import { cursorConnections, orderOptions } from "../../common/typeDefs.ts";
@@ -58,6 +57,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
     findManyArgs =>
       context.prisma.todo.findMany({
         ...findManyArgs,
+        select: { id: true, userId: true },
         where: { userId: parent.id },
         orderBy: orderByToUse,
       }),
@@ -66,10 +66,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
         where: { userId: parent.id },
       }),
     { first, after, last, before },
-    {
-      recordToEdge: record => ({ node: full(record) }),
-      resolveInfo: info,
-    }
+    { resolveInfo: info }
   );
 };
 
@@ -83,7 +80,7 @@ if (import.meta.vitest) {
   type Params = Parameters<typeof dummyContext>[0];
 
   const valid = {
-    parent: full(db.admin),
+    parent: db.admin,
     args: {
       first: 10,
       orderBy: {
@@ -120,13 +117,13 @@ if (import.meta.vitest) {
     ] as const;
 
     test.each(allows)("allows %#", async (user, parent) => {
-      await resolve({ parent: full(parent), user });
+      await resolve({ parent, user });
     });
 
     test.each(denies)("denies %#", async (user, parent) => {
       expect.assertions(1);
       try {
-        await resolve({ parent: full(parent), user });
+        await resolve({ parent, user });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
       }

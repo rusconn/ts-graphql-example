@@ -1,6 +1,5 @@
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
-import { full } from "../../common/resolvers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
 
@@ -66,11 +65,12 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
   const todo = await context.prisma.todo.update({
     where: { id, userId: authed.id },
     data: { title, description, status },
+    select: { id: true, userId: true },
   });
 
   return {
     __typename: "UpdateTodoSuccess",
-    todo: full(todo),
+    todo,
   };
 };
 

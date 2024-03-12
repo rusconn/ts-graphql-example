@@ -2,7 +2,6 @@ import { ulid } from "ulid";
 
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
-import { full } from "../../common/resolvers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 
 const TITLE_MAX = 100;
@@ -41,11 +40,12 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
 
   const todo = await context.prisma.todo.create({
     data: { id: ulid(), userId: authed.id, title, description },
+    select: { id: true, userId: true },
   });
 
   return {
     __typename: "CreateTodoSuccess",
-    todo: full(todo),
+    todo,
   };
 };
 

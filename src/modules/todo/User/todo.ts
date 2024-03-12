@@ -1,4 +1,3 @@
-import { key } from "../../common/resolvers.ts";
 import type { UserResolvers } from "../../common/schema.ts";
 import { authAdminOrUserOwner } from "../common/authorizer.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
@@ -14,11 +13,10 @@ export const resolver: UserResolvers["todo"] = (parent, args, context) => {
 
   const id = parseTodoNodeId(args.id);
 
-  return key({ id, userId: parent.id });
+  return { id, userId: parent.id };
 };
 
 if (import.meta.vitest) {
-  const { full } = await import("../../common/resolvers.ts");
   const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context, db } = await import("../../user/common/test.ts");
@@ -29,7 +27,7 @@ if (import.meta.vitest) {
   type Params = Parameters<typeof dummyContext>[0];
 
   const valid = {
-    parent: full(db.admin),
+    parent: db.admin,
     args: { id: validTodoIds[0] },
     user: context.admin,
   };
@@ -60,13 +58,13 @@ if (import.meta.vitest) {
     ] as const;
 
     test.each(allows)("allows %#", (user, parent) => {
-      resolve({ parent: full(parent), user });
+      resolve({ parent, user });
     });
 
     test.each(denies)("denies %#", (user, parent) => {
       expect.assertions(1);
       try {
-        resolve({ parent: full(parent), user });
+        resolve({ parent, user });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
       }

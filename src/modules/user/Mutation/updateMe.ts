@@ -1,6 +1,5 @@
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
-import { full } from "../../common/resolvers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 
 const NAME_MAX = 100;
@@ -73,11 +72,12 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
   const updated = await context.prisma.user.update({
     where: { id: authed.id },
     data: { name, email, password },
+    select: { id: true },
   });
 
   return {
     __typename: "UpdateMeSuccess",
-    user: full(updated),
+    user: updated,
   };
 };
 

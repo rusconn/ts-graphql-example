@@ -1,5 +1,4 @@
 import { authAuthenticated } from "../../common/authorizers.ts";
-import { full } from "../../common/resolvers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -20,11 +19,12 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
   const updated = await context.prisma.user.update({
     where: { id: authed.id },
     data: { token: null },
+    select: { id: true },
   });
 
   return {
     __typename: "LogoutSuccess",
-    user: full(updated),
+    user: updated,
   };
 };
 

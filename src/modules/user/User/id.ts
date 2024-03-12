@@ -1,7 +1,7 @@
 import type { UserResolvers } from "../../common/schema.ts";
 import { userNodeId } from "../common/adapter.ts";
 import { authAdminOrUserOwner } from "../common/authorizer.ts";
-import { fullUser } from "../common/resolver.ts";
+import { getUser } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User implements Node {
@@ -12,13 +12,12 @@ export const typeDef = /* GraphQL */ `
 export const resolver: UserResolvers["id"] = async (parent, _args, context) => {
   authAdminOrUserOwner(context.user, parent);
 
-  const user = await fullUser(context.prisma, parent);
+  const user = await getUser(context.prisma, parent);
 
   return userNodeId(user.id);
 };
 
 if (import.meta.vitest) {
-  const { full } = await import("../../common/resolvers.ts");
   const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context, db } = await import("../common/test.ts");
@@ -27,7 +26,11 @@ if (import.meta.vitest) {
   type Params = Parameters<typeof dummyContext>[0];
 
   const resolve = ({ parent, user }: { parent: Parent; user: Params["user"] }) => {
-    return resolver(parent, {}, dummyContext({ user }));
+    const prisma = {
+      user: { findUnique: async () => parent },
+    } as unknown as Params["prisma"];
+
+    return resolver(parent, {}, dummyContext({ prisma, user }));
   };
 
   describe("Authorization", () => {
@@ -44,13 +47,13 @@ if (import.meta.vitest) {
     ] as const;
 
     test.each(allows)("allows %#", async (user, parent) => {
-      await resolve({ parent: full(parent), user });
+      await resolve({ parent, user });
     });
 
     test.each(denies)("denies %#", async (user, parent) => {
       expect.assertions(1);
       try {
-        await resolve({ parent: full(parent), user });
+        await resolve({ parent, user });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
       }

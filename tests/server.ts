@@ -1,14 +1,13 @@
 import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 import { parse } from "graphql";
 
-import type { ContextUser } from "@/modules/common/resolvers.ts";
 import { yoga } from "@/server.ts";
 
 import { ContextData } from "tests/data.ts";
 
 type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;
-  user?: ContextUser;
+  user?: typeof ContextData[keyof typeof ContextData];
 };
 
 /** デフォルトユーザーは admin */

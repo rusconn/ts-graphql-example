@@ -1,7 +1,7 @@
 import type { TodoResolvers } from "../../common/schema.ts";
 import { todoStatus } from "../common/adapter.ts";
 import { authTodoOwner } from "../common/authorizer.ts";
-import { fullTodo } from "../common/resolver.ts";
+import { getTodo } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
@@ -15,7 +15,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: TodoResolvers["status"] = async (parent, _args, context) => {
-  const todo = await fullTodo(context.prisma, parent);
+  const todo = await getTodo(context.prisma, parent);
 
   authTodoOwner(context.user, todo);
 
@@ -23,7 +23,6 @@ export const resolver: TodoResolvers["status"] = async (parent, _args, context) 
 };
 
 if (import.meta.vitest) {
-  const { full } = await import("../../common/resolvers.ts");
   const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../../user/common/test.ts");
@@ -33,7 +32,11 @@ if (import.meta.vitest) {
   type Params = Parameters<typeof dummyContext>[0];
 
   const resolve = ({ parent, user }: { parent: Parent; user: Params["user"] }) => {
-    return resolver(parent, {}, dummyContext({ user }));
+    const prisma = {
+      todo: { findUnique: async () => parent },
+    } as unknown as Params["prisma"];
+
+    return resolver(parent, {}, dummyContext({ prisma, user }));
   };
 
   describe("Authorization", () => {
@@ -50,13 +53,13 @@ if (import.meta.vitest) {
     ] as const;
 
     test.each(allows)("allows %#", async (user, parent) => {
-      await resolve({ parent: full(parent), user });
+      await resolve({ parent, user });
     });
 
     test.each(denies)("denies %#", async (user, parent) => {
       expect.assertions(1);
       try {
-        await resolve({ parent: full(parent), user });
+        await resolve({ parent, user });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
       }
