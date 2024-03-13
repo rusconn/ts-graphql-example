@@ -11,13 +11,13 @@ export const cursorConnections = (
 ) => `
   type ${type}Connection {
     pageInfo: PageInfo!
-    edges: [${type}Edge!]!
-    nodes: [${type}!]!
+    edges: [${type}Edge]
+    nodes: [${type}]
     ${fieldLines(additionalConnectionFields)}
   }
 
   type ${type}Edge {
-    node: ${type}!
+    node: ${type}
     cursor: String!
     ${fieldLines(additionalEdgeFields)}
   }

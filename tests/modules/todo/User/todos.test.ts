@@ -121,7 +121,7 @@ describe("order of items", () => {
       fail();
     }
 
-    const ids = data.node.todos?.edges.map(({ node }) => node.id);
+    const ids = data.node.todos?.edges?.map(edge => edge?.node?.id);
     const expectedIds = expectedTodos.map(({ id }) => id);
 
     expect(ids).toStrictEqual(expectedIds);

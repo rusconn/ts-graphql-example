@@ -87,7 +87,7 @@ describe("order of items", () => {
       variables: { ...variables, first: 10 },
     });
 
-    const ids = data?.users?.edges.map(({ node }) => node.id);
+    const ids = data?.users?.edges?.map(edge => edge?.node?.id);
     const expectedIds = expectedUsers.map(({ id }) => id);
 
     expect(ids).toStrictEqual(expectedIds);

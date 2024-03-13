@@ -231,8 +231,8 @@ export type Todo = Node & {
 
 export type TodoConnection = {
   __typename?: 'TodoConnection';
-  edges: Array<TodoEdge>;
-  nodes: Array<Todo>;
+  edges?: Maybe<Array<Maybe<TodoEdge>>>;
+  nodes?: Maybe<Array<Maybe<Todo>>>;
   pageInfo: PageInfo;
   totalCount: Scalars['Int']['output'];
 };
@@ -240,7 +240,7 @@ export type TodoConnection = {
 export type TodoEdge = {
   __typename?: 'TodoEdge';
   cursor: Scalars['String']['output'];
-  node: Todo;
+  node?: Maybe<Todo>;
 };
 
 export type TodoNotFoundError = Error & {
@@ -330,8 +330,8 @@ export type UserTodosArgs = {
 
 export type UserConnection = {
   __typename?: 'UserConnection';
-  edges: Array<UserEdge>;
-  nodes: Array<User>;
+  edges?: Maybe<Array<Maybe<UserEdge>>>;
+  nodes?: Maybe<Array<Maybe<User>>>;
   pageInfo: PageInfo;
   totalCount: Scalars['Int']['output'];
 };
@@ -339,7 +339,7 @@ export type UserConnection = {
 export type UserEdge = {
   __typename?: 'UserEdge';
   cursor: Scalars['String']['output'];
-  node: User;
+  node?: Maybe<User>;
 };
 
 export type UserNotFoundError = Error & {
@@ -480,8 +480,8 @@ export type ResolversTypes = ResolversObject<{
   SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Todo: ResolverTypeWrapper<TodoMapper>;
-  TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['TodoEdge']>, nodes: Array<ResolversTypes['Todo']> }>;
-  TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node: ResolversTypes['Todo'] }>;
+  TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['TodoEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Todo']>>> }>;
+  TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node: Maybe<ResolversTypes['Todo']> }>;
   TodoNotFoundError: ResolverTypeWrapper<TodoNotFoundError>;
   TodoOrder: TodoOrder;
   TodoOrderField: TodoOrderField;
@@ -495,8 +495,8 @@ export type ResolversTypes = ResolversObject<{
   UpdateTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTodoResult']>;
   UpdateTodoSuccess: ResolverTypeWrapper<Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   User: ResolverTypeWrapper<UserMapper>;
-  UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversTypes['UserEdge']>, nodes: Array<ResolversTypes['User']> }>;
-  UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: ResolversTypes['User'] }>;
+  UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['UserEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
+  UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
   UserNotFoundError: ResolverTypeWrapper<UserNotFoundError>;
   UserOrder: UserOrder;
   UserOrderField: UserOrderField;
@@ -535,8 +535,8 @@ export type ResolversParentTypes = ResolversObject<{
   SignupSuccess: SignupSuccess;
   String: Scalars['String']['output'];
   Todo: TodoMapper;
-  TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['TodoEdge']>, nodes: Array<ResolversParentTypes['Todo']> };
-  TodoEdge: Omit<TodoEdge, 'node'> & { node: ResolversParentTypes['Todo'] };
+  TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['TodoEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Todo']>>> };
+  TodoEdge: Omit<TodoEdge, 'node'> & { node: Maybe<ResolversParentTypes['Todo']> };
   TodoNotFoundError: TodoNotFoundError;
   TodoOrder: TodoOrder;
   UncompleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['UncompleteTodoResult'];
@@ -548,8 +548,8 @@ export type ResolversParentTypes = ResolversObject<{
   UpdateTodoResult: ResolversUnionTypes<ResolversParentTypes>['UpdateTodoResult'];
   UpdateTodoSuccess: Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   User: UserMapper;
-  UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Array<ResolversParentTypes['UserEdge']>, nodes: Array<ResolversParentTypes['User']> };
-  UserEdge: Omit<UserEdge, 'node'> & { node: ResolversParentTypes['User'] };
+  UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['UserEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
+  UserEdge: Omit<UserEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
   UserNotFoundError: UserNotFoundError;
   UserOrder: UserOrder;
 }>;
@@ -684,8 +684,8 @@ export type TodoResolvers<ContextType = Context, ParentType extends ResolversPar
 }>;
 
 export type TodoConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoConnection'] = ResolversParentTypes['TodoConnection']> = ResolversObject<{
-  edges?: Resolver<Array<ResolversTypes['TodoEdge']>, ParentType, ContextType>;
-  nodes?: Resolver<Array<ResolversTypes['Todo']>, ParentType, ContextType>;
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['TodoEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['Todo']>>>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -693,7 +693,7 @@ export type TodoConnectionResolvers<ContextType = Context, ParentType extends Re
 
 export type TodoEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoEdge'] = ResolversParentTypes['TodoEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  node?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -742,8 +742,8 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
 }>;
 
 export type UserConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserConnection'] = ResolversParentTypes['UserConnection']> = ResolversObject<{
-  edges?: Resolver<Array<ResolversTypes['UserEdge']>, ParentType, ContextType>;
-  nodes?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -751,7 +751,7 @@ export type UserConnectionResolvers<ContextType = Context, ParentType extends Re
 
 export type UserEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserEdge'] = ResolversParentTypes['UserEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  node?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
