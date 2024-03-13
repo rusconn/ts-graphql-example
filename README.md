@@ -36,23 +36,6 @@ Prisma Studio は `pnpm studio` で起動しておくこと。
 
 等の場合は non-nullable とする。
 
-### データフェッチ戦略
-
-[GraphQL Resolvers: Best Practices](https://medium.com/paypal-tech/graphql-resolvers-best-practices-cd36fdbcef55) を参考にデザインした。
-
-上記記事における top-heavy なリゾルバは避け、データが本当に必要になるレベルで初めてデータをフェッチする。\
-ただし `{ me { id name } }` のような単純なクエリでもデータフェッチが重複するようになるので、dedup が事実上必須となる。
-
-この戦略には NOT_FOUND エラーの発生が遅延するという問題がある。存在確認を top-heavy に行えば遅延を防げるが、余計なデータフェッチが発生しないというメリットを殺してしまうので避けた。
-
-他の戦略としては、エントリポイントで resolveInfo を解析して必要なデータを予め取得してしまう方法が考えられる。これは dedup を必要としないが、
-
-- エントリポイントの数だけデータフェッチロジックが必要になること
-- フィールドに対するデータの出所がわかりにくくなりそうなこと
-- GraphQL way から外れている気がすること
-
-等を考慮して採用しなかった。
-
 ### API サーバー ⇄ DB 間におけるオーバーフェッチ
 
 resolveInfo の解析により DB からの取得列を絞れそうだが、難易度やコードの複雑化に対する恩恵が小さいと判断し、許容することにした: [Prisma 公式のパフォーマンスに関する見解](https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance#using-select-to-limit-number-of-columns-returned)

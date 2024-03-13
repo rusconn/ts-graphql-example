@@ -40,7 +40,6 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
 
   const todo = await context.prisma.todo.create({
     data: { id: ulid(), userId: authed.id, title, description },
-    select: { id: true, userId: true },
   });
 
   return {

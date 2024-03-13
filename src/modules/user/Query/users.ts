@@ -57,7 +57,6 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
     findManyArgs =>
       context.prisma.user.findMany({
         ...findManyArgs,
-        select: { id: true },
         orderBy: orderByToUse,
       }),
     () => context.prisma.user.count(),

@@ -22,6 +22,6 @@ export type UserContext = {
 
 export type ContextUser = Admin | User | Guest;
 
-export type Admin = Pick<Prisma.User, "id"> & { role: "ADMIN" };
-export type User = Pick<Prisma.User, "id"> & { role: "USER" };
+export type Admin = Prisma.User & { role: "ADMIN" };
+export type User = Prisma.User & { role: "USER" };
 export type Guest = Pick<Prisma.User, "id"> & { role: "GUEST" };

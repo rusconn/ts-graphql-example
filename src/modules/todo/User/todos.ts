@@ -57,7 +57,6 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
     findManyArgs =>
       context.prisma.todo.findMany({
         ...findManyArgs,
-        select: { id: true, userId: true },
         where: { userId: parent.id },
         orderBy: orderByToUse,
       }),

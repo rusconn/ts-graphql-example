@@ -1,6 +1,6 @@
+import { getUser } from "@/modules/user/common/resolver.ts";
 import type { TodoResolvers } from "../../common/schema.ts";
 import { authAdminOrTodoOwner } from "../common/authorizer.ts";
-import { getTodo } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
@@ -9,11 +9,9 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: TodoResolvers["user"] = async (parent, _args, context) => {
-  const todo = await getTodo(context.prisma, parent);
+  authAdminOrTodoOwner(context.user, parent);
 
-  authAdminOrTodoOwner(context.user, todo);
-
-  return { id: todo.userId };
+  return await getUser(context.prisma, { id: parent.userId });
 };
 
 if (import.meta.vitest) {
@@ -26,11 +24,7 @@ if (import.meta.vitest) {
   type Params = Parameters<typeof dummyContext>[0];
 
   const resolve = ({ parent, user }: { parent: Parent; user: Params["user"] }) => {
-    const prisma = {
-      todo: { findUnique: async () => parent },
-    } as unknown as Params["prisma"];
-
-    return resolver(parent, {}, dummyContext({ prisma, user }));
+    return resolver(parent, {}, dummyContext({ user }));
   };
 
   describe("Authorization", () => {

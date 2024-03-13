@@ -34,7 +34,6 @@ export const resolver: MutationResolvers["uncompleteTodo"] = async (_parent, arg
   const todo = await context.prisma.todo.update({
     where: { id, userId: authed.id },
     data: { status: Prisma.TodoStatus.PENDING },
-    select: { id: true, userId: true },
   });
 
   return {

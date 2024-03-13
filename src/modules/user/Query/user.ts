@@ -1,6 +1,7 @@
 import { authAdmin } from "../../common/authorizers.ts";
 import type { QueryResolvers } from "../../common/schema.ts";
 import { parseUserNodeId } from "../common/parser.ts";
+import { getUser } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
@@ -8,12 +9,12 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: QueryResolvers["user"] = (_parent, args, context) => {
+export const resolver: QueryResolvers["user"] = async (_parent, args, context) => {
   authAdmin(context.user);
 
   const id = parseUserNodeId(args.id);
 
-  return { id };
+  return await getUser(context.prisma, { id });
 };
 
 if (import.meta.vitest) {
@@ -44,14 +45,14 @@ if (import.meta.vitest) {
 
     const denies = [context.alice, context.guest];
 
-    test.each(allows)("allows %#", user => {
-      resolve({ user });
+    test.each(allows)("allows %#", async user => {
+      await resolve({ user });
     });
 
-    test.each(denies)("denies %#", user => {
+    test.each(denies)("denies %#", async user => {
       expect.assertions(1);
       try {
-        resolve({ user });
+        await resolve({ user });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
       }
@@ -59,14 +60,14 @@ if (import.meta.vitest) {
   });
 
   describe("Parsing", () => {
-    test.each(validUserIds)("valids %#", id => {
-      resolve({ args: { id } });
+    test.each(validUserIds)("valids %#", async id => {
+      await resolve({ args: { id } });
     });
 
-    test.each(invalidUserIds)("invalids %#", id => {
+    test.each(invalidUserIds)("invalids %#", async id => {
       expect.assertions(1);
       try {
-        resolve({ args: { id } });
+        await resolve({ args: { id } });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
       }

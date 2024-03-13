@@ -17,11 +17,11 @@ export const dummyContext = ({
 };
 
 const dummyPrismaActions = {
-  findUnique: async () => {},
-  findUniqueOrThrow: async () => {},
+  findUnique: async () => ({ id: "dummy" }),
+  findUniqueOrThrow: async () => ({ id: "dummy" }),
   findMany: async () => [],
-  findFirst: async () => {},
-  findFirstOrThrow: async () => {},
+  findFirst: async () => ({ id: "dummy" }),
+  findFirstOrThrow: async () => ({ id: "dummy" }),
   create: async () => ({ id: "dummy" }),
   createMany: async () => ({ count: 0 }),
   update: async () => ({ id: "dummy" }),

@@ -193,7 +193,7 @@ export type UserTodoQueryVariables = Exact<{
 }>;
 
 
-export type UserTodoQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todo?: { id: string, user?: { id: string } | null } | null } | null };
+export type UserTodoQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todo?: { id: string } | null } | null };
 
 export type UserTodosQueryVariables = Exact<{
   id: Scalars['ID']['input'];

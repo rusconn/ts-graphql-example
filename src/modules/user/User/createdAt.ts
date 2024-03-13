@@ -1,6 +1,5 @@
 import type { UserResolvers } from "../../common/schema.ts";
 import { authAdminOrUserOwner } from "../common/authorizer.ts";
-import { getUser } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -8,12 +7,10 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: UserResolvers["createdAt"] = async (parent, _args, context) => {
+export const resolver: UserResolvers["createdAt"] = (parent, _args, context) => {
   authAdminOrUserOwner(context.user, parent);
 
-  const user = await getUser(context.prisma, parent);
-
-  return user.createdAt;
+  return parent.createdAt;
 };
 
 if (import.meta.vitest) {
@@ -25,11 +22,7 @@ if (import.meta.vitest) {
   type Params = Parameters<typeof dummyContext>[0];
 
   const resolve = ({ parent, user }: { parent: Parent; user: Params["user"] }) => {
-    const prisma = {
-      user: { findUnique: async () => parent },
-    } as unknown as Params["prisma"];
-
-    return resolver(parent, {}, dummyContext({ prisma, user }));
+    return resolver(parent, {}, dummyContext({ user }));
   };
 
   describe("Authorization", () => {
@@ -45,14 +38,14 @@ if (import.meta.vitest) {
       [context.guest, db.alice],
     ] as const;
 
-    test.each(allows)("allows %#", async (user, parent) => {
-      await resolve({ parent, user });
+    test.each(allows)("allows %#", (user, parent) => {
+      resolve({ parent, user });
     });
 
-    test.each(denies)("denies %#", async (user, parent) => {
+    test.each(denies)("denies %#", (user, parent) => {
       expect.assertions(1);
       try {
-        await resolve({ parent, user });
+        resolve({ parent, user });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
       }

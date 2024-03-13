@@ -1,6 +1,5 @@
 import type { TodoResolvers } from "../../common/schema.ts";
 import { authTodoOwner } from "../common/authorizer.ts";
-import { getTodo } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
@@ -8,12 +7,10 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: TodoResolvers["description"] = async (parent, _args, context) => {
-  const todo = await getTodo(context.prisma, parent);
+export const resolver: TodoResolvers["description"] = (parent, _args, context) => {
+  authTodoOwner(context.user, parent);
 
-  authTodoOwner(context.user, todo);
-
-  return todo.description;
+  return parent.description;
 };
 
 if (import.meta.vitest) {
@@ -26,11 +23,7 @@ if (import.meta.vitest) {
   type Params = Parameters<typeof dummyContext>[0];
 
   const resolve = ({ parent, user }: { parent: Parent; user: Params["user"] }) => {
-    const prisma = {
-      todo: { findUnique: async () => parent },
-    } as unknown as Params["prisma"];
-
-    return resolver(parent, {}, dummyContext({ prisma, user }));
+    return resolver(parent, {}, dummyContext({ user }));
   };
 
   describe("Authorization", () => {
@@ -46,14 +39,14 @@ if (import.meta.vitest) {
       [context.guest, db.aliceTodo],
     ] as const;
 
-    test.each(allows)("allows %#", async (user, parent) => {
-      await resolve({ parent, user });
+    test.each(allows)("allows %#", (user, parent) => {
+      resolve({ parent, user });
     });
 
-    test.each(denies)("denies %#", async (user, parent) => {
+    test.each(denies)("denies %#", (user, parent) => {
       expect.assertions(1);
       try {
-        await resolve({ parent, user });
+        resolve({ parent, user });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
       }

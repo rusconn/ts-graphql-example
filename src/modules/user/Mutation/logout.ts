@@ -19,7 +19,6 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
   const updated = await context.prisma.user.update({
     where: { id: authed.id },
     data: { token: null },
-    select: { id: true },
   });
 
   return {

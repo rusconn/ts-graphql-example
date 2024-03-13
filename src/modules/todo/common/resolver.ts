@@ -3,11 +3,14 @@ import type { SetOptional } from "type-fest";
 import * as Prisma from "@/prisma/mod.ts";
 import { type Context, notFoundErr } from "../../common/resolvers.ts";
 
-export type Todo = SetOptional<Pick<Prisma.Todo, "id" | "userId">, "userId">;
+export type Todo = Prisma.Todo;
 
-export const getTodo = async (prisma: Context["prisma"], parent: Todo) => {
+export const getTodo = async (
+  prisma: Context["prisma"],
+  key: SetOptional<Pick<Todo, "id" | "userId">, "userId">,
+) => {
   const todo = await prisma.todo.findUnique({
-    where: { id: parent.id, userId: parent.userId },
+    where: { id: key.id, userId: key.userId },
   });
 
   if (!todo) {

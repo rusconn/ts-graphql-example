@@ -29,7 +29,6 @@ export const yoga = createYoga<ServerContext, UserContext>({
 
     if (token) {
       const found = await prisma.user.findUnique({
-        select: { id: true, role: true },
         where: { token },
       });
 

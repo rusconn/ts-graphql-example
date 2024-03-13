@@ -16,9 +16,6 @@ const executeQuery = executeSingleResultOperation<
       ... on User {
         todo(id: $todoId) {
           id
-          user {
-            id
-          }
         }
       }
     }
@@ -92,16 +89,4 @@ describe("exists, but not owned", () => {
     expect(data.node.todo).toBeNull();
     expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
   });
-});
-
-it("should set correct parent user id", async () => {
-  const { data } = await executeQuery({
-    variables: { id: GraphData.admin.id, todoId: GraphData.adminTodo.id },
-  });
-
-  if (data?.node?.__typename !== "User") {
-    fail();
-  }
-
-  expect(data.node.todo?.user?.id).toBe(GraphData.admin.id);
 });

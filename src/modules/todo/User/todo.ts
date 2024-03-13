@@ -1,6 +1,7 @@
 import type { UserResolvers } from "../../common/schema.ts";
 import { authAdminOrUserOwner } from "../common/authorizer.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
+import { getTodo } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -8,12 +9,12 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: UserResolvers["todo"] = (parent, args, context) => {
+export const resolver: UserResolvers["todo"] = async (parent, args, context) => {
   authAdminOrUserOwner(context.user, parent);
 
   const id = parseTodoNodeId(args.id);
 
-  return { id, userId: parent.id };
+  return await getTodo(context.prisma, { id, userId: parent.id });
 };
 
 if (import.meta.vitest) {
@@ -57,14 +58,14 @@ if (import.meta.vitest) {
       [context.guest, db.alice],
     ] as const;
 
-    test.each(allows)("allows %#", (user, parent) => {
-      resolve({ parent, user });
+    test.each(allows)("allows %#", async (user, parent) => {
+      await resolve({ parent, user });
     });
 
-    test.each(denies)("denies %#", (user, parent) => {
+    test.each(denies)("denies %#", async (user, parent) => {
       expect.assertions(1);
       try {
-        resolve({ parent, user });
+        await resolve({ parent, user });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
       }
@@ -72,14 +73,14 @@ if (import.meta.vitest) {
   });
 
   describe("Parsing", () => {
-    test.each(validTodoIds)("valids %#", id => {
-      resolve({ args: { id } });
+    test.each(validTodoIds)("valids %#", async id => {
+      await resolve({ args: { id } });
     });
 
-    test.each(invalidTodoIds)("invalids %#", id => {
+    test.each(invalidTodoIds)("invalids %#", async id => {
       expect.assertions(1);
       try {
-        resolve({ args: { id } });
+        await resolve({ args: { id } });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
       }

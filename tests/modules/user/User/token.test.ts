@@ -41,8 +41,7 @@ test("not exists", async () => {
 
   const errorCodes = errors?.map(({ extensions }) => extensions?.code);
 
-  // 他人のリソースと見做されるので Forbidden
-  expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.Forbidden]));
+  expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
 });
 
 test("exists, owned", async () => {

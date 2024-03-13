@@ -1,11 +1,11 @@
 import * as Prisma from "@/prisma/mod.ts";
 import { type Context, notFoundErr } from "../../common/resolvers.ts";
 
-export type User = Pick<Prisma.User, "id">;
+export type User = Prisma.User;
 
-export const getUser = async (prisma: Context["prisma"], parent: User) => {
+export const getUser = async (prisma: Context["prisma"], key: Pick<User, "id">) => {
   const user = await prisma.user.findUnique({
-    where: { id: parent.id },
+    where: { id: key.id },
   });
 
   if (!user) {

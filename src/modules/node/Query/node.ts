@@ -1,6 +1,8 @@
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseNodeId } from "../../common/parsers.ts";
 import type { QueryResolvers } from "../../common/schema.ts";
+import { getTodo } from "../../todo/common/resolver.ts";
+import { getUser } from "../../user/common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
@@ -8,12 +10,19 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: QueryResolvers["node"] = (_parent, args, context) => {
+export const resolver: QueryResolvers["node"] = async (_parent, args, context) => {
   authAuthenticated(context.user);
 
   const { type, id } = parseNodeId(args.id);
 
-  return { type, id };
+  const getNode = {
+    Todo: getTodo,
+    User: getUser,
+  }[type];
+
+  const node = await getNode(context.prisma, { id });
+
+  return { type, ...node };
 };
 
 if (import.meta.vitest) {
@@ -45,14 +54,14 @@ if (import.meta.vitest) {
 
     const denies = [context.guest];
 
-    test.each(allows)("allows %#", user => {
-      resolve({ user });
+    test.each(allows)("allows %#", async user => {
+      await resolve({ user });
     });
 
-    test.each(denies)("denies %#", user => {
+    test.each(denies)("denies %#", async user => {
       expect.assertions(1);
       try {
-        resolve({ user });
+        await resolve({ user });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
       }
@@ -60,14 +69,14 @@ if (import.meta.vitest) {
   });
 
   describe("Parsing", () => {
-    test.each(validNodeIds)("valids %#", id => {
-      resolve({ args: { id } });
+    test.each(validNodeIds)("valids %#", async id => {
+      await resolve({ args: { id } });
     });
 
-    test.each(invalidNodeIds)("invalids %#", id => {
+    test.each(invalidNodeIds)("invalids %#", async id => {
       expect.assertions(1);
       try {
-        resolve({ args: { id } });
+        await resolve({ args: { id } });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
       }
