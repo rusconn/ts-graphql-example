@@ -234,7 +234,7 @@ export type TodoConnection = {
   edges?: Maybe<Array<Maybe<TodoEdge>>>;
   nodes?: Maybe<Array<Maybe<Todo>>>;
   pageInfo: PageInfo;
-  totalCount: Scalars['Int']['output'];
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type TodoEdge = {
@@ -333,7 +333,7 @@ export type UserConnection = {
   edges?: Maybe<Array<Maybe<UserEdge>>>;
   nodes?: Maybe<Array<Maybe<User>>>;
   pageInfo: PageInfo;
-  totalCount: Scalars['Int']['output'];
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type UserEdge = {
@@ -687,7 +687,7 @@ export type TodoConnectionResolvers<ContextType = Context, ParentType extends Re
   edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['TodoEdge']>>>, ParentType, ContextType>;
   nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['Todo']>>>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -745,7 +745,7 @@ export type UserConnectionResolvers<ContextType = Context, ParentType extends Re
   edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserEdge']>>>, ParentType, ContextType>;
   nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

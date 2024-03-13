@@ -23,7 +23,7 @@ export const typeDef = /* GraphQL */ `
   }
 
   ${orderOptions("User")}
-  ${cursorConnections("User", { totalCount: "Int!" })}
+  ${cursorConnections("User", { totalCount: "Int" })}
 `;
 
 export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
