@@ -4,7 +4,7 @@
 //
 
 //
-// base.prisma
+// common.prisma
 //
 
 generator client {
