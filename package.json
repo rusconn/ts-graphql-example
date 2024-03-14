@@ -24,7 +24,7 @@
     "studio": "prisma studio",
     "test": "run-s test:ut test:it",
     "test:ut": "NODE_ENV=test PASSWORD_HASH_ROUNDS_EXPONENT=4 vitest --dir src",
-    "test:it": "NODE_ENV=test PASSWORD_HASH_ROUNDS_EXPONENT=4 DB_NAME=testdb run-s test:it:*",
+    "test:it": "NODE_ENV=test PASSWORD_HASH_ROUNDS_EXPONENT=4 DB_NAME=test run-s test:it:*",
     "test:it:migrate": "pnpm migrate:reset --skip-seed",
     "test:it:run": "vitest --dir tests",
     "check": "run-s check:*",
