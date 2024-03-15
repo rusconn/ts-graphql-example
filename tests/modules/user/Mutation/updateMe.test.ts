@@ -2,7 +2,7 @@ import { omit } from "remeda";
 
 import { prisma } from "@/prisma/mod.ts";
 
-import { DBData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 import { clearUsers } from "tests/helpers.ts";
 import type { UpdateMeMutation, UpdateMeMutationVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
@@ -30,7 +30,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice],
+  users: [Data.db.admin, Data.db.alice],
 };
 
 const seedData = {
@@ -43,7 +43,7 @@ beforeEach(async () => {
 });
 
 test("email already exists", async () => {
-  const { email } = DBData.alice;
+  const { email } = Data.db.alice;
 
   const { data } = await executeMutation({
     variables: { input: { email } },
@@ -63,7 +63,7 @@ it("should update using input", async () => {
   expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
 
   const user = await prisma.user.findUniqueOrThrow({
-    where: { id: DBData.admin.id },
+    where: { id: Data.db.admin.id },
   });
 
   expect(user.name).toBe(name);
@@ -72,7 +72,7 @@ it("should update using input", async () => {
 
 it("should not update fields if the field is absent", async () => {
   const before = await prisma.user.findUniqueOrThrow({
-    where: { id: DBData.admin.id },
+    where: { id: Data.db.admin.id },
   });
 
   const { data } = await executeMutation({
@@ -82,7 +82,7 @@ it("should not update fields if the field is absent", async () => {
   expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
 
   const after = await prisma.user.findUniqueOrThrow({
-    where: { id: DBData.admin.id },
+    where: { id: Data.db.admin.id },
   });
 
   expect(before.name).toBe(after.name);
@@ -92,7 +92,7 @@ it("should not update fields if the field is absent", async () => {
 
 it("should update updatedAt", async () => {
   const before = await prisma.user.findUniqueOrThrow({
-    where: { id: DBData.admin.id },
+    where: { id: Data.db.admin.id },
   });
 
   const { data } = await executeMutation({
@@ -102,7 +102,7 @@ it("should update updatedAt", async () => {
   expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
 
   const after = await prisma.user.findUniqueOrThrow({
-    where: { id: DBData.admin.id },
+    where: { id: Data.db.admin.id },
   });
 
   const beforeUpdatedAt = before.updatedAt.getTime();
@@ -113,7 +113,7 @@ it("should update updatedAt", async () => {
 
 it("should not update other attrs", async () => {
   const before = await prisma.user.findUniqueOrThrow({
-    where: { id: DBData.admin.id },
+    where: { id: Data.db.admin.id },
   });
 
   const { data } = await executeMutation({
@@ -123,7 +123,7 @@ it("should not update other attrs", async () => {
   expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
 
   const after = await prisma.user.findUniqueOrThrow({
-    where: { id: DBData.admin.id },
+    where: { id: Data.db.admin.id },
   });
 
   // これらのフィールドは変化する想定

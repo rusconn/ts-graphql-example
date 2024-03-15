@@ -33,7 +33,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["login"] = async (_parent, args, context) => {
-  auth(context.user);
+  auth(context);
 
   const { email, password } = args.input;
 

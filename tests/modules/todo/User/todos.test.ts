@@ -1,7 +1,7 @@
 import { OrderDirection, TodoOrderField } from "@/modules/common/schema.ts";
 import { prisma } from "@/prisma/mod.ts";
 
-import { DBData, GraphData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
 import type { UserTodosQuery, UserTodosQueryVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
@@ -42,8 +42,8 @@ const executeQuery = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo, DBData.adminTodo2, DBData.adminTodo3],
+  users: [Data.db.admin, Data.db.alice],
+  todos: [Data.db.adminTodo, Data.db.adminTodo2, Data.db.adminTodo3],
 };
 
 const seedData = {
@@ -62,7 +62,7 @@ describe("number of items", () => {
     const first = testData.todos.length - 1;
 
     const { data } = await executeQuery({
-      variables: { id: GraphData.admin.id, first },
+      variables: { id: Data.graph.admin.id, first },
     });
 
     if (data?.node?.__typename !== "User") {
@@ -76,7 +76,7 @@ describe("number of items", () => {
     const last = testData.todos.length - 1;
 
     const { data } = await executeQuery({
-      variables: { id: GraphData.admin.id, last },
+      variables: { id: Data.graph.admin.id, last },
     });
 
     if (data?.node?.__typename !== "User") {
@@ -89,32 +89,32 @@ describe("number of items", () => {
 
 describe("order of items", () => {
   const patterns = [
-    [{}, [GraphData.adminTodo, GraphData.adminTodo3, GraphData.adminTodo2]], // defaults to updatedAt desc
+    [{}, [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2]], // defaults to updatedAt desc
     [
       { orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Asc } },
-      [GraphData.adminTodo, GraphData.adminTodo2, GraphData.adminTodo3],
+      [Data.graph.adminTodo, Data.graph.adminTodo2, Data.graph.adminTodo3],
     ],
     [
       {
         orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Desc },
       },
-      [GraphData.adminTodo3, GraphData.adminTodo2, GraphData.adminTodo],
+      [Data.graph.adminTodo3, Data.graph.adminTodo2, Data.graph.adminTodo],
     ],
     [
       { orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Asc } },
-      [GraphData.adminTodo2, GraphData.adminTodo3, GraphData.adminTodo],
+      [Data.graph.adminTodo2, Data.graph.adminTodo3, Data.graph.adminTodo],
     ],
     [
       {
         orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Desc },
       },
-      [GraphData.adminTodo, GraphData.adminTodo3, GraphData.adminTodo2],
+      [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2],
     ],
   ] as const;
 
   test.each(patterns)("%o %o", async (variables, expectedTodos) => {
     const { data } = await executeQuery({
-      variables: { ...variables, id: GraphData.admin.id, first: 10 },
+      variables: { ...variables, id: Data.graph.admin.id, first: 10 },
     });
 
     if (data?.node?.__typename !== "User") {
@@ -134,7 +134,7 @@ describe("pagination", () => {
 
     const execute = () =>
       executeQuery({
-        variables: { id: GraphData.admin.id, first },
+        variables: { id: Data.graph.admin.id, first },
       });
 
     const { data: data1 } = await execute();

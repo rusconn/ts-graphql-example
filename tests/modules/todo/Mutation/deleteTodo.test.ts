@@ -1,6 +1,6 @@
 import { prisma } from "@/prisma/mod.ts";
 
-import { DBData, GraphData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 import { clearTables, clearTodos } from "tests/helpers.ts";
 import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
@@ -23,8 +23,8 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo, DBData.aliceTodo],
+  users: [Data.db.admin, Data.db.alice],
+  todos: [Data.db.adminTodo, Data.db.aliceTodo],
 };
 
 const seedData = {
@@ -45,7 +45,7 @@ beforeEach(async () => {
 
 test("not exists", async () => {
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo.id.slice(0, -1) },
+    variables: { id: Data.graph.adminTodo.id.slice(0, -1) },
   });
 
   expect(data?.deleteTodo?.__typename).toBe("TodoNotFoundError");
@@ -53,7 +53,7 @@ test("not exists", async () => {
 
 test("exists, but not owned", async () => {
   const { data } = await executeMutation({
-    variables: { id: GraphData.aliceTodo.id },
+    variables: { id: Data.graph.aliceTodo.id },
   });
 
   expect(data?.deleteTodo?.__typename).toBe("TodoNotFoundError");
@@ -61,13 +61,13 @@ test("exists, but not owned", async () => {
 
 it("should delete todo", async () => {
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo.id },
+    variables: { id: Data.graph.adminTodo.id },
   });
 
   expect(data?.deleteTodo?.__typename).toBe("DeleteTodoSuccess");
 
   const todo = await prisma.todo.findUnique({
-    where: { id: DBData.adminTodo.id },
+    where: { id: Data.db.adminTodo.id },
   });
 
   expect(todo).toBeNull();
@@ -77,13 +77,13 @@ it("should not delete others", async () => {
   const before = await prisma.todo.count();
 
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo.id },
+    variables: { id: Data.graph.adminTodo.id },
   });
 
   expect(data?.deleteTodo?.__typename).toBe("DeleteTodoSuccess");
 
   const todo = await prisma.todo.findUnique({
-    where: { id: DBData.adminTodo.id },
+    where: { id: Data.db.adminTodo.id },
   });
 
   const after = await prisma.todo.count();

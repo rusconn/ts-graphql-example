@@ -1,7 +1,7 @@
 import { ErrorCode } from "@/modules/common/schema.ts";
 import { prisma } from "@/prisma/mod.ts";
 
-import { ContextData, DBData, GraphData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
 import type { UserTodoQuery, UserTodoQueryVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
@@ -23,8 +23,8 @@ const executeQuery = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo, DBData.aliceTodo],
+  users: [Data.db.admin, Data.db.alice],
+  todos: [Data.db.adminTodo, Data.db.aliceTodo],
 };
 
 const seedData = {
@@ -41,8 +41,8 @@ beforeAll(async () => {
 test("not exists", async () => {
   const { data } = await executeQuery({
     variables: {
-      id: GraphData.admin.id,
-      todoId: GraphData.adminTodo.id.slice(0, -1),
+      id: Data.graph.admin.id,
+      todoId: Data.graph.adminTodo.id.slice(0, -1),
     },
   });
 
@@ -56,8 +56,8 @@ test("not exists", async () => {
 test("exists, owned", async () => {
   const { data } = await executeQuery({
     variables: {
-      id: GraphData.admin.id,
-      todoId: GraphData.adminTodo.id,
+      id: Data.graph.admin.id,
+      todoId: Data.graph.adminTodo.id,
     },
   });
 
@@ -70,8 +70,8 @@ test("exists, owned", async () => {
 
 describe("exists, but not owned", () => {
   const patterns = [
-    [ContextData.admin, GraphData.admin.id, GraphData.aliceTodo.id],
-    [ContextData.alice, GraphData.alice.id, GraphData.adminTodo.id],
+    [Data.context.admin, Data.graph.admin.id, Data.graph.aliceTodo.id],
+    [Data.context.alice, Data.graph.alice.id, Data.graph.adminTodo.id],
   ] as const;
 
   test.each(patterns)("%o %s %s", async (user, id, todoId) => {

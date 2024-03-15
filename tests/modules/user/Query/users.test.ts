@@ -1,7 +1,7 @@
 import { OrderDirection, UserOrderField } from "@/modules/common/schema.ts";
 import { prisma } from "@/prisma/mod.ts";
 
-import { DBData, GraphData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 import { clearUsers } from "tests/helpers.ts";
 import type { UsersQuery, UsersQueryVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
@@ -27,7 +27,7 @@ const executeQuery = executeSingleResultOperation<UsersQuery, UsersQueryVariable
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice],
+  users: [Data.db.admin, Data.db.alice],
 };
 
 const seedData = {
@@ -63,22 +63,22 @@ describe("number of items", () => {
 
 describe("order of items", () => {
   const patterns = [
-    [{}, [GraphData.alice, GraphData.admin]], // defaults to createdAt desc
+    [{}, [Data.graph.alice, Data.graph.admin]], // defaults to createdAt desc
     [
       { orderBy: { field: UserOrderField.CreatedAt, direction: OrderDirection.Asc } },
-      [GraphData.admin, GraphData.alice],
+      [Data.graph.admin, Data.graph.alice],
     ],
     [
       { orderBy: { field: UserOrderField.CreatedAt, direction: OrderDirection.Desc } },
-      [GraphData.alice, GraphData.admin],
+      [Data.graph.alice, Data.graph.admin],
     ],
     [
       { orderBy: { field: UserOrderField.UpdatedAt, direction: OrderDirection.Asc } },
-      [GraphData.alice, GraphData.admin],
+      [Data.graph.alice, Data.graph.admin],
     ],
     [
       { orderBy: { field: UserOrderField.UpdatedAt, direction: OrderDirection.Desc } },
-      [GraphData.admin, GraphData.alice],
+      [Data.graph.admin, Data.graph.alice],
     ],
   ] as const;
 

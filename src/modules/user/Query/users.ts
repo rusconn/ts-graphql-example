@@ -27,7 +27,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
-  authAdmin(context.user);
+  authAdmin(context);
 
   const { orderBy, ...connectionArgs } = args;
 

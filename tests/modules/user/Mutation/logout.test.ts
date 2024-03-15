@@ -1,6 +1,6 @@
 import { prisma } from "@/prisma/mod.ts";
 
-import { DBData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 import { clearUsers } from "tests/helpers.ts";
 import type { LogoutMutation, LogoutMutationVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
@@ -25,7 +25,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice],
+  users: [Data.db.admin, Data.db.alice],
 };
 
 const seedData = {
@@ -39,7 +39,7 @@ beforeEach(async () => {
 
 test("logout deletes token", async () => {
   const before = await prisma.user.findFirstOrThrow({
-    where: { id: DBData.admin.id },
+    where: { id: Data.db.admin.id },
   });
 
   const { data } = await executeMutation({});
@@ -47,7 +47,7 @@ test("logout deletes token", async () => {
   expect(data?.logout?.__typename).toBe("LogoutSuccess");
 
   const after = await prisma.user.findFirstOrThrow({
-    where: { id: DBData.admin.id },
+    where: { id: Data.db.admin.id },
   });
 
   expect(before.token).not.toBeNull();
@@ -56,7 +56,7 @@ test("logout deletes token", async () => {
 
 test("logout does not changes other attrs", async () => {
   const before = await prisma.user.findFirstOrThrow({
-    where: { id: DBData.admin.id },
+    where: { id: Data.db.admin.id },
   });
 
   const { data } = await executeMutation({});
@@ -64,7 +64,7 @@ test("logout does not changes other attrs", async () => {
   expect(data?.logout?.__typename).toBe("LogoutSuccess");
 
   const after = await prisma.user.findFirstOrThrow({
-    where: { id: DBData.admin.id },
+    where: { id: Data.db.admin.id },
   });
 
   expect(before.id).toBe(after.id);

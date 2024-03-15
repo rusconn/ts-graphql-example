@@ -30,7 +30,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["updateMe"] = async (_parent, args, context) => {
-  const authed = authAuthenticated(context.user);
+  const authed = authAuthenticated(context);
 
   const { name, email, password } = args.input;
 

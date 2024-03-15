@@ -1,16 +1,5 @@
 import * as Prisma from "@/prisma/mod.ts";
-import type * as Graph from "../../common/schema.ts";
-import { dateTime } from "../../common/tests.ts";
 import { userNodeId } from "./adapter.ts";
-
-const userNode = (user: Prisma.User): Graph.User => ({
-  id: userNodeId(user.id),
-  createdAt: dateTime(user.createdAt),
-  updatedAt: dateTime(user.updatedAt),
-  name: user.name,
-  email: user.email,
-  token: user.token,
-});
 
 export const db = {
   admin: {
@@ -37,20 +26,15 @@ export const db = {
   },
 } as const;
 
-export const graph = {
-  admin: userNode(db.admin),
-  alice: userNode(db.alice),
-};
-
 export const context = {
   ...db,
   guest: {
-    id: "01HEMZ1X89Q2AAMHWBE5AZ02BP",
+    id: undefined,
     role: "GUEST",
   },
 } as const;
 
-export const validUserIds = [graph.admin, graph.alice].map(u => u.id);
+export const validUserIds = Object.values(db).map(({ id }) => userNodeId(id));
 
 export const invalidUserIds = [
   "Usr:01H75CPZGG1YW9W79M7WWT6KFB",

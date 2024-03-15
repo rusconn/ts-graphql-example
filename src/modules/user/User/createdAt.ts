@@ -8,7 +8,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["createdAt"] = (parent, _args, context) => {
-  authAdminOrUserOwner(context.user, parent);
+  authAdminOrUserOwner(context, parent);
 
   return parent.createdAt;
 };

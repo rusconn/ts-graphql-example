@@ -1,27 +1,26 @@
 import { GraphQLError } from "graphql";
 import type { YogaInitialContext } from "graphql-yoga";
-import type { Logger } from "pino";
+import type { EmptyObject } from "type-fest";
 
+import type { createLogger } from "@/logger.ts";
 import type * as Prisma from "@/prisma/mod.ts";
-import { ErrorCode } from "./schema";
+import { ErrorCode } from "./schema.ts";
 
 export const notFoundErr = () =>
   new GraphQLError("Not found", {
     extensions: { code: ErrorCode.NotFound },
   });
 
-export type Context = YogaInitialContext & ServerContext & UserContext;
+export type Context = ServerContext & YogaInitialContext & UserContext;
 
-export type ServerContext = Record<string, never>;
+export type ServerContext = EmptyObject;
 
 export type UserContext = {
   prisma: typeof Prisma.prisma;
-  user: ContextUser;
-  logger: Logger;
+  user: Admin | User | Guest;
+  logger: ReturnType<typeof createLogger>;
 };
 
-export type ContextUser = Admin | User | Guest;
-
-export type Admin = Prisma.User & { role: "ADMIN" };
-export type User = Prisma.User & { role: "USER" };
-export type Guest = Pick<Prisma.User, "id"> & { role: "GUEST" };
+type Admin = Prisma.User & { role: "ADMIN" };
+type User = Prisma.User & { role: "USER" };
+type Guest = { id: undefined; role: "GUEST" };

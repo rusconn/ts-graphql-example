@@ -1,7 +1,7 @@
 import { ErrorCode } from "@/modules/common/schema.ts";
 import { prisma } from "@/prisma/mod.ts";
 
-import { DBData, GraphData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 import { clearTables } from "tests/helpers.ts";
 import type { NodeQuery, NodeQueryVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
@@ -15,8 +15,8 @@ const executeQuery = executeSingleResultOperation<NodeQuery, NodeQueryVariables>
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo],
+  users: [Data.db.admin, Data.db.alice],
+  todos: [Data.db.adminTodo],
 };
 
 const seedData = {
@@ -32,7 +32,7 @@ beforeAll(async () => {
 
 test("not exists", async () => {
   const { data, errors } = await executeQuery({
-    variables: { id: GraphData.admin.id.slice(0, -1) },
+    variables: { id: Data.graph.admin.id.slice(0, -1) },
   });
 
   const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -43,7 +43,7 @@ test("not exists", async () => {
 
 test("exists, but not owned", async () => {
   const { data, errors } = await executeQuery({
-    variables: { id: GraphData.alice.id },
+    variables: { id: Data.graph.alice.id },
   });
 
   const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -53,7 +53,7 @@ test("exists, but not owned", async () => {
 });
 
 describe("should return item correctly", () => {
-  const ids = [GraphData.admin.id, GraphData.adminTodo.id];
+  const ids = [Data.graph.admin.id, Data.graph.adminTodo.id];
 
   test.each(ids)("%s", async id => {
     const { data } = await executeQuery({
@@ -65,7 +65,7 @@ describe("should return item correctly", () => {
 });
 
 describe("should return not found error if not found", () => {
-  const ids = [GraphData.admin.id, GraphData.adminTodo.id].map(id => id.slice(0, -1));
+  const ids = [Data.graph.admin.id, Data.graph.adminTodo.id].map(id => id.slice(0, -1));
 
   test.each(ids)("%s", async id => {
     const { data, errors } = await executeQuery({

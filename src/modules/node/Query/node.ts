@@ -11,7 +11,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["node"] = async (_parent, args, context) => {
-  authAuthenticated(context.user);
+  authAuthenticated(context);
 
   const { type, id } = parseNodeId(args.id);
 
@@ -20,7 +20,7 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
     User: getUser,
   }[type];
 
-  const node = await getNode(context.prisma, { id });
+  const node = await getNode(context, { id });
 
   return { type, ...node };
 };

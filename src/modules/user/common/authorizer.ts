@@ -1,16 +1,16 @@
-import type { User } from "@/prisma/mod.ts";
 import { authAdmin, authErr } from "../../common/authorizers.ts";
-import type { ContextUser } from "../../common/resolvers.ts";
+import type { Context } from "../../common/resolvers.ts";
+import type { User } from "./resolver.ts";
 
-export const authAdminOrUserOwner = (user: ContextUser, parent: Pick<User, "id">) => {
+export const authAdminOrUserOwner = (context: Pick<Context, "user">, user: Pick<User, "id">) => {
   try {
-    return authAdmin(user);
+    return authAdmin(context);
   } catch {
-    return authUserOwner(user, parent);
+    return authUserOwner(context, user);
   }
 };
 
-export const authUserOwner = (user: ContextUser, parent: Pick<User, "id">) => {
-  if (user.id === parent.id) return user;
+export const authUserOwner = (context: Pick<Context, "user">, user: Pick<User, "id">) => {
+  if (context.user.id === user.id) return context.user;
   throw authErr();
 };

@@ -3,7 +3,7 @@ import { omit } from "remeda";
 import { TodoStatus } from "@/modules/common/schema.ts";
 import { prisma } from "@/prisma/mod.ts";
 
-import { DBData, GraphData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 import { clearTables } from "tests/helpers.ts";
 import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
@@ -32,8 +32,8 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo, DBData.aliceTodo],
+  users: [Data.db.admin, Data.db.alice],
+  todos: [Data.db.adminTodo, Data.db.aliceTodo],
 };
 
 const seedData = {
@@ -49,9 +49,9 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await prisma.todo.upsert({
-    where: { id: DBData.adminTodo.id },
-    create: DBData.adminTodo,
-    update: DBData.adminTodo,
+    where: { id: Data.db.adminTodo.id },
+    create: Data.db.adminTodo,
+    update: Data.db.adminTodo,
   });
 });
 
@@ -63,7 +63,7 @@ const input = {
 
 test("not exists", async () => {
   const { data } = await executeMutation({
-    variables: { input: {}, id: GraphData.adminTodo.id.slice(0, -1) },
+    variables: { input: {}, id: Data.graph.adminTodo.id.slice(0, -1) },
   });
 
   expect(data?.updateTodo?.__typename).toBe("TodoNotFoundError");
@@ -71,7 +71,7 @@ test("not exists", async () => {
 
 test("exists, but not owned", async () => {
   const { data } = await executeMutation({
-    variables: { input: {}, id: GraphData.aliceTodo.id },
+    variables: { input: {}, id: Data.graph.aliceTodo.id },
   });
 
   expect(data?.updateTodo?.__typename).toBe("TodoNotFoundError");
@@ -79,13 +79,13 @@ test("exists, but not owned", async () => {
 
 it("should update using input", async () => {
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo.id, input },
+    variables: { id: Data.graph.adminTodo.id, input },
   });
 
   expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
   const todo = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo.id },
+    where: { id: Data.db.adminTodo.id },
   });
 
   expect(todo.title).toBe(input.title);
@@ -95,17 +95,17 @@ it("should update using input", async () => {
 
 it("should not update fields if the field is absent", async () => {
   const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo.id },
+    where: { id: Data.db.adminTodo.id },
   });
 
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo.id, input: {} },
+    variables: { id: Data.graph.adminTodo.id, input: {} },
   });
 
   expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
   const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo.id },
+    where: { id: Data.db.adminTodo.id },
   });
 
   expect(before.title).toBe(after.title);
@@ -115,17 +115,17 @@ it("should not update fields if the field is absent", async () => {
 
 it("should update updatedAt", async () => {
   const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo.id },
+    where: { id: Data.db.adminTodo.id },
   });
 
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo.id, input },
+    variables: { id: Data.graph.adminTodo.id, input },
   });
 
   expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
   const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo.id },
+    where: { id: Data.db.adminTodo.id },
   });
 
   const beforeUpdatedAt = before.updatedAt.getTime();
@@ -136,17 +136,17 @@ it("should update updatedAt", async () => {
 
 it("should not update other attrs", async () => {
   const before = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo.id },
+    where: { id: Data.db.adminTodo.id },
   });
 
   const { data } = await executeMutation({
-    variables: { id: GraphData.adminTodo.id, input },
+    variables: { id: Data.graph.adminTodo.id, input },
   });
 
   expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
 
   const after = await prisma.todo.findUniqueOrThrow({
-    where: { id: DBData.adminTodo.id },
+    where: { id: Data.db.adminTodo.id },
   });
 
   // これらのフィールドは変化する想定

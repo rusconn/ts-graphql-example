@@ -8,7 +8,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: TodoResolvers["description"] = (parent, _args, context) => {
-  authTodoOwner(context.user, parent);
+  authTodoOwner(context, parent);
 
   return parent.description;
 };

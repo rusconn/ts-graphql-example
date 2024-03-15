@@ -3,17 +3,17 @@ import { parse } from "graphql";
 
 import { yoga } from "@/server.ts";
 
-import { ContextData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 
 type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;
-  user?: (typeof ContextData)[keyof typeof ContextData];
+  user?: (typeof Data.context)[keyof typeof Data.context];
 };
 
 /** デフォルトユーザーは admin */
 export const executeSingleResultOperation =
   <TData, TVariables extends object>(query: string) =>
-  async ({ variables, user = ContextData.admin }: ExecuteOperationParams<TVariables>) => {
+  async ({ variables, user = Data.context.admin }: ExecuteOperationParams<TVariables>) => {
     const result = await executor<TData, TVariables>({
       document: parse(query),
       variables,

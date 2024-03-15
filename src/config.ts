@@ -4,15 +4,16 @@ type NodeEnv = (typeof validNodeEnvs)[number];
 
 const validNodeEnvs = ["development", "test", "production"] as const;
 
-const isValidNodeEnv = (val: string | undefined): val is NodeEnv =>
-  val != null && validNodeEnvs.includes(val as NodeEnv);
+const isValidNodeEnv = (val: string | undefined): val is NodeEnv => {
+  return val != null && validNodeEnvs.includes(val as NodeEnv);
+};
 
-const { PORT, MAX_DEPTH, MAX_COST, NODE_ENV, PASSWORD_HASH_ROUNDS_EXPONENT } = process.env;
+const { PORT, MAX_DEPTH, MAX_COST, NODE_ENV, PASS_HASH_EXP } = process.env;
 
 const port = Number(PORT ?? "4000");
 const maxDepth = Number(MAX_DEPTH ?? "10");
 const maxCost = Number(MAX_COST ?? "10000");
-const passwordHashRoundsExponent = Number(PASSWORD_HASH_ROUNDS_EXPONENT ?? "10");
+const passHashExp = Number(PASS_HASH_EXP ?? "10");
 
 if (Number.isNaN(port)) {
   throw new Error("Invalid PORT");
@@ -31,12 +32,8 @@ const isDev = NODE_ENV === "development";
 const isTest = NODE_ENV === "test";
 const isProd = NODE_ENV === "production";
 
-if (
-  Number.isNaN(passwordHashRoundsExponent) ||
-  (isProd && passwordHashRoundsExponent < 10) ||
-  (isProd && passwordHashRoundsExponent > 14)
-) {
-  throw new Error("Invalid PASSWORD_HASH_ROUNDS_EXPONENT");
+if (Number.isNaN(passHashExp) || (isProd && (passHashExp < 10 || 14 < passHashExp))) {
+  throw new Error("Invalid PASS_HASH_EXP");
 }
 
-export { port, maxDepth, maxCost, passwordHashRoundsExponent, isDev, isTest, isProd };
+export { port, maxDepth, maxCost, passHashExp, isDev, isTest, isProd };

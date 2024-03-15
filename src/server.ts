@@ -5,27 +5,26 @@ import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspect
 import { GraphQLError } from "graphql";
 import { createYoga, useLogger } from "graphql-yoga";
 import { App } from "uWebSockets.js";
-import { ulid } from "ulid";
 
-import type {
-  Context,
-  ContextUser,
-  ServerContext,
-  UserContext,
-} from "@/modules/common/resolvers.ts";
+import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers.ts";
 import { ErrorCode } from "@/modules/common/schema.ts";
 import { isProd, maxCost, maxDepth } from "./config.ts";
-import { makeLogger } from "./logger.ts";
+import { createLogger } from "./logger.ts";
 import { prisma } from "./prisma/mod.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
+
+const authenErr = () =>
+  new GraphQLError("Authentication error", {
+    extensions: { code: ErrorCode.AuthenticationError },
+  });
 
 export const yoga = createYoga<ServerContext, UserContext>({
   schema: makeExecutableSchema({ typeDefs, resolvers }),
   context: async ({ request }) => {
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
-    let user: ContextUser;
+    let user: Context["user"];
 
     if (token) {
       const found = await prisma.user.findUnique({
@@ -33,17 +32,15 @@ export const yoga = createYoga<ServerContext, UserContext>({
       });
 
       if (!found) {
-        throw new GraphQLError("Authentication error", {
-          extensions: { code: ErrorCode.AuthenticationError },
-        });
+        throw authenErr();
       }
 
       user = found;
     } else {
-      user = { id: ulid(), role: "GUEST" };
+      user = { id: undefined, role: "GUEST" };
     }
 
-    return { prisma, user, logger: makeLogger() };
+    return { prisma, user, logger: createLogger() };
   },
   // requestId を使いたいので自分でログする
   logging: false,
@@ -65,7 +62,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
           const { logger, user, params } = contextValue;
           const { query, variables } = params;
 
-          logger.info({ userId: user.id, role: user.role, query, variables }, "request info");
+          logger.info({ userId: user.id, query, variables }, "request-info");
         }
       },
       skipIntrospection: true,
@@ -82,7 +79,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
         const { logger } = contextValue;
 
         for (const error of errors) {
-          logger.error(error, "error info");
+          logger.error(error, "error-info");
         }
       }
     }),

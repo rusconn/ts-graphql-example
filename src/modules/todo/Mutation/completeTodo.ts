@@ -16,7 +16,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["completeTodo"] = async (_parent, args, context) => {
-  const authed = authAuthenticated(context.user);
+  const authed = authAuthenticated(context);
 
   const id = parseTodoNodeId(args.id);
 

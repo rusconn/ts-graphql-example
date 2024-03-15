@@ -1,7 +1,7 @@
 import { ErrorCode } from "@/modules/common/schema.ts";
 import { prisma } from "@/prisma/mod.ts";
 
-import { ContextData, DBData, GraphData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
 import type { TodoUserQuery, TodoUserQueryVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
@@ -23,8 +23,8 @@ const executeQuery = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo, DBData.aliceTodo],
+  users: [Data.db.admin, Data.db.alice],
+  todos: [Data.db.adminTodo, Data.db.aliceTodo],
 };
 
 const seedData = {
@@ -40,7 +40,7 @@ beforeAll(async () => {
 
 test("not exists", async () => {
   const { errors } = await executeQuery({
-    variables: { id: GraphData.adminTodo.id.slice(0, -1) },
+    variables: { id: Data.graph.adminTodo.id.slice(0, -1) },
   });
 
   const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -50,20 +50,20 @@ test("not exists", async () => {
 
 test("exists, owned", async () => {
   const { data } = await executeQuery({
-    variables: { id: GraphData.adminTodo.id },
+    variables: { id: Data.graph.adminTodo.id },
   });
 
   if (data?.node?.__typename !== "Todo" || data.node.user == null) {
     fail();
   }
 
-  expect(data.node.user.id).toBe(GraphData.admin.id);
+  expect(data.node.user.id).toBe(Data.graph.admin.id);
 });
 
 test("exists, but not owned", async () => {
   const { data } = await executeQuery({
-    user: ContextData.alice,
-    variables: { id: GraphData.adminTodo.id },
+    user: Data.context.alice,
+    variables: { id: Data.graph.adminTodo.id },
   });
 
   if (data?.node?.__typename !== "Todo") {

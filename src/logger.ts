@@ -24,4 +24,4 @@ const options: LoggerOptions = {
     : undefined,
 };
 
-export const makeLogger = () => pino(options).child({ requestId: randomUUID() });
+export const createLogger = () => pino(options).child({ requestId: randomUUID() });

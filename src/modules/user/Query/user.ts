@@ -10,11 +10,11 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["user"] = async (_parent, args, context) => {
-  authAdmin(context.user);
+  authAdmin(context);
 
   const id = parseUserNodeId(args.id);
 
-  return await getUser(context.prisma, { id });
+  return await getUser(context, { id });
 };
 
 if (import.meta.vitest) {

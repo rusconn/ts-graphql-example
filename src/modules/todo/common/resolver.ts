@@ -6,10 +6,10 @@ import { type Context, notFoundErr } from "../../common/resolvers.ts";
 export type Todo = Prisma.Todo;
 
 export const getTodo = async (
-  prisma: Context["prisma"],
+  context: Pick<Context, "prisma">,
   key: SetOptional<Pick<Todo, "id" | "userId">, "userId">,
 ) => {
-  const todo = await prisma.todo.findUnique({
+  const todo = await context.prisma.todo.findUnique({
     where: { id: key.id, userId: key.userId },
   });
 

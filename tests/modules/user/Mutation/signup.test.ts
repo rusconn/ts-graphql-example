@@ -1,7 +1,7 @@
 import { prisma } from "@/prisma/mod.ts";
 import * as Prisma from "@/prisma/mod.ts";
 
-import { ContextData, DBData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 import { clearUsers, fail } from "tests/helpers.ts";
 import type { SignupMutation, SignupMutationVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
@@ -24,7 +24,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice],
+  users: [Data.db.admin, Data.db.alice],
 };
 
 const seedData = {
@@ -38,11 +38,11 @@ beforeEach(async () => {
 
 test("email already exists", async () => {
   const name = "foo";
-  const { email } = DBData.admin;
+  const { email } = Data.db.admin;
   const password = "password";
 
   const { data } = await executeMutation({
-    user: ContextData.guest,
+    user: Data.context.guest,
     variables: { input: { name, email, password } },
   });
 
@@ -55,7 +55,7 @@ it("should create user using input", async () => {
   const password = "password";
 
   const { data } = await executeMutation({
-    user: ContextData.guest,
+    user: Data.context.guest,
     variables: { input: { name, email, password } },
   });
 
@@ -79,7 +79,7 @@ test("role should be USER by default", async () => {
   const password = "password";
 
   const { data } = await executeMutation({
-    user: ContextData.guest,
+    user: Data.context.guest,
     variables: { input: { name, email, password } },
   });
 

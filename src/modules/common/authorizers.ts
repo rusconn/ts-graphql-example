@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 
-import type { ContextUser } from "./resolvers.ts";
+import type { Context } from "./resolvers.ts";
 import { ErrorCode } from "./schema.ts";
 
 export const authErr = () =>
@@ -8,24 +8,24 @@ export const authErr = () =>
     extensions: { code: ErrorCode.Forbidden },
   });
 
-export const auth = (user: ContextUser) => user;
+export const auth = (context: Pick<Context, "user">) => context.user;
 
-export const authAdmin = (user: ContextUser) => {
-  if (user.role === "ADMIN") return user;
+export const authAdmin = (context: Pick<Context, "user">) => {
+  if (context.user.role === "ADMIN") return context.user;
   throw authErr();
 };
 
-export const authUser = (user: ContextUser) => {
-  if (user.role === "USER") return user;
+export const authUser = (context: Pick<Context, "user">) => {
+  if (context.user.role === "USER") return context.user;
   throw authErr();
 };
 
-export const authGuest = (user: ContextUser) => {
-  if (user.role === "GUEST") return user;
+export const authGuest = (context: Pick<Context, "user">) => {
+  if (context.user.role === "GUEST") return context.user;
   throw authErr();
 };
 
-export const authAuthenticated = (user: ContextUser) => {
-  if (user.role !== "GUEST") return user;
+export const authAuthenticated = (context: Pick<Context, "user">) => {
+  if (context.user.role !== "GUEST") return context.user;
   throw authErr();
 };

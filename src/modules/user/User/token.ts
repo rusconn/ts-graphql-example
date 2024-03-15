@@ -8,7 +8,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["token"] = (parent, _args, context) => {
-  authUserOwner(context.user, parent);
+  authUserOwner(context, parent);
 
   return parent.token;
 };

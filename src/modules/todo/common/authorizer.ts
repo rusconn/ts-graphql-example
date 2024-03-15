@@ -1,29 +1,19 @@
-import type { Todo, User } from "@/prisma/mod.ts";
 import { authAdmin, authErr } from "../../common/authorizers.ts";
-import type { ContextUser } from "../../common/resolvers.ts";
+import type { Context } from "../../common/resolvers.ts";
+import type { Todo } from "./resolver.ts";
 
-export const authAdminOrTodoOwner = (user: ContextUser, todo: Pick<Todo, "userId">) => {
+export const authAdminOrTodoOwner = (
+  context: Pick<Context, "user">,
+  todo: Pick<Todo, "userId">,
+) => {
   try {
-    return authAdmin(user);
+    return authAdmin(context);
   } catch {
-    return authTodoOwner(user, todo);
+    return authTodoOwner(context, todo);
   }
 };
 
-export const authTodoOwner = (user: ContextUser, todo: Pick<Todo, "userId">) => {
-  if (user.id === todo.userId) return user;
-  throw authErr();
-};
-
-export const authAdminOrUserOwner = (user: ContextUser, parent: Pick<User, "id">) => {
-  try {
-    return authAdmin(user);
-  } catch {
-    return authUserOwner(user, parent);
-  }
-};
-
-const authUserOwner = (user: ContextUser, parent: Pick<User, "id">) => {
-  if (user.id === parent.id) return user;
+export const authTodoOwner = (context: Pick<Context, "user">, todo: Pick<Todo, "userId">) => {
+  if (context.user.id === todo.userId) return context.user;
   throw authErr();
 };

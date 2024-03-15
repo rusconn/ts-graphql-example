@@ -8,7 +8,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["me"] = (_parent, _args, context) => {
-  const authed = authAuthenticated(context.user);
+  const authed = authAuthenticated(context);
 
   return authed;
 };

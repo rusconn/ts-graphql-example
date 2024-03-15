@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
-import { passwordHashRoundsExponent } from "@/config.ts";
+import { passHashExp } from "@/config.ts";
 import * as Prisma from "@/prisma/mod.ts";
 import { authGuest } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
@@ -34,7 +34,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["signup"] = async (_parent, args, context) => {
-  const authed = authGuest(context.user);
+  authGuest(context);
 
   const { name, email, password } = args.input;
 
@@ -62,12 +62,12 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     };
   }
 
-  const hashed = await bcrypt.hash(password, passwordHashRoundsExponent);
+  const hashed = await bcrypt.hash(password, passHashExp);
   const token = ulid();
 
   await context.prisma.user.create({
     data: {
-      id: authed.id,
+      id: ulid(),
       name,
       email,
       password: hashed,

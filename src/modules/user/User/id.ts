@@ -9,7 +9,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["id"] = (parent, _args, context) => {
-  authAdminOrUserOwner(context.user, parent);
+  authAdminOrUserOwner(context, parent);
 
   return userNodeId(parent.id);
 };

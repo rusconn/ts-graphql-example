@@ -1,7 +1,7 @@
 import { parseUserNodeId } from "@/modules/user/common/parser.ts";
 import { prisma } from "@/prisma/mod.ts";
 
-import { DBData } from "tests/data.ts";
+import { Data } from "tests/data.ts";
 import { clearUsers, fail } from "tests/helpers.ts";
 import type { DeleteMeMutation, DeleteMeMutationVariables } from "tests/modules/schema.ts";
 import { executeSingleResultOperation } from "tests/server.ts";
@@ -21,8 +21,8 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [DBData.admin, DBData.alice],
-  todos: [DBData.adminTodo],
+  users: [Data.db.admin, Data.db.alice],
+  todos: [Data.db.adminTodo],
 };
 
 const seedData = {
@@ -76,7 +76,7 @@ it("should delete his resources", async () => {
   await seedData.todos();
 
   const before = await prisma.todo.count({
-    where: { userId: DBData.admin.id },
+    where: { userId: Data.db.admin.id },
   });
 
   const { data } = await executeMutation({});
@@ -84,7 +84,7 @@ it("should delete his resources", async () => {
   expect(data?.deleteMe?.__typename).toBe("DeleteMeSuccess");
 
   const after = await prisma.todo.count({
-    where: { userId: DBData.admin.id },
+    where: { userId: Data.db.admin.id },
   });
 
   expect(before).not.toBe(0);
