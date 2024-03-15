@@ -59,7 +59,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
     useLogger({
       logFn: (
         eventName: "execute-start" | "execute-end" | "subscribe-start" | "subscribe-end",
-        { args }
+        { args },
       ) => {
         if (eventName === "execute-start" || eventName === "subscribe-start") {
           const { contextValue } = args as { contextValue: Context };

@@ -7,7 +7,7 @@ import { ContextData } from "tests/data.ts";
 
 type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;
-  user?: typeof ContextData[keyof typeof ContextData];
+  user?: (typeof ContextData)[keyof typeof ContextData];
 };
 
 /** デフォルトユーザーは admin */
@@ -33,7 +33,7 @@ const executor = buildHTTPExecutor({
 });
 
 function assertSingleResult<TResult extends object>(
-  result: TResult | AsyncIterable<TResult>
+  result: TResult | AsyncIterable<TResult>,
 ): asserts result is TResult {
   if (Symbol.asyncIterator in result) {
     throw new Error("Expected single result");

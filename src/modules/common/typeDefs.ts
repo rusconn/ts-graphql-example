@@ -1,13 +1,13 @@
 export const nodeTypes = ["Todo", "User"] as const;
 
-export type NodeType = typeof nodeTypes[number];
+export type NodeType = (typeof nodeTypes)[number];
 
 export const typeIdSep = ":";
 
 export const cursorConnections = (
   type: NodeType,
   additionalConnectionFields: Record<string, string> = {},
-  additionalEdgeFields: Record<string, string> = {}
+  additionalEdgeFields: Record<string, string> = {},
 ) => `
   type ${type}Connection {
     pageInfo: PageInfo!
@@ -26,7 +26,7 @@ export const cursorConnections = (
 export const orderOptions = (
   type: NodeType,
   additionaOrderFields: Record<string, string> = {},
-  additionalOrderFieldFields: Record<string, string> = {}
+  additionalOrderFieldFields: Record<string, string> = {},
 ) => `
   input ${type}Order {
     field: ${type}OrderField!

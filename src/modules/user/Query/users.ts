@@ -62,7 +62,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
       }),
     () => context.prisma.user.count(),
     { first, after, last, before },
-    { resolveInfo: info }
+    { resolveInfo: info },
   );
 };
 

@@ -31,12 +31,16 @@
     "check:generate": "pnpm generate",
     "check:typecheck": "pnpm typecheck",
     "check:lint": "pnpm lint",
-    "check:format": "pnpm format --check",
+    "check:format": "run-p fix:format:*",
+    "check:format:biome": "pnpm format:biome",
+    "check:format:prettier": "pnpm format:prettier --check",
     "fix": "run-s fix:*",
     "fix:generate": "pnpm generate",
     "fix:typecheck": "pnpm typecheck",
     "fix:lint": "pnpm lint --apply",
-    "fix:format": "pnpm format --write",
+    "fix:format": "run-p fix:format:*",
+    "fix:format:biome": "pnpm format:biome --write",
+    "fix:format:prettier": "pnpm format:prettier --write",
     "migrate:dev": "prisma migrate dev",
     "migrate:reset": "prisma migrate reset --force",
     "generate": "prisma generate",
@@ -45,7 +49,8 @@
     "ts": "vite-node",
     "typecheck": "tsc",
     "lint": "biome check .",
-    "format": "prettier --cache './**/*.{js,ts,json,yml,yaml,md}'"
+    "format:biome": "biome format .",
+    "format:prettier": "prettier --cache './**/*.{yml,yaml,md}'"
   },
   "dependencies": {
     "@devoxa/prisma-relay-cursor-connection": "^2.2.2",

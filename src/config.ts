@@ -1,6 +1,6 @@
 import process from "node:process";
 
-type NodeEnv = typeof validNodeEnvs[number];
+type NodeEnv = (typeof validNodeEnvs)[number];
 
 const validNodeEnvs = ["development", "test", "production"] as const;
 

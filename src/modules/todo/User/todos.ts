@@ -66,7 +66,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
         where: { userId: parent.id },
       }),
     { first, after, last, before },
-    { resolveInfo: info }
+    { resolveInfo: info },
   );
 };
 
