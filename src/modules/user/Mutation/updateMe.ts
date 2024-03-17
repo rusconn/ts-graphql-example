@@ -1,3 +1,6 @@
+import bcrypt from "bcrypt";
+
+import { passHashExp } from "@/config.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
@@ -69,9 +72,11 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
     }
   }
 
+  const hashed = password ? await bcrypt.hash(password, passHashExp) : undefined;
+
   const updated = await context.prisma.user.update({
     where: { id: authed.id },
-    data: { name, email, password },
+    data: { name, email, password: hashed },
   });
 
   return {
