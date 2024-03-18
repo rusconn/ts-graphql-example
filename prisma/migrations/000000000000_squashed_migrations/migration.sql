@@ -35,13 +35,10 @@ CREATE TABLE "User" (
 CREATE INDEX "Todo_userId_idx" ON "Todo"("userId");
 
 -- CreateIndex
-CREATE INDEX "Todo_id_userId_idx" ON "Todo"("id", "userId");
+CREATE INDEX "Todo_createdAt_idx" ON "Todo"("createdAt");
 
 -- CreateIndex
-CREATE INDEX "Todo_createdAt_id_idx" ON "Todo"("createdAt", "id");
-
--- CreateIndex
-CREATE INDEX "Todo_updatedAt_id_idx" ON "Todo"("updatedAt", "id");
+CREATE INDEX "Todo_updatedAt_idx" ON "Todo"("updatedAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
@@ -50,10 +47,10 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "User_token_key" ON "User"("token");
 
 -- CreateIndex
-CREATE INDEX "User_createdAt_id_idx" ON "User"("createdAt", "id");
+CREATE INDEX "User_createdAt_idx" ON "User"("createdAt");
 
 -- CreateIndex
-CREATE INDEX "User_updatedAt_id_idx" ON "User"("updatedAt", "id");
+CREATE INDEX "User_updatedAt_idx" ON "User"("updatedAt");
 
 -- AddForeignKey
 ALTER TABLE "Todo" ADD CONSTRAINT "Todo_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -11,8 +11,8 @@ model User {
   role      UserRole @default(USER)
   todos     Todo[]
 
-  @@index([createdAt, id])
-  @@index([updatedAt, id])
+  @@index(createdAt)
+  @@index(updatedAt)
 }
 
 enum UserRole {

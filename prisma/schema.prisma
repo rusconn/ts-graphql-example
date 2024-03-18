@@ -27,13 +27,12 @@ model Todo {
   title       String     @pg.VarChar(255)
   description String     @default("")
   status      TodoStatus @default(PENDING)
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User       @relation(fields: userId, references: id, onDelete: Cascade)
   userId      String     @pg.Char(26)
 
-  @@index([userId])
-  @@index([id, userId])
-  @@index([createdAt, id])
-  @@index([updatedAt, id])
+  @@index(userId)
+  @@index(createdAt)
+  @@index(updatedAt)
 }
 
 enum TodoStatus {
@@ -56,8 +55,8 @@ model User {
   role      UserRole @default(USER)
   todos     Todo[]
 
-  @@index([createdAt, id])
-  @@index([updatedAt, id])
+  @@index(createdAt)
+  @@index(updatedAt)
 }
 
 enum UserRole {
