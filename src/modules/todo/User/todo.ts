@@ -1,7 +1,7 @@
 import type { UserResolvers } from "../../common/schema.ts";
 import { authAdminOrUserOwner } from "../../user/common/authorizer.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
-import { getTodo } from "../common/resolver.ts";
+import { getTodo, selectColumns } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -9,12 +9,14 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: UserResolvers["todo"] = async (parent, args, context) => {
+export const resolver: UserResolvers["todo"] = async (parent, args, context, info) => {
   authAdminOrUserOwner(context, parent);
 
   const id = parseTodoNodeId(args.id);
 
-  return await getTodo(context, { id, userId: parent.id });
+  const select = selectColumns(info);
+
+  return await getTodo(context, { id, userId: parent.id }, select);
 };
 
 if (import.meta.vitest) {

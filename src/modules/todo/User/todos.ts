@@ -5,6 +5,7 @@ import type { UserResolvers } from "../../common/schema.ts";
 import { OrderDirection, TodoOrderField } from "../../common/schema.ts";
 import { cursorConnections, orderOptions } from "../../common/typeDefs.ts";
 import { authAdminOrUserOwner } from "../../user/common/authorizer.ts";
+import { selectColumns } from "../common/resolver.ts";
 
 const FIRST_MAX = 50;
 const LAST_MAX = 50;
@@ -53,6 +54,8 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
     [TodoOrderField.UpdatedAt]: [{ updatedAt: direction }, { id: direction }],
   }[orderBy.field];
 
+  const select = selectColumns(info, true);
+
   return findManyCursorConnection(
     findManyArgs =>
       context.prisma.user
@@ -61,6 +64,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
         })
         .todos({
           ...findManyArgs,
+          select,
           orderBy: orderByToUse,
         }),
     () =>

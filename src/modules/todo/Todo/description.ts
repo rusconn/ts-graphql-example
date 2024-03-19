@@ -10,7 +10,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: TodoResolvers["description"] = (parent, _args, context) => {
   authTodoOwner(context, parent);
 
-  return parent.description;
+  return parent.description!;
 };
 
 if (import.meta.vitest) {

@@ -10,7 +10,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: TodoResolvers["createdAt"] = (parent, _args, context) => {
   authAdminOrTodoOwner(context, parent);
 
-  return parent.createdAt;
+  return parent.createdAt!;
 };
 
 if (import.meta.vitest) {

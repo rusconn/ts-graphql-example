@@ -5,6 +5,7 @@ import { parseConnectionArgs, parseErr } from "../../common/parsers.ts";
 import type { QueryResolvers } from "../../common/schema.ts";
 import { OrderDirection, UserOrderField } from "../../common/schema.ts";
 import { cursorConnections, orderOptions } from "../../common/typeDefs.ts";
+import { selectColumns } from "../common/resolver.ts";
 
 const FIRST_MAX = 30;
 const LAST_MAX = 30;
@@ -53,10 +54,13 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
     [UserOrderField.UpdatedAt]: [{ updatedAt: direction }, { id: direction }],
   }[orderBy.field];
 
+  const select = selectColumns(info, true);
+
   return findManyCursorConnection(
     findManyArgs =>
       context.prisma.user.findMany({
         ...findManyArgs,
+        select,
         orderBy: orderByToUse,
       }),
     () => context.prisma.user.count(),

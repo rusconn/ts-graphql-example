@@ -16,7 +16,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: TodoResolvers["status"] = (parent, _args, context) => {
   authTodoOwner(context, parent);
 
-  return todoStatus(parent.status);
+  return todoStatus(parent.status!);
 };
 
 if (import.meta.vitest) {

@@ -10,7 +10,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: UserResolvers["createdAt"] = (parent, _args, context) => {
   authAdminOrUserOwner(context, parent);
 
-  return parent.createdAt;
+  return parent.createdAt!;
 };
 
 if (import.meta.vitest) {

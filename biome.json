@@ -11,6 +11,7 @@
         "noUnusedVariables": "error"
       },
       "style": {
+        "noNonNullAssertion": "off",
         "noUselessElse": "off"
       },
       "nursery": {

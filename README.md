@@ -36,11 +36,10 @@ Prisma Studio は `pnpm studio` で起動しておくこと。
 
 等の場合は non-nullable とする。
 
-### API サーバー ⇄ DB 間におけるオーバーフェッチ
+### API サーバー ⇄ DB 間におけるオーバーフェッチの防止
 
-resolveInfo の解析により DB からの取得列を絞れそうだが、難易度やコードの複雑化に対する恩恵が小さいと判断し、許容することにした: [Prisma 公式のパフォーマンスに関する見解](https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance#using-select-to-limit-number-of-columns-returned)
-
-なお [Prisma select](https://paljs.com/plugins/select) を使えば簡単に実現できそうだが、どうやら [Union types をサポートしていない](https://github.com/paljs/prisma-tools/issues/249)ようなので採用しなかった。GraphQL のスキーマと DB のスキーマが密結合してしまうという問題もあった。
+resolveInfo の解析により DB からの取得列を絞っている。クエリ系は node interface を除きオーバーフェッチが発生しない。\
+レイテンシやスループットが多少改善したが、コードの複雑化や型安全性の低下に見合うのかは怪しい。
 
 ### node interface と ID フォーマット
 

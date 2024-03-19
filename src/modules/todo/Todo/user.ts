@@ -1,5 +1,5 @@
-import { getUser } from "@/modules/user/common/resolver.ts";
 import type { TodoResolvers } from "../../common/schema.ts";
+import { getUser, selectColumns } from "../../user/common/resolver.ts";
 import { authAdminOrTodoOwner } from "../common/authorizer.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -8,10 +8,12 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: TodoResolvers["user"] = async (parent, _args, context) => {
+export const resolver: TodoResolvers["user"] = async (parent, _args, context, info) => {
   authAdminOrTodoOwner(context, parent);
 
-  return await getUser(context, { id: parent.userId });
+  const select = selectColumns(info);
+
+  return await getUser(context, { id: parent.userId }, select);
 };
 
 if (import.meta.vitest) {
