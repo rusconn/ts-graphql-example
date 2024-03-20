@@ -18,7 +18,7 @@ export const db = {
     updatedAt: new Date(2),
     title: "admin todo 2",
     description: "admin todo 2",
-    status: DB.TodoStatus.PENDING,
+    status: DB.TodoStatus.DONE,
     userId: users.admin.id,
   },
   adminTodo3: {

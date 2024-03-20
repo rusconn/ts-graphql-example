@@ -24,9 +24,9 @@ const dummyLoaders = {
   userTodos: () => ({
     load: async () => [],
   }),
-  userTodosCount: {
+  userTodosCount: () => ({
     load: async () => 0,
-  },
+  }),
 };
 
 const dummyDb = {

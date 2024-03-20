@@ -10,7 +10,7 @@ export const createLoaders = (db: Kysely<DB>) => ({
   todo: todo.init(db),
   user: user.init(db),
   userTodos: userTodos.initClosure(db),
-  userTodosCount: userTodosCount.init(db),
+  userTodosCount: userTodosCount.initClosure(db),
 });
 
 export type { Key as TodoKey } from "./todo.ts";

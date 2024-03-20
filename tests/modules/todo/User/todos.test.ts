@@ -1,5 +1,10 @@
 import { db } from "@/db/mod.ts";
-import { OrderDirection, type PageInfo, TodoOrderField } from "@/modules/common/schema.ts";
+import {
+  OrderDirection,
+  type PageInfo,
+  TodoOrderField,
+  TodoStatus,
+} from "@/modules/common/schema.ts";
 
 import { Data } from "tests/data.ts";
 import { clearTables, fail } from "tests/helpers.ts";
@@ -17,11 +22,19 @@ const executeQuery = executeSingleResultOperation<
     $last: Int
     $before: String
     $orderBy: TodoOrder
+    $status: TodoStatus
   ) {
     node(id: $id) {
       __typename
       ... on User {
-        todos(first: $first, after: $after, last: $last, before: $before, orderBy: $orderBy) {
+        todos(
+          first: $first
+          after: $after
+          last: $last
+          before: $before
+          orderBy: $orderBy
+          status: $status
+        ) {
           totalCount
           pageInfo {
             startCursor
@@ -296,5 +309,29 @@ describe("pagination", () => {
         expect(data2.node.todos.edges?.map(edge => edge?.node?.id)).toStrictEqual(secondExpect.ids);
       },
     );
+  });
+});
+
+describe("filter by status", () => {
+  const patterns = [
+    [{}, [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2]],
+    [{ status: null }, [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2]],
+    [{ status: TodoStatus.Done }, [Data.graph.adminTodo2]],
+    [{ status: TodoStatus.Pending }, [Data.graph.adminTodo, Data.graph.adminTodo3]],
+  ] as const;
+
+  test.each(patterns)("patterns %#", async (variables, expectedTodos) => {
+    const { data } = await executeQuery({
+      variables: { id: Data.graph.admin.id, first: 10, ...variables },
+    });
+
+    if (!data || data.node?.__typename !== "User" || !data.node.todos) {
+      fail();
+    }
+
+    const expectedIds = expectedTodos.map(({ id }) => id);
+
+    expect(data.node.todos.totalCount).toBe(expectedIds.length);
+    expect(data.node.todos.edges?.map(edge => edge?.node?.id)).toStrictEqual(expectedIds);
   });
 });

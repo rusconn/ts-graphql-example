@@ -3,9 +3,15 @@ import type { Kysely } from "kysely";
 import { groupBy } from "remeda";
 
 import type { TodoSelect, UserSelect } from "../models.ts";
-import type { DB } from "../types.ts";
+import type { DB, TodoStatus } from "../types.ts";
 
 type Key = Pick<UserSelect, "id">;
+
+type Params = Filter & Pagination;
+
+type Filter = {
+  status?: TodoStatus | null;
+};
 
 type Pagination = {
   cursor?: Pick<TodoSelect, "id">;
@@ -18,10 +24,11 @@ type Pagination = {
 };
 
 export const initClosure = (db: Kysely<DB>) => {
-  let sharedPagination: Pagination | undefined;
+  let sharedParams: Params | undefined;
 
   const batchGet = async (keys: readonly Key[]) => {
-    const { cursor, limit, offset, orderColumn, direction, columnComp, idComp } = sharedPagination!;
+    const { status, cursor, limit, offset, orderColumn, direction, columnComp, idComp } =
+      sharedParams!;
 
     // biome-ignore format: for readability
     const cursorRecord = cursor
@@ -39,6 +46,7 @@ export const initClosure = (db: Kysely<DB>) => {
         "in",
         keys.map(key => key.id),
       )
+      .$if(status != null, qb => qb.where("status", "=", status!))
       .$if(cursorRecord != null, qb =>
         qb.where(({ eb }) =>
           eb.or([
@@ -67,8 +75,8 @@ export const initClosure = (db: Kysely<DB>) => {
 
   const loader = new DataLoader(batchGet, { cacheKeyFn: key => key.id });
 
-  return (pagination: Pagination) => {
-    sharedPagination ??= pagination;
+  return (params: Params) => {
+    sharedParams ??= params;
     return loader;
   };
 };

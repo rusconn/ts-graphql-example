@@ -202,6 +202,7 @@ export type UserTodosQueryVariables = Exact<{
   last?: InputMaybe<Scalars['Int']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   orderBy?: InputMaybe<TodoOrder>;
+  status?: InputMaybe<TodoStatus>;
 }>;
 
 

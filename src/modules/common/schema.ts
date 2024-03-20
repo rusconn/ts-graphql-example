@@ -332,6 +332,7 @@ export type UserTodosArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   orderBy: TodoOrder;
+  status?: InputMaybe<TodoStatus>;
 };
 
 export type UserConnection = {

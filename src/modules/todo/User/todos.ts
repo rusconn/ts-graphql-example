@@ -18,6 +18,8 @@ export const typeDef = /* GraphQL */ `
       last: Int
       before: String
       orderBy: TodoOrder! = { field: UPDATED_AT, direction: DESC }
+      "null 以外を指定すると絞り込む"
+      status: TodoStatus
     ): TodoConnection
   }
 
@@ -28,7 +30,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: UserResolvers["todos"] = async (parent, args, context, info) => {
   authAdminOrUserOwner(context, parent);
 
-  const { orderBy, first, after, last, before } = args;
+  const { orderBy, first, after, last, before, status } = args;
 
   if (first && first > FIRST_MAX) {
     throw parseErr(`"first" must be up to ${FIRST_MAX}`);
@@ -56,11 +58,11 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
       }[orderBy.field];
 
       return await context.loaders
-        .userTodos({ ...rest, orderColumn, direction, columnComp, idComp })
+        .userTodos({ ...rest, orderColumn, direction, columnComp, idComp, status })
         .load(parent)
         .then(result => (backward ? result.reverse() : result));
     },
-    () => context.loaders.userTodosCount.load(parent),
+    () => context.loaders.userTodosCount({ status }).load(parent),
     parseErr,
     { first, after, last, before },
     { resolveInfo: info },
