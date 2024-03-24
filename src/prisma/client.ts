@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 import { isProd } from "@/config.ts";
+import { logger } from "@/logger";
 
 /** Node.js 環境下ではモジュールキャッシュにより singleton */
 export const prisma = new PrismaClient({
@@ -12,10 +13,18 @@ export const prisma = new PrismaClient({
   ],
 });
 
-prisma.$on("query", e => {
-  console.log("prisma:query", {
-    Query: `${e.query.replaceAll('"public".', "")}`,
+const log = isProd
+  ? (obj: object) => {
+      logger.info(obj, "query-info");
+    }
+  : (obj: object) => {
+      console.log("prisma:query", obj);
+    };
+
+prisma.$on("query", e =>
+  log({
+    Query: e.query.replaceAll('"public".', ""),
     Params: isProd ? "***" : e.params,
     Duration: `${e.duration}ms`,
-  });
-});
+  }),
+);
