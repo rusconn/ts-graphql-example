@@ -1,4 +1,4 @@
-import { type LoggerOptions, pino, stdTimeFunctions } from "pino";
+import { type LoggerOptions, destination, pino, stdTimeFunctions } from "pino";
 
 import { isDev, isProd, isTest } from "@/config.ts";
 
@@ -22,4 +22,11 @@ const options: LoggerOptions = {
     : undefined,
 };
 
-export const logger = pino(options);
+const KiB = 2 ** 10;
+
+const stream = destination({
+  sync: false,
+  minLength: 8 * KiB,
+});
+
+export const logger = pino(options, stream);

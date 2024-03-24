@@ -1,6 +1,7 @@
 import process from "node:process";
 
 import { port } from "./config.ts";
+import { logger } from "./logger.ts";
 import { prisma } from "./prisma/mod.ts";
 import { server } from "./server.ts";
 
@@ -11,6 +12,7 @@ server.listen(port, () => {
 const shutdown = async () => {
   server.close();
   await prisma.$disconnect();
+  logger.flush();
 };
 
 // プラットフォームに合わせたシグナルハンドリングが必要
