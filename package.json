@@ -56,7 +56,6 @@
     "@devoxa/prisma-relay-cursor-connection": "^2.2.2",
     "@envelop/core": "^5.0.0",
     "@escape.tech/graphql-armor": "^2.3.2",
-    "@graphql-tools/schema": "^10.0.0",
     "@graphql-yoga/plugin-disable-introspection": "^2.0.0",
     "@prisma/client": "5.4.2",
     "bcrypt": "^5.1.1",

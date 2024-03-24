@@ -1,9 +1,8 @@
 import { useErrorHandler } from "@envelop/core";
 import { EnvelopArmorPlugin as useArmor } from "@escape.tech/graphql-armor";
-import { makeExecutableSchema } from "@graphql-tools/schema";
 import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
 import { GraphQLError } from "graphql";
-import { createYoga, useLogger } from "graphql-yoga";
+import { createSchema, createYoga, useLogger } from "graphql-yoga";
 import { App } from "uWebSockets.js";
 
 import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers.ts";
@@ -20,7 +19,7 @@ const authenErr = () =>
   });
 
 export const yoga = createYoga<ServerContext, UserContext>({
-  schema: makeExecutableSchema({ typeDefs, resolvers }),
+  schema: createSchema({ typeDefs, resolvers }),
   context: async ({ request }) => {
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
