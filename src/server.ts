@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { useErrorHandler } from "@envelop/core";
 import { EnvelopArmorPlugin as useArmor } from "@escape.tech/graphql-armor";
 import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
@@ -8,7 +10,7 @@ import { App } from "uWebSockets.js";
 import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers.ts";
 import { ErrorCode } from "@/modules/common/schema.ts";
 import { isProd, maxCost, maxDepth } from "./config.ts";
-import { createLogger } from "./logger.ts";
+import { logger } from "./logger.ts";
 import { prisma } from "./prisma/mod.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
@@ -39,9 +41,9 @@ export const yoga = createYoga<ServerContext, UserContext>({
       user = { id: undefined, role: "GUEST" };
     }
 
-    return { prisma, user, logger: createLogger() };
+    return { requestId: randomUUID(), prisma, user };
   },
-  // requestId を使いたいので自分でログする
+  // 自分でログする
   logging: false,
   plugins: [
     useDisableIntrospection({
@@ -58,10 +60,10 @@ export const yoga = createYoga<ServerContext, UserContext>({
       ) => {
         if (eventName === "execute-start" || eventName === "subscribe-start") {
           const { contextValue } = args as { contextValue: Context };
-          const { logger, user, params } = contextValue;
+          const { requestId, user, params } = contextValue;
           const { query, variables } = params;
 
-          logger.info({ userId: user.id, query, variables }, "request-info");
+          logger.info({ requestId, userId: user.id, query, variables }, "request-info");
         }
       },
       skipIntrospection: true,
@@ -69,16 +71,18 @@ export const yoga = createYoga<ServerContext, UserContext>({
     useErrorHandler(({ errors, context, phase }) => {
       if (phase === "context") {
         for (const error of errors) {
-          console.error(error);
+          logger.error(error);
         }
       }
 
       if (phase === "execution") {
         const { contextValue } = context as { contextValue: Context };
-        const { logger } = contextValue;
+        const { requestId } = contextValue;
+
+        const childLogger = logger.child({ requestId });
 
         for (const error of errors) {
-          logger.error(error, "error-info");
+          childLogger.error(error, "error-info");
         }
       }
     }),

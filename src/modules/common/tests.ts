@@ -1,15 +1,15 @@
 import type { Context } from "./resolvers.ts";
 
 export const dummyContext = ({
+  requestId = "18676CF1-FC39-4E96-B980-C80728E3B97D",
   prisma = dummyPrisma,
   user,
-  logger = dummyLogger,
 }: {
+  requestId?: Context["requestId"];
   prisma?: Context["prisma"];
   user: Context["user"];
-  logger?: Context["logger"];
 }) => {
-  return { prisma, user, logger } as Context;
+  return { requestId, prisma, user } as Context;
 };
 
 const dummyPrismaActions = {
@@ -48,13 +48,3 @@ const dummyPrisma = {
   todo: dummyPrismaActions,
   user: dummyPrismaActions,
 } as unknown as Context["prisma"];
-
-const dummyLogger = {
-  trace: () => {},
-  debug: () => {},
-  info: () => {},
-  warn: () => {},
-  error: () => {},
-  fatal: () => {},
-  silent: () => {},
-} as unknown as Context["logger"];

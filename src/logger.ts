@@ -1,5 +1,3 @@
-import { randomUUID } from "node:crypto";
-
 import { type LoggerOptions, pino, stdTimeFunctions } from "pino";
 
 import { isDev, isProd, isTest } from "@/config.ts";
@@ -24,4 +22,4 @@ const options: LoggerOptions = {
     : undefined,
 };
 
-export const createLogger = () => pino(options).child({ requestId: randomUUID() });
+export const logger = pino(options);

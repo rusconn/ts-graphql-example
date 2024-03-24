@@ -1,8 +1,9 @@
+import { randomUUID } from "node:crypto";
+
 import { GraphQLError } from "graphql";
 import type { YogaInitialContext } from "graphql-yoga";
 import type { EmptyObject } from "type-fest";
 
-import type { createLogger } from "@/logger.ts";
 import type * as Prisma from "@/prisma/mod.ts";
 import { ErrorCode } from "./schema.ts";
 
@@ -16,9 +17,9 @@ export type Context = ServerContext & YogaInitialContext & UserContext;
 export type ServerContext = EmptyObject;
 
 export type UserContext = {
+  requestId: ReturnType<typeof randomUUID>;
   prisma: typeof Prisma.prisma;
   user: Admin | User | Guest;
-  logger: ReturnType<typeof createLogger>;
 };
 
 type Admin = Prisma.User & { role: "ADMIN" };
