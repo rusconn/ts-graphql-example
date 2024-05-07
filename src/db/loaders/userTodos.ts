@@ -30,8 +30,7 @@ export const initClosure = (db: Kysely<DB>) => {
     const { status, cursor, limit, offset, orderColumn, direction, columnComp, idComp } =
       sharedParams!;
 
-    // biome-ignore format: for readability
-    const cursorRecord = cursor
+    const cursorRecord = cursor //
       ? db.selectFrom("Todo").where("id", "=", cursor.id)
       : undefined;
 

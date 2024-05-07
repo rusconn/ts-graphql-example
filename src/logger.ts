@@ -9,17 +9,17 @@ const options: LoggerOptions = {
     // pid と hostname を省く
     bindings: () => ({}),
   },
-  redact: isProd
-    ? {
-        paths: ["variables.input.email", "variables.input.password"],
-        censor: "***",
-      }
-    : undefined,
-  transport: isDev
-    ? {
-        target: "pino-pretty",
-      }
-    : undefined,
+  ...(isProd && {
+    redact: {
+      paths: ["variables.input.email", "variables.input.password"],
+      censor: "***",
+    },
+  }),
+  ...(isDev && {
+    transport: {
+      target: "pino-pretty",
+    },
+  }),
 };
 
 const KiB = 2 ** 10;

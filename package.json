@@ -7,21 +7,17 @@
     "node": "^18.16.0"
   },
   "prisma": {
-    "seed": "env-cmd pnpm ts prisma/seed.ts",
+    "seed": "pnpm ts prisma/seed.ts",
     "import": {
       "schemas": "./prisma/schemas/*.prisma",
       "output": "./prisma/schema.prisma"
     }
   },
   "scripts": {
-    "setup": "pnpm install && NODE_ENV=development env-cmd run-s setup:*",
-    "setup:migrate": "pnpm migrate:reset ",
-    "setup:generate": "pnpm generate",
+    "setup": "pnpm install && pnpm migrate:reset",
     "dev": "NODE_ENV=development env-cmd pnpm ts --watch src/main.ts",
     "build": "vite build",
     "start": "NODE_ENV=production env-cmd node --enable-source-maps dist/main.js",
-    "codegen": "graphql-codegen-esm",
-    "studio": "prisma studio",
     "test": "run-s test:ut test:it",
     "test:ut": "NODE_ENV=test PASS_HASH_EXP=4 env-cmd vitest --dir src",
     "test:it": "NODE_ENV=test PASS_HASH_EXP=4 DB_NAME=test env-cmd --no-override run-s test:it:*",
@@ -41,11 +37,13 @@
     "fix:format": "run-p fix:format:*",
     "fix:format:biome": "pnpm format:biome --write",
     "fix:format:prettier": "pnpm format:prettier --write",
+    "studio": "prisma studio",
     "migrate:dev": "prisma migrate dev",
     "migrate:reset": "prisma migrate reset --force",
     "generate": "prisma generate",
     "merge": "prisma-import --force",
     "seed": "prisma db seed",
+    "codegen": "graphql-codegen-esm",
     "ts": "vite-node",
     "typecheck": "tsc",
     "lint": "biome check .",
