@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import type { randomUUID } from "node:crypto";
 
 import { GraphQLError } from "graphql";
 import type { YogaInitialContext } from "graphql-yoga";

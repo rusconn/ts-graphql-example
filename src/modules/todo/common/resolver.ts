@@ -1,4 +1,4 @@
-import * as DB from "@/db/mod.ts";
+import type * as DB from "@/db/mod.ts";
 import { type Context, notFoundErr } from "../../common/resolvers.ts";
 
 export type Todo = DB.TodoSelect;

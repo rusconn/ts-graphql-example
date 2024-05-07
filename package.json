@@ -70,7 +70,7 @@
     "ulid": "^2.3.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.5.3",
+    "@biomejs/biome": "1.7.3",
     "@faker-js/faker": "^8.4.1",
     "@graphql-codegen/cli": "4.0.1",
     "@graphql-codegen/typescript": "4.0.0",
