@@ -1,11 +1,12 @@
 import { faker } from "@faker-js/faker";
+import type { Transaction } from "kysely";
 import { chunk } from "remeda";
 import { ulid } from "ulid";
 
-import { TodoStatus, type User, db } from "@/db/mod.ts";
+import { type DB, TodoStatus, type User } from "@/db/mod.ts";
 import { randInt } from "./common.ts";
 
-export const seed = async (userIds: User["id"][]) => {
+export const seed = async (tsx: Transaction<DB>, userIds: User["id"][]) => {
   const handTodos = [
     {
       id: "01HFFZ0ABV8BJPJX50Z2PJ3DR9",
@@ -42,7 +43,7 @@ export const seed = async (userIds: User["id"][]) => {
 
   // 一度に insert する件数が多いとエラーが発生するので小分けにしている
   const chunks = chunk(todos, 5_000);
-  const inserts = chunks.map((ts) => db.insertInto("Todo").values(ts).execute());
+  const inserts = chunks.map((ts) => tsx.insertInto("Todo").values(ts).execute());
 
   await Promise.all(inserts);
 };
