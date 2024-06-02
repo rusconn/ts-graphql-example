@@ -32,7 +32,10 @@ if (Number.isNaN(passHashExp) || (isProd && (passHashExp < 10 || 14 < passHashEx
 
 export { port, maxDepth, maxCost, passHashExp };
 
-const { DB_PORT, DB_NAME } = process.env;
-const connectionString = `postgresql://postgres:pass@localhost:${DB_PORT}/${DB_NAME}`;
+const { DATABASE_URL } = process.env;
 
-export { connectionString };
+if (DATABASE_URL == null) {
+  throw new Error("Invalid DATABASE_URL");
+}
+
+export { DATABASE_URL as connectionString };
