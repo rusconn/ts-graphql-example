@@ -49,7 +49,7 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
     .where("userId", "=", authed.id)
     .select(({ fn }) => fn.countAll().as("count"))
     .executeTakeFirstOrThrow()
-    .then(result => Number(result.count));
+    .then((result) => Number(result.count));
 
   if (count >= TODOS_MAX) {
     return {
@@ -109,11 +109,11 @@ if (import.meta.vitest) {
 
     const denies = [context.guest];
 
-    test.each(allows)("allows %#", async user => {
+    test.each(allows)("allows %#", async (user) => {
       await resolve({ user });
     });
 
-    test.each(denies)("denies %#", async user => {
+    test.each(denies)("denies %#", async (user) => {
       expect.assertions(1);
       try {
         await resolve({ user });
@@ -141,11 +141,11 @@ if (import.meta.vitest) {
       { ...validInput, description: "🅰".repeat(DESC_MAX + 1) },
     ] as Args["input"][];
 
-    test.each(valids)("valids %#", async input => {
+    test.each(valids)("valids %#", async (input) => {
       await resolve({ args: { input } });
     });
 
-    test.each(invalids)("invalids %#", async input => {
+    test.each(invalids)("invalids %#", async (input) => {
       expect.assertions(1);
       try {
         await resolve({ args: { input } });
@@ -179,13 +179,13 @@ if (import.meta.vitest) {
     const notExceededs = [0, 1, TODOS_MAX - 1];
     const exceededs = [TODOS_MAX, TODOS_MAX + 1];
 
-    test.each(notExceededs)("notExceededs %#", async num => {
+    test.each(notExceededs)("notExceededs %#", async (num) => {
       const db = createDb(num);
 
       await resolve({ db, args: { input: validInput } });
     });
 
-    test.each(exceededs)("exceededs %#", async num => {
+    test.each(exceededs)("exceededs %#", async (num) => {
       const db = createDb(num);
 
       const result = await resolve({ db, args: { input: validInput } });

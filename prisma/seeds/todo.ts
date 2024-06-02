@@ -42,7 +42,7 @@ export const seed = async (userIds: User["id"][]) => {
 
   // 一度に insert する件数が多いとエラーが発生するので小分けにしている
   const chunks = chunk(todos, 5_000);
-  const inserts = chunks.map(ts => db.insertInto("Todo").values(ts).execute());
+  const inserts = chunks.map((ts) => db.insertInto("Todo").values(ts).execute());
 
   await Promise.all(inserts);
 };
@@ -54,7 +54,7 @@ const fakeData = (userIds: User["id"][]) => {
 const fakeDataOne = (userId: User["id"]) => {
   const numTodos = randInt(0, 10);
 
-  return [...Array(numTodos)].map(_ => ({
+  return [...Array(numTodos)].map((_) => ({
     id: ulid(),
     title: faker.lorem.words(randInt(1, 3)),
     description: faker.lorem.text(),

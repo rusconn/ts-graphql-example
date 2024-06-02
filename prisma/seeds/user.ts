@@ -47,11 +47,11 @@ export const seed = async () => {
 
   // 一度に insert する件数が多いとエラーが発生するので小分けにしている
   const chunks = chunk(users, 5_000);
-  const inserts = chunks.map(us => db.insertInto("User").values(us).execute());
+  const inserts = chunks.map((us) => db.insertInto("User").values(us).execute());
 
   await Promise.all(inserts);
 
-  return fakeUsers.map(user => user.id);
+  return fakeUsers.map((user) => user.id);
 };
 
 const fakeData = (numFakes: number) => {

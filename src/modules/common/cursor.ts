@@ -92,7 +92,7 @@ export async function getCursorConnections<
       : CustomEdge
     : CustomEdge;
 
-  const edges = records.map(record => {
+  const edges = records.map((record) => {
     return {
       ...options.recordToEdge(record),
       cursor: encodeCursor(record, options),
@@ -101,7 +101,7 @@ export async function getCursorConnections<
 
   return {
     edges,
-    nodes: edges.map(edge => edge.node),
+    nodes: edges.map((edge) => edge.node),
     pageInfo: { hasNextPage, hasPreviousPage, startCursor, endCursor },
     totalCount,
   };
@@ -245,13 +245,13 @@ if (import.meta.vitest) {
       { before: "" },
     ];
 
-    test.each(valids)("valids %#", args => {
+    test.each(valids)("valids %#", (args) => {
       expect(getCursorConnections(getPage, count, parseError, args)).resolves.not.toThrow(
         parseError(),
       );
     });
 
-    test.each(invalids)("invalids %#", args => {
+    test.each(invalids)("invalids %#", (args) => {
       expect(getCursorConnections(getPage, count, parseError, args)).rejects.toThrow(parseError());
     });
   });
@@ -260,7 +260,7 @@ if (import.meta.vitest) {
     const forwards = [{ first: 1 }, { first: 10, after: "" }];
     const backwards = [{ last: 1 }, { last: 10, before: "" }];
 
-    test.each(forwards)("forwards %#", async args => {
+    test.each(forwards)("forwards %#", async (args) => {
       await getCursorConnections(
         ({ backward }) => {
           expect(backward).toBe(false);
@@ -272,7 +272,7 @@ if (import.meta.vitest) {
       );
     });
 
-    test.each(backwards)("backwards %#", async args => {
+    test.each(backwards)("backwards %#", async (args) => {
       await getCursorConnections(
         ({ backward }) => {
           expect(backward).toBe(true);
@@ -291,12 +291,12 @@ if (import.meta.vitest) {
 
     const getPage = async () => [{ id: 1 }, { id: 2 }];
 
-    test.each(forwards)("forwards %#", async args => {
+    test.each(forwards)("forwards %#", async (args) => {
       const result = await getCursorConnections(getPage, count, parseError, args);
       expect(result.nodes).toStrictEqual(await getPage());
     });
 
-    test.each(backwards)("backwards %#", async args => {
+    test.each(backwards)("backwards %#", async (args) => {
       const result = await getCursorConnections(getPage, count, parseError, args);
       expect(result.nodes).toStrictEqual(await getPage());
     });

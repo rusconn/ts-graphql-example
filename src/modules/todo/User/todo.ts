@@ -73,11 +73,11 @@ if (import.meta.vitest) {
   });
 
   describe("Parsing", () => {
-    test.each(validTodoIds)("valids %#", async id => {
+    test.each(validTodoIds)("valids %#", async (id) => {
       await resolve({ args: { id } });
     });
 
-    test.each(invalidTodoIds)("invalids %#", async id => {
+    test.each(invalidTodoIds)("invalids %#", async (id) => {
       expect.assertions(1);
       try {
         await resolve({ args: { id } });

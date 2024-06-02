@@ -117,11 +117,11 @@ if (import.meta.vitest) {
 
     const denies = [context.guest];
 
-    test.each(allows)("allows %#", async user => {
+    test.each(allows)("allows %#", async (user) => {
       await resolve({ user });
     });
 
-    test.each(denies)("denies %#", async user => {
+    test.each(denies)("denies %#", async (user) => {
       expect.assertions(1);
       try {
         await resolve({ user });
@@ -158,11 +158,11 @@ if (import.meta.vitest) {
       { password: "🅰".repeat(PASS_MAX + 1) },
     ] as Args["input"][];
 
-    test.each(valids)("valids %#", async input => {
+    test.each(valids)("valids %#", async (input) => {
       await resolve({ args: { input } });
     });
 
-    test.each(invalids)("invalids %#", async input => {
+    test.each(invalids)("invalids %#", async (input) => {
       expect.assertions(1);
       try {
         await resolve({ args: { input } });

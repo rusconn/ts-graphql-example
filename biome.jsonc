@@ -35,10 +35,5 @@
     "enabled": true,
     "indentStyle": "space",
     "lineWidth": 100
-  },
-  "javascript": {
-    "formatter": {
-      "arrowParentheses": "asNeeded"
-    }
   }
 }

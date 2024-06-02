@@ -49,11 +49,11 @@ if (import.meta.vitest) {
 
     const denies = [context.guest];
 
-    test.each(allows)("allows %#", async user => {
+    test.each(allows)("allows %#", async (user) => {
       await resolve({ user });
     });
 
-    test.each(denies)("denies %#", async user => {
+    test.each(denies)("denies %#", async (user) => {
       expect.assertions(1);
       try {
         await resolve({ user });

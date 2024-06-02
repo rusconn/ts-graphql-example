@@ -130,7 +130,7 @@ describe("order of items", () => {
       fail();
     }
 
-    const ids = data.node.todos?.edges?.map(edge => edge?.node?.id);
+    const ids = data.node.todos?.edges?.map((edge) => edge?.node?.id);
     const expectedIds = expectedTodos.map(({ id }) => id);
 
     expect(ids).toStrictEqual(expectedIds);
@@ -291,7 +291,9 @@ describe("pagination", () => {
 
         expect(data1.node.todos.edges?.length).toBe(firstExpect.length);
         expect(data1.node.todos.pageInfo).toStrictEqual(firstExpect.pageInfo);
-        expect(data1.node.todos.edges?.map(edge => edge?.node?.id)).toStrictEqual(firstExpect.ids);
+        expect(data1.node.todos.edges?.map((edge) => edge?.node?.id)).toStrictEqual(
+          firstExpect.ids,
+        );
 
         const { data: data2 } = await executeQuery({
           variables: {
@@ -306,7 +308,9 @@ describe("pagination", () => {
 
         expect(data2.node.todos.edges?.length).toBe(secondExpect.length);
         expect(data2.node.todos.pageInfo).toStrictEqual(secondExpect.pageInfo);
-        expect(data2.node.todos.edges?.map(edge => edge?.node?.id)).toStrictEqual(secondExpect.ids);
+        expect(data2.node.todos.edges?.map((edge) => edge?.node?.id)).toStrictEqual(
+          secondExpect.ids,
+        );
       },
     );
   });
@@ -332,6 +336,6 @@ describe("filter by status", () => {
     const expectedIds = expectedTodos.map(({ id }) => id);
 
     expect(data.node.todos.totalCount).toBe(expectedIds.length);
-    expect(data.node.todos.edges?.map(edge => edge?.node?.id)).toStrictEqual(expectedIds);
+    expect(data.node.todos.edges?.map((edge) => edge?.node?.id)).toStrictEqual(expectedIds);
   });
 });

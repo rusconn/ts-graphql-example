@@ -29,11 +29,11 @@ if (import.meta.vitest) {
 
     const denies = [context.guest];
 
-    test.each(allows)("allows %#", user => {
+    test.each(allows)("allows %#", (user) => {
       resolve({ user });
     });
 
-    test.each(denies)("denies %#", user => {
+    test.each(denies)("denies %#", (user) => {
       expect.assertions(1);
       try {
         resolve({ user });

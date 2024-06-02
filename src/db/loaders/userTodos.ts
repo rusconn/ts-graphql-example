@@ -43,10 +43,10 @@ export const initClosure = (db: Kysely<DB>) => {
       .where(
         "userId",
         "in",
-        keys.map(key => key.id),
+        keys.map((key) => key.id),
       )
-      .$if(status != null, qb => qb.where("status", "=", status!))
-      .$if(cursorRecord != null, qb =>
+      .$if(status != null, (qb) => qb.where("status", "=", status!))
+      .$if(cursorRecord != null, (qb) =>
         qb.where(({ eb }) =>
           eb.or([
             eb(orderColumn, columnComp, cursorRecord!.select(orderColumn)),
@@ -63,16 +63,16 @@ export const initClosure = (db: Kysely<DB>) => {
       .execute();
 
     // 順序は維持してくれるみたい
-    const userTodos = groupBy(todos, todo => todo.userId);
+    const userTodos = groupBy(todos, (todo) => todo.userId);
 
     const kv = new Map(
       Object.entries(userTodos).map(([key, value]) => [key, value.slice(offset).slice(0, limit)]),
     );
 
-    return keys.map(key => kv.get(key.id) ?? []);
+    return keys.map((key) => kv.get(key.id) ?? []);
   };
 
-  const loader = new DataLoader(batchGet, { cacheKeyFn: key => key.id });
+  const loader = new DataLoader(batchGet, { cacheKeyFn: (key) => key.id });
 
   return (params: Params) => {
     sharedParams ??= params;

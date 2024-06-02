@@ -24,18 +24,18 @@ export const initClosure = (db: Kysely<DB>) => {
       .where(
         "userId",
         "in",
-        keys.map(key => key.id),
+        keys.map((key) => key.id),
       )
-      .$if(status != null, qb => qb.where("status", "=", status!))
+      .$if(status != null, (qb) => qb.where("status", "=", status!))
       .groupBy("userId")
       .select("userId as id")
       .select(({ fn }) => fn.count("userId").as("count"))
       .execute();
 
-    return sort(keys, todos).map(result => Number(result?.count ?? 0));
+    return sort(keys, todos).map((result) => Number(result?.count ?? 0));
   };
 
-  const loader = new DataLoader(batchGet, { cacheKeyFn: key => key.id });
+  const loader = new DataLoader(batchGet, { cacheKeyFn: (key) => key.id });
 
   return (params: Params) => {
     sharedParams ??= params;

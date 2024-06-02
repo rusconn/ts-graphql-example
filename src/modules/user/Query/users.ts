@@ -61,7 +61,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 
       return await context.db
         .selectFrom("User")
-        .$if(cursorRecord != null, qb =>
+        .$if(cursorRecord != null, (qb) =>
           qb.where(({ eb }) =>
             eb.or([
               eb(orderColumn, columnComp, cursorRecord!.select(orderColumn)),
@@ -74,18 +74,18 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
         )
         .orderBy(orderColumn, direction)
         .orderBy("id", direction)
-        .$if(limit != null, qb => qb.limit(limit!))
-        .$if(offset != null, qb => qb.offset(offset!))
+        .$if(limit != null, (qb) => qb.limit(limit!))
+        .$if(offset != null, (qb) => qb.offset(offset!))
         .selectAll()
         .execute()
-        .then(result => (backward ? result.reverse() : result));
+        .then((result) => (backward ? result.reverse() : result));
     },
     () =>
       context.db
         .selectFrom("User")
         .select(({ fn }) => fn.countAll().as("count"))
         .executeTakeFirstOrThrow()
-        .then(result => Number(result.count)),
+        .then((result) => Number(result.count)),
     parseErr,
     { first, after, last, before },
     { resolveInfo: info },
@@ -126,11 +126,11 @@ if (import.meta.vitest) {
 
     const denies = [context.alice, context.guest];
 
-    test.each(allows)("allows %#", async user => {
+    test.each(allows)("allows %#", async (user) => {
       await resolve({ user });
     });
 
-    test.each(denies)("denies %#", async user => {
+    test.each(denies)("denies %#", async (user) => {
       expect.assertions(1);
       try {
         await resolve({ user });
@@ -147,11 +147,11 @@ if (import.meta.vitest) {
 
     const { orderBy } = valid.args;
 
-    test.each(valids)("valids %#", async args => {
+    test.each(valids)("valids %#", async (args) => {
       await resolve({ args: { ...args, orderBy } });
     });
 
-    test.each(invalids)("invalids %#", async args => {
+    test.each(invalids)("invalids %#", async (args) => {
       expect.assertions(1);
       try {
         await resolve({ args: { ...args, orderBy } });

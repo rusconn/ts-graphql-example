@@ -60,7 +60,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
       return await context.loaders
         .userTodos({ ...rest, orderColumn, direction, columnComp, idComp, status })
         .load(parent)
-        .then(result => (backward ? result.reverse() : result));
+        .then((result) => (backward ? result.reverse() : result));
     },
     () => context.loaders.userTodosCount({ status }).load(parent),
     parseErr,
@@ -136,11 +136,11 @@ if (import.meta.vitest) {
 
     const { orderBy } = valid.args;
 
-    test.each(valids)("valids %#", async args => {
+    test.each(valids)("valids %#", async (args) => {
       await resolve({ args: { ...args, orderBy } });
     });
 
-    test.each(invalids)("invalids %#", async args => {
+    test.each(invalids)("invalids %#", async (args) => {
       expect.assertions(1);
       try {
         await resolve({ args: { ...args, orderBy } });

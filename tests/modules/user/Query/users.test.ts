@@ -87,7 +87,7 @@ describe("order of items", () => {
       variables: { ...variables, first: 10 },
     });
 
-    const ids = data?.users?.edges?.map(edge => edge?.node?.id);
+    const ids = data?.users?.edges?.map((edge) => edge?.node?.id);
     const expectedIds = expectedUsers.map(({ id }) => id);
 
     expect(ids).toStrictEqual(expectedIds);
@@ -236,7 +236,7 @@ describe("pagination", () => {
 
         expect(data1.users.edges?.length).toBe(firstExpect.length);
         expect(data1.users.pageInfo).toStrictEqual(firstExpect.pageInfo);
-        expect(data1.users.edges?.map(edge => edge?.node?.id)).toStrictEqual(firstExpect.ids);
+        expect(data1.users.edges?.map((edge) => edge?.node?.id)).toStrictEqual(firstExpect.ids);
 
         const { data: data2 } = await executeQuery({
           variables: {
@@ -251,7 +251,7 @@ describe("pagination", () => {
 
         expect(data2.users.edges?.length).toBe(secondExpect.length);
         expect(data2.users.pageInfo).toStrictEqual(secondExpect.pageInfo);
-        expect(data2.users.edges?.map(edge => edge?.node?.id)).toStrictEqual(secondExpect.ids);
+        expect(data2.users.edges?.map((edge) => edge?.node?.id)).toStrictEqual(secondExpect.ids);
       },
     );
   });

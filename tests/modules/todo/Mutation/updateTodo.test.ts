@@ -51,7 +51,7 @@ beforeEach(async () => {
   await db
     .insertInto("Todo")
     .values(Data.db.adminTodo)
-    .onConflict(oc => oc.column("id").doUpdateSet(Data.db.adminTodo))
+    .onConflict((oc) => oc.column("id").doUpdateSet(Data.db.adminTodo))
     .executeTakeFirstOrThrow();
 });
 

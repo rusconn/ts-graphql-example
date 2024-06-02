@@ -100,11 +100,11 @@ if (import.meta.vitest) {
 
     const denies = [context.guest];
 
-    test.each(allows)("allows %#", async user => {
+    test.each(allows)("allows %#", async (user) => {
       await resolve({ user });
     });
 
-    test.each(denies)("denies %#", async user => {
+    test.each(denies)("denies %#", async (user) => {
       expect.assertions(1);
       try {
         await resolve({ user });
@@ -118,11 +118,11 @@ if (import.meta.vitest) {
     describe("id", () => {
       const { input } = valid.args;
 
-      test.each(validTodoIds)("valids %#", async id => {
+      test.each(validTodoIds)("valids %#", async (id) => {
         await resolve({ args: { id, input } });
       });
 
-      test.each(invalidTodoIds)("invalids %#", async id => {
+      test.each(invalidTodoIds)("invalids %#", async (id) => {
         expect.assertions(1);
         try {
           await resolve({ args: { id, input } });
@@ -156,11 +156,11 @@ if (import.meta.vitest) {
         { ...validInput, description: "🅰".repeat(DESC_MAX + 1) },
       ] as Args["input"][];
 
-      test.each(valids)("valids %#", async input => {
+      test.each(valids)("valids %#", async (input) => {
         await resolve({ args: { id, input } });
       });
 
-      test.each(invalids)("invalids %#", async input => {
+      test.each(invalids)("invalids %#", async (input) => {
         expect.assertions(1);
         try {
           await resolve({ args: { id, input } });

@@ -55,7 +55,7 @@ test("exists, but not owned", async () => {
 describe("should return item correctly", () => {
   const ids = [Data.graph.admin.id, Data.graph.adminTodo.id];
 
-  test.each(ids)("%s", async id => {
+  test.each(ids)("%s", async (id) => {
     const { data } = await executeQuery({
       variables: { id },
     });
@@ -65,9 +65,9 @@ describe("should return item correctly", () => {
 });
 
 describe("should return not found error if not found", () => {
-  const ids = [Data.graph.admin.id, Data.graph.adminTodo.id].map(id => id.slice(0, -1));
+  const ids = [Data.graph.admin.id, Data.graph.adminTodo.id].map((id) => id.slice(0, -1));
 
-  test.each(ids)("%s", async id => {
+  test.each(ids)("%s", async (id) => {
     const { data, errors } = await executeQuery({
       variables: { id },
     });

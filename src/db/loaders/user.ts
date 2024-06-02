@@ -8,7 +8,7 @@ import { sort } from "./common.ts";
 export type Key = Pick<UserSelect, "id">;
 
 export const init = (db: Kysely<DB>) => {
-  return new DataLoader(batchGet(db), { cacheKeyFn: key => key.id });
+  return new DataLoader(batchGet(db), { cacheKeyFn: (key) => key.id });
 };
 
 const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
@@ -17,7 +17,7 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
     .where(
       "id",
       "in",
-      keys.map(key => key.id),
+      keys.map((key) => key.id),
     )
     .selectAll()
     .execute();
