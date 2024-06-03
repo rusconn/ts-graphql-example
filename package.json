@@ -14,7 +14,6 @@
     }
   },
   "scripts": {
-    "setup": "pnpm install && pnpm migrate:reset",
     "dev": "dotenvx run -- pnpm ts --watch src/main.ts",
     "build": "dotenvx run -- vite build",
     "start": "dotenvx run -f .env -f .env.production --overload -- node --enable-source-maps dist/main.js",

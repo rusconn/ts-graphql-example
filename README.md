@@ -8,15 +8,17 @@ TypeScript を使って GraphQL API を作る。
 ## 事前準備
 
 ```shell
+cp .env.example .env
+docker compose up -d
 corepack enable
+pnpm install
+pnpm migrate:reset
 ```
 
 ## 起動方法
 
 ```shell
-cp .env.example .env
-docker compose up -d
-pnpm run setup && pnpm dev
+pnpm dev
 ```
 
 クエリの実行は [Web コンソール](http://localhost:4000/graphql) で。  
