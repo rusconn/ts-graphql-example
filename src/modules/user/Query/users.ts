@@ -86,7 +86,6 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
         .select(({ fn }) => fn.countAll().as("count"))
         .executeTakeFirstOrThrow()
         .then((result) => Number(result.count)),
-    parseErr,
     { first, after, last, before },
     { resolveInfo: info },
   );

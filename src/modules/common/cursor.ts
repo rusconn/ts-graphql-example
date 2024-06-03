@@ -3,6 +3,8 @@
 import type { GraphQLResolveInfo } from "graphql";
 import graphqlFields from "graphql-fields";
 
+import { parseErr } from "./parsers";
+
 export async function getCursorConnections<
   Record = { id: string },
   Cursor = { id: string },
@@ -11,15 +13,10 @@ export async function getCursorConnections<
 >(
   getPage: (args: GetPageArguments<Cursor>) => Promise<Record[]>,
   count: () => Promise<number>,
-  parseError: (message: string) => Error,
   connArgs: ConnectionArguments = {},
   pOptions?: Options<Record, Cursor, Node, CustomEdge>,
 ): Promise<Connection<Node, CustomEdge>> {
   const args = parseArgs(connArgs);
-
-  if (typeof args === "string") {
-    throw parseError(args);
-  }
 
   const options = mergeDefaultOptions(pOptions);
   const requestedFields = options.resolveInfo && Object.keys(graphqlFields(options.resolveInfo));
@@ -31,61 +28,50 @@ export async function getCursorConnections<
   let hasPreviousPage: boolean;
 
   if (isForwardPagination(args)) {
-    // Fetch one additional record to determine if there is a next page
-    const limit = args.first + 1;
-
-    const cursor = decodeCursor(args.after, options);
-    const offset = cursor ? 1 : undefined;
-
-    const results = await Promise.all([
-      getPage({ cursor, limit, offset, backward: false }),
+    [records, totalCount] = await Promise.all([
+      getPage({
+        cursor: decodeCursor(args.after, options),
+        limit: args.first + 1,
+        ...(args.after && {
+          offset: 1,
+        }),
+        backward: false,
+      }),
       hasRequestedField("totalCount") ? count() : -1,
     ]);
-    records = results[0];
-    totalCount = results[1];
 
-    // See if we are "after" another record, indicating a previous page
     hasPreviousPage = !!args.after;
-
-    // See if we have an additional record, indicating a next page
     hasNextPage = records.length > args.first;
 
-    // Remove the extra record (last element) from the results
     if (hasNextPage) {
       records.pop();
     }
   } else {
-    // Fetch one additional record to determine if there is a previous page
-    const limit = args.last + 1;
-
-    const cursor = decodeCursor(args.before, options);
-    const offset = cursor ? 1 : undefined;
-
-    const results = await Promise.all([
-      getPage({ cursor, limit, offset, backward: true }),
+    [records, totalCount] = await Promise.all([
+      getPage({
+        cursor: decodeCursor(args.before, options),
+        limit: args.last + 1,
+        ...(args.before && {
+          offset: 1,
+        }),
+        backward: true,
+      }),
       hasRequestedField("totalCount") ? count() : -1,
     ]);
-    records = results[0];
-    totalCount = results[1];
 
-    // See if we are "before" another record, indicating a next page
     hasNextPage = !!args.before;
-
-    // See if we have an additional record, indicating a previous page
     hasPreviousPage = records.length > args.last;
 
-    // Remove the extra record (first element) from the results
     if (hasPreviousPage) {
       records.shift();
     }
   }
 
-  // The cursors are always the first & last elements of the result set
-  const startCursor = records.length > 0 ? encodeCursor(records[0], options) : undefined;
-  const endCursor =
-    records.length > 0 ? encodeCursor(records[records.length - 1], options) : undefined;
+  const [startCursor, endCursor] =
+    records.length > 0
+      ? [encodeCursor(records.at(0)!, options), encodeCursor(records.at(-1)!, options)]
+      : [null, null];
 
-  // Allow the recordToEdge function to return a custom edge type which will be inferred
   type EdgeExtended = typeof options.recordToEdge extends (record: Record) => infer X
     ? X extends CustomEdge
       ? X & { cursor: string }
@@ -107,30 +93,30 @@ export async function getCursorConnections<
   };
 }
 
-function parseArgs(args: ConnectionArguments): ConnectionArgumentsUnion | string {
+function parseArgs(args: ConnectionArguments): ConnectionArgumentsUnion {
   if (args.first == null && args.last == null) {
-    return 'One of "first" or "last" is required';
+    throw parseErr('One of "first" or "last" is required');
   }
 
   if (args.first != null && args.last != null) {
-    return 'Only one of "first" and "last" can be set';
+    throw parseErr('Only one of "first" and "last" can be set');
   }
   if (args.after != null && args.before != null) {
-    return 'Only one of "after" and "before" can be set';
+    throw parseErr('Only one of "after" and "before" can be set');
   }
 
   if (args.after != null && args.first == null) {
-    return '"after" needs to be used with "first"';
+    throw parseErr('"after" needs to be used with "first"');
   }
   if (args.before != null && args.last == null) {
-    return '"before" needs to be used with "last"';
+    throw parseErr('"before" needs to be used with "last"');
   }
 
   if (args.first != null && args.first <= 0) {
-    return '"first" has to be positive';
+    throw parseErr('"first" has to be positive');
   }
   if (args.last != null && args.last <= 0) {
-    return '"last" has to be positive';
+    throw parseErr('"last" has to be positive');
   }
 
   return args as ConnectionArgumentsUnion;
@@ -138,8 +124,18 @@ function parseArgs(args: ConnectionArguments): ConnectionArgumentsUnion | string
 
 type ConnectionArgumentsUnion = ForwardPaginationArguments | BackwardPaginationArguments;
 
-type ForwardPaginationArguments = { first: number; after?: string };
-type BackwardPaginationArguments = { last: number; before?: string };
+type ForwardPaginationArguments = {
+  first: number;
+  after?: string;
+  last?: undefined;
+  before?: undefined;
+};
+type BackwardPaginationArguments = {
+  first?: undefined;
+  after?: undefined;
+  last: number;
+  before?: string;
+};
 
 type MergedOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>> = Required<
   Options<Record, Cursor, Node, CustomEdge>
@@ -214,14 +210,13 @@ interface Edge<T> {
 interface PageInfo {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
-  startCursor?: string;
-  endCursor?: string;
+  startCursor: string | null;
+  endCursor: string | null;
 }
 
 if (import.meta.vitest) {
   const getPage = async () => [];
   const count = async () => 0;
-  const parseError = () => new Error();
 
   describe("Parsing", () => {
     const valids = [
@@ -246,13 +241,11 @@ if (import.meta.vitest) {
     ];
 
     test.each(valids)("valids %#", (args) => {
-      expect(getCursorConnections(getPage, count, parseError, args)).resolves.not.toThrow(
-        parseError(),
-      );
+      expect(getCursorConnections(getPage, count, args)).resolves.not.toThrowError();
     });
 
     test.each(invalids)("invalids %#", (args) => {
-      expect(getCursorConnections(getPage, count, parseError, args)).rejects.toThrow(parseError());
+      expect(getCursorConnections(getPage, count, args)).rejects.toThrowError();
     });
   });
 
@@ -267,7 +260,6 @@ if (import.meta.vitest) {
           return Promise.resolve([]);
         },
         count,
-        parseError,
         args,
       );
     });
@@ -279,7 +271,6 @@ if (import.meta.vitest) {
           return Promise.resolve([]);
         },
         count,
-        parseError,
         args,
       );
     });
@@ -292,12 +283,12 @@ if (import.meta.vitest) {
     const getPage = async () => [{ id: 1 }, { id: 2 }];
 
     test.each(forwards)("forwards %#", async (args) => {
-      const result = await getCursorConnections(getPage, count, parseError, args);
+      const result = await getCursorConnections(getPage, count, args);
       expect(result.nodes).toStrictEqual(await getPage());
     });
 
     test.each(backwards)("backwards %#", async (args) => {
-      const result = await getCursorConnections(getPage, count, parseError, args);
+      const result = await getCursorConnections(getPage, count, args);
       expect(result.nodes).toStrictEqual(await getPage());
     });
   });

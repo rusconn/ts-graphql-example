@@ -66,7 +66,6 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
         .then((result) => (backward ? result.reverse() : result));
     },
     () => context.loaders.userTodosCount({ status }).load(parent),
-    parseErr,
     { first, after, last, before },
     { resolveInfo: info },
   );
