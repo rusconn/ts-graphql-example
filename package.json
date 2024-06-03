@@ -38,7 +38,6 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:reset": "prisma migrate reset --force",
     "merge": "prisma-import --force",
-    "seed": "prisma db seed",
     "codegen": "graphql-codegen-esm",
     "ts": "vite-node",
     "typecheck": "tsc",
