@@ -319,7 +319,6 @@ describe("pagination", () => {
 describe("filter by status", () => {
   const patterns = [
     [{}, [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2]],
-    [{ status: null }, [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2]],
     [{ status: TodoStatus.Done }, [Data.graph.adminTodo2]],
     [{ status: TodoStatus.Pending }, [Data.graph.adminTodo, Data.graph.adminTodo3]],
   ] as const;

@@ -18,7 +18,7 @@ export const typeDef = /* GraphQL */ `
       last: Int
       before: String
       orderBy: TodoOrder! = { field: UPDATED_AT, direction: DESC }
-      "null 以外を指定すると絞り込む"
+      "指定すると絞り込む、null は入力エラー"
       status: TodoStatus
     ): TodoConnection
   }
@@ -37,6 +37,9 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
   }
   if (last && last > LAST_MAX) {
     throw parseErr(`"last" must be up to ${LAST_MAX}`);
+  }
+  if (status === null) {
+    throw parseErr('"status" must be not null');
   }
 
   return await getCursorConnections(
@@ -132,7 +135,11 @@ if (import.meta.vitest) {
   describe("Parsing", () => {
     const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
 
-    const invalids = [{ first: FIRST_MAX + 1 }, { last: LAST_MAX + 1 }];
+    const invalids = [
+      { first: 10, status: null },
+      { first: FIRST_MAX + 1 },
+      { last: LAST_MAX + 1 },
+    ];
 
     const { orderBy } = valid.args;
 

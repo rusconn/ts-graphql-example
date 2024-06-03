@@ -10,7 +10,7 @@ export type Key = Pick<UserSelect, "id">;
 type Params = Filter;
 
 type Filter = {
-  status?: TodoStatus | null;
+  status?: TodoStatus;
 };
 
 export const initClosure = (db: Kysely<DB>) => {

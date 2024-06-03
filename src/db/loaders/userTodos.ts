@@ -10,7 +10,7 @@ type Key = Pick<UserSelect, "id">;
 type Params = Filter & Pagination;
 
 type Filter = {
-  status?: TodoStatus | null;
+  status?: TodoStatus;
 };
 
 type Pagination = {
