@@ -26,7 +26,7 @@
     "check:format:prettier": "pnpm format:prettier --check",
     "fix": "run-s fix:*",
     "fix:typecheck": "pnpm typecheck",
-    "fix:lint": "pnpm lint --apply",
+    "fix:lint": "pnpm lint --write",
     "fix:format": "run-p fix:format:*",
     "fix:format:biome": "pnpm format:biome --write",
     "fix:format:prettier": "pnpm format:prettier --write",
@@ -36,8 +36,8 @@
     "codegen": "graphql-codegen-esm",
     "ts": "vite-node",
     "typecheck": "tsc",
-    "lint": "biome check .",
-    "format:biome": "biome format .",
+    "lint": "biome check",
+    "format:biome": "biome format",
     "format:prettier": "prettier --cache './**/*.{yml,yaml,md}'"
   },
   "dependencies": {
@@ -58,7 +58,7 @@
     "ulid": "^2.3.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.7.3",
+    "@biomejs/biome": "1.8.0",
     "@dotenvx/dotenvx": "^0.44.1",
     "@faker-js/faker": "^8.4.1",
     "@graphql-codegen/cli": "4.0.1",
