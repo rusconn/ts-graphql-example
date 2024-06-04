@@ -6,10 +6,6 @@
     "biomejs.biome",
     "esbenp.prettier-vscode",
     "graphql.vscode-graphql",
-    "ajmnz.prisma-import"
-  ],
-  "unwantedRecommendations": [
-    // avoid conflicts with ajmnz.prisma-import
     "prisma.prisma"
   ]
 }

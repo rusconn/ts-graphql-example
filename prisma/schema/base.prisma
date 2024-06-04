@@ -1,0 +1,10 @@
+generator kysely {
+  provider        = "prisma-kysely"
+  output          = "../src/db"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource pg {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

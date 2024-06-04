@@ -1,9 +1,0 @@
-generator kysely {
-  provider = "prisma-kysely"
-  output   = "../src/db"
-}
-
-datasource pg {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
