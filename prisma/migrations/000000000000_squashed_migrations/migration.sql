@@ -7,7 +7,7 @@ CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'USER');
 -- CreateTable
 CREATE TABLE "Todo" (
     "id" CHAR(26) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "title" VARCHAR(255) NOT NULL,
     "description" TEXT NOT NULL DEFAULT '',
@@ -20,7 +20,7 @@ CREATE TABLE "Todo" (
 -- CreateTable
 CREATE TABLE "User" (
     "id" CHAR(26) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "email" VARCHAR(255) NOT NULL,
@@ -54,4 +54,3 @@ CREATE INDEX "User_updatedAt_idx" ON "User"("updatedAt");
 
 -- AddForeignKey
 ALTER TABLE "Todo" ADD CONSTRAINT "Todo_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
