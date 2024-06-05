@@ -9,8 +9,8 @@ model User {
   role      UserRole @default(USER)
   todos     Todo[]
 
-  @@index(createdAt)
-  @@index(updatedAt)
+  @@index([createdAt, id])
+  @@index([updatedAt, id])
 }
 
 enum UserRole {

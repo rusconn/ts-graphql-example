@@ -8,9 +8,9 @@ model Todo {
   user        User       @relation(fields: userId, references: id, onDelete: Cascade)
   userId      String     @pg.Char(26)
 
-  @@index(userId)
-  @@index(createdAt)
-  @@index(updatedAt)
+  // status 等検索条件の絞り込みはフィルターで十分か
+  @@index([userId, createdAt, id])
+  @@index([userId, updatedAt, id])
 }
 
 enum TodoStatus {
