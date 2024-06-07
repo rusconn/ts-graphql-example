@@ -21,7 +21,7 @@
     "check": "run-s check:*",
     "check:typecheck": "pnpm typecheck",
     "check:lint": "pnpm lint",
-    "check:format": "run-p fix:format:*",
+    "check:format": "run-p check:format:*",
     "check:format:biome": "pnpm format:biome",
     "check:format:prettier": "pnpm format:prettier --check",
     "fix": "run-s fix:*",
