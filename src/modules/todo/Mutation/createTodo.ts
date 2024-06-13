@@ -2,6 +2,7 @@ import { ulid } from "ulid";
 
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
+import { dateByUlid } from "../../common/resolvers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 
 const TODOS_MAX = 10000;
@@ -58,14 +59,15 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
     };
   }
 
-  const now = new Date();
+  const id = ulid();
+  const idDate = dateByUlid(id);
 
   const todo = await context.db
     .insertInto("Todo")
     .values({
-      id: ulid(),
-      createdAt: now,
-      updatedAt: now,
+      id,
+      createdAt: idDate,
+      updatedAt: idDate,
       userId: authed.id,
       title,
       description,

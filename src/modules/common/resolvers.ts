@@ -3,6 +3,7 @@ import type { randomUUID } from "node:crypto";
 import { GraphQLError } from "graphql";
 import type { YogaInitialContext } from "graphql-yoga";
 import type { EmptyObject } from "type-fest";
+import { decodeTime, type ulid } from "ulid";
 
 import type { db } from "@/db/mod.ts";
 import type * as DB from "@/db/mod.ts";
@@ -12,6 +13,10 @@ export const notFoundErr = () =>
   new GraphQLError("Not found", {
     extensions: { code: ErrorCode.NotFound },
   });
+
+export const dateByUlid = (id: ReturnType<typeof ulid>) => {
+  return new Date(decodeTime(id));
+};
 
 export type Context = ServerContext & YogaInitialContext & UserContext;
 

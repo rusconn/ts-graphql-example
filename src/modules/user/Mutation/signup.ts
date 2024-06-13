@@ -5,6 +5,7 @@ import { passHashExp } from "@/config.ts";
 import * as DB from "@/db/mod.ts";
 import { authGuest } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
+import { dateByUlid } from "../../common/resolvers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 
 const NAME_MAX = 100;
@@ -65,15 +66,16 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   }
 
   const hashed = await bcrypt.hash(password, passHashExp);
-  const now = new Date();
+  const id = ulid();
+  const idDate = dateByUlid(id);
   const token = ulid();
 
   await context.db
     .insertInto("User")
     .values({
-      id: ulid(),
-      createdAt: now,
-      updatedAt: now,
+      id,
+      createdAt: idDate,
+      updatedAt: idDate,
       name,
       email,
       password: hashed,
