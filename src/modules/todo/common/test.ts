@@ -4,36 +4,36 @@ import { todoNodeId } from "./adapter.ts";
 
 export const db = {
   adminTodo: {
+    /** Date: 2023-08-06T12:22:02.886Z */
     id: "01H75CR8C6PQK7Z7RE4FBY1B4M",
-    createdAt: new Date(1),
-    updatedAt: new Date(6),
+    updatedAt: new Date("2023-08-06T12:22:36.000Z"),
     title: "admin todo 1",
     description: "admin todo 1",
     status: DB.TodoStatus.PENDING,
     userId: users.admin.id,
   },
   adminTodo2: {
+    /** Date: 2023-08-06T12:22:17.245Z */
     id: "01H75CRPCXACS8MDZFF1N5G7R9",
-    createdAt: new Date(2),
-    updatedAt: new Date(2),
+    updatedAt: new Date("2023-08-06T12:22:17.245Z"),
     title: "admin todo 2",
     description: "admin todo 2",
     status: DB.TodoStatus.DONE,
     userId: users.admin.id,
   },
   adminTodo3: {
+    /** Date: 2023-08-06T12:22:24.869Z */
     id: "01H75CRXV5EEDKJ731969B25TM",
-    createdAt: new Date(3),
-    updatedAt: new Date(3),
+    updatedAt: new Date("2023-08-06T12:22:24.869Z"),
     title: "admin todo 3",
     description: "admin todo 3",
     status: DB.TodoStatus.PENDING,
     userId: users.admin.id,
   },
   aliceTodo: {
+    /** Date: 2023-08-06T12:22:30.226Z */
     id: "01H75CS32JKXAK95KMDCA3PV1Z",
-    createdAt: new Date(4),
-    updatedAt: new Date(4),
+    updatedAt: new Date("2023-08-06T12:22:30.226Z"),
     title: "alice todo",
     description: "alice todo 1",
     status: DB.TodoStatus.PENDING,

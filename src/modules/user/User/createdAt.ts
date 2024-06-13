@@ -1,3 +1,4 @@
+import { dateByUlid } from "../../common/resolvers.ts";
 import type { UserResolvers } from "../../common/schema.ts";
 import { authAdminOrUserOwner } from "../common/authorizer.ts";
 
@@ -10,7 +11,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: UserResolvers["createdAt"] = (parent, _args, context) => {
   authAdminOrUserOwner(context, parent);
 
-  return parent.createdAt;
+  return dateByUlid(parent.id);
 };
 
 if (import.meta.vitest) {

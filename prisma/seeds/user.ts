@@ -8,9 +8,9 @@ import { type DB, UserRole } from "@/db/mod.ts";
 export const seed = async (tsx: Transaction<DB>) => {
   const handUsers = [
     {
+      /** Date: 2023-11-18T00:54:17.616Z */
       id: "01HFFYQP8GEG9ATV44YH6XNJ1V",
-      createdAt: new Date(0),
-      updatedAt: new Date(4),
+      updatedAt: new Date("2023-11-18T00:54:17.620Z"),
       name: "admin",
       email: "admin@admin.com",
       /** raw: adminadmin */
@@ -19,9 +19,9 @@ export const seed = async (tsx: Transaction<DB>) => {
       role: UserRole.ADMIN,
     },
     {
+      /** Date: 2023-11-18T00:54:17.617Z */
       id: "01HFFYQP8H8628NYKTK2ZCNCBV",
-      createdAt: new Date(1),
-      updatedAt: new Date(1),
+      updatedAt: new Date("2023-11-18T00:54:17.617Z"),
       name: "hoge",
       email: "hoge@hoge.com",
       /** raw: hogehoge */
@@ -30,9 +30,9 @@ export const seed = async (tsx: Transaction<DB>) => {
       role: UserRole.USER,
     },
     {
+      /** Date: 2023-11-18T00:54:17.618Z */
       id: "01HFFYQP8JMVAJ11XVZXDXVGQR",
-      createdAt: new Date(2),
-      updatedAt: new Date(3),
+      updatedAt: new Date("2023-11-18T00:54:17.619Z"),
       name: "piyo",
       email: "piyo@piyo.com",
       /** raw: piyopiyo */
@@ -75,7 +75,6 @@ const fakeDataOne = (nth: number) => {
     password: "dummy",
     token: ulid(),
     role: UserRole.USER,
-    createdAt: faker.date.past(),
     updatedAt: faker.date.past(),
   };
 };

@@ -9,27 +9,27 @@ import { randInt } from "./common.ts";
 export const seed = async (tsx: Transaction<DB>, userIds: User["id"][]) => {
   const handTodos = [
     {
+      /** Date: 2023-11-18T00:59:00.347Z */
       id: "01HFFZ0ABV8BJPJX50Z2PJ3DR9",
-      createdAt: new Date(3),
-      updatedAt: new Date(7),
+      updatedAt: new Date("2023-11-18T00:59:00.349Z"),
       title: "hoge todo 1",
       description: "hoge desc 1",
       status: TodoStatus.PENDING,
       userId: "01HFFYQP8H8628NYKTK2ZCNCBV",
     },
     {
+      /** Date: 2023-11-18T00:59:00.347Z */
       id: "01HFFZ0ABVVD5HPAARMZR74PHG",
-      createdAt: new Date(4),
-      updatedAt: new Date(4),
+      updatedAt: new Date("2023-11-18T00:59:00.347Z"),
       title: "piyo todo 1",
       description: "piyo desc 1",
       status: TodoStatus.DONE,
       userId: "01HFFYQP8JMVAJ11XVZXDXVGQR",
     },
     {
+      /** Date: 2023-11-18T00:59:00.347Z */
       id: "01HFFZ0ABV43SDH3EGT46AM6P1",
-      createdAt: new Date(5),
-      updatedAt: new Date(6),
+      updatedAt: new Date("2023-11-18T00:59:00.348Z"),
       title: "piyo todo 2",
       description: "piyo desc 2",
       status: TodoStatus.PENDING,
@@ -60,7 +60,6 @@ const fakeDataOne = (userId: User["id"]) => {
     title: faker.lorem.words(randInt(1, 3)),
     description: faker.lorem.text(),
     status: faker.helpers.arrayElement([TodoStatus.DONE, TodoStatus.PENDING]),
-    createdAt: faker.date.past(),
     updatedAt: faker.date.past(),
     userId,
   }));

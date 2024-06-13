@@ -56,7 +56,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
       ];
 
       const orderColumn = {
-        [TodoOrderField.CreatedAt]: "createdAt" as const,
+        [TodoOrderField.CreatedAt]: "id" as const,
         [TodoOrderField.UpdatedAt]: "updatedAt" as const,
       }[orderBy.field];
 

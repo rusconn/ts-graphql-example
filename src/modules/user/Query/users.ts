@@ -51,7 +51,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
       ];
 
       const orderColumn = {
-        [UserOrderField.CreatedAt]: "createdAt" as const,
+        [UserOrderField.CreatedAt]: "id" as const,
         [UserOrderField.UpdatedAt]: "updatedAt" as const,
       }[orderBy.field];
 

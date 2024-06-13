@@ -17,7 +17,7 @@ type Pagination = {
   cursor?: Pick<TodoSelect, "id">;
   limit?: number;
   offset?: number;
-  orderColumn: "createdAt" | "updatedAt";
+  orderColumn: "id" | "updatedAt";
   direction: "asc" | "desc";
   columnComp: ">" | "<";
   idComp: ">=" | "<=";

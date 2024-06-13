@@ -1,6 +1,5 @@
 model Todo {
   id          String     @id @pg.Char(26)
-  createdAt   DateTime
   updatedAt   DateTime
   title       String     @pg.VarChar(255)
   description String     @default("")
@@ -9,7 +8,7 @@ model Todo {
   userId      String     @pg.Char(26)
 
   // status 等検索条件の絞り込みはフィルターで十分か
-  @@index([userId, createdAt, id])
+  @@index([userId, id])
   @@index([userId, updatedAt, id])
 }
 

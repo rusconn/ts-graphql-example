@@ -16,7 +16,6 @@ export const UserRole = {
 export type UserRole = typeof UserRole[keyof typeof UserRole];
 export type Todo = {
   id: string;
-  createdAt: Timestamp;
   updatedAt: Timestamp;
   title: string;
   description: Generated<string>;
@@ -25,7 +24,6 @@ export type Todo = {
 };
 export type User = {
   id: string;
-  createdAt: Timestamp;
   updatedAt: Timestamp;
   name: string;
   email: string;

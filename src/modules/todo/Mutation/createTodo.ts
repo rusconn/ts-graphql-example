@@ -66,7 +66,6 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
     .insertInto("Todo")
     .values({
       id,
-      createdAt: idDate,
       updatedAt: idDate,
       userId: authed.id,
       title,

@@ -1,3 +1,4 @@
+import { dateByUlid } from "../../common/resolvers.ts";
 import type { TodoResolvers } from "../../common/schema.ts";
 import { authAdminOrTodoOwner } from "../common/authorizer.ts";
 
@@ -10,7 +11,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: TodoResolvers["createdAt"] = (parent, _args, context) => {
   authAdminOrTodoOwner(context, parent);
 
-  return parent.createdAt;
+  return dateByUlid(parent.id);
 };
 
 if (import.meta.vitest) {

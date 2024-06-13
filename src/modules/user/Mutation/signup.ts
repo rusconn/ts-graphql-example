@@ -74,7 +74,6 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     .insertInto("User")
     .values({
       id,
-      createdAt: idDate,
       updatedAt: idDate,
       name,
       email,

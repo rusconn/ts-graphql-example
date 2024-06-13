@@ -3,9 +3,9 @@ import { userNodeId } from "./adapter.ts";
 
 export const db = {
   admin: {
+    /** Date: 2023-08-06T12:21:21.040Z */
     id: "01H75CPZGG1YW9W79M7WWT6KFB",
-    createdAt: new Date(0),
-    updatedAt: new Date(2),
+    updatedAt: new Date("2023-08-06T12:21:23.000Z"),
     name: "Admin",
     email: "admin@admin.com",
     /** raw: adminadmin */
@@ -14,9 +14,9 @@ export const db = {
     token: "01H77AB3NYGD7B1N3XRPKD8JTN",
   },
   alice: {
+    /** Date: 2023-08-06T12:21:21.378Z */
     id: "01H75CPZV2VWQPCXTBKXCQ50A2",
-    createdAt: new Date(1),
-    updatedAt: new Date(1),
+    updatedAt: new Date("2023-08-06T12:21:21.378Z"),
     name: "Alice",
     email: "alice@alice.com",
     /** raw: alicealice */
