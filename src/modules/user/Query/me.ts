@@ -1,4 +1,4 @@
-import { authAuthenticated } from "../../common/authorizers.ts";
+import { auth } from "../../common/authorizers.ts";
 import type { QueryResolvers } from "../../common/schema.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -8,13 +8,12 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["me"] = (_parent, _args, context) => {
-  const authed = authAuthenticated(context);
+  const authed = auth(context);
 
-  return authed;
+  return authed.role === "GUEST" ? null : authed;
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../common/test.ts");
 
@@ -25,21 +24,10 @@ if (import.meta.vitest) {
   };
 
   describe("Authorization", () => {
-    const allows = [context.admin, context.alice];
-
-    const denies = [context.guest];
+    const allows = [context.admin, context.alice, context.guest];
 
     test.each(allows)("allows %#", (user) => {
       resolve({ user });
-    });
-
-    test.each(denies)("denies %#", (user) => {
-      expect.assertions(1);
-      try {
-        resolve({ user });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
-      }
     });
   });
 }
