@@ -14,6 +14,6 @@ export const authAdminOrTodoOwner = (
 };
 
 export const authTodoOwner = (context: Pick<Context, "user">, todo: Pick<Todo, "userId">) => {
-  if (context.user.id === todo.userId) return context.user;
+  if (context.user?.id === todo.userId) return context.user;
   throw authErr();
 };

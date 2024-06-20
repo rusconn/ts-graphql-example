@@ -31,7 +31,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
           .where("token", "=", token)
           .selectAll()
           .executeTakeFirstOrThrow(authenErr)
-      : { id: undefined, role: "GUEST" };
+      : null;
 
     return { requestId: randomUUID(), db, loaders: createLoaders(db), user };
   },
@@ -55,7 +55,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
           const { requestId, user, params } = contextValue;
           const { query, variables } = params;
 
-          logger.info({ requestId, userId: user.id, query, variables }, "request-info");
+          logger.info({ requestId, userId: user?.id, query, variables }, "request-info");
         }
       },
       skipIntrospection: true,

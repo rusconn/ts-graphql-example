@@ -17,10 +17,13 @@ export const executeSingleResultOperation =
     const result = await executor<TData, TVariables>({
       document: parse(query),
       variables,
-      extensions:
-        user.role !== "GUEST" && user.token != null
-          ? { headers: { authorization: `Bearer ${user.token}` } }
-          : {},
+      extensions: {
+        headers: {
+          ...(user?.token && {
+            authorization: `Bearer ${user.token}`,
+          }),
+        },
+      },
     });
 
     assertSingleResult(result);

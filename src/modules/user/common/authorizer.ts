@@ -11,6 +11,6 @@ export const authAdminOrUserOwner = (context: Pick<Context, "user">, user: Pick<
 };
 
 export const authUserOwner = (context: Pick<Context, "user">, user: Pick<User, "id">) => {
-  if (context.user.id === user.id) return context.user;
+  if (context.user?.id === user.id) return context.user;
   throw authErr();
 };

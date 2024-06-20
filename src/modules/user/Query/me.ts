@@ -10,7 +10,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: QueryResolvers["me"] = (_parent, _args, context) => {
   const authed = auth(context);
 
-  return authed.role === "GUEST" ? null : authed;
+  return authed;
 };
 
 if (import.meta.vitest) {

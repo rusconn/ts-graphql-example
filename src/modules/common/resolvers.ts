@@ -31,4 +31,4 @@ export type UserContext = {
 
 type Admin = DB.UserSelect & { role: "ADMIN" };
 type User = DB.UserSelect & { role: "USER" };
-type Guest = { id: undefined; role: "GUEST" };
+type Guest = null;

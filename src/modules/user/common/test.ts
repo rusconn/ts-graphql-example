@@ -28,10 +28,7 @@ export const db = {
 
 export const context = {
   ...db,
-  guest: {
-    id: undefined,
-    role: "GUEST",
-  },
+  guest: null,
 } as const;
 
 export const validUserIds = Object.values(db).map(({ id }) => userNodeId(id));
