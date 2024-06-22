@@ -1,7 +1,7 @@
 import { authAdmin } from "../../common/authorizers.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
 import { parseErr } from "../../common/parsers.ts";
-import type { QueryResolvers } from "../../common/schema.ts";
+import type { QueryResolvers, QueryUsersArgs } from "../../common/schema.ts";
 import { OrderDirection, UserOrderField } from "../../common/schema.ts";
 import { cursorConnections, orderOptions } from "../../common/typeDefs.ts";
 
@@ -28,14 +28,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
   authAdmin(context);
 
-  const { orderBy, first, after, last, before } = args;
-
-  if (first && first > FIRST_MAX) {
-    throw parseErr(`"first" must be up to ${FIRST_MAX}`);
-  }
-  if (last && last > LAST_MAX) {
-    throw parseErr(`"last" must be up to ${LAST_MAX}`);
-  }
+  const { orderBy, first, after, last, before } = parseArgs(args);
 
   return await getCursorConnections(
     async ({ cursor, limit, offset, backward }) => {
@@ -91,50 +84,40 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
   );
 };
 
+const parseArgs = (args: QueryUsersArgs) => {
+  const { first, last, ...rest } = args;
+
+  if (first && first > FIRST_MAX) {
+    throw parseErr(`"first" must be up to ${FIRST_MAX}`);
+  }
+  if (last && last > LAST_MAX) {
+    throw parseErr(`"last" must be up to ${LAST_MAX}`);
+  }
+
+  return { first, last, ...rest };
+};
+
 if (import.meta.vitest) {
   const { ErrorCode } = await import("../../common/schema.ts");
-  const { dummyContext } = await import("../../common/tests.ts");
-  const { context } = await import("../../common/testData/mod.ts");
-
-  type Args = Parameters<typeof resolver>[1];
-  type Params = Parameters<typeof dummyContext>[0];
-
-  const valid = {
-    args: {
-      first: 10,
-      orderBy: {
-        field: UserOrderField.CreatedAt,
-        direction: OrderDirection.Desc,
-      },
-    },
-    user: context.admin,
-  };
-
-  const resolve = ({
-    args = valid.args,
-    user = valid.user,
-  }: {
-    args?: Args;
-    user?: Params["user"];
-  }) => {
-    return resolver({}, args, dummyContext({ user }));
-  };
 
   describe("Parsing", () => {
     const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
 
     const invalids = [{ first: FIRST_MAX + 1 }, { last: LAST_MAX + 1 }];
 
-    const { orderBy } = valid.args;
+    const orderBy = {
+      field: UserOrderField.CreatedAt,
+      direction: OrderDirection.Desc,
+    };
 
-    test.each(valids)("valids %#", async (args) => {
-      await resolve({ args: { ...args, orderBy } });
+    test.each(valids)("valids %#", (args) => {
+      parseArgs({ ...args, orderBy });
     });
 
-    test.each(invalids)("invalids %#", async (args) => {
+    test.each(invalids)("invalids %#", (args) => {
       expect.assertions(1);
       try {
-        await resolve({ args: { ...args, orderBy } });
+        parseArgs({ ...args, orderBy });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
       }

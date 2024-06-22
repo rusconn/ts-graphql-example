@@ -6,7 +6,7 @@ import * as DB from "@/db/mod.ts";
 import { authGuest } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import { dateByUlid } from "../../common/resolvers.ts";
-import type { MutationResolvers } from "../../common/schema.ts";
+import type { MutationResolvers, MutationSignupArgs } from "../../common/schema.ts";
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 100;
@@ -37,20 +37,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["signup"] = async (_parent, args, context) => {
   authGuest(context);
 
-  const { name, email, password } = args.input;
-
-  if ([...name].length > NAME_MAX) {
-    throw parseErr(`"name" must be up to ${NAME_MAX} characteres`);
-  }
-  if ([...email].length > EMAIL_MAX) {
-    throw parseErr(`"email" must be up to ${EMAIL_MAX} characteres`);
-  }
-  if ([...password].length < PASS_MIN) {
-    throw parseErr(`"password" must be at least ${PASS_MIN} characteres`);
-  }
-  if ([...password].length > PASS_MAX) {
-    throw parseErr(`"password" must be up to ${PASS_MAX} characteres`);
-  }
+  const { name, email, password } = parseArgs(args);
 
   const found = await context.db
     .selectFrom("User")
@@ -90,31 +77,30 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   };
 };
 
+const parseArgs = (args: MutationSignupArgs) => {
+  const { name, email, password } = args.input;
+
+  if ([...name].length > NAME_MAX) {
+    throw parseErr(`"name" must be up to ${NAME_MAX} characteres`);
+  }
+  if ([...email].length > EMAIL_MAX) {
+    throw parseErr(`"email" must be up to ${EMAIL_MAX} characteres`);
+  }
+  if ([...password].length < PASS_MIN) {
+    throw parseErr(`"password" must be at least ${PASS_MIN} characteres`);
+  }
+  if ([...password].length > PASS_MAX) {
+    throw parseErr(`"password" must be up to ${PASS_MAX} characteres`);
+  }
+
+  return { name, email, password };
+};
+
 if (import.meta.vitest) {
   const { ErrorCode } = await import("../../common/schema.ts");
-  const { dummyContext } = await import("../../common/tests.ts");
-  const { context } = await import("../../common/testData/mod.ts");
-
-  type Args = Parameters<typeof resolver>[1];
-  type Params = Parameters<typeof dummyContext>[0];
-
-  const valid = {
-    args: { input: { name: "name", email: "email@email.com", password: "password" } } as Args,
-    user: context.guest,
-  };
-
-  const resolve = ({
-    args = valid.args,
-    user = valid.user,
-  }: {
-    args?: Args;
-    user?: Params["user"];
-  }) => {
-    return resolver({}, args, dummyContext({ user }));
-  };
 
   describe("Parsing", () => {
-    const validInput = valid.args.input;
+    const validInput = { name: "name", email: "email@email.com", password: "password" };
 
     const valids = [
       { ...validInput },
@@ -124,7 +110,7 @@ if (import.meta.vitest) {
       { ...validInput, email: `${"🅰".repeat(EMAIL_MAX - 10)}@email.com` },
       { ...validInput, password: "A".repeat(PASS_MIN) },
       { ...validInput, password: "🅰".repeat(PASS_MAX) },
-    ] as Args["input"][];
+    ] as MutationSignupArgs["input"][];
 
     const invalids = [
       { ...validInput, name: "A".repeat(NAME_MAX + 1) },
@@ -133,16 +119,16 @@ if (import.meta.vitest) {
       { ...validInput, email: `${"🅰".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
       { ...validInput, password: "A".repeat(PASS_MIN - 1) },
       { ...validInput, password: "🅰".repeat(PASS_MAX + 1) },
-    ] as Args["input"][];
+    ] as MutationSignupArgs["input"][];
 
-    test.each(valids)("valids %#", async (input) => {
-      await resolve({ args: { input } });
+    test.each(valids)("valids %#", (input) => {
+      parseArgs({ input });
     });
 
-    test.each(invalids)("invalids %#", async (input) => {
+    test.each(invalids)("invalids %#", (input) => {
       expect.assertions(1);
       try {
-        await resolve({ args: { input } });
+        parseArgs({ input });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
       }

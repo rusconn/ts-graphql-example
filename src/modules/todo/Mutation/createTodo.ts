@@ -3,7 +3,7 @@ import { ulid } from "ulid";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import { dateByUlid } from "../../common/resolvers.ts";
-import type { MutationResolvers } from "../../common/schema.ts";
+import type { MutationCreateTodoArgs, MutationResolvers } from "../../common/schema.ts";
 
 const TODOS_MAX = 10000;
 const TITLE_MAX = 100;
@@ -36,14 +36,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["createTodo"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
-  const { title, description } = args.input;
-
-  if ([...title].length > TITLE_MAX) {
-    throw parseErr(`"title" must be up to ${TITLE_MAX} characters`);
-  }
-  if ([...description].length > DESC_MAX) {
-    throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
-  }
+  const { title, description } = parseArgs(args);
 
   const count = await context.db
     .selectFrom("Todo")
@@ -80,16 +73,28 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
   };
 };
 
+const parseArgs = (args: MutationCreateTodoArgs) => {
+  const { title, description } = args.input;
+
+  if ([...title].length > TITLE_MAX) {
+    throw parseErr(`"title" must be up to ${TITLE_MAX} characters`);
+  }
+  if ([...description].length > DESC_MAX) {
+    throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
+  }
+
+  return { title, description };
+};
+
 if (import.meta.vitest) {
   const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../../common/testData/mod.ts");
 
-  type Args = Parameters<typeof resolver>[1];
   type Params = Parameters<typeof dummyContext>[0];
 
   const valid = {
-    args: { input: { title: "title", description: "description" } } as Args,
+    args: { input: { title: "title", description: "description" } } as MutationCreateTodoArgs,
     user: context.admin,
   };
 
@@ -99,7 +104,7 @@ if (import.meta.vitest) {
     user = valid.user,
   }: {
     db?: Params["db"];
-    args?: Args;
+    args?: MutationCreateTodoArgs;
     user?: Params["user"];
   }) => {
     return resolver({}, args, dummyContext({ db, user }));
@@ -114,23 +119,23 @@ if (import.meta.vitest) {
       { ...validInput, title: "🅰".repeat(TITLE_MAX) },
       { ...validInput, description: "A".repeat(DESC_MAX) },
       { ...validInput, description: "🅰".repeat(DESC_MAX) },
-    ] as Args["input"][];
+    ] as MutationCreateTodoArgs["input"][];
 
     const invalids = [
       { ...validInput, title: "A".repeat(TITLE_MAX + 1) },
       { ...validInput, title: "🅰".repeat(TITLE_MAX + 1) },
       { ...validInput, description: "A".repeat(DESC_MAX + 1) },
       { ...validInput, description: "🅰".repeat(DESC_MAX + 1) },
-    ] as Args["input"][];
+    ] as MutationCreateTodoArgs["input"][];
 
-    test.each(valids)("valids %#", async (input) => {
-      await resolve({ args: { input } });
+    test.each(valids)("valids %#", (input) => {
+      parseArgs({ input });
     });
 
-    test.each(invalids)("invalids %#", async (input) => {
+    test.each(invalids)("invalids %#", (input) => {
       expect.assertions(1);
       try {
-        await resolve({ args: { input } });
+        parseArgs({ input });
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
       }
