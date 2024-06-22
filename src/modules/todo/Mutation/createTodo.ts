@@ -83,7 +83,7 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
 if (import.meta.vitest) {
   const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
-  const { context } = await import("../../user/common/test.ts");
+  const { context } = await import("../../common/testData/mod.ts");
 
   type Args = Parameters<typeof resolver>[1];
   type Params = Parameters<typeof dummyContext>[0];
@@ -104,25 +104,6 @@ if (import.meta.vitest) {
   }) => {
     return resolver({}, args, dummyContext({ db, user }));
   };
-
-  describe("Authorization", () => {
-    const allows = [context.admin, context.alice];
-
-    const denies = [context.guest];
-
-    test.each(allows)("allows %#", async (user) => {
-      await resolve({ user });
-    });
-
-    test.each(denies)("denies %#", async (user) => {
-      expect.assertions(1);
-      try {
-        await resolve({ user });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
-      }
-    });
-  });
 
   describe("Parsing", () => {
     const validInput = valid.args.input;

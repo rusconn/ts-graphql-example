@@ -1,5 +1,6 @@
 import { GraphQLError } from "graphql";
 
+import { nodeId } from "./adapters.ts";
 import { ErrorCode, type Scalars } from "./schema.ts";
 import { type NodeType, nodeTypes, typeIdSep } from "./typeDefs.ts";
 
@@ -33,3 +34,35 @@ export const parseNodeId = (nodeId: Scalars["ID"]["input"]) => {
 const isValidNodeType = (val: string): val is NodeType => {
   return nodeTypes.includes(val as NodeType);
 };
+
+if (import.meta.vitest) {
+  describe("parseNodeId", () => {
+    const id = "01H75CPZGG1YW9W79M7WWT6KFB";
+
+    const valids = nodeTypes.map((type) => nodeId(type)(id));
+
+    const invalids = [
+      `User#${id}`,
+      `User${id}`,
+      `User:${id}:${id}`,
+      `:${id}`,
+      `${id}`,
+      "User",
+      `${id}:User`,
+      "",
+    ] as const;
+
+    test.each(valids)("valids %#", (valid) => {
+      parseNodeId(valid);
+    });
+
+    test.each(invalids)("invalids %#", (invalid) => {
+      expect.assertions(1);
+      try {
+        parseNodeId(invalid);
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+      }
+    });
+  });
+}

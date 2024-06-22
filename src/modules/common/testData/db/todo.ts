@@ -1,6 +1,5 @@
 import * as DB from "@/db/mod.ts";
-import { db as users } from "../../user/common/test.ts";
-import { todoNodeId } from "./adapter.ts";
+import { db as users } from "./user.ts";
 
 export const db = {
   adminTodo: {
@@ -40,15 +39,3 @@ export const db = {
     userId: users.alice.id,
   },
 } as const;
-
-export const validTodoIds = Object.values(db).map(({ id }) => todoNodeId(id));
-
-export const invalidTodoIds = [
-  "Too:01H75CR8C6PQK7Z7RE4FBY1B4M",
-  "Todo01H75CR8C6PQK7Z7RE4FBY1B4M",
-  "01H75CR8C6PQK7Z7RE4FBY1B4M",
-  ":01H75CR8C6PQK7Z7RE4FBY1B4M",
-  "01H75CR8C6PQK7Z7RE4FBY1B4M:Todo",
-  "",
-  "User:01H75CPZGG1YW9W79M7WWT6KFB",
-] as const;

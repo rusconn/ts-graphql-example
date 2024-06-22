@@ -1,4 +1,4 @@
-import { context } from "@/modules/user/common/test.ts";
+import { context } from "@/modules/common/testData/mod.ts";
 
 import * as todo from "./data/todo.ts";
 import * as user from "./data/user.ts";
@@ -14,5 +14,3 @@ export const Data = {
     ...user.graph,
   },
 };
-
-export { validNodeIds, invalidNodeIds } from "@/modules/node/common/test.ts";

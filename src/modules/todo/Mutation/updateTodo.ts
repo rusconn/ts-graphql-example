@@ -74,14 +74,13 @@ if (import.meta.vitest) {
   const { ErrorCode } = await import("../../common/schema.ts");
   const { TodoStatus } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
-  const { context } = await import("../../user/common/test.ts");
-  const { validTodoIds, invalidTodoIds } = await import("../common/test.ts");
+  const { context } = await import("../../common/testData/mod.ts");
 
   type Args = Parameters<typeof resolver>[1];
   type Params = Parameters<typeof dummyContext>[0];
 
   const valid = {
-    args: { id: validTodoIds[0], input: {} },
+    args: { id: "Todo:01H75CR8C6PQK7Z7RE4FBY1B4M", input: {} },
     user: context.admin,
   };
 
@@ -95,79 +94,41 @@ if (import.meta.vitest) {
     return resolver({}, args, dummyContext({ user }));
   };
 
-  describe("Authorization", () => {
-    const allows = [context.admin, context.alice];
+  describe("Parsing", () => {
+    const { id, input: validInput } = valid.args;
 
-    const denies = [context.guest];
+    const valids = [
+      { ...validInput },
+      { ...validInput, title: "title" },
+      { ...validInput, description: "description" },
+      { ...validInput, status: TodoStatus.Done },
+      { ...validInput, title: "title", description: "description", status: TodoStatus.Done },
+      { ...validInput, title: "A".repeat(TITLE_MAX) },
+      { ...validInput, title: "🅰".repeat(TITLE_MAX) },
+      { ...validInput, description: "A".repeat(DESC_MAX) },
+      { ...validInput, description: "🅰".repeat(DESC_MAX) },
+    ] as Args["input"][];
 
-    test.each(allows)("allows %#", async (user) => {
-      await resolve({ user });
+    const invalids = [
+      { ...validInput, description: null },
+      { ...validInput, status: null },
+      { ...validInput, title: "A".repeat(TITLE_MAX + 1) },
+      { ...validInput, title: "🅰".repeat(TITLE_MAX + 1) },
+      { ...validInput, description: "A".repeat(DESC_MAX + 1) },
+      { ...validInput, description: "🅰".repeat(DESC_MAX + 1) },
+    ] as Args["input"][];
+
+    test.each(valids)("valids %#", async (input) => {
+      await resolve({ args: { id, input } });
     });
 
-    test.each(denies)("denies %#", async (user) => {
+    test.each(invalids)("invalids %#", async (input) => {
       expect.assertions(1);
       try {
-        await resolve({ user });
+        await resolve({ args: { id, input } });
       } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
       }
-    });
-  });
-
-  describe("Parsing", () => {
-    describe("id", () => {
-      const { input } = valid.args;
-
-      test.each(validTodoIds)("valids %#", async (id) => {
-        await resolve({ args: { id, input } });
-      });
-
-      test.each(invalidTodoIds)("invalids %#", async (id) => {
-        expect.assertions(1);
-        try {
-          await resolve({ args: { id, input } });
-        } catch (e) {
-          expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
-        }
-      });
-    });
-
-    describe("input", () => {
-      const { id, input: validInput } = valid.args;
-
-      const valids = [
-        { ...validInput },
-        { ...validInput, title: "title" },
-        { ...validInput, description: "description" },
-        { ...validInput, status: TodoStatus.Done },
-        { ...validInput, title: "title", description: "description", status: TodoStatus.Done },
-        { ...validInput, title: "A".repeat(TITLE_MAX) },
-        { ...validInput, title: "🅰".repeat(TITLE_MAX) },
-        { ...validInput, description: "A".repeat(DESC_MAX) },
-        { ...validInput, description: "🅰".repeat(DESC_MAX) },
-      ] as Args["input"][];
-
-      const invalids = [
-        { ...validInput, description: null },
-        { ...validInput, status: null },
-        { ...validInput, title: "A".repeat(TITLE_MAX + 1) },
-        { ...validInput, title: "🅰".repeat(TITLE_MAX + 1) },
-        { ...validInput, description: "A".repeat(DESC_MAX + 1) },
-        { ...validInput, description: "🅰".repeat(DESC_MAX + 1) },
-      ] as Args["input"][];
-
-      test.each(valids)("valids %#", async (input) => {
-        await resolve({ args: { id, input } });
-      });
-
-      test.each(invalids)("invalids %#", async (input) => {
-        expect.assertions(1);
-        try {
-          await resolve({ args: { id, input } });
-        } catch (e) {
-          expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
-        }
-      });
     });
   });
 }

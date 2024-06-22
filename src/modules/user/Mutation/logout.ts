@@ -28,38 +28,3 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
     user: updated,
   };
 };
-
-if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../common/schema.ts");
-  const { dummyContext } = await import("../../common/tests.ts");
-  const { context } = await import("../common/test.ts");
-
-  type Params = Parameters<typeof dummyContext>[0];
-
-  const valid = {
-    user: context.admin,
-  };
-
-  const resolve = ({ user = valid.user }: { user?: Params["user"] }) => {
-    return resolver({}, {}, dummyContext({ user }));
-  };
-
-  describe("Authorization", () => {
-    const allows = [context.admin, context.alice];
-
-    const denies = [context.guest];
-
-    test.each(allows)("allows %#", async (user) => {
-      await resolve({ user });
-    });
-
-    test.each(denies)("denies %#", async (user) => {
-      expect.assertions(1);
-      try {
-        await resolve({ user });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
-      }
-    });
-  });
-}

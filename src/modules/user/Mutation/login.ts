@@ -87,7 +87,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 if (import.meta.vitest) {
   const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
-  const { context } = await import("../common/test.ts");
+  const { context } = await import("../../common/testData/mod.ts");
 
   type Args = Parameters<typeof resolver>[1];
   type Params = Parameters<typeof dummyContext>[0];
@@ -116,14 +116,6 @@ if (import.meta.vitest) {
 
     return resolver({}, args, dummyContext({ db, user }));
   };
-
-  describe("Authorization", () => {
-    const allows = [context.admin, context.alice, context.guest];
-
-    test.each(allows)("allows %#", async (user) => {
-      await resolve({ user });
-    });
-  });
 
   describe("Parsing", () => {
     const validInput = valid.args.input;

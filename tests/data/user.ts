@@ -1,7 +1,7 @@
 import type * as DB from "@/db/mod.ts";
 import type * as Graph from "@/modules/common/schema.ts";
+import { db } from "@/modules/common/testData/db/user.ts";
 import { userNodeId } from "@/modules/user/common/adapter.ts";
-import { db } from "@/modules/user/common/test.ts";
 
 import { dateTime, dateTimeByUlid } from "./common.ts";
 

@@ -1,5 +1,4 @@
 import * as DB from "@/db/mod.ts";
-import { userNodeId } from "./adapter.ts";
 
 export const db = {
   admin: {
@@ -25,20 +24,3 @@ export const db = {
     token: "01H77ABA8TDGSQ2XJVV57A0BEV",
   },
 } as const;
-
-export const context = {
-  ...db,
-  guest: null,
-} as const;
-
-export const validUserIds = Object.values(db).map(({ id }) => userNodeId(id));
-
-export const invalidUserIds = [
-  "Usr:01H75CPZGG1YW9W79M7WWT6KFB",
-  "User01H75CPZGG1YW9W79M7WWT6KFB",
-  "01H75CPZGG1YW9W79M7WWT6KFB",
-  ":01H75CPZGG1YW9W79M7WWT6KFB",
-  "01H75CPZGG1YW9W79M7WWT6KFB:User",
-  "",
-  "Todo:01H75CR8C6PQK7Z7RE4FBY1B4M",
-] as const;

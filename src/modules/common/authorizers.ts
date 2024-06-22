@@ -8,15 +8,12 @@ export const authErr = () =>
     extensions: { code: ErrorCode.Forbidden },
   });
 
-export const auth = (context: Pick<Context, "user">) => context.user;
+export const auth = (context: Pick<Context, "user">) => {
+  return context.user;
+};
 
 export const authAdmin = (context: Pick<Context, "user">) => {
   if (context.user?.role === "ADMIN") return context.user;
-  throw authErr();
-};
-
-export const authUser = (context: Pick<Context, "user">) => {
-  if (context.user?.role === "USER") return context.user;
   throw authErr();
 };
 
@@ -29,3 +26,69 @@ export const authAuthenticated = (context: Pick<Context, "user">) => {
   if (context.user != null) return context.user;
   throw authErr();
 };
+
+if (import.meta.vitest) {
+  const { context } = await import("./testData/mod.ts");
+
+  describe("auth", () => {
+    const allows = [context.admin, context.alice, context.guest];
+
+    test.each(allows)("allows %#", (user) => {
+      auth({ user });
+    });
+  });
+
+  describe("authAdmin", () => {
+    const allows = [context.admin];
+    const denies = [context.alice, context.guest];
+
+    test.each(allows)("allows %#", (user) => {
+      authAdmin({ user });
+    });
+
+    test.each(denies)("denies %#", (user) => {
+      expect.assertions(1);
+      try {
+        authAdmin({ user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
+    });
+  });
+
+  describe("authGuest", () => {
+    const allows = [context.guest];
+    const denies = [context.admin, context.alice];
+
+    test.each(allows)("allows %#", (user) => {
+      authGuest({ user });
+    });
+
+    test.each(denies)("denies %#", (user) => {
+      expect.assertions(1);
+      try {
+        authGuest({ user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
+    });
+  });
+
+  describe("authAuthenticated", () => {
+    const allows = [context.admin, context.alice];
+    const denies = [context.guest];
+
+    test.each(allows)("allows %#", (user) => {
+      authAuthenticated({ user });
+    });
+
+    test.each(denies)("denies %#", (user) => {
+      expect.assertions(1);
+      try {
+        authAuthenticated({ user });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
+      }
+    });
+  });
+}

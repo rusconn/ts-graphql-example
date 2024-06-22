@@ -94,7 +94,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 if (import.meta.vitest) {
   const { ErrorCode } = await import("../../common/schema.ts");
   const { dummyContext } = await import("../../common/tests.ts");
-  const { context } = await import("../common/test.ts");
+  const { context } = await import("../../common/testData/mod.ts");
 
   type Args = Parameters<typeof resolver>[1];
   type Params = Parameters<typeof dummyContext>[0];
@@ -119,25 +119,6 @@ if (import.meta.vitest) {
   }) => {
     return resolver({}, args, dummyContext({ user }));
   };
-
-  describe("Authorization", () => {
-    const allows = [context.admin];
-
-    const denies = [context.alice, context.guest];
-
-    test.each(allows)("allows %#", async (user) => {
-      await resolve({ user });
-    });
-
-    test.each(denies)("denies %#", async (user) => {
-      expect.assertions(1);
-      try {
-        await resolve({ user });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
-      }
-    });
-  });
 
   describe("Parsing", () => {
     const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
