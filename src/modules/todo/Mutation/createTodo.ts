@@ -2,8 +2,12 @@ import { ulid } from "ulid";
 
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
-import { dateByUlid } from "../../common/resolvers.ts";
-import type { MutationCreateTodoArgs, MutationResolvers } from "../../common/schema.ts";
+import { type Context, dateByUlid } from "../../common/resolvers.ts";
+import type {
+  MutationCreateTodoArgs,
+  MutationResolvers,
+  ResolversTypes,
+} from "../../common/schema.ts";
 
 const TODOS_MAX = 10000;
 const TITLE_MAX = 100;
@@ -34,9 +38,36 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["createTodo"] = async (_parent, args, context) => {
-  const authed = authAuthenticated(context);
+  const authed = authorize(context);
 
-  const { title, description } = parseArgs(args);
+  const parsed = parseArgs(args);
+
+  return await logic(authed, parsed, context);
+};
+
+const authorize = (context: Pick<Context, "user">) => {
+  return authAuthenticated(context);
+};
+
+const parseArgs = (args: MutationCreateTodoArgs) => {
+  const { title, description } = args.input;
+
+  if ([...title].length > TITLE_MAX) {
+    throw parseErr(`"title" must be up to ${TITLE_MAX} characters`);
+  }
+  if ([...description].length > DESC_MAX) {
+    throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
+  }
+
+  return { title, description };
+};
+
+const logic = async (
+  authed: ReturnType<typeof authorize>,
+  parsed: ReturnType<typeof parseArgs>,
+  context: Context,
+): Promise<ResolversTypes["CreateTodoResult"]> => {
+  const { title, description } = parsed;
 
   const count = await context.db
     .selectFrom("Todo")
@@ -73,41 +104,13 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
   };
 };
 
-const parseArgs = (args: MutationCreateTodoArgs) => {
-  const { title, description } = args.input;
-
-  if ([...title].length > TITLE_MAX) {
-    throw parseErr(`"title" must be up to ${TITLE_MAX} characters`);
-  }
-  if ([...description].length > DESC_MAX) {
-    throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
-  }
-
-  return { title, description };
-};
-
 if (import.meta.vitest) {
   const { ErrorCode } = await import("../../common/schema.ts");
-  const { dummyContext } = await import("../../common/tests.ts");
   const { context } = await import("../../common/testData/mod.ts");
-
-  type Params = Parameters<typeof dummyContext>[0];
 
   const valid = {
     args: { input: { title: "title", description: "description" } } as MutationCreateTodoArgs,
     user: context.admin,
-  };
-
-  const resolve = ({
-    db,
-    args = valid.args,
-    user = valid.user,
-  }: {
-    db?: Params["db"];
-    args?: MutationCreateTodoArgs;
-    user?: Params["user"];
-  }) => {
-    return resolver({}, args, dummyContext({ db, user }));
   };
 
   describe("Parsing", () => {
@@ -161,7 +164,7 @@ if (import.meta.vitest) {
             }),
           }),
         }),
-      }) as unknown as Params["db"];
+      }) as unknown as Context["db"];
 
     const notExceededs = [0, 1, TODOS_MAX - 1];
     const exceededs = [TODOS_MAX, TODOS_MAX + 1];
@@ -169,13 +172,13 @@ if (import.meta.vitest) {
     test.each(notExceededs)("notExceededs %#", async (num) => {
       const db = createDb(num);
 
-      await resolve({ db, args: { input: validInput } });
+      await logic(valid.user, validInput, { db } as Context);
     });
 
     test.each(exceededs)("exceededs %#", async (num) => {
       const db = createDb(num);
 
-      const result = await resolve({ db, args: { input: validInput } });
+      const result = await logic(valid.user, validInput, { db } as Context);
 
       expect(result?.__typename === "TodoLimitExceededError").toBe(true);
     });
