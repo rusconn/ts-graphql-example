@@ -1,6 +1,6 @@
 import { ulid } from "ulid";
 
-import { authAuthenticated } from "../../common/authorizers.ts";
+import { type AuthContext, authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import { type Context, dateByUlid } from "../../common/resolvers.ts";
 import type {
@@ -45,7 +45,7 @@ export const resolver: MutationResolvers["createTodo"] = async (_parent, args, c
   return await logic(authed, parsed, context);
 };
 
-const authorize = (context: Pick<Context, "user">) => {
+const authorize = (context: AuthContext) => {
   return authAuthenticated(context);
 };
 

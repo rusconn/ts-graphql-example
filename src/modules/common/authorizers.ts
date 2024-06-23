@@ -8,21 +8,23 @@ export const authErr = () =>
     extensions: { code: ErrorCode.Forbidden },
   });
 
-export const auth = (context: Pick<Context, "user">) => {
+export type AuthContext = Pick<Context, "user">;
+
+export const auth = (context: AuthContext) => {
   return context.user;
 };
 
-export const authAdmin = (context: Pick<Context, "user">) => {
+export const authAdmin = (context: AuthContext) => {
   if (context.user?.role === "ADMIN") return context.user;
   throw authErr();
 };
 
-export const authGuest = (context: Pick<Context, "user">) => {
+export const authGuest = (context: AuthContext) => {
   if (context.user == null) return context.user;
   throw authErr();
 };
 
-export const authAuthenticated = (context: Pick<Context, "user">) => {
+export const authAuthenticated = (context: AuthContext) => {
   if (context.user != null) return context.user;
   throw authErr();
 };

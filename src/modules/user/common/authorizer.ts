@@ -1,8 +1,7 @@
-import { authAdmin, authErr } from "../../common/authorizers.ts";
-import type { Context } from "../../common/resolvers.ts";
+import { type AuthContext, authAdmin, authErr } from "../../common/authorizers.ts";
 import type { User } from "./resolver.ts";
 
-export const authAdminOrUserOwner = (context: Pick<Context, "user">, user: Pick<User, "id">) => {
+export const authAdminOrUserOwner = (context: AuthContext, user: Pick<User, "id">) => {
   try {
     return authAdmin(context);
   } catch {
@@ -10,7 +9,7 @@ export const authAdminOrUserOwner = (context: Pick<Context, "user">, user: Pick<
   }
 };
 
-export const authUserOwner = (context: Pick<Context, "user">, user: Pick<User, "id">) => {
+export const authUserOwner = (context: AuthContext, user: Pick<User, "id">) => {
   if (context.user?.id === user.id) return context.user;
   throw authErr();
 };
