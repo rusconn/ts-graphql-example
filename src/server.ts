@@ -29,7 +29,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
       ? await db
           .selectFrom("User")
           .where("token", "=", token)
-          .selectAll()
+          .select(["id", "role"])
           .executeTakeFirstOrThrow(authenErr)
       : null;
 

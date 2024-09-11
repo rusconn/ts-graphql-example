@@ -95,7 +95,7 @@ const logic = async (
       title,
       description,
     })
-    .returningAll()
+    .returning(["id", "userId"])
     .executeTakeFirstOrThrow();
 
   return {
@@ -159,7 +159,7 @@ if (import.meta.vitest) {
         }),
         insertInto: () => ({
           values: () => ({
-            returningAll: () => ({
+            returning: () => ({
               executeTakeFirstOrThrow: async () => {},
             }),
           }),

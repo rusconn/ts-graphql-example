@@ -29,6 +29,6 @@ export type UserContext = {
   user: Admin | User | Guest;
 };
 
-type Admin = DB.UserSelect & { role: "ADMIN" };
-type User = DB.UserSelect & { role: "USER" };
+type Admin = Pick<DB.UserSelect, "id"> & { role: "ADMIN" };
+type User = Pick<DB.UserSelect, "id"> & { role: "USER" };
 type Guest = null;
