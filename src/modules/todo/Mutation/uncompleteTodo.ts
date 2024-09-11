@@ -25,7 +25,7 @@ export const resolver: MutationResolvers["uncompleteTodo"] = async (_parent, arg
     .where("id", "=", id)
     .where("userId", "=", authed.id)
     .set({ status: TodoStatus.PENDING })
-    .returningAll()
+    .returning(["id", "userId"])
     .executeTakeFirst();
 
   return todo

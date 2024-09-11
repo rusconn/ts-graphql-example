@@ -58,7 +58,7 @@ export const initClosure = (db: Kysely<DB>) => {
       )
       .orderBy(orderColumn, direction)
       .orderBy("id", direction)
-      .selectAll()
+      .select(["id", "userId"])
       .execute();
 
     // 順序は維持してくれるみたい

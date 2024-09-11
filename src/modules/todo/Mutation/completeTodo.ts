@@ -25,7 +25,7 @@ export const resolver: MutationResolvers["completeTodo"] = async (_parent, args,
     .where("id", "=", id)
     .where("userId", "=", authed.id)
     .set({ status: TodoStatus.DONE })
-    .returningAll()
+    .returning(["id", "userId"])
     .executeTakeFirst();
 
   return todo

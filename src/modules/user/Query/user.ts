@@ -14,5 +14,8 @@ export const resolver: QueryResolvers["user"] = async (_parent, args, context) =
 
   const id = parseUserNodeId(args.id);
 
-  return await getUser(context, { id });
+  // existence check
+  await getUser(context, { id });
+
+  return { id };
 };

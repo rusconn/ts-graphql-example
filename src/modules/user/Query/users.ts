@@ -69,7 +69,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
         .orderBy("id", direction)
         .$if(limit != null, (qb) => qb.limit(limit!))
         .$if(offset != null, (qb) => qb.offset(offset!))
-        .selectAll()
+        .select(["id"])
         .execute()
         .then((result) => (backward ? result.reverse() : result));
     },

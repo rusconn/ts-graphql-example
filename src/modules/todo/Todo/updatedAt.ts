@@ -1,5 +1,6 @@
 import type { TodoResolvers } from "../../../schema.ts";
 import { authAdminOrTodoOwner } from "../common/authorizer.ts";
+import { getTodo } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
@@ -7,8 +8,10 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: TodoResolvers["updatedAt"] = (parent, _args, context) => {
-  authAdminOrTodoOwner(context, parent);
+export const resolver: TodoResolvers["updatedAt"] = async (parent, _args, context) => {
+  const todo = await getTodo(context, parent);
 
-  return parent.updatedAt;
+  authAdminOrTodoOwner(context, todo);
+
+  return todo.updatedAt;
 };

@@ -1,5 +1,6 @@
 import type { UserResolvers } from "../../../schema.ts";
 import { authAdminOrUserOwner } from "../common/authorizer.ts";
+import { getUser } from "../common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -7,8 +8,10 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: UserResolvers["name"] = (parent, _args, context) => {
+export const resolver: UserResolvers["name"] = async (parent, _args, context) => {
   authAdminOrUserOwner(context, parent);
 
-  return parent.name;
+  const user = await getUser(context, parent);
+
+  return user.name;
 };

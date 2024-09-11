@@ -20,7 +20,8 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
     User: getUser,
   }[type];
 
-  const node = await getNode(context, { id });
+  // existence check
+  await getNode(context, { id });
 
-  return { type, ...node };
+  return { type, id };
 };

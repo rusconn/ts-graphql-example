@@ -14,5 +14,8 @@ export const resolver: UserResolvers["todo"] = async (parent, args, context) => 
 
   const id = parseTodoNodeId(args.id);
 
-  return await getTodo(context, { id, userId: parent.id });
+  // existence check
+  await getTodo(context, { id });
+
+  return { id, userId: parent.id };
 };
