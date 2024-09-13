@@ -31,7 +31,7 @@ export const parseNodeId = (nodeId: Scalars["ID"]["input"]) => {
   return { type, id };
 };
 
-const isValidNodeType = (val: string): val is NodeType => {
+const isValidNodeType = (val: string | undefined): val is NodeType => {
   return nodeTypes.includes(val as NodeType);
 };
 
