@@ -3,7 +3,7 @@
 import type { GraphQLResolveInfo } from "graphql";
 import graphqlFields from "graphql-fields";
 
-import { parseErr } from "./parsers";
+import { parseErr } from "./parsers.ts";
 
 export async function getCursorConnections<
   Record = { id: string },
