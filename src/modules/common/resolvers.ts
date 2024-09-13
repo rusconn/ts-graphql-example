@@ -1,5 +1,3 @@
-import type { randomUUID } from "node:crypto";
-
 import { GraphQLError } from "graphql";
 import type { YogaInitialContext } from "graphql-yoga";
 import type { EmptyObject } from "type-fest";
@@ -23,7 +21,7 @@ export type Context = ServerContext & YogaInitialContext & UserContext;
 export type ServerContext = EmptyObject;
 
 export type UserContext = {
-  requestId: ReturnType<typeof randomUUID>;
+  requestId: ReturnType<typeof crypto.randomUUID>;
   db: typeof db;
   loaders: ReturnType<typeof DB.createLoaders>;
   user: Admin | User | Guest;

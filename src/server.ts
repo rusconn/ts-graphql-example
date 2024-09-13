@@ -1,5 +1,3 @@
-import { randomUUID } from "node:crypto";
-
 import { useErrorHandler } from "@envelop/core";
 import { EnvelopArmorPlugin as useArmor } from "@escape.tech/graphql-armor";
 import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
@@ -33,7 +31,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
           .executeTakeFirstOrThrow(authenErr)
       : null;
 
-    return { requestId: randomUUID(), db, loaders: createLoaders(db), user };
+    return { requestId: crypto.randomUUID(), db, loaders: createLoaders(db), user };
   },
   // 自分でログする
   logging: false,
