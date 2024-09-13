@@ -1,6 +1,5 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
-import { groupBy } from "remeda";
 
 import type { TodoSelect, UserSelect } from "../models.ts";
 import type { DB, TodoStatus } from "../types.ts";
@@ -63,10 +62,10 @@ export const initClosure = (db: Kysely<DB>) => {
       .execute();
 
     // 順序は維持してくれるみたい
-    const userTodos = groupBy(todos, (todo) => todo.userId);
+    const userTodos = Map.groupBy(todos, (todo) => todo.userId);
 
     const kv = new Map(
-      Object.entries(userTodos).map(([key, value]) => [key, value.slice(offset).slice(0, limit)]),
+      userTodos.entries().map(([key, value]) => [key, value.slice(offset).slice(0, limit)]),
     );
 
     return keys.map((key) => kv.get(key.id) ?? []);

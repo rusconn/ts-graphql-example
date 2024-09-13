@@ -13,7 +13,7 @@ importers:
         version: 5.0.0
       '@escape.tech/graphql-armor':
         specifier: ^2.3.2
-        version: 2.3.2(@envelop/core@5.0.0)(@escape.tech/graphql-armor-types@0.6.0)
+        version: 2.3.2(@envelop/core@5.0.0)(@escape.tech/graphql-armor-types@0.5.0)
       '@graphql-yoga/plugin-disable-introspection':
         specifier: ^2.0.0
         version: 2.0.0(graphql-yoga@5.0.0(graphql@16.8.1))(graphql@16.8.1)
@@ -44,9 +44,6 @@ importers:
       pino:
         specifier: ^8.21.0
         version: 8.21.0
-      remeda:
-        specifier: ^1.29.0
-        version: 1.29.0
       uWebSockets.js:
         specifier: github:uNetworking/uWebSockets.js#v20.44.0
         version: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/8fa05571bf6ea95be8966ad313d9d39453e381ae
@@ -102,6 +99,9 @@ importers:
       prisma-kysely:
         specifier: ^1.8.0
         version: 1.8.0
+      remeda:
+        specifier: ^1.29.0
+        version: 1.29.0
       type-fest:
         specifier: ^4.2.0
         version: 4.2.0
@@ -676,9 +676,6 @@ packages:
 
   '@escape.tech/graphql-armor-types@0.5.0':
     resolution: {integrity: sha512-a7KMhb1qVHFFWw4bvGYQI637YaIZRozbfc+Fj1Vv/pwnTCJOzOgnvKO8+WBXJsFFGJ2Kj+fRORmSpz7J+lJF1w==}
-
-  '@escape.tech/graphql-armor-types@0.6.0':
-    resolution: {integrity: sha512-Y3X6JgkB1N1MMaHNXaE2IeJWIs6wT4XcPvXM8PRWmT2DblZfY4NYiV1mh0GTInKdlnrEr5hquOR9XV+M3Da43w==}
 
   '@escape.tech/graphql-armor@2.3.2':
     resolution: {integrity: sha512-TNlHu2BjyJN5sTaXIaCj8AYNyEfjnvAcQI1ywiSsI8pa0ndoVEmQXbOHxCUUwAtn7tFTV/GmS1NXOeWIk7Vq8g==}
@@ -2012,10 +2009,6 @@ packages:
 
   graphql@16.8.1:
     resolution: {integrity: sha512-59LZHPdGZVh695Ud9lRzPBVTtlX9ZCV150Er2W43ro37wVof0ctenSaskPPjN7lVTIN8mSZt8PHUNKZuNQUuxw==}
-    engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
-
-  graphql@16.9.0:
-    resolution: {integrity: sha512-GGTKBX4SD7Wdb8mqeDLni2oaRGYQWjWHGKPQ24ZMnUtKfcsVoiv4uX8+LJr1K6U5VW2Lu1BwJnj7uiori0YtRw==}
     engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
 
   has-bigints@1.0.2:
@@ -4422,12 +4415,7 @@ snapshots:
       graphql: 16.8.1
     optional: true
 
-  '@escape.tech/graphql-armor-types@0.6.0':
-    dependencies:
-      graphql: 16.9.0
-    optional: true
-
-  '@escape.tech/graphql-armor@2.3.2(@envelop/core@5.0.0)(@escape.tech/graphql-armor-types@0.6.0)':
+  '@escape.tech/graphql-armor@2.3.2(@envelop/core@5.0.0)(@escape.tech/graphql-armor-types@0.5.0)':
     dependencies:
       '@escape.tech/graphql-armor-block-field-suggestions': 2.1.0
       '@escape.tech/graphql-armor-cost-limit': 2.1.0
@@ -4438,7 +4426,7 @@ snapshots:
       graphql: 16.8.1
     optionalDependencies:
       '@envelop/core': 5.0.0
-      '@escape.tech/graphql-armor-types': 0.6.0
+      '@escape.tech/graphql-armor-types': 0.5.0
 
   '@faker-js/faker@8.4.1': {}
 
@@ -6273,9 +6261,6 @@ snapshots:
       tslib: 2.6.2
 
   graphql@16.8.1: {}
-
-  graphql@16.9.0:
-    optional: true
 
   has-bigints@1.0.2: {}
 

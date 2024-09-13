@@ -53,7 +53,6 @@
     "kysely": "^0.27.3",
     "pg": "^8.11.3",
     "pino": "^8.21.0",
-    "remeda": "^1.29.0",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.44.0",
     "ulid": "^2.3.0"
   },
@@ -74,6 +73,7 @@
     "prettier": "2.7.1",
     "prisma": "5.15.0",
     "prisma-kysely": "^1.8.0",
+    "remeda": "^1.29.0",
     "type-fest": "^4.2.0",
     "typescript": "^5.6.2",
     "vite": "^5.0.0",
