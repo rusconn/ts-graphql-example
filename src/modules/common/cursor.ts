@@ -155,7 +155,7 @@ function mergeDefaultOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>
   };
 }
 
-function isForwardPagination(args: ConnectionArgumentsUnion): args is ForwardPaginationArguments {
+function isForwardPagination(args: ConnectionArgumentsUnion) {
   return "first" in args && args.first != null;
 }
 
