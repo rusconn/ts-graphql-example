@@ -1,5 +1,5 @@
-import { db } from "@/db/mod.ts";
-import * as DB from "@/db/mod.ts";
+import { db } from "@/db/client.ts";
+import { TodoStatus } from "@/db/types.ts";
 import { parseTodoNodeId } from "@/modules/todo/common/parser.ts";
 
 import { Data } from "tests/data.ts";
@@ -82,5 +82,5 @@ test("status should be PENDING by default", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(todo.status).toBe(DB.TodoStatus.PENDING);
+  expect(todo.status).toBe(TodoStatus.PENDING);
 });

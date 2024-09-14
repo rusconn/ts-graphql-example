@@ -1,13 +1,13 @@
-import * as DB from "@/db/mod.ts";
+import { TodoStatus } from "@/db/types.ts";
 import { nodeId } from "../../common/adapters.ts";
-import { TodoStatus } from "../../common/schema.ts";
+import * as Graph from "../../common/schema.ts";
 import type { Todo } from "./resolver.ts";
 
 export const todoNodeId = nodeId("Todo");
 
 export const todoStatus = (status: Todo["status"]) => {
   return {
-    [DB.TodoStatus.DONE]: TodoStatus.Done,
-    [DB.TodoStatus.PENDING]: TodoStatus.Pending,
+    [TodoStatus.DONE]: Graph.TodoStatus.Done,
+    [TodoStatus.PENDING]: Graph.TodoStatus.Pending,
   }[status];
 };

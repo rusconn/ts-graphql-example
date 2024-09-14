@@ -1,6 +1,6 @@
 import { omit } from "remeda";
 
-import { db } from "@/db/mod.ts";
+import { db } from "@/db/client.ts";
 import { TodoStatus } from "@/modules/common/schema.ts";
 
 import { Data } from "tests/data.ts";

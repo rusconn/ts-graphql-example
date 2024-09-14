@@ -3,8 +3,9 @@ import type { YogaInitialContext } from "graphql-yoga";
 import type { EmptyObject } from "type-fest";
 import { decodeTime, type ulid } from "ulid";
 
-import type { db } from "@/db/mod.ts";
-import type * as DB from "@/db/mod.ts";
+import type { db } from "@/db/client.ts";
+import type { createLoaders } from "@/db/loaders/mod.ts";
+import type { UserSelect } from "@/db/models.ts";
 import { ErrorCode } from "./schema.ts";
 
 export const notFoundErr = () =>
@@ -23,10 +24,10 @@ export type ServerContext = EmptyObject;
 export type UserContext = {
   requestId: ReturnType<typeof crypto.randomUUID>;
   db: typeof db;
-  loaders: ReturnType<typeof DB.createLoaders>;
+  loaders: ReturnType<typeof createLoaders>;
   user: Admin | User | Guest;
 };
 
-type Admin = DB.UserSelect & { role: "ADMIN" };
-type User = DB.UserSelect & { role: "USER" };
+type Admin = UserSelect & { role: "ADMIN" };
+type User = UserSelect & { role: "USER" };
 type Guest = null;

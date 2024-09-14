@@ -18,6 +18,9 @@
         "noUnusedVariables": "error",
         "useImportExtensions": "error"
       },
+      "performance": {
+        "noBarrelFile": "error"
+      },
       "style": {
         "noNonNullAssertion": "off",
         "noUselessElse": "off"

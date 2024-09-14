@@ -1,4 +1,4 @@
-import { db } from "@/db/mod.ts";
+import { db } from "@/db/client.ts";
 import { OrderDirection, type PageInfo, UserOrderField } from "@/modules/common/schema.ts";
 
 import { Data } from "tests/data.ts";

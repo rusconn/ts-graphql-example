@@ -1,4 +1,4 @@
-import { db } from "@/db/mod.ts";
+import { db } from "@/db/client.ts";
 
 export const clearTables = async () => {
   // CASCADE Todo

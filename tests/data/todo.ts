@@ -1,11 +1,11 @@
-import type * as DB from "@/db/mod.ts";
+import type { TodoSelect } from "@/db/models.ts";
 import type * as Graph from "@/modules/common/schema.ts";
 import { db } from "@/modules/common/testData/db/todo.ts";
 import { todoNodeId, todoStatus } from "@/modules/todo/common/adapter.ts";
 
 import { dateTime, dateTimeByUlid } from "./common.ts";
 
-const node = (todo: DB.TodoSelect): Graph.Todo => ({
+const node = (todo: TodoSelect): Graph.Todo => ({
   id: todoNodeId(todo.id),
   createdAt: dateTimeByUlid(todo.id),
   updatedAt: dateTime(todo.updatedAt),

@@ -1,4 +1,4 @@
-import * as DB from "@/db/mod.ts";
+import { TodoStatus } from "@/db/types.ts";
 import { db as users } from "./user.ts";
 
 export const db = {
@@ -8,7 +8,7 @@ export const db = {
     updatedAt: new Date("2023-08-06T12:22:36.000Z"),
     title: "admin todo 1",
     description: "admin todo 1",
-    status: DB.TodoStatus.PENDING,
+    status: TodoStatus.PENDING,
     userId: users.admin.id,
   },
   adminTodo2: {
@@ -17,7 +17,7 @@ export const db = {
     updatedAt: new Date("2023-08-06T12:22:17.245Z"),
     title: "admin todo 2",
     description: "admin todo 2",
-    status: DB.TodoStatus.DONE,
+    status: TodoStatus.DONE,
     userId: users.admin.id,
   },
   adminTodo3: {
@@ -26,7 +26,7 @@ export const db = {
     updatedAt: new Date("2023-08-06T12:22:24.869Z"),
     title: "admin todo 3",
     description: "admin todo 3",
-    status: DB.TodoStatus.PENDING,
+    status: TodoStatus.PENDING,
     userId: users.admin.id,
   },
   aliceTodo: {
@@ -35,7 +35,7 @@ export const db = {
     updatedAt: new Date("2023-08-06T12:22:30.226Z"),
     title: "alice todo",
     description: "alice todo 1",
-    status: DB.TodoStatus.PENDING,
+    status: TodoStatus.PENDING,
     userId: users.alice.id,
   },
 } as const;

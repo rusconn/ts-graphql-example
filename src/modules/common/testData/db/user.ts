@@ -1,4 +1,4 @@
-import * as DB from "@/db/mod.ts";
+import { UserRole } from "@/db/types.ts";
 
 export const db = {
   admin: {
@@ -9,7 +9,7 @@ export const db = {
     email: "admin@admin.com",
     /** raw: adminadmin */
     password: "$2b$04$aIswdZ6eFo8qQTheMa8x1.s2sd7I9uZr.vUkGwl9OylshNLCMqH8i",
-    role: DB.UserRole.ADMIN,
+    role: UserRole.ADMIN,
     token: "01H77AB3NYGD7B1N3XRPKD8JTN",
   },
   alice: {
@@ -20,7 +20,7 @@ export const db = {
     email: "alice@alice.com",
     /** raw: alicealice */
     password: "$2b$04$vox810wl680PtUOq1CPTL.lMhjWYsjFqVIMOmzrMIXKvqTh/XZ5Gy",
-    role: DB.UserRole.USER,
+    role: UserRole.USER,
     token: "01H77ABA8TDGSQ2XJVV57A0BEV",
   },
 } as const;

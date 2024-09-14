@@ -1,6 +1,6 @@
 import { omit } from "remeda";
 
-import { db } from "@/db/mod.ts";
+import { db } from "@/db/client.ts";
 
 import { Data } from "tests/data.ts";
 import { clearUsers } from "tests/helpers.ts";

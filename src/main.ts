@@ -1,7 +1,7 @@
 import process from "node:process";
 
 import { port } from "./config.ts";
-import { db } from "./db/mod.ts";
+import { db } from "./db/client.ts";
 import { logger } from "./logger.ts";
 import { server } from "./server.ts";
 

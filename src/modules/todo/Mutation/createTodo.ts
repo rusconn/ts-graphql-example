@@ -106,7 +106,7 @@ const logic = async (
 
 if (import.meta.vitest) {
   const { ErrorCode } = await import("../../common/schema.ts");
-  const { context } = await import("../../common/testData/mod.ts");
+  const { context } = await import("../../common/testData/context.ts");
 
   const valid = {
     args: { input: { title: "title", description: "description" } } as MutationCreateTodoArgs,

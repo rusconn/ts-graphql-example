@@ -1,8 +1,8 @@
 import { omit } from "remeda";
 
-import { db } from "@/db/mod.ts";
-import * as DB from "@/db/mod.ts";
-import { TodoStatus } from "@/modules/common/schema.ts";
+import { db } from "@/db/client.ts";
+import { TodoStatus } from "@/db/types.ts";
+import * as Graph from "@/modules/common/schema.ts";
 
 import { Data } from "tests/data.ts";
 import { clearTables } from "tests/helpers.ts";
@@ -55,7 +55,7 @@ beforeEach(async () => {
   await db
     .updateTable("Todo")
     .where("id", "=", Data.db.adminTodo.id)
-    .set({ status: DB.TodoStatus.DONE })
+    .set({ status: TodoStatus.DONE })
     .executeTakeFirstOrThrow();
 });
 
@@ -94,8 +94,8 @@ it("should update status", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(before.status).toBe(TodoStatus.Done);
-  expect(after.status).toBe(TodoStatus.Pending);
+  expect(before.status).toBe(Graph.TodoStatus.Done);
+  expect(after.status).toBe(Graph.TodoStatus.Pending);
 });
 
 it("should update updatedAt", async () => {

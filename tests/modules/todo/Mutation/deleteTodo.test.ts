@@ -1,4 +1,4 @@
-import { db } from "@/db/mod.ts";
+import { db } from "@/db/client.ts";
 
 import { Data } from "tests/data.ts";
 import { clearTables, clearTodos } from "tests/helpers.ts";
