@@ -1,3 +1,5 @@
+import { builtinModules } from "node:module";
+
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
@@ -8,7 +10,7 @@ export default defineConfig({
     target: "es2022",
     sourcemap: true,
     rollupOptions: {
-      external: [/^node:.+/, ...Object.keys(dependencies)],
+      external: [/^node:.+/, ...builtinModules, ...Object.keys(dependencies)],
     },
     lib: {
       entry: "src/main",
