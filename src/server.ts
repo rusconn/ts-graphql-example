@@ -11,6 +11,7 @@ import { armor } from "./plugins/armor.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
 import { introspection } from "./plugins/introspection.ts";
 import { logging } from "./plugins/logging.ts";
+import { requestIdHeader } from "./plugins/requestIdHeader.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
 
@@ -32,9 +33,11 @@ export const yoga = createYoga<ServerContext, UserContext>({
           .executeTakeFirstOrThrow(authenErr)
       : null;
 
-    const requestId = crypto.randomUUID();
+    const reqId = request.headers.get("X-Request-Id");
+    const requestId = reqId ?? crypto.randomUUID();
 
     return {
+      requestId,
       logger: logger.child({ requestId }),
       db,
       loaders: createLoaders(db),
@@ -43,7 +46,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
   },
   // 自分でログする
   logging: false,
-  plugins: [introspection, armor, logging, errorHandling],
+  plugins: [introspection, armor, logging, errorHandling, requestIdHeader],
 });
 
 export const server = App().any("/*", yoga);
