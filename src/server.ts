@@ -23,6 +23,7 @@ const authenErr = () =>
 export const yoga = createYoga<ServerContext, UserContext>({
   schema: createSchema({ typeDefs, resolvers }),
   context: async ({ request }) => {
+    const start = Date.now();
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
     const user: Context["user"] = token
@@ -37,6 +38,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
     const requestId = reqId ?? crypto.randomUUID();
 
     return {
+      start,
       requestId,
       logger: logger.child({ requestId }),
       db,

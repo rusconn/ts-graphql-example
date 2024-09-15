@@ -7,12 +7,14 @@ export const logging = useLogger({
     eventName: "execute-start" | "execute-end" | "subscribe-start" | "subscribe-end",
     { args },
   ) => {
-    if (eventName === "execute-start" || eventName === "subscribe-start") {
-      const { contextValue } = args as { contextValue: Context };
-      const { logger, user, params } = contextValue;
-      const { query, variables } = params;
+    const { contextValue } = args as { contextValue: Context };
+    const { start, logger, user, params } = contextValue;
 
+    if (eventName === "execute-start" || eventName === "subscribe-start") {
+      const { query, variables } = params;
       logger.info({ userId: user?.id, query, variables }, "request-info");
+    } else {
+      logger.info({ duration: `${Date.now() - start}ms` }, "response-info");
     }
   },
   skipIntrospection: true,

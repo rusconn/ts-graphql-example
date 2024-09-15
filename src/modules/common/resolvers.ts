@@ -23,6 +23,7 @@ export type Context = ServerContext & YogaInitialContext & UserContext;
 export type ServerContext = EmptyObject;
 
 export type UserContext = {
+  start: ReturnType<typeof Date.now>;
   requestId: string;
   logger: ReturnType<typeof logger.child>;
   db: typeof db;
