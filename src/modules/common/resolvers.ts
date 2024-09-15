@@ -6,6 +6,7 @@ import { decodeTime, type ulid } from "ulid";
 import type { db } from "@/db/client.ts";
 import type { createLoaders } from "@/db/loaders/mod.ts";
 import type { UserSelect } from "@/db/models.ts";
+import type { logger } from "@/logger.ts";
 import { ErrorCode } from "./schema.ts";
 
 export const notFoundErr = () =>
@@ -22,7 +23,7 @@ export type Context = ServerContext & YogaInitialContext & UserContext;
 export type ServerContext = EmptyObject;
 
 export type UserContext = {
-  requestId: ReturnType<typeof crypto.randomUUID>;
+  logger: ReturnType<typeof logger.child>;
   db: typeof db;
   loaders: ReturnType<typeof createLoaders>;
   user: Admin | User | Guest;
