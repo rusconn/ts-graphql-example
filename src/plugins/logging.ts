@@ -2,7 +2,7 @@ import { useLogger } from "graphql-yoga";
 
 import type { Context } from "@/modules/common/resolvers.ts";
 
-export const logger = useLogger({
+export const logging = useLogger({
   logFn: (
     eventName: "execute-start" | "execute-end" | "subscribe-start" | "subscribe-end",
     { args },

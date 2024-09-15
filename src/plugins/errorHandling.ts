@@ -3,7 +3,7 @@ import { useErrorHandler } from "graphql-yoga";
 import { logger } from "@/logger.ts";
 import type { Context } from "@/modules/common/resolvers.ts";
 
-export const errorHandler = useErrorHandler(({ errors, context, phase }) => {
+export const errorHandling = useErrorHandler(({ errors, context, phase }) => {
   if (phase === "context") {
     for (const error of errors) {
       logger.error(error);

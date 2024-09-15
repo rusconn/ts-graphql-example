@@ -6,11 +6,11 @@ import type { Context, ServerContext, UserContext } from "@/modules/common/resol
 import { ErrorCode } from "@/modules/common/schema.ts";
 import { db } from "./db/client.ts";
 import { createLoaders } from "./db/loaders/mod.ts";
-import { logger as appLogger } from "./logger.ts";
+import { logger } from "./logger.ts";
 import { armor } from "./plugins/armor.ts";
-import { errorHandler } from "./plugins/errorHandler.ts";
+import { errorHandling } from "./plugins/errorHandling.ts";
 import { introspection } from "./plugins/introspection.ts";
-import { logger } from "./plugins/logger.ts";
+import { logging } from "./plugins/logging.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
 
@@ -35,7 +35,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
     const requestId = crypto.randomUUID();
 
     return {
-      logger: appLogger.child({ requestId }),
+      logger: logger.child({ requestId }),
       db,
       loaders: createLoaders(db),
       user,
@@ -43,7 +43,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
   },
   // 自分でログする
   logging: false,
-  plugins: [introspection, armor, logger, errorHandler],
+  plugins: [introspection, armor, logging, errorHandling],
 });
 
 export const server = App().any("/*", yoga);
