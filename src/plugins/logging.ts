@@ -12,9 +12,9 @@ export const logging = useLogger({
 
     if (eventName === "execute-start" || eventName === "subscribe-start") {
       const { query, variables } = params;
-      logger.info({ userId: user?.id, query, variables }, "request-info");
+      logger.info({ userId: user?.id, query, variables }, eventName);
     } else {
-      logger.info({ duration: `${Date.now() - start}ms` }, "response-info");
+      logger.info({ duration: `${Date.now() - start}ms` }, eventName);
     }
   },
   skipIntrospection: true,

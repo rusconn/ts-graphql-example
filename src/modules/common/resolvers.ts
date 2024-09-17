@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import type { YogaInitialContext } from "graphql-yoga";
-import type { EmptyObject } from "type-fest";
+import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 import { decodeTime, type ulid } from "ulid";
 
 import type { db } from "@/db/client.ts";
@@ -18,13 +18,19 @@ export const dateByUlid = (id: ReturnType<typeof ulid>) => {
   return new Date(decodeTime(id));
 };
 
-export type Context = ServerContext & YogaInitialContext & UserContext;
+export type Context = ServerContext & PluginContext & YogaInitialContext & UserContext;
 
-export type ServerContext = EmptyObject;
+export type ServerContext = {
+  req: HttpRequest;
+  res: HttpResponse;
+};
+
+export type PluginContext = {
+  requestId?: string;
+};
 
 export type UserContext = {
   start: ReturnType<typeof Date.now>;
-  requestId: string;
   logger: ReturnType<typeof logger.child>;
   db: typeof db;
   loaders: ReturnType<typeof createLoaders>;

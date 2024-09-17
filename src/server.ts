@@ -2,7 +2,12 @@ import { GraphQLError } from "graphql";
 import { createSchema, createYoga } from "graphql-yoga";
 import { App } from "uWebSockets.js";
 
-import type { Context, ServerContext, UserContext } from "@/modules/common/resolvers.ts";
+import type {
+  Context,
+  PluginContext,
+  ServerContext,
+  UserContext,
+} from "@/modules/common/resolvers.ts";
 import { ErrorCode } from "@/modules/common/schema.ts";
 import { db } from "./db/client.ts";
 import { createLoaders } from "./db/loaders/mod.ts";
@@ -11,7 +16,7 @@ import { armor } from "./plugins/armor.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
 import { introspection } from "./plugins/introspection.ts";
 import { logging } from "./plugins/logging.ts";
-import { requestIdHeader } from "./plugins/requestIdHeader.ts";
+import { requestId } from "./plugins/requestId.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
 
@@ -20,9 +25,9 @@ const authenErr = () =>
     extensions: { code: ErrorCode.AuthenticationError },
   });
 
-export const yoga = createYoga<ServerContext, UserContext>({
+export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
   schema: createSchema({ typeDefs, resolvers }),
-  context: async ({ request }) => {
+  context: async ({ request, requestId }) => {
     const start = Date.now();
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
@@ -34,12 +39,8 @@ export const yoga = createYoga<ServerContext, UserContext>({
           .executeTakeFirstOrThrow(authenErr)
       : null;
 
-    const reqId = request.headers.get("X-Request-Id");
-    const requestId = reqId ?? crypto.randomUUID();
-
     return {
       start,
-      requestId,
       logger: logger.child({ requestId }),
       db,
       loaders: createLoaders(db),
@@ -48,7 +49,7 @@ export const yoga = createYoga<ServerContext, UserContext>({
   },
   // 自分でログする
   logging: false,
-  plugins: [introspection, armor, logging, errorHandling, requestIdHeader],
+  plugins: [introspection, requestId, armor, logging, errorHandling],
 });
 
 export const server = App().any("/*", yoga);
