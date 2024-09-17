@@ -1,7 +1,7 @@
 import { useErrorHandler } from "graphql-yoga";
 
+import type { Context } from "@/context.ts";
 import { logger } from "@/logger.ts";
-import type { Context } from "@/modules/common/resolvers.ts";
 
 export const errorHandling = useErrorHandler(({ errors, context, phase }) => {
   if (phase === "context") {

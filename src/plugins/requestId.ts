@@ -1,7 +1,7 @@
 import type { Plugin } from "graphql-yoga";
 import type { EmptyObject } from "type-fest";
 
-import type { PluginContext, ServerContext } from "@/modules/common/resolvers.ts";
+import type { PluginContext, ServerContext } from "@/context.ts";
 
 export const requestId: Plugin<EmptyObject, ServerContext & PluginContext> = {
   onRequest({ request, serverContext }) {
