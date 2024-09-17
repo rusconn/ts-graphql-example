@@ -11,6 +11,7 @@ import { armor } from "./plugins/armor.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
 import { introspection } from "./plugins/introspection.ts";
 import { logging } from "./plugins/logging.ts";
+import { readinessCheck } from "./plugins/readinessCheck.ts";
 import { requestId } from "./plugins/requestId.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
@@ -44,7 +45,7 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
   },
   // 自分でログする
   logging: false,
-  plugins: [introspection, requestId, armor, logging, errorHandling],
+  plugins: [readinessCheck, introspection, requestId, armor, logging, errorHandling],
 });
 
 export const server = App().any("/*", yoga);
