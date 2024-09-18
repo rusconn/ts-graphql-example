@@ -5,6 +5,16 @@
     "source.addMissingImports": "explicit",
     "source.organizeImports": "explicit"
   },
+  "terminal.integrated.profiles.osx": {
+    "zsh": {
+      "path": "zsh",
+      "args": ["-c", "export PATH=./node_modules/.bin:$PATH; zsh"]
+    },
+    "fish": {
+      "path": "fish",
+      "args": ["--init-command", "set -x PATH node_modules/.bin $PATH"]
+    }
+  },
   "files.associations": {
     ".env*": "env"
   },
