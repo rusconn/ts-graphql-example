@@ -12,13 +12,13 @@ cp .env.example .env
 docker compose up -d
 corepack enable
 pnpm install
-pnpm migrate:reset
+node --run migrate:reset
 ```
 
 ## 起動方法
 
 ```shell
-pnpm dev
+node --run dev
 ```
 
 クエリの実行は [Web コンソール](http://localhost:4000/graphql) で。  

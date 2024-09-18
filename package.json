@@ -7,23 +7,23 @@
     "node": "^22.2.0"
   },
   "prisma": {
-    "seed": "pnpm ts prisma/seed.ts"
+    "seed": "node --run ts -- prisma/seed.ts"
   },
   "scripts": {
-    "dev": "dotenvx run -- pnpm ts watch src/main.ts",
+    "dev": "dotenvx run -- node --run ts -- watch src/main.ts",
     "build": "dotenvx run -- vite build",
     "start": "dotenvx run -f .env -f .env.production --overload -- node --enable-source-maps dist/main.js",
     "test": "run-s test:ut test:it",
     "test:ut": "dotenvx run -f .env -f .env.test --overload -- vitest --dir src",
     "test:it": "dotenvx run -f .env -f .env.test --overload -- run-s test:it:*",
-    "test:it:migrate": "pnpm migrate:reset --skip-seed",
+    "test:it:migrate": "node --run migrate:reset -- --skip-seed",
     "test:it:run": "vitest --dir tests",
     "check": "run-s check:*",
-    "check:typecheck": "pnpm typecheck",
-    "check:lint": "pnpm lint",
+    "check:typecheck": "node --run typecheck",
+    "check:lint": "node --run lint",
     "check:format": "run-p check:format:*",
-    "check:format:biome": "pnpm format:biome",
-    "check:format:prettier": "pnpm format:prettier --check",
+    "check:format:biome": "node --run format:biome",
+    "check:format:prettier": "node --run format:prettier",
     "studio": "prisma studio",
     "migrate:dev": "prisma migrate dev",
     "migrate:reset": "prisma migrate reset --force",
@@ -32,7 +32,7 @@
     "typecheck": "tsc",
     "lint": "biome check",
     "format:biome": "biome format",
-    "format:prettier": "prettier --cache './**/*.{yml,yaml,md}'"
+    "format:prettier": "prettier --cache --check './**/*.{yml,yaml,md}'"
   },
   "dependencies": {
     "@envelop/core": "^5.0.0",
