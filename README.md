@@ -12,7 +12,7 @@ cp .env.example .env
 docker compose up -d
 corepack enable
 pnpm install
-node --run migrate:reset
+node --run migrate -- reset --force
 ```
 
 ## 起動方法
