@@ -14,7 +14,7 @@
       "@/*": ["src/*"],
       "tests/*": ["tests/*"]
     },
-    "types": ["vite/client", "vitest/importMeta", "vitest/globals"],
+    "types": ["vitest/importMeta", "vitest/globals"],
     "allowImportingTsExtensions": true,
     "noUncheckedIndexedAccess": true,
     "isolatedModules": true,

@@ -18,7 +18,3 @@ const shutdown = async () => {
 // プラットフォームに合わせたシグナルハンドリングが必要
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
-
-if (import.meta.hot) {
-  import.meta.hot.on("vite:beforeFullReload", shutdown);
-}
