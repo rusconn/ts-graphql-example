@@ -1,12 +1,12 @@
 import { omit } from "remeda";
 
-import { db } from "@/db/client.ts";
-import { TodoStatus } from "@/modules/common/schema.ts";
+import { db } from "../../../../src/db/client.ts";
+import * as Graph from "../../../../src/modules/common/schema.ts";
 
-import { Data } from "tests/data.ts";
-import { clearTables } from "tests/helpers.ts";
-import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "tests/modules/schema.ts";
-import { executeSingleResultOperation } from "tests/server.ts";
+import { Data } from "../../../data.ts";
+import { clearTables } from "../../../helpers.ts";
+import { executeSingleResultOperation } from "../../../server.ts";
+import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "../../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
   UpdateTodoMutation,
@@ -58,7 +58,7 @@ beforeEach(async () => {
 const input = {
   title: "bar",
   description: "baz",
-  status: TodoStatus.Done,
+  status: Graph.TodoStatus.Done,
 };
 
 test("not exists", async () => {

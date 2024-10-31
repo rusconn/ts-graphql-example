@@ -1,10 +1,10 @@
-import { db } from "@/db/client.ts";
-import { UserRole } from "@/db/types.ts";
+import { db } from "../../../../src/db/client.ts";
+import { UserRole } from "../../../../src/db/types.ts";
 
-import { Data } from "tests/data.ts";
-import { clearUsers, fail } from "tests/helpers.ts";
-import type { SignupMutation, SignupMutationVariables } from "tests/modules/schema.ts";
-import { executeSingleResultOperation } from "tests/server.ts";
+import { Data } from "../../../data.ts";
+import { clearUsers, fail } from "../../../helpers.ts";
+import { executeSingleResultOperation } from "../../../server.ts";
+import type { SignupMutation, SignupMutationVariables } from "../../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
   SignupMutation,

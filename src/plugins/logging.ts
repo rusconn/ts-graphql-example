@@ -1,6 +1,6 @@
 import { useLogger } from "graphql-yoga";
 
-import type { Context } from "@/context.ts";
+import type { Context } from "../context.ts";
 
 export const logging = useLogger({
   logFn: (

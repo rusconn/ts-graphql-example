@@ -1,11 +1,11 @@
-import { db } from "@/db/client.ts";
-import { TodoStatus } from "@/db/types.ts";
-import { parseTodoNodeId } from "@/modules/todo/common/parser.ts";
+import { db } from "../../../../src/db/client.ts";
+import { TodoStatus } from "../../../../src/db/types.ts";
+import { parseTodoNodeId } from "../../../../src/modules/todo/common/parser.ts";
 
-import { Data } from "tests/data.ts";
-import { clearTables, fail } from "tests/helpers.ts";
-import type { CreateTodoMutation, CreateTodoMutationVariables } from "tests/modules/schema.ts";
-import { executeSingleResultOperation } from "tests/server.ts";
+import { Data } from "../../../data.ts";
+import { clearTables, fail } from "../../../helpers.ts";
+import { executeSingleResultOperation } from "../../../server.ts";
+import type { CreateTodoMutation, CreateTodoMutationVariables } from "../../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
   CreateTodoMutation,

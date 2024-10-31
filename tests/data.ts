@@ -1,4 +1,4 @@
-import { context } from "@/modules/common/testData/context.ts";
+import { context } from "../src/modules/common/testData/context.ts";
 
 import * as todo from "./data/todo.ts";
 import * as user from "./data/user.ts";

@@ -1,6 +1,6 @@
 import { type LoggerOptions, destination, pino, stdTimeFunctions } from "pino";
 
-import { isDev, isProd, isTest } from "@/config.ts";
+import { isDev, isProd, isTest } from "./config.ts";
 
 const options: LoggerOptions = {
   enabled: !isTest,

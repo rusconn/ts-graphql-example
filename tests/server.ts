@@ -1,9 +1,9 @@
 import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 import { parse } from "graphql";
 
-import { yoga } from "@/server.ts";
+import { yoga } from "../src/server.ts";
 
-import { Data } from "tests/data.ts";
+import { Data } from "./data.ts";
 
 type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;

@@ -1,15 +1,15 @@
-import { db } from "@/db/client.ts";
+import { db } from "../../../../src/db/client.ts";
 import {
   OrderDirection,
   type PageInfo,
   TodoOrderField,
   TodoStatus,
-} from "@/modules/common/schema.ts";
+} from "../../../../src/modules/common/schema.ts";
 
-import { Data } from "tests/data.ts";
-import { clearTables, fail } from "tests/helpers.ts";
-import type { UserTodosQuery, UserTodosQueryVariables } from "tests/modules/schema.ts";
-import { executeSingleResultOperation } from "tests/server.ts";
+import { Data } from "../../../data.ts";
+import { clearTables, fail } from "../../../helpers.ts";
+import { executeSingleResultOperation } from "../../../server.ts";
+import type { UserTodosQuery, UserTodosQueryVariables } from "../../schema.ts";
 
 const executeQuery = executeSingleResultOperation<
   UserTodosQuery,

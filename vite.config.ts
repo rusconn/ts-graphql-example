@@ -1,7 +1,6 @@
 import { builtinModules } from "node:module";
 
 import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 import { dependencies } from "./package.json";
 
@@ -33,5 +32,4 @@ export default defineConfig({
     watch: false,
     includeSource: ["**/*.ts"],
   },
-  plugins: [tsconfigPaths()],
 });

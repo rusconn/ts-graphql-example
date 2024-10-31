@@ -1,12 +1,12 @@
 import { omit } from "remeda";
 
-import { db } from "@/db/client.ts";
-import { TodoStatus } from "@/modules/common/schema.ts";
+import { db } from "../../../../src/db/client.ts";
+import { TodoStatus } from "../../../../src/db/types.ts";
 
-import { Data } from "tests/data.ts";
-import { clearTables } from "tests/helpers.ts";
-import type { CompleteTodoMutation, CompleteTodoMutationVariables } from "tests/modules/schema.ts";
-import { executeSingleResultOperation } from "tests/server.ts";
+import { Data } from "../../../data.ts";
+import { clearTables } from "../../../helpers.ts";
+import { executeSingleResultOperation } from "../../../server.ts";
+import type { CompleteTodoMutation, CompleteTodoMutationVariables } from "../../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
   CompleteTodoMutation,
@@ -90,8 +90,8 @@ it("should update status", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(before.status).toBe(TodoStatus.Pending);
-  expect(after.status).toBe(TodoStatus.Done);
+  expect(before.status).toBe(TodoStatus.PENDING);
+  expect(after.status).toBe(TodoStatus.DONE);
 });
 
 it("should update updatedAt", async () => {

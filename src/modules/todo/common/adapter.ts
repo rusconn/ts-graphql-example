@@ -1,4 +1,4 @@
-import { TodoStatus } from "@/db/types.ts";
+import { TodoStatus } from "../../../db/types.ts";
 import { nodeId } from "../../common/adapters.ts";
 import * as Graph from "../../common/schema.ts";
 import type { Todo } from "./resolver.ts";

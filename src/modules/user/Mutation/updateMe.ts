@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 
-import { passHashExp } from "@/config.ts";
+import { passHashExp } from "../../../config.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import type { MutationResolvers, MutationUpdateMeArgs } from "../../common/schema.ts";

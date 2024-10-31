@@ -1,4 +1,4 @@
-import { TodoStatus } from "@/db/types.ts";
+import { TodoStatus } from "../../../db/types.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import type { MutationResolvers } from "../../common/schema.ts";
 import { parseTodoNodeId } from "../common/parser.ts";

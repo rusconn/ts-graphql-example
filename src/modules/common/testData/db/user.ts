@@ -1,4 +1,4 @@
-import { UserRole } from "@/db/types.ts";
+import { UserRole } from "../../../../db/types.ts";
 
 export const db = {
   admin: {

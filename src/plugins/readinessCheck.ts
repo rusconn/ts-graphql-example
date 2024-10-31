@@ -1,7 +1,7 @@
 import { type Plugin, useReadinessCheck } from "graphql-yoga";
 import { sql } from "kysely";
 
-import { db as client } from "@/db/client.ts";
+import { db as client } from "../db/client.ts";
 
 export const readinessCheck: Plugin = useReadinessCheck({
   check: async () => {

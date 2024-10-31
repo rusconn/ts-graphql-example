@@ -10,18 +10,18 @@ const typescript: TypeScriptPluginConfig = {
   scalars: {
     ID: {
       input: "string",
-      output: "@/modules/scalar/mod.ts#ID",
+      output: "../scalar/mod.ts#ID",
     },
     DateTime: {
-      input: "@/modules/scalar/mod.ts#DateTime",
+      input: "../scalar/mod.ts#DateTime",
       output: "Date | DateTime", // DateTime リゾルバーが Date -> DateTime する
     },
     EmailAddress: {
-      input: "@/modules/scalar/mod.ts#EmailAddress",
+      input: "../scalar/mod.ts#EmailAddress",
       output: "string",
     },
     NonEmptyString: {
-      input: "@/modules/scalar/mod.ts#NonEmptyString",
+      input: "../scalar/mod.ts#NonEmptyString",
       output: "string",
     },
   },
@@ -30,13 +30,13 @@ const typescript: TypeScriptPluginConfig = {
 
 const typescriptResolvers: TypeScriptResolversPluginConfig = {
   useIndexSignature: true,
-  contextType: "@/context.ts#Context",
+  contextType: "../../context.ts#Context",
   optionalInfoArgument: true,
   mapperTypeSuffix: "Mapper",
   mappers: {
-    Node: "@/modules/node/common/resolver.ts#Node",
-    Todo: "@/modules/todo/common/resolver.ts#Todo",
-    User: "@/modules/user/common/resolver.ts#User",
+    Node: "../node/common/resolver.ts#Node",
+    Todo: "../todo/common/resolver.ts#Todo",
+    User: "../user/common/resolver.ts#User",
   },
   resolversNonOptionalTypename: {
     unionMember: true,

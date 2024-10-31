@@ -3,7 +3,7 @@ import { decodeTime, type ulid } from "ulid";
 
 import { ErrorCode } from "./schema.ts";
 
-export type { Context } from "@/context.ts";
+export type { Context } from "../../context.ts";
 
 export const notFoundErr = () =>
   new GraphQLError("Not found", {

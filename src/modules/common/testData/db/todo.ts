@@ -1,4 +1,4 @@
-import { TodoStatus } from "@/db/types.ts";
+import { TodoStatus } from "../../../../db/types.ts";
 import { db as users } from "./user.ts";
 
 export const db = {

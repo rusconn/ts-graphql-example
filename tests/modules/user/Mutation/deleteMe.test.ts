@@ -1,10 +1,10 @@
-import { db } from "@/db/client.ts";
-import { parseUserNodeId } from "@/modules/user/common/parser.ts";
+import { db } from "../../../../src/db/client.ts";
+import { parseUserNodeId } from "../../../../src/modules/user/common/parser.ts";
 
-import { Data } from "tests/data.ts";
-import { clearUsers, fail } from "tests/helpers.ts";
-import type { DeleteMeMutation, DeleteMeMutationVariables } from "tests/modules/schema.ts";
-import { executeSingleResultOperation } from "tests/server.ts";
+import { Data } from "../../../data.ts";
+import { clearUsers, fail } from "../../../helpers.ts";
+import { executeSingleResultOperation } from "../../../server.ts";
+import type { DeleteMeMutation, DeleteMeMutationVariables } from "../../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
   DeleteMeMutation,

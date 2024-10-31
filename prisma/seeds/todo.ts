@@ -3,7 +3,7 @@ import type { Transaction } from "kysely";
 import { chunk } from "remeda";
 import { ulid } from "ulid";
 
-import { type DB, TodoStatus, type User } from "@/db/types.ts";
+import { type DB, TodoStatus, type User } from "../../src/db/types.ts";
 import { randInt } from "./common.ts";
 
 export const seed = async (tsx: Transaction<DB>, userIds: User["id"][]) => {

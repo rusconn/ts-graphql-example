@@ -9,11 +9,6 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "tests/*": ["tests/*"]
-    },
     "types": ["vitest/importMeta", "vitest/globals"],
     "allowImportingTsExtensions": true,
     "noUncheckedIndexedAccess": true,

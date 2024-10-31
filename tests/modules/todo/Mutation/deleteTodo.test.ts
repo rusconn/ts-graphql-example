@@ -1,9 +1,9 @@
-import { db } from "@/db/client.ts";
+import { db } from "../../../../src/db/client.ts";
 
-import { Data } from "tests/data.ts";
-import { clearTables, clearTodos } from "tests/helpers.ts";
-import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "tests/modules/schema.ts";
-import { executeSingleResultOperation } from "tests/server.ts";
+import { Data } from "../../../data.ts";
+import { clearTables, clearTodos } from "../../../helpers.ts";
+import { executeSingleResultOperation } from "../../../server.ts";
+import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "../../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
   DeleteTodoMutation,

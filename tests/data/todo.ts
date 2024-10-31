@@ -1,7 +1,7 @@
-import type { TodoSelect } from "@/db/models.ts";
-import type * as Graph from "@/modules/common/schema.ts";
-import { db } from "@/modules/common/testData/db/todo.ts";
-import { todoNodeId, todoStatus } from "@/modules/todo/common/adapter.ts";
+import type { TodoSelect } from "../../src/db/models.ts";
+import type * as Graph from "../../src/modules/common/schema.ts";
+import { db } from "../../src/modules/common/testData/db/todo.ts";
+import { todoNodeId, todoStatus } from "../../src/modules/todo/common/adapter.ts";
 
 import { dateTime, dateTimeByUlid } from "./common.ts";
 

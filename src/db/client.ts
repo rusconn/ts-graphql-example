@@ -1,8 +1,8 @@
 import { type ErrorLogEvent, Kysely, PostgresDialect } from "kysely";
 import pg from "pg";
 
-import { connectionString, isProd } from "@/config.ts";
-import { logger } from "@/logger.ts";
+import { connectionString, isProd } from "../config.ts";
+import { logger } from "../logger.ts";
 import { UpdatedAtPlugin } from "./plugins.ts";
 import type { DB } from "./types.ts";
 

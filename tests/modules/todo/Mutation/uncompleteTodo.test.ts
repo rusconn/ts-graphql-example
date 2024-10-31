@@ -1,16 +1,12 @@
 import { omit } from "remeda";
 
-import { db } from "@/db/client.ts";
-import { TodoStatus } from "@/db/types.ts";
-import * as Graph from "@/modules/common/schema.ts";
+import { db } from "../../../../src/db/client.ts";
+import { TodoStatus } from "../../../../src/db/types.ts";
 
-import { Data } from "tests/data.ts";
-import { clearTables } from "tests/helpers.ts";
-import type {
-  UncompleteTodoMutation,
-  UncompleteTodoMutationVariables,
-} from "tests/modules/schema.ts";
-import { executeSingleResultOperation } from "tests/server.ts";
+import { Data } from "../../../data.ts";
+import { clearTables } from "../../../helpers.ts";
+import { executeSingleResultOperation } from "../../../server.ts";
+import type { UncompleteTodoMutation, UncompleteTodoMutationVariables } from "../../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
   UncompleteTodoMutation,
@@ -94,8 +90,8 @@ it("should update status", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(before.status).toBe(Graph.TodoStatus.Done);
-  expect(after.status).toBe(Graph.TodoStatus.Pending);
+  expect(before.status).toBe(TodoStatus.DONE);
+  expect(after.status).toBe(TodoStatus.PENDING);
 });
 
 it("should update updatedAt", async () => {

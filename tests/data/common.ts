@@ -1,5 +1,5 @@
-import { dateByUlid } from "@/modules/common/resolvers";
-import type { DateTime } from "@/modules/scalar/mod.ts";
+import { dateByUlid } from "../../src/modules/common/resolvers.ts";
+import type { DateTime } from "../../src/modules/scalar/mod.ts";
 
 // DateTime リゾルバーによる変換のシミュレーション
 export const dateTime = (date: Date) => date.toISOString() as DateTime;

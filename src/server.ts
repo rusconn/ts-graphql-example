@@ -2,11 +2,11 @@ import { GraphQLError } from "graphql";
 import { createSchema, createYoga } from "graphql-yoga";
 import { App } from "uWebSockets.js";
 
-import { ErrorCode } from "@/modules/common/schema.ts";
 import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
 import { db } from "./db/client.ts";
 import { createLoaders } from "./db/loaders/mod.ts";
 import { logger } from "./logger.ts";
+import { ErrorCode } from "./modules/common/schema.ts";
 import { armor } from "./plugins/armor.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
 import { introspection } from "./plugins/introspection.ts";

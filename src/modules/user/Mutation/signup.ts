@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
-import { passHashExp } from "@/config.ts";
-import { UserRole } from "@/db/types.ts";
+import { passHashExp } from "../../../config.ts";
+import { UserRole } from "../../../db/types.ts";
 import { authGuest } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import { dateByUlid } from "../../common/resolvers.ts";

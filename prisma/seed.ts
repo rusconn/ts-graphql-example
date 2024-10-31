@@ -1,4 +1,4 @@
-import { db } from "@/db/client.ts";
+import { db } from "../src/db/client.ts";
 import * as todo from "./seeds/todo.ts";
 import * as user from "./seeds/user.ts";
 
