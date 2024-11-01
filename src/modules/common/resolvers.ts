@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 import { decodeTime, type ulid } from "ulid";
 
-import { ErrorCode } from "./schema.ts";
+import { ErrorCode } from "../../schema.ts";
 
 export type { Context } from "../../context.ts";
 

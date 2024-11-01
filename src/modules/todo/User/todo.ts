@@ -1,4 +1,4 @@
-import type { UserResolvers } from "../../common/schema.ts";
+import type { UserResolvers } from "../../../schema.ts";
 import { authAdminOrUserOwner } from "../../user/common/authorizer.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
 import { getTodo } from "../common/resolver.ts";

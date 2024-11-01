@@ -1,4 +1,4 @@
-import type { UserResolvers } from "../../common/schema.ts";
+import type { UserResolvers } from "../../../schema.ts";
 import * as createdAt from "./createdAt.ts";
 import * as email from "./email.ts";
 import * as id from "./id.ts";

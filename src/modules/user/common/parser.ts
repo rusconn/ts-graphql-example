@@ -4,7 +4,7 @@ import { parseSomeNodeId } from "../../common/parsers.ts";
 export const parseUserNodeId = parseSomeNodeId("User");
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../common/schema.ts");
+  const { ErrorCode } = await import("../../../schema.ts");
 
   const id = "01H75CPZGG1YW9W79M7WWT6KFB";
 

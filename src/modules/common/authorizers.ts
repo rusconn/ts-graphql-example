@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 
+import { ErrorCode } from "../../schema.ts";
 import type { Context } from "./resolvers.ts";
-import { ErrorCode } from "./schema.ts";
 
 export const authErr = () =>
   new GraphQLError("Forbidden", {

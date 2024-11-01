@@ -1,6 +1,6 @@
 import { TodoStatus } from "../../../db/types.ts";
+import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
-import type { MutationResolvers } from "../../common/schema.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
 
 export const typeDef = /* GraphQL */ `

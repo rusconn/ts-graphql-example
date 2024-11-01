@@ -1,4 +1,4 @@
-import type { UserResolvers } from "../../common/schema.ts";
+import type { UserResolvers } from "../../../schema.ts";
 import { authUserOwner } from "../common/authorizer.ts";
 
 export const typeDef = /* GraphQL */ `

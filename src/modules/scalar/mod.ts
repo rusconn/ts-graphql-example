@@ -1,4 +1,4 @@
-import type { Resolvers } from "../common/schema.ts";
+import type { Resolvers } from "../../schema.ts";
 import * as DateTime from "./DateTime.ts";
 import * as EmailAddress from "./EmailAddress.ts";
 import * as NonEmptyString from "./NonEmptyString.ts";

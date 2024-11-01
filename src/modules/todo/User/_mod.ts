@@ -1,4 +1,4 @@
-import type { UserResolvers } from "../../common/schema.ts";
+import type { UserResolvers } from "../../../schema.ts";
 import * as todo from "./todo.ts";
 import * as todos from "./todos.ts";
 

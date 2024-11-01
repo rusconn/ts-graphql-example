@@ -6,7 +6,6 @@ import type { Context, PluginContext, ServerContext, UserContext } from "./conte
 import { db } from "./db/client.ts";
 import { createLoaders } from "./db/loaders/mod.ts";
 import { logger } from "./logger.ts";
-import { ErrorCode } from "./modules/common/schema.ts";
 import { armor } from "./plugins/armor.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
 import { introspection } from "./plugins/introspection.ts";
@@ -14,6 +13,7 @@ import { logging } from "./plugins/logging.ts";
 import { readinessCheck } from "./plugins/readinessCheck.ts";
 import { requestId } from "./plugins/requestId.ts";
 import { resolvers } from "./resolvers.ts";
+import { ErrorCode } from "./schema.ts";
 import { typeDefs } from "./typeDefs.ts";
 
 const authenErr = () =>

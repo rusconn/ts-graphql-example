@@ -1,4 +1,4 @@
-import type { MutationResolvers } from "../../common/schema.ts";
+import type { MutationResolvers } from "../../../schema.ts";
 import * as completeTodo from "./completeTodo.ts";
 import * as createTodo from "./createTodo.ts";
 import * as deleteTodo from "./deleteTodo.ts";

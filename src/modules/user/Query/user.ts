@@ -1,5 +1,5 @@
+import type { QueryResolvers } from "../../../schema.ts";
 import { authAdmin } from "../../common/authorizers.ts";
-import type { QueryResolvers } from "../../common/schema.ts";
 import { parseUserNodeId } from "../common/parser.ts";
 import { getUser } from "../common/resolver.ts";
 

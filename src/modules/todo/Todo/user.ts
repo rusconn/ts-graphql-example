@@ -1,4 +1,4 @@
-import type { TodoResolvers } from "../../common/schema.ts";
+import type { TodoResolvers } from "../../../schema.ts";
 import { getUser } from "../../user/common/resolver.ts";
 import { authAdminOrTodoOwner } from "../common/authorizer.ts";
 

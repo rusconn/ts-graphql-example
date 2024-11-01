@@ -1,6 +1,6 @@
+import type { MutationResolvers, MutationUpdateTodoArgs } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
-import type { MutationResolvers, MutationUpdateTodoArgs } from "../../common/schema.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
 
 const TITLE_MAX = 100;
@@ -77,8 +77,8 @@ const parseArgs = (args: MutationUpdateTodoArgs) => {
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../common/schema.ts");
-  const { TodoStatus } = await import("../../common/schema.ts");
+  const { ErrorCode } = await import("../../../schema.ts");
+  const { TodoStatus } = await import("../../../schema.ts");
 
   describe("Parsing", () => {
     const valids = [

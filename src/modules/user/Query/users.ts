@@ -1,8 +1,8 @@
+import type { QueryResolvers, QueryUsersArgs } from "../../../schema.ts";
+import { OrderDirection, UserOrderField } from "../../../schema.ts";
 import { authAdmin } from "../../common/authorizers.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
 import { parseErr } from "../../common/parsers.ts";
-import type { QueryResolvers, QueryUsersArgs } from "../../common/schema.ts";
-import { OrderDirection, UserOrderField } from "../../common/schema.ts";
 import { cursorConnections, orderOptions } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 30;
@@ -98,7 +98,7 @@ const parseArgs = (args: QueryUsersArgs) => {
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../common/schema.ts");
+  const { ErrorCode } = await import("../../../schema.ts");
 
   describe("Parsing", () => {
     const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];

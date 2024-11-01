@@ -1,7 +1,7 @@
+import type { UserResolvers, UserTodosArgs } from "../../../schema.ts";
+import { OrderDirection, TodoOrderField } from "../../../schema.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
 import { parseErr } from "../../common/parsers.ts";
-import type { UserResolvers, UserTodosArgs } from "../../common/schema.ts";
-import { OrderDirection, TodoOrderField } from "../../common/schema.ts";
 import { cursorConnections, orderOptions } from "../../common/typeDefs.ts";
 import { authAdminOrUserOwner } from "../../user/common/authorizer.ts";
 
@@ -78,7 +78,7 @@ const parseArgs = (args: UserTodosArgs) => {
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../common/schema.ts");
+  const { ErrorCode } = await import("../../../schema.ts");
 
   describe("Parsing", () => {
     const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];

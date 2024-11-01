@@ -4,7 +4,7 @@ import {
   type PageInfo,
   TodoOrderField,
   TodoStatus,
-} from "../../../../src/modules/common/schema.ts";
+} from "../../../../src/schema.ts";
 
 import { Data } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";

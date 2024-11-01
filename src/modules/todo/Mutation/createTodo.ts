@@ -1,13 +1,9 @@
 import { ulid } from "ulid";
 
+import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "../../../schema.ts";
 import { type AuthContext, authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import { type Context, dateByUlid } from "../../common/resolvers.ts";
-import type {
-  MutationCreateTodoArgs,
-  MutationResolvers,
-  ResolversTypes,
-} from "../../common/schema.ts";
 
 const TODOS_MAX = 10000;
 const TITLE_MAX = 100;
@@ -105,7 +101,7 @@ const logic = async (
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../common/schema.ts");
+  const { ErrorCode } = await import("../../../schema.ts");
   const { context } = await import("../../common/testData/context.ts");
 
   const valid = {

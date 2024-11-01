@@ -1,5 +1,5 @@
+import type { QueryResolvers } from "../../../schema.ts";
 import { auth } from "../../common/authorizers.ts";
-import type { QueryResolvers } from "../../common/schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {

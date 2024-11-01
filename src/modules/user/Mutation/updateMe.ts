@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 
 import { passHashExp } from "../../../config.ts";
+import type { MutationResolvers, MutationUpdateMeArgs } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
-import type { MutationResolvers, MutationUpdateMeArgs } from "../../common/schema.ts";
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 100;
@@ -96,7 +96,7 @@ const parseArgs = (args: MutationUpdateMeArgs) => {
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../common/schema.ts");
+  const { ErrorCode } = await import("../../../schema.ts");
 
   describe("Parsing", () => {
     const valids = [

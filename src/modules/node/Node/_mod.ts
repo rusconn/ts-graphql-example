@@ -1,4 +1,4 @@
-import type { NodeResolvers } from "../../common/schema.ts";
+import type { NodeResolvers } from "../../../schema.ts";
 import * as __resolveType from "./__resolveType.ts";
 
 const typeDef = /* GraphQL */ `

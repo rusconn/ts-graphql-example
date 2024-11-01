@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
+import type { MutationLoginArgs, MutationResolvers } from "../../../schema.ts";
 import { auth } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
-import type { MutationLoginArgs, MutationResolvers } from "../../common/schema.ts";
 
 const EMAIL_MAX = 100;
 const PASS_MIN = 8;
@@ -91,7 +91,7 @@ const parseArgs = (args: MutationLoginArgs) => {
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../common/schema.ts");
+  const { ErrorCode } = await import("../../../schema.ts");
 
   describe("Parsing", () => {
     const validInput = { email: "email@email.com", password: "password" };

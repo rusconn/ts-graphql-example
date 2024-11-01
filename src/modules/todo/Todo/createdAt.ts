@@ -1,5 +1,5 @@
+import type { TodoResolvers } from "../../../schema.ts";
 import { dateByUlid } from "../../common/resolvers.ts";
-import type { TodoResolvers } from "../../common/schema.ts";
 import { authAdminOrTodoOwner } from "../common/authorizer.ts";
 
 export const typeDef = /* GraphQL */ `

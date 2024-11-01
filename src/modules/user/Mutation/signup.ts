@@ -3,10 +3,10 @@ import { ulid } from "ulid";
 
 import { passHashExp } from "../../../config.ts";
 import { UserRole } from "../../../db/types.ts";
+import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
 import { dateByUlid } from "../../common/resolvers.ts";
-import type { MutationResolvers, MutationSignupArgs } from "../../common/schema.ts";
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 100;
@@ -97,7 +97,7 @@ const parseArgs = (args: MutationSignupArgs) => {
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../common/schema.ts");
+  const { ErrorCode } = await import("../../../schema.ts");
 
   describe("Parsing", () => {
     const validInput = { name: "name", email: "email@email.com", password: "password" };

@@ -1,7 +1,7 @@
 import { omit } from "remeda";
 
 import { db } from "../../../../src/db/client.ts";
-import * as Graph from "../../../../src/modules/common/schema.ts";
+import * as Graph from "../../../../src/schema.ts";
 
 import { Data } from "../../../data.ts";
 import { clearTables } from "../../../helpers.ts";

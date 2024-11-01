@@ -15,7 +15,7 @@ export const authUserOwner = (context: AuthContext, user: Pick<User, "id">) => {
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../common/schema.ts");
+  const { ErrorCode } = await import("../../../schema.ts");
   const { db } = await import("../../common/testData/db.ts");
   const { context } = await import("../../common/testData/context.ts");
 

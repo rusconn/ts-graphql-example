@@ -1,4 +1,4 @@
-import type { Resolvers } from "../common/schema.ts";
+import type { Resolvers } from "../../schema.ts";
 import * as Mutation from "./Mutation/_mod.ts";
 import * as Query from "./Query/_mod.ts";
 import * as User from "./User/_mod.ts";

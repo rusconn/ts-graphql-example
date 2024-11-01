@@ -1,9 +1,5 @@
 import { db } from "../../../../src/db/client.ts";
-import {
-  OrderDirection,
-  type PageInfo,
-  UserOrderField,
-} from "../../../../src/modules/common/schema.ts";
+import { OrderDirection, type PageInfo, UserOrderField } from "../../../../src/schema.ts";
 
 import { Data } from "../../../data.ts";
 import { clearUsers, fail } from "../../../helpers.ts";

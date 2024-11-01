@@ -1,4 +1,4 @@
-import type { MutationResolvers } from "../../common/schema.ts";
+import type { MutationResolvers } from "../../../schema.ts";
 import * as deleteMe from "./deleteMe.ts";
 import * as login from "./login.ts";
 import * as logout from "./logout.ts";

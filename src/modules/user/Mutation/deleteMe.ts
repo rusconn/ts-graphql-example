@@ -1,5 +1,5 @@
+import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
-import type { MutationResolvers } from "../../common/schema.ts";
 import { userNodeId } from "../common/adapter.ts";
 
 export const typeDef = /* GraphQL */ `

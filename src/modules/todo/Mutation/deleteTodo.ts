@@ -1,5 +1,5 @@
+import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
-import type { MutationResolvers } from "../../common/schema.ts";
 import { todoNodeId } from "../common/adapter.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
 

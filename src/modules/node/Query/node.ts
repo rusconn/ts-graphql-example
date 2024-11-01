@@ -1,6 +1,6 @@
+import type { QueryResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseNodeId } from "../../common/parsers.ts";
-import type { QueryResolvers } from "../../common/schema.ts";
 import { getTodo } from "../../todo/common/resolver.ts";
 import { getUser } from "../../user/common/resolver.ts";
 

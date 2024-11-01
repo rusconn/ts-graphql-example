@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 
+import { ErrorCode, type Scalars } from "../../schema.ts";
 import { nodeId } from "./adapters.ts";
-import { ErrorCode, type Scalars } from "./schema.ts";
 import { type NodeType, nodeTypes, typeIdSep } from "./typeDefs.ts";
 
 export const parseErr = (message: string) =>
