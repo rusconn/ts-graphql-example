@@ -81,16 +81,16 @@ const parseArgs = (args: MutationSignupArgs) => {
   const { name, email, password } = args.input;
 
   if ([...name].length > NAME_MAX) {
-    throw parseErr(`"name" must be up to ${NAME_MAX} characteres`);
+    throw parseErr(`"name" must be up to ${NAME_MAX} characters`);
   }
   if ([...email].length > EMAIL_MAX) {
-    throw parseErr(`"email" must be up to ${EMAIL_MAX} characteres`);
+    throw parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
   }
   if ([...password].length < PASS_MIN) {
-    throw parseErr(`"password" must be at least ${PASS_MIN} characteres`);
+    throw parseErr(`"password" must be at least ${PASS_MIN} characters`);
   }
   if ([...password].length > PASS_MAX) {
-    throw parseErr(`"password" must be up to ${PASS_MAX} characteres`);
+    throw parseErr(`"password" must be up to ${PASS_MAX} characters`);
   }
 
   return { name, email, password };
