@@ -1,9 +1,10 @@
 import { ulid } from "ulid";
 
+import type { Context } from "../../../context.ts";
 import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "../../../schema.ts";
 import { type AuthContext, authAuthenticated } from "../../common/authorizers.ts";
 import { parseErr } from "../../common/parsers.ts";
-import { type Context, dateByUlid } from "../../common/resolvers.ts";
+import { dateByUlid } from "../../common/resolvers.ts";
 
 const TODOS_MAX = 10000;
 const TITLE_MAX = 100;

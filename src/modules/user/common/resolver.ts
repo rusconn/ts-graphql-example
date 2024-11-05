@@ -1,6 +1,7 @@
+import type { Context } from "../../../context.ts";
 import type { UserKey } from "../../../db/loaders/mod.ts";
 import type { UserSelect } from "../../../db/models.ts";
-import { type Context, notFoundErr } from "../../common/resolvers.ts";
+import { notFoundErr } from "../../common/resolvers.ts";
 
 export type User = UserSelect;
 

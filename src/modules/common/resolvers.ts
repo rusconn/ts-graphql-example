@@ -3,8 +3,6 @@ import { decodeTime, type ulid } from "ulid";
 
 import { ErrorCode } from "../../schema.ts";
 
-export type { Context } from "../../context.ts";
-
 export const notFoundErr = () =>
   new GraphQLError("Not found", {
     extensions: { code: ErrorCode.NotFound },
