@@ -1,7 +1,7 @@
 import { EmailAddressResolver, EmailAddressTypeDefinition } from "graphql-scalars";
-import type { Opaque } from "type-fest";
+import type { Tagged } from "type-fest";
 
-export type EmailAddress = Opaque<string, "EmailAddress">;
+export type EmailAddress = Tagged<string, "EmailAddress">;
 
 export const typeDef = EmailAddressTypeDefinition;
 

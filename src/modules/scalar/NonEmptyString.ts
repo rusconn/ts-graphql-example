@@ -1,7 +1,7 @@
 import { NonEmptyStringResolver, NonEmptyStringTypeDefinition } from "graphql-scalars";
-import type { Opaque } from "type-fest";
+import type { Tagged } from "type-fest";
 
-export type NonEmptyString = Opaque<string, "NonEmptyString">;
+export type NonEmptyString = Tagged<string, "NonEmptyString">;
 
 export const typeDef = NonEmptyStringTypeDefinition;
 

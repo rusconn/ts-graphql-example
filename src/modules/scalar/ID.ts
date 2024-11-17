@@ -1,3 +1,3 @@
-import type { Opaque } from "type-fest";
+import type { Tagged } from "type-fest";
 
-export type ID = Opaque<string, "ID">;
+export type ID = Tagged<string, "ID">;

@@ -1,7 +1,7 @@
 import { DateTimeResolver, DateTimeTypeDefinition } from "graphql-scalars";
-import type { Opaque } from "type-fest";
+import type { Tagged } from "type-fest";
 
-export type DateTime = Opaque<string, "DateTime">;
+export type DateTime = Tagged<string, "DateTime">;
 
 export const typeDef = DateTimeTypeDefinition;
 
