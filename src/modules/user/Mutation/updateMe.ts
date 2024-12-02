@@ -52,7 +52,7 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
     }
   }
 
-  const hashed = password ? await bcrypt.hash(password, passHashExp) : undefined;
+  const hashed = password && (await bcrypt.hash(password, passHashExp));
 
   const updated = await context.db
     .updateTable("User")
