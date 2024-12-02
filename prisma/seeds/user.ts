@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
+import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
-import { chunk } from "remeda";
 import { ulid } from "ulid";
 
 import { type DB, UserRole } from "../../src/db/types.ts";
