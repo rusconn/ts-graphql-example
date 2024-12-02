@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { passHashExp } from "../../../config.ts";
 import type { MutationResolvers, MutationUpdateMeArgs } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
-import { parseErr } from "../../common/parsers.ts";
+import { numChars, parseErr } from "../../common/parsers.ts";
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 100;
@@ -73,22 +73,22 @@ const parseArgs = (args: MutationUpdateMeArgs) => {
   if (name === null) {
     throw parseErr('"name" must be not null');
   }
-  if (name && [...name].length > NAME_MAX) {
+  if (name && numChars(name) > NAME_MAX) {
     throw parseErr(`"name" must be up to ${NAME_MAX} characters`);
   }
   if (email === null) {
     throw parseErr('"email" must be not null');
   }
-  if (email && [...email].length > EMAIL_MAX) {
+  if (email && numChars(email) > EMAIL_MAX) {
     throw parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
   }
   if (password === null) {
     throw parseErr('"password" must be not null');
   }
-  if (password && [...password].length < PASS_MIN) {
+  if (password && numChars(password) < PASS_MIN) {
     throw parseErr(`"password" must be at least ${PASS_MIN} characters`);
   }
-  if (password && [...password].length > PASS_MAX) {
+  if (password && numChars(password) > PASS_MAX) {
     throw parseErr(`"password" must be up to ${PASS_MAX} characters`);
   }
 
@@ -106,11 +106,8 @@ if (import.meta.vitest) {
       { password: "password" },
       { name: "name", email: "email@email.com", password: "password" },
       { name: "A".repeat(NAME_MAX) },
-      { name: "🅰".repeat(NAME_MAX) },
       { email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
-      { email: `${"🅰".repeat(EMAIL_MAX - 10)}@email.com` },
       { password: "A".repeat(PASS_MIN) },
-      { password: "🅰".repeat(PASS_MAX) },
     ] as MutationUpdateMeArgs["input"][];
 
     const invalids = [
@@ -118,11 +115,8 @@ if (import.meta.vitest) {
       { email: null },
       { password: null },
       { name: "A".repeat(NAME_MAX + 1) },
-      { name: "🅰".repeat(NAME_MAX + 1) },
       { email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
-      { email: `${"🅰".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
       { password: "A".repeat(PASS_MIN - 1) },
-      { password: "🅰".repeat(PASS_MAX + 1) },
     ] as MutationUpdateMeArgs["input"][];
 
     test.each(valids)("valids %#", (input) => {

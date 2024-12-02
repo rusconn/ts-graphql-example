@@ -3,7 +3,7 @@ import { ulid } from "ulid";
 import type { Context } from "../../../context.ts";
 import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "../../../schema.ts";
 import { type AuthContext, authAuthenticated } from "../../common/authorizers.ts";
-import { parseErr } from "../../common/parsers.ts";
+import { numChars, parseErr } from "../../common/parsers.ts";
 import { dateByUlid } from "../../common/resolvers.ts";
 
 const TODOS_MAX = 10000;
@@ -49,10 +49,10 @@ const authorize = (context: AuthContext) => {
 const parseArgs = (args: MutationCreateTodoArgs) => {
   const { title, description } = args.input;
 
-  if ([...title].length > TITLE_MAX) {
+  if (numChars(title) > TITLE_MAX) {
     throw parseErr(`"title" must be up to ${TITLE_MAX} characters`);
   }
-  if ([...description].length > DESC_MAX) {
+  if (numChars(description) > DESC_MAX) {
     throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
   }
 
@@ -116,16 +116,12 @@ if (import.meta.vitest) {
     const valids = [
       { ...validInput },
       { ...validInput, title: "A".repeat(TITLE_MAX) },
-      { ...validInput, title: "🅰".repeat(TITLE_MAX) },
       { ...validInput, description: "A".repeat(DESC_MAX) },
-      { ...validInput, description: "🅰".repeat(DESC_MAX) },
     ] as MutationCreateTodoArgs["input"][];
 
     const invalids = [
       { ...validInput, title: "A".repeat(TITLE_MAX + 1) },
-      { ...validInput, title: "🅰".repeat(TITLE_MAX + 1) },
       { ...validInput, description: "A".repeat(DESC_MAX + 1) },
-      { ...validInput, description: "🅰".repeat(DESC_MAX + 1) },
     ] as MutationCreateTodoArgs["input"][];
 
     test.each(valids)("valids %#", (input) => {

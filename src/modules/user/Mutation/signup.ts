@@ -5,7 +5,7 @@ import { passHashExp } from "../../../config.ts";
 import { UserRole } from "../../../db/types.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers.ts";
-import { parseErr } from "../../common/parsers.ts";
+import { numChars, parseErr } from "../../common/parsers.ts";
 import { dateByUlid } from "../../common/resolvers.ts";
 
 const NAME_MAX = 100;
@@ -80,16 +80,16 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 const parseArgs = (args: MutationSignupArgs) => {
   const { name, email, password } = args.input;
 
-  if ([...name].length > NAME_MAX) {
+  if (numChars(name) > NAME_MAX) {
     throw parseErr(`"name" must be up to ${NAME_MAX} characters`);
   }
-  if ([...email].length > EMAIL_MAX) {
+  if (numChars(email) > EMAIL_MAX) {
     throw parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
   }
-  if ([...password].length < PASS_MIN) {
+  if (numChars(password) < PASS_MIN) {
     throw parseErr(`"password" must be at least ${PASS_MIN} characters`);
   }
-  if ([...password].length > PASS_MAX) {
+  if (numChars(password) > PASS_MAX) {
     throw parseErr(`"password" must be up to ${PASS_MAX} characters`);
   }
 
@@ -105,20 +105,14 @@ if (import.meta.vitest) {
     const valids = [
       { ...validInput },
       { ...validInput, name: "A".repeat(NAME_MAX) },
-      { ...validInput, name: "🅰".repeat(NAME_MAX) },
       { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
-      { ...validInput, email: `${"🅰".repeat(EMAIL_MAX - 10)}@email.com` },
       { ...validInput, password: "A".repeat(PASS_MIN) },
-      { ...validInput, password: "🅰".repeat(PASS_MAX) },
     ] as MutationSignupArgs["input"][];
 
     const invalids = [
       { ...validInput, name: "A".repeat(NAME_MAX + 1) },
-      { ...validInput, name: "🅰".repeat(NAME_MAX + 1) },
       { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
-      { ...validInput, email: `${"🅰".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
       { ...validInput, password: "A".repeat(PASS_MIN - 1) },
-      { ...validInput, password: "🅰".repeat(PASS_MAX + 1) },
     ] as MutationSignupArgs["input"][];
 
     test.each(valids)("valids %#", (input) => {

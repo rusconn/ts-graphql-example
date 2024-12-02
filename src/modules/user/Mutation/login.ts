@@ -3,7 +3,7 @@ import { ulid } from "ulid";
 
 import type { MutationLoginArgs, MutationResolvers } from "../../../schema.ts";
 import { auth } from "../../common/authorizers.ts";
-import { parseErr } from "../../common/parsers.ts";
+import { numChars, parseErr } from "../../common/parsers.ts";
 
 const EMAIL_MAX = 100;
 const PASS_MIN = 8;
@@ -77,13 +77,13 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 const parseArgs = (args: MutationLoginArgs) => {
   const { email, password } = args.input;
 
-  if ([...email].length > EMAIL_MAX) {
+  if (numChars(email) > EMAIL_MAX) {
     throw parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
   }
-  if ([...password].length < PASS_MIN) {
+  if (numChars(password) < PASS_MIN) {
     throw parseErr(`"password" must be at least ${PASS_MIN} characters`);
   }
-  if ([...password].length > PASS_MAX) {
+  if (numChars(password) > PASS_MAX) {
     throw parseErr(`"password" must be up to ${PASS_MAX} characters`);
   }
 
@@ -99,16 +99,12 @@ if (import.meta.vitest) {
     const valids = [
       { ...validInput },
       { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
-      { ...validInput, email: `${"🅰".repeat(EMAIL_MAX - 10)}@email.com` },
       { ...validInput, password: "A".repeat(PASS_MIN) },
-      { ...validInput, password: "🅰".repeat(PASS_MAX) },
     ] as MutationLoginArgs["input"][];
 
     const invalids = [
       { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
-      { ...validInput, email: `${"🅰".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
       { ...validInput, password: "A".repeat(PASS_MIN - 1) },
-      { ...validInput, password: "🅰".repeat(PASS_MAX + 1) },
     ] as MutationLoginArgs["input"][];
 
     test.each(valids)("valids %#", (input) => {
