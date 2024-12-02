@@ -77,8 +77,7 @@ const parseArgs = (args: MutationUpdateTodoArgs) => {
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../../schema.ts");
-  const { TodoStatus } = await import("../../../schema.ts");
+  const { ErrorCode, TodoStatus } = await import("../../../schema.ts");
 
   describe("Parsing", () => {
     const valids = [

@@ -1,7 +1,9 @@
 import { type AuthContext, authAdmin, authErr } from "../../common/authorizers.ts";
 import type { Todo } from "./resolver.ts";
 
-export const authAdminOrTodoOwner = (context: AuthContext, todo: Pick<Todo, "userId">) => {
+type AuthTodo = Pick<Todo, "userId">;
+
+export const authAdminOrTodoOwner = (context: AuthContext, todo: AuthTodo) => {
   try {
     return authAdmin(context);
   } catch {
@@ -9,7 +11,7 @@ export const authAdminOrTodoOwner = (context: AuthContext, todo: Pick<Todo, "use
   }
 };
 
-export const authTodoOwner = (context: AuthContext, todo: Pick<Todo, "userId">) => {
+export const authTodoOwner = (context: AuthContext, todo: AuthTodo) => {
   if (context.user?.id === todo.userId) return context.user;
   throw authErr();
 };

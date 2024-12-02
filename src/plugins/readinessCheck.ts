@@ -18,8 +18,6 @@ export const readinessCheck: Plugin = useReadinessCheck({
     const statuses = { db };
     const status = Object.values(statuses).includes(503) ? 503 : 200;
 
-    return status === 200 //
-      ? true
-      : new Response(JSON.stringify(statuses), { status });
+    return status === 200 || new Response(JSON.stringify(statuses), { status });
   },
 });
