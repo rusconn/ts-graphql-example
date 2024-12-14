@@ -5,14 +5,7 @@ import * as deleteTodo from "./deleteTodo.ts";
 import * as uncompleteTodo from "./uncompleteTodo.ts";
 import * as updateTodo from "./updateTodo.ts";
 
-const typeDef = /* GraphQL */ `
-  type TodoNotFoundError implements Error {
-    message: String!
-  }
-`;
-
 export const typeDefs = [
-  typeDef,
   completeTodo.typeDef,
   createTodo.typeDef,
   deleteTodo.typeDef,

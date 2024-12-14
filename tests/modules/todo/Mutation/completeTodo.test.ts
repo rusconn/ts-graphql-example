@@ -24,7 +24,7 @@ const executeMutation = executeSingleResultOperation<
           status
         }
       }
-      ... on TodoNotFoundError {
+      ... on ResourceNotFoundError {
         message
       }
     }
@@ -60,7 +60,7 @@ test("not exists", async () => {
     variables: { id: Data.graph.adminTodo.id.slice(0, -1) },
   });
 
-  expect(data?.completeTodo?.__typename).toBe("TodoNotFoundError");
+  expect(data?.completeTodo?.__typename === "ResourceNotFoundError").toBe(true);
 });
 
 test("exists, but not owned", async () => {
@@ -68,7 +68,7 @@ test("exists, but not owned", async () => {
     variables: { id: Data.graph.aliceTodo.id },
   });
 
-  expect(data?.completeTodo?.__typename).toBe("TodoNotFoundError");
+  expect(data?.completeTodo?.__typename === "ResourceNotFoundError").toBe(true);
 });
 
 it("should update status", async () => {

@@ -107,7 +107,7 @@ export type CompleteTodoMutationVariables = Exact<{
 }>;
 
 
-export type CompleteTodoMutation = { completeTodo?: { __typename: 'CompleteTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | { __typename: 'TodoNotFoundError', message: string } | null };
+export type CompleteTodoMutation = { completeTodo?: { __typename: 'CompleteTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | { __typename: 'ResourceNotFoundError', message: string } | null };
 
 export type CreateTodoMutationVariables = Exact<{
   input: CreateTodoInput;
@@ -121,14 +121,14 @@ export type DeleteTodoMutationVariables = Exact<{
 }>;
 
 
-export type DeleteTodoMutation = { deleteTodo?: { __typename: 'DeleteTodoSuccess', id: string } | { __typename: 'TodoNotFoundError', message: string } | null };
+export type DeleteTodoMutation = { deleteTodo?: { __typename: 'DeleteTodoSuccess', id: string } | { __typename: 'ResourceNotFoundError', message: string } | null };
 
 export type UncompleteTodoMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type UncompleteTodoMutation = { uncompleteTodo?: { __typename: 'TodoNotFoundError', message: string } | { __typename: 'UncompleteTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+export type UncompleteTodoMutation = { uncompleteTodo?: { __typename: 'ResourceNotFoundError', message: string } | { __typename: 'UncompleteTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type UpdateTodoMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -136,7 +136,7 @@ export type UpdateTodoMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodoMutation = { updateTodo?: { __typename: 'TodoNotFoundError', message: string } | { __typename: 'UpdateTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+export type UpdateTodoMutation = { updateTodo?: { __typename: 'ResourceNotFoundError', message: string } | { __typename: 'UpdateTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type TodoCreatedAtQueryVariables = Exact<{
   id: Scalars['ID']['input'];

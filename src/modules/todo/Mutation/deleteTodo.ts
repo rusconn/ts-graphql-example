@@ -8,7 +8,7 @@ export const typeDef = /* GraphQL */ `
     deleteTodo(id: ID!): DeleteTodoResult
   }
 
-  union DeleteTodoResult = DeleteTodoSuccess | TodoNotFoundError
+  union DeleteTodoResult = DeleteTodoSuccess | ResourceNotFoundError
 
   type DeleteTodoSuccess {
     id: ID!
@@ -33,7 +33,7 @@ export const resolver: MutationResolvers["deleteTodo"] = async (_parent, args, c
         id: todoNodeId(todo.id),
       }
     : {
-        __typename: "TodoNotFoundError",
+        __typename: "ResourceNotFoundError",
         message: "todo not found",
       };
 };

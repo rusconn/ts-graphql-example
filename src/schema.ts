@@ -28,7 +28,7 @@ export type Scalars = {
   NonEmptyString: { input: NonEmptyString; output: string; }
 };
 
-export type CompleteTodoResult = CompleteTodoSuccess | TodoNotFoundError;
+export type CompleteTodoResult = CompleteTodoSuccess | ResourceNotFoundError;
 
 export type CompleteTodoSuccess = {
   __typename?: 'CompleteTodoSuccess';
@@ -56,7 +56,7 @@ export type DeleteMeSuccess = {
   id: Scalars['ID']['output'];
 };
 
-export type DeleteTodoResult = DeleteTodoSuccess | TodoNotFoundError;
+export type DeleteTodoResult = DeleteTodoSuccess | ResourceNotFoundError;
 
 export type DeleteTodoSuccess = {
   __typename?: 'DeleteTodoSuccess';
@@ -208,6 +208,11 @@ export type ResourceLimitExceededError = Error & {
   message: Scalars['String']['output'];
 };
 
+export type ResourceNotFoundError = Error & {
+  __typename?: 'ResourceNotFoundError';
+  message: Scalars['String']['output'];
+};
+
 export type SignupInput = {
   /** 100文字まで、既に存在する場合はエラー */
   email: Scalars['EmailAddress']['input'];
@@ -249,11 +254,6 @@ export type TodoEdge = {
   node?: Maybe<Todo>;
 };
 
-export type TodoNotFoundError = Error & {
-  __typename?: 'TodoNotFoundError';
-  message: Scalars['String']['output'];
-};
-
 export type TodoOrder = {
   direction: OrderDirection;
   field: TodoOrderField;
@@ -269,7 +269,7 @@ export enum TodoStatus {
   Pending = 'PENDING'
 }
 
-export type UncompleteTodoResult = TodoNotFoundError | UncompleteTodoSuccess;
+export type UncompleteTodoResult = ResourceNotFoundError | UncompleteTodoSuccess;
 
 export type UncompleteTodoSuccess = {
   __typename?: 'UncompleteTodoSuccess';
@@ -301,7 +301,7 @@ export type UpdateTodoInput = {
   title?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
-export type UpdateTodoResult = TodoNotFoundError | UpdateTodoSuccess;
+export type UpdateTodoResult = ResourceNotFoundError | UpdateTodoSuccess;
 
 export type UpdateTodoSuccess = {
   __typename?: 'UpdateTodoSuccess';
@@ -434,21 +434,21 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = ResolversObject<{
-  CompleteTodoResult: ( Omit<CompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'CompleteTodoSuccess' } ) | ( TodoNotFoundError & { __typename: 'TodoNotFoundError' } );
+  CompleteTodoResult: ( Omit<CompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'CompleteTodoSuccess' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
   CreateTodoResult: ( Omit<CreateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'CreateTodoSuccess' } ) | ( ResourceLimitExceededError & { __typename: 'ResourceLimitExceededError' } );
   DeleteMeResult: ( DeleteMeSuccess & { __typename: 'DeleteMeSuccess' } );
-  DeleteTodoResult: ( DeleteTodoSuccess & { __typename: 'DeleteTodoSuccess' } ) | ( TodoNotFoundError & { __typename: 'TodoNotFoundError' } );
+  DeleteTodoResult: ( DeleteTodoSuccess & { __typename: 'DeleteTodoSuccess' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
   LoginResult: ( LoginSuccess & { __typename: 'LoginSuccess' } ) | ( UserNotFoundError & { __typename: 'UserNotFoundError' } );
   LogoutResult: ( Omit<LogoutSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'LogoutSuccess' } );
   SignupResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( SignupSuccess & { __typename: 'SignupSuccess' } );
-  UncompleteTodoResult: ( TodoNotFoundError & { __typename: 'TodoNotFoundError' } ) | ( Omit<UncompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'UncompleteTodoSuccess' } );
+  UncompleteTodoResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<UncompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'UncompleteTodoSuccess' } );
   UpdateMeResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( Omit<UpdateMeSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'UpdateMeSuccess' } );
-  UpdateTodoResult: ( TodoNotFoundError & { __typename: 'TodoNotFoundError' } ) | ( Omit<UpdateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'UpdateTodoSuccess' } );
+  UpdateTodoResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<UpdateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'UpdateTodoSuccess' } );
 }>;
 
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = ResolversObject<{
-  Error: ( EmailAlreadyTakenError ) | ( ResourceLimitExceededError ) | ( TodoNotFoundError ) | ( UserNotFoundError );
+  Error: ( EmailAlreadyTakenError ) | ( ResourceLimitExceededError ) | ( ResourceNotFoundError ) | ( UserNotFoundError );
   Node: ( TodoMapper ) | ( UserMapper );
 }>;
 
@@ -483,6 +483,7 @@ export type ResolversTypes = ResolversObject<{
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<{}>;
   ResourceLimitExceededError: ResolverTypeWrapper<ResourceLimitExceededError>;
+  ResourceNotFoundError: ResolverTypeWrapper<ResourceNotFoundError>;
   SignupInput: SignupInput;
   SignupResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SignupResult']>;
   SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
@@ -490,7 +491,6 @@ export type ResolversTypes = ResolversObject<{
   Todo: ResolverTypeWrapper<TodoMapper>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['TodoEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Todo']>>> }>;
   TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node: Maybe<ResolversTypes['Todo']> }>;
-  TodoNotFoundError: ResolverTypeWrapper<TodoNotFoundError>;
   TodoOrder: TodoOrder;
   TodoOrderField: TodoOrderField;
   TodoStatus: TodoStatus;
@@ -539,6 +539,7 @@ export type ResolversParentTypes = ResolversObject<{
   PageInfo: PageInfo;
   Query: {};
   ResourceLimitExceededError: ResourceLimitExceededError;
+  ResourceNotFoundError: ResourceNotFoundError;
   SignupInput: SignupInput;
   SignupResult: ResolversUnionTypes<ResolversParentTypes>['SignupResult'];
   SignupSuccess: SignupSuccess;
@@ -546,7 +547,6 @@ export type ResolversParentTypes = ResolversObject<{
   Todo: TodoMapper;
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['TodoEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Todo']>>> };
   TodoEdge: Omit<TodoEdge, 'node'> & { node: Maybe<ResolversParentTypes['Todo']> };
-  TodoNotFoundError: TodoNotFoundError;
   TodoOrder: TodoOrder;
   UncompleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['UncompleteTodoResult'];
   UncompleteTodoSuccess: Omit<UncompleteTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
@@ -564,7 +564,7 @@ export type ResolversParentTypes = ResolversObject<{
 }>;
 
 export type CompleteTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoResult'] = ResolversParentTypes['CompleteTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'CompleteTodoSuccess' | 'TodoNotFoundError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CompleteTodoSuccess' | 'ResourceNotFoundError', ParentType, ContextType>;
 }>;
 
 export type CompleteTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoSuccess'] = ResolversParentTypes['CompleteTodoSuccess']> = ResolversObject<{
@@ -595,7 +595,7 @@ export type DeleteMeSuccessResolvers<ContextType = Context, ParentType extends R
 }>;
 
 export type DeleteTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTodoResult'] = ResolversParentTypes['DeleteTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'DeleteTodoSuccess' | 'TodoNotFoundError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'DeleteTodoSuccess' | 'ResourceNotFoundError', ParentType, ContextType>;
 }>;
 
 export type DeleteTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTodoSuccess'] = ResolversParentTypes['DeleteTodoSuccess']> = ResolversObject<{
@@ -613,7 +613,7 @@ export type EmailAlreadyTakenErrorResolvers<ContextType = Context, ParentType ex
 }>;
 
 export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'ResourceLimitExceededError' | 'TodoNotFoundError' | 'UserNotFoundError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError' | 'UserNotFoundError', ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
@@ -677,6 +677,11 @@ export type ResourceLimitExceededErrorResolvers<ContextType = Context, ParentTyp
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ResourceNotFoundErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ResourceNotFoundError'] = ResolversParentTypes['ResourceNotFoundError']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type SignupResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupResult'] = ResolversParentTypes['SignupResult']> = ResolversObject<{
   __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'SignupSuccess', ParentType, ContextType>;
 }>;
@@ -711,13 +716,8 @@ export type TodoEdgeResolvers<ContextType = Context, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TodoNotFoundErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoNotFoundError'] = ResolversParentTypes['TodoNotFoundError']> = ResolversObject<{
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
 export type UncompleteTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoResult'] = ResolversParentTypes['UncompleteTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'TodoNotFoundError' | 'UncompleteTodoSuccess', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ResourceNotFoundError' | 'UncompleteTodoSuccess', ParentType, ContextType>;
 }>;
 
 export type UncompleteTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoSuccess'] = ResolversParentTypes['UncompleteTodoSuccess']> = ResolversObject<{
@@ -735,7 +735,7 @@ export type UpdateMeSuccessResolvers<ContextType = Context, ParentType extends R
 }>;
 
 export type UpdateTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTodoResult'] = ResolversParentTypes['UpdateTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'TodoNotFoundError' | 'UpdateTodoSuccess', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ResourceNotFoundError' | 'UpdateTodoSuccess', ParentType, ContextType>;
 }>;
 
 export type UpdateTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTodoSuccess'] = ResolversParentTypes['UpdateTodoSuccess']> = ResolversObject<{
@@ -797,12 +797,12 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   ResourceLimitExceededError?: ResourceLimitExceededErrorResolvers<ContextType>;
+  ResourceNotFoundError?: ResourceNotFoundErrorResolvers<ContextType>;
   SignupResult?: SignupResultResolvers<ContextType>;
   SignupSuccess?: SignupSuccessResolvers<ContextType>;
   Todo?: TodoResolvers<ContextType>;
   TodoConnection?: TodoConnectionResolvers<ContextType>;
   TodoEdge?: TodoEdgeResolvers<ContextType>;
-  TodoNotFoundError?: TodoNotFoundErrorResolvers<ContextType>;
   UncompleteTodoResult?: UncompleteTodoResultResolvers<ContextType>;
   UncompleteTodoSuccess?: UncompleteTodoSuccessResolvers<ContextType>;
   UpdateMeResult?: UpdateMeResultResolvers<ContextType>;

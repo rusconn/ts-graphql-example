@@ -21,7 +21,7 @@ export const typeDef = /* GraphQL */ `
     status: TodoStatus
   }
 
-  union UpdateTodoResult = UpdateTodoSuccess | TodoNotFoundError
+  union UpdateTodoResult = UpdateTodoSuccess | ResourceNotFoundError
 
   type UpdateTodoSuccess {
     todo: Todo!
@@ -47,7 +47,7 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
         todo,
       }
     : {
-        __typename: "TodoNotFoundError",
+        __typename: "ResourceNotFoundError",
         message: "todo not found",
       };
 };
