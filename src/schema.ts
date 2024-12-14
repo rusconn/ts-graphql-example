@@ -42,7 +42,7 @@ export type CreateTodoInput = {
   title: Scalars['NonEmptyString']['input'];
 };
 
-export type CreateTodoResult = CreateTodoSuccess | TodoLimitExceededError;
+export type CreateTodoResult = CreateTodoSuccess | ResourceLimitExceededError;
 
 export type CreateTodoSuccess = {
   __typename?: 'CreateTodoSuccess';
@@ -203,6 +203,11 @@ export type QueryUsersArgs = {
   orderBy: UserOrder;
 };
 
+export type ResourceLimitExceededError = Error & {
+  __typename?: 'ResourceLimitExceededError';
+  message: Scalars['String']['output'];
+};
+
 export type SignupInput = {
   /** 100文字まで、既に存在する場合はエラー */
   email: Scalars['EmailAddress']['input'];
@@ -242,11 +247,6 @@ export type TodoEdge = {
   __typename?: 'TodoEdge';
   cursor: Scalars['String']['output'];
   node?: Maybe<Todo>;
-};
-
-export type TodoLimitExceededError = Error & {
-  __typename?: 'TodoLimitExceededError';
-  message: Scalars['String']['output'];
 };
 
 export type TodoNotFoundError = Error & {
@@ -435,7 +435,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping of union types */
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = ResolversObject<{
   CompleteTodoResult: ( Omit<CompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'CompleteTodoSuccess' } ) | ( TodoNotFoundError & { __typename: 'TodoNotFoundError' } );
-  CreateTodoResult: ( Omit<CreateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'CreateTodoSuccess' } ) | ( TodoLimitExceededError & { __typename: 'TodoLimitExceededError' } );
+  CreateTodoResult: ( Omit<CreateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'CreateTodoSuccess' } ) | ( ResourceLimitExceededError & { __typename: 'ResourceLimitExceededError' } );
   DeleteMeResult: ( DeleteMeSuccess & { __typename: 'DeleteMeSuccess' } );
   DeleteTodoResult: ( DeleteTodoSuccess & { __typename: 'DeleteTodoSuccess' } ) | ( TodoNotFoundError & { __typename: 'TodoNotFoundError' } );
   LoginResult: ( LoginSuccess & { __typename: 'LoginSuccess' } ) | ( UserNotFoundError & { __typename: 'UserNotFoundError' } );
@@ -448,7 +448,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = Resol
 
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = ResolversObject<{
-  Error: ( EmailAlreadyTakenError ) | ( TodoLimitExceededError ) | ( TodoNotFoundError ) | ( UserNotFoundError );
+  Error: ( EmailAlreadyTakenError ) | ( ResourceLimitExceededError ) | ( TodoNotFoundError ) | ( UserNotFoundError );
   Node: ( TodoMapper ) | ( UserMapper );
 }>;
 
@@ -482,6 +482,7 @@ export type ResolversTypes = ResolversObject<{
   OrderDirection: OrderDirection;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<{}>;
+  ResourceLimitExceededError: ResolverTypeWrapper<ResourceLimitExceededError>;
   SignupInput: SignupInput;
   SignupResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SignupResult']>;
   SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
@@ -489,7 +490,6 @@ export type ResolversTypes = ResolversObject<{
   Todo: ResolverTypeWrapper<TodoMapper>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['TodoEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Todo']>>> }>;
   TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node: Maybe<ResolversTypes['Todo']> }>;
-  TodoLimitExceededError: ResolverTypeWrapper<TodoLimitExceededError>;
   TodoNotFoundError: ResolverTypeWrapper<TodoNotFoundError>;
   TodoOrder: TodoOrder;
   TodoOrderField: TodoOrderField;
@@ -538,6 +538,7 @@ export type ResolversParentTypes = ResolversObject<{
   NonEmptyString: Scalars['NonEmptyString']['output'];
   PageInfo: PageInfo;
   Query: {};
+  ResourceLimitExceededError: ResourceLimitExceededError;
   SignupInput: SignupInput;
   SignupResult: ResolversUnionTypes<ResolversParentTypes>['SignupResult'];
   SignupSuccess: SignupSuccess;
@@ -545,7 +546,6 @@ export type ResolversParentTypes = ResolversObject<{
   Todo: TodoMapper;
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['TodoEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Todo']>>> };
   TodoEdge: Omit<TodoEdge, 'node'> & { node: Maybe<ResolversParentTypes['Todo']> };
-  TodoLimitExceededError: TodoLimitExceededError;
   TodoNotFoundError: TodoNotFoundError;
   TodoOrder: TodoOrder;
   UncompleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['UncompleteTodoResult'];
@@ -573,7 +573,7 @@ export type CompleteTodoSuccessResolvers<ContextType = Context, ParentType exten
 }>;
 
 export type CreateTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTodoResult'] = ResolversParentTypes['CreateTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'CreateTodoSuccess' | 'TodoLimitExceededError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateTodoSuccess' | 'ResourceLimitExceededError', ParentType, ContextType>;
 }>;
 
 export type CreateTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTodoSuccess'] = ResolversParentTypes['CreateTodoSuccess']> = ResolversObject<{
@@ -613,7 +613,7 @@ export type EmailAlreadyTakenErrorResolvers<ContextType = Context, ParentType ex
 }>;
 
 export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'TodoLimitExceededError' | 'TodoNotFoundError' | 'UserNotFoundError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'ResourceLimitExceededError' | 'TodoNotFoundError' | 'UserNotFoundError', ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
@@ -672,6 +672,11 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'orderBy'>>;
 }>;
 
+export type ResourceLimitExceededErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ResourceLimitExceededError'] = ResolversParentTypes['ResourceLimitExceededError']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type SignupResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupResult'] = ResolversParentTypes['SignupResult']> = ResolversObject<{
   __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'SignupSuccess', ParentType, ContextType>;
 }>;
@@ -703,11 +708,6 @@ export type TodoConnectionResolvers<ContextType = Context, ParentType extends Re
 export type TodoEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoEdge'] = ResolversParentTypes['TodoEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type TodoLimitExceededErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoLimitExceededError'] = ResolversParentTypes['TodoLimitExceededError']> = ResolversObject<{
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -796,12 +796,12 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   NonEmptyString?: GraphQLScalarType;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  ResourceLimitExceededError?: ResourceLimitExceededErrorResolvers<ContextType>;
   SignupResult?: SignupResultResolvers<ContextType>;
   SignupSuccess?: SignupSuccessResolvers<ContextType>;
   Todo?: TodoResolvers<ContextType>;
   TodoConnection?: TodoConnectionResolvers<ContextType>;
   TodoEdge?: TodoEdgeResolvers<ContextType>;
-  TodoLimitExceededError?: TodoLimitExceededErrorResolvers<ContextType>;
   TodoNotFoundError?: TodoNotFoundErrorResolvers<ContextType>;
   UncompleteTodoResult?: UncompleteTodoResultResolvers<ContextType>;
   UncompleteTodoSuccess?: UncompleteTodoSuccessResolvers<ContextType>;

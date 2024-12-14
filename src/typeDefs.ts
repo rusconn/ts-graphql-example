@@ -23,6 +23,10 @@ const typeDef = /* GraphQL */ `
     message: String!
   }
 
+  type ResourceLimitExceededError implements Error {
+    message: String!
+  }
+
   enum ErrorCode {
     BAD_USER_INPUT
     AUTHENTICATION_ERROR

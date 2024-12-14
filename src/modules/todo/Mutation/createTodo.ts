@@ -23,14 +23,10 @@ export const typeDef = /* GraphQL */ `
     description: String!
   }
 
-  union CreateTodoResult = CreateTodoSuccess | TodoLimitExceededError
+  union CreateTodoResult = CreateTodoSuccess | ResourceLimitExceededError
 
   type CreateTodoSuccess {
     todo: Todo!
-  }
-
-  type TodoLimitExceededError implements Error {
-    message: String!
   }
 `;
 
@@ -75,7 +71,7 @@ const logic = async (
 
   if (count >= TODOS_MAX) {
     return {
-      __typename: "TodoLimitExceededError",
+      __typename: "ResourceLimitExceededError",
       message: "the number of todos exceeded the limit",
     };
   }
@@ -173,7 +169,7 @@ if (import.meta.vitest) {
 
       const result = await logic(valid.user, validInput, { db } as Context);
 
-      expect(result?.__typename === "TodoLimitExceededError").toBe(true);
+      expect(result?.__typename === "ResourceLimitExceededError").toBe(true);
     });
   });
 }
