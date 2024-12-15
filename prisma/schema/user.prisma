@@ -1,10 +1,10 @@
 model User {
-  id        String   @id @pg.Char(26)
+  id        String   @id @pg.Uuid
   updatedAt DateTime
   name      String   @pg.VarChar(255)
   email     String   @unique @pg.VarChar(255)
   password  String   @pg.VarChar(255)
-  token     String?  @unique @pg.Char(26)
+  token     String?  @unique @pg.Uuid
   role      UserRole @default(USER)
   todos     Todo[]
 

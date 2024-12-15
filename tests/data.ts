@@ -14,3 +14,8 @@ export const Data = {
     ...user.graph,
   },
 };
+
+export const dummyNodeId = {
+  todo: todo.dummyNodeId,
+  user: user.dummyNodeId,
+};

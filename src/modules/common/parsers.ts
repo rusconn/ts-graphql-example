@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql";
-
+import { validate as uuidValidate } from "uuid";
 import { ErrorCode, type Scalars } from "../../schema.ts";
 import { nodeId } from "./adapters.ts";
 import { type NodeType, nodeTypes, typeIdSep } from "./typeDefs.ts";
@@ -24,7 +24,7 @@ export const parseSomeNodeId =
 export const parseNodeId = (nodeId: Scalars["ID"]["input"]) => {
   const [type, id, ...rest] = nodeId.split(typeIdSep);
 
-  if (!isValidNodeType(type) || id == null || id === "" || rest.length !== 0) {
+  if (!isValidNodeType(type) || id == null || !uuidValidate(id) || rest.length !== 0) {
     throw parseErr(`invalid node id: ${nodeId}`);
   }
 
@@ -41,32 +41,61 @@ export const numChars = (s: string) => {
 
 if (import.meta.vitest) {
   describe("parseNodeId", () => {
-    const id = "01H75CPZGG1YW9W79M7WWT6KFB";
+    describe("node type", () => {
+      const id = "0193cb3e-4379-750f-880f-77afae342259";
 
-    const valids = nodeTypes.map((type) => nodeId(type)(id));
+      const valids = nodeTypes.map((type) => nodeId(type)(id));
 
-    const invalids = [
-      `User#${id}`,
-      `User${id}`,
-      `User:${id}:${id}`,
-      `:${id}`,
-      `${id}`,
-      "User",
-      `${id}:User`,
-      "",
-    ] as const;
+      const invalids = [
+        `User#${id}`,
+        `User${id}`,
+        `User:${id}:${id}`,
+        `:${id}`,
+        `${id}`,
+        "User",
+        `${id}:User`,
+        "",
+      ] as const;
 
-    test.each(valids)("valids %#", (valid) => {
-      parseNodeId(valid);
+      test.each(valids)("valids %#", (valid) => {
+        parseNodeId(valid);
+      });
+
+      test.each(invalids)("invalids %#", (invalid) => {
+        expect.assertions(1);
+        try {
+          parseNodeId(invalid);
+        } catch (e) {
+          expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+        }
+      });
     });
 
-    test.each(invalids)("invalids %#", (invalid) => {
-      expect.assertions(1);
-      try {
-        parseNodeId(invalid);
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
-      }
+    describe("internal id", () => {
+      const valids = [
+        "0193cb3e-4379-750f-880f-77afae342259",
+        "0193cb3e-504f-72e9-897c-2c71f389f3ad",
+        "0193cb3e-58fe-772b-8306-412afa147cdd",
+      ].map((id) => `User:${id}`);
+
+      const invalids = [
+        "0193cb3e-4379-750f-880f-77afae34225", // length
+        "0193cb3e-504f-72e9-897c-2c71f389f3ag", // g
+        "0193cb3e-58fe-072b-8306-412afa147cdd", // version
+      ].map((id) => `User:${id}`);
+
+      test.each(valids)("valids %#", (valid) => {
+        parseNodeId(valid);
+      });
+
+      test.each(invalids)("invalids %#", (invalid) => {
+        expect.assertions(1);
+        try {
+          parseNodeId(invalid);
+        } catch (e) {
+          expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+        }
+      });
     });
   });
 

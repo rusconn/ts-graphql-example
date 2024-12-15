@@ -102,7 +102,7 @@ if (import.meta.vitest) {
       { description: "A".repeat(DESC_MAX + 1) },
     ] as MutationUpdateTodoArgs["input"][];
 
-    const id = "Todo:01H75CR8C6PQK7Z7RE4FBY1B4M";
+    const id = "Todo:0193cb3e-5fdd-7264-9f70-1df63d84b251";
 
     test.each(valids)("valids %#", (input) => {
       parseArgs({ id, input });

@@ -6,7 +6,7 @@ export const parseTodoNodeId = parseSomeNodeId("Todo");
 if (import.meta.vitest) {
   const { ErrorCode } = await import("../../../schema.ts");
 
-  const id = "01H75CPZGG1YW9W79M7WWT6KFB";
+  const id = "0193cb3e-4379-750f-880f-77afae342259";
 
   test("valid", () => {
     parseTodoNodeId(nodeId("Todo")(id));

@@ -1,11 +1,11 @@
 model Todo {
-  id          String     @id @pg.Char(26)
+  id          String     @id @pg.Uuid
   updatedAt   DateTime
   title       String     @pg.VarChar(255)
   description String     @default("")
   status      TodoStatus @default(PENDING)
   user        User       @relation(fields: userId, references: id, onDelete: Cascade)
-  userId      String     @pg.Char(26)
+  userId      String     @pg.Uuid
 
   // status 等検索条件の絞り込みはフィルターで十分か
   @@index([userId, id])

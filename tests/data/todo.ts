@@ -3,11 +3,11 @@ import { db } from "../../src/modules/common/testData/db/todo.ts";
 import { todoNodeId, todoStatus } from "../../src/modules/todo/common/adapter.ts";
 import type * as Graph from "../../src/schema.ts";
 
-import { dateTime, dateTimeByUlid } from "./common.ts";
+import { dateTime, dateTimeByUuid, dummySomeNodeId } from "./common.ts";
 
 const node = (todo: TodoSelect): Graph.Todo => ({
   id: todoNodeId(todo.id),
-  createdAt: dateTimeByUlid(todo.id),
+  createdAt: dateTimeByUuid(todo.id),
   updatedAt: dateTime(todo.updatedAt),
   title: todo.title,
   description: todo.description,
@@ -22,3 +22,5 @@ export const graph = {
 };
 
 export { db };
+
+export const dummyNodeId = dummySomeNodeId(todoNodeId);

@@ -1,7 +1,7 @@
 import { db } from "../../../../src/db/client.ts";
 import { ErrorCode } from "../../../../src/schema.ts";
 
-import { Data } from "../../../data.ts";
+import { Data, dummyNodeId } from "../../../data.ts";
 import { clearTables } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
 import type { NodeQuery, NodeQueryVariables } from "../../schema.ts";
@@ -32,7 +32,7 @@ beforeAll(async () => {
 
 test("not exists", async () => {
   const { data, errors } = await executeQuery({
-    variables: { id: Data.graph.admin.id.slice(0, -1) },
+    variables: { id: dummyNodeId.todo() },
   });
 
   const errorCodes = errors?.map(({ extensions }) => extensions?.code);
@@ -61,20 +61,5 @@ describe("should return item correctly", () => {
     });
 
     expect(data?.node?.id).toEqual(id);
-  });
-});
-
-describe("should return not found error if not found", () => {
-  const ids = [Data.graph.admin.id, Data.graph.adminTodo.id].map((id) => id.slice(0, -1));
-
-  test.each(ids)("%s", async (id) => {
-    const { data, errors } = await executeQuery({
-      variables: { id },
-    });
-
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-    expect(data?.node).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
   });
 });

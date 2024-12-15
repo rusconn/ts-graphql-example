@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { ulid } from "ulid";
+import { v7 as uuidv7 } from "uuid";
 
 import type { MutationLoginArgs, MutationResolvers } from "../../../schema.ts";
 import { auth } from "../../common/authorizers.ts";
@@ -59,7 +59,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const token = ulid();
+  const token = uuidv7();
 
   await context.db
     .updateTable("User")

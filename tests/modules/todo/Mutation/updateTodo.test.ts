@@ -3,7 +3,7 @@ import { omit } from "es-toolkit";
 import { db } from "../../../../src/db/client.ts";
 import * as Graph from "../../../../src/schema.ts";
 
-import { Data } from "../../../data.ts";
+import { Data, dummyNodeId } from "../../../data.ts";
 import { clearTables } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
 import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "../../schema.ts";
@@ -63,7 +63,7 @@ const input = {
 
 test("not exists", async () => {
   const { data } = await executeMutation({
-    variables: { input: {}, id: Data.graph.adminTodo.id.slice(0, -1) },
+    variables: { input: {}, id: dummyNodeId.todo() },
   });
 
   expect(data?.updateTodo?.__typename === "ResourceNotFoundError").toBe(true);

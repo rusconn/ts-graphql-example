@@ -3,7 +3,7 @@ import { omit } from "es-toolkit";
 import { db } from "../../../../src/db/client.ts";
 import { TodoStatus } from "../../../../src/db/types.ts";
 
-import { Data } from "../../../data.ts";
+import { Data, dummyNodeId } from "../../../data.ts";
 import { clearTables } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
 import type { CompleteTodoMutation, CompleteTodoMutationVariables } from "../../schema.ts";
@@ -57,7 +57,7 @@ beforeEach(async () => {
 
 test("not exists", async () => {
   const { data } = await executeMutation({
-    variables: { id: Data.graph.adminTodo.id.slice(0, -1) },
+    variables: { id: dummyNodeId.todo() },
   });
 
   expect(data?.completeTodo?.__typename === "ResourceNotFoundError").toBe(true);

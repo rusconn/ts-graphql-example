@@ -1,7 +1,7 @@
 import { db } from "../../../../src/db/client.ts";
 import { ErrorCode } from "../../../../src/schema.ts";
 
-import { Data } from "../../../data.ts";
+import { Data, dummyNodeId } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
 import type { UserTodoQuery, UserTodoQueryVariables } from "../../schema.ts";
@@ -42,7 +42,7 @@ test("not exists", async () => {
   const { data } = await executeQuery({
     variables: {
       id: Data.graph.admin.id,
-      todoId: Data.graph.adminTodo.id.slice(0, -1),
+      todoId: dummyNodeId.todo(),
     },
   });
 
