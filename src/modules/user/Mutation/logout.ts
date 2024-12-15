@@ -19,7 +19,10 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
   const updated = await context.db
     .updateTable("User")
     .where("id", "=", authed.id)
-    .set({ token: null })
+    .set({
+      updatedAt: new Date(),
+      token: null,
+    })
     .returningAll()
     .executeTakeFirstOrThrow();
 

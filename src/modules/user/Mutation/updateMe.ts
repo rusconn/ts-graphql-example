@@ -57,7 +57,12 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
   const updated = await context.db
     .updateTable("User")
     .where("id", "=", authed.id)
-    .set({ name, email, password: hashed })
+    .set({
+      updatedAt: new Date(),
+      name,
+      email,
+      password: hashed,
+    })
     .returningAll()
     .executeTakeFirstOrThrow();
 

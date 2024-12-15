@@ -3,7 +3,6 @@ import pg from "pg";
 
 import { connectionString, isProd } from "../config.ts";
 import { logger } from "../logger.ts";
-import { UpdatedAtPlugin } from "./plugins.ts";
 import type { DB } from "./types.ts";
 
 const [logQuery, logError] = isProd
@@ -23,7 +22,6 @@ export const db = new Kysely<DB>({
       connectionString,
     }),
   }),
-  plugins: [new UpdatedAtPlugin()],
   log(event) {
     switch (event.level) {
       case "query":

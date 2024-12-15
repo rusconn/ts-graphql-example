@@ -37,7 +37,12 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
     .updateTable("Todo")
     .where("id", "=", id)
     .where("userId", "=", authed.id)
-    .set({ title, description, status })
+    .set({
+      updatedAt: new Date(),
+      title,
+      description,
+      status,
+    })
     .returningAll()
     .executeTakeFirst();
 

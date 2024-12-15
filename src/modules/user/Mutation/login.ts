@@ -64,7 +64,10 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
   await context.db
     .updateTable("User")
     .where("email", "=", email)
-    .set({ token })
+    .set({
+      updatedAt: new Date(),
+      token,
+    })
     .returning("token")
     .executeTakeFirstOrThrow();
 
