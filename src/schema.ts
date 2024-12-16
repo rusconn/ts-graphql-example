@@ -316,7 +316,6 @@ export type User = Node & {
   name?: Maybe<Scalars['NonEmptyString']['output']>;
   todo?: Maybe<Todo>;
   todos?: Maybe<TodoConnection>;
-  token?: Maybe<Scalars['NonEmptyString']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
@@ -750,7 +749,6 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   name?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<UserTodoArgs, 'id'>>;
   todos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, RequireFields<UserTodosArgs, 'orderBy'>>;
-  token?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

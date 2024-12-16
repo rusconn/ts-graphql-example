@@ -17,7 +17,6 @@ const executeMutation = executeSingleResultOperation<
           id
           name
           email
-          token
         }
       }
     }

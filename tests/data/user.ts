@@ -11,7 +11,6 @@ const node = (user: UserSelect): Graph.User => ({
   updatedAt: dateTime(user.updatedAt),
   name: user.name,
   email: user.email,
-  token: user.token,
 });
 
 export const graph = {

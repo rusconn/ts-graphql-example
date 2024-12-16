@@ -223,7 +223,7 @@ export type LoginMutation = { login?: { __typename: 'LoginSuccess', token: strin
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type LogoutMutation = { logout?: { __typename: 'LogoutSuccess', user: { id: string, name?: string | null, email?: string | null, token?: string | null } } | null };
+export type LogoutMutation = { logout?: { __typename: 'LogoutSuccess', user: { id: string, name?: string | null, email?: string | null } } | null };
 
 export type SignupMutationVariables = Exact<{
   input: SignupInput;
@@ -284,13 +284,6 @@ export type UserNameQueryVariables = Exact<{
 
 
 export type UserNameQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', name?: string | null } | null };
-
-export type UserTokenQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type UserTokenQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', token?: string | null } | null };
 
 export type UserUpdatedAtQueryVariables = Exact<{
   id: Scalars['ID']['input'];

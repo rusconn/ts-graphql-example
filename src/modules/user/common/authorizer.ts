@@ -11,7 +11,7 @@ export const authAdminOrUserOwner = (context: AuthContext, user: AuthUser) => {
   }
 };
 
-export const authUserOwner = (context: AuthContext, user: AuthUser) => {
+const authUserOwner = (context: AuthContext, user: AuthUser) => {
   if (context.user?.id === user.id) return context.user;
   throw authErr();
 };
