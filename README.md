@@ -21,10 +21,9 @@ node --run migrate -- reset --force
 node --run dev
 ```
 
-クエリの実行は [Web コンソール](http://localhost:4000/graphql) で。  
-token を Authorization ヘッダへ Bearer でセットしておくこと。  
+クエリの実行は [Web コンソール](http://localhost:4000/graphql) で。\
+token を Authorization ヘッダへ Bearer でセットしておくこと。\
 token は [seed スクリプト](./prisma/seed.ts) から取得する。
-Prisma Studio は `pnpm studio` で起動しておくこと。
 
 ## 設計記録
 
@@ -36,7 +35,7 @@ Prisma Studio は `pnpm studio` で起動しておくこと。
 - クライアントが部分取得を求めていないことがわかっている
 - フィールドの欠けたデータが意味を成さない
 
-等の場合は non-nullable とする。
+等の場合は non-nullable としてもよい。
 
 ### API サーバー ⇄ DB 間におけるオーバーフェッチ
 
@@ -107,6 +106,6 @@ TS であればスキーマ定義をもとに型付きのクライアントを�
 }
 ```
 
-上記クエリにおいて、各 User の **すべての** Todo を読み込んでオンメモリで件数を絞り込むよう。各 User の Todo の件数が大きい場合、著しいオーバーヘッドが発生する。効率的に読み込むには、各 User の Todo を first 件数分だけ取得する SELECT 文を UNION によって結合する必要がある。
+上記クエリを N+1 を回避しつつ解決する場合は FluentAPI を利用することになるが、その場合各 User の **すべての** Todo を読み込んでオンメモリで件数を絞り込むよう。各 User の Todo の件数が大きい場合、著しいオーバーヘッドが発生する。効率的に読み込むには、各 User の Todo を first 件数分だけ取得する SELECT 文を UNION によって結合する必要がある。
 
-今回は DB クライアントに kysely を使ったが、UNION で複数の SELECT 文を結合する機能が欠けているようなので @prisma/client と状況は変わらない。残念です…。
+今回は DB クライアントに kysely を使ったが、集合演算の設計がおかしく意図した結果が得られないようなので @prisma/client と状況は変わらない。残念です…。
