@@ -4,24 +4,36 @@ export type NodeType = (typeof nodeTypes)[number];
 
 export const typeIdSep = ":";
 
-export const cursorConnections = (
-  type: NodeType,
-  additionalConnectionFields: Record<string, string> = {},
-  additionalEdgeFields: Record<string, string> = {},
-) => `
-  type ${type}Connection {
-    pageInfo: PageInfo!
-    edges: [${type}Edge]
-    nodes: [${type}]
-    ${fieldLines(additionalConnectionFields)}
-  }
+export const cursorConnections = ({
+  nodeType,
+  edgeType = nodeType,
+  additionals,
+}: {
+  nodeType: NodeType;
+  edgeType?: string;
+  additionals?: {
+    connectionFields?: Record<string, string>;
+    edgeFields?: Record<string, string>;
+  };
+}) => {
+  const connectionFields = additionals?.connectionFields ?? {};
+  const edgeFields = additionals?.edgeFields ?? {};
 
-  type ${type}Edge {
-    node: ${type}
-    cursor: String!
-    ${fieldLines(additionalEdgeFields)}
-  }
-`;
+  return `
+    type ${edgeType}Connection {
+      pageInfo: PageInfo!
+      edges: [${edgeType}Edge]
+      nodes: [${nodeType}]
+      ${fieldLines(connectionFields)}
+    }
+
+    type ${edgeType}Edge {
+      node: ${nodeType}
+      cursor: String!
+      ${fieldLines(edgeFields)}
+    }
+  `;
+};
 
 const fieldLines = (fields: Record<string, string>) =>
   Object.entries(fields)

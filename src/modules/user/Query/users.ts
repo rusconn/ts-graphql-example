@@ -31,7 +31,14 @@ export const typeDef = /* GraphQL */ `
     UPDATED_AT
   }
 
-  ${cursorConnections("User", { totalCount: "Int" })}
+  ${cursorConnections({
+    nodeType: "User",
+    additionals: {
+      connectionFields: {
+        totalCount: "Int",
+      },
+    },
+  })}
 `;
 
 export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
