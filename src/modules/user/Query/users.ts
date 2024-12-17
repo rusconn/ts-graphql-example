@@ -3,7 +3,7 @@ import { OrderDirection, UserOrderField } from "../../../schema.ts";
 import { authAdmin } from "../../common/authorizers.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
 import { parseErr } from "../../common/parsers.ts";
-import { cursorConnections, orderOptions } from "../../common/typeDefs.ts";
+import { cursorConnections } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 30;
 const LAST_MAX = 30;
@@ -21,7 +21,16 @@ export const typeDef = /* GraphQL */ `
     ): UserConnection
   }
 
-  ${orderOptions("User")}
+  input UserOrder {
+    field: UserOrderField!
+    direction: OrderDirection!
+  }
+
+  enum UserOrderField {
+    CREATED_AT
+    UPDATED_AT
+  }
+
   ${cursorConnections("User", { totalCount: "Int" })}
 `;
 

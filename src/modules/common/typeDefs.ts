@@ -23,24 +23,6 @@ export const cursorConnections = (
   }
 `;
 
-export const orderOptions = (
-  type: NodeType,
-  additionaOrderFields: Record<string, string> = {},
-  additionalOrderFieldFields: Record<string, string> = {},
-) => `
-  input ${type}Order {
-    field: ${type}OrderField!
-    direction: OrderDirection!
-    ${fieldLines(additionaOrderFields)}
-  }
-
-  enum ${type}OrderField {
-    CREATED_AT
-    UPDATED_AT
-    ${fieldLines(additionalOrderFieldFields)}
-  }
-`;
-
 const fieldLines = (fields: Record<string, string>) =>
   Object.entries(fields)
     .map(([name, type]) => `${name}: ${type}`)

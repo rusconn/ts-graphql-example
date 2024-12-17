@@ -2,7 +2,7 @@ import type { UserResolvers, UserTodosArgs } from "../../../schema.ts";
 import { OrderDirection, TodoOrderField } from "../../../schema.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
 import { parseErr } from "../../common/parsers.ts";
-import { cursorConnections, orderOptions } from "../../common/typeDefs.ts";
+import { cursorConnections } from "../../common/typeDefs.ts";
 import { authAdminOrUserOwner } from "../../user/common/authorizer.ts";
 
 const FIRST_MAX = 50;
@@ -23,7 +23,16 @@ export const typeDef = /* GraphQL */ `
     ): TodoConnection
   }
 
-  ${orderOptions("Todo")}
+  input TodoOrder {
+    field: TodoOrderField!
+    direction: OrderDirection!
+  }
+
+  enum TodoOrderField {
+    CREATED_AT
+    UPDATED_AT
+  }
+
   ${cursorConnections("Todo", { totalCount: "Int" })}
 `;
 
