@@ -1,0 +1,22 @@
+import type { UserResolvers } from "../../../schema.ts";
+
+export const typeDef = /* GraphQL */ `
+  extend type User {
+    viewerIsFollowing: Boolean
+  }
+`;
+
+export const resolver: UserResolvers["viewerIsFollowing"] = async (parent, _args, context) => {
+  if (context.user == null) {
+    return false;
+  }
+
+  const result = await context.db
+    .selectFrom("FollowerFollowee")
+    .where("followerId", "=", context.user.id)
+    .where("followeeId", "=", parent.id)
+    .select("followerId")
+    .executeTakeFirst();
+
+  return result != null;
+};

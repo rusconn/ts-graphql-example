@@ -3,6 +3,10 @@ import { parseSomeNodeId } from "../../common/parsers.ts";
 
 export const parseUserNodeId = parseSomeNodeId("User");
 
+export const isName = (name: string) => {
+  return /^[a-zA-Z0-9_]+$/.test(name);
+};
+
 export const isEmail = (email: string) => {
   return /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(
     email,
@@ -18,7 +22,7 @@ if (import.meta.vitest) {
   });
 
   test("invalid", () => {
-    const parsed = parseUserNodeId(nodeId("Todo")(id));
+    const parsed = parseUserNodeId(nodeId("Post")(id));
     expect(parsed instanceof Error).toBe(true);
   });
 }

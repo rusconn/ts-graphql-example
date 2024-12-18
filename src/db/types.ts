@@ -4,34 +4,55 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   : ColumnType<T, T | undefined, T>;
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-export const TodoStatus = {
-  DONE: "DONE",
-  PENDING: "PENDING",
-} as const;
-export type TodoStatus = typeof TodoStatus[keyof typeof TodoStatus];
-export const UserRole = {
-  ADMIN: "ADMIN",
-  USER: "USER",
-} as const;
-export type UserRole = typeof UserRole[keyof typeof UserRole];
-export type Todo = {
+export type BlockerBlockee = {
+  id: string;
+  blockerId: string;
+  blockeeId: string;
+};
+export type FollowerFollowee = {
+  id: string;
+  followerId: string;
+  followeeId: string;
+};
+export type Hashtag = {
+  id: string;
+  name: string;
+};
+export type LikerPost = {
+  id: string;
+  userId: string;
+  postId: string;
+};
+export type Post = {
   id: string;
   updatedAt: Timestamp;
-  title: string;
-  description: Generated<string>;
-  status: Generated<TodoStatus>;
+  content: string;
   userId: string;
+  parentId: string | null;
+};
+export type PostHashtag = {
+  postId: string;
+  hashtagId: string;
 };
 export type User = {
   id: string;
   updatedAt: Timestamp;
+  avatar: string | null;
   name: string;
+  handle: string;
+  bio: Generated<string>;
+  location: Generated<string>;
+  website: Generated<string>;
   email: string;
   password: string;
   token: string | null;
-  role: Generated<UserRole>;
 };
 export type DB = {
-  Todo: Todo;
+  BlockerBlockee: BlockerBlockee;
+  FollowerFollowee: FollowerFollowee;
+  Hashtag: Hashtag;
+  LikerPost: LikerPost;
+  Post: Post;
+  PostHashtag: PostHashtag;
   User: User;
 };

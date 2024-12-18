@@ -3,22 +3,22 @@ import { v7 as uuidv7 } from "uuid";
 
 import type { MutationLoginArgs, MutationResolvers } from "../../../schema.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
-import { isEmail } from "../common/parser.ts";
+import { isEmail, isName } from "../common/parser.ts";
+import * as signup from "./signup.ts";
 
-const EMAIL_MAX = 100;
-const PASS_MIN = 8;
-const PASS_MAX = 50;
+const LOGIN_ID_MAX = Math.max(signup.NAME_MAX, signup.EMAIL_MAX);
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     login(
       """
-      ${EMAIL_MAX}文字まで
+      ユーザー名もしくはメールアドレス、${LOGIN_ID_MAX}文字まで
       """
-      email: NonEmptyString!
+      # name と email はフォーマットが異なるので両方に該当することはない
+      loginId: NonEmptyString!
 
       """
-      ${PASS_MIN}文字以上、${PASS_MAX}文字まで
+      ${signup.PASS_MIN}文字以上、${signup.PASS_MAX}文字まで
       """
       password: NonEmptyString!
     ): LoginResult
@@ -45,11 +45,17 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const { email, password } = parsed;
+  const { loginId, password } = parsed;
 
   const found = await context.db
     .selectFrom("User")
-    .where("email", "=", email)
+    .where((eb) =>
+      eb.or([
+        //
+        eb("name", "=", loginId),
+        eb("email", "=", loginId),
+      ]),
+    )
     .select("password")
     .executeTakeFirst();
 
@@ -73,7 +79,13 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   await context.db
     .updateTable("User")
-    .where("email", "=", email)
+    .where((eb) =>
+      eb.or([
+        //
+        eb("name", "=", loginId),
+        eb("email", "=", loginId),
+      ]),
+    )
     .set({
       updatedAt: new Date(),
       token,
@@ -88,38 +100,42 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 };
 
 const parseArgs = (args: MutationLoginArgs) => {
-  const { email, password } = args;
+  const { loginId, password } = args;
 
-  if (numChars(email) > EMAIL_MAX) {
-    return parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
+  if (!isName(loginId) && !isEmail(loginId)) {
+    return parseErr(`"loginId" must be name or email`);
   }
-  if (!isEmail(email)) {
-    return parseErr(`invalid "email"`);
+  if (numChars(loginId) > LOGIN_ID_MAX) {
+    return parseErr(`"loginId" must be up to ${LOGIN_ID_MAX} characters`);
   }
-  if (numChars(password) < PASS_MIN) {
-    return parseErr(`"password" must be at least ${PASS_MIN} characters`);
+  if (numChars(password) < signup.PASS_MIN) {
+    return parseErr(`"password" must be at least ${signup.PASS_MIN} characters`);
   }
-  if (numChars(password) > PASS_MAX) {
-    return parseErr(`"password" must be up to ${PASS_MAX} characters`);
+  if (numChars(password) > signup.PASS_MAX) {
+    return parseErr(`"password" must be up to ${signup.PASS_MAX} characters`);
   }
 
-  return { email, password };
+  return { loginId, password };
 };
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
-    const validInput = { email: "email@email.com", password: "password" };
+    const validArgs = {
+      loginId: "test_test",
+      password: "password",
+    };
 
     const valids = [
-      { ...validInput },
-      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
-      { ...validInput, password: "A".repeat(PASS_MIN) },
+      { ...validArgs },
+      { ...validArgs, loginId: `${"A".repeat(LOGIN_ID_MAX - 10)}@email.com` },
+      { ...validArgs, password: "A".repeat(signup.PASS_MIN) },
     ] as MutationLoginArgs[];
 
     const invalids = [
-      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
-      { ...validInput, password: "A".repeat(PASS_MIN - 1) },
-      { ...validInput, email: "emailemail.com" },
+      { ...validArgs, loginId: `${"A".repeat(signup.EMAIL_MAX - 10 + 1)}@email.com` },
+      { ...validArgs, password: "A".repeat(signup.PASS_MIN - 1) },
+      { ...validArgs, loginId: "test-test" },
+      { ...validArgs, loginId: "emailemail.com" },
     ] as MutationLoginArgs[];
 
     test.each(valids)("valids %#", (args) => {

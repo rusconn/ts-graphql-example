@@ -2,23 +2,23 @@ import bcrypt from "bcrypt";
 import { v7 as uuidv7 } from "uuid";
 
 import { passHashExp } from "../../../config.ts";
-import { UserRole } from "../../../db/types.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
 import { dateByUuid, forbiddenErr } from "../../common/resolvers.ts";
-import { isEmail } from "../common/parser.ts";
+import { isEmail, isName } from "../common/parser.ts";
 
-const NAME_MAX = 100;
-const EMAIL_MAX = 100;
-const PASS_MIN = 8;
-const PASS_MAX = 50;
+export const NAME_MIN = 5;
+export const NAME_MAX = 15;
+export const EMAIL_MAX = 100;
+export const PASS_MIN = 8;
+export const PASS_MAX = 50;
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     signup(
       """
-      ${NAME_MAX}文字まで
+      ${NAME_MAX}文字まで、半角英数字とアンダースコアのみ、既に存在する場合はエラー
       """
       name: NonEmptyString!
 
@@ -34,7 +34,11 @@ export const typeDef = /* GraphQL */ `
     ): SignupResult
   }
 
-  union SignupResult = SignupSuccess | InvalidInputError | EmailAlreadyTakenError
+  union SignupResult =
+      SignupSuccess
+    | InvalidInputError
+    | UserNameAlreadyTakenError
+    | UserEmailAlreadyTakenError
 
   type SignupSuccess {
     token: NonEmptyString!
@@ -59,15 +63,28 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 
   const { name, email, password } = parsed;
 
-  const found = await context.db
-    .selectFrom("User")
-    .where("email", "=", email)
-    .select("id")
-    .executeTakeFirst();
+  const [nameFound, emailFound] = await Promise.all([
+    context.db //
+      .selectFrom("User")
+      .where("name", "=", name)
+      .select("id")
+      .executeTakeFirst(),
+    context.db //
+      .selectFrom("User")
+      .where("email", "=", email)
+      .select("id")
+      .executeTakeFirst(),
+  ]);
 
-  if (found) {
+  if (nameFound) {
     return {
-      __typename: "EmailAlreadyTakenError",
+      __typename: "UserNameAlreadyTakenError",
+      message: "specified name already taken",
+    };
+  }
+  if (emailFound) {
+    return {
+      __typename: "UserEmailAlreadyTakenError",
       message: "specified email already taken",
     };
   }
@@ -83,9 +100,9 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
       id,
       updatedAt: idDate,
       name,
+      handle: name,
       email,
       password: hashed,
-      role: UserRole.USER,
       token,
     })
     .returning("token")
@@ -100,8 +117,14 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 const parseArgs = (args: MutationSignupArgs) => {
   const { name, email, password } = args;
 
+  if (numChars(name) < NAME_MIN) {
+    return parseErr(`"name" must be at least ${NAME_MIN} characters`);
+  }
   if (numChars(name) > NAME_MAX) {
     return parseErr(`"name" must be up to ${NAME_MAX} characters`);
+  }
+  if (!isName(name)) {
+    return parseErr(`invalid "name"`);
   }
   if (numChars(email) > EMAIL_MAX) {
     return parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
@@ -121,20 +144,24 @@ const parseArgs = (args: MutationSignupArgs) => {
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
-    const validInput = { name: "name", email: "email@email.com", password: "password" };
+    const validArgs = {
+      name: "name",
+      email: "email@email.com",
+      password: "password",
+    };
 
     const valids = [
-      { ...validInput },
-      { ...validInput, name: "A".repeat(NAME_MAX) },
-      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
-      { ...validInput, password: "A".repeat(PASS_MIN) },
+      { ...validArgs },
+      { ...validArgs, name: "A".repeat(NAME_MAX) },
+      { ...validArgs, email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
+      { ...validArgs, password: "A".repeat(PASS_MIN) },
     ] as MutationSignupArgs[];
 
     const invalids = [
-      { ...validInput, name: "A".repeat(NAME_MAX + 1) },
-      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
-      { ...validInput, password: "A".repeat(PASS_MIN - 1) },
-      { ...validInput, email: "emailemail.com" },
+      { ...validArgs, name: "A".repeat(NAME_MAX + 1) },
+      { ...validArgs, email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
+      { ...validArgs, password: "A".repeat(PASS_MIN - 1) },
+      { ...validArgs, email: "emailemail.com" },
     ] as MutationSignupArgs[];
 
     test.each(valids)("valids %#", (args) => {

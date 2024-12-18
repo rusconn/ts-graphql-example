@@ -22,7 +22,8 @@
     "codegen": "graphql-codegen-esm"
   },
   "dependencies": {
-    "@envelop/core": "^5.0.0",
+    "@envelop/core": "^5.0.2",
+    "@envelop/extended-validation": "^4.1.0",
     "@escape.tech/graphql-armor": "^3.1.1",
     "@graphql-yoga/plugin-disable-introspection": "^2.7.0",
     "bcrypt": "^5.1.1",

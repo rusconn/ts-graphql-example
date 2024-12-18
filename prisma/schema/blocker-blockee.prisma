@@ -1,0 +1,10 @@
+model BlockerBlockee {
+  id        String @id @pg.Uuid
+  blockerId String @pg.Uuid
+  blockeeId String @pg.Uuid
+
+  blocker User @relation("blockedBy", fields: blockerId, references: id, onDelete: Cascade)
+  blockee User @relation("blocking", fields: blockeeId, references: id, onDelete: Cascade)
+
+  @@unique([blockerId, blockeeId])
+}

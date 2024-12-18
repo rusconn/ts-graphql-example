@@ -1,6 +1,5 @@
 import type { QueryResolvers } from "../../../schema.ts";
-import { authAdmin } from "../../common/authorizers.ts";
-import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
+import { badUserInputErr } from "../../common/resolvers.ts";
 import { parseUserNodeId } from "../common/parser.ts";
 import { getUser } from "../common/resolver.ts";
 
@@ -11,16 +10,10 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["user"] = async (_parent, args, context) => {
-  const authed = authAdmin(context);
-
-  if (authed instanceof Error) {
-    throw forbiddenErr(authed);
-  }
-
   const parsed = parseUserNodeId(args.id);
 
   if (parsed instanceof Error) {
-    throw badUserInputErr(`invalid node id: ${args.id}`, parsed);
+    throw badUserInputErr(parsed.message, parsed);
   }
 
   const user = await getUser(context, { id: parsed });

@@ -1,8 +1,7 @@
 import type { QueryResolvers } from "../../../schema.ts";
-import { authAuthenticated } from "../../common/authorizers.ts";
 import { parseNodeId } from "../../common/parsers.ts";
-import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
-import { getTodo } from "../../todo/common/resolver.ts";
+import { badUserInputErr } from "../../common/resolvers.ts";
+import { getPost } from "../../post/common/resolver.ts";
 import { getUser } from "../../user/common/resolver.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -12,12 +11,6 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["node"] = async (_parent, args, context) => {
-  const authed = authAuthenticated(context);
-
-  if (authed instanceof Error) {
-    throw forbiddenErr(authed);
-  }
-
   const parsed = parseNodeId(args.id);
 
   if (parsed instanceof Error) {
@@ -27,7 +20,7 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
   const { type, id } = parsed;
 
   const getNode = {
-    Todo: getTodo,
+    Post: getPost,
     User: getUser,
   }[type];
 

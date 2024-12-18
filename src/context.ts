@@ -22,9 +22,8 @@ export type UserContext = {
   logger: ReturnType<typeof logger.child>;
   db: typeof db;
   loaders: ReturnType<typeof createLoaders>;
-  user: Admin | User | Guest;
+  user: User | Guest;
 };
 
-type Admin = UserSelect & { role: "ADMIN" };
-type User = UserSelect & { role: "USER" };
+type User = UserSelect;
 type Guest = null;
