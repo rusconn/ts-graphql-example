@@ -10,13 +10,18 @@ const node = (user: User): Graph.User => ({
   id: userId(user.id),
   createdAt: dateTime(internalId.date(user.id)),
   updatedAt: dateTime(user.updatedAt),
-  name: user.name,
+  avatar: user.avatar,
+  bio: user.bio,
   email: user.email,
+  handle: user.handle,
+  location: user.location,
+  name: user.name,
+  website: user.website,
 });
 
 export const graph = {
-  admin: node(db.admin),
   alice: node(db.alice),
+  bob: node(db.bob),
 };
 
 export { db };

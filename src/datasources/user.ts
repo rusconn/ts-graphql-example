@@ -1,22 +1,44 @@
 import type { Kysely, Transaction } from "kysely";
 
 import type { DB } from "../db/generated/types.ts";
+import type { Block } from "../db/models/block.ts";
+import type { Follow } from "../db/models/follow.ts";
 import type { NewUser, UpdUser, User } from "../db/models/user.ts";
 import * as userId from "../db/models/user/id.ts";
+import { UserBlockAPI } from "./user/block.ts";
+import { UserFollowAPI } from "./user/follow.ts";
+import { UserLikeAPI } from "./user/like.ts";
 import * as userLoader from "./user/loader.ts";
-import { UserTodoAPI } from "./user/todo.ts";
+import { UserPostAPI } from "./user/post.ts";
 
 export class UserAPI {
   #db;
   #loaders;
 
-  loadTodo;
-  loadTodoPage;
-  loadTodoCount;
-  countTodo;
-  createTodo;
-  updateTodo;
-  deleteTodo;
+  loadBlockingCount;
+  loadBlockerCount;
+  loadBlock;
+  createBlock;
+  deleteBlock;
+
+  loadFollowingCount;
+  loadFollowerCount;
+  loadFollow;
+  createFollow;
+  deleteFollow;
+
+  loadLikedPage;
+  loadLikeCount;
+  createLike;
+  deleteLike;
+
+  loadPost;
+  loadPostPage;
+  loadPostCount;
+  countPost;
+  createPost;
+  updatePost;
+  deletePost;
 
   constructor(db: Kysely<DB>) {
     this.#db = db;
@@ -24,14 +46,34 @@ export class UserAPI {
       user: userLoader.init(db),
     };
 
-    const todoAPI = new UserTodoAPI(db);
-    this.loadTodo = todoAPI.load;
-    this.loadTodoPage = todoAPI.loadPage;
-    this.loadTodoCount = todoAPI.loadCount;
-    this.countTodo = todoAPI.count;
-    this.createTodo = todoAPI.create;
-    this.updateTodo = todoAPI.update;
-    this.deleteTodo = todoAPI.delete;
+    const blockAPI = new UserBlockAPI(db);
+    this.loadBlock = blockAPI.load;
+    this.loadBlockingCount = blockAPI.loadBlockeeCount;
+    this.loadBlockerCount = blockAPI.loadBlockerCount;
+    this.createBlock = blockAPI.create;
+    this.deleteBlock = blockAPI.delete;
+
+    const followAPI = new UserFollowAPI(db);
+    this.loadFollow = followAPI.load;
+    this.loadFollowingCount = followAPI.loadFolloweeCount;
+    this.loadFollowerCount = followAPI.loadFollowerCount;
+    this.createFollow = followAPI.create;
+    this.deleteFollow = followAPI.delete;
+
+    const likeAPI = new UserLikeAPI(db);
+    this.loadLikedPage = likeAPI.loadLikedPage;
+    this.loadLikeCount = likeAPI.loadCount;
+    this.createLike = likeAPI.create;
+    this.deleteLike = likeAPI.delete;
+
+    const postAPI = new UserPostAPI(db);
+    this.loadPost = postAPI.load;
+    this.loadPostPage = postAPI.loadPage;
+    this.loadPostCount = postAPI.loadCount;
+    this.countPost = postAPI.count;
+    this.createPost = postAPI.create;
+    this.updatePost = postAPI.update;
+    this.deletePost = postAPI.delete;
   }
 
   load = async (id: User["id"]) => {
@@ -39,20 +81,27 @@ export class UserAPI {
   };
 
   getById = async (id: User["id"], trx?: Transaction<DB>) => {
-    return await this.#getByKey("id")(id, trx);
+    return await this.getByKey("id")(id, trx);
+  };
+
+  getByName = async (name: User["name"], trx?: Transaction<DB>) => {
+    return await this.getByKey("name")(name, trx);
   };
 
   getByEmail = async (email: User["email"], trx?: Transaction<DB>) => {
-    return await this.#getByKey("email")(email, trx);
+    return await this.getByKey("email")(email, trx);
   };
 
   getByToken = async (token: User["token"], trx?: Transaction<DB>) => {
-    return await this.#getByKey("token")(token, trx);
+    return await this.getByKey("token")(token, trx);
   };
 
-  #getByKey =
-    (key: "id" | "email" | "token") =>
-    async (val: User["id"] | User["email"] | User["token"], trx?: Transaction<DB>) => {
+  getByKey =
+    (key: "id" | "name" | "email" | "token") =>
+    async (
+      val: User["id"] | User["name"] | User["email"] | User["token"],
+      trx?: Transaction<DB>,
+    ) => {
       const user = await (trx ?? this.#db)
         .selectFrom("User")
         .where(key, "=", val)
@@ -140,7 +189,7 @@ export class UserAPI {
     data: Omit<UpdUser, "id" | "updatedAt">,
     trx?: Transaction<DB>,
   ) => {
-    return await this.#updateByKey("id")(id, data, trx);
+    return await this.updateByKey("id")(id, data, trx);
   };
 
   updateByEmail = async (
@@ -148,13 +197,13 @@ export class UserAPI {
     data: Omit<UpdUser, "id" | "updatedAt">,
     trx?: Transaction<DB>,
   ) => {
-    return await this.#updateByKey("email")(email, data, trx);
+    return await this.updateByKey("email")(email, data, trx);
   };
 
-  #updateByKey =
-    (key: "id" | "email") =>
+  updateByKey =
+    (key: "id" | "name" | "email") =>
     async (
-      val: User["id"] | User["email"],
+      val: User["id"] | User["name"] | User["email"],
       data: Omit<UpdUser, "id" | "updatedAt">,
       trx?: Transaction<DB>,
     ) => {
@@ -179,5 +228,129 @@ export class UserAPI {
       .executeTakeFirst();
 
     return user as User | undefined;
+  };
+
+  // TODO: dataloaderを使う
+  loadBlockerPage = async (
+    id: User["id"],
+    {
+      cursor,
+      limit,
+      reverse,
+    }: {
+      cursor?: Block["id"];
+      limit: number;
+      reverse: boolean;
+    },
+  ) => {
+    const [direction, comp] = reverse //
+      ? (["desc", "<"] as const)
+      : (["asc", ">"] as const);
+
+    const page = await this.#db
+      .selectFrom("User")
+      .innerJoin("Block", "User.id", "Block.blockeeId")
+      .where("User.id", "=", id)
+      .$if(cursor != null, (qb) => qb.where(({ eb }) => eb("Block.id", comp, cursor!)))
+      .selectAll("User")
+      .select("Block.id as bid")
+      .orderBy("bid", direction)
+      .limit(limit)
+      .execute();
+
+    return page as (User & { bid: Block["id"] })[];
+  };
+
+  // TODO: dataloaderを使う
+  loadBlockingPage = async (
+    id: User["id"],
+    {
+      cursor,
+      limit,
+      reverse,
+    }: {
+      cursor?: Block["id"];
+      limit: number;
+      reverse: boolean;
+    },
+  ) => {
+    const [direction, comp] = reverse //
+      ? (["desc", "<"] as const)
+      : (["asc", ">"] as const);
+
+    const page = await this.#db
+      .selectFrom("User")
+      .innerJoin("Block", "User.id", "Block.blockerId")
+      .where("User.id", "=", id)
+      .$if(cursor != null, (qb) => qb.where(({ eb }) => eb("Block.id", comp, cursor!)))
+      .selectAll("User")
+      .select("Block.id as bid")
+      .orderBy("bid", direction)
+      .limit(limit)
+      .execute();
+
+    return page as (User & { bid: Block["id"] })[];
+  };
+
+  // TODO: dataloaderを使う
+  loadFollowerPage = async (
+    id: User["id"],
+    {
+      cursor,
+      limit,
+      reverse,
+    }: {
+      cursor?: Follow["id"];
+      limit: number;
+      reverse: boolean;
+    },
+  ) => {
+    const [direction, comp] = reverse //
+      ? (["desc", "<"] as const)
+      : (["asc", ">"] as const);
+
+    const page = await this.#db
+      .selectFrom("User")
+      .innerJoin("Follow", "User.id", "Follow.followeeId")
+      .where("User.id", "=", id)
+      .$if(cursor != null, (qb) => qb.where(({ eb }) => eb("Follow.id", comp, cursor!)))
+      .selectAll("User")
+      .select("Follow.id as fid")
+      .orderBy("fid", direction)
+      .limit(limit)
+      .execute();
+
+    return page as (User & { fid: Follow["id"] })[];
+  };
+
+  // TODO: dataloaderを使う
+  loadFollowingPage = async (
+    id: User["id"],
+    {
+      cursor,
+      limit,
+      reverse,
+    }: {
+      cursor?: Follow["id"];
+      limit: number;
+      reverse: boolean;
+    },
+  ) => {
+    const [direction, comp] = reverse //
+      ? (["desc", "<"] as const)
+      : (["asc", ">"] as const);
+
+    const page = await this.#db
+      .selectFrom("User")
+      .innerJoin("Follow", "User.id", "Follow.followerId")
+      .where("User.id", "=", id)
+      .$if(cursor != null, (qb) => qb.where(({ eb }) => eb("Follow.id", comp, cursor!)))
+      .selectAll("User")
+      .select("Follow.id as fid")
+      .orderBy("fid", direction)
+      .limit(limit)
+      .execute();
+
+    return page as (User & { fid: Follow["id"] })[];
   };
 }

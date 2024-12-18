@@ -1,7 +1,7 @@
 import { PageInfoTypeDefinition } from "./lib/graphql/cursorConnections/sdl.ts";
 import * as node from "./modules/node/_mod.ts";
+import * as post from "./modules/post/_mod.ts";
 import * as scalar from "./modules/scalar/_mod.ts";
-import * as todo from "./modules/todo/_mod.ts";
 import * as user from "./modules/user/_mod.ts";
 
 const typeDef = /* GraphQL */ `
@@ -14,9 +14,6 @@ const typeDef = /* GraphQL */ `
     message: String!
   }
 
-  type ResourceLimitExceededError implements Error {
-    message: String!
-  }
   type ResourceNotFoundError implements Error {
     message: String!
   }
@@ -25,11 +22,11 @@ const typeDef = /* GraphQL */ `
   }
 
   enum ErrorCode {
-    BAD_USER_INPUT
     AUTHENTICATION_ERROR
     FORBIDDEN
+    BAD_USER_INPUT
     INTERNAL_SERVER_ERROR
   }
 `;
 
-export const typeDefs = [typeDef, node.typeDefs, scalar.typeDefs, todo.typeDefs, user.typeDefs];
+export const typeDefs = [typeDef, node.typeDefs, post.typeDefs, scalar.typeDefs, user.typeDefs];

@@ -6,7 +6,8 @@ export const parseArgs =
   <Args, Arg, Output>(
     name: string,
     toArg: (args: Args) => Arg,
-    additionalParse: (arg: Arg) => Output | Error,
+    // boolean: 型パズルに敗北した
+    additionalParse: (arg: Arg, optional: boolean, nullable: boolean) => Output | Error,
   ) =>
   <Optional extends boolean, Nullable extends boolean>(
     args: Args,
@@ -21,7 +22,7 @@ export const parseArgs =
       return parseErr(`${name} must not be null`);
     }
 
-    const parsed = additionalParse(arg);
+    const parsed = additionalParse(arg, optional, nullable);
 
     if (parsed instanceof Error) {
       return parsed;

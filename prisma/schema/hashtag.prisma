@@ -1,0 +1,6 @@
+model Hashtag {
+  id   String @id @pg.Uuid
+  name String @unique @pg.VarChar(50)
+
+  posts Tag[]
+}

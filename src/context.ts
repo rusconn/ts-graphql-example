@@ -1,6 +1,7 @@
 import type { YogaInitialContext } from "graphql-yoga";
 import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 
+import type { PostAPI } from "./datasources/post.ts";
 import type { UserAPI } from "./datasources/user.ts";
 import type { client } from "./db/client.ts";
 import type { User as UserModel } from "./db/models/user.ts";
@@ -20,13 +21,13 @@ export type PluginContext = {
 export type UserContext = {
   start: ReturnType<typeof Date.now>;
   logger: ReturnType<typeof logger.child>;
-  user: Admin | User | Guest;
+  user: User | Guest;
   db: typeof client;
   api: {
+    post: PostAPI;
     user: UserAPI;
   };
 };
 
-type Admin = UserModel & { role: "ADMIN" };
-type User = UserModel & { role: "USER" };
+type User = UserModel;
 type Guest = null;

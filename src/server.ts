@@ -3,6 +3,7 @@ import { createSchema, createYoga } from "graphql-yoga";
 import { App } from "uWebSockets.js";
 
 import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
+import { PostAPI } from "./datasources/post.ts";
 import { UserAPI } from "./datasources/user.ts";
 import { client } from "./db/client.ts";
 import * as userToken from "./db/models/user/token.ts";
@@ -29,6 +30,7 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
     const api = {
+      post: new PostAPI(client),
       user: new UserAPI(client),
     };
 
