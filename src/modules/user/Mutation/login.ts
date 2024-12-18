@@ -2,16 +2,17 @@ import bcrypt from "bcrypt";
 
 import type { MutationLoginArgs, MutationResolvers } from "../../../schema.ts";
 import * as userToken from "../internal/token.ts";
-import { USER_EMAIL_MAX, parseUserEmail } from "../parsers/email.ts";
+import { USER_LOGIN_ID_MAX, parseUserLoginId } from "../parsers/loginId.ts";
 import { USER_PASSWORD_MAX, USER_PASSWORD_MIN, parseUserPassword } from "../parsers/password.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     login(
       """
-      ${USER_EMAIL_MAX}文字まで
+      ユーザー名もしくはメールアドレス、${USER_LOGIN_ID_MAX}文字まで
       """
-      email: NonEmptyString!
+      # name と email はフォーマットが異なるので両方に該当することはない
+      loginId: NonEmptyString!
 
       """
       ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
@@ -41,11 +42,17 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const { email, password } = parsed;
+  const { loginId, password } = parsed;
 
   const found = await context.db
     .selectFrom("User")
-    .where("email", "=", email)
+    .where((eb) =>
+      eb.or([
+        //
+        eb("name", "=", loginId),
+        eb("email", "=", loginId),
+      ]),
+    )
     .select("password")
     .executeTakeFirst();
 
@@ -69,7 +76,13 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   await context.db
     .updateTable("User")
-    .where("email", "=", email)
+    .where((eb) =>
+      eb.or([
+        //
+        eb("name", "=", loginId),
+        eb("email", "=", loginId),
+      ]),
+    )
     .set({
       updatedAt: new Date(),
       token,
@@ -84,13 +97,13 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 };
 
 const parseArgs = (args: MutationLoginArgs) => {
-  const email = parseUserEmail(args, {
+  const loginId = parseUserLoginId(args, {
     optional: false,
     nullable: false,
   });
 
-  if (email instanceof Error) {
-    return email;
+  if (loginId instanceof Error) {
+    return loginId;
   }
 
   const password = parseUserPassword(args, {
@@ -102,23 +115,27 @@ const parseArgs = (args: MutationLoginArgs) => {
     return password;
   }
 
-  return { email, password };
+  return { loginId, password };
 };
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
-    const validArgs = { email: "email@email.com", password: "password" };
+    const validArgs = {
+      loginId: "test_test",
+      password: "password",
+    };
 
     const valids = [
       { ...validArgs },
-      { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
+      { ...validArgs, loginId: `${"A".repeat(USER_LOGIN_ID_MAX - 10)}@email.com` },
       { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN) },
     ] as MutationLoginArgs[];
 
     const invalids = [
-      { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` },
+      { ...validArgs, loginId: `${"A".repeat(USER_LOGIN_ID_MAX - 10 + 1)}@email.com` },
       { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN - 1) },
-      { ...validArgs, email: "emailemail.com" },
+      { ...validArgs, loginId: "test-test" },
+      { ...validArgs, loginId: "emailemail.com" },
     ] as MutationLoginArgs[];
 
     test.each(valids)("valids %#", (args) => {

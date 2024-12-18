@@ -1,0 +1,24 @@
+model Post {
+  id        String   @id @pg.Uuid
+  updatedAt DateTime
+  content   String   @pg.VarChar(280)
+  userId    String   @pg.Uuid
+  parentId  String?  @pg.Uuid
+
+  user     User   @relation(fields: userId, references: id, onDelete: Cascade)
+  parent   Post?  @relation("PostReplies", fields: parentId, references: id, onDelete: SetNull)
+  replies  Post[] @relation("PostReplies")
+  likes    Like[]
+  hashtags Tag[]
+
+  // prismaが部分インデックスをサポートしていないようなので、マイグレーションファイルを作成後、DDLへ手で追加する。
+  // 投稿の返信数。投稿のparents。
+  // @@index(parentId, WHERE "parentId" IS NOT NULL)
+
+  // 投稿一覧、更新日時によるソート
+  @@index([updatedAt, id])
+  // ユーザーの投稿一覧、作成日時によるソート
+  @@index([userId, id])
+  // ユーザーの投稿一覧、更新日時によるソート
+  @@index([userId, updatedAt, id])
+}

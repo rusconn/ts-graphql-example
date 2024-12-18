@@ -14,7 +14,7 @@ if (import.meta.vitest) {
   });
 
   test("invalid", () => {
-    const parsed = parseUserId({ id: nodeId("Todo")(id) });
+    const parsed = parseUserId({ id: nodeId("Post")(id) });
     expect(parsed instanceof Error).toBe(true);
   });
 }

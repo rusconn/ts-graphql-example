@@ -1,11 +1,11 @@
 import { db } from "../src/db/client.ts";
-import * as todo from "./seeds/todo.ts";
+import * as post from "./seeds/post.ts";
 import * as user from "./seeds/user.ts";
 
 const seed = async () => {
   await db.transaction().execute(async (tsx) => {
     const userIds = await user.seed(tsx);
-    await todo.seed(tsx, userIds);
+    await post.seed(tsx, userIds);
   });
 };
 

@@ -2,44 +2,41 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import { type DB, UserRole } from "../../src/db/types.ts";
+import type { DB } from "../../src/db/types.ts";
 import * as userId from "../../src/modules/user/internal/id.ts";
 import * as userToken from "../../src/modules/user/internal/token.ts";
 
 export const seed = async (tsx: Transaction<DB>) => {
   const handUsers = [
     {
-      /** Date: 2024-12-15T16:54:35.641Z */
-      id: "0193cb3e-4379-750f-880f-77afae342259",
-      updatedAt: new Date("2024-12-15T16:54:41.152Z"),
-      name: "admin",
-      email: "admin@admin.com",
-      /** raw: adminadmin */
-      password: "$2b$10$4YuHiiiZiodsyu7mx18d/OX7CaLC5uH61XX2nHddWabigsfDh87me",
-      token: "0193cb3e-4b23-75ba-a4d8-802869ed8951",
-      role: UserRole.ADMIN,
+      /** Date: 2024-12-15T17:41:37.938Z */
+      id: "0193cb69-5412-759b-a780-8de48a4c054d",
+      updatedAt: new Date("2024-12-15T17:41:58.591Z"),
+      avatar: "https://example.com/avatars/alice",
+      name: "alice",
+      handle: "Alice",
+      bio: "CS -> programmer",
+      location: "U.S.",
+      website: "https://example.com/websites/alice",
+      email: "alice@example.com",
+      /** raw: alicealice */
+      password: "$2b$04$vox810wl680PtUOq1CPTL.lMhjWYsjFqVIMOmzrMIXKvqTh/XZ5Gy",
+      token: "0193cb69-740b-7589-9e85-34d9cece28fe",
     },
     {
-      /** Date: 2024-12-15T16:54:38.927Z */
-      id: "0193cb3e-504f-72e9-897c-2c71f389f3ad",
-      updatedAt: new Date("2024-12-15T16:54:38.927Z"),
-      name: "hoge",
-      email: "hoge@hoge.com",
-      /** raw: hogehoge */
-      password: "$2b$10$RjosB2FTBUCsjBsZm0OmiO3jpWqNmt54ybRybC5C1LnUkERwOSzji",
-      token: "0193cb3e-5576-752c-b9e1-404be1fb777e",
-      role: UserRole.USER,
-    },
-    {
-      /** Date: 2024-12-15T16:54:41.150Z */
-      id: "0193cb3e-58fe-772b-8306-412afa147cdd",
-      updatedAt: new Date("2024-12-15T16:54:41.151Z"),
-      name: "piyo",
-      email: "piyo@piyo.com",
-      /** raw: piyopiyo */
-      password: "$2b$10$tt1xSvAUjwVuBzxaUi.yMugSpVGmka/XfgxtSamq4Zeei7XOC5RK.",
-      token: "0193cb3e-5c56-76ff-a5a4-c692182e3749",
-      role: UserRole.USER,
+      /** Date: 2024-12-15T17:41:58.590Z */
+      id: "0193cb69-a4be-754e-a5a0-462df1202f5e",
+      updatedAt: new Date("2024-12-15T17:41:58.590Z"),
+      avatar: "https://example.com/avatars/bob",
+      name: "bob",
+      handle: "Super Bob",
+      bio: "plumber -> firefighter",
+      location: "earth",
+      website: "https://example.com/websites/bob",
+      email: "bob@example.com",
+      /** raw: bobbob */
+      password: "$2b$04$9IEd9DQdN7oS7Vv8Vc7B3ONEOnK.f6cbNEs14MUDcYBMclIpLh/Ki",
+      token: "0193cb69-c86c-747c-82b4-85506f4a592f",
     },
   ];
 
@@ -53,7 +50,7 @@ export const seed = async (tsx: Transaction<DB>) => {
 
   await Promise.all(inserts);
 
-  return fakeUsers.map((user) => user.id);
+  return users.map((user) => user.id);
 };
 
 const fakeData = (numFakes: number) => {
@@ -67,7 +64,13 @@ const fakeDataOne = (nth: number) => {
 
   return {
     id,
-    name: firstName + lastName,
+    updatedAt: faker.date.past(),
+    avatar: null,
+    name: firstName + nth, // make unique
+    handle: faker.lorem.words(2),
+    bio: "",
+    location: "",
+    website: "",
     email: faker.internet.email({
       firstName,
       lastName: lastName + nth, // make unique
@@ -75,7 +78,5 @@ const fakeDataOne = (nth: number) => {
     }),
     password: "dummy",
     token: userToken.gen(),
-    role: UserRole.USER,
-    updatedAt: faker.date.past(),
   };
 };

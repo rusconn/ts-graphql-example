@@ -1,12 +1,12 @@
 import { db } from "../src/db/client.ts";
 
 export const clearTables = async () => {
-  // CASCADE Todo
+  // CASCADE Post
   await clearUsers();
 };
 
-export const clearTodos = async () => {
-  await db.deleteFrom("Todo").executeTakeFirstOrThrow();
+export const clearPosts = async () => {
+  await db.deleteFrom("Post").executeTakeFirstOrThrow();
 };
 
 export const clearUsers = async () => {

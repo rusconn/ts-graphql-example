@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 
 import { passHashExp } from "../../../config.ts";
-import { UserRole } from "../../../db/types.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers/guest.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
@@ -31,7 +30,11 @@ export const typeDef = /* GraphQL */ `
     ): SignupResult
   }
 
-  union SignupResult = SignupSuccess | InvalidInputError | EmailAlreadyTakenError
+  union SignupResult =
+      SignupSuccess
+    | InvalidInputError
+    | UserNameAlreadyTakenError
+    | UserEmailAlreadyTakenError
 
   type SignupSuccess {
     token: NonEmptyString!
@@ -56,15 +59,28 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 
   const { name, email, password } = parsed;
 
-  const found = await context.db
-    .selectFrom("User")
-    .where("email", "=", email)
-    .select("id")
-    .executeTakeFirst();
+  const [nameFound, emailFound] = await Promise.all([
+    context.db //
+      .selectFrom("User")
+      .where("name", "=", name)
+      .select("id")
+      .executeTakeFirst(),
+    context.db //
+      .selectFrom("User")
+      .where("email", "=", email)
+      .select("id")
+      .executeTakeFirst(),
+  ]);
 
-  if (found) {
+  if (nameFound) {
     return {
-      __typename: "EmailAlreadyTakenError",
+      __typename: "UserNameAlreadyTakenError",
+      message: "specified name already taken",
+    };
+  }
+  if (emailFound) {
+    return {
+      __typename: "UserEmailAlreadyTakenError",
       message: "specified email already taken",
     };
   }
@@ -79,9 +95,9 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
       id,
       updatedAt: date,
       name,
+      handle: name,
       email,
       password: hashed,
-      role: UserRole.USER,
       token,
     })
     .returning("token")
@@ -126,19 +142,24 @@ const parseArgs = (args: MutationSignupArgs) => {
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
-    const validArgs = { name: "name", email: "email@email.com", password: "password" };
+    const validArgs = {
+      name: "name",
+      email: "email@email.com",
+      password: "password",
+    };
 
     const valids = [
       { ...validArgs },
       { ...validArgs, name: "A".repeat(USER_NAME_MAX) },
       { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
-      { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN) },
+      { ...validArgs, password: "A".repeat(USER_PASSWORD_MAX) },
     ] as MutationSignupArgs[];
 
     const invalids = [
       { ...validArgs, name: "A".repeat(USER_NAME_MAX + 1) },
       { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` },
       { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN - 1) },
+      { ...validArgs, password: "A".repeat(USER_PASSWORD_MAX + 1) },
       { ...validArgs, email: "emailemail.com" },
     ] as MutationSignupArgs[];
 

@@ -2,9 +2,10 @@ import type { ID } from './modules/scalar/_mod.ts';
 import type { DateTime } from './modules/scalar/_mod.ts';
 import type { EmailAddress } from './modules/scalar/_mod.ts';
 import type { NonEmptyString } from './modules/scalar/_mod.ts';
+import type { URL } from './modules/scalar/_mod.ts';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import type { Node as NodeMapper } from './modules/node/mapper.ts';
-import type { Todo as TodoMapper } from './modules/todo/mapper.ts';
+import type { Post as PostMapper } from './modules/post/mapper.ts';
 import type { User as UserMapper } from './modules/user/mapper.ts';
 import type { Context } from './context.ts';
 export type Maybe<T> = T | null;
@@ -26,20 +27,82 @@ export type Scalars = {
   DateTime: { input: DateTime; output: Date | DateTime; }
   EmailAddress: { input: EmailAddress; output: string; }
   NonEmptyString: { input: NonEmptyString; output: string; }
+  URL: { input: URL; output: string; }
 };
 
-export type CompleteTodoResult = CompleteTodoSuccess | InvalidInputError | ResourceNotFoundError;
+export type BlockUserResult = BlockUserSuccess | InvalidInputError | ResourceNotFoundError;
 
-export type CompleteTodoSuccess = {
-  __typename?: 'CompleteTodoSuccess';
-  todo: Todo;
+export type BlockUserSuccess = {
+  __typename?: 'BlockUserSuccess';
+  alreadyBlocked: Scalars['Boolean']['output'];
+  blockee: User;
+  blocker: User;
 };
 
-export type CreateTodoResult = CreateTodoSuccess | InvalidInputError | ResourceLimitExceededError;
+export type BlockerConnection = {
+  __typename?: 'BlockerConnection';
+  edges?: Maybe<Array<Maybe<BlockerEdge>>>;
+  nodes?: Maybe<Array<Maybe<User>>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
 
-export type CreateTodoSuccess = {
-  __typename?: 'CreateTodoSuccess';
-  todo: Todo;
+export type BlockerEdge = {
+  __typename?: 'BlockerEdge';
+  blockedAt?: Maybe<Scalars['DateTime']['output']>;
+  cursor: Scalars['String']['output'];
+  node?: Maybe<User>;
+};
+
+export enum BlockerSortKeys {
+  BlockedAt = 'BLOCKED_AT'
+}
+
+export type BlockingConnection = {
+  __typename?: 'BlockingConnection';
+  edges?: Maybe<Array<Maybe<BlockingEdge>>>;
+  nodes?: Maybe<Array<Maybe<User>>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type BlockingEdge = {
+  __typename?: 'BlockingEdge';
+  blockedAt?: Maybe<Scalars['DateTime']['output']>;
+  cursor: Scalars['String']['output'];
+  node?: Maybe<User>;
+};
+
+export enum BlockingSortKeys {
+  BlockedAt = 'BLOCKED_AT'
+}
+
+export type ChangeLoginPasswordResult = ChangeLoginPasswordSuccess | InvalidInputError;
+
+export type ChangeLoginPasswordSuccess = {
+  __typename?: 'ChangeLoginPasswordSuccess';
+  id: Scalars['ID']['output'];
+};
+
+export type ChangeUserEmailResult = ChangeUserEmailSuccess | InvalidInputError | UserEmailAlreadyTakenError;
+
+export type ChangeUserEmailSuccess = {
+  __typename?: 'ChangeUserEmailSuccess';
+  user: User;
+};
+
+export type ChangeUserNameResult = ChangeUserNameSuccess | InvalidInputError | UserNameAlreadyTakenError;
+
+export type ChangeUserNameSuccess = {
+  __typename?: 'ChangeUserNameSuccess';
+  user: User;
+};
+
+export type CreatePostResult = CreatePostSuccess | InvalidInputError;
+
+export type CreatePostSuccess = {
+  __typename?: 'CreatePostSuccess';
+  post: Post;
 };
 
 export type DeleteAccountResult = DeleteAccountSuccess;
@@ -49,16 +112,25 @@ export type DeleteAccountSuccess = {
   id: Scalars['ID']['output'];
 };
 
-export type DeleteTodoResult = DeleteTodoSuccess | InvalidInputError | ResourceNotFoundError;
+export type DeletePostResult = DeletePostSuccess | InvalidInputError | ResourceNotFoundError;
 
-export type DeleteTodoSuccess = {
-  __typename?: 'DeleteTodoSuccess';
+export type DeletePostSuccess = {
+  __typename?: 'DeletePostSuccess';
   id: Scalars['ID']['output'];
 };
 
-export type EmailAlreadyTakenError = Error & {
-  __typename?: 'EmailAlreadyTakenError';
-  message: Scalars['String']['output'];
+export type EditPostResult = EditPostSuccess | InvalidInputError | ResourceNotFoundError;
+
+export type EditPostSuccess = {
+  __typename?: 'EditPostSuccess';
+  post: Post;
+};
+
+export type EditUserProfileResult = EditUserProfileSuccess | InvalidInputError;
+
+export type EditUserProfileSuccess = {
+  __typename?: 'EditUserProfileSuccess';
+  user: User;
 };
 
 export type Error = {
@@ -71,10 +143,103 @@ export enum ErrorCode {
   Forbidden = 'FORBIDDEN'
 }
 
+export type FollowUserResult = FollowUserSuccess | InvalidInputError | ResourceNotFoundError;
+
+export type FollowUserSuccess = {
+  __typename?: 'FollowUserSuccess';
+  alreadyFollowed: Scalars['Boolean']['output'];
+  followee: User;
+  follower: User;
+};
+
+export type FollowerConnection = {
+  __typename?: 'FollowerConnection';
+  edges?: Maybe<Array<Maybe<FollowerEdge>>>;
+  nodes?: Maybe<Array<Maybe<User>>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type FollowerEdge = {
+  __typename?: 'FollowerEdge';
+  cursor: Scalars['String']['output'];
+  followedAt?: Maybe<Scalars['DateTime']['output']>;
+  node?: Maybe<User>;
+};
+
+export enum FollowerSortKeys {
+  FollowedAt = 'FOLLOWED_AT'
+}
+
+export type FollowingConnection = {
+  __typename?: 'FollowingConnection';
+  edges?: Maybe<Array<Maybe<FollowingEdge>>>;
+  nodes?: Maybe<Array<Maybe<User>>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type FollowingEdge = {
+  __typename?: 'FollowingEdge';
+  cursor: Scalars['String']['output'];
+  followedAt?: Maybe<Scalars['DateTime']['output']>;
+  node?: Maybe<User>;
+};
+
+export enum FollowingSortKeys {
+  FollowedAt = 'FOLLOWED_AT'
+}
+
 export type InvalidInputError = Error & {
   __typename?: 'InvalidInputError';
   message: Scalars['String']['output'];
 };
+
+export type LikeConnection = {
+  __typename?: 'LikeConnection';
+  edges?: Maybe<Array<Maybe<LikeEdge>>>;
+  nodes?: Maybe<Array<Maybe<Post>>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type LikeEdge = {
+  __typename?: 'LikeEdge';
+  cursor: Scalars['String']['output'];
+  likedAt?: Maybe<Scalars['DateTime']['output']>;
+  node?: Maybe<Post>;
+};
+
+export type LikePostResult = InvalidInputError | LikePostSuccess | ResourceNotFoundError;
+
+export type LikePostSuccess = {
+  __typename?: 'LikePostSuccess';
+  alreadyLiked: Scalars['Boolean']['output'];
+  post: Post;
+};
+
+export enum LikeSortKeys {
+  LikedAt = 'LIKED_AT'
+}
+
+export type LikerConnection = {
+  __typename?: 'LikerConnection';
+  edges?: Maybe<Array<Maybe<LikerEdge>>>;
+  nodes?: Maybe<Array<Maybe<User>>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type LikerEdge = {
+  __typename?: 'LikerEdge';
+  cursor: Scalars['String']['output'];
+  likedAt?: Maybe<Scalars['DateTime']['output']>;
+  node?: Maybe<User>;
+};
+
+export enum LikerSortKeys {
+  LikedAt = 'LIKED_AT'
+}
 
 export type LoginResult = InvalidInputError | LoginSuccess | UserNotFoundError;
 
@@ -92,40 +257,92 @@ export type LogoutSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  completeTodo?: Maybe<CompleteTodoResult>;
-  /** 10000件まで */
-  createTodo?: Maybe<CreateTodoResult>;
+  blockUser?: Maybe<BlockUserResult>;
+  changeLoginPassword?: Maybe<ChangeLoginPasswordResult>;
+  changeUserEmail?: Maybe<ChangeUserEmailResult>;
+  changeUserName?: Maybe<ChangeUserNameResult>;
+  createPost?: Maybe<CreatePostResult>;
   /** 紐づくリソースは全て削除される */
   deleteAccount?: Maybe<DeleteAccountResult>;
-  deleteTodo?: Maybe<DeleteTodoResult>;
+  deletePost?: Maybe<DeletePostResult>;
+  editPost?: Maybe<EditPostResult>;
+  editUserProfile?: Maybe<EditUserProfileResult>;
+  followUser?: Maybe<FollowUserResult>;
+  likePost?: Maybe<LikePostResult>;
   login?: Maybe<LoginResult>;
   logout?: Maybe<LogoutResult>;
+  replyToPost?: Maybe<ReplyToPostResult>;
   signup?: Maybe<SignupResult>;
-  uncompleteTodo?: Maybe<UncompleteTodoResult>;
-  updateAccount?: Maybe<UpdateAccountResult>;
-  updateTodo?: Maybe<UpdateTodoResult>;
+  unblockUser?: Maybe<UnblockUserResult>;
+  unfollowUser?: Maybe<UnfollowUserResult>;
+  unlikePost?: Maybe<UnlikePostResult>;
 };
 
 
-export type MutationCompleteTodoArgs = {
+export type MutationBlockUserArgs = {
   id: Scalars['ID']['input'];
 };
 
 
-export type MutationCreateTodoArgs = {
-  description: Scalars['String']['input'];
-  title: Scalars['NonEmptyString']['input'];
+export type MutationChangeLoginPasswordArgs = {
+  password: Scalars['NonEmptyString']['input'];
 };
 
 
-export type MutationDeleteTodoArgs = {
+export type MutationChangeUserEmailArgs = {
+  email: Scalars['NonEmptyString']['input'];
+};
+
+
+export type MutationChangeUserNameArgs = {
+  name: Scalars['NonEmptyString']['input'];
+};
+
+
+export type MutationCreatePostArgs = {
+  content: Scalars['NonEmptyString']['input'];
+};
+
+
+export type MutationDeletePostArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationEditPostArgs = {
+  content: Scalars['NonEmptyString']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationEditUserProfileArgs = {
+  avatar?: InputMaybe<Scalars['URL']['input']>;
+  bio?: InputMaybe<Scalars['String']['input']>;
+  handle?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['URL']['input']>;
+};
+
+
+export type MutationFollowUserArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationLikePostArgs = {
   id: Scalars['ID']['input'];
 };
 
 
 export type MutationLoginArgs = {
-  email: Scalars['NonEmptyString']['input'];
+  loginId: Scalars['NonEmptyString']['input'];
   password: Scalars['NonEmptyString']['input'];
+};
+
+
+export type MutationReplyToPostArgs = {
+  content: Scalars['NonEmptyString']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -136,23 +353,18 @@ export type MutationSignupArgs = {
 };
 
 
-export type MutationUncompleteTodoArgs = {
+export type MutationUnblockUserArgs = {
   id: Scalars['ID']['input'];
 };
 
 
-export type MutationUpdateAccountArgs = {
-  email?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  name?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  password?: InputMaybe<Scalars['NonEmptyString']['input']>;
+export type MutationUnfollowUserArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
-export type MutationUpdateTodoArgs = {
-  description?: InputMaybe<Scalars['String']['input']>;
+export type MutationUnlikePostArgs = {
   id: Scalars['ID']['input'];
-  status?: InputMaybe<TodoStatus>;
-  title?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type Node = {
@@ -167,11 +379,68 @@ export type PageInfo = {
   startCursor?: Maybe<Scalars['String']['output']>;
 };
 
+export type Post = Node & {
+  __typename?: 'Post';
+  content?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  hasUpdated?: Maybe<Scalars['Boolean']['output']>;
+  id: Scalars['ID']['output'];
+  likers?: Maybe<LikerConnection>;
+  likesCount?: Maybe<Scalars['Int']['output']>;
+  parents?: Maybe<Array<Maybe<Post>>>;
+  replies?: Maybe<ReplyConnection>;
+  repliesCount?: Maybe<Scalars['Int']['output']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  url?: Maybe<Scalars['URL']['output']>;
+  user?: Maybe<User>;
+  viewerHasLiked?: Maybe<Scalars['Boolean']['output']>;
+};
+
+
+export type PostLikersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse: Scalars['Boolean']['input'];
+  sortKey: LikerSortKeys;
+};
+
+
+export type PostRepliesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse: Scalars['Boolean']['input'];
+  sortKey: ReplySortKeys;
+};
+
+export type PostConnection = {
+  __typename?: 'PostConnection';
+  edges?: Maybe<Array<Maybe<PostEdge>>>;
+  nodes?: Maybe<Array<Maybe<Post>>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type PostEdge = {
+  __typename?: 'PostEdge';
+  cursor: Scalars['String']['output'];
+  node?: Maybe<Post>;
+};
+
+export enum PostSortKeys {
+  CreatedAt = 'CREATED_AT',
+  UpdatedAt = 'UPDATED_AT'
+}
+
 export type Query = {
   __typename?: 'Query';
   node?: Maybe<Node>;
+  post?: Maybe<Post>;
+  posts?: Maybe<PostConnection>;
   user?: Maybe<User>;
-  users?: Maybe<UserConnection>;
   viewer?: Maybe<User>;
 };
 
@@ -181,23 +450,48 @@ export type QueryNodeArgs = {
 };
 
 
-export type QueryUserArgs = {
+export type QueryPostArgs = {
   id: Scalars['ID']['input'];
 };
 
 
-export type QueryUsersArgs = {
+export type QueryPostsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   reverse: Scalars['Boolean']['input'];
-  sortKey: UserSortKeys;
+  sortKey: PostSortKeys;
 };
 
-export type ResourceLimitExceededError = Error & {
-  __typename?: 'ResourceLimitExceededError';
-  message: Scalars['String']['output'];
+
+export type QueryUserArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type ReplyConnection = {
+  __typename?: 'ReplyConnection';
+  edges?: Maybe<Array<Maybe<ReplyEdge>>>;
+  nodes?: Maybe<Array<Maybe<Post>>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type ReplyEdge = {
+  __typename?: 'ReplyEdge';
+  cursor: Scalars['String']['output'];
+  node?: Maybe<Post>;
+};
+
+export enum ReplySortKeys {
+  RepliedAt = 'REPLIED_AT'
+}
+
+export type ReplyToPostResult = InvalidInputError | ReplyToPostSuccess | ResourceNotFoundError;
+
+export type ReplyToPostSuccess = {
+  __typename?: 'ReplyToPostSuccess';
+  post: Post;
 };
 
 export type ResourceNotFoundError = Error & {
@@ -205,108 +499,131 @@ export type ResourceNotFoundError = Error & {
   message: Scalars['String']['output'];
 };
 
-export type SignupResult = EmailAlreadyTakenError | InvalidInputError | SignupSuccess;
+export type SignupResult = InvalidInputError | SignupSuccess | UserEmailAlreadyTakenError | UserNameAlreadyTakenError;
 
 export type SignupSuccess = {
   __typename?: 'SignupSuccess';
   token: Scalars['NonEmptyString']['output'];
 };
 
-export type Todo = Node & {
-  __typename?: 'Todo';
-  createdAt?: Maybe<Scalars['DateTime']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['ID']['output'];
-  status?: Maybe<TodoStatus>;
-  title?: Maybe<Scalars['NonEmptyString']['output']>;
-  updatedAt?: Maybe<Scalars['DateTime']['output']>;
-  user?: Maybe<User>;
+export type UnblockUserResult = InvalidInputError | ResourceNotFoundError | UnblockUserSuccess;
+
+export type UnblockUserSuccess = {
+  __typename?: 'UnblockUserSuccess';
+  alreadyUnblocked: Scalars['Boolean']['output'];
+  unblockee: User;
+  unblocker: User;
 };
 
-export type TodoConnection = {
-  __typename?: 'TodoConnection';
-  edges?: Maybe<Array<Maybe<TodoEdge>>>;
-  nodes?: Maybe<Array<Maybe<Todo>>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']['output']>;
+export type UnfollowUserResult = InvalidInputError | ResourceNotFoundError | UnfollowUserSuccess;
+
+export type UnfollowUserSuccess = {
+  __typename?: 'UnfollowUserSuccess';
+  alreadyUnfollowed: Scalars['Boolean']['output'];
+  unfollowee: User;
+  unfollower: User;
 };
 
-export type TodoEdge = {
-  __typename?: 'TodoEdge';
-  cursor: Scalars['String']['output'];
-  node?: Maybe<Todo>;
-};
+export type UnlikePostResult = InvalidInputError | ResourceNotFoundError | UnlikePostSuccess;
 
-export enum TodoSortKeys {
-  CreatedAt = 'CREATED_AT',
-  UpdatedAt = 'UPDATED_AT'
-}
-
-export enum TodoStatus {
-  Done = 'DONE',
-  Pending = 'PENDING'
-}
-
-export type UncompleteTodoResult = InvalidInputError | ResourceNotFoundError | UncompleteTodoSuccess;
-
-export type UncompleteTodoSuccess = {
-  __typename?: 'UncompleteTodoSuccess';
-  todo: Todo;
-};
-
-export type UpdateAccountResult = EmailAlreadyTakenError | InvalidInputError | UpdateAccountSuccess;
-
-export type UpdateAccountSuccess = {
-  __typename?: 'UpdateAccountSuccess';
-  user: User;
-};
-
-export type UpdateTodoResult = InvalidInputError | ResourceNotFoundError | UpdateTodoSuccess;
-
-export type UpdateTodoSuccess = {
-  __typename?: 'UpdateTodoSuccess';
-  todo: Todo;
+export type UnlikePostSuccess = {
+  __typename?: 'UnlikePostSuccess';
+  alreadyUnliked: Scalars['Boolean']['output'];
+  post: Post;
 };
 
 export type User = Node & {
   __typename?: 'User';
+  avatar?: Maybe<Scalars['URL']['output']>;
+  bio?: Maybe<Scalars['String']['output']>;
+  blockers?: Maybe<BlockerConnection>;
+  blockings?: Maybe<BlockingConnection>;
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   email?: Maybe<Scalars['EmailAddress']['output']>;
+  followers?: Maybe<FollowerConnection>;
+  followings?: Maybe<FollowingConnection>;
+  handle?: Maybe<Scalars['NonEmptyString']['output']>;
   id: Scalars['ID']['output'];
+  isBlockingViewer?: Maybe<Scalars['Boolean']['output']>;
+  isFollowingViewer?: Maybe<Scalars['Boolean']['output']>;
+  likes?: Maybe<LikeConnection>;
+  location?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['NonEmptyString']['output']>;
-  todo?: Maybe<Todo>;
-  todos?: Maybe<TodoConnection>;
+  posts?: Maybe<PostConnection>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  viewerIsBlocking?: Maybe<Scalars['Boolean']['output']>;
+  viewerIsFollowing?: Maybe<Scalars['Boolean']['output']>;
+  website?: Maybe<Scalars['URL']['output']>;
 };
 
 
-export type UserTodoArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type UserTodosArgs = {
+export type UserBlockersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   reverse: Scalars['Boolean']['input'];
-  sortKey: TodoSortKeys;
-  status?: InputMaybe<TodoStatus>;
+  sortKey: BlockerSortKeys;
 };
 
-export type UserConnection = {
-  __typename?: 'UserConnection';
-  edges?: Maybe<Array<Maybe<UserEdge>>>;
-  nodes?: Maybe<Array<Maybe<User>>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']['output']>;
+
+export type UserBlockingsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse: Scalars['Boolean']['input'];
+  sortKey: BlockingSortKeys;
 };
 
-export type UserEdge = {
-  __typename?: 'UserEdge';
-  cursor: Scalars['String']['output'];
-  node?: Maybe<User>;
+
+export type UserFollowersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse: Scalars['Boolean']['input'];
+  sortKey: FollowerSortKeys;
+};
+
+
+export type UserFollowingsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse: Scalars['Boolean']['input'];
+  sortKey: FollowingSortKeys;
+};
+
+
+export type UserLikesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse: Scalars['Boolean']['input'];
+  sortKey: LikeSortKeys;
+};
+
+
+export type UserPostsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse: Scalars['Boolean']['input'];
+  sortKey: UserPostSortKeys;
+};
+
+export type UserEmailAlreadyTakenError = Error & {
+  __typename?: 'UserEmailAlreadyTakenError';
+  message: Scalars['String']['output'];
+};
+
+export type UserNameAlreadyTakenError = Error & {
+  __typename?: 'UserNameAlreadyTakenError';
+  message: Scalars['String']['output'];
 };
 
 export type UserNotFoundError = Error & {
@@ -314,7 +631,7 @@ export type UserNotFoundError = Error & {
   message: Scalars['String']['output'];
 };
 
-export enum UserSortKeys {
+export enum UserPostSortKeys {
   CreatedAt = 'CREATED_AT',
   UpdatedAt = 'UPDATED_AT'
 }
@@ -389,43 +706,82 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = ResolversObject<{
-  CompleteTodoResult: ( Omit<CompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'CompleteTodoSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
-  CreateTodoResult: ( Omit<CreateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'CreateTodoSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceLimitExceededError & { __typename: 'ResourceLimitExceededError' } );
+  BlockUserResult: ( Omit<BlockUserSuccess, 'blockee' | 'blocker'> & { blockee: RefType['User'], blocker: RefType['User'] } & { __typename: 'BlockUserSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
+  ChangeLoginPasswordResult: ( ChangeLoginPasswordSuccess & { __typename: 'ChangeLoginPasswordSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } );
+  ChangeUserEmailResult: ( Omit<ChangeUserEmailSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'ChangeUserEmailSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( UserEmailAlreadyTakenError & { __typename: 'UserEmailAlreadyTakenError' } );
+  ChangeUserNameResult: ( Omit<ChangeUserNameSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'ChangeUserNameSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( UserNameAlreadyTakenError & { __typename: 'UserNameAlreadyTakenError' } );
+  CreatePostResult: ( Omit<CreatePostSuccess, 'post'> & { post: RefType['Post'] } & { __typename: 'CreatePostSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } );
   DeleteAccountResult: ( DeleteAccountSuccess & { __typename: 'DeleteAccountSuccess' } );
-  DeleteTodoResult: ( DeleteTodoSuccess & { __typename: 'DeleteTodoSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
+  DeletePostResult: ( DeletePostSuccess & { __typename: 'DeletePostSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
+  EditPostResult: ( Omit<EditPostSuccess, 'post'> & { post: RefType['Post'] } & { __typename: 'EditPostSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
+  EditUserProfileResult: ( Omit<EditUserProfileSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'EditUserProfileSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } );
+  FollowUserResult: ( Omit<FollowUserSuccess, 'followee' | 'follower'> & { followee: RefType['User'], follower: RefType['User'] } & { __typename: 'FollowUserSuccess' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
+  LikePostResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( Omit<LikePostSuccess, 'post'> & { post: RefType['Post'] } & { __typename: 'LikePostSuccess' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
   LoginResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( LoginSuccess & { __typename: 'LoginSuccess' } ) | ( UserNotFoundError & { __typename: 'UserNotFoundError' } );
   LogoutResult: ( Omit<LogoutSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'LogoutSuccess' } );
-  SignupResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( SignupSuccess & { __typename: 'SignupSuccess' } );
-  UncompleteTodoResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<UncompleteTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'UncompleteTodoSuccess' } );
-  UpdateAccountResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( Omit<UpdateAccountSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'UpdateAccountSuccess' } );
-  UpdateTodoResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<UpdateTodoSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'UpdateTodoSuccess' } );
+  ReplyToPostResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( Omit<ReplyToPostSuccess, 'post'> & { post: RefType['Post'] } & { __typename: 'ReplyToPostSuccess' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
+  SignupResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( SignupSuccess & { __typename: 'SignupSuccess' } ) | ( UserEmailAlreadyTakenError & { __typename: 'UserEmailAlreadyTakenError' } ) | ( UserNameAlreadyTakenError & { __typename: 'UserNameAlreadyTakenError' } );
+  UnblockUserResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<UnblockUserSuccess, 'unblockee' | 'unblocker'> & { unblockee: RefType['User'], unblocker: RefType['User'] } & { __typename: 'UnblockUserSuccess' } );
+  UnfollowUserResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<UnfollowUserSuccess, 'unfollowee' | 'unfollower'> & { unfollowee: RefType['User'], unfollower: RefType['User'] } & { __typename: 'UnfollowUserSuccess' } );
+  UnlikePostResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<UnlikePostSuccess, 'post'> & { post: RefType['Post'] } & { __typename: 'UnlikePostSuccess' } );
 }>;
 
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = ResolversObject<{
-  Error: ( EmailAlreadyTakenError ) | ( InvalidInputError ) | ( ResourceLimitExceededError ) | ( ResourceNotFoundError ) | ( UserNotFoundError );
-  Node: ( TodoMapper ) | ( UserMapper );
+  Error: ( InvalidInputError ) | ( ResourceNotFoundError ) | ( UserEmailAlreadyTakenError ) | ( UserNameAlreadyTakenError ) | ( UserNotFoundError );
+  Node: ( PostMapper ) | ( UserMapper );
 }>;
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  BlockUserResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BlockUserResult']>;
+  BlockUserSuccess: ResolverTypeWrapper<Omit<BlockUserSuccess, 'blockee' | 'blocker'> & { blockee: ResolversTypes['User'], blocker: ResolversTypes['User'] }>;
+  BlockerConnection: ResolverTypeWrapper<Omit<BlockerConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['BlockerEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
+  BlockerEdge: ResolverTypeWrapper<Omit<BlockerEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
+  BlockerSortKeys: BlockerSortKeys;
+  BlockingConnection: ResolverTypeWrapper<Omit<BlockingConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['BlockingEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
+  BlockingEdge: ResolverTypeWrapper<Omit<BlockingEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
+  BlockingSortKeys: BlockingSortKeys;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
-  CompleteTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CompleteTodoResult']>;
-  CompleteTodoSuccess: ResolverTypeWrapper<Omit<CompleteTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
-  CreateTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTodoResult']>;
-  CreateTodoSuccess: ResolverTypeWrapper<Omit<CreateTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
+  ChangeLoginPasswordResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ChangeLoginPasswordResult']>;
+  ChangeLoginPasswordSuccess: ResolverTypeWrapper<ChangeLoginPasswordSuccess>;
+  ChangeUserEmailResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ChangeUserEmailResult']>;
+  ChangeUserEmailSuccess: ResolverTypeWrapper<Omit<ChangeUserEmailSuccess, 'user'> & { user: ResolversTypes['User'] }>;
+  ChangeUserNameResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ChangeUserNameResult']>;
+  ChangeUserNameSuccess: ResolverTypeWrapper<Omit<ChangeUserNameSuccess, 'user'> & { user: ResolversTypes['User'] }>;
+  CreatePostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreatePostResult']>;
+  CreatePostSuccess: ResolverTypeWrapper<Omit<CreatePostSuccess, 'post'> & { post: ResolversTypes['Post'] }>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   DeleteAccountResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteAccountResult']>;
   DeleteAccountSuccess: ResolverTypeWrapper<DeleteAccountSuccess>;
-  DeleteTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteTodoResult']>;
-  DeleteTodoSuccess: ResolverTypeWrapper<DeleteTodoSuccess>;
+  DeletePostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeletePostResult']>;
+  DeletePostSuccess: ResolverTypeWrapper<DeletePostSuccess>;
+  EditPostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EditPostResult']>;
+  EditPostSuccess: ResolverTypeWrapper<Omit<EditPostSuccess, 'post'> & { post: ResolversTypes['Post'] }>;
+  EditUserProfileResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EditUserProfileResult']>;
+  EditUserProfileSuccess: ResolverTypeWrapper<Omit<EditUserProfileSuccess, 'user'> & { user: ResolversTypes['User'] }>;
   EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']['output']>;
-  EmailAlreadyTakenError: ResolverTypeWrapper<EmailAlreadyTakenError>;
   Error: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Error']>;
   ErrorCode: ErrorCode;
+  FollowUserResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FollowUserResult']>;
+  FollowUserSuccess: ResolverTypeWrapper<Omit<FollowUserSuccess, 'followee' | 'follower'> & { followee: ResolversTypes['User'], follower: ResolversTypes['User'] }>;
+  FollowerConnection: ResolverTypeWrapper<Omit<FollowerConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['FollowerEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
+  FollowerEdge: ResolverTypeWrapper<Omit<FollowerEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
+  FollowerSortKeys: FollowerSortKeys;
+  FollowingConnection: ResolverTypeWrapper<Omit<FollowingConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['FollowingEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
+  FollowingEdge: ResolverTypeWrapper<Omit<FollowingEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
+  FollowingSortKeys: FollowingSortKeys;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   InvalidInputError: ResolverTypeWrapper<InvalidInputError>;
+  LikeConnection: ResolverTypeWrapper<Omit<LikeConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['LikeEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Post']>>> }>;
+  LikeEdge: ResolverTypeWrapper<Omit<LikeEdge, 'node'> & { node: Maybe<ResolversTypes['Post']> }>;
+  LikePostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LikePostResult']>;
+  LikePostSuccess: ResolverTypeWrapper<Omit<LikePostSuccess, 'post'> & { post: ResolversTypes['Post'] }>;
+  LikeSortKeys: LikeSortKeys;
+  LikerConnection: ResolverTypeWrapper<Omit<LikerConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['LikerEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
+  LikerEdge: ResolverTypeWrapper<Omit<LikerEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
+  LikerSortKeys: LikerSortKeys;
   LoginResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LoginResult']>;
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
   LogoutResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LogoutResult']>;
@@ -434,48 +790,77 @@ export type ResolversTypes = ResolversObject<{
   Node: ResolverTypeWrapper<NodeMapper>;
   NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']['output']>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
+  Post: ResolverTypeWrapper<PostMapper>;
+  PostConnection: ResolverTypeWrapper<Omit<PostConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['PostEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Post']>>> }>;
+  PostEdge: ResolverTypeWrapper<Omit<PostEdge, 'node'> & { node: Maybe<ResolversTypes['Post']> }>;
+  PostSortKeys: PostSortKeys;
   Query: ResolverTypeWrapper<{}>;
-  ResourceLimitExceededError: ResolverTypeWrapper<ResourceLimitExceededError>;
+  ReplyConnection: ResolverTypeWrapper<Omit<ReplyConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['ReplyEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Post']>>> }>;
+  ReplyEdge: ResolverTypeWrapper<Omit<ReplyEdge, 'node'> & { node: Maybe<ResolversTypes['Post']> }>;
+  ReplySortKeys: ReplySortKeys;
+  ReplyToPostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ReplyToPostResult']>;
+  ReplyToPostSuccess: ResolverTypeWrapper<Omit<ReplyToPostSuccess, 'post'> & { post: ResolversTypes['Post'] }>;
   ResourceNotFoundError: ResolverTypeWrapper<ResourceNotFoundError>;
   SignupResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SignupResult']>;
   SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
-  Todo: ResolverTypeWrapper<TodoMapper>;
-  TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['TodoEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Todo']>>> }>;
-  TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node: Maybe<ResolversTypes['Todo']> }>;
-  TodoSortKeys: TodoSortKeys;
-  TodoStatus: TodoStatus;
-  UncompleteTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UncompleteTodoResult']>;
-  UncompleteTodoSuccess: ResolverTypeWrapper<Omit<UncompleteTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
-  UpdateAccountResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateAccountResult']>;
-  UpdateAccountSuccess: ResolverTypeWrapper<Omit<UpdateAccountSuccess, 'user'> & { user: ResolversTypes['User'] }>;
-  UpdateTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTodoResult']>;
-  UpdateTodoSuccess: ResolverTypeWrapper<Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
+  URL: ResolverTypeWrapper<Scalars['URL']['output']>;
+  UnblockUserResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UnblockUserResult']>;
+  UnblockUserSuccess: ResolverTypeWrapper<Omit<UnblockUserSuccess, 'unblockee' | 'unblocker'> & { unblockee: ResolversTypes['User'], unblocker: ResolversTypes['User'] }>;
+  UnfollowUserResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UnfollowUserResult']>;
+  UnfollowUserSuccess: ResolverTypeWrapper<Omit<UnfollowUserSuccess, 'unfollowee' | 'unfollower'> & { unfollowee: ResolversTypes['User'], unfollower: ResolversTypes['User'] }>;
+  UnlikePostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UnlikePostResult']>;
+  UnlikePostSuccess: ResolverTypeWrapper<Omit<UnlikePostSuccess, 'post'> & { post: ResolversTypes['Post'] }>;
   User: ResolverTypeWrapper<UserMapper>;
-  UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['UserEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
-  UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
+  UserEmailAlreadyTakenError: ResolverTypeWrapper<UserEmailAlreadyTakenError>;
+  UserNameAlreadyTakenError: ResolverTypeWrapper<UserNameAlreadyTakenError>;
   UserNotFoundError: ResolverTypeWrapper<UserNotFoundError>;
-  UserSortKeys: UserSortKeys;
+  UserPostSortKeys: UserPostSortKeys;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
+  BlockUserResult: ResolversUnionTypes<ResolversParentTypes>['BlockUserResult'];
+  BlockUserSuccess: Omit<BlockUserSuccess, 'blockee' | 'blocker'> & { blockee: ResolversParentTypes['User'], blocker: ResolversParentTypes['User'] };
+  BlockerConnection: Omit<BlockerConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['BlockerEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
+  BlockerEdge: Omit<BlockerEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
+  BlockingConnection: Omit<BlockingConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['BlockingEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
+  BlockingEdge: Omit<BlockingEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
   Boolean: Scalars['Boolean']['output'];
-  CompleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['CompleteTodoResult'];
-  CompleteTodoSuccess: Omit<CompleteTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
-  CreateTodoResult: ResolversUnionTypes<ResolversParentTypes>['CreateTodoResult'];
-  CreateTodoSuccess: Omit<CreateTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
+  ChangeLoginPasswordResult: ResolversUnionTypes<ResolversParentTypes>['ChangeLoginPasswordResult'];
+  ChangeLoginPasswordSuccess: ChangeLoginPasswordSuccess;
+  ChangeUserEmailResult: ResolversUnionTypes<ResolversParentTypes>['ChangeUserEmailResult'];
+  ChangeUserEmailSuccess: Omit<ChangeUserEmailSuccess, 'user'> & { user: ResolversParentTypes['User'] };
+  ChangeUserNameResult: ResolversUnionTypes<ResolversParentTypes>['ChangeUserNameResult'];
+  ChangeUserNameSuccess: Omit<ChangeUserNameSuccess, 'user'> & { user: ResolversParentTypes['User'] };
+  CreatePostResult: ResolversUnionTypes<ResolversParentTypes>['CreatePostResult'];
+  CreatePostSuccess: Omit<CreatePostSuccess, 'post'> & { post: ResolversParentTypes['Post'] };
   DateTime: Scalars['DateTime']['output'];
   DeleteAccountResult: ResolversUnionTypes<ResolversParentTypes>['DeleteAccountResult'];
   DeleteAccountSuccess: DeleteAccountSuccess;
-  DeleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['DeleteTodoResult'];
-  DeleteTodoSuccess: DeleteTodoSuccess;
+  DeletePostResult: ResolversUnionTypes<ResolversParentTypes>['DeletePostResult'];
+  DeletePostSuccess: DeletePostSuccess;
+  EditPostResult: ResolversUnionTypes<ResolversParentTypes>['EditPostResult'];
+  EditPostSuccess: Omit<EditPostSuccess, 'post'> & { post: ResolversParentTypes['Post'] };
+  EditUserProfileResult: ResolversUnionTypes<ResolversParentTypes>['EditUserProfileResult'];
+  EditUserProfileSuccess: Omit<EditUserProfileSuccess, 'user'> & { user: ResolversParentTypes['User'] };
   EmailAddress: Scalars['EmailAddress']['output'];
-  EmailAlreadyTakenError: EmailAlreadyTakenError;
   Error: ResolversInterfaceTypes<ResolversParentTypes>['Error'];
+  FollowUserResult: ResolversUnionTypes<ResolversParentTypes>['FollowUserResult'];
+  FollowUserSuccess: Omit<FollowUserSuccess, 'followee' | 'follower'> & { followee: ResolversParentTypes['User'], follower: ResolversParentTypes['User'] };
+  FollowerConnection: Omit<FollowerConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['FollowerEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
+  FollowerEdge: Omit<FollowerEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
+  FollowingConnection: Omit<FollowingConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['FollowingEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
+  FollowingEdge: Omit<FollowingEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   InvalidInputError: InvalidInputError;
+  LikeConnection: Omit<LikeConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['LikeEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Post']>>> };
+  LikeEdge: Omit<LikeEdge, 'node'> & { node: Maybe<ResolversParentTypes['Post']> };
+  LikePostResult: ResolversUnionTypes<ResolversParentTypes>['LikePostResult'];
+  LikePostSuccess: Omit<LikePostSuccess, 'post'> & { post: ResolversParentTypes['Post'] };
+  LikerConnection: Omit<LikerConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['LikerEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
+  LikerEdge: Omit<LikerEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
   LoginResult: ResolversUnionTypes<ResolversParentTypes>['LoginResult'];
   LoginSuccess: LoginSuccess;
   LogoutResult: ResolversUnionTypes<ResolversParentTypes>['LogoutResult'];
@@ -484,42 +869,105 @@ export type ResolversParentTypes = ResolversObject<{
   Node: NodeMapper;
   NonEmptyString: Scalars['NonEmptyString']['output'];
   PageInfo: PageInfo;
+  Post: PostMapper;
+  PostConnection: Omit<PostConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['PostEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Post']>>> };
+  PostEdge: Omit<PostEdge, 'node'> & { node: Maybe<ResolversParentTypes['Post']> };
   Query: {};
-  ResourceLimitExceededError: ResourceLimitExceededError;
+  ReplyConnection: Omit<ReplyConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['ReplyEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Post']>>> };
+  ReplyEdge: Omit<ReplyEdge, 'node'> & { node: Maybe<ResolversParentTypes['Post']> };
+  ReplyToPostResult: ResolversUnionTypes<ResolversParentTypes>['ReplyToPostResult'];
+  ReplyToPostSuccess: Omit<ReplyToPostSuccess, 'post'> & { post: ResolversParentTypes['Post'] };
   ResourceNotFoundError: ResourceNotFoundError;
   SignupResult: ResolversUnionTypes<ResolversParentTypes>['SignupResult'];
   SignupSuccess: SignupSuccess;
   String: Scalars['String']['output'];
-  Todo: TodoMapper;
-  TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['TodoEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Todo']>>> };
-  TodoEdge: Omit<TodoEdge, 'node'> & { node: Maybe<ResolversParentTypes['Todo']> };
-  UncompleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['UncompleteTodoResult'];
-  UncompleteTodoSuccess: Omit<UncompleteTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
-  UpdateAccountResult: ResolversUnionTypes<ResolversParentTypes>['UpdateAccountResult'];
-  UpdateAccountSuccess: Omit<UpdateAccountSuccess, 'user'> & { user: ResolversParentTypes['User'] };
-  UpdateTodoResult: ResolversUnionTypes<ResolversParentTypes>['UpdateTodoResult'];
-  UpdateTodoSuccess: Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
+  URL: Scalars['URL']['output'];
+  UnblockUserResult: ResolversUnionTypes<ResolversParentTypes>['UnblockUserResult'];
+  UnblockUserSuccess: Omit<UnblockUserSuccess, 'unblockee' | 'unblocker'> & { unblockee: ResolversParentTypes['User'], unblocker: ResolversParentTypes['User'] };
+  UnfollowUserResult: ResolversUnionTypes<ResolversParentTypes>['UnfollowUserResult'];
+  UnfollowUserSuccess: Omit<UnfollowUserSuccess, 'unfollowee' | 'unfollower'> & { unfollowee: ResolversParentTypes['User'], unfollower: ResolversParentTypes['User'] };
+  UnlikePostResult: ResolversUnionTypes<ResolversParentTypes>['UnlikePostResult'];
+  UnlikePostSuccess: Omit<UnlikePostSuccess, 'post'> & { post: ResolversParentTypes['Post'] };
   User: UserMapper;
-  UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['UserEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
-  UserEdge: Omit<UserEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
+  UserEmailAlreadyTakenError: UserEmailAlreadyTakenError;
+  UserNameAlreadyTakenError: UserNameAlreadyTakenError;
   UserNotFoundError: UserNotFoundError;
 }>;
 
-export type CompleteTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoResult'] = ResolversParentTypes['CompleteTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'CompleteTodoSuccess' | 'InvalidInputError' | 'ResourceNotFoundError', ParentType, ContextType>;
+export type BlockUserResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BlockUserResult'] = ResolversParentTypes['BlockUserResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'BlockUserSuccess' | 'InvalidInputError' | 'ResourceNotFoundError', ParentType, ContextType>;
 }>;
 
-export type CompleteTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoSuccess'] = ResolversParentTypes['CompleteTodoSuccess']> = ResolversObject<{
-  todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
+export type BlockUserSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BlockUserSuccess'] = ResolversParentTypes['BlockUserSuccess']> = ResolversObject<{
+  alreadyBlocked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  blockee?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  blocker?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type CreateTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTodoResult'] = ResolversParentTypes['CreateTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'CreateTodoSuccess' | 'InvalidInputError' | 'ResourceLimitExceededError', ParentType, ContextType>;
+export type BlockerConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BlockerConnection'] = ResolversParentTypes['BlockerConnection']> = ResolversObject<{
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['BlockerEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type CreateTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTodoSuccess'] = ResolversParentTypes['CreateTodoSuccess']> = ResolversObject<{
-  todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
+export type BlockerEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BlockerEdge'] = ResolversParentTypes['BlockerEdge']> = ResolversObject<{
+  blockedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BlockingConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BlockingConnection'] = ResolversParentTypes['BlockingConnection']> = ResolversObject<{
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['BlockingEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BlockingEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BlockingEdge'] = ResolversParentTypes['BlockingEdge']> = ResolversObject<{
+  blockedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ChangeLoginPasswordResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ChangeLoginPasswordResult'] = ResolversParentTypes['ChangeLoginPasswordResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'ChangeLoginPasswordSuccess' | 'InvalidInputError', ParentType, ContextType>;
+}>;
+
+export type ChangeLoginPasswordSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ChangeLoginPasswordSuccess'] = ResolversParentTypes['ChangeLoginPasswordSuccess']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ChangeUserEmailResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ChangeUserEmailResult'] = ResolversParentTypes['ChangeUserEmailResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'ChangeUserEmailSuccess' | 'InvalidInputError' | 'UserEmailAlreadyTakenError', ParentType, ContextType>;
+}>;
+
+export type ChangeUserEmailSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ChangeUserEmailSuccess'] = ResolversParentTypes['ChangeUserEmailSuccess']> = ResolversObject<{
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ChangeUserNameResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ChangeUserNameResult'] = ResolversParentTypes['ChangeUserNameResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'ChangeUserNameSuccess' | 'InvalidInputError' | 'UserNameAlreadyTakenError', ParentType, ContextType>;
+}>;
+
+export type ChangeUserNameSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ChangeUserNameSuccess'] = ResolversParentTypes['ChangeUserNameSuccess']> = ResolversObject<{
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CreatePostResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreatePostResult'] = ResolversParentTypes['CreatePostResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'CreatePostSuccess' | 'InvalidInputError', ParentType, ContextType>;
+}>;
+
+export type CreatePostSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreatePostSuccess'] = ResolversParentTypes['CreatePostSuccess']> = ResolversObject<{
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -536,12 +984,30 @@ export type DeleteAccountSuccessResolvers<ContextType = Context, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type DeleteTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTodoResult'] = ResolversParentTypes['DeleteTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'DeleteTodoSuccess' | 'InvalidInputError' | 'ResourceNotFoundError', ParentType, ContextType>;
+export type DeletePostResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeletePostResult'] = ResolversParentTypes['DeletePostResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'DeletePostSuccess' | 'InvalidInputError' | 'ResourceNotFoundError', ParentType, ContextType>;
 }>;
 
-export type DeleteTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTodoSuccess'] = ResolversParentTypes['DeleteTodoSuccess']> = ResolversObject<{
+export type DeletePostSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeletePostSuccess'] = ResolversParentTypes['DeletePostSuccess']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EditPostResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EditPostResult'] = ResolversParentTypes['EditPostResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'EditPostSuccess' | 'InvalidInputError' | 'ResourceNotFoundError', ParentType, ContextType>;
+}>;
+
+export type EditPostSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EditPostSuccess'] = ResolversParentTypes['EditPostSuccess']> = ResolversObject<{
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EditUserProfileResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EditUserProfileResult'] = ResolversParentTypes['EditUserProfileResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'EditUserProfileSuccess' | 'InvalidInputError', ParentType, ContextType>;
+}>;
+
+export type EditUserProfileSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EditUserProfileSuccess'] = ResolversParentTypes['EditUserProfileSuccess']> = ResolversObject<{
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -549,18 +1015,94 @@ export interface EmailAddressScalarConfig extends GraphQLScalarTypeConfig<Resolv
   name: 'EmailAddress';
 }
 
-export type EmailAlreadyTakenErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EmailAlreadyTakenError'] = ResolversParentTypes['EmailAlreadyTakenError']> = ResolversObject<{
+export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'InvalidInputError' | 'ResourceNotFoundError' | 'UserEmailAlreadyTakenError' | 'UserNameAlreadyTakenError' | 'UserNotFoundError', ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+}>;
+
+export type FollowUserResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FollowUserResult'] = ResolversParentTypes['FollowUserResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'FollowUserSuccess' | 'InvalidInputError' | 'ResourceNotFoundError', ParentType, ContextType>;
+}>;
+
+export type FollowUserSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FollowUserSuccess'] = ResolversParentTypes['FollowUserSuccess']> = ResolversObject<{
+  alreadyFollowed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  followee?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  follower?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'InvalidInputError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError' | 'UserNotFoundError', ParentType, ContextType>;
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+export type FollowerConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FollowerConnection'] = ResolversParentTypes['FollowerConnection']> = ResolversObject<{
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['FollowerEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FollowerEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FollowerEdge'] = ResolversParentTypes['FollowerEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  followedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FollowingConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FollowingConnection'] = ResolversParentTypes['FollowingConnection']> = ResolversObject<{
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['FollowingEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FollowingEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FollowingEdge'] = ResolversParentTypes['FollowingEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  followedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type InvalidInputErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['InvalidInputError'] = ResolversParentTypes['InvalidInputError']> = ResolversObject<{
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LikeConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LikeConnection'] = ResolversParentTypes['LikeConnection']> = ResolversObject<{
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['LikeEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LikeEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LikeEdge'] = ResolversParentTypes['LikeEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  likedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LikePostResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LikePostResult'] = ResolversParentTypes['LikePostResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'InvalidInputError' | 'LikePostSuccess' | 'ResourceNotFoundError', ParentType, ContextType>;
+}>;
+
+export type LikePostSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LikePostSuccess'] = ResolversParentTypes['LikePostSuccess']> = ResolversObject<{
+  alreadyLiked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LikerConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LikerConnection'] = ResolversParentTypes['LikerConnection']> = ResolversObject<{
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['LikerEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LikerEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LikerEdge'] = ResolversParentTypes['LikerEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  likedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -583,20 +1125,28 @@ export type LogoutSuccessResolvers<ContextType = Context, ParentType extends Res
 }>;
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  completeTodo?: Resolver<Maybe<ResolversTypes['CompleteTodoResult']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
-  createTodo?: Resolver<Maybe<ResolversTypes['CreateTodoResult']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'description' | 'title'>>;
+  blockUser?: Resolver<Maybe<ResolversTypes['BlockUserResult']>, ParentType, ContextType, RequireFields<MutationBlockUserArgs, 'id'>>;
+  changeLoginPassword?: Resolver<Maybe<ResolversTypes['ChangeLoginPasswordResult']>, ParentType, ContextType, RequireFields<MutationChangeLoginPasswordArgs, 'password'>>;
+  changeUserEmail?: Resolver<Maybe<ResolversTypes['ChangeUserEmailResult']>, ParentType, ContextType, RequireFields<MutationChangeUserEmailArgs, 'email'>>;
+  changeUserName?: Resolver<Maybe<ResolversTypes['ChangeUserNameResult']>, ParentType, ContextType, RequireFields<MutationChangeUserNameArgs, 'name'>>;
+  createPost?: Resolver<Maybe<ResolversTypes['CreatePostResult']>, ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'content'>>;
   deleteAccount?: Resolver<Maybe<ResolversTypes['DeleteAccountResult']>, ParentType, ContextType>;
-  deleteTodo?: Resolver<Maybe<ResolversTypes['DeleteTodoResult']>, ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, 'id'>>;
-  login?: Resolver<Maybe<ResolversTypes['LoginResult']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
+  deletePost?: Resolver<Maybe<ResolversTypes['DeletePostResult']>, ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
+  editPost?: Resolver<Maybe<ResolversTypes['EditPostResult']>, ParentType, ContextType, RequireFields<MutationEditPostArgs, 'content' | 'id'>>;
+  editUserProfile?: Resolver<Maybe<ResolversTypes['EditUserProfileResult']>, ParentType, ContextType, Partial<MutationEditUserProfileArgs>>;
+  followUser?: Resolver<Maybe<ResolversTypes['FollowUserResult']>, ParentType, ContextType, RequireFields<MutationFollowUserArgs, 'id'>>;
+  likePost?: Resolver<Maybe<ResolversTypes['LikePostResult']>, ParentType, ContextType, RequireFields<MutationLikePostArgs, 'id'>>;
+  login?: Resolver<Maybe<ResolversTypes['LoginResult']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'loginId' | 'password'>>;
   logout?: Resolver<Maybe<ResolversTypes['LogoutResult']>, ParentType, ContextType>;
+  replyToPost?: Resolver<Maybe<ResolversTypes['ReplyToPostResult']>, ParentType, ContextType, RequireFields<MutationReplyToPostArgs, 'content' | 'id'>>;
   signup?: Resolver<Maybe<ResolversTypes['SignupResult']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'email' | 'name' | 'password'>>;
-  uncompleteTodo?: Resolver<Maybe<ResolversTypes['UncompleteTodoResult']>, ParentType, ContextType, RequireFields<MutationUncompleteTodoArgs, 'id'>>;
-  updateAccount?: Resolver<Maybe<ResolversTypes['UpdateAccountResult']>, ParentType, ContextType, Partial<MutationUpdateAccountArgs>>;
-  updateTodo?: Resolver<Maybe<ResolversTypes['UpdateTodoResult']>, ParentType, ContextType, RequireFields<MutationUpdateTodoArgs, 'id'>>;
+  unblockUser?: Resolver<Maybe<ResolversTypes['UnblockUserResult']>, ParentType, ContextType, RequireFields<MutationUnblockUserArgs, 'id'>>;
+  unfollowUser?: Resolver<Maybe<ResolversTypes['UnfollowUserResult']>, ParentType, ContextType, RequireFields<MutationUnfollowUserArgs, 'id'>>;
+  unlikePost?: Resolver<Maybe<ResolversTypes['UnlikePostResult']>, ParentType, ContextType, RequireFields<MutationUnlikePostArgs, 'id'>>;
 }>;
 
 export type NodeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'Todo' | 'User', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'Post' | 'User', ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
 }>;
 
@@ -612,15 +1162,65 @@ export type PageInfoResolvers<ContextType = Context, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PostResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
+  content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  hasUpdated?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  likers?: Resolver<Maybe<ResolversTypes['LikerConnection']>, ParentType, ContextType, RequireFields<PostLikersArgs, 'reverse' | 'sortKey'>>;
+  likesCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  parents?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType>;
+  replies?: Resolver<Maybe<ResolversTypes['ReplyConnection']>, ParentType, ContextType, RequireFields<PostRepliesArgs, 'reverse' | 'sortKey'>>;
+  repliesCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  url?: Resolver<Maybe<ResolversTypes['URL']>, ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  viewerHasLiked?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PostConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PostConnection'] = ResolversParentTypes['PostConnection']> = ResolversObject<{
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['PostEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PostEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PostEdge'] = ResolversParentTypes['PostEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;
+  post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
+  posts?: Resolver<Maybe<ResolversTypes['PostConnection']>, ParentType, ContextType, RequireFields<QueryPostsArgs, 'reverse' | 'sortKey'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
-  users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'reverse' | 'sortKey'>>;
   viewer?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 }>;
 
-export type ResourceLimitExceededErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ResourceLimitExceededError'] = ResolversParentTypes['ResourceLimitExceededError']> = ResolversObject<{
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+export type ReplyConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ReplyConnection'] = ResolversParentTypes['ReplyConnection']> = ResolversObject<{
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['ReplyEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ReplyEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ReplyEdge'] = ResolversParentTypes['ReplyEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ReplyToPostResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ReplyToPostResult'] = ResolversParentTypes['ReplyToPostResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'InvalidInputError' | 'ReplyToPostSuccess' | 'ResourceNotFoundError', ParentType, ContextType>;
+}>;
+
+export type ReplyToPostSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ReplyToPostSuccess'] = ResolversParentTypes['ReplyToPostSuccess']> = ResolversObject<{
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -630,7 +1230,7 @@ export type ResourceNotFoundErrorResolvers<ContextType = Context, ParentType ext
 }>;
 
 export type SignupResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupResult'] = ResolversParentTypes['SignupResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'InvalidInputError' | 'SignupSuccess', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'InvalidInputError' | 'SignupSuccess' | 'UserEmailAlreadyTakenError' | 'UserNameAlreadyTakenError', ParentType, ContextType>;
 }>;
 
 export type SignupSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupSuccess'] = ResolversParentTypes['SignupSuccess']> = ResolversObject<{
@@ -638,80 +1238,73 @@ export type SignupSuccessResolvers<ContextType = Context, ParentType extends Res
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TodoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Todo'] = ResolversParentTypes['Todo']> = ResolversObject<{
-  createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
-  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['TodoStatus']>, ParentType, ContextType>;
-  title?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
-  updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
-  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+export interface UrlScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['URL'], any> {
+  name: 'URL';
+}
+
+export type UnblockUserResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UnblockUserResult'] = ResolversParentTypes['UnblockUserResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'InvalidInputError' | 'ResourceNotFoundError' | 'UnblockUserSuccess', ParentType, ContextType>;
+}>;
+
+export type UnblockUserSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UnblockUserSuccess'] = ResolversParentTypes['UnblockUserSuccess']> = ResolversObject<{
+  alreadyUnblocked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  unblockee?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  unblocker?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TodoConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoConnection'] = ResolversParentTypes['TodoConnection']> = ResolversObject<{
-  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['TodoEdge']>>>, ParentType, ContextType>;
-  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['Todo']>>>, ParentType, ContextType>;
-  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+export type UnfollowUserResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UnfollowUserResult'] = ResolversParentTypes['UnfollowUserResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'InvalidInputError' | 'ResourceNotFoundError' | 'UnfollowUserSuccess', ParentType, ContextType>;
+}>;
+
+export type UnfollowUserSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UnfollowUserSuccess'] = ResolversParentTypes['UnfollowUserSuccess']> = ResolversObject<{
+  alreadyUnfollowed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  unfollowee?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  unfollower?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TodoEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoEdge'] = ResolversParentTypes['TodoEdge']> = ResolversObject<{
-  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  node?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+export type UnlikePostResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UnlikePostResult'] = ResolversParentTypes['UnlikePostResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'InvalidInputError' | 'ResourceNotFoundError' | 'UnlikePostSuccess', ParentType, ContextType>;
 }>;
 
-export type UncompleteTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoResult'] = ResolversParentTypes['UncompleteTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'InvalidInputError' | 'ResourceNotFoundError' | 'UncompleteTodoSuccess', ParentType, ContextType>;
-}>;
-
-export type UncompleteTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UncompleteTodoSuccess'] = ResolversParentTypes['UncompleteTodoSuccess']> = ResolversObject<{
-  todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type UpdateAccountResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateAccountResult'] = ResolversParentTypes['UpdateAccountResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'InvalidInputError' | 'UpdateAccountSuccess', ParentType, ContextType>;
-}>;
-
-export type UpdateAccountSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateAccountSuccess'] = ResolversParentTypes['UpdateAccountSuccess']> = ResolversObject<{
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type UpdateTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTodoResult'] = ResolversParentTypes['UpdateTodoResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'InvalidInputError' | 'ResourceNotFoundError' | 'UpdateTodoSuccess', ParentType, ContextType>;
-}>;
-
-export type UpdateTodoSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTodoSuccess'] = ResolversParentTypes['UpdateTodoSuccess']> = ResolversObject<{
-  todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
+export type UnlikePostSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UnlikePostSuccess'] = ResolversParentTypes['UnlikePostSuccess']> = ResolversObject<{
+  alreadyUnliked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
+  avatar?: Resolver<Maybe<ResolversTypes['URL']>, ParentType, ContextType>;
+  bio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  blockers?: Resolver<Maybe<ResolversTypes['BlockerConnection']>, ParentType, ContextType, RequireFields<UserBlockersArgs, 'reverse' | 'sortKey'>>;
+  blockings?: Resolver<Maybe<ResolversTypes['BlockingConnection']>, ParentType, ContextType, RequireFields<UserBlockingsArgs, 'reverse' | 'sortKey'>>;
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['EmailAddress']>, ParentType, ContextType>;
+  followers?: Resolver<Maybe<ResolversTypes['FollowerConnection']>, ParentType, ContextType, RequireFields<UserFollowersArgs, 'reverse' | 'sortKey'>>;
+  followings?: Resolver<Maybe<ResolversTypes['FollowingConnection']>, ParentType, ContextType, RequireFields<UserFollowingsArgs, 'reverse' | 'sortKey'>>;
+  handle?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isBlockingViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  isFollowingViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  likes?: Resolver<Maybe<ResolversTypes['LikeConnection']>, ParentType, ContextType, RequireFields<UserLikesArgs, 'reverse' | 'sortKey'>>;
+  location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
-  todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<UserTodoArgs, 'id'>>;
-  todos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, RequireFields<UserTodosArgs, 'reverse' | 'sortKey'>>;
+  posts?: Resolver<Maybe<ResolversTypes['PostConnection']>, ParentType, ContextType, RequireFields<UserPostsArgs, 'reverse' | 'sortKey'>>;
   updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  viewerIsBlocking?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  viewerIsFollowing?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  website?: Resolver<Maybe<ResolversTypes['URL']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type UserConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserConnection'] = ResolversParentTypes['UserConnection']> = ResolversObject<{
-  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserEdge']>>>, ParentType, ContextType>;
-  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
-  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+export type UserEmailAlreadyTakenErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserEmailAlreadyTakenError'] = ResolversParentTypes['UserEmailAlreadyTakenError']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type UserEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserEdge'] = ResolversParentTypes['UserEdge']> = ResolversObject<{
-  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  node?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+export type UserNameAlreadyTakenErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserNameAlreadyTakenError'] = ResolversParentTypes['UserNameAlreadyTakenError']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -721,19 +1314,44 @@ export type UserNotFoundErrorResolvers<ContextType = Context, ParentType extends
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
-  CompleteTodoResult?: CompleteTodoResultResolvers<ContextType>;
-  CompleteTodoSuccess?: CompleteTodoSuccessResolvers<ContextType>;
-  CreateTodoResult?: CreateTodoResultResolvers<ContextType>;
-  CreateTodoSuccess?: CreateTodoSuccessResolvers<ContextType>;
+  BlockUserResult?: BlockUserResultResolvers<ContextType>;
+  BlockUserSuccess?: BlockUserSuccessResolvers<ContextType>;
+  BlockerConnection?: BlockerConnectionResolvers<ContextType>;
+  BlockerEdge?: BlockerEdgeResolvers<ContextType>;
+  BlockingConnection?: BlockingConnectionResolvers<ContextType>;
+  BlockingEdge?: BlockingEdgeResolvers<ContextType>;
+  ChangeLoginPasswordResult?: ChangeLoginPasswordResultResolvers<ContextType>;
+  ChangeLoginPasswordSuccess?: ChangeLoginPasswordSuccessResolvers<ContextType>;
+  ChangeUserEmailResult?: ChangeUserEmailResultResolvers<ContextType>;
+  ChangeUserEmailSuccess?: ChangeUserEmailSuccessResolvers<ContextType>;
+  ChangeUserNameResult?: ChangeUserNameResultResolvers<ContextType>;
+  ChangeUserNameSuccess?: ChangeUserNameSuccessResolvers<ContextType>;
+  CreatePostResult?: CreatePostResultResolvers<ContextType>;
+  CreatePostSuccess?: CreatePostSuccessResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   DeleteAccountResult?: DeleteAccountResultResolvers<ContextType>;
   DeleteAccountSuccess?: DeleteAccountSuccessResolvers<ContextType>;
-  DeleteTodoResult?: DeleteTodoResultResolvers<ContextType>;
-  DeleteTodoSuccess?: DeleteTodoSuccessResolvers<ContextType>;
+  DeletePostResult?: DeletePostResultResolvers<ContextType>;
+  DeletePostSuccess?: DeletePostSuccessResolvers<ContextType>;
+  EditPostResult?: EditPostResultResolvers<ContextType>;
+  EditPostSuccess?: EditPostSuccessResolvers<ContextType>;
+  EditUserProfileResult?: EditUserProfileResultResolvers<ContextType>;
+  EditUserProfileSuccess?: EditUserProfileSuccessResolvers<ContextType>;
   EmailAddress?: GraphQLScalarType;
-  EmailAlreadyTakenError?: EmailAlreadyTakenErrorResolvers<ContextType>;
   Error?: ErrorResolvers<ContextType>;
+  FollowUserResult?: FollowUserResultResolvers<ContextType>;
+  FollowUserSuccess?: FollowUserSuccessResolvers<ContextType>;
+  FollowerConnection?: FollowerConnectionResolvers<ContextType>;
+  FollowerEdge?: FollowerEdgeResolvers<ContextType>;
+  FollowingConnection?: FollowingConnectionResolvers<ContextType>;
+  FollowingEdge?: FollowingEdgeResolvers<ContextType>;
   InvalidInputError?: InvalidInputErrorResolvers<ContextType>;
+  LikeConnection?: LikeConnectionResolvers<ContextType>;
+  LikeEdge?: LikeEdgeResolvers<ContextType>;
+  LikePostResult?: LikePostResultResolvers<ContextType>;
+  LikePostSuccess?: LikePostSuccessResolvers<ContextType>;
+  LikerConnection?: LikerConnectionResolvers<ContextType>;
+  LikerEdge?: LikerEdgeResolvers<ContextType>;
   LoginResult?: LoginResultResolvers<ContextType>;
   LoginSuccess?: LoginSuccessResolvers<ContextType>;
   LogoutResult?: LogoutResultResolvers<ContextType>;
@@ -742,23 +1360,27 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Node?: NodeResolvers<ContextType>;
   NonEmptyString?: GraphQLScalarType;
   PageInfo?: PageInfoResolvers<ContextType>;
+  Post?: PostResolvers<ContextType>;
+  PostConnection?: PostConnectionResolvers<ContextType>;
+  PostEdge?: PostEdgeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
-  ResourceLimitExceededError?: ResourceLimitExceededErrorResolvers<ContextType>;
+  ReplyConnection?: ReplyConnectionResolvers<ContextType>;
+  ReplyEdge?: ReplyEdgeResolvers<ContextType>;
+  ReplyToPostResult?: ReplyToPostResultResolvers<ContextType>;
+  ReplyToPostSuccess?: ReplyToPostSuccessResolvers<ContextType>;
   ResourceNotFoundError?: ResourceNotFoundErrorResolvers<ContextType>;
   SignupResult?: SignupResultResolvers<ContextType>;
   SignupSuccess?: SignupSuccessResolvers<ContextType>;
-  Todo?: TodoResolvers<ContextType>;
-  TodoConnection?: TodoConnectionResolvers<ContextType>;
-  TodoEdge?: TodoEdgeResolvers<ContextType>;
-  UncompleteTodoResult?: UncompleteTodoResultResolvers<ContextType>;
-  UncompleteTodoSuccess?: UncompleteTodoSuccessResolvers<ContextType>;
-  UpdateAccountResult?: UpdateAccountResultResolvers<ContextType>;
-  UpdateAccountSuccess?: UpdateAccountSuccessResolvers<ContextType>;
-  UpdateTodoResult?: UpdateTodoResultResolvers<ContextType>;
-  UpdateTodoSuccess?: UpdateTodoSuccessResolvers<ContextType>;
+  URL?: GraphQLScalarType;
+  UnblockUserResult?: UnblockUserResultResolvers<ContextType>;
+  UnblockUserSuccess?: UnblockUserSuccessResolvers<ContextType>;
+  UnfollowUserResult?: UnfollowUserResultResolvers<ContextType>;
+  UnfollowUserSuccess?: UnfollowUserSuccessResolvers<ContextType>;
+  UnlikePostResult?: UnlikePostResultResolvers<ContextType>;
+  UnlikePostSuccess?: UnlikePostSuccessResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
-  UserConnection?: UserConnectionResolvers<ContextType>;
-  UserEdge?: UserEdgeResolvers<ContextType>;
+  UserEmailAlreadyTakenError?: UserEmailAlreadyTakenErrorResolvers<ContextType>;
+  UserNameAlreadyTakenError?: UserNameAlreadyTakenErrorResolvers<ContextType>;
   UserNotFoundError?: UserNotFoundErrorResolvers<ContextType>;
 }>;
 

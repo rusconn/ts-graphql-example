@@ -1,10 +1,8 @@
 import type { QueryResolvers } from "../../../schema.ts";
-import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
-import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { parseId } from "../../common/parsers/id.ts";
-import * as todoId from "../../todo/internal/id.ts";
-import { getTodo } from "../../todo/resolvers.ts";
+import * as postId from "../../post/internal/id.ts";
+import { getPost } from "../../post/resolvers.ts";
 import * as userId from "../../user/internal/id.ts";
 import { getUser } from "../../user/resolvers.ts";
 
@@ -15,12 +13,6 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["node"] = async (_parent, args, context) => {
-  const authed = authAuthenticated(context);
-
-  if (authed instanceof Error) {
-    throw forbiddenErr(authed);
-  }
-
   const parsed = parseId(args);
 
   if (parsed instanceof Error) {
@@ -31,7 +23,7 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
 
   const [getNode, isInternalId] = (
     {
-      Todo: [getTodo, todoId.is],
+      Post: [getPost, postId.is],
       User: [getUser, userId.is],
     } as const
   )[type];

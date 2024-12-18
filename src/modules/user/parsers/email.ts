@@ -1,17 +1,17 @@
 import { isEmail } from "../../../lib/string/isEmail.ts";
 import { numChars } from "../../../lib/string/numChars.ts";
 import type {
+  MutationChangeUserEmailArgs,
   MutationLoginArgs,
   MutationSignupArgs,
-  MutationUpdateAccountArgs,
 } from "../../../schema.ts";
 import { parseErr } from "../../common/parsers/util.ts";
 
 type Input = {
   email?:
     | MutationSignupArgs["email"]
-    | MutationLoginArgs["email"]
-    | MutationUpdateAccountArgs["email"];
+    | MutationLoginArgs["loginId"]
+    | MutationChangeUserEmailArgs["email"];
 };
 
 export const USER_EMAIL_MAX = 100;

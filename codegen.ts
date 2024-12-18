@@ -24,6 +24,10 @@ const typescript: TypeScriptPluginConfig = {
       input: "./modules/scalar/_mod.ts#NonEmptyString",
       output: "string",
     },
+    URL: {
+      input: "./modules/scalar/_mod.ts#URL",
+      output: "string",
+    },
   },
   useTypeImports: true,
 };
@@ -35,7 +39,7 @@ const typescriptResolvers: TypeScriptResolversPluginConfig = {
   mapperTypeSuffix: "Mapper",
   mappers: {
     Node: "./modules/node/mapper.ts#Node",
-    Todo: "./modules/todo/mapper.ts#Todo",
+    Post: "./modules/post/mapper.ts#Post",
     User: "./modules/user/mapper.ts#User",
   },
   resolversNonOptionalTypename: {
@@ -53,6 +57,7 @@ const typescriptOperations: TypeScriptDocumentsPluginConfig = {
     },
     EmailAddress: "string",
     NonEmptyString: "string",
+    URL: "string",
   },
   skipTypename: true,
 };
@@ -67,14 +72,14 @@ const config: CodegenConfig = {
         ...typescriptResolvers,
       },
     },
-    "tests/modules/schema.ts": {
-      documents: "tests/modules/**/*.ts",
-      plugins: ["typescript", "typescript-operations"],
-      config: {
-        ...typescript,
-        ...typescriptOperations,
-      },
-    },
+    // "tests/modules/schema.ts": {
+    //   documents: "tests/modules/**/*.ts",
+    //   plugins: ["typescript", "typescript-operations"],
+    //   config: {
+    //     ...typescript,
+    //     ...typescriptOperations,
+    //   },
+    // },
   },
   emitLegacyCommonJSImports: false,
 };
