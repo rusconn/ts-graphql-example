@@ -4,8 +4,9 @@ import { v7 as uuidv7 } from "uuid";
 import type { MutationLoginArgs, MutationResolvers } from "../../../schema.ts";
 import { auth } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
+import * as signup from "./signup.ts";
 
-const EMAIL_MAX = 100;
+const LOGIN_ID_MAX = Math.max(signup.NAME_MAX, signup.EMAIL_MAX);
 const PASS_MIN = 8;
 const PASS_MAX = 50;
 
@@ -15,8 +16,8 @@ export const typeDef = /* GraphQL */ `
   }
 
   input LoginInput {
-    "${EMAIL_MAX}文字まで"
-    email: EmailAddress!
+    "ユーザー名またはメールアドレス、${LOGIN_ID_MAX}文字まで"
+    loginId: NonEmptyString!
     "${PASS_MIN}文字以上、${PASS_MAX}文字まで"
     password: NonEmptyString!
   }
@@ -80,8 +81,8 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 const parseArgs = (args: MutationLoginArgs) => {
   const { email, password } = args.input;
 
-  if (numChars(email) > EMAIL_MAX) {
-    throw parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
+  if (numChars(email) > signup.EMAIL_MAX) {
+    throw parseErr(`"email" must be up to ${signup.EMAIL_MAX} characters`);
   }
   if (numChars(password) < PASS_MIN) {
     throw parseErr(`"password" must be at least ${PASS_MIN} characters`);
@@ -101,12 +102,12 @@ if (import.meta.vitest) {
 
     const valids = [
       { ...validInput },
-      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
+      { ...validInput, email: `${"A".repeat(signup.EMAIL_MAX - 10)}@email.com` },
       { ...validInput, password: "A".repeat(PASS_MIN) },
     ] as MutationLoginArgs["input"][];
 
     const invalids = [
-      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
+      { ...validInput, email: `${"A".repeat(signup.EMAIL_MAX - 10 + 1)}@email.com` },
       { ...validInput, password: "A".repeat(PASS_MIN - 1) },
     ] as MutationLoginArgs["input"][];
 

@@ -1,0 +1,18 @@
+model Post {
+  id        String   @id @pg.Uuid
+  updatedAt DateTime
+  content   String   @pg.VarChar(280)
+  userId    String   @pg.Uuid
+  parentId  String?  @pg.Uuid
+
+  user     User          @relation(fields: userId, references: id, onDelete: Cascade)
+  parent   Post?         @relation("PostReplies", fields: parentId, references: id, onDelete: SetNull)
+  replies  Post[]        @relation("PostReplies")
+  likeds   LikerPost[]
+  hashtags PostHashtag[]
+
+  // 特定ユーザーのPosts、作成日時によるソート
+  @@index([userId, id])
+  // 特定ユーザーのPosts、更新日時によるソート
+  @@index([userId, updatedAt, id])
+}

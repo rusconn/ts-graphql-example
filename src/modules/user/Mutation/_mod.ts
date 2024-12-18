@@ -1,12 +1,15 @@
 import type { MutationResolvers } from "../../../schema.ts";
-import * as deleteMe from "./deleteMe.ts";
+import * as deleteMe from "./deleteAccount.ts";
+import * as updateMe from "./editUserProfile.ts";
 import * as login from "./login.ts";
 import * as logout from "./logout.ts";
 import * as signup from "./signup.ts";
-import * as updateMe from "./updateMe.ts";
 
 const typeDef = /* GraphQL */ `
-  type EmailAlreadyTakenError implements Error {
+  type UserNameAlreadyTakenError implements Error {
+    message: String!
+  }
+  type UserEmailAlreadyTakenError implements Error {
     message: String!
   }
 `;

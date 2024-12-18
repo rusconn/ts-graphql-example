@@ -8,10 +8,10 @@ import { authGuest } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
 import { dateByUuid } from "../../common/resolvers.ts";
 
-const NAME_MAX = 100;
-const EMAIL_MAX = 100;
-const PASS_MIN = 8;
-const PASS_MAX = 50;
+export const NAME_MAX = 15;
+export const EMAIL_MAX = 100;
+export const PASS_MIN = 8;
+export const PASS_MAX = 50;
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -19,7 +19,7 @@ export const typeDef = /* GraphQL */ `
   }
 
   input SignupInput {
-    "${NAME_MAX}文字まで"
+    "${NAME_MAX}文字まで、既に存在する場合はエラー"
     name: NonEmptyString!
     "${EMAIL_MAX}文字まで、既に存在する場合はエラー"
     email: EmailAddress!
@@ -27,7 +27,7 @@ export const typeDef = /* GraphQL */ `
     password: NonEmptyString!
   }
 
-  union SignupResult = SignupSuccess | EmailAlreadyTakenError
+  union SignupResult = SignupSuccess | UserNameAlreadyTakenError | UserEmailAlreadyTakenError
 
   type SignupSuccess {
     token: NonEmptyString!
@@ -39,13 +39,26 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 
   const { name, email, password } = parseArgs(args);
 
-  const found = await context.db
-    .selectFrom("User")
-    .where("email", "=", email)
-    .select("id")
-    .executeTakeFirst();
+  const [nameFound, emailFound] = await Promise.all([
+    context.db //
+      .selectFrom("User")
+      .where("name", "=", name)
+      .select("id")
+      .executeTakeFirst(),
+    context.db //
+      .selectFrom("User")
+      .where("email", "=", email)
+      .select("id")
+      .executeTakeFirst(),
+  ]);
 
-  if (found) {
+  if (nameFound) {
+    return {
+      __typename: "NameAlreadyTakenError",
+      message: "specified name already taken",
+    };
+  }
+  if (emailFound) {
     return {
       __typename: "EmailAlreadyTakenError",
       message: "specified email already taken",
