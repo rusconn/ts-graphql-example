@@ -15,7 +15,7 @@ if (import.meta.vitest) {
   test("invalid", () => {
     expect.assertions(1);
     try {
-      parseUserNodeId(nodeId("Todo")(id));
+      parseUserNodeId(nodeId("Post")(id));
     } catch (e) {
       expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
     }
