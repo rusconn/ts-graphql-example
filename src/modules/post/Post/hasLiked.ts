@@ -3,3 +3,5 @@ export const typeDef = /* GraphQL */ `
     hasLiked: Boolean
   }
 `;
+
+export const resolver = () => null;

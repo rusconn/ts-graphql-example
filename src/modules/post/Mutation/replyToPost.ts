@@ -16,3 +16,5 @@ export const typeDef = /* GraphQL */ `
     post: Post!
   }
 `;
+
+export const resolver = () => null;

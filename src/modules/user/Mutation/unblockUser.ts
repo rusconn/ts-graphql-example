@@ -11,3 +11,5 @@ export const typeDef = /* GraphQL */ `
 `;
 
 // can't unblock self?
+
+export const resolver = () => null;

@@ -38,3 +38,5 @@ export const typeDef = /* GraphQL */ `
     },
   })}
 `;
+
+export const resolver = () => null;

@@ -24,6 +24,10 @@ const typescript: TypeScriptPluginConfig = {
       input: "./modules/scalar/mod.ts#NonEmptyString",
       output: "string",
     },
+    URL: {
+      input: "./modules/scalar/mod.ts#URL",
+      output: "string",
+    },
   },
   useTypeImports: true,
 };
@@ -35,7 +39,7 @@ const typescriptResolvers: TypeScriptResolversPluginConfig = {
   mapperTypeSuffix: "Mapper",
   mappers: {
     Node: "./modules/node/common/resolver.ts#Node",
-    Todo: "./modules/todo/common/resolver.ts#Todo",
+    Post: "./modules/post/common/resolver.ts#Post",
     User: "./modules/user/common/resolver.ts#User",
   },
   resolversNonOptionalTypename: {
@@ -53,6 +57,7 @@ const typescriptOperations: TypeScriptDocumentsPluginConfig = {
     },
     EmailAddress: "string",
     NonEmptyString: "string",
+    URL: "string",
   },
   skipTypename: true,
 };

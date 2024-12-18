@@ -4,7 +4,8 @@
 
 import type { Selectable } from "kysely";
 
-import type { Todo, User } from "./types.ts";
+import type { Hashtag, Post, User } from "./types.ts";
 
-export type TodoSelect = Selectable<Todo>;
+export type HashtagSelect = Selectable<Hashtag>;
+export type PostSelect = Selectable<Post>;
 export type UserSelect = Selectable<User>;

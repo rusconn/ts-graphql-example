@@ -8,3 +8,5 @@ export const typeDef = /* GraphQL */ `
     likes: Int
   }
 `;
+
+export const resolver = () => null;

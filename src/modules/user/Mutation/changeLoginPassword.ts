@@ -16,3 +16,5 @@ export const typeDef = /* GraphQL */ `
     password: NonEmptyString!
   }
 `;
+
+export const resolver = () => null;

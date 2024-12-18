@@ -3,3 +3,5 @@ export const typeDef = /* GraphQL */ `
     user: User
   }
 `;
+
+export const resolver = () => null;

@@ -1,5 +1,5 @@
 import type { UserResolvers } from "../../../schema.ts";
-import { authAdminOrUserOwner } from "../common/authorizer.ts";
+import { auth } from "../../common/authorizers.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -8,7 +8,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["updatedAt"] = (parent, _args, context) => {
-  authAdminOrUserOwner(context, parent);
+  auth(context);
 
   return parent.updatedAt;
 };

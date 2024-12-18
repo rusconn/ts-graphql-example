@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import { v7 as uuidv7 } from "uuid";
 
 import { passHashExp } from "../../../config.ts";
-import { UserRole } from "../../../db/types.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
@@ -78,7 +77,6 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
       name,
       email,
       password: hashed,
-      role: UserRole.USER,
       token,
     })
     .returning("token")

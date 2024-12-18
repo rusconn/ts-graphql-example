@@ -3,3 +3,5 @@ export const typeDef = /* GraphQL */ `
     handle: NonEmptyString
   }
 `;
+
+export const resolver = () => null;

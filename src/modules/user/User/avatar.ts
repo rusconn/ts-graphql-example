@@ -3,3 +3,5 @@ export const typeDef = /* GraphQL */ `
     avatar: URL
   }
 `;
+
+export const resolver = () => null;
