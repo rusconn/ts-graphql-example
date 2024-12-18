@@ -574,7 +574,7 @@ export type ReplyToPostInput = {
   content: Scalars['NonEmptyString']['input'];
 };
 
-export type ReplyToPostResult = ReplyToPostSuccess;
+export type ReplyToPostResult = ReplyToPostSuccess | ResourceNotFoundError;
 
 export type ReplyToPostSuccess = {
   __typename?: 'ReplyToPostSuccess';
@@ -790,7 +790,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = Resol
   LikePostResult: ( LikePostSuccess & { __typename: 'LikePostSuccess' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
   LoginResult: ( LoginSuccess & { __typename: 'LoginSuccess' } ) | ( UserNotFoundError & { __typename: 'UserNotFoundError' } );
   LogoutResult: ( Omit<LogoutSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'LogoutSuccess' } );
-  ReplyToPostResult: ( Omit<ReplyToPostSuccess, 'post'> & { post: RefType['Post'] } & { __typename: 'ReplyToPostSuccess' } );
+  ReplyToPostResult: ( Omit<ReplyToPostSuccess, 'post'> & { post: RefType['Post'] } & { __typename: 'ReplyToPostSuccess' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
   SignupResult: ( SignupSuccess & { __typename: 'SignupSuccess' } ) | ( UserEmailAlreadyTakenError & { __typename: 'UserEmailAlreadyTakenError' } ) | ( UserNameAlreadyTakenError & { __typename: 'UserNameAlreadyTakenError' } );
   UnblockUserResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( UnblockUserSuccess & { __typename: 'UnblockUserSuccess' } );
   UnfollowUserResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( UnfollowUserSuccess & { __typename: 'UnfollowUserSuccess' } );
@@ -1314,7 +1314,7 @@ export type ReplyEdgeResolvers<ContextType = Context, ParentType extends Resolve
 }>;
 
 export type ReplyToPostResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ReplyToPostResult'] = ResolversParentTypes['ReplyToPostResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'ReplyToPostSuccess', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ReplyToPostSuccess' | 'ResourceNotFoundError', ParentType, ContextType>;
 }>;
 
 export type ReplyToPostSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ReplyToPostSuccess'] = ResolversParentTypes['ReplyToPostSuccess']> = ResolversObject<{

@@ -6,4 +6,6 @@ model LikerPost {
   post Post @relation(fields: postId, references: id, onDelete: Cascade)
 
   @@id([userId, postId])
+  // 投稿のいいね数
+  @@index(postId)
 }

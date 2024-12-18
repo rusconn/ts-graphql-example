@@ -72,14 +72,14 @@ const config: CodegenConfig = {
         ...typescriptResolvers,
       },
     },
-    "tests/modules/schema.ts": {
-      documents: "tests/modules/**/*.ts",
-      plugins: ["typescript", "typescript-operations"],
-      config: {
-        ...typescript,
-        ...typescriptOperations,
-      },
-    },
+    // "tests/modules/schema.ts": {
+    //   documents: "tests/modules/**/*.ts",
+    //   plugins: ["typescript", "typescript-operations"],
+    //   config: {
+    //     ...typescript,
+    //     ...typescriptOperations,
+    //   },
+    // },
   },
   emitLegacyCommonJSImports: false,
 };

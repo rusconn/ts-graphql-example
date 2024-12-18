@@ -1,19 +1,15 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { TodoSelect, UserSelect } from "../models.ts";
-import type { DB, TodoStatus } from "../types.ts";
+import type { PostSelect, UserSelect } from "../models.ts";
+import type { DB } from "../types.ts";
 
 type Key = Pick<UserSelect, "id">;
 
-type Params = Filter & Pagination;
-
-type Filter = {
-  status?: TodoStatus;
-};
+type Params = Pagination;
 
 type Pagination = {
-  cursor?: Pick<TodoSelect, "id">;
+  cursor?: Pick<PostSelect, "id">;
   limit?: number;
   offset?: number;
   orderColumn: "id" | "updatedAt";
@@ -26,25 +22,23 @@ export const initClosure = (db: Kysely<DB>) => {
   let sharedParams: Params | undefined;
 
   const batchGet = async (keys: readonly Key[]) => {
-    const { status, cursor, limit, offset, orderColumn, direction, columnComp, idComp } =
-      sharedParams!;
+    const { cursor, limit, offset, orderColumn, direction, columnComp, idComp } = sharedParams!;
 
     const cursorRecord = cursor //
-      ? db.selectFrom("Todo").where("id", "=", cursor.id)
+      ? db.selectFrom("Post").where("id", "=", cursor.id)
       : undefined;
 
     // 本当は各 key に対する select limit offset を union したいが、
     // kysely がサポートしていないようなので、全件取得した後オンメモリでそれぞれ limit offset する
     // この方法には結果セットが必要以上に大きくなり得るという問題がある
     // 即死も有り得る😱
-    const todos = await db
-      .selectFrom("Todo")
+    const posts = await db
+      .selectFrom("Post")
       .where(
         "userId",
         "in",
         keys.map((key) => key.id),
       )
-      .$if(status != null, (qb) => qb.where("status", "=", status!))
       .$if(cursorRecord != null, (qb) =>
         qb.where(({ eb }) =>
           eb.or([
@@ -62,10 +56,10 @@ export const initClosure = (db: Kysely<DB>) => {
       .execute();
 
     // 順序は維持してくれるみたい
-    const userTodos = Map.groupBy(todos, (todo) => todo.userId);
+    const userPosts = Map.groupBy(posts, (post) => post.userId);
 
     const kv = new Map(
-      userTodos.entries().map(([key, value]) => [key, value.slice(offset).slice(0, limit)]),
+      userPosts.entries().map(([key, value]) => [key, value.slice(offset).slice(0, limit)]),
     );
 
     return keys.map((key) => kv.get(key.id) ?? []);

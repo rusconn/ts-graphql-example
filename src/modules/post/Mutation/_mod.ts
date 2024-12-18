@@ -1,3 +1,4 @@
+import type { MutationResolvers } from "../../../schema.ts";
 import * as createPost from "./createPost.ts";
 import * as deletePost from "./deletePost.ts";
 import * as editPost from "./editPost.ts";
@@ -14,7 +15,7 @@ export const typeDefs = [
   unlikePost.typeDef,
 ];
 
-export const resolvers = {
+export const resolvers: MutationResolvers = {
   createPost: createPost.resolver,
   deletePost: deletePost.resolver,
   editPost: editPost.resolver,

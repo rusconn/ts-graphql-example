@@ -1,3 +1,4 @@
+import type { PostResolvers } from "../../../schema.ts";
 import * as content from "./content.ts";
 import * as counts from "./counts.ts";
 import * as hasLiked from "./hasLiked.ts";
@@ -25,7 +26,7 @@ export const typeDefs = [
   user.typeDef,
 ];
 
-export const resolvers = {
+export const resolvers: PostResolvers = {
   content: content.resolver,
   counts: counts.resolver,
   hasLiked: hasLiked.resolver,

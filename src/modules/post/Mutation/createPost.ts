@@ -1,3 +1,10 @@
+import { v7 as uuidv7 } from "uuid";
+
+import type { MutationCreatePostArgs, MutationResolvers } from "../../../schema.ts";
+import { authAuthenticated } from "../../common/authorizers.ts";
+import { numChars, parseErr } from "../../common/parsers.ts";
+import { dateByUuid } from "../../common/resolvers.ts";
+
 export const CONTENT_MAX = 280;
 
 export const typeDef = /* GraphQL */ `
@@ -17,4 +24,74 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver = () => null;
+export const resolver: MutationResolvers["createPost"] = async (_parent, args, context) => {
+  const authed = authAuthenticated(context);
+
+  const parsed = parseArgs(args);
+
+  const id = uuidv7();
+  const idDate = dateByUuid(id);
+
+  const post = await context.db
+    .insertInto("Post")
+    .values({
+      id,
+      updatedAt: idDate,
+      content: parsed.content,
+      userId: authed.id,
+      parentId: null,
+    })
+    .returningAll()
+    .executeTakeFirstOrThrow();
+
+  return {
+    __typename: "CreatePostSuccess",
+    post,
+  };
+};
+
+const parseArgs = (args: MutationCreatePostArgs) => {
+  const { content } = args.input;
+
+  if (numChars(content) > CONTENT_MAX) {
+    throw parseErr(`"content" must be up to ${CONTENT_MAX} characters`);
+  }
+
+  return { content };
+};
+
+if (import.meta.vitest) {
+  const { ErrorCode } = await import("../../../schema.ts");
+  const { context } = await import("../../common/testData/context.ts");
+
+  const valid = {
+    args: { input: { content: "content" } } as MutationCreatePostArgs,
+    user: context.alice,
+  };
+
+  describe("Parsing", () => {
+    const validInput = valid.args.input;
+
+    const valids = [
+      { ...validInput },
+      { ...validInput, content: "A".repeat(CONTENT_MAX) },
+    ] as MutationCreatePostArgs["input"][];
+
+    const invalids = [
+      { ...validInput, content: "A".repeat(CONTENT_MAX + 1) },
+    ] as MutationCreatePostArgs["input"][];
+
+    test.each(valids)("valids %#", (input) => {
+      parseArgs({ input });
+    });
+
+    test.each(invalids)("invalids %#", (input) => {
+      expect.assertions(1);
+      try {
+        parseArgs({ input });
+      } catch (e) {
+        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
+      }
+    });
+  });
+}

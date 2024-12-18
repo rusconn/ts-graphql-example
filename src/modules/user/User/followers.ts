@@ -1,3 +1,4 @@
+import type { UserResolvers } from "../../../schema.ts";
 import { cursorConnections } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 50;
@@ -39,4 +40,4 @@ export const typeDef = /* GraphQL */ `
   })}
 `;
 
-export const resolver = () => null;
+export const resolver: UserResolvers["followers"] = (parent, _args, context) => null;
