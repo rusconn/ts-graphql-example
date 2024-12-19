@@ -47,10 +47,10 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
   const { orderBy, first, after, last, before } = parseArgs(args);
 
   return await getCursorConnections(
-    async ({ cursor, limit, offset, backward }) => {
-      const [direction, columnComp, idComp] = {
-        [OrderDirection.Asc]: ["asc", ">", ">="] as const,
-        [OrderDirection.Desc]: ["desc", "<", "<="] as const,
+    async ({ cursor, limit, backward }) => {
+      const [direction, comp] = {
+        [OrderDirection.Asc]: ["asc", ">"] as const,
+        [OrderDirection.Desc]: ["desc", "<"] as const,
       }[
         backward
           ? orderBy.direction === OrderDirection.Asc
@@ -73,18 +73,17 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
         .$if(cursorRecord != null, (qb) =>
           qb.where(({ eb }) =>
             eb.or([
-              eb(orderColumn, columnComp, cursorRecord!.select(orderColumn)),
+              eb(orderColumn, comp, cursorRecord!.select(orderColumn)),
               eb.and([
                 eb(orderColumn, "=", cursorRecord!.select(orderColumn)),
-                eb("id", idComp, cursorRecord!.select("id")),
+                eb("id", comp, cursorRecord!.select("id")),
               ]),
             ]),
           ),
         )
         .orderBy(orderColumn, direction)
         .orderBy("id", direction)
-        .$if(limit != null, (qb) => qb.limit(limit!))
-        .$if(offset != null, (qb) => qb.offset(offset!))
+        .limit(limit)
         .selectAll()
         .execute()
         .then((result) => (backward ? result.reverse() : result));

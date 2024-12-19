@@ -50,9 +50,9 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
 
   return await getCursorConnections(
     async ({ backward, ...rest }) => {
-      const [direction, columnComp, idComp] = {
-        [OrderDirection.Asc]: ["asc", ">", ">="] as const,
-        [OrderDirection.Desc]: ["desc", "<", "<="] as const,
+      const [direction, comp] = {
+        [OrderDirection.Asc]: ["asc", ">"] as const,
+        [OrderDirection.Desc]: ["desc", "<"] as const,
       }[
         backward
           ? orderBy.direction === OrderDirection.Asc
@@ -67,7 +67,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
       }[orderBy.field];
 
       return await context.loaders
-        .userTodos({ ...rest, orderColumn, direction, columnComp, idComp, status })
+        .userTodos({ ...rest, orderColumn, direction, comp, status })
         .load(parent)
         .then((result) => (backward ? result.reverse() : result));
     },

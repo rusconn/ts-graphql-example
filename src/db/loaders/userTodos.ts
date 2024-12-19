@@ -14,27 +14,24 @@ type Filter = {
 
 type Pagination = {
   cursor?: Pick<TodoSelect, "id">;
-  limit?: number;
-  offset?: number;
+  limit: number;
   orderColumn: "id" | "updatedAt";
   direction: "asc" | "desc";
-  columnComp: ">" | "<";
-  idComp: ">=" | "<=";
+  comp: ">" | "<";
 };
 
 export const initClosure = (db: Kysely<DB>) => {
   let sharedParams: Params | undefined;
 
   const batchGet = async (keys: readonly Key[]) => {
-    const { status, cursor, limit, offset, orderColumn, direction, columnComp, idComp } =
-      sharedParams!;
+    const { status, cursor, limit, orderColumn, direction, comp } = sharedParams!;
 
     const cursorRecord = cursor //
       ? db.selectFrom("Todo").where("id", "=", cursor.id)
       : undefined;
 
-    // 本当は各 key に対する select limit offset を union したいが、
-    // kysely がサポートしていないようなので、全件取得した後オンメモリでそれぞれ limit offset する
+    // 本当は各 key に対する select limit を union したいが、
+    // kysely がサポートしていないようなので、全件取得した後オンメモリでそれぞれ limit する
     // この方法には結果セットが必要以上に大きくなり得るという問題がある
     // 即死も有り得る😱
     const todos = await db
@@ -48,10 +45,10 @@ export const initClosure = (db: Kysely<DB>) => {
       .$if(cursorRecord != null, (qb) =>
         qb.where(({ eb }) =>
           eb.or([
-            eb(orderColumn, columnComp, cursorRecord!.select(orderColumn)),
+            eb(orderColumn, comp, cursorRecord!.select(orderColumn)),
             eb.and([
               eb(orderColumn, "=", cursorRecord!.select(orderColumn)),
-              eb("id", idComp, cursorRecord!.select("id")),
+              eb("id", comp, cursorRecord!.select("id")),
             ]),
           ]),
         ),
@@ -64,9 +61,7 @@ export const initClosure = (db: Kysely<DB>) => {
     // 順序は維持してくれるみたい
     const userTodos = Map.groupBy(todos, (todo) => todo.userId);
 
-    const kv = new Map(
-      userTodos.entries().map(([key, value]) => [key, value.slice(offset).slice(0, limit)]),
-    );
+    const kv = new Map(userTodos.entries().map(([key, value]) => [key, value.slice(0, limit)]));
 
     return keys.map((key) => kv.get(key.id) ?? []);
   };

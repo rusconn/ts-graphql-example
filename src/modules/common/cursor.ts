@@ -32,9 +32,6 @@ export async function getCursorConnections<
       getPage({
         cursor: decodeCursor(args.after, options),
         limit: args.first + 1,
-        ...(args.after && {
-          offset: 1,
-        }),
         backward: false,
       }),
       hasRequestedField("totalCount") ? count() : -1,
@@ -51,9 +48,6 @@ export async function getCursorConnections<
       getPage({
         cursor: decodeCursor(args.before, options),
         limit: args.last + 1,
-        ...(args.before && {
-          offset: 1,
-        }),
         backward: true,
       }),
       hasRequestedField("totalCount") ? count() : -1,
@@ -183,8 +177,7 @@ interface Options<Record, Cursor, Node, CustomEdge extends Edge<Node>> {
 
 interface GetPageArguments<Cursor> {
   cursor?: Cursor;
-  limit?: number;
-  offset?: number;
+  limit: number;
   backward: boolean;
 }
 
