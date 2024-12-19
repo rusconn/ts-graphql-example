@@ -1,7 +1,7 @@
 import type { UserResolvers, UserTodosArgs } from "../../../schema.ts";
 import { OrderDirection, TodoOrderField } from "../../../schema.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
-import { parseErr } from "../../common/parsers.ts";
+import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { cursorConnections } from "../../common/typeDefs.ts";
 import { authAdminOrUserOwner } from "../../user/common/authorizer.ts";
 
@@ -78,7 +78,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
 };
 
 const parseArgs = (args: UserTodosArgs) => {
-  const { first, last, status, ...rest } = args;
+  const { first, after, last, before, status, ...rest } = args;
 
   if (first && first > FIRST_MAX) {
     throw parseErr(`"first" must be up to ${FIRST_MAX}`);
@@ -90,7 +90,14 @@ const parseArgs = (args: UserTodosArgs) => {
     throw parseErr('"status" must be not null');
   }
 
-  return { first, last, status, ...rest };
+  return {
+    first,
+    after: after != null ? parseCursor(after) : null,
+    last,
+    before: before != null ? parseCursor(before) : null,
+    status,
+    ...rest,
+  };
 };
 
 if (import.meta.vitest) {

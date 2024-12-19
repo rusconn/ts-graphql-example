@@ -31,6 +31,14 @@ export const parseNodeId = (nodeId: Scalars["ID"]["input"]) => {
   return { type, id };
 };
 
+export const parseCursor = (id: string) => {
+  if (!uuidValidate(id)) {
+    throw parseErr(`invalid cursor: ${id}`);
+  }
+
+  return id;
+};
+
 const isValidNodeType = (val: string | undefined): val is NodeType => {
   return nodeTypes.includes(val as NodeType);
 };

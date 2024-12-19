@@ -2,7 +2,7 @@ import type { QueryResolvers, QueryUsersArgs } from "../../../schema.ts";
 import { OrderDirection, UserOrderField } from "../../../schema.ts";
 import { authAdmin } from "../../common/authorizers.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
-import { parseErr } from "../../common/parsers.ts";
+import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { cursorConnections } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 30;
@@ -101,7 +101,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 };
 
 const parseArgs = (args: QueryUsersArgs) => {
-  const { first, last, ...rest } = args;
+  const { first, after, last, before, ...rest } = args;
 
   if (first && first > FIRST_MAX) {
     throw parseErr(`"first" must be up to ${FIRST_MAX}`);
@@ -110,7 +110,13 @@ const parseArgs = (args: QueryUsersArgs) => {
     throw parseErr(`"last" must be up to ${LAST_MAX}`);
   }
 
-  return { first, last, ...rest };
+  return {
+    first,
+    after: after != null ? parseCursor(after) : null,
+    last,
+    before: before != null ? parseCursor(before) : null,
+    ...rest,
+  };
 };
 
 if (import.meta.vitest) {
