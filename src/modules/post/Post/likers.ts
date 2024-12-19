@@ -68,13 +68,13 @@ export const resolver: PostResolvers["likers"] = async (parent, args, context, i
       ];
 
       return await context.db
-        .selectFrom("LikerPost")
-        .innerJoin("User", "LikerPost.id", "User.id")
+        .selectFrom("User")
+        .innerJoin("LikerPost", "User.id", "LikerPost.userId")
         .where("postId", "=", parent.id)
         .$if(cursor != null, (qb) =>
           qb.where(({ eb }) =>
             eb(
-              "id",
+              "LikerPost.id",
               comp,
               context.db //
                 .selectFrom("LikerPost")
@@ -83,8 +83,9 @@ export const resolver: PostResolvers["likers"] = async (parent, args, context, i
             ),
           ),
         )
-        .selectAll()
-        .orderBy("id", direction)
+        .selectAll("User")
+        .select(["LikerPost.id as lpid"])
+        .orderBy("lpid", direction)
         .$if(limit != null, (qb) => qb.limit(limit!))
         .$if(offset != null, (qb) => qb.offset(offset!))
         .execute()
@@ -102,7 +103,7 @@ export const resolver: PostResolvers["likers"] = async (parent, args, context, i
       resolveInfo: info,
       recordToEdge: (record) => ({
         node: record,
-        likedAt: dateByUuid(record.id),
+        likedAt: dateByUuid(record.lpid),
       }),
     },
   );

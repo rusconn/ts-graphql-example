@@ -53,14 +53,15 @@ export const resolver: UserResolvers["likedPosts"] = async (parent, args, contex
         : undefined;
 
       return await context.db
-        .selectFrom("Post as p")
-        .innerJoin("LikerPost as lp", "p.id", "lp.postId")
+        .selectFrom("Post")
+        .innerJoin("LikerPost", "Post.id", "LikerPost.postId")
         .where("userId", "=", parent.id)
         .$if(cursorRecord != null, (qb) =>
           qb.where(({ eb }) => eb("id", comp, cursorRecord!.select("id"))),
         )
-        .select(["p.id", "lp.id", "p.updatedAt", "p.content", "p.userId", "p.parentId"])
-        .orderBy("lp.id", direction)
+        .selectAll("Post")
+        .select(["LikerPost.id as lpid"])
+        .orderBy("lpid", direction)
         .$if(limit != null, (qb) => qb.limit(limit!))
         .$if(offset != null, (qb) => qb.offset(offset!))
         .execute()
@@ -78,7 +79,7 @@ export const resolver: UserResolvers["likedPosts"] = async (parent, args, contex
       resolveInfo: info,
       recordToEdge: (record) => ({
         node: record,
-        likedAt: dateByUuid(record.id),
+        likedAt: dateByUuid(record.lpid),
       }),
     },
   );

@@ -11,19 +11,17 @@ export const typeDef = /* GraphQL */ `
 export const resolver: PostResolvers["parents"] = async (parent, _args, context) => {
   auth(context);
 
-  const columns = ["id", "updatedAt", "content", "userId", "parentId"] as const;
-
   return await context.db
     .withRecursive("replies", (db) =>
       db
         .selectFrom("Post")
         .where("id", "=", parent.id)
-        .select(columns)
+        .selectAll()
         .unionAll(
           db //
             .selectFrom("Post")
             .innerJoin("replies", "Post.id", "replies.parentId")
-            .select(columns),
+            .selectAll("Post"),
         ),
     )
     .selectFrom("replies")
