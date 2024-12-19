@@ -26,6 +26,14 @@ export const db = {
     parentId: "0193cb6a-ec2f-70ad-9b08-8086c43b2d17",
     userId: users.alice.id,
   },
+  alicePost4: {
+    /** Date: 2024-12-19T06:36:21.059Z */
+    id: "0193dda1-aec3-744e-9392-5a3abd00df20",
+    updatedAt: new Date("2024-12-19T06:36:21.059Z"),
+    content: "!!",
+    parentId: "0193cb6b-37ae-716b-b774-a3c81db18659",
+    userId: users.alice.id,
+  },
   bobPost1: {
     /** Date: 2024-12-15T17:43:49.654Z */
     id: "0193cb6b-5696-7022-bc97-98ecd41d1957",

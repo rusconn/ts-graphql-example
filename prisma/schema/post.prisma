@@ -15,6 +15,7 @@ model Post {
   @@index([userId, id])
   // 特定ユーザーのPosts、更新日時によるソート
   @@index([userId, updatedAt, id])
-  // 投稿の返信数
+  // 投稿の返信数, 投稿のparents
+  // NOTE: prismaが部分インデックスをサポートしていないようなのでNOT NULLを付けていない。マイグレーションファイルを作成後、DDLを手で修正する。
   @@index(parentId)
 }

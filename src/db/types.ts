@@ -17,6 +17,7 @@ export type Hashtag = {
   name: string;
 };
 export type LikerPost = {
+  id: string;
   userId: string;
   postId: string;
 };

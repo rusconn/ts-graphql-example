@@ -1,11 +1,12 @@
 model LikerPost {
+  id     String @id @pg.Uuid
   userId String @pg.Uuid
   postId String @pg.Uuid
 
   user User @relation(fields: userId, references: id, onDelete: Cascade)
   post Post @relation(fields: postId, references: id, onDelete: Cascade)
 
-  @@id([userId, postId])
+  @@unique([userId, postId])
   // 投稿のいいね数
   @@index(postId)
 }

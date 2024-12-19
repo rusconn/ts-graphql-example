@@ -14,7 +14,7 @@ export const db = {
     email: "alice@example.com",
     /** raw: alicealice */
     password: "$2b$04$vox810wl680PtUOq1CPTL.lMhjWYsjFqVIMOmzrMIXKvqTh/XZ5Gy",
-    token: "0193cb69-c86c-747c-82b4-85506f4a592f",
+    token: "0193cb69-740b-7589-9e85-34d9cece28fe",
   },
   bob: {
     /** Date: 2024-12-15T17:41:58.590Z */
@@ -22,7 +22,7 @@ export const db = {
     updatedAt: new Date("2024-12-15T17:41:58.590Z"),
     avatar: "https://example.com/avatars/bob",
     name: "bob",
-    handle: "Super Bob",
+    handle: "SuperBob",
     bio: "plumber -> firefighter",
     location: "earth",
     website: "https://example.com/websites/bob",

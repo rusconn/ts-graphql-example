@@ -24,10 +24,11 @@ CREATE TABLE "Hashtag" (
 
 -- CreateTable
 CREATE TABLE "LikerPost" (
+    "id" UUID NOT NULL,
     "userId" UUID NOT NULL,
     "postId" UUID NOT NULL,
 
-    CONSTRAINT "LikerPost_pkey" PRIMARY KEY ("userId","postId")
+    CONSTRAINT "LikerPost_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -60,7 +61,7 @@ CREATE TABLE "User" (
     "location" VARCHAR(30) NOT NULL DEFAULT '',
     "website" VARCHAR(100) NOT NULL DEFAULT '',
     "email" VARCHAR(100) NOT NULL,
-    "password" VARCHAR(50) NOT NULL,
+    "password" VARCHAR(100) NOT NULL,
     "token" UUID,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -70,10 +71,20 @@ CREATE TABLE "User" (
 CREATE UNIQUE INDEX "Hashtag_name_key" ON "Hashtag"("name");
 
 -- CreateIndex
+CREATE INDEX "LikerPost_postId_idx" ON "LikerPost"("postId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LikerPost_userId_postId_key" ON "LikerPost"("userId", "postId");
+
+-- CreateIndex
 CREATE INDEX "Post_userId_id_idx" ON "Post"("userId", "id");
 
 -- CreateIndex
 CREATE INDEX "Post_userId_updatedAt_id_idx" ON "Post"("userId", "updatedAt", "id");
+
+-- NOTE: 手動でWHERE "parentId" IS NOT NULLを付加した。
+-- CreateIndex
+CREATE INDEX "Post_parentId_idx" ON "Post"("parentId") WHERE "parentId" IS NOT NULL;
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_name_key" ON "User"("name");

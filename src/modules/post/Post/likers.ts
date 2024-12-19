@@ -6,9 +6,9 @@ import {
 } from "../../../schema.ts";
 import { auth } from "../../common/authorizers.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
-import { parseErr } from "../../common/parsers.ts";
+import { parseCursor, parseErr } from "../../common/parsers.ts";
+import { dateByUuid } from "../../common/resolvers.ts";
 import { cursorConnections } from "../../common/typeDefs.ts";
-import { parseUserNodeId } from "../../user/common/parser.ts";
 
 const FIRST_MAX = 30;
 const LAST_MAX = 30;
@@ -49,16 +49,16 @@ export const typeDef = /* GraphQL */ `
   })}
 `;
 
-export const resolver: PostResolvers["likers"] = async (_parent, args, context, info) => {
+export const resolver: PostResolvers["likers"] = async (parent, args, context, info) => {
   auth(context);
 
-  const { orderBy, first, after, last, before } = parseArgs(args);
+  const { first, after, last, before, orderBy } = parseArgs(args);
 
-  return await getCursorConnections(
+  const connections = await getCursorConnections(
     async ({ cursor, limit, offset, backward }) => {
-      const [direction, columnComp, idComp] = {
-        [OrderDirection.Asc]: ["asc", ">", ">="] as const,
-        [OrderDirection.Desc]: ["desc", "<", "<="] as const,
+      const [direction, comp] = {
+        [OrderDirection.Asc]: ["asc", ">"] as const,
+        [OrderDirection.Desc]: ["desc", "<"] as const,
       }[
         backward
           ? orderBy.direction === OrderDirection.Asc
@@ -67,55 +67,52 @@ export const resolver: PostResolvers["likers"] = async (_parent, args, context, 
           : orderBy.direction
       ];
 
-      const orderColumn = {
-        [LikerOrderField.LikedAt]: "id" as const,
-      }[orderBy.field];
-
-      const cursorRecord = cursor
-        ? context.db.selectFrom("User").where("id", "=", cursor.id)
-        : undefined;
-
       return await context.db
-        .selectFrom("User")
-        .$if(cursorRecord != null, (qb) =>
+        .selectFrom("LikerPost")
+        .innerJoin("User", "LikerPost.id", "User.id")
+        .where("postId", "=", parent.id)
+        .$if(cursor != null, (qb) =>
           qb.where(({ eb }) =>
-            eb.or([
-              eb(orderColumn, columnComp, cursorRecord!.select(orderColumn)),
-              eb.and([
-                eb(orderColumn, "=", cursorRecord!.select(orderColumn)),
-                eb("id", idComp, cursorRecord!.select("id")),
-              ]),
-            ]),
+            eb(
+              "id",
+              comp,
+              context.db //
+                .selectFrom("LikerPost")
+                .where("postId", "=", cursor!.id)
+                .select("id"),
+            ),
           ),
         )
-        .orderBy(orderColumn, direction)
+        .selectAll()
         .orderBy("id", direction)
         .$if(limit != null, (qb) => qb.limit(limit!))
         .$if(offset != null, (qb) => qb.offset(offset!))
-        .selectAll()
         .execute()
         .then((result) => (backward ? result.reverse() : result));
     },
     () =>
       context.db
-        .selectFrom("User")
+        .selectFrom("LikerPost")
+        .where("postId", "=", parent.id)
         .select(({ fn }) => fn.countAll().as("count"))
         .executeTakeFirstOrThrow()
         .then((result) => Number(result.count)),
     { first, after, last, before },
-    { resolveInfo: info }, // TODO: likedAt を付加する
+    {
+      resolveInfo: info,
+      recordToEdge: (record) => ({
+        node: record,
+        likedAt: dateByUuid(record.id),
+      }),
+    },
   );
+
+  return connections;
 };
 
 const parseArgs = (args: PostLikersArgs) => {
   const { first, after, last, before, ...rest } = args;
 
-  if (after) {
-    parseUserNodeId(after); // TODO: main で漏れているかの確認、必要なら修正
-  }
-  if (before) {
-    parseUserNodeId(before);
-  }
   if (first && first > FIRST_MAX) {
     throw parseErr(`"first" must be up to ${FIRST_MAX}`);
   }
@@ -123,7 +120,13 @@ const parseArgs = (args: PostLikersArgs) => {
     throw parseErr(`"last" must be up to ${LAST_MAX}`);
   }
 
-  return { first, after, last, before, ...rest };
+  return {
+    first,
+    after: after != null ? parseCursor(after) : null,
+    last,
+    before: before != null ? parseCursor(before) : null,
+    ...rest,
+  };
 };
 
 if (import.meta.vitest) {

@@ -8,7 +8,7 @@ model User {
   location  String   @default("") @pg.VarChar(30)
   website   String   @default("") @pg.VarChar(100)
   email     String   @unique @pg.VarChar(100)
-  password  String   @pg.VarChar(50)
+  password  String   @pg.VarChar(100)
   token     String?  @unique @pg.Uuid
 
   posts     Post[]
