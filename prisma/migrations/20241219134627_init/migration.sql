@@ -76,15 +76,18 @@ CREATE INDEX "LikerPost_postId_idx" ON "LikerPost"("postId");
 -- CreateIndex
 CREATE UNIQUE INDEX "LikerPost_userId_postId_key" ON "LikerPost"("userId", "postId");
 
+-- NOTE: 手で追加した
+-- CreateIndex
+CREATE INDEX "Post_parentId_idx" ON "Post"("parentId") WHERE "parentId" IS NOT NULL;
+
+-- CreateIndex
+CREATE INDEX "Post_updatedAt_id_idx" ON "Post"("updatedAt", "id");
+
 -- CreateIndex
 CREATE INDEX "Post_userId_id_idx" ON "Post"("userId", "id");
 
 -- CreateIndex
 CREATE INDEX "Post_userId_updatedAt_id_idx" ON "Post"("userId", "updatedAt", "id");
-
--- NOTE: 手動でWHERE "parentId" IS NOT NULLを付加した。
--- CreateIndex
-CREATE INDEX "Post_parentId_idx" ON "Post"("parentId") WHERE "parentId" IS NOT NULL;
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_name_key" ON "User"("name");

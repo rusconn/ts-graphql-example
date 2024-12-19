@@ -25,7 +25,7 @@ node --run dev
 token を Authorization ヘッダへ Bearer でセットしておくこと。\
 token は [seed スクリプト](./prisma/seed.ts) から取得する。
 
-## psql 起動方法
+## DB へのログイン方法
 
 ```shell
 docker compose exec db bash -c "psql -U postgres postgres"

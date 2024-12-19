@@ -4,7 +4,6 @@ import {
   type PostRepliesArgs,
   type PostResolvers,
 } from "../../../schema.ts";
-import { auth } from "../../common/authorizers.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { cursorConnections } from "../../common/typeDefs.ts";
@@ -46,8 +45,6 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: PostResolvers["replies"] = async (parent, args, context, info) => {
-  auth(context);
-
   const { first, after, last, before, orderBy } = parseArgs(args);
 
   const connections = await getCursorConnections(
@@ -63,7 +60,7 @@ export const resolver: PostResolvers["replies"] = async (parent, args, context, 
           : orderBy.direction
       ];
 
-      return await context.db
+      const result = await context.db
         .selectFrom("Post")
         .where("parentId", "=", parent.id)
         .$if(cursor != null, (qb) =>
@@ -82,8 +79,9 @@ export const resolver: PostResolvers["replies"] = async (parent, args, context, 
         .orderBy("id", direction)
         .$if(limit != null, (qb) => qb.limit(limit!))
         .$if(offset != null, (qb) => qb.offset(offset!))
-        .execute()
-        .then((result) => (backward ? result.reverse() : result));
+        .execute();
+
+      return backward ? result.reverse() : result;
     },
     () =>
       context.db

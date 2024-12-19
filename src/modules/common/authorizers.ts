@@ -10,10 +10,6 @@ export const authErr = () =>
 
 export type AuthContext = Pick<Context, "user">;
 
-export const auth = (context: AuthContext) => {
-  return context.user;
-};
-
 export const authGuest = (context: AuthContext) => {
   if (context.user == null) return context.user;
   throw authErr();
@@ -26,14 +22,6 @@ export const authAuthenticated = (context: AuthContext) => {
 
 if (import.meta.vitest) {
   const { context } = await import("./testData/context.ts");
-
-  describe("auth", () => {
-    const allows = [context.alice, context.bob, context.guest];
-
-    test.each(allows)("allows %#", (user) => {
-      auth({ user });
-    });
-  });
 
   describe("authGuest", () => {
     const allows = [context.guest];

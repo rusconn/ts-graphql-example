@@ -11,11 +11,14 @@ model Post {
   likeds   LikerPost[]
   hashtags PostHashtag[]
 
-  // 特定ユーザーのPosts、作成日時によるソート
+  // prismaが部分インデックスをサポートしていないようなので、マイグレーションファイルを作成後、DDLへ手で追加する。
+  // 投稿の返信数。投稿のparents。
+  // @@index(parentId, WHERE "parentId" IS NOT NULL)
+
+  // 投稿一覧、更新日時によるソート
+  @@index([updatedAt, id])
+  // ユーザーの投稿一覧、作成日時によるソート
   @@index([userId, id])
-  // 特定ユーザーのPosts、更新日時によるソート
+  // ユーザーの投稿一覧、更新日時によるソート
   @@index([userId, updatedAt, id])
-  // 投稿の返信数, 投稿のparents
-  // NOTE: prismaが部分インデックスをサポートしていないようなのでNOT NULLを付けていない。マイグレーションファイルを作成後、DDLを手で修正する。
-  @@index(parentId)
 }

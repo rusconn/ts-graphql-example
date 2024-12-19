@@ -1,5 +1,4 @@
 import type { PostResolvers } from "../../../schema.ts";
-import { auth } from "../../common/authorizers.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Post {
@@ -7,8 +6,6 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: PostResolvers["content"] = (parent, _args, context) => {
-  auth(context);
-
+export const resolver: PostResolvers["content"] = (parent) => {
   return parent.content;
 };

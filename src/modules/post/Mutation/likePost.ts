@@ -1,3 +1,5 @@
+import { v7 as uuidv7 } from "uuid";
+
 import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { postNodeId } from "../common/adapter.ts";
@@ -23,6 +25,7 @@ export const resolver: MutationResolvers["likePost"] = async (_parent, args, con
   const post = await context.db
     .insertInto("LikerPost")
     .values({
+      id: uuidv7(),
       userId: authed.id,
       postId: id,
     })

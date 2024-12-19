@@ -1,5 +1,5 @@
 import type { PostResolvers } from "../../../schema.ts";
-import { auth } from "../../common/authorizers.ts";
+import { authAuthenticated } from "../../common/authorizers.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Post {
@@ -8,18 +8,14 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: PostResolvers["hasLiked"] = async (parent, _args, context) => {
-  const authed = auth(context);
+  const authed = authAuthenticated(context);
 
-  if (authed == null) {
-    return false;
-  }
-
-  const found = await context.db
+  const result = await context.db
     .selectFrom("LikerPost")
     .where("userId", "=", authed.id)
     .where("postId", "=", parent.id)
     .select("userId")
     .executeTakeFirst();
 
-  return Boolean(found);
+  return result != null;
 };

@@ -1,5 +1,4 @@
 import type { UserLikedPostsArgs, UserResolvers } from "../../../schema.ts";
-import { auth } from "../../common/authorizers.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { dateByUuid } from "../../common/resolvers.ts";
@@ -35,8 +34,6 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["likedPosts"] = async (parent, args, context, info) => {
-  auth(context);
-
   const { first, after, last, before } = parseArgs(args);
 
   const connections = await getCursorConnections(
@@ -52,7 +49,7 @@ export const resolver: UserResolvers["likedPosts"] = async (parent, args, contex
             .where("userId", "=", parent.id)
         : undefined;
 
-      return await context.db
+      const result = await context.db
         .selectFrom("Post")
         .innerJoin("LikerPost", "Post.id", "LikerPost.postId")
         .where("userId", "=", parent.id)
@@ -64,8 +61,9 @@ export const resolver: UserResolvers["likedPosts"] = async (parent, args, contex
         .orderBy("lpid", direction)
         .$if(limit != null, (qb) => qb.limit(limit!))
         .$if(offset != null, (qb) => qb.offset(offset!))
-        .execute()
-        .then((result) => (backward ? result.reverse() : result));
+        .execute();
+
+      return backward ? result.reverse() : result;
     },
     () =>
       context.db

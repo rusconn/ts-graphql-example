@@ -1,5 +1,4 @@
 import type { PostResolvers } from "../../../schema.ts";
-import { auth } from "../../common/authorizers.ts";
 
 // TODO: 分解？
 // codegenのmapperでPostにしてPostCounts.replies等でカウント？
@@ -15,8 +14,6 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: PostResolvers["counts"] = async (parent, _args, context) => {
-  auth(context);
-
   const [replies, likes] = await Promise.all([
     context.db
       .selectFrom("Post")

@@ -1,5 +1,4 @@
 import type { PostResolvers } from "../../../schema.ts";
-import { auth } from "../../common/authorizers.ts";
 
 // connection にする必要はあるか？
 export const typeDef = /* GraphQL */ `
@@ -9,9 +8,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: PostResolvers["parents"] = async (parent, _args, context) => {
-  auth(context);
-
-  return await context.db
+  const result = await context.db
     .withRecursive("replies", (db) =>
       db
         .selectFrom("Post")
@@ -27,6 +24,7 @@ export const resolver: PostResolvers["parents"] = async (parent, _args, context)
     .selectFrom("replies")
     .selectAll()
     .orderBy("id", "asc")
-    .execute()
-    .then((result) => result.slice(0, -1));
+    .execute();
+
+  return result.slice(0, -1);
 };

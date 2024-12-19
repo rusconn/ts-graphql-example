@@ -62,23 +62,15 @@ const parseArgs = (args: MutationCreatePostArgs) => {
 
 if (import.meta.vitest) {
   const { ErrorCode } = await import("../../../schema.ts");
-  const { context } = await import("../../common/testData/context.ts");
-
-  const valid = {
-    args: { input: { content: "content" } } as MutationCreatePostArgs,
-    user: context.alice,
-  };
 
   describe("Parsing", () => {
-    const validInput = valid.args.input;
-
     const valids = [
-      { ...validInput },
-      { ...validInput, content: "A".repeat(CONTENT_MAX) },
+      { content: "content" },
+      { content: "A".repeat(CONTENT_MAX) },
     ] as MutationCreatePostArgs["input"][];
 
     const invalids = [
-      { ...validInput, content: "A".repeat(CONTENT_MAX + 1) },
+      { content: "A".repeat(CONTENT_MAX + 1) },
     ] as MutationCreatePostArgs["input"][];
 
     test.each(valids)("valids %#", (input) => {

@@ -1,5 +1,4 @@
 import type { QueryPostsArgs, QueryResolvers } from "../../../schema.ts";
-import { auth } from "../../common/authorizers.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { cursorConnections } from "../../common/typeDefs.ts";
@@ -16,7 +15,18 @@ export const typeDef = /* GraphQL */ `
       "max: ${LAST_MAX}"
       last: Int
       before: String
+      orderBy: PostOrder! = { field: CREATED_AT, direction: DESC }
     ): PostConnection
+  }
+
+  input PostOrder {
+    field: PostOrderField!
+    direction: OrderDirection!
+  }
+
+  enum PostOrderField {
+    CREATED_AT
+    UPDATED_AT
   }
 
   ${cursorConnections({
@@ -30,8 +40,6 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["posts"] = async (_parent, args, context, info) => {
-  auth(context);
-
   const { first, after, last, before } = parseArgs(args);
 
   const connections = await getCursorConnections(
