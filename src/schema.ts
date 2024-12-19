@@ -243,15 +243,6 @@ export type LikedPostEdge = {
   node?: Maybe<Post>;
 };
 
-export enum LikedPostOrderField {
-  LikedAt = 'LIKED_AT'
-}
-
-export type LikedPostPostOrder = {
-  direction: OrderDirection;
-  field: LikedPostOrderField;
-};
-
 export type LikerConnection = {
   __typename?: 'LikerConnection';
   edges?: Maybe<Array<Maybe<LikerEdge>>>;
@@ -420,29 +411,6 @@ export type PageInfo = {
   startCursor?: Maybe<Scalars['String']['output']>;
 };
 
-export type ParentPostConnection = {
-  __typename?: 'ParentPostConnection';
-  edges?: Maybe<Array<Maybe<ParentPostEdge>>>;
-  nodes?: Maybe<Array<Maybe<Post>>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-export type ParentPostEdge = {
-  __typename?: 'ParentPostEdge';
-  cursor: Scalars['String']['output'];
-  node?: Maybe<Post>;
-};
-
-export type ParentPostOrder = {
-  direction: OrderDirection;
-  field: ParentPostOrderField;
-};
-
-export enum ParentPostOrderField {
-  CreatedAt = 'CREATED_AT'
-}
-
 export type Post = Node & {
   __typename?: 'Post';
   content?: Maybe<Scalars['String']['output']>;
@@ -450,7 +418,7 @@ export type Post = Node & {
   hasLiked?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   likers?: Maybe<LikerConnection>;
-  parents?: Maybe<ParentPostConnection>;
+  parents?: Maybe<Array<Maybe<Post>>>;
   replies?: Maybe<ReplyConnection>;
   url?: Maybe<Scalars['URL']['output']>;
   user?: Maybe<User>;
@@ -463,15 +431,6 @@ export type PostLikersArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   orderBy: LikerOrder;
-};
-
-
-export type PostParentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  orderBy: ParentPostOrder;
 };
 
 
@@ -538,7 +497,6 @@ export type QueryPostsArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  orderBy: PostOrder;
 };
 
 
@@ -680,7 +638,6 @@ export type UserLikedPostsArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  orderBy: LikedPostPostOrder;
 };
 
 
@@ -854,8 +811,6 @@ export type ResolversTypes = ResolversObject<{
   LikePostSuccess: ResolverTypeWrapper<LikePostSuccess>;
   LikedPostConnection: ResolverTypeWrapper<Omit<LikedPostConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['LikedPostEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Post']>>> }>;
   LikedPostEdge: ResolverTypeWrapper<Omit<LikedPostEdge, 'node'> & { node: Maybe<ResolversTypes['Post']> }>;
-  LikedPostOrderField: LikedPostOrderField;
-  LikedPostPostOrder: LikedPostPostOrder;
   LikerConnection: ResolverTypeWrapper<Omit<LikerConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['LikerEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
   LikerEdge: ResolverTypeWrapper<Omit<LikerEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
   LikerOrder: LikerOrder;
@@ -870,10 +825,6 @@ export type ResolversTypes = ResolversObject<{
   NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']['output']>;
   OrderDirection: OrderDirection;
   PageInfo: ResolverTypeWrapper<PageInfo>;
-  ParentPostConnection: ResolverTypeWrapper<Omit<ParentPostConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['ParentPostEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Post']>>> }>;
-  ParentPostEdge: ResolverTypeWrapper<Omit<ParentPostEdge, 'node'> & { node: Maybe<ResolversTypes['Post']> }>;
-  ParentPostOrder: ParentPostOrder;
-  ParentPostOrderField: ParentPostOrderField;
   Post: ResolverTypeWrapper<PostMapper>;
   PostConnection: ResolverTypeWrapper<Omit<PostConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['PostEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Post']>>> }>;
   PostCounts: ResolverTypeWrapper<PostCounts>;
@@ -954,7 +905,6 @@ export type ResolversParentTypes = ResolversObject<{
   LikePostSuccess: LikePostSuccess;
   LikedPostConnection: Omit<LikedPostConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['LikedPostEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Post']>>> };
   LikedPostEdge: Omit<LikedPostEdge, 'node'> & { node: Maybe<ResolversParentTypes['Post']> };
-  LikedPostPostOrder: LikedPostPostOrder;
   LikerConnection: Omit<LikerConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['LikerEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
   LikerEdge: Omit<LikerEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
   LikerOrder: LikerOrder;
@@ -967,9 +917,6 @@ export type ResolversParentTypes = ResolversObject<{
   Node: NodeMapper;
   NonEmptyString: Scalars['NonEmptyString']['output'];
   PageInfo: PageInfo;
-  ParentPostConnection: Omit<ParentPostConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['ParentPostEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Post']>>> };
-  ParentPostEdge: Omit<ParentPostEdge, 'node'> & { node: Maybe<ResolversParentTypes['Post']> };
-  ParentPostOrder: ParentPostOrder;
   Post: PostMapper;
   PostConnection: Omit<PostConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['PostEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Post']>>> };
   PostCounts: PostCounts;
@@ -1244,27 +1191,13 @@ export type PageInfoResolvers<ContextType = Context, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ParentPostConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ParentPostConnection'] = ResolversParentTypes['ParentPostConnection']> = ResolversObject<{
-  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['ParentPostEdge']>>>, ParentType, ContextType>;
-  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType>;
-  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type ParentPostEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ParentPostEdge'] = ResolversParentTypes['ParentPostEdge']> = ResolversObject<{
-  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  node?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
 export type PostResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
   content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   counts?: Resolver<Maybe<ResolversTypes['PostCounts']>, ParentType, ContextType>;
   hasLiked?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   likers?: Resolver<Maybe<ResolversTypes['LikerConnection']>, ParentType, ContextType, RequireFields<PostLikersArgs, 'orderBy'>>;
-  parents?: Resolver<Maybe<ResolversTypes['ParentPostConnection']>, ParentType, ContextType, RequireFields<PostParentsArgs, 'orderBy'>>;
+  parents?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType>;
   replies?: Resolver<Maybe<ResolversTypes['ReplyConnection']>, ParentType, ContextType, RequireFields<PostRepliesArgs, 'orderBy'>>;
   url?: Resolver<Maybe<ResolversTypes['URL']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -1295,7 +1228,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;
   post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
-  posts?: Resolver<Maybe<ResolversTypes['PostConnection']>, ParentType, ContextType, RequireFields<QueryPostsArgs, 'orderBy'>>;
+  posts?: Resolver<Maybe<ResolversTypes['PostConnection']>, ParentType, ContextType, Partial<QueryPostsArgs>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;
 
@@ -1382,7 +1315,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   followings?: Resolver<Maybe<ResolversTypes['FollowingConnection']>, ParentType, ContextType, RequireFields<UserFollowingsArgs, 'orderBy'>>;
   handle?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  likedPosts?: Resolver<Maybe<ResolversTypes['LikedPostConnection']>, ParentType, ContextType, RequireFields<UserLikedPostsArgs, 'orderBy'>>;
+  likedPosts?: Resolver<Maybe<ResolversTypes['LikedPostConnection']>, ParentType, ContextType, Partial<UserLikedPostsArgs>>;
   location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   posts?: Resolver<Maybe<ResolversTypes['PostConnection']>, ParentType, ContextType, RequireFields<UserPostsArgs, 'orderBy'>>;
@@ -1450,8 +1383,6 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Node?: NodeResolvers<ContextType>;
   NonEmptyString?: GraphQLScalarType;
   PageInfo?: PageInfoResolvers<ContextType>;
-  ParentPostConnection?: ParentPostConnectionResolvers<ContextType>;
-  ParentPostEdge?: ParentPostEdgeResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   PostConnection?: PostConnectionResolvers<ContextType>;
   PostCounts?: PostCountsResolvers<ContextType>;

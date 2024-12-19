@@ -1,12 +1,7 @@
-import {
-  OrderDirection,
-  UserOrderField,
-  type QueryResolvers,
-  type QueryUsersArgs,
-} from "../../../schema.ts";
+import type { QueryPostsArgs, QueryResolvers } from "../../../schema.ts";
 import { auth } from "../../common/authorizers.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
-import { parseErr } from "../../common/parsers.ts";
+import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { cursorConnections } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 30;
@@ -21,18 +16,7 @@ export const typeDef = /* GraphQL */ `
       "max: ${LAST_MAX}"
       last: Int
       before: String
-      orderBy: PostOrder! = { field: CREATED_AT, direction: DESC }
     ): PostConnection
-  }
-
-  input PostOrder {
-    field: PostOrderField!
-    direction: OrderDirection!
-  }
-
-  enum PostOrderField {
-    CREATED_AT
-    UPDATED_AT
   }
 
   ${cursorConnections({
@@ -45,67 +29,48 @@ export const typeDef = /* GraphQL */ `
   })}
 `;
 
-export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
+export const resolver: QueryResolvers["posts"] = async (_parent, args, context, info) => {
   auth(context);
 
-  const { orderBy, first, after, last, before } = parseArgs(args);
+  const { first, after, last, before } = parseArgs(args);
 
-  return await getCursorConnections(
+  const connections = await getCursorConnections(
     async ({ cursor, limit, offset, backward }) => {
-      const [direction, columnComp, idComp] = {
-        [OrderDirection.Asc]: ["asc", ">", ">="] as const,
-        [OrderDirection.Desc]: ["desc", "<", "<="] as const,
-      }[
-        backward
-          ? orderBy.direction === OrderDirection.Asc
-            ? OrderDirection.Desc
-            : OrderDirection.Asc
-          : orderBy.direction
-      ];
-
-      const orderColumn = {
-        [UserOrderField.CreatedAt]: "id" as const,
-        [UserOrderField.UpdatedAt]: "updatedAt" as const,
-      }[orderBy.field];
+      const [direction, comp] = backward //
+        ? (["asc", ">"] as const)
+        : (["desc", "<"] as const);
 
       const cursorRecord = cursor
-        ? context.db.selectFrom("User").where("id", "=", cursor.id)
+        ? context.db.selectFrom("Post").where("id", "=", cursor.id)
         : undefined;
 
       return await context.db
-        .selectFrom("User")
+        .selectFrom("Post")
         .$if(cursorRecord != null, (qb) =>
-          qb.where(({ eb }) =>
-            eb.or([
-              eb(orderColumn, columnComp, cursorRecord!.select(orderColumn)),
-              eb.and([
-                eb(orderColumn, "=", cursorRecord!.select(orderColumn)),
-                eb("id", idComp, cursorRecord!.select("id")),
-              ]),
-            ]),
-          ),
+          qb.where(({ eb }) => eb("id", comp, cursorRecord!.select("id"))),
         )
-        .orderBy(orderColumn, direction)
+        .selectAll()
         .orderBy("id", direction)
         .$if(limit != null, (qb) => qb.limit(limit!))
         .$if(offset != null, (qb) => qb.offset(offset!))
-        .selectAll()
         .execute()
         .then((result) => (backward ? result.reverse() : result));
     },
     () =>
       context.db
-        .selectFrom("User")
+        .selectFrom("Post")
         .select(({ fn }) => fn.countAll().as("count"))
         .executeTakeFirstOrThrow()
         .then((result) => Number(result.count)),
     { first, after, last, before },
     { resolveInfo: info },
   );
+
+  return connections;
 };
 
-const parseArgs = (args: QueryUsersArgs) => {
-  const { first, last, ...rest } = args;
+const parseArgs = (args: QueryPostsArgs) => {
+  const { first, after, last, before, ...rest } = args;
 
   if (first && first > FIRST_MAX) {
     throw parseErr(`"first" must be up to ${FIRST_MAX}`);
@@ -114,7 +79,13 @@ const parseArgs = (args: QueryUsersArgs) => {
     throw parseErr(`"last" must be up to ${LAST_MAX}`);
   }
 
-  return { first, last, ...rest };
+  return {
+    first,
+    after: after != null ? parseCursor(after) : null,
+    last,
+    before: before != null ? parseCursor(before) : null,
+    ...rest,
+  };
 };
 
 if (import.meta.vitest) {
@@ -125,19 +96,14 @@ if (import.meta.vitest) {
 
     const invalids = [{ first: FIRST_MAX + 1 }, { last: LAST_MAX + 1 }];
 
-    const orderBy = {
-      field: UserOrderField.CreatedAt,
-      direction: OrderDirection.Desc,
-    };
-
     test.each(valids)("valids %#", (args) => {
-      parseArgs({ ...args, orderBy });
+      parseArgs(args);
     });
 
     test.each(invalids)("invalids %#", (args) => {
       expect.assertions(1);
       try {
-        parseArgs({ ...args, orderBy });
+        parseArgs(args);
       } catch (e) {
         expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
       }
