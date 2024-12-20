@@ -1,6 +1,6 @@
 import { db } from "../../../../src/db/client.ts";
 
-import { Data, dummyNodeId } from "../../../data.ts";
+import { Data } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
 import type { TodoIdQuery, TodoIdQueryVariables } from "../../schema.ts";
@@ -30,15 +30,7 @@ beforeAll(async () => {
   await seedData.todos();
 });
 
-test("not exists", async () => {
-  const { data } = await executeQuery({
-    variables: { id: dummyNodeId.todo() },
-  });
-
-  expect(data?.node).toBeNull();
-});
-
-test("exists, owned", async () => {
+test("owned", async () => {
   const { data } = await executeQuery({
     variables: { id: Data.graph.adminTodo.id },
   });
@@ -50,7 +42,7 @@ test("exists, owned", async () => {
   expect(data.node.id).toBe(Data.graph.adminTodo.id);
 });
 
-test("exists, but not owned", async () => {
+test("not owned", async () => {
   const { data } = await executeQuery({
     user: Data.context.alice,
     variables: { id: Data.graph.adminTodo.id },

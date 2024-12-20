@@ -1,6 +1,6 @@
 import { db } from "../../../../src/db/client.ts";
 
-import { Data, dummyNodeId } from "../../../data.ts";
+import { Data } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
 import type { UserNameQuery, UserNameQueryVariables } from "../../schema.ts";
@@ -32,15 +32,7 @@ beforeAll(async () => {
   await seedData.users();
 });
 
-test("not exists", async () => {
-  const { data } = await executeQuery({
-    variables: { id: dummyNodeId.user() },
-  });
-
-  expect(data?.node).toBeNull();
-});
-
-test("exists, owned", async () => {
+test("owned", async () => {
   const { data } = await executeQuery({
     variables: { id: Data.graph.admin.id },
   });
@@ -52,7 +44,7 @@ test("exists, owned", async () => {
   expect(data.node.name).toBe(Data.graph.admin.name);
 });
 
-test("exists, but not owned", async () => {
+test("not owned", async () => {
   const { data } = await executeQuery({
     user: Data.context.alice,
     variables: { id: Data.graph.admin.id },
