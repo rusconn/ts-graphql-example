@@ -24,9 +24,6 @@ const executeMutation = executeSingleResultOperation<
           status
         }
       }
-      ... on ResourceNotFoundError {
-        message
-      }
     }
   }
 `);
@@ -90,7 +87,7 @@ it("should update status", async () => {
     variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
+  expect(data?.uncompleteTodo?.__typename === "UncompleteTodoSuccess").toBe(true);
 
   const after = await db
     .selectFrom("Todo")
@@ -113,7 +110,7 @@ it("should update updatedAt", async () => {
     variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
+  expect(data?.uncompleteTodo?.__typename === "UncompleteTodoSuccess").toBe(true);
 
   const after = await db
     .selectFrom("Todo")
@@ -138,7 +135,7 @@ it("should not update other attrs", async () => {
     variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.uncompleteTodo?.__typename).toBe("UncompleteTodoSuccess");
+  expect(data?.uncompleteTodo?.__typename === "UncompleteTodoSuccess").toBe(true);
 
   const after = await db
     .selectFrom("Todo")

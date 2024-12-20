@@ -16,9 +16,6 @@ const executeMutation = executeSingleResultOperation<
       ... on SignupSuccess {
         token
       }
-      ... on EmailAlreadyTakenError {
-        message
-      }
     }
   }
 `);
@@ -59,7 +56,7 @@ test("email already exists", async () => {
     variables: { input: { name, email, password } },
   });
 
-  expect(data?.signup?.__typename).toBe("EmailAlreadyTakenError");
+  expect(data?.signup?.__typename === "EmailAlreadyTakenError").toBe(true);
 });
 
 it("should create user using input", async () => {

@@ -45,7 +45,7 @@ test("logout deletes token", async () => {
 
   const { data } = await executeMutation({});
 
-  expect(data?.logout?.__typename).toBe("LogoutSuccess");
+  expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
 
   const after = await db
     .selectFrom("User")
@@ -66,7 +66,7 @@ test("logout does not changes other attrs", async () => {
 
   const { data } = await executeMutation({});
 
-  expect(data?.logout?.__typename).toBe("LogoutSuccess");
+  expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
 
   const after = await db
     .selectFrom("User")

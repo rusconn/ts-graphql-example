@@ -22,9 +22,6 @@ const executeMutation = executeSingleResultOperation<
           updatedAt
         }
       }
-      ... on EmailAlreadyTakenError {
-        message
-      }
     }
   }
 `);
@@ -59,7 +56,7 @@ test("email already exists", async () => {
     variables: { input: { email } },
   });
 
-  expect(data?.updateMe?.__typename).toBe("EmailAlreadyTakenError");
+  expect(data?.updateMe?.__typename === "EmailAlreadyTakenError").toBe(true);
 });
 
 it("should update using input", async () => {
@@ -70,7 +67,7 @@ it("should update using input", async () => {
     variables: { input: { name, email } },
   });
 
-  expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
+  expect(data?.updateMe?.__typename === "UpdateMeSuccess").toBe(true);
 
   const user = await db
     .selectFrom("User")
@@ -93,7 +90,7 @@ it("should not update fields if the field is absent", async () => {
     variables: { input: {} },
   });
 
-  expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
+  expect(data?.updateMe?.__typename === "UpdateMeSuccess").toBe(true);
 
   const after = await db
     .selectFrom("User")
@@ -117,7 +114,7 @@ it("should update updatedAt", async () => {
     variables: { input: { name: "bar" } },
   });
 
-  expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
+  expect(data?.updateMe?.__typename === "UpdateMeSuccess").toBe(true);
 
   const after = await db
     .selectFrom("User")
@@ -142,7 +139,7 @@ it("should not update other attrs", async () => {
     variables: { input: { name: "baz" } },
   });
 
-  expect(data?.updateMe?.__typename).toBe("UpdateMeSuccess");
+  expect(data?.updateMe?.__typename === "UpdateMeSuccess").toBe(true);
 
   const after = await db
     .selectFrom("User")

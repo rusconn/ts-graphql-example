@@ -88,7 +88,7 @@ it("should delete his resources", async () => {
 
   const { data } = await executeMutation({});
 
-  expect(data?.deleteMe?.__typename).toBe("DeleteMeSuccess");
+  expect(data?.deleteMe?.__typename === "DeleteMeSuccess").toBe(true);
 
   const after = await db
     .selectFrom("Todo")

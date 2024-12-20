@@ -107,7 +107,7 @@ export type CompleteTodoMutationVariables = Exact<{
 }>;
 
 
-export type CompleteTodoMutation = { completeTodo?: { __typename: 'CompleteTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | { __typename: 'InvalidInputError' } | { __typename: 'ResourceNotFoundError', message: string } | null };
+export type CompleteTodoMutation = { completeTodo?: { __typename: 'CompleteTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | { __typename: 'InvalidInputError' } | { __typename: 'ResourceNotFoundError' } | null };
 
 export type CreateTodoMutationVariables = Exact<{
   input: CreateTodoInput;
@@ -121,14 +121,14 @@ export type DeleteTodoMutationVariables = Exact<{
 }>;
 
 
-export type DeleteTodoMutation = { deleteTodo?: { __typename: 'DeleteTodoSuccess', id: string } | { __typename: 'InvalidInputError' } | { __typename: 'ResourceNotFoundError', message: string } | null };
+export type DeleteTodoMutation = { deleteTodo?: { __typename: 'DeleteTodoSuccess', id: string } | { __typename: 'InvalidInputError' } | { __typename: 'ResourceNotFoundError' } | null };
 
 export type UncompleteTodoMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type UncompleteTodoMutation = { uncompleteTodo?: { __typename: 'InvalidInputError' } | { __typename: 'ResourceNotFoundError', message: string } | { __typename: 'UncompleteTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+export type UncompleteTodoMutation = { uncompleteTodo?: { __typename: 'InvalidInputError' } | { __typename: 'ResourceNotFoundError' } | { __typename: 'UncompleteTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type UpdateTodoMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -136,7 +136,7 @@ export type UpdateTodoMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodoMutation = { updateTodo?: { __typename: 'InvalidInputError' } | { __typename: 'ResourceNotFoundError', message: string } | { __typename: 'UpdateTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+export type UpdateTodoMutation = { updateTodo?: { __typename: 'InvalidInputError' } | { __typename: 'ResourceNotFoundError' } | { __typename: 'UpdateTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type TodoCreatedAtQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -218,7 +218,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { login?: { __typename: 'InvalidInputError' } | { __typename: 'LoginSuccess', token: string } | { __typename: 'UserNotFoundError', message: string } | null };
+export type LoginMutation = { login?: { __typename: 'InvalidInputError' } | { __typename: 'LoginSuccess', token: string } | { __typename: 'UserNotFoundError' } | null };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -230,14 +230,14 @@ export type SignupMutationVariables = Exact<{
 }>;
 
 
-export type SignupMutation = { signup?: { __typename: 'EmailAlreadyTakenError', message: string } | { __typename: 'InvalidInputError' } | { __typename: 'SignupSuccess', token: string } | null };
+export type SignupMutation = { signup?: { __typename: 'EmailAlreadyTakenError' } | { __typename: 'InvalidInputError' } | { __typename: 'SignupSuccess', token: string } | null };
 
 export type UpdateMeMutationVariables = Exact<{
   input: UpdateMeInput;
 }>;
 
 
-export type UpdateMeMutation = { updateMe?: { __typename: 'EmailAlreadyTakenError', message: string } | { __typename: 'InvalidInputError' } | { __typename: 'UpdateMeSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } } | null };
+export type UpdateMeMutation = { updateMe?: { __typename: 'EmailAlreadyTakenError' } | { __typename: 'InvalidInputError' } | { __typename: 'UpdateMeSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } } | null };
 
 export type UserQueryVariables = Exact<{
   id: Scalars['ID']['input'];

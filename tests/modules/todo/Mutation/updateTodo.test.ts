@@ -24,9 +24,6 @@ const executeMutation = executeSingleResultOperation<
           status
         }
       }
-      ... on ResourceNotFoundError {
-        message
-      }
     }
   }
 `);
@@ -92,7 +89,7 @@ it("should update using input", async () => {
     variables: { id: Data.graph.adminTodo.id, input },
   });
 
-  expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
+  expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
 
   const todo = await db
     .selectFrom("Todo")
@@ -116,7 +113,7 @@ it("should not update fields if the field is absent", async () => {
     variables: { id: Data.graph.adminTodo.id, input: {} },
   });
 
-  expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
+  expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
 
   const after = await db
     .selectFrom("Todo")
@@ -140,7 +137,7 @@ it("should update updatedAt", async () => {
     variables: { id: Data.graph.adminTodo.id, input },
   });
 
-  expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
+  expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
 
   const after = await db
     .selectFrom("Todo")
@@ -165,7 +162,7 @@ it("should not update other attrs", async () => {
     variables: { id: Data.graph.adminTodo.id, input },
   });
 
-  expect(data?.updateTodo?.__typename).toBe("UpdateTodoSuccess");
+  expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
 
   const after = await db
     .selectFrom("Todo")

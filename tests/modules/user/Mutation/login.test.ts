@@ -15,9 +15,6 @@ const executeMutation = executeSingleResultOperation<
       ... on LoginSuccess {
         token
       }
-      ... on UserNotFoundError {
-        message
-      }
     }
   }
 `);
@@ -54,7 +51,7 @@ test("wrong email", async () => {
     variables: { input: { email: wrongEmail, password } },
   });
 
-  expect(data?.login?.__typename).toBe("UserNotFoundError");
+  expect(data?.login?.__typename === "UserNotFoundError").toBe(true);
 });
 
 test("wrong password", async () => {
@@ -65,7 +62,7 @@ test("wrong password", async () => {
     variables: { input: { email, password: wrongPassword } },
   });
 
-  expect(data?.login?.__typename).toBe("UserNotFoundError");
+  expect(data?.login?.__typename === "UserNotFoundError").toBe(true);
 });
 
 test("correct input", async () => {
@@ -76,7 +73,7 @@ test("correct input", async () => {
     variables: { input: { email, password } },
   });
 
-  expect(data?.login?.__typename).toBe("LoginSuccess");
+  expect(data?.login?.__typename === "LoginSuccess").toBe(true);
 });
 
 test("login changes token", async () => {
@@ -93,7 +90,7 @@ test("login changes token", async () => {
     variables: { input: { email, password } },
   });
 
-  expect(data?.login?.__typename).toBe("LoginSuccess");
+  expect(data?.login?.__typename === "LoginSuccess").toBe(true);
 
   const after = await db
     .selectFrom("User")
@@ -118,7 +115,7 @@ test("login does not changes other attrs", async () => {
     variables: { input: { email, password } },
   });
 
-  expect(data?.login?.__typename).toBe("LoginSuccess");
+  expect(data?.login?.__typename === "LoginSuccess").toBe(true);
 
   const after = await db
     .selectFrom("User")

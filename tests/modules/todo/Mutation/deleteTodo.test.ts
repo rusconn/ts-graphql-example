@@ -15,9 +15,6 @@ const executeMutation = executeSingleResultOperation<
       ... on DeleteTodoSuccess {
         id
       }
-      ... on ResourceNotFoundError {
-        message
-      }
     }
   }
 `);
@@ -72,7 +69,7 @@ it("should delete todo", async () => {
     variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.deleteTodo?.__typename).toBe("DeleteTodoSuccess");
+  expect(data?.deleteTodo?.__typename === "DeleteTodoSuccess").toBe(true);
 
   const todo = await db
     .selectFrom("Todo")
@@ -93,7 +90,7 @@ it("should not delete others", async () => {
     variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.deleteTodo?.__typename).toBe("DeleteTodoSuccess");
+  expect(data?.deleteTodo?.__typename === "DeleteTodoSuccess").toBe(true);
 
   const todo = await db
     .selectFrom("Todo")
