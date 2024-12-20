@@ -14,12 +14,6 @@ export const badUserInputErr = (message: string, originalError?: Error) =>
     originalError,
   });
 
-export const notFoundErr = (originalError?: Error) =>
-  new GraphQLError("Not found", {
-    extensions: { code: ErrorCode.NotFound },
-    originalError,
-  });
-
 export const dateByUuid = (id: string) => {
   return new Date(decodeTime(id));
 };

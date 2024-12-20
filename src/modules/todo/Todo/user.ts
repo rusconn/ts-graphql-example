@@ -1,5 +1,5 @@
 import type { TodoResolvers } from "../../../schema.ts";
-import { forbiddenErr, notFoundErr } from "../../common/resolvers.ts";
+import { forbiddenErr } from "../../common/resolvers.ts";
 import { getUser } from "../../user/common/resolver.ts";
 import { authAdminOrTodoOwner } from "../common/authorizer.ts";
 
@@ -18,9 +18,5 @@ export const resolver: TodoResolvers["user"] = async (parent, _args, context) =>
 
   const user = await getUser(context, { id: parent.userId });
 
-  if (!user) {
-    throw notFoundErr();
-  }
-
-  return user;
+  return user ?? null;
 };

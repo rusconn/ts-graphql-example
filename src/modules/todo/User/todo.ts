@@ -1,5 +1,5 @@
 import type { UserResolvers } from "../../../schema.ts";
-import { badUserInputErr, forbiddenErr, notFoundErr } from "../../common/resolvers.ts";
+import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
 import { authAdminOrUserOwner } from "../../user/common/authorizer.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
 import { getTodo } from "../common/resolver.ts";
@@ -25,9 +25,5 @@ export const resolver: UserResolvers["todo"] = async (parent, args, context) => 
 
   const todo = await getTodo(context, { id: parsed, userId: parent.id });
 
-  if (!todo) {
-    throw notFoundErr();
-  }
-
-  return todo;
+  return todo ?? null;
 };

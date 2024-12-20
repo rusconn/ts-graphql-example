@@ -1,6 +1,6 @@
 import type { QueryResolvers } from "../../../schema.ts";
 import { authAdmin } from "../../common/authorizers.ts";
-import { badUserInputErr, forbiddenErr, notFoundErr } from "../../common/resolvers.ts";
+import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
 import { parseUserNodeId } from "../common/parser.ts";
 import { getUser } from "../common/resolver.ts";
 
@@ -25,9 +25,5 @@ export const resolver: QueryResolvers["user"] = async (_parent, args, context) =
 
   const user = await getUser(context, { id: parsed });
 
-  if (!user) {
-    throw notFoundErr();
-  }
-
-  return user;
+  return user ?? null;
 };

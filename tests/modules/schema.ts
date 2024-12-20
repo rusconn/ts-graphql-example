@@ -20,8 +20,7 @@ export type Scalars = {
 export enum ErrorCode {
   AuthenticationError = 'AUTHENTICATION_ERROR',
   BadUserInput = 'BAD_USER_INPUT',
-  Forbidden = 'FORBIDDEN',
-  NotFound = 'NOT_FOUND'
+  Forbidden = 'FORBIDDEN'
 }
 
 export enum TodoSortKeys {

@@ -1,5 +1,4 @@
 import { db } from "../../../../src/db/client.ts";
-import { ErrorCode } from "../../../../src/schema.ts";
 
 import { Data, dummyNodeId } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";
@@ -34,13 +33,11 @@ beforeAll(async () => {
 });
 
 test("not exists", async () => {
-  const { errors } = await executeQuery({
+  const { data } = await executeQuery({
     variables: { id: dummyNodeId.user() },
   });
 
-  const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
-  expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
+  expect(data?.node).toBeNull();
 });
 
 test("exists, owned", async () => {

@@ -1,5 +1,4 @@
 import { db } from "../../../../src/db/client.ts";
-import { ErrorCode } from "../../../../src/schema.ts";
 
 import { Data, dummyNodeId } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";
@@ -39,13 +38,10 @@ it("should return item correctly", async () => {
   expect(data.user.id).toEqual(Data.graph.admin.id);
 });
 
-it("should return not found error if not found", async () => {
-  const { data, errors } = await executeQuery({
+it("should return null if not found", async () => {
+  const { data } = await executeQuery({
     variables: { id: dummyNodeId.user() },
   });
 
-  const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
   expect(data?.user).toBeNull();
-  expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
 });

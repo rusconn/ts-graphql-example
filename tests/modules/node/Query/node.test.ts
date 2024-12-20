@@ -1,5 +1,4 @@
 import { db } from "../../../../src/db/client.ts";
-import { ErrorCode } from "../../../../src/schema.ts";
 
 import { Data, dummyNodeId } from "../../../data.ts";
 import { clearTables } from "../../../helpers.ts";
@@ -31,25 +30,19 @@ beforeAll(async () => {
 });
 
 test("not exists", async () => {
-  const { data, errors } = await executeQuery({
+  const { data } = await executeQuery({
     variables: { id: dummyNodeId.todo() },
   });
 
-  const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
   expect(data?.node).toBeNull();
-  expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
 });
 
 test("exists, but not owned", async () => {
-  const { data, errors } = await executeQuery({
+  const { data } = await executeQuery({
     variables: { id: Data.graph.alice.id },
   });
 
-  const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
   expect(data?.node).not.toBeNull();
-  expect(errorCodes).toEqual(expect.not.arrayContaining([ErrorCode.NotFound]));
 });
 
 describe("should return item correctly", () => {

@@ -1,5 +1,4 @@
 import { db } from "../../../../src/db/client.ts";
-import { ErrorCode } from "../../../../src/schema.ts";
 
 import { Data, dummyNodeId } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";
@@ -75,7 +74,7 @@ describe("exists, but not owned", () => {
   ] as const;
 
   test.each(patterns)("%o %s %s", async (user, id, todoId) => {
-    const { data, errors } = await executeQuery({
+    const { data } = await executeQuery({
       user,
       variables: { id, todoId },
     });
@@ -84,9 +83,6 @@ describe("exists, but not owned", () => {
       fail();
     }
 
-    const errorCodes = errors?.map(({ extensions }) => extensions?.code);
-
     expect(data.node.todo).toBeNull();
-    expect(errorCodes).toEqual(expect.arrayContaining([ErrorCode.NotFound]));
   });
 });
