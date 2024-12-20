@@ -11,8 +11,8 @@ const executeMutation = executeSingleResultOperation<
   CreateTodoMutation,
   CreateTodoMutationVariables
 >(/* GraphQL */ `
-  mutation CreateTodo($input: CreateTodoInput!) {
-    createTodo(input: $input) {
+  mutation CreateTodo($title: NonEmptyString!, $description: String!) {
+    createTodo(title: $title, description: $description) {
       __typename
       ... on CreateTodoSuccess {
         todo {
@@ -39,7 +39,7 @@ beforeAll(async () => {
   await seedData.users();
 });
 
-const input = {
+const variables = {
   title: "foo",
   description: "bar",
 };
@@ -48,7 +48,7 @@ test("invalid input", async () => {
   const invalidTitle = "A".repeat(100 + 1);
 
   const { data } = await executeMutation({
-    variables: { input: { ...input, title: invalidTitle } },
+    variables: { ...variables, title: invalidTitle },
   });
 
   expect(data?.createTodo?.__typename === "InvalidInputError").toBe(true);
@@ -56,7 +56,7 @@ test("invalid input", async () => {
 
 it("should create todo using input", async () => {
   const { data } = await executeMutation({
-    variables: { input },
+    variables,
   });
 
   if (data?.createTodo?.__typename !== "CreateTodoSuccess") {
@@ -75,13 +75,13 @@ it("should create todo using input", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(todo.title).toBe(input.title);
-  expect(todo.description).toBe(input.description);
+  expect(todo.title).toBe(variables.title);
+  expect(todo.description).toBe(variables.description);
 });
 
 test("status should be PENDING by default", async () => {
   const { data } = await executeMutation({
-    variables: { input },
+    variables,
   });
 
   if (data?.createTodo?.__typename !== "CreateTodoSuccess") {

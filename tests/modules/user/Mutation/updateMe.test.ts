@@ -11,8 +11,8 @@ const executeMutation = executeSingleResultOperation<
   UpdateMeMutation,
   UpdateMeMutationVariables
 >(/* GraphQL */ `
-  mutation UpdateMe($input: UpdateMeInput!) {
-    updateMe(input: $input) {
+  mutation UpdateMe($name: NonEmptyString, $email: NonEmptyString, $password: NonEmptyString) {
+    updateMe(name: $name, email: $email, password: $password) {
       __typename
       ... on UpdateMeSuccess {
         user {
@@ -43,7 +43,7 @@ test("invalid input", async () => {
   const invalidEmail = "emailemail.com";
 
   const { data } = await executeMutation({
-    variables: { input: { email: invalidEmail } },
+    variables: { email: invalidEmail },
   });
 
   expect(data?.updateMe?.__typename === "InvalidInputError").toBe(true);
@@ -53,7 +53,7 @@ test("email already exists", async () => {
   const { email } = Data.db.alice;
 
   const { data } = await executeMutation({
-    variables: { input: { email } },
+    variables: { email },
   });
 
   expect(data?.updateMe?.__typename === "EmailAlreadyTakenError").toBe(true);
@@ -64,7 +64,7 @@ it("should update using input", async () => {
   const email = "foo@foo.com";
 
   const { data } = await executeMutation({
-    variables: { input: { name, email } },
+    variables: { name, email },
   });
 
   expect(data?.updateMe?.__typename === "UpdateMeSuccess").toBe(true);
@@ -87,7 +87,7 @@ it("should not update fields if the field is absent", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    variables: { input: {} },
+    variables: {},
   });
 
   expect(data?.updateMe?.__typename === "UpdateMeSuccess").toBe(true);
@@ -111,7 +111,7 @@ it("should update updatedAt", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    variables: { input: { name: "bar" } },
+    variables: { name: "bar" },
   });
 
   expect(data?.updateMe?.__typename === "UpdateMeSuccess").toBe(true);
@@ -136,7 +136,7 @@ it("should not update other attrs", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    variables: { input: { name: "baz" } },
+    variables: { name: "baz" },
   });
 
   expect(data?.updateMe?.__typename === "UpdateMeSuccess").toBe(true);

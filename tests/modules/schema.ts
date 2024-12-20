@@ -17,13 +17,6 @@ export type Scalars = {
   NonEmptyString: { input: string; output: string; }
 };
 
-export type CreateTodoInput = {
-  /** 5000文字まで */
-  description: Scalars['String']['input'];
-  /** 100文字まで */
-  title: Scalars['NonEmptyString']['input'];
-};
-
 export enum ErrorCode {
   AuthenticationError = 'AUTHENTICATION_ERROR',
   BadUserInput = 'BAD_USER_INPUT',
@@ -31,26 +24,10 @@ export enum ErrorCode {
   NotFound = 'NOT_FOUND'
 }
 
-export type LoginInput = {
-  /** 100文字まで */
-  email: Scalars['NonEmptyString']['input'];
-  /** 8文字以上、50文字まで */
-  password: Scalars['NonEmptyString']['input'];
-};
-
 export enum OrderDirection {
   Asc = 'ASC',
   Desc = 'DESC'
 }
-
-export type SignupInput = {
-  /** 100文字まで、既に存在する場合はエラー */
-  email: Scalars['NonEmptyString']['input'];
-  /** 100文字まで */
-  name: Scalars['NonEmptyString']['input'];
-  /** 8文字以上、50文字まで */
-  password: Scalars['NonEmptyString']['input'];
-};
 
 export type TodoOrder = {
   direction: OrderDirection;
@@ -66,24 +43,6 @@ export enum TodoStatus {
   Done = 'DONE',
   Pending = 'PENDING'
 }
-
-export type UpdateMeInput = {
-  /** 100文字まで、既に存在する場合はエラー、null は入力エラー */
-  email?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  /** 100文字まで、null は入力エラー */
-  name?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  /** 8文字以上、50文字まで、null は入力エラー */
-  password?: InputMaybe<Scalars['NonEmptyString']['input']>;
-};
-
-export type UpdateTodoInput = {
-  /** 5000文字まで、null は入力エラー */
-  description?: InputMaybe<Scalars['String']['input']>;
-  /** null は入力エラー */
-  status?: InputMaybe<TodoStatus>;
-  /** 100文字まで、null は入力エラー */
-  title?: InputMaybe<Scalars['NonEmptyString']['input']>;
-};
 
 export type UserOrder = {
   direction: OrderDirection;
@@ -110,7 +69,8 @@ export type CompleteTodoMutationVariables = Exact<{
 export type CompleteTodoMutation = { completeTodo?: { __typename: 'CompleteTodoSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | { __typename: 'InvalidInputError' } | { __typename: 'ResourceNotFoundError' } | null };
 
 export type CreateTodoMutationVariables = Exact<{
-  input: CreateTodoInput;
+  title: Scalars['NonEmptyString']['input'];
+  description: Scalars['String']['input'];
 }>;
 
 
@@ -132,7 +92,9 @@ export type UncompleteTodoMutation = { uncompleteTodo?: { __typename: 'InvalidIn
 
 export type UpdateTodoMutationVariables = Exact<{
   id: Scalars['ID']['input'];
-  input: UpdateTodoInput;
+  title?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<TodoStatus>;
 }>;
 
 
@@ -214,7 +176,8 @@ export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
 export type DeleteMeMutation = { deleteMe?: { __typename: 'DeleteMeSuccess', id: string } | null };
 
 export type LoginMutationVariables = Exact<{
-  input: LoginInput;
+  email: Scalars['NonEmptyString']['input'];
+  password: Scalars['NonEmptyString']['input'];
 }>;
 
 
@@ -226,14 +189,18 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 export type LogoutMutation = { logout?: { __typename: 'LogoutSuccess', user: { id: string, name?: string | null, email?: string | null } } | null };
 
 export type SignupMutationVariables = Exact<{
-  input: SignupInput;
+  name: Scalars['NonEmptyString']['input'];
+  email: Scalars['NonEmptyString']['input'];
+  password: Scalars['NonEmptyString']['input'];
 }>;
 
 
 export type SignupMutation = { signup?: { __typename: 'EmailAlreadyTakenError' } | { __typename: 'InvalidInputError' } | { __typename: 'SignupSuccess', token: string } | null };
 
 export type UpdateMeMutationVariables = Exact<{
-  input: UpdateMeInput;
+  name?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  email?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  password?: InputMaybe<Scalars['NonEmptyString']['input']>;
 }>;
 
 

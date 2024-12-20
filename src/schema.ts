@@ -35,13 +35,6 @@ export type CompleteTodoSuccess = {
   todo: Todo;
 };
 
-export type CreateTodoInput = {
-  /** 5000文字まで */
-  description: Scalars['String']['input'];
-  /** 100文字まで */
-  title: Scalars['NonEmptyString']['input'];
-};
-
 export type CreateTodoResult = CreateTodoSuccess | InvalidInputError | ResourceLimitExceededError;
 
 export type CreateTodoSuccess = {
@@ -84,13 +77,6 @@ export type InvalidInputError = Error & {
   message: Scalars['String']['output'];
 };
 
-export type LoginInput = {
-  /** 100文字まで */
-  email: Scalars['NonEmptyString']['input'];
-  /** 8文字以上、50文字まで */
-  password: Scalars['NonEmptyString']['input'];
-};
-
 export type LoginResult = InvalidInputError | LoginSuccess | UserNotFoundError;
 
 export type LoginSuccess = {
@@ -117,9 +103,7 @@ export type Mutation = {
   logout?: Maybe<LogoutResult>;
   signup?: Maybe<SignupResult>;
   uncompleteTodo?: Maybe<UncompleteTodoResult>;
-  /** 指定したフィールドのみ更新する */
   updateMe?: Maybe<UpdateMeResult>;
-  /** 指定したフィールドのみ更新する */
   updateTodo?: Maybe<UpdateTodoResult>;
 };
 
@@ -130,7 +114,8 @@ export type MutationCompleteTodoArgs = {
 
 
 export type MutationCreateTodoArgs = {
-  input: CreateTodoInput;
+  description: Scalars['String']['input'];
+  title: Scalars['NonEmptyString']['input'];
 };
 
 
@@ -140,12 +125,15 @@ export type MutationDeleteTodoArgs = {
 
 
 export type MutationLoginArgs = {
-  input: LoginInput;
+  email: Scalars['NonEmptyString']['input'];
+  password: Scalars['NonEmptyString']['input'];
 };
 
 
 export type MutationSignupArgs = {
-  input: SignupInput;
+  email: Scalars['NonEmptyString']['input'];
+  name: Scalars['NonEmptyString']['input'];
+  password: Scalars['NonEmptyString']['input'];
 };
 
 
@@ -155,13 +143,17 @@ export type MutationUncompleteTodoArgs = {
 
 
 export type MutationUpdateMeArgs = {
-  input: UpdateMeInput;
+  email?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  name?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  password?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 
 export type MutationUpdateTodoArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
-  input: UpdateTodoInput;
+  status?: InputMaybe<TodoStatus>;
+  title?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type Node = {
@@ -218,15 +210,6 @@ export type ResourceNotFoundError = Error & {
   message: Scalars['String']['output'];
 };
 
-export type SignupInput = {
-  /** 100文字まで、既に存在する場合はエラー */
-  email: Scalars['NonEmptyString']['input'];
-  /** 100文字まで */
-  name: Scalars['NonEmptyString']['input'];
-  /** 8文字以上、50文字まで */
-  password: Scalars['NonEmptyString']['input'];
-};
-
 export type SignupResult = EmailAlreadyTakenError | InvalidInputError | SignupSuccess;
 
 export type SignupSuccess = {
@@ -281,29 +264,11 @@ export type UncompleteTodoSuccess = {
   todo: Todo;
 };
 
-export type UpdateMeInput = {
-  /** 100文字まで、既に存在する場合はエラー、null は入力エラー */
-  email?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  /** 100文字まで、null は入力エラー */
-  name?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  /** 8文字以上、50文字まで、null は入力エラー */
-  password?: InputMaybe<Scalars['NonEmptyString']['input']>;
-};
-
 export type UpdateMeResult = EmailAlreadyTakenError | InvalidInputError | UpdateMeSuccess;
 
 export type UpdateMeSuccess = {
   __typename?: 'UpdateMeSuccess';
   user: User;
-};
-
-export type UpdateTodoInput = {
-  /** 5000文字まで、null は入力エラー */
-  description?: InputMaybe<Scalars['String']['input']>;
-  /** null は入力エラー */
-  status?: InputMaybe<TodoStatus>;
-  /** 100文字まで、null は入力エラー */
-  title?: InputMaybe<Scalars['NonEmptyString']['input']>;
 };
 
 export type UpdateTodoResult = InvalidInputError | ResourceNotFoundError | UpdateTodoSuccess;
@@ -461,7 +426,6 @@ export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   CompleteTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CompleteTodoResult']>;
   CompleteTodoSuccess: ResolverTypeWrapper<Omit<CompleteTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
-  CreateTodoInput: CreateTodoInput;
   CreateTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTodoResult']>;
   CreateTodoSuccess: ResolverTypeWrapper<Omit<CreateTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
@@ -476,7 +440,6 @@ export type ResolversTypes = ResolversObject<{
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   InvalidInputError: ResolverTypeWrapper<InvalidInputError>;
-  LoginInput: LoginInput;
   LoginResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LoginResult']>;
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
   LogoutResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LogoutResult']>;
@@ -489,7 +452,6 @@ export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   ResourceLimitExceededError: ResolverTypeWrapper<ResourceLimitExceededError>;
   ResourceNotFoundError: ResolverTypeWrapper<ResourceNotFoundError>;
-  SignupInput: SignupInput;
   SignupResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SignupResult']>;
   SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
@@ -501,10 +463,8 @@ export type ResolversTypes = ResolversObject<{
   TodoStatus: TodoStatus;
   UncompleteTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UncompleteTodoResult']>;
   UncompleteTodoSuccess: ResolverTypeWrapper<Omit<UncompleteTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
-  UpdateMeInput: UpdateMeInput;
   UpdateMeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateMeResult']>;
   UpdateMeSuccess: ResolverTypeWrapper<Omit<UpdateMeSuccess, 'user'> & { user: ResolversTypes['User'] }>;
-  UpdateTodoInput: UpdateTodoInput;
   UpdateTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTodoResult']>;
   UpdateTodoSuccess: ResolverTypeWrapper<Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   User: ResolverTypeWrapper<UserMapper>;
@@ -520,7 +480,6 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
   CompleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['CompleteTodoResult'];
   CompleteTodoSuccess: Omit<CompleteTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
-  CreateTodoInput: CreateTodoInput;
   CreateTodoResult: ResolversUnionTypes<ResolversParentTypes>['CreateTodoResult'];
   CreateTodoSuccess: Omit<CreateTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   DateTime: Scalars['DateTime']['output'];
@@ -534,7 +493,6 @@ export type ResolversParentTypes = ResolversObject<{
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   InvalidInputError: InvalidInputError;
-  LoginInput: LoginInput;
   LoginResult: ResolversUnionTypes<ResolversParentTypes>['LoginResult'];
   LoginSuccess: LoginSuccess;
   LogoutResult: ResolversUnionTypes<ResolversParentTypes>['LogoutResult'];
@@ -546,7 +504,6 @@ export type ResolversParentTypes = ResolversObject<{
   Query: {};
   ResourceLimitExceededError: ResourceLimitExceededError;
   ResourceNotFoundError: ResourceNotFoundError;
-  SignupInput: SignupInput;
   SignupResult: ResolversUnionTypes<ResolversParentTypes>['SignupResult'];
   SignupSuccess: SignupSuccess;
   String: Scalars['String']['output'];
@@ -556,10 +513,8 @@ export type ResolversParentTypes = ResolversObject<{
   TodoOrder: TodoOrder;
   UncompleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['UncompleteTodoResult'];
   UncompleteTodoSuccess: Omit<UncompleteTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
-  UpdateMeInput: UpdateMeInput;
   UpdateMeResult: ResolversUnionTypes<ResolversParentTypes>['UpdateMeResult'];
   UpdateMeSuccess: Omit<UpdateMeSuccess, 'user'> & { user: ResolversParentTypes['User'] };
-  UpdateTodoInput: UpdateTodoInput;
   UpdateTodoResult: ResolversUnionTypes<ResolversParentTypes>['UpdateTodoResult'];
   UpdateTodoSuccess: Omit<UpdateTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   User: UserMapper;
@@ -648,15 +603,15 @@ export type LogoutSuccessResolvers<ContextType = Context, ParentType extends Res
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   completeTodo?: Resolver<Maybe<ResolversTypes['CompleteTodoResult']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
-  createTodo?: Resolver<Maybe<ResolversTypes['CreateTodoResult']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'input'>>;
+  createTodo?: Resolver<Maybe<ResolversTypes['CreateTodoResult']>, ParentType, ContextType, RequireFields<MutationCreateTodoArgs, 'description' | 'title'>>;
   deleteMe?: Resolver<Maybe<ResolversTypes['DeleteMeResult']>, ParentType, ContextType>;
   deleteTodo?: Resolver<Maybe<ResolversTypes['DeleteTodoResult']>, ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, 'id'>>;
-  login?: Resolver<Maybe<ResolversTypes['LoginResult']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
+  login?: Resolver<Maybe<ResolversTypes['LoginResult']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<Maybe<ResolversTypes['LogoutResult']>, ParentType, ContextType>;
-  signup?: Resolver<Maybe<ResolversTypes['SignupResult']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
+  signup?: Resolver<Maybe<ResolversTypes['SignupResult']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'email' | 'name' | 'password'>>;
   uncompleteTodo?: Resolver<Maybe<ResolversTypes['UncompleteTodoResult']>, ParentType, ContextType, RequireFields<MutationUncompleteTodoArgs, 'id'>>;
-  updateMe?: Resolver<Maybe<ResolversTypes['UpdateMeResult']>, ParentType, ContextType, RequireFields<MutationUpdateMeArgs, 'input'>>;
-  updateTodo?: Resolver<Maybe<ResolversTypes['UpdateTodoResult']>, ParentType, ContextType, RequireFields<MutationUpdateTodoArgs, 'id' | 'input'>>;
+  updateMe?: Resolver<Maybe<ResolversTypes['UpdateMeResult']>, ParentType, ContextType, Partial<MutationUpdateMeArgs>>;
+  updateTodo?: Resolver<Maybe<ResolversTypes['UpdateTodoResult']>, ParentType, ContextType, RequireFields<MutationUpdateTodoArgs, 'id'>>;
 }>;
 
 export type NodeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = ResolversObject<{

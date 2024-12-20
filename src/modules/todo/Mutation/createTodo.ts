@@ -13,14 +13,13 @@ const DESC_MAX = 5000;
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     "${TODOS_MAX}件まで"
-    createTodo(input: CreateTodoInput!): CreateTodoResult
-  }
+    createTodo(
+      "${TITLE_MAX}文字まで"
+      title: NonEmptyString!
 
-  input CreateTodoInput {
-    "${TITLE_MAX}文字まで"
-    title: NonEmptyString!
-    "${DESC_MAX}文字まで"
-    description: String!
+      "${DESC_MAX}文字まで"
+      description: String!
+    ): CreateTodoResult
   }
 
   union CreateTodoResult = CreateTodoSuccess | InvalidInputError | ResourceLimitExceededError
@@ -54,7 +53,7 @@ const authorize = (context: AuthContext) => {
 };
 
 const parseArgs = (args: MutationCreateTodoArgs) => {
-  const { title, description } = args.input;
+  const { title, description } = args;
 
   if (numChars(title) > TITLE_MAX) {
     return parseErr(`"title" must be up to ${TITLE_MAX} characters`);
@@ -112,37 +111,37 @@ if (import.meta.vitest) {
   const { context } = await import("../../common/testData/context.ts");
 
   const valid = {
-    args: { input: { title: "title", description: "description" } } as MutationCreateTodoArgs,
+    args: { title: "title", description: "description" } as MutationCreateTodoArgs,
     user: context.admin,
   };
 
   describe("Parsing", () => {
-    const validInput = valid.args.input;
+    const validInput = valid.args;
 
     const valids = [
       { ...validInput },
       { ...validInput, title: "A".repeat(TITLE_MAX) },
       { ...validInput, description: "A".repeat(DESC_MAX) },
-    ] as MutationCreateTodoArgs["input"][];
+    ] as MutationCreateTodoArgs[];
 
     const invalids = [
       { ...validInput, title: "A".repeat(TITLE_MAX + 1) },
       { ...validInput, description: "A".repeat(DESC_MAX + 1) },
-    ] as MutationCreateTodoArgs["input"][];
+    ] as MutationCreateTodoArgs[];
 
-    test.each(valids)("valids %#", (input) => {
-      const parsed = parseArgs({ input });
+    test.each(valids)("valids %#", (args) => {
+      const parsed = parseArgs(args);
       expect(parsed instanceof Error).toBe(false);
     });
 
-    test.each(invalids)("invalids %#", (input) => {
-      const parsed = parseArgs({ input });
+    test.each(invalids)("invalids %#", (args) => {
+      const parsed = parseArgs(args);
       expect(parsed instanceof Error).toBe(true);
     });
   });
 
   describe("Maximum num todos", () => {
-    const validInput = valid.args.input;
+    const validInput = valid.args;
 
     const createDb = (num: number) =>
       ({

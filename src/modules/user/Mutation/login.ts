@@ -11,14 +11,13 @@ const PASS_MAX = 50;
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    login(input: LoginInput!): LoginResult
-  }
+    login(
+      "${EMAIL_MAX}文字まで"
+      email: NonEmptyString!
 
-  input LoginInput {
-    "${EMAIL_MAX}文字まで"
-    email: NonEmptyString!
-    "${PASS_MIN}文字以上、${PASS_MAX}文字まで"
-    password: NonEmptyString!
+      "${PASS_MIN}文字以上、${PASS_MAX}文字まで"
+      password: NonEmptyString!
+    ): LoginResult
   }
 
   union LoginResult = LoginSuccess | InvalidInputError | UserNotFoundError
@@ -85,7 +84,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 };
 
 const parseArgs = (args: MutationLoginArgs) => {
-  const { email, password } = args.input;
+  const { email, password } = args;
 
   if (numChars(email) > EMAIL_MAX) {
     return parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
@@ -111,21 +110,21 @@ if (import.meta.vitest) {
       { ...validInput },
       { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
       { ...validInput, password: "A".repeat(PASS_MIN) },
-    ] as MutationLoginArgs["input"][];
+    ] as MutationLoginArgs[];
 
     const invalids = [
       { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
       { ...validInput, password: "A".repeat(PASS_MIN - 1) },
       { ...validInput, email: "emailemail.com" },
-    ] as MutationLoginArgs["input"][];
+    ] as MutationLoginArgs[];
 
-    test.each(valids)("valids %#", (input) => {
-      const parsed = parseArgs({ input });
+    test.each(valids)("valids %#", (args) => {
+      const parsed = parseArgs(args);
       expect(parsed instanceof Error).toBe(false);
     });
 
-    test.each(invalids)("invalids %#", (input) => {
-      const parsed = parseArgs({ input });
+    test.each(invalids)("invalids %#", (args) => {
+      const parsed = parseArgs(args);
       expect(parsed instanceof Error).toBe(true);
     });
   });

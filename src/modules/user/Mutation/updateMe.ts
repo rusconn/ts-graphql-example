@@ -14,17 +14,16 @@ const PASS_MAX = 50;
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    "指定したフィールドのみ更新する"
-    updateMe(input: UpdateMeInput!): UpdateMeResult
-  }
+    updateMe(
+      "${NAME_MAX}文字まで、null は入力エラー"
+      name: NonEmptyString
 
-  input UpdateMeInput {
-    "${NAME_MAX}文字まで、null は入力エラー"
-    name: NonEmptyString
-    "${EMAIL_MAX}文字まで、既に存在する場合はエラー、null は入力エラー"
-    email: NonEmptyString
-    "${PASS_MIN}文字以上、${PASS_MAX}文字まで、null は入力エラー"
-    password: NonEmptyString
+      "${EMAIL_MAX}文字まで、既に存在する場合はエラー、null は入力エラー"
+      email: NonEmptyString
+
+      "${PASS_MIN}文字以上、${PASS_MAX}文字まで、null は入力エラー"
+      password: NonEmptyString
+    ): UpdateMeResult
   }
 
   union UpdateMeResult = UpdateMeSuccess | InvalidInputError | EmailAlreadyTakenError
@@ -88,7 +87,7 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
 };
 
 const parseArgs = (args: MutationUpdateMeArgs) => {
-  const { name, email, password } = args.input;
+  const { name, email, password } = args;
 
   if (name === null) {
     return parseErr('"name" must be not null');
@@ -129,7 +128,7 @@ if (import.meta.vitest) {
       { name: "A".repeat(NAME_MAX) },
       { email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
       { password: "A".repeat(PASS_MIN) },
-    ] as MutationUpdateMeArgs["input"][];
+    ] as MutationUpdateMeArgs[];
 
     const invalids = [
       { name: null },
@@ -139,15 +138,15 @@ if (import.meta.vitest) {
       { email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
       { password: "A".repeat(PASS_MIN - 1) },
       { email: "emailemail.com" },
-    ] as MutationUpdateMeArgs["input"][];
+    ] as MutationUpdateMeArgs[];
 
-    test.each(valids)("valids %#", (input) => {
-      const parsed = parseArgs({ input });
+    test.each(valids)("valids %#", (args) => {
+      const parsed = parseArgs(args);
       expect(parsed instanceof Error).toBe(false);
     });
 
-    test.each(invalids)("invalids %#", (input) => {
-      const parsed = parseArgs({ input });
+    test.each(invalids)("invalids %#", (args) => {
+      const parsed = parseArgs(args);
       expect(parsed instanceof Error).toBe(true);
     });
   });

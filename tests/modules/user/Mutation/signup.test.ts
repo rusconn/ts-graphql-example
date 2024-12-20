@@ -10,8 +10,8 @@ const executeMutation = executeSingleResultOperation<
   SignupMutation,
   SignupMutationVariables
 >(/* GraphQL */ `
-  mutation Signup($input: SignupInput!) {
-    signup(input: $input) {
+  mutation Signup($name: NonEmptyString!, $email: NonEmptyString!, $password: NonEmptyString!) {
+    signup(name: $name, email: $email, password: $password) {
       __typename
       ... on SignupSuccess {
         token
@@ -40,7 +40,7 @@ test("invalid input", async () => {
 
   const { data } = await executeMutation({
     user: Data.context.guest,
-    variables: { input: { name, email: invalidEmail, password } },
+    variables: { name, email: invalidEmail, password },
   });
 
   expect(data?.signup?.__typename === "InvalidInputError").toBe(true);
@@ -53,7 +53,7 @@ test("email already exists", async () => {
 
   const { data } = await executeMutation({
     user: Data.context.guest,
-    variables: { input: { name, email, password } },
+    variables: { name, email, password },
   });
 
   expect(data?.signup?.__typename === "EmailAlreadyTakenError").toBe(true);
@@ -66,7 +66,7 @@ it("should create user using input", async () => {
 
   const { data } = await executeMutation({
     user: Data.context.guest,
-    variables: { input: { name, email, password } },
+    variables: { name, email, password },
   });
 
   if (data?.signup?.__typename !== "SignupSuccess") {
@@ -92,7 +92,7 @@ test("role should be USER by default", async () => {
 
   const { data } = await executeMutation({
     user: Data.context.guest,
-    variables: { input: { name, email, password } },
+    variables: { name, email, password },
   });
 
   if (data?.signup?.__typename !== "SignupSuccess") {

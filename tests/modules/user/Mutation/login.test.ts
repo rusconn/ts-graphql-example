@@ -9,8 +9,8 @@ const executeMutation = executeSingleResultOperation<
   LoginMutation,
   LoginMutationVariables
 >(/* GraphQL */ `
-  mutation Login($input: LoginInput!) {
-    login(input: $input) {
+  mutation Login($email: NonEmptyString!, $password: NonEmptyString!) {
+    login(email: $email, password: $password) {
       __typename
       ... on LoginSuccess {
         token
@@ -37,7 +37,7 @@ test("invalid input", async () => {
   const password = "adminadmin";
 
   const { data } = await executeMutation({
-    variables: { input: { email: invalidEmail, password } },
+    variables: { email: invalidEmail, password },
   });
 
   expect(data?.login?.__typename === "InvalidInputError").toBe(true);
@@ -48,7 +48,7 @@ test("wrong email", async () => {
   const password = "adminadmin";
 
   const { data } = await executeMutation({
-    variables: { input: { email: wrongEmail, password } },
+    variables: { email: wrongEmail, password },
   });
 
   expect(data?.login?.__typename === "UserNotFoundError").toBe(true);
@@ -59,7 +59,7 @@ test("wrong password", async () => {
   const wrongPassword = "dminadmin";
 
   const { data } = await executeMutation({
-    variables: { input: { email, password: wrongPassword } },
+    variables: { email, password: wrongPassword },
   });
 
   expect(data?.login?.__typename === "UserNotFoundError").toBe(true);
@@ -70,7 +70,7 @@ test("correct input", async () => {
   const password = "adminadmin";
 
   const { data } = await executeMutation({
-    variables: { input: { email, password } },
+    variables: { email, password },
   });
 
   expect(data?.login?.__typename === "LoginSuccess").toBe(true);
@@ -87,7 +87,7 @@ test("login changes token", async () => {
   const password = "adminadmin";
 
   const { data } = await executeMutation({
-    variables: { input: { email, password } },
+    variables: { email, password },
   });
 
   expect(data?.login?.__typename === "LoginSuccess").toBe(true);
@@ -112,7 +112,7 @@ test("login does not changes other attrs", async () => {
   const password = "adminadmin";
 
   const { data } = await executeMutation({
-    variables: { input: { email, password } },
+    variables: { email, password },
   });
 
   expect(data?.login?.__typename === "LoginSuccess").toBe(true);
