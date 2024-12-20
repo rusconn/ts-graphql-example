@@ -1,10 +1,5 @@
 import { db } from "../../../../src/db/client.ts";
-import {
-  OrderDirection,
-  type PageInfo,
-  TodoOrderField,
-  TodoStatus,
-} from "../../../../src/schema.ts";
+import { type PageInfo, TodoSortKeys, TodoStatus } from "../../../../src/schema.ts";
 
 import { Data } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";
@@ -21,7 +16,8 @@ const executeQuery = executeSingleResultOperation<
     $after: String
     $last: Int
     $before: String
-    $orderBy: TodoOrder
+    $reverse: Boolean
+    $sortKey: TodoSortKeys
     $status: TodoStatus
   ) {
     node(id: $id) {
@@ -32,7 +28,8 @@ const executeQuery = executeSingleResultOperation<
           after: $after
           last: $last
           before: $before
-          orderBy: $orderBy
+          reverse: $reverse
+          sortKey: $sortKey
           status: $status
         ) {
           totalCount
@@ -104,19 +101,19 @@ describe("order of items", () => {
   const patterns = [
     [{}, [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2]], // defaults to updatedAt desc
     [
-      { orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Asc } },
+      { reverse: false, sortKey: TodoSortKeys.CreatedAt },
       [Data.graph.adminTodo, Data.graph.adminTodo2, Data.graph.adminTodo3],
     ],
     [
-      { orderBy: { field: TodoOrderField.CreatedAt, direction: OrderDirection.Desc } },
+      { reverse: true, sortKey: TodoSortKeys.CreatedAt },
       [Data.graph.adminTodo3, Data.graph.adminTodo2, Data.graph.adminTodo],
     ],
     [
-      { orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Asc } },
+      { reverse: false, sortKey: TodoSortKeys.UpdatedAt },
       [Data.graph.adminTodo2, Data.graph.adminTodo3, Data.graph.adminTodo],
     ],
     [
-      { orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Desc } },
+      { reverse: true, sortKey: TodoSortKeys.UpdatedAt },
       [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2],
     ],
   ] as const;
@@ -165,11 +162,7 @@ describe("pagination", () => {
   describe("cursor", () => {
     const patterns = [
       [
-        {
-          id: Data.graph.admin.id,
-          first: 2,
-          orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Asc },
-        },
+        { id: Data.graph.admin.id, first: 2, reverse: false, sortKey: TodoSortKeys.UpdatedAt },
         {
           length: 2,
           ids: [Data.graph.adminTodo2.id, Data.graph.adminTodo3.id],
@@ -193,11 +186,7 @@ describe("pagination", () => {
         },
       ],
       [
-        {
-          id: Data.graph.admin.id,
-          first: 2,
-          orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Desc },
-        },
+        { id: Data.graph.admin.id, first: 2, reverse: true, sortKey: TodoSortKeys.UpdatedAt },
         {
           length: 2,
           ids: [Data.graph.adminTodo.id, Data.graph.adminTodo3.id],
@@ -221,11 +210,7 @@ describe("pagination", () => {
         },
       ],
       [
-        {
-          id: Data.graph.admin.id,
-          last: 2,
-          orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Asc },
-        },
+        { id: Data.graph.admin.id, last: 2, reverse: false, sortKey: TodoSortKeys.UpdatedAt },
         {
           length: 2,
           ids: [Data.graph.adminTodo3.id, Data.graph.adminTodo.id],
@@ -249,11 +234,7 @@ describe("pagination", () => {
         },
       ],
       [
-        {
-          id: Data.graph.admin.id,
-          last: 2,
-          orderBy: { field: TodoOrderField.UpdatedAt, direction: OrderDirection.Desc },
-        },
+        { id: Data.graph.admin.id, last: 2, reverse: true, sortKey: TodoSortKeys.UpdatedAt },
         {
           length: 2,
           ids: [Data.graph.adminTodo3.id, Data.graph.adminTodo2.id],

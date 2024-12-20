@@ -1,5 +1,5 @@
 import type { QueryResolvers, QueryUsersArgs } from "../../../schema.ts";
-import { OrderDirection, UserOrderField } from "../../../schema.ts";
+import { UserSortKeys } from "../../../schema.ts";
 import { authAdmin } from "../../common/authorizers.ts";
 import { getCursorConnection } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
@@ -26,16 +26,13 @@ export const typeDef = /* GraphQL */ `
 
       before: String
 
-      orderBy: UserOrder! = { field: CREATED_AT, direction: DESC }
+      reverse: Boolean! = true
+
+      sortKey: UserSortKeys! = CREATED_AT
     ): UserConnection
   }
 
-  input UserOrder {
-    field: UserOrderField!
-    direction: OrderDirection!
-  }
-
-  enum UserOrderField {
+  enum UserSortKeys {
     CREATED_AT
     UPDATED_AT
   }
@@ -63,25 +60,19 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
     throw badUserInputErr(parsed.message, parsed);
   }
 
-  const { orderBy, first, after, last, before } = parsed;
+  const { first, after, last, before, reverse, sortKey } = parsed;
 
   const connection = await getCursorConnection(
     async ({ cursor, limit, backward }) => {
-      const [direction, comp] = {
-        [OrderDirection.Asc]: ["asc", ">"] as const,
-        [OrderDirection.Desc]: ["desc", "<"] as const,
-      }[
-        backward
-          ? orderBy.direction === OrderDirection.Asc
-            ? OrderDirection.Desc
-            : OrderDirection.Asc
-          : orderBy.direction
-      ];
+      const [direction, comp] =
+        reverse === backward //
+          ? (["asc", ">"] as const)
+          : (["desc", "<"] as const);
 
       const orderColumn = {
-        [UserOrderField.CreatedAt]: "id" as const,
-        [UserOrderField.UpdatedAt]: "updatedAt" as const,
-      }[orderBy.field];
+        [UserSortKeys.CreatedAt]: "id" as const,
+        [UserSortKeys.UpdatedAt]: "updatedAt" as const,
+      }[sortKey];
 
       const cursorRecord = cursor
         ? context.db.selectFrom("User").where("id", "=", cursor.id)
@@ -153,18 +144,16 @@ if (import.meta.vitest) {
 
     const invalids = [{ first: FIRST_MAX + 1 }, { last: LAST_MAX + 1 }];
 
-    const orderBy = {
-      field: UserOrderField.CreatedAt,
-      direction: OrderDirection.Desc,
-    };
+    const reverse = true;
+    const sortKey = UserSortKeys.CreatedAt;
 
     test.each(valids)("valids %#", (args) => {
-      const parsed = parseArgs({ ...args, orderBy });
+      const parsed = parseArgs({ ...args, reverse, sortKey });
       expect(parsed instanceof Error).toBe(false);
     });
 
     test.each(invalids)("invalids %#", (args) => {
-      const parsed = parseArgs({ ...args, orderBy });
+      const parsed = parseArgs({ ...args, reverse, sortKey });
       expect(parsed instanceof Error).toBe(true);
     });
   });

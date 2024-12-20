@@ -7,11 +7,6 @@ const typeDef = /* GraphQL */ `
   type Query
   type Mutation
 
-  enum OrderDirection {
-    ASC
-    DESC
-  }
-
   type PageInfo {
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!

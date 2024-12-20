@@ -24,17 +24,7 @@ export enum ErrorCode {
   NotFound = 'NOT_FOUND'
 }
 
-export enum OrderDirection {
-  Asc = 'ASC',
-  Desc = 'DESC'
-}
-
-export type TodoOrder = {
-  direction: OrderDirection;
-  field: TodoOrderField;
-};
-
-export enum TodoOrderField {
+export enum TodoSortKeys {
   CreatedAt = 'CREATED_AT',
   UpdatedAt = 'UPDATED_AT'
 }
@@ -44,12 +34,7 @@ export enum TodoStatus {
   Pending = 'PENDING'
 }
 
-export type UserOrder = {
-  direction: OrderDirection;
-  field: UserOrderField;
-};
-
-export enum UserOrderField {
+export enum UserSortKeys {
   CreatedAt = 'CREATED_AT',
   UpdatedAt = 'UPDATED_AT'
 }
@@ -163,7 +148,8 @@ export type UserTodosQueryVariables = Exact<{
   after?: InputMaybe<Scalars['String']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
-  orderBy?: InputMaybe<TodoOrder>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+  sortKey?: InputMaybe<TodoSortKeys>;
   status?: InputMaybe<TodoStatus>;
 }>;
 
@@ -218,7 +204,8 @@ export type UsersQueryVariables = Exact<{
   after?: InputMaybe<Scalars['String']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
-  orderBy?: InputMaybe<UserOrder>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+  sortKey?: InputMaybe<UserSortKeys>;
 }>;
 
 

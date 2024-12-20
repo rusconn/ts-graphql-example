@@ -1,5 +1,5 @@
 import { db } from "../../../../src/db/client.ts";
-import { OrderDirection, type PageInfo, UserOrderField } from "../../../../src/schema.ts";
+import { type PageInfo, UserSortKeys } from "../../../../src/schema.ts";
 
 import { Data } from "../../../data.ts";
 import { clearUsers, fail } from "../../../helpers.ts";
@@ -7,8 +7,22 @@ import { executeSingleResultOperation } from "../../../server.ts";
 import type { UsersQuery, UsersQueryVariables } from "../../schema.ts";
 
 const executeQuery = executeSingleResultOperation<UsersQuery, UsersQueryVariables>(/* GraphQL */ `
-  query Users($first: Int, $after: String, $last: Int, $before: String, $orderBy: UserOrder) {
-    users(first: $first, last: $last, after: $after, before: $before, orderBy: $orderBy) {
+  query Users(
+    $first: Int
+    $after: String
+    $last: Int
+    $before: String
+    $reverse: Boolean
+    $sortKey: UserSortKeys
+  ) {
+    users(
+      first: $first
+      last: $last
+      after: $after
+      before: $before
+      reverse: $reverse
+      sortKey: $sortKey
+    ) {
       totalCount
       pageInfo {
         startCursor
@@ -64,22 +78,10 @@ describe("number of items", () => {
 describe("order of items", () => {
   const patterns = [
     [{}, [Data.graph.alice, Data.graph.admin]], // defaults to createdAt desc
-    [
-      { orderBy: { field: UserOrderField.CreatedAt, direction: OrderDirection.Asc } },
-      [Data.graph.admin, Data.graph.alice],
-    ],
-    [
-      { orderBy: { field: UserOrderField.CreatedAt, direction: OrderDirection.Desc } },
-      [Data.graph.alice, Data.graph.admin],
-    ],
-    [
-      { orderBy: { field: UserOrderField.UpdatedAt, direction: OrderDirection.Asc } },
-      [Data.graph.alice, Data.graph.admin],
-    ],
-    [
-      { orderBy: { field: UserOrderField.UpdatedAt, direction: OrderDirection.Desc } },
-      [Data.graph.admin, Data.graph.alice],
-    ],
+    [{ reverse: false, sortKey: UserSortKeys.CreatedAt }, [Data.graph.admin, Data.graph.alice]],
+    [{ reverse: true, sortKey: UserSortKeys.CreatedAt }, [Data.graph.alice, Data.graph.admin]],
+    [{ reverse: false, sortKey: UserSortKeys.UpdatedAt }, [Data.graph.alice, Data.graph.admin]],
+    [{ reverse: true, sortKey: UserSortKeys.UpdatedAt }, [Data.graph.admin, Data.graph.alice]],
   ] as const;
 
   test.each(patterns)("%o, %o", async (variables, expectedUsers) => {
@@ -114,10 +116,7 @@ describe("pagination", () => {
   describe("cursor", () => {
     const patterns = [
       [
-        {
-          first: 1,
-          orderBy: { field: UserOrderField.CreatedAt, direction: OrderDirection.Asc },
-        },
+        { first: 1, reverse: false, sortKey: UserSortKeys.CreatedAt },
         {
           length: 1,
           ids: [Data.graph.admin.id],
@@ -141,10 +140,7 @@ describe("pagination", () => {
         },
       ],
       [
-        {
-          first: 1,
-          orderBy: { field: UserOrderField.CreatedAt, direction: OrderDirection.Desc },
-        },
+        { first: 1, reverse: true, sortKey: UserSortKeys.CreatedAt },
         {
           length: 1,
           ids: [Data.graph.alice.id],
@@ -168,10 +164,7 @@ describe("pagination", () => {
         },
       ],
       [
-        {
-          last: 1,
-          orderBy: { field: UserOrderField.CreatedAt, direction: OrderDirection.Asc },
-        },
+        { last: 1, reverse: false, sortKey: UserSortKeys.CreatedAt },
         {
           length: 1,
           ids: [Data.graph.alice.id],
@@ -195,10 +188,7 @@ describe("pagination", () => {
         },
       ],
       [
-        {
-          last: 1,
-          orderBy: { field: UserOrderField.CreatedAt, direction: OrderDirection.Desc },
-        },
+        { last: 1, reverse: true, sortKey: UserSortKeys.CreatedAt },
         {
           length: 1,
           ids: [Data.graph.admin.id],

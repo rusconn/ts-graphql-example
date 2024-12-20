@@ -1,5 +1,5 @@
 import type { UserResolvers, UserTodosArgs } from "../../../schema.ts";
-import { OrderDirection, TodoOrderField } from "../../../schema.ts";
+import { TodoSortKeys } from "../../../schema.ts";
 import { getCursorConnection } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
@@ -26,7 +26,9 @@ export const typeDef = /* GraphQL */ `
 
       before: String
 
-      orderBy: TodoOrder! = { field: UPDATED_AT, direction: DESC }
+      reverse: Boolean! = true
+
+      sortKey: TodoSortKeys! = UPDATED_AT
 
       """
       指定すると絞り込む、null は入力エラー
@@ -35,12 +37,7 @@ export const typeDef = /* GraphQL */ `
     ): TodoConnection
   }
 
-  input TodoOrder {
-    field: TodoOrderField!
-    direction: OrderDirection!
-  }
-
-  enum TodoOrderField {
+  enum TodoSortKeys {
     CREATED_AT
     UPDATED_AT
   }
@@ -68,25 +65,19 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
     throw badUserInputErr(parsed.message, parsed);
   }
 
-  const { orderBy, first, after, last, before, status } = parsed;
+  const { first, after, last, before, reverse, sortKey, status } = parsed;
 
   const connection = await getCursorConnection(
     async ({ backward, ...rest }) => {
-      const [direction, comp] = {
-        [OrderDirection.Asc]: ["asc", ">"] as const,
-        [OrderDirection.Desc]: ["desc", "<"] as const,
-      }[
-        backward
-          ? orderBy.direction === OrderDirection.Asc
-            ? OrderDirection.Desc
-            : OrderDirection.Asc
-          : orderBy.direction
-      ];
+      const [direction, comp] =
+        reverse === backward //
+          ? (["asc", ">"] as const)
+          : (["desc", "<"] as const);
 
       const orderColumn = {
-        [TodoOrderField.CreatedAt]: "id" as const,
-        [TodoOrderField.UpdatedAt]: "updatedAt" as const,
-      }[orderBy.field];
+        [TodoSortKeys.CreatedAt]: "id" as const,
+        [TodoSortKeys.UpdatedAt]: "updatedAt" as const,
+      }[sortKey];
 
       return await context.loaders
         .userTodos({ ...rest, orderColumn, direction, comp, status })
@@ -141,18 +132,16 @@ if (import.meta.vitest) {
       { last: LAST_MAX + 1 },
     ];
 
-    const orderBy = {
-      field: TodoOrderField.UpdatedAt,
-      direction: OrderDirection.Desc,
-    };
+    const reverse = true;
+    const sortKey = TodoSortKeys.UpdatedAt;
 
     test.each(valids)("valids %#", (args) => {
-      const parsed = parseArgs({ ...args, orderBy });
+      const parsed = parseArgs({ ...args, reverse, sortKey });
       expect(parsed instanceof Error).toBe(false);
     });
 
     test.each(invalids)("invalids %#", (args) => {
-      const parsed = parseArgs({ ...args, orderBy });
+      const parsed = parseArgs({ ...args, reverse, sortKey });
       expect(parsed instanceof Error).toBe(true);
     });
   });

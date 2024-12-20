@@ -160,11 +160,6 @@ export type Node = {
   id: Scalars['ID']['output'];
 };
 
-export enum OrderDirection {
-  Asc = 'ASC',
-  Desc = 'DESC'
-}
-
 export type PageInfo = {
   __typename?: 'PageInfo';
   endCursor?: Maybe<Scalars['String']['output']>;
@@ -197,7 +192,8 @@ export type QueryUsersArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  orderBy: UserOrder;
+  reverse: Scalars['Boolean']['input'];
+  sortKey: UserSortKeys;
 };
 
 export type ResourceLimitExceededError = Error & {
@@ -242,12 +238,7 @@ export type TodoEdge = {
   node?: Maybe<Todo>;
 };
 
-export type TodoOrder = {
-  direction: OrderDirection;
-  field: TodoOrderField;
-};
-
-export enum TodoOrderField {
+export enum TodoSortKeys {
   CreatedAt = 'CREATED_AT',
   UpdatedAt = 'UPDATED_AT'
 }
@@ -300,7 +291,8 @@ export type UserTodosArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
-  orderBy: TodoOrder;
+  reverse: Scalars['Boolean']['input'];
+  sortKey: TodoSortKeys;
   status?: InputMaybe<TodoStatus>;
 };
 
@@ -323,12 +315,7 @@ export type UserNotFoundError = Error & {
   message: Scalars['String']['output'];
 };
 
-export type UserOrder = {
-  direction: OrderDirection;
-  field: UserOrderField;
-};
-
-export enum UserOrderField {
+export enum UserSortKeys {
   CreatedAt = 'CREATED_AT',
   UpdatedAt = 'UPDATED_AT'
 }
@@ -447,7 +434,6 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Node: ResolverTypeWrapper<NodeMapper>;
   NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']['output']>;
-  OrderDirection: OrderDirection;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<{}>;
   ResourceLimitExceededError: ResolverTypeWrapper<ResourceLimitExceededError>;
@@ -458,8 +444,7 @@ export type ResolversTypes = ResolversObject<{
   Todo: ResolverTypeWrapper<TodoMapper>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['TodoEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Todo']>>> }>;
   TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node: Maybe<ResolversTypes['Todo']> }>;
-  TodoOrder: TodoOrder;
-  TodoOrderField: TodoOrderField;
+  TodoSortKeys: TodoSortKeys;
   TodoStatus: TodoStatus;
   UncompleteTodoResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UncompleteTodoResult']>;
   UncompleteTodoSuccess: ResolverTypeWrapper<Omit<UncompleteTodoSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
@@ -471,8 +456,7 @@ export type ResolversTypes = ResolversObject<{
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['UserEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
   UserNotFoundError: ResolverTypeWrapper<UserNotFoundError>;
-  UserOrder: UserOrder;
-  UserOrderField: UserOrderField;
+  UserSortKeys: UserSortKeys;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -510,7 +494,6 @@ export type ResolversParentTypes = ResolversObject<{
   Todo: TodoMapper;
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['TodoEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Todo']>>> };
   TodoEdge: Omit<TodoEdge, 'node'> & { node: Maybe<ResolversParentTypes['Todo']> };
-  TodoOrder: TodoOrder;
   UncompleteTodoResult: ResolversUnionTypes<ResolversParentTypes>['UncompleteTodoResult'];
   UncompleteTodoSuccess: Omit<UncompleteTodoSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   UpdateAccountResult: ResolversUnionTypes<ResolversParentTypes>['UpdateAccountResult'];
@@ -521,7 +504,6 @@ export type ResolversParentTypes = ResolversObject<{
   UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['UserEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
   UserEdge: Omit<UserEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
   UserNotFoundError: UserNotFoundError;
-  UserOrder: UserOrder;
 }>;
 
 export type CompleteTodoResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CompleteTodoResult'] = ResolversParentTypes['CompleteTodoResult']> = ResolversObject<{
@@ -634,7 +616,7 @@ export type PageInfoResolvers<ContextType = Context, ParentType extends Resolver
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
-  users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'orderBy'>>;
+  users?: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'reverse' | 'sortKey'>>;
   viewer?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 }>;
 
@@ -715,7 +697,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<UserTodoArgs, 'id'>>;
-  todos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, RequireFields<UserTodosArgs, 'orderBy'>>;
+  todos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, RequireFields<UserTodosArgs, 'reverse' | 'sortKey'>>;
   updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
