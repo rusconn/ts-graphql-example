@@ -15,13 +15,19 @@ const PASS_MAX = 50;
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     updateAccount(
-      "${NAME_MAX}文字まで、null は入力エラー"
+      """
+      ${NAME_MAX}文字まで、null は入力エラー
+      """
       name: NonEmptyString
 
-      "${EMAIL_MAX}文字まで、既に存在する場合はエラー、null は入力エラー"
+      """
+      ${EMAIL_MAX}文字まで、既に存在する場合はエラー、null は入力エラー
+      """
       email: NonEmptyString
 
-      "${PASS_MIN}文字以上、${PASS_MAX}文字まで、null は入力エラー"
+      """
+      ${PASS_MIN}文字以上、${PASS_MAX}文字まで、null は入力エラー
+      """
       password: NonEmptyString
     ): UpdateAccountResult
   }

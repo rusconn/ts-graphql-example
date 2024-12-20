@@ -12,14 +12,25 @@ const LAST_MAX = 50;
 export const typeDef = /* GraphQL */ `
   extend type User {
     todos(
-      "max: ${FIRST_MAX}"
+      """
+      max: ${FIRST_MAX}
+      """
       first: Int
+
       after: String
-      "max: ${LAST_MAX}"
+
+      """
+      max: ${LAST_MAX}
+      """
       last: Int
+
       before: String
+
       orderBy: TodoOrder! = { field: UPDATED_AT, direction: DESC }
-      "指定すると絞り込む、null は入力エラー"
+
+      """
+      指定すると絞り込む、null は入力エラー
+      """
       status: TodoStatus
     ): TodoConnection
   }

@@ -12,12 +12,20 @@ const LAST_MAX = 30;
 export const typeDef = /* GraphQL */ `
   extend type Query {
     users(
-      "max: ${FIRST_MAX}"
+      """
+      max: ${FIRST_MAX}
+      """
       first: Int
+
       after: String
-      "max: ${LAST_MAX}"
+
+      """
+      max: ${LAST_MAX}
+      """
       last: Int
+
       before: String
+
       orderBy: UserOrder! = { field: CREATED_AT, direction: DESC }
     ): UserConnection
   }

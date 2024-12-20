@@ -12,13 +12,19 @@ export const typeDef = /* GraphQL */ `
     updateTodo(
       id: ID!
 
-      "${TITLE_MAX}文字まで、null は入力エラー"
+      """
+      ${TITLE_MAX}文字まで、null は入力エラー
+      """
       title: NonEmptyString
 
-      "${DESC_MAX}文字まで、null は入力エラー"
+      """
+      ${DESC_MAX}文字まで、null は入力エラー
+      """
       description: String
 
-      "null は入力エラー"
+      """
+      null は入力エラー
+      """
       status: TodoStatus
     ): UpdateTodoResult
   }

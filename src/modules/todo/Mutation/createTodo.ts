@@ -12,12 +12,18 @@ const DESC_MAX = 5000;
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    "${TODOS_MAX}件まで"
+    """
+    ${TODOS_MAX}件まで
+    """
     createTodo(
-      "${TITLE_MAX}文字まで"
+      """
+      ${TITLE_MAX}文字まで
+      """
       title: NonEmptyString!
 
-      "${DESC_MAX}文字まで"
+      """
+      ${DESC_MAX}文字まで
+      """
       description: String! = ""
     ): CreateTodoResult
   }

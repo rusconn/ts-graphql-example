@@ -12,10 +12,14 @@ const PASS_MAX = 50;
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     login(
-      "${EMAIL_MAX}文字まで"
+      """
+      ${EMAIL_MAX}文字まで
+      """
       email: NonEmptyString!
 
-      "${PASS_MIN}文字以上、${PASS_MAX}文字まで"
+      """
+      ${PASS_MIN}文字以上、${PASS_MAX}文字まで
+      """
       password: NonEmptyString!
     ): LoginResult
   }
