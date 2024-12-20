@@ -34,19 +34,15 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["login"] = async (_parent, args, context) => {
-  auth(context);
+  const _authed = auth(context);
 
-  let parsed: ReturnType<typeof parseArgs>;
-  try {
-    parsed = parseArgs(args);
-  } catch (e) {
-    if (e instanceof Error) {
-      return {
-        __typename: "InvalidInputError",
-        message: e.message,
-      };
-    }
-    throw e;
+  const parsed = parseArgs(args);
+
+  if (parsed instanceof Error) {
+    return {
+      __typename: "InvalidInputError",
+      message: parsed.message,
+    };
   }
 
   const { email, password } = parsed;
@@ -95,24 +91,22 @@ const parseArgs = (args: MutationLoginArgs) => {
   const { email, password } = args.input;
 
   if (numChars(email) > EMAIL_MAX) {
-    throw parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
+    return parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
   }
   if (!isEmail(email)) {
-    throw parseErr(`invalid "email"`);
+    return parseErr(`invalid "email"`);
   }
   if (numChars(password) < PASS_MIN) {
-    throw parseErr(`"password" must be at least ${PASS_MIN} characters`);
+    return parseErr(`"password" must be at least ${PASS_MIN} characters`);
   }
   if (numChars(password) > PASS_MAX) {
-    throw parseErr(`"password" must be up to ${PASS_MAX} characters`);
+    return parseErr(`"password" must be up to ${PASS_MAX} characters`);
   }
 
   return { email, password };
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../../schema.ts");
-
   describe("Parsing", () => {
     const validInput = { email: "email@email.com", password: "password" };
 
@@ -129,16 +123,13 @@ if (import.meta.vitest) {
     ] as MutationLoginArgs["input"][];
 
     test.each(valids)("valids %#", (input) => {
-      parseArgs({ input });
+      const parsed = parseArgs({ input });
+      expect(parsed instanceof Error).toBe(false);
     });
 
     test.each(invalids)("invalids %#", (input) => {
-      expect.assertions(1);
-      try {
-        parseArgs({ input });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
-      }
+      const parsed = parseArgs({ input });
+      expect(parsed instanceof Error).toBe(true);
     });
   });
 }

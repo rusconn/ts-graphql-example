@@ -4,7 +4,7 @@ import type { Context } from "../../../context.ts";
 import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "../../../schema.ts";
 import { type AuthContext, authAuthenticated } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
-import { dateByUuid } from "../../common/resolvers.ts";
+import { dateByUuid, forbiddenErr } from "../../common/resolvers.ts";
 
 const TODOS_MAX = 10000;
 const TITLE_MAX = 100;
@@ -33,17 +33,17 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["createTodo"] = async (_parent, args, context) => {
   const authed = authorize(context);
 
-  let parsed: ReturnType<typeof parseArgs>;
-  try {
-    parsed = parseArgs(args);
-  } catch (e) {
-    if (e instanceof Error) {
-      return {
-        __typename: "InvalidInputError",
-        message: e.message,
-      };
-    }
-    throw e;
+  if (authed instanceof Error) {
+    throw forbiddenErr(authed);
+  }
+
+  const parsed = parseArgs(args);
+
+  if (parsed instanceof Error) {
+    return {
+      __typename: "InvalidInputError",
+      message: parsed.message,
+    };
   }
 
   return await logic(authed, parsed, context);
@@ -57,18 +57,18 @@ const parseArgs = (args: MutationCreateTodoArgs) => {
   const { title, description } = args.input;
 
   if (numChars(title) > TITLE_MAX) {
-    throw parseErr(`"title" must be up to ${TITLE_MAX} characters`);
+    return parseErr(`"title" must be up to ${TITLE_MAX} characters`);
   }
   if (numChars(description) > DESC_MAX) {
-    throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
+    return parseErr(`"description" must be up to ${DESC_MAX} characters`);
   }
 
   return { title, description };
 };
 
 const logic = async (
-  authed: ReturnType<typeof authorize>,
-  parsed: ReturnType<typeof parseArgs>,
+  authed: Exclude<ReturnType<typeof authorize>, Error>,
+  parsed: Exclude<ReturnType<typeof parseArgs>, Error>,
   context: Context,
 ): Promise<ResolversTypes["CreateTodoResult"]> => {
   const { title, description } = parsed;
@@ -109,7 +109,6 @@ const logic = async (
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../../schema.ts");
   const { context } = await import("../../common/testData/context.ts");
 
   const valid = {
@@ -132,16 +131,13 @@ if (import.meta.vitest) {
     ] as MutationCreateTodoArgs["input"][];
 
     test.each(valids)("valids %#", (input) => {
-      parseArgs({ input });
+      const parsed = parseArgs({ input });
+      expect(parsed instanceof Error).toBe(false);
     });
 
     test.each(invalids)("invalids %#", (input) => {
-      expect.assertions(1);
-      try {
-        parseArgs({ input });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
-      }
+      const parsed = parseArgs({ input });
+      expect(parsed instanceof Error).toBe(true);
     });
   });
 

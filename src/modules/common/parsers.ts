@@ -1,42 +1,40 @@
-import { GraphQLError } from "graphql";
 import { validate as uuidValidate } from "uuid";
-import { ErrorCode, type Scalars } from "../../schema.ts";
+import type { Scalars } from "../../schema.ts";
 import { nodeId } from "./adapters.ts";
 import { type NodeType, nodeTypes, typeIdSep } from "./typeDefs.ts";
 
-export const parseErr = (message: string) =>
-  new GraphQLError(message, {
-    extensions: { code: ErrorCode.BadUserInput },
-  });
+export const parseErr = (message: string) => {
+  return new Error(message);
+};
 
 export const parseSomeNodeId =
   <T extends NodeType>(nodeType: T) =>
   (nodeId: Scalars["ID"]["input"]) => {
-    const { type, id } = parseNodeId(nodeId);
+    const parsed = parseNodeId(nodeId);
 
-    if (type !== nodeType) {
-      throw parseErr(`invalid node id: ${nodeId}`);
+    if (parsed instanceof Error) {
+      return parsed;
     }
 
-    return id;
+    const { type, id } = parsed;
+
+    return type !== nodeType //
+      ? parseErr(`invalid node id: ${nodeId}`)
+      : id;
   };
 
 export const parseNodeId = (nodeId: Scalars["ID"]["input"]) => {
   const [type, id, ...rest] = nodeId.split(typeIdSep);
 
-  if (!isValidNodeType(type) || id == null || !uuidValidate(id) || rest.length !== 0) {
-    throw parseErr(`invalid node id: ${nodeId}`);
-  }
-
-  return { type, id };
+  return !isValidNodeType(type) || id == null || !uuidValidate(id) || rest.length !== 0
+    ? parseErr(`invalid node id: ${nodeId}`)
+    : { type, id };
 };
 
 export const parseCursor = (id: string) => {
-  if (!uuidValidate(id)) {
-    throw parseErr(`invalid cursor: ${id}`);
-  }
-
-  return id;
+  return !uuidValidate(id) //
+    ? parseErr(`invalid cursor: ${id}`)
+    : id;
 };
 
 const isValidNodeType = (val: string | undefined): val is NodeType => {
@@ -66,16 +64,13 @@ if (import.meta.vitest) {
       ] as const;
 
       test.each(valids)("valids %#", (valid) => {
-        parseNodeId(valid);
+        const parsed = parseNodeId(valid);
+        expect(parsed instanceof Error).toBe(false);
       });
 
       test.each(invalids)("invalids %#", (invalid) => {
-        expect.assertions(1);
-        try {
-          parseNodeId(invalid);
-        } catch (e) {
-          expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
-        }
+        const parsed = parseNodeId(invalid);
+        expect(parsed instanceof Error).toBe(true);
       });
     });
 
@@ -93,16 +88,13 @@ if (import.meta.vitest) {
       ].map((id) => `User:${id}`);
 
       test.each(valids)("valids %#", (valid) => {
-        parseNodeId(valid);
+        const parsed = parseNodeId(valid);
+        expect(parsed instanceof Error).toBe(false);
       });
 
       test.each(invalids)("invalids %#", (invalid) => {
-        expect.assertions(1);
-        try {
-          parseNodeId(invalid);
-        } catch (e) {
-          expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
-        }
+        const parsed = parseNodeId(invalid);
+        expect(parsed instanceof Error).toBe(true);
       });
     });
   });

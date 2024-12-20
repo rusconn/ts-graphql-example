@@ -1,4 +1,5 @@
 import type { TodoResolvers } from "../../../schema.ts";
+import { forbiddenErr, notFoundErr } from "../../common/resolvers.ts";
 import { getUser } from "../../user/common/resolver.ts";
 import { authAdminOrTodoOwner } from "../common/authorizer.ts";
 
@@ -9,7 +10,17 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: TodoResolvers["user"] = async (parent, _args, context) => {
-  authAdminOrTodoOwner(context, parent);
+  const authed = authAdminOrTodoOwner(context, parent);
 
-  return await getUser(context, { id: parent.userId });
+  if (authed instanceof Error) {
+    throw forbiddenErr(authed);
+  }
+
+  const user = await getUser(context, { id: parent.userId });
+
+  if (!user) {
+    throw notFoundErr();
+  }
+
+  return user;
 };

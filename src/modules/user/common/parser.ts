@@ -10,20 +10,15 @@ export const isEmail = (email: string) => {
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../../schema.ts");
-
   const id = "0193cb3e-4379-750f-880f-77afae342259";
 
   test("valid", () => {
-    parseUserNodeId(nodeId("User")(id));
+    const parsed = parseUserNodeId(nodeId("User")(id));
+    expect(parsed instanceof Error).toBe(false);
   });
 
   test("invalid", () => {
-    expect.assertions(1);
-    try {
-      parseUserNodeId(nodeId("Todo")(id));
-    } catch (e) {
-      expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
-    }
+    const parsed = parseUserNodeId(nodeId("Todo")(id));
+    expect(parsed instanceof Error).toBe(true);
   });
 }

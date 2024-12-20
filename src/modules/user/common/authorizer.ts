@@ -4,20 +4,20 @@ import type { User } from "./resolver.ts";
 type AuthUser = Pick<User, "id">;
 
 export const authAdminOrUserOwner = (context: AuthContext, user: AuthUser) => {
-  try {
-    return authAdmin(context);
-  } catch {
-    return authUserOwner(context, user);
-  }
+  const authed = authAdmin(context);
+
+  return authed instanceof Error //
+    ? authUserOwner(context, user)
+    : authed;
 };
 
 const authUserOwner = (context: AuthContext, user: AuthUser) => {
-  if (context.user?.id === user.id) return context.user;
-  throw authErr();
+  return context.user?.id === user.id //
+    ? context.user
+    : authErr();
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../../schema.ts");
   const { db } = await import("../../common/testData/db.ts");
   const { context } = await import("../../common/testData/context.ts");
 
@@ -35,16 +35,13 @@ if (import.meta.vitest) {
     ] as const;
 
     test.each(allows)("allows %#", (contextUser, user) => {
-      authAdminOrUserOwner({ user: contextUser }, user);
+      const authed = authAdminOrUserOwner({ user: contextUser }, user);
+      expect(authed instanceof Error).toBe(false);
     });
 
     test.each(denies)("denies %#", (contextUser, user) => {
-      expect.assertions(1);
-      try {
-        authAdminOrUserOwner({ user: contextUser }, user);
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
-      }
+      const authed = authAdminOrUserOwner({ user: contextUser }, user);
+      expect(authed instanceof Error).toBe(true);
     });
   });
 
@@ -62,16 +59,13 @@ if (import.meta.vitest) {
     ] as const;
 
     test.each(allows)("allows %#", (contextUser, user) => {
-      authUserOwner({ user: contextUser }, user);
+      const authed = authUserOwner({ user: contextUser }, user);
+      expect(authed instanceof Error).toBe(false);
     });
 
     test.each(denies)("denies %#", (contextUser, user) => {
-      expect.assertions(1);
-      try {
-        authUserOwner({ user: contextUser }, user);
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
-      }
+      const authed = authUserOwner({ user: contextUser }, user);
+      expect(authed instanceof Error).toBe(true);
     });
   });
 }

@@ -1,5 +1,6 @@
 import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
+import { forbiddenErr } from "../../common/resolvers.ts";
 import { userNodeId } from "../common/adapter.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -17,6 +18,10 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: MutationResolvers["deleteMe"] = async (_parent, _args, context) => {
   const authed = authAuthenticated(context);
+
+  if (authed instanceof Error) {
+    throw forbiddenErr(authed);
+  }
 
   const deleted = await context.db
     .deleteFrom("User")

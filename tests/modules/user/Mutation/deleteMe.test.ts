@@ -44,6 +44,10 @@ it("should delete user", async () => {
 
   const id = parseUserNodeId(data.deleteMe.id);
 
+  if (id instanceof Error) {
+    fail();
+  }
+
   const user = await db.selectFrom("User").where("id", "=", id).selectAll().executeTakeFirst();
 
   expect(user).toBeUndefined();
@@ -62,6 +66,10 @@ it("should not delete others", async () => {
   }
 
   const id = parseUserNodeId(data.deleteMe.id);
+
+  if (id instanceof Error) {
+    fail();
+  }
 
   const user = await db.selectFrom("User").where("id", "=", id).selectAll().executeTakeFirst();
 

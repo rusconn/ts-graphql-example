@@ -1,5 +1,6 @@
 import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
+import { forbiddenErr } from "../../common/resolvers.ts";
 import { todoNodeId } from "../common/adapter.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
 
@@ -18,22 +19,22 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["deleteTodo"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
-  let id: ReturnType<typeof parseTodoNodeId>;
-  try {
-    id = parseTodoNodeId(args.id);
-  } catch (e) {
-    if (e instanceof Error) {
-      return {
-        __typename: "InvalidInputError",
-        message: e.message,
-      };
-    }
-    throw e;
+  if (authed instanceof Error) {
+    throw forbiddenErr(authed);
+  }
+
+  const parsed = parseTodoNodeId(args.id);
+
+  if (parsed instanceof Error) {
+    return {
+      __typename: "InvalidInputError",
+      message: parsed.message,
+    };
   }
 
   const todo = await context.db
     .deleteFrom("Todo")
-    .where("id", "=", id)
+    .where("id", "=", parsed)
     .where("userId", "=", authed.id)
     .returning("id")
     .executeTakeFirst();

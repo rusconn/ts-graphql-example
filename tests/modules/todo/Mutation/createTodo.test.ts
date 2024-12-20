@@ -65,6 +65,10 @@ it("should create todo using input", async () => {
 
   const id = parseTodoNodeId(data.createTodo.todo.id);
 
+  if (id instanceof Error) {
+    fail();
+  }
+
   const todo = await db
     .selectFrom("Todo")
     .where("id", "=", id)
@@ -85,6 +89,10 @@ test("status should be PENDING by default", async () => {
   }
 
   const id = parseTodoNodeId(data.createTodo.todo.id);
+
+  if (id instanceof Error) {
+    fail();
+  }
 
   const todo = await db
     .selectFrom("Todo")

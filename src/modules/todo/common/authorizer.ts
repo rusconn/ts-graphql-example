@@ -4,20 +4,20 @@ import type { Todo } from "./resolver.ts";
 type AuthTodo = Pick<Todo, "userId">;
 
 export const authAdminOrTodoOwner = (context: AuthContext, todo: AuthTodo) => {
-  try {
-    return authAdmin(context);
-  } catch {
-    return authTodoOwner(context, todo);
-  }
+  const authed = authAdmin(context);
+
+  return authed instanceof Error //
+    ? authTodoOwner(context, todo)
+    : authed;
 };
 
 export const authTodoOwner = (context: AuthContext, todo: AuthTodo) => {
-  if (context.user?.id === todo.userId) return context.user;
-  throw authErr();
+  return context.user?.id === todo.userId //
+    ? context.user
+    : authErr();
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../../schema.ts");
   const { db } = await import("../../common/testData/db.ts");
   const { context } = await import("../../common/testData/context.ts");
 
@@ -35,16 +35,13 @@ if (import.meta.vitest) {
     ] as const;
 
     test.each(allows)("allows %#", (contextUser, todo) => {
-      authAdminOrTodoOwner({ user: contextUser }, todo);
+      const authed = authAdminOrTodoOwner({ user: contextUser }, todo);
+      expect(authed instanceof Error).toBe(false);
     });
 
     test.each(denies)("denies %#", (contextUser, todo) => {
-      expect.assertions(1);
-      try {
-        authAdminOrTodoOwner({ user: contextUser }, todo);
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
-      }
+      const authed = authAdminOrTodoOwner({ user: contextUser }, todo);
+      expect(authed instanceof Error).toBe(true);
     });
   });
 
@@ -62,16 +59,13 @@ if (import.meta.vitest) {
     ] as const;
 
     test.each(allows)("allows %#", (contextUser, todo) => {
-      authTodoOwner({ user: contextUser }, todo);
+      const authed = authTodoOwner({ user: contextUser }, todo);
+      expect(authed instanceof Error).toBe(false);
     });
 
     test.each(denies)("denies %#", (contextUser, todo) => {
-      expect.assertions(1);
-      try {
-        authTodoOwner({ user: contextUser }, todo);
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
-      }
+      const authed = authTodoOwner({ user: contextUser }, todo);
+      expect(authed instanceof Error).toBe(true);
     });
   });
 }

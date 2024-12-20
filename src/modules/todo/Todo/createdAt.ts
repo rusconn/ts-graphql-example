@@ -1,5 +1,5 @@
 import type { TodoResolvers } from "../../../schema.ts";
-import { dateByUuid } from "../../common/resolvers.ts";
+import { dateByUuid, forbiddenErr } from "../../common/resolvers.ts";
 import { authAdminOrTodoOwner } from "../common/authorizer.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -9,7 +9,11 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: TodoResolvers["createdAt"] = (parent, _args, context) => {
-  authAdminOrTodoOwner(context, parent);
+  const authed = authAdminOrTodoOwner(context, parent);
+
+  if (authed instanceof Error) {
+    throw forbiddenErr(authed);
+  }
 
   return dateByUuid(parent.id);
 };

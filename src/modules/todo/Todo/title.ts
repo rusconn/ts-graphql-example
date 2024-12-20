@@ -1,4 +1,5 @@
 import type { TodoResolvers } from "../../../schema.ts";
+import { forbiddenErr } from "../../common/resolvers.ts";
 import { authTodoOwner } from "../common/authorizer.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -8,7 +9,11 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: TodoResolvers["title"] = (parent, _args, context) => {
-  authTodoOwner(context, parent);
+  const authed = authTodoOwner(context, parent);
+
+  if (authed instanceof Error) {
+    throw forbiddenErr(authed);
+  }
 
   return parent.title;
 };

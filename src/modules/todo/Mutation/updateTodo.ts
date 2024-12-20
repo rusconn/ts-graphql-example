@@ -1,6 +1,7 @@
 import type { MutationResolvers, MutationUpdateTodoArgs } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
+import { forbiddenErr } from "../../common/resolvers.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
 
 const TITLE_MAX = 100;
@@ -31,17 +32,17 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
-  let parsed: ReturnType<typeof parseArgs>;
-  try {
-    parsed = parseArgs(args);
-  } catch (e) {
-    if (e instanceof Error) {
-      return {
-        __typename: "InvalidInputError",
-        message: e.message,
-      };
-    }
-    throw e;
+  if (authed instanceof Error) {
+    throw forbiddenErr(authed);
+  }
+
+  const parsed = parseArgs(args);
+
+  if (parsed instanceof Error) {
+    return {
+      __typename: "InvalidInputError",
+      message: parsed.message,
+    };
   }
 
   const { id, ...rest } = parsed;
@@ -69,31 +70,35 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
 };
 
 const parseArgs = (args: MutationUpdateTodoArgs) => {
-  const id = parseTodoNodeId(args.id);
+  const parsed = parseTodoNodeId(args.id);
+
+  if (parsed instanceof Error) {
+    return parsed;
+  }
 
   const { title, description, status } = args.input;
 
   if (title === null) {
-    throw parseErr('"title" must be not null');
+    return parseErr('"title" must be not null');
   }
   if (description === null) {
-    throw parseErr('"description" must be not null');
+    return parseErr('"description" must be not null');
   }
   if (status === null) {
-    throw parseErr('"status" must be not null');
+    return parseErr('"status" must be not null');
   }
   if (title && numChars(title) > TITLE_MAX) {
-    throw parseErr(`"title" must be up to ${TITLE_MAX} characters`);
+    return parseErr(`"title" must be up to ${TITLE_MAX} characters`);
   }
   if (description && numChars(description) > DESC_MAX) {
-    throw parseErr(`"description" must be up to ${DESC_MAX} characters`);
+    return parseErr(`"description" must be up to ${DESC_MAX} characters`);
   }
 
-  return { id, title, description, status };
+  return { id: parsed, title, description, status };
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode, TodoStatus } = await import("../../../schema.ts");
+  const { TodoStatus } = await import("../../../schema.ts");
 
   describe("Parsing", () => {
     const valids = [
@@ -116,16 +121,13 @@ if (import.meta.vitest) {
     const id = "Todo:0193cb3e-5fdd-7264-9f70-1df63d84b251";
 
     test.each(valids)("valids %#", (input) => {
-      parseArgs({ id, input });
+      const parsed = parseArgs({ id, input });
+      expect(parsed instanceof Error).toBe(false);
     });
 
     test.each(invalids)("invalids %#", (input) => {
-      expect.assertions(1);
-      try {
-        parseArgs({ id, input });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
-      }
+      const parsed = parseArgs({ id, input });
+      expect(parsed instanceof Error).toBe(true);
     });
   });
 }

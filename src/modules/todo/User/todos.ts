@@ -2,6 +2,7 @@ import type { UserResolvers, UserTodosArgs } from "../../../schema.ts";
 import { OrderDirection, TodoOrderField } from "../../../schema.ts";
 import { getCursorConnections } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
+import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
 import { cursorConnections } from "../../common/typeDefs.ts";
 import { authAdminOrUserOwner } from "../../user/common/authorizer.ts";
 
@@ -44,11 +45,21 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["todos"] = async (parent, args, context, info) => {
-  authAdminOrUserOwner(context, parent);
+  const authed = authAdminOrUserOwner(context, parent);
 
-  const { orderBy, first, after, last, before, status } = parseArgs(args);
+  if (authed instanceof Error) {
+    throw forbiddenErr(authed);
+  }
 
-  return await getCursorConnections(
+  const parsed = parseArgs(args);
+
+  if (parsed instanceof Error) {
+    throw badUserInputErr(parsed.message, parsed);
+  }
+
+  const { orderBy, first, after, last, before, status } = parsed;
+
+  const connection = await getCursorConnections(
     async ({ backward, ...rest }) => {
       const [direction, comp] = {
         [OrderDirection.Asc]: ["asc", ">"] as const,
@@ -75,34 +86,41 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
     { first, after, last, before },
     { resolveInfo: info },
   );
+
+  if (connection instanceof Error) {
+    throw connection;
+  }
+
+  return connection;
 };
 
 const parseArgs = (args: UserTodosArgs) => {
   const { first, after, last, before, status, ...rest } = args;
 
   if (first && first > FIRST_MAX) {
-    throw parseErr(`"first" must be up to ${FIRST_MAX}`);
+    return parseErr(`"first" must be up to ${FIRST_MAX}`);
   }
   if (last && last > LAST_MAX) {
-    throw parseErr(`"last" must be up to ${LAST_MAX}`);
+    return parseErr(`"last" must be up to ${LAST_MAX}`);
   }
   if (status === null) {
-    throw parseErr('"status" must be not null');
+    return parseErr('"status" must be not null');
   }
 
-  return {
-    first,
-    after: after != null ? parseCursor(after) : null,
-    last,
-    before: before != null ? parseCursor(before) : null,
-    status,
-    ...rest,
-  };
+  const parsedAfter = after != null ? parseCursor(after) : null;
+  const parsedBefore = before != null ? parseCursor(before) : null;
+
+  if (parsedAfter instanceof Error) {
+    return parsedAfter;
+  }
+  if (parsedBefore instanceof Error) {
+    return parsedBefore;
+  }
+
+  return { first, after: parsedAfter, last, before: parsedBefore, status, ...rest };
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../../schema.ts");
-
   describe("Parsing", () => {
     const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
 
@@ -118,16 +136,13 @@ if (import.meta.vitest) {
     };
 
     test.each(valids)("valids %#", (args) => {
-      parseArgs({ ...args, orderBy });
+      const parsed = parseArgs({ ...args, orderBy });
+      expect(parsed instanceof Error).toBe(false);
     });
 
     test.each(invalids)("invalids %#", (args) => {
-      expect.assertions(1);
-      try {
-        parseArgs({ ...args, orderBy });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
-      }
+      const parsed = parseArgs({ ...args, orderBy });
+      expect(parsed instanceof Error).toBe(true);
     });
   });
 }

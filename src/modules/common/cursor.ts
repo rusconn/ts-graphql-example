@@ -15,8 +15,12 @@ export async function getCursorConnections<
   count: () => Promise<number>,
   connArgs: ConnectionArguments = {},
   pOptions?: Options<Record, Cursor, Node, CustomEdge>,
-): Promise<Connection<Node, CustomEdge>> {
+): Promise<Connection<Node, CustomEdge> | Error> {
   const args = parseArgs(connArgs);
+
+  if (args instanceof Error) {
+    return args;
+  }
 
   const options = mergeDefaultOptions(pOptions);
   const requestedFields = options.resolveInfo && Object.keys(graphqlFields(options.resolveInfo));
@@ -87,30 +91,30 @@ export async function getCursorConnections<
   };
 }
 
-function parseArgs(args: ConnectionArguments): ConnectionArgumentsUnion {
+function parseArgs(args: ConnectionArguments): ConnectionArgumentsUnion | Error {
   if (args.first == null && args.last == null) {
-    throw parseErr('One of "first" or "last" is required');
+    return parseErr('One of "first" or "last" is required');
   }
 
   if (args.first != null && args.last != null) {
-    throw parseErr('Only one of "first" and "last" can be set');
+    return parseErr('Only one of "first" and "last" can be set');
   }
   if (args.after != null && args.before != null) {
-    throw parseErr('Only one of "after" and "before" can be set');
+    return parseErr('Only one of "after" and "before" can be set');
   }
 
   if (args.after != null && args.first == null) {
-    throw parseErr('"after" needs to be used with "first"');
+    return parseErr('"after" needs to be used with "first"');
   }
   if (args.before != null && args.last == null) {
-    throw parseErr('"before" needs to be used with "last"');
+    return parseErr('"before" needs to be used with "last"');
   }
 
   if (args.first != null && args.first <= 0) {
-    throw parseErr('"first" has to be positive');
+    return parseErr('"first" has to be positive');
   }
   if (args.last != null && args.last <= 0) {
-    throw parseErr('"last" has to be positive');
+    return parseErr('"last" has to be positive');
   }
 
   return args as ConnectionArgumentsUnion;
@@ -233,12 +237,14 @@ if (import.meta.vitest) {
       { before: "" },
     ];
 
-    test.each(valids)("valids %#", (args) => {
-      expect(getCursorConnections(getPage, count, args)).resolves.not.toThrowError();
+    test.each(valids)("valids %#", async (args) => {
+      const result = await getCursorConnections(getPage, count, args);
+      expect(result instanceof Error).toBe(false);
     });
 
-    test.each(invalids)("invalids %#", (args) => {
-      expect(getCursorConnections(getPage, count, args)).rejects.toThrowError();
+    test.each(invalids)("invalids %#", async (args) => {
+      const result = await getCursorConnections(getPage, count, args);
+      expect(result instanceof Error).toBe(true);
     });
   });
 
@@ -277,11 +283,17 @@ if (import.meta.vitest) {
 
     test.each(forwards)("forwards %#", async (args) => {
       const result = await getCursorConnections(getPage, count, args);
+      if (result instanceof Error) {
+        throw new Error();
+      }
       expect(result.nodes).toStrictEqual(await getPage());
     });
 
     test.each(backwards)("backwards %#", async (args) => {
       const result = await getCursorConnections(getPage, count, args);
+      if (result instanceof Error) {
+        throw new Error();
+      }
       expect(result.nodes).toStrictEqual(await getPage());
     });
   });

@@ -1,12 +1,8 @@
-import { GraphQLError } from "graphql";
-
 import type { Context } from "../../context.ts";
-import { ErrorCode } from "../../schema.ts";
 
-export const authErr = () =>
-  new GraphQLError("Forbidden", {
-    extensions: { code: ErrorCode.Forbidden },
-  });
+export const authErr = () => {
+  return new Error("Forbidden");
+};
 
 export type AuthContext = Pick<Context, "user">;
 
@@ -15,18 +11,21 @@ export const auth = (context: AuthContext) => {
 };
 
 export const authAdmin = (context: AuthContext) => {
-  if (context.user?.role === "ADMIN") return context.user;
-  throw authErr();
+  return context.user?.role === "ADMIN" //
+    ? context.user
+    : authErr();
 };
 
 export const authGuest = (context: AuthContext) => {
-  if (context.user == null) return context.user;
-  throw authErr();
+  return context.user == null //
+    ? context.user
+    : authErr();
 };
 
 export const authAuthenticated = (context: AuthContext) => {
-  if (context.user != null) return context.user;
-  throw authErr();
+  return context.user != null //
+    ? context.user
+    : authErr();
 };
 
 if (import.meta.vitest) {
@@ -45,16 +44,13 @@ if (import.meta.vitest) {
     const denies = [context.alice, context.guest];
 
     test.each(allows)("allows %#", (user) => {
-      authAdmin({ user });
+      const authed = authAdmin({ user });
+      expect(authed instanceof Error).toBe(false);
     });
 
     test.each(denies)("denies %#", (user) => {
-      expect.assertions(1);
-      try {
-        authAdmin({ user });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
-      }
+      const authed = authAdmin({ user });
+      expect(authed instanceof Error).toBe(true);
     });
   });
 
@@ -63,16 +59,13 @@ if (import.meta.vitest) {
     const denies = [context.admin, context.alice];
 
     test.each(allows)("allows %#", (user) => {
-      authGuest({ user });
+      const authed = authGuest({ user });
+      expect(authed instanceof Error).toBe(false);
     });
 
     test.each(denies)("denies %#", (user) => {
-      expect.assertions(1);
-      try {
-        authGuest({ user });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
-      }
+      const authed = authGuest({ user });
+      expect(authed instanceof Error).toBe(true);
     });
   });
 
@@ -81,16 +74,13 @@ if (import.meta.vitest) {
     const denies = [context.guest];
 
     test.each(allows)("allows %#", (user) => {
-      authAuthenticated({ user });
+      const authed = authAuthenticated({ user });
+      expect(authed instanceof Error).toBe(false);
     });
 
     test.each(denies)("denies %#", (user) => {
-      expect.assertions(1);
-      try {
-        authAuthenticated({ user });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.Forbidden);
-      }
+      const authed = authAuthenticated({ user });
+      expect(authed instanceof Error).toBe(true);
     });
   });
 }

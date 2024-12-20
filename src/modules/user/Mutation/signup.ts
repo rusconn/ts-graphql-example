@@ -6,7 +6,7 @@ import { UserRole } from "../../../db/types.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
-import { dateByUuid } from "../../common/resolvers.ts";
+import { dateByUuid, forbiddenErr } from "../../common/resolvers.ts";
 import { isEmail } from "../common/parser.ts";
 
 const NAME_MAX = 100;
@@ -36,19 +36,19 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["signup"] = async (_parent, args, context) => {
-  authGuest(context);
+  const authed = authGuest(context);
 
-  let parsed: ReturnType<typeof parseArgs>;
-  try {
-    parsed = parseArgs(args);
-  } catch (e) {
-    if (e instanceof Error) {
-      return {
-        __typename: "InvalidInputError",
-        message: e.message,
-      };
-    }
-    throw e;
+  if (authed instanceof Error) {
+    throw forbiddenErr(authed);
+  }
+
+  const parsed = parseArgs(args);
+
+  if (parsed instanceof Error) {
+    return {
+      __typename: "InvalidInputError",
+      message: parsed.message,
+    };
   }
 
   const { name, email, password } = parsed;
@@ -95,27 +95,25 @@ const parseArgs = (args: MutationSignupArgs) => {
   const { name, email, password } = args.input;
 
   if (numChars(name) > NAME_MAX) {
-    throw parseErr(`"name" must be up to ${NAME_MAX} characters`);
+    return parseErr(`"name" must be up to ${NAME_MAX} characters`);
   }
   if (numChars(email) > EMAIL_MAX) {
-    throw parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
+    return parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
   }
   if (!isEmail(email)) {
-    throw parseErr(`invalid "email"`);
+    return parseErr(`invalid "email"`);
   }
   if (numChars(password) < PASS_MIN) {
-    throw parseErr(`"password" must be at least ${PASS_MIN} characters`);
+    return parseErr(`"password" must be at least ${PASS_MIN} characters`);
   }
   if (numChars(password) > PASS_MAX) {
-    throw parseErr(`"password" must be up to ${PASS_MAX} characters`);
+    return parseErr(`"password" must be up to ${PASS_MAX} characters`);
   }
 
   return { name, email, password };
 };
 
 if (import.meta.vitest) {
-  const { ErrorCode } = await import("../../../schema.ts");
-
   describe("Parsing", () => {
     const validInput = { name: "name", email: "email@email.com", password: "password" };
 
@@ -134,16 +132,13 @@ if (import.meta.vitest) {
     ] as MutationSignupArgs["input"][];
 
     test.each(valids)("valids %#", (input) => {
-      parseArgs({ input });
+      const parsed = parseArgs({ input });
+      expect(parsed instanceof Error).toBe(false);
     });
 
     test.each(invalids)("invalids %#", (input) => {
-      expect.assertions(1);
-      try {
-        parseArgs({ input });
-      } catch (e) {
-        expect(e).toHaveProperty("extensions.code", ErrorCode.BadUserInput);
-      }
+      const parsed = parseArgs({ input });
+      expect(parsed instanceof Error).toBe(true);
     });
   });
 }

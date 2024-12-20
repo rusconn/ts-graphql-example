@@ -1,4 +1,5 @@
 import type { UserResolvers } from "../../../schema.ts";
+import { badUserInputErr, forbiddenErr, notFoundErr } from "../../common/resolvers.ts";
 import { authAdminOrUserOwner } from "../../user/common/authorizer.ts";
 import { parseTodoNodeId } from "../common/parser.ts";
 import { getTodo } from "../common/resolver.ts";
@@ -10,9 +11,23 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["todo"] = async (parent, args, context) => {
-  authAdminOrUserOwner(context, parent);
+  const authed = authAdminOrUserOwner(context, parent);
 
-  const id = parseTodoNodeId(args.id);
+  if (authed instanceof Error) {
+    throw forbiddenErr(authed);
+  }
 
-  return await getTodo(context, { id, userId: parent.id });
+  const parsed = parseTodoNodeId(args.id);
+
+  if (parsed instanceof Error) {
+    throw badUserInputErr(`invalid node id: ${args.id}`, parsed);
+  }
+
+  const todo = await getTodo(context, { id: parsed, userId: parent.id });
+
+  if (!todo) {
+    throw notFoundErr();
+  }
+
+  return todo;
 };
