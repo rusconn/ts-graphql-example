@@ -5,7 +5,7 @@ import graphqlFields from "graphql-fields";
 
 import { parseErr } from "./parsers.ts";
 
-export async function getCursorConnections<
+export async function getCursorConnection<
   Record = { id: string },
   Cursor = { id: string },
   Node = Record,
@@ -238,12 +238,12 @@ if (import.meta.vitest) {
     ];
 
     test.each(valids)("valids %#", async (args) => {
-      const result = await getCursorConnections(getPage, count, args);
+      const result = await getCursorConnection(getPage, count, args);
       expect(result instanceof Error).toBe(false);
     });
 
     test.each(invalids)("invalids %#", async (args) => {
-      const result = await getCursorConnections(getPage, count, args);
+      const result = await getCursorConnection(getPage, count, args);
       expect(result instanceof Error).toBe(true);
     });
   });
@@ -253,7 +253,7 @@ if (import.meta.vitest) {
     const backwards = [{ last: 1 }, { last: 10, before: "" }];
 
     test.each(forwards)("forwards %#", async (args) => {
-      await getCursorConnections(
+      await getCursorConnection(
         ({ backward }) => {
           expect(backward).toBe(false);
           return Promise.resolve([]);
@@ -264,7 +264,7 @@ if (import.meta.vitest) {
     });
 
     test.each(backwards)("backwards %#", async (args) => {
-      await getCursorConnections(
+      await getCursorConnection(
         ({ backward }) => {
           expect(backward).toBe(true);
           return Promise.resolve([]);
@@ -282,7 +282,7 @@ if (import.meta.vitest) {
     const getPage = async () => [{ id: 1 }, { id: 2 }];
 
     test.each(forwards)("forwards %#", async (args) => {
-      const result = await getCursorConnections(getPage, count, args);
+      const result = await getCursorConnection(getPage, count, args);
       if (result instanceof Error) {
         throw new Error();
       }
@@ -290,7 +290,7 @@ if (import.meta.vitest) {
     });
 
     test.each(backwards)("backwards %#", async (args) => {
-      const result = await getCursorConnections(getPage, count, args);
+      const result = await getCursorConnection(getPage, count, args);
       if (result instanceof Error) {
         throw new Error();
       }

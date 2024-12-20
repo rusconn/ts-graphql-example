@@ -1,10 +1,10 @@
 import type { QueryResolvers, QueryUsersArgs } from "../../../schema.ts";
 import { OrderDirection, UserOrderField } from "../../../schema.ts";
 import { authAdmin } from "../../common/authorizers.ts";
-import { getCursorConnections } from "../../common/cursor.ts";
+import { getCursorConnection } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
-import { cursorConnections } from "../../common/typeDefs.ts";
+import { cursorConnection } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 30;
 const LAST_MAX = 30;
@@ -32,7 +32,7 @@ export const typeDef = /* GraphQL */ `
     UPDATED_AT
   }
 
-  ${cursorConnections({
+  ${cursorConnection({
     nodeType: "User",
     additionals: {
       connectionFields: {
@@ -57,7 +57,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 
   const { orderBy, first, after, last, before } = parsed;
 
-  const connection = await getCursorConnections(
+  const connection = await getCursorConnection(
     async ({ cursor, limit, backward }) => {
       const [direction, comp] = {
         [OrderDirection.Asc]: ["asc", ">"] as const,

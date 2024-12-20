@@ -1,9 +1,9 @@
 import type { UserResolvers, UserTodosArgs } from "../../../schema.ts";
 import { OrderDirection, TodoOrderField } from "../../../schema.ts";
-import { getCursorConnections } from "../../common/cursor.ts";
+import { getCursorConnection } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
-import { cursorConnections } from "../../common/typeDefs.ts";
+import { cursorConnection } from "../../common/typeDefs.ts";
 import { authAdminOrUserOwner } from "../../user/common/authorizer.ts";
 
 const FIRST_MAX = 50;
@@ -34,7 +34,7 @@ export const typeDef = /* GraphQL */ `
     UPDATED_AT
   }
 
-  ${cursorConnections({
+  ${cursorConnection({
     nodeType: "Todo",
     additionals: {
       connectionFields: {
@@ -59,7 +59,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
 
   const { orderBy, first, after, last, before, status } = parsed;
 
-  const connection = await getCursorConnections(
+  const connection = await getCursorConnection(
     async ({ backward, ...rest }) => {
       const [direction, comp] = {
         [OrderDirection.Asc]: ["asc", ">"] as const,

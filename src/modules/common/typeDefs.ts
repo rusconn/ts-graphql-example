@@ -4,7 +4,7 @@ export type NodeType = (typeof nodeTypes)[number];
 
 export const typeIdSep = ":";
 
-export const cursorConnections = ({
+export const cursorConnection = ({
   nodeType,
   edgeType = nodeType,
   additionals,
