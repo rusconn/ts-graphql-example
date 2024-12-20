@@ -33,7 +33,7 @@ export enum ErrorCode {
 
 export type LoginInput = {
   /** 100文字まで */
-  email: Scalars['EmailAddress']['input'];
+  email: Scalars['NonEmptyString']['input'];
   /** 8文字以上、50文字まで */
   password: Scalars['NonEmptyString']['input'];
 };
@@ -45,7 +45,7 @@ export enum OrderDirection {
 
 export type SignupInput = {
   /** 100文字まで、既に存在する場合はエラー */
-  email: Scalars['EmailAddress']['input'];
+  email: Scalars['NonEmptyString']['input'];
   /** 100文字まで */
   name: Scalars['NonEmptyString']['input'];
   /** 8文字以上、50文字まで */
@@ -69,7 +69,7 @@ export enum TodoStatus {
 
 export type UpdateMeInput = {
   /** 100文字まで、既に存在する場合はエラー、null は入力エラー */
-  email?: InputMaybe<Scalars['EmailAddress']['input']>;
+  email?: InputMaybe<Scalars['NonEmptyString']['input']>;
   /** 100文字まで、null は入力エラー */
   name?: InputMaybe<Scalars['NonEmptyString']['input']>;
   /** 8文字以上、50文字まで、null は入力エラー */

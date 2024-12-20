@@ -4,6 +4,7 @@ import { passHashExp } from "../../../config.ts";
 import type { MutationResolvers, MutationUpdateMeArgs } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
+import { isEmail } from "../common/parser.ts";
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 100;
@@ -20,7 +21,7 @@ export const typeDef = /* GraphQL */ `
     "${NAME_MAX}文字まで、null は入力エラー"
     name: NonEmptyString
     "${EMAIL_MAX}文字まで、既に存在する場合はエラー、null は入力エラー"
-    email: EmailAddress
+    email: NonEmptyString
     "${PASS_MIN}文字以上、${PASS_MAX}文字まで、null は入力エラー"
     password: NonEmptyString
   }
@@ -87,6 +88,9 @@ const parseArgs = (args: MutationUpdateMeArgs) => {
   if (email && numChars(email) > EMAIL_MAX) {
     throw parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
   }
+  if (email && !isEmail(email)) {
+    throw parseErr(`invalid "email"`);
+  }
   if (password === null) {
     throw parseErr('"password" must be not null');
   }
@@ -122,6 +126,7 @@ if (import.meta.vitest) {
       { name: "A".repeat(NAME_MAX + 1) },
       { email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
       { password: "A".repeat(PASS_MIN - 1) },
+      { email: "emailemail.com" },
     ] as MutationUpdateMeArgs["input"][];
 
     test.each(valids)("valids %#", (input) => {
