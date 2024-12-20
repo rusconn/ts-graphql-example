@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import { v7 as uuidv7 } from "uuid";
 
 import type { MutationLoginArgs, MutationResolvers } from "../../../schema.ts";
-import { auth } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
 import { isEmail } from "../common/parser.ts";
 
@@ -34,8 +33,6 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["login"] = async (_parent, args, context) => {
-  const _authed = auth(context);
-
   const parsed = parseArgs(args);
 
   if (parsed instanceof Error) {

@@ -6,10 +6,6 @@ export const authErr = () => {
 
 export type AuthContext = Pick<Context, "user">;
 
-export const auth = (context: AuthContext) => {
-  return context.user;
-};
-
 export const authAdmin = (context: AuthContext) => {
   return context.user?.role === "ADMIN" //
     ? context.user
@@ -30,14 +26,6 @@ export const authAuthenticated = (context: AuthContext) => {
 
 if (import.meta.vitest) {
   const { context } = await import("./testData/context.ts");
-
-  describe("auth", () => {
-    const allows = [context.admin, context.alice, context.guest];
-
-    test.each(allows)("allows %#", (user) => {
-      auth({ user });
-    });
-  });
 
   describe("authAdmin", () => {
     const allows = [context.admin];
