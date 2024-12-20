@@ -2,10 +2,10 @@ import type { QueryResolvers } from "../../../schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
-    me: User
+    viewer: User
   }
 `;
 
-export const resolver: QueryResolvers["me"] = (_parent, _args, context) => {
+export const resolver: QueryResolvers["viewer"] = (_parent, _args, context) => {
   return context.user;
 };

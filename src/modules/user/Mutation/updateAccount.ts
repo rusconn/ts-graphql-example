@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 
 import { passHashExp } from "../../../config.ts";
-import type { MutationResolvers, MutationUpdateMeArgs } from "../../../schema.ts";
+import type { MutationResolvers, MutationUpdateAccountArgs } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
@@ -14,7 +14,7 @@ const PASS_MAX = 50;
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    updateMe(
+    updateAccount(
       "${NAME_MAX}文字まで、null は入力エラー"
       name: NonEmptyString
 
@@ -23,17 +23,17 @@ export const typeDef = /* GraphQL */ `
 
       "${PASS_MIN}文字以上、${PASS_MAX}文字まで、null は入力エラー"
       password: NonEmptyString
-    ): UpdateMeResult
+    ): UpdateAccountResult
   }
 
-  union UpdateMeResult = UpdateMeSuccess | InvalidInputError | EmailAlreadyTakenError
+  union UpdateAccountResult = UpdateAccountSuccess | InvalidInputError | EmailAlreadyTakenError
 
-  type UpdateMeSuccess {
+  type UpdateAccountSuccess {
     user: User!
   }
 `;
 
-export const resolver: MutationResolvers["updateMe"] = async (_parent, args, context) => {
+export const resolver: MutationResolvers["updateAccount"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
   if (authed instanceof Error) {
@@ -81,12 +81,12 @@ export const resolver: MutationResolvers["updateMe"] = async (_parent, args, con
     .executeTakeFirstOrThrow();
 
   return {
-    __typename: "UpdateMeSuccess",
+    __typename: "UpdateAccountSuccess",
     user: updated,
   };
 };
 
-const parseArgs = (args: MutationUpdateMeArgs) => {
+const parseArgs = (args: MutationUpdateAccountArgs) => {
   const { name, email, password } = args;
 
   if (name === null) {
@@ -128,7 +128,7 @@ if (import.meta.vitest) {
       { name: "A".repeat(NAME_MAX) },
       { email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
       { password: "A".repeat(PASS_MIN) },
-    ] as MutationUpdateMeArgs[];
+    ] as MutationUpdateAccountArgs[];
 
     const invalids = [
       { name: null },
@@ -138,7 +138,7 @@ if (import.meta.vitest) {
       { email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
       { password: "A".repeat(PASS_MIN - 1) },
       { email: "emailemail.com" },
-    ] as MutationUpdateMeArgs[];
+    ] as MutationUpdateAccountArgs[];
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);

@@ -170,10 +170,10 @@ export type UserTodosQueryVariables = Exact<{
 
 export type UserTodosQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todos?: { totalCount?: number | null, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges?: Array<{ cursor: string, node?: { id: string } | null } | null> | null } | null } | null };
 
-export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
+export type DeleteAccountMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DeleteMeMutation = { deleteMe?: { __typename: 'DeleteMeSuccess', id: string } | null };
+export type DeleteAccountMutation = { deleteAccount?: { __typename: 'DeleteAccountSuccess', id: string } | null };
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['NonEmptyString']['input'];
@@ -197,14 +197,14 @@ export type SignupMutationVariables = Exact<{
 
 export type SignupMutation = { signup?: { __typename: 'EmailAlreadyTakenError' } | { __typename: 'InvalidInputError' } | { __typename: 'SignupSuccess', token: string } | null };
 
-export type UpdateMeMutationVariables = Exact<{
+export type UpdateAccountMutationVariables = Exact<{
   name?: InputMaybe<Scalars['NonEmptyString']['input']>;
   email?: InputMaybe<Scalars['NonEmptyString']['input']>;
   password?: InputMaybe<Scalars['NonEmptyString']['input']>;
 }>;
 
 
-export type UpdateMeMutation = { updateMe?: { __typename: 'EmailAlreadyTakenError' } | { __typename: 'InvalidInputError' } | { __typename: 'UpdateMeSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } } | null };
+export type UpdateAccountMutation = { updateAccount?: { __typename: 'EmailAlreadyTakenError' } | { __typename: 'InvalidInputError' } | { __typename: 'UpdateAccountSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } } | null };
 
 export type UserQueryVariables = Exact<{
   id: Scalars['ID']['input'];

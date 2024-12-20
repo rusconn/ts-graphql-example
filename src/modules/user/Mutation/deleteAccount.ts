@@ -6,17 +6,17 @@ import { userNodeId } from "../common/adapter.ts";
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     "紐づくリソースは全て削除される"
-    deleteMe: DeleteMeResult
+    deleteAccount: DeleteAccountResult
   }
 
-  union DeleteMeResult = DeleteMeSuccess
+  union DeleteAccountResult = DeleteAccountSuccess
 
-  type DeleteMeSuccess {
+  type DeleteAccountSuccess {
     id: ID!
   }
 `;
 
-export const resolver: MutationResolvers["deleteMe"] = async (_parent, _args, context) => {
+export const resolver: MutationResolvers["deleteAccount"] = async (_parent, _args, context) => {
   const authed = authAuthenticated(context);
 
   if (authed instanceof Error) {
@@ -30,7 +30,7 @@ export const resolver: MutationResolvers["deleteMe"] = async (_parent, _args, co
     .executeTakeFirstOrThrow();
 
   return {
-    __typename: "DeleteMeSuccess",
+    __typename: "DeleteAccountSuccess",
     id: userNodeId(deleted.id),
   };
 };

@@ -4,16 +4,16 @@ import { parseUserNodeId } from "../../../../src/modules/user/common/parser.ts";
 import { Data } from "../../../data.ts";
 import { clearUsers, fail } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
-import type { DeleteMeMutation, DeleteMeMutationVariables } from "../../schema.ts";
+import type { DeleteAccountMutation, DeleteAccountMutationVariables } from "../../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
-  DeleteMeMutation,
-  DeleteMeMutationVariables
+  DeleteAccountMutation,
+  DeleteAccountMutationVariables
 >(/* GraphQL */ `
-  mutation DeleteMe {
-    deleteMe {
+  mutation DeleteAccount {
+    deleteAccount {
       __typename
-      ... on DeleteMeSuccess {
+      ... on DeleteAccountSuccess {
         id
       }
     }
@@ -38,11 +38,11 @@ beforeEach(async () => {
 it("should delete user", async () => {
   const { data } = await executeMutation({});
 
-  if (!data || !data.deleteMe || data.deleteMe.__typename !== "DeleteMeSuccess") {
+  if (!data || !data.deleteAccount || data.deleteAccount.__typename !== "DeleteAccountSuccess") {
     fail();
   }
 
-  const id = parseUserNodeId(data.deleteMe.id);
+  const id = parseUserNodeId(data.deleteAccount.id);
 
   if (id instanceof Error) {
     fail();
@@ -61,11 +61,11 @@ it("should not delete others", async () => {
 
   const { data } = await executeMutation({});
 
-  if (!data || !data.deleteMe || data.deleteMe.__typename !== "DeleteMeSuccess") {
+  if (!data || !data.deleteAccount || data.deleteAccount.__typename !== "DeleteAccountSuccess") {
     fail();
   }
 
-  const id = parseUserNodeId(data.deleteMe.id);
+  const id = parseUserNodeId(data.deleteAccount.id);
 
   if (id instanceof Error) {
     fail();
@@ -96,7 +96,7 @@ it("should delete his resources", async () => {
 
   const { data } = await executeMutation({});
 
-  expect(data?.deleteMe?.__typename === "DeleteMeSuccess").toBe(true);
+  expect(data?.deleteAccount?.__typename === "DeleteAccountSuccess").toBe(true);
 
   const after = await db
     .selectFrom("Todo")
