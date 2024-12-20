@@ -18,7 +18,7 @@ export const typeDef = /* GraphQL */ `
       title: NonEmptyString!
 
       "${DESC_MAX}文字まで"
-      description: String!
+      description: String! = ""
     ): CreateTodoResult
   }
 

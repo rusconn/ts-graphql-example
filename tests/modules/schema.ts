@@ -70,7 +70,7 @@ export type CompleteTodoMutation = { completeTodo?: { __typename: 'CompleteTodoS
 
 export type CreateTodoMutationVariables = Exact<{
   title: Scalars['NonEmptyString']['input'];
-  description: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 

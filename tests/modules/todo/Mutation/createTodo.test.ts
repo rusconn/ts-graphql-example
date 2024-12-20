@@ -11,7 +11,7 @@ const executeMutation = executeSingleResultOperation<
   CreateTodoMutation,
   CreateTodoMutationVariables
 >(/* GraphQL */ `
-  mutation CreateTodo($title: NonEmptyString!, $description: String!) {
+  mutation CreateTodo($title: NonEmptyString!, $description: String) {
     createTodo(title: $title, description: $description) {
       __typename
       ... on CreateTodoSuccess {
@@ -77,6 +77,30 @@ it("should create todo using input", async () => {
 
   expect(todo.title).toBe(variables.title);
   expect(todo.description).toBe(variables.description);
+});
+
+test('description should be "" by default', async () => {
+  const { data } = await executeMutation({
+    variables: { title: variables.title },
+  });
+
+  if (data?.createTodo?.__typename !== "CreateTodoSuccess") {
+    fail();
+  }
+
+  const id = parseTodoNodeId(data.createTodo.todo.id);
+
+  if (id instanceof Error) {
+    fail();
+  }
+
+  const todo = await db
+    .selectFrom("Todo")
+    .where("id", "=", id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
+
+  expect(todo.description).toBe("");
 });
 
 test("status should be PENDING by default", async () => {
