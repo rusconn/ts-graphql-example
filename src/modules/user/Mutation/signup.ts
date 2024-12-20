@@ -28,7 +28,7 @@ export const typeDef = /* GraphQL */ `
     password: NonEmptyString!
   }
 
-  union SignupResult = SignupSuccess | EmailAlreadyTakenError
+  union SignupResult = SignupSuccess | InvalidInputError | EmailAlreadyTakenError
 
   type SignupSuccess {
     token: NonEmptyString!
@@ -38,7 +38,20 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["signup"] = async (_parent, args, context) => {
   authGuest(context);
 
-  const { name, email, password } = parseArgs(args);
+  let parsed: ReturnType<typeof parseArgs>;
+  try {
+    parsed = parseArgs(args);
+  } catch (e) {
+    if (e instanceof Error) {
+      return {
+        __typename: "InvalidInputError",
+        message: e.message,
+      };
+    }
+    throw e;
+  }
+
+  const { name, email, password } = parsed;
 
   const found = await context.db
     .selectFrom("User")

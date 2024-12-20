@@ -35,6 +35,17 @@ beforeEach(async () => {
   await seedData.users();
 });
 
+test("invalid input", async () => {
+  const invalidEmail = "emailemail.com";
+  const password = "adminadmin";
+
+  const { data } = await executeMutation({
+    variables: { input: { email: invalidEmail, password } },
+  });
+
+  expect(data?.login?.__typename === "InvalidInputError").toBe(true);
+});
+
 test("wrong email", async () => {
   const wrongEmail = Data.db.admin.email.slice(1);
   const password = "adminadmin";

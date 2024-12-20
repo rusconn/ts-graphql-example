@@ -23,7 +23,7 @@ export const typeDef = /* GraphQL */ `
     description: String!
   }
 
-  union CreateTodoResult = CreateTodoSuccess | ResourceLimitExceededError
+  union CreateTodoResult = CreateTodoSuccess | InvalidInputError | ResourceLimitExceededError
 
   type CreateTodoSuccess {
     todo: Todo!
@@ -33,7 +33,18 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["createTodo"] = async (_parent, args, context) => {
   const authed = authorize(context);
 
-  const parsed = parseArgs(args);
+  let parsed: ReturnType<typeof parseArgs>;
+  try {
+    parsed = parseArgs(args);
+  } catch (e) {
+    if (e instanceof Error) {
+      return {
+        __typename: "InvalidInputError",
+        message: e.message,
+      };
+    }
+    throw e;
+  }
 
   return await logic(authed, parsed, context);
 };

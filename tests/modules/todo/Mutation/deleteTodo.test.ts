@@ -43,6 +43,14 @@ beforeEach(async () => {
   await seedData.todos();
 });
 
+test("invalid input", async () => {
+  const { data } = await executeMutation({
+    variables: { id: dummyNodeId.todo().slice(0, -1) },
+  });
+
+  expect(data?.deleteTodo?.__typename === "InvalidInputError").toBe(true);
+});
+
 test("not exists", async () => {
   const { data } = await executeMutation({
     variables: { id: dummyNodeId.todo() },

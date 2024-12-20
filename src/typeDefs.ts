@@ -29,6 +29,9 @@ const typeDef = /* GraphQL */ `
   type ResourceNotFoundError implements Error {
     message: String!
   }
+  type InvalidInputError implements Error {
+    message: String!
+  }
 
   enum ErrorCode {
     BAD_USER_INPUT

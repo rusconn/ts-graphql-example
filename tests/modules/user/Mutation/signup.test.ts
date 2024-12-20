@@ -36,6 +36,19 @@ beforeEach(async () => {
   await seedData.users();
 });
 
+test("invalid input", async () => {
+  const name = "foo";
+  const invalidEmail = "emailemail.com";
+  const password = "password";
+
+  const { data } = await executeMutation({
+    user: Data.context.guest,
+    variables: { input: { name, email: invalidEmail, password } },
+  });
+
+  expect(data?.signup?.__typename === "InvalidInputError").toBe(true);
+});
+
 test("email already exists", async () => {
   const name = "foo";
   const { email } = Data.db.admin;

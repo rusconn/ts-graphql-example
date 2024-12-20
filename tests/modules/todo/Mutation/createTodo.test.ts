@@ -44,6 +44,16 @@ const input = {
   description: "bar",
 };
 
+test("invalid input", async () => {
+  const invalidTitle = "A".repeat(100 + 1);
+
+  const { data } = await executeMutation({
+    variables: { input: { ...input, title: invalidTitle } },
+  });
+
+  expect(data?.createTodo?.__typename === "InvalidInputError").toBe(true);
+});
+
 it("should create todo using input", async () => {
   const { data } = await executeMutation({
     variables: { input },

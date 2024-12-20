@@ -8,7 +8,7 @@ export const typeDef = /* GraphQL */ `
     completeTodo(id: ID!): CompleteTodoResult
   }
 
-  union CompleteTodoResult = CompleteTodoSuccess | ResourceNotFoundError
+  union CompleteTodoResult = CompleteTodoSuccess | InvalidInputError | ResourceNotFoundError
 
   type CompleteTodoSuccess {
     todo: Todo!
@@ -18,7 +18,18 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["completeTodo"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
-  const id = parseTodoNodeId(args.id);
+  let id: ReturnType<typeof parseTodoNodeId>;
+  try {
+    id = parseTodoNodeId(args.id);
+  } catch (e) {
+    if (e instanceof Error) {
+      return {
+        __typename: "InvalidInputError",
+        message: e.message,
+      };
+    }
+    throw e;
+  }
 
   const todo = await context.db
     .updateTable("Todo")

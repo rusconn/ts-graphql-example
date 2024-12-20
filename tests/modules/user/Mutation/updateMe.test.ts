@@ -42,6 +42,16 @@ beforeEach(async () => {
   await seedData.users();
 });
 
+test("invalid input", async () => {
+  const invalidEmail = "emailemail.com";
+
+  const { data } = await executeMutation({
+    variables: { input: { email: invalidEmail } },
+  });
+
+  expect(data?.updateMe?.__typename === "InvalidInputError").toBe(true);
+});
+
 test("email already exists", async () => {
   const { email } = Data.db.alice;
 

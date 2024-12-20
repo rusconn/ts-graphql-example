@@ -26,7 +26,7 @@ export const typeDef = /* GraphQL */ `
     password: NonEmptyString
   }
 
-  union UpdateMeResult = UpdateMeSuccess | EmailAlreadyTakenError
+  union UpdateMeResult = UpdateMeSuccess | InvalidInputError | EmailAlreadyTakenError
 
   type UpdateMeSuccess {
     user: User!
@@ -36,7 +36,20 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["updateMe"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
-  const { name, email, password } = parseArgs(args);
+  let parsed: ReturnType<typeof parseArgs>;
+  try {
+    parsed = parseArgs(args);
+  } catch (e) {
+    if (e instanceof Error) {
+      return {
+        __typename: "InvalidInputError",
+        message: e.message,
+      };
+    }
+    throw e;
+  }
+
+  const { name, email, password } = parsed;
 
   if (email) {
     const found = await context.db

@@ -22,7 +22,7 @@ export const typeDef = /* GraphQL */ `
     password: NonEmptyString!
   }
 
-  union LoginResult = LoginSuccess | UserNotFoundError
+  union LoginResult = LoginSuccess | InvalidInputError | UserNotFoundError
 
   type LoginSuccess {
     token: NonEmptyString!
@@ -36,7 +36,20 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["login"] = async (_parent, args, context) => {
   auth(context);
 
-  const { email, password } = parseArgs(args);
+  let parsed: ReturnType<typeof parseArgs>;
+  try {
+    parsed = parseArgs(args);
+  } catch (e) {
+    if (e instanceof Error) {
+      return {
+        __typename: "InvalidInputError",
+        message: e.message,
+      };
+    }
+    throw e;
+  }
+
+  const { email, password } = parsed;
 
   const found = await context.db
     .selectFrom("User")

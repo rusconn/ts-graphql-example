@@ -61,6 +61,16 @@ const input = {
   status: Graph.TodoStatus.Done,
 };
 
+test("invalid input", async () => {
+  const invalidTitle = "A".repeat(100 + 1);
+
+  const { data } = await executeMutation({
+    variables: { input: { ...input, title: invalidTitle }, id: dummyNodeId.todo() },
+  });
+
+  expect(data?.updateTodo?.__typename === "InvalidInputError").toBe(true);
+});
+
 test("not exists", async () => {
   const { data } = await executeMutation({
     variables: { input: {}, id: dummyNodeId.todo() },

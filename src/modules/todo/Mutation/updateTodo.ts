@@ -21,7 +21,7 @@ export const typeDef = /* GraphQL */ `
     status: TodoStatus
   }
 
-  union UpdateTodoResult = UpdateTodoSuccess | ResourceNotFoundError
+  union UpdateTodoResult = UpdateTodoSuccess | InvalidInputError | ResourceNotFoundError
 
   type UpdateTodoSuccess {
     todo: Todo!
@@ -31,7 +31,20 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
-  const { id, title, description, status } = parseArgs(args);
+  let parsed: ReturnType<typeof parseArgs>;
+  try {
+    parsed = parseArgs(args);
+  } catch (e) {
+    if (e instanceof Error) {
+      return {
+        __typename: "InvalidInputError",
+        message: e.message,
+      };
+    }
+    throw e;
+  }
+
+  const { id, ...rest } = parsed;
 
   const todo = await context.db
     .updateTable("Todo")
@@ -39,9 +52,7 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
     .where("userId", "=", authed.id)
     .set({
       updatedAt: new Date(),
-      title,
-      description,
-      status,
+      ...rest,
     })
     .returningAll()
     .executeTakeFirst();
