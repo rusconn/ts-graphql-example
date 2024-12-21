@@ -74,29 +74,34 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
         [UserSortKeys.UpdatedAt]: "updatedAt" as const,
       }[sortKey];
 
-      const cursorRecord = cursor
-        ? context.db.selectFrom("User").where("id", "=", cursor.id)
+      const cursorOrderColumn = cursor
+        ? context.db //
+            .selectFrom("User")
+            .where("id", "=", cursor.id)
+            .select(orderColumn)
         : undefined;
 
-      return await context.db
+      const page = await context.db
         .selectFrom("User")
-        .$if(cursorRecord != null, (qb) =>
+        .$if(cursorOrderColumn != null, (qb) =>
           qb.where(({ eb }) =>
             eb.or([
-              eb(orderColumn, comp, cursorRecord!.select(orderColumn)),
+              eb(orderColumn, comp, cursorOrderColumn!),
               eb.and([
-                eb(orderColumn, "=", cursorRecord!.select(orderColumn)),
-                eb("id", comp, cursorRecord!.select("id")),
+                //
+                eb(orderColumn, "=", cursorOrderColumn!),
+                eb("id", comp, cursor!.id),
               ]),
             ]),
           ),
         )
+        .selectAll()
         .orderBy(orderColumn, direction)
         .orderBy("id", direction)
         .limit(limit)
-        .selectAll()
-        .execute()
-        .then((result) => (backward ? result.reverse() : result));
+        .execute();
+
+      return backward ? page.reverse() : page;
     },
     () =>
       context.db

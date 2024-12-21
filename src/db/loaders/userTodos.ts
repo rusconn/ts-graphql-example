@@ -26,8 +26,11 @@ export const initClosure = (db: Kysely<DB>) => {
   const batchGet = async (keys: readonly Key[]) => {
     const { status, cursor, limit, orderColumn, direction, comp } = sharedParams!;
 
-    const cursorRecord = cursor //
-      ? db.selectFrom("Todo").where("id", "=", cursor.id)
+    const cursorOrderColumn = cursor //
+      ? db //
+          .selectFrom("Todo")
+          .where("id", "=", cursor.id)
+          .select(orderColumn)
       : undefined;
 
     // 本当は各 key に対する select limit を union したいが、
@@ -42,20 +45,21 @@ export const initClosure = (db: Kysely<DB>) => {
         keys.map((key) => key.id),
       )
       .$if(status != null, (qb) => qb.where("status", "=", status!))
-      .$if(cursorRecord != null, (qb) =>
+      .$if(cursorOrderColumn != null, (qb) =>
         qb.where(({ eb }) =>
           eb.or([
-            eb(orderColumn, comp, cursorRecord!.select(orderColumn)),
+            eb(orderColumn, comp, cursorOrderColumn!),
             eb.and([
-              eb(orderColumn, "=", cursorRecord!.select(orderColumn)),
-              eb("id", comp, cursorRecord!.select("id")),
+              //
+              eb(orderColumn, "=", cursorOrderColumn!),
+              eb("id", comp, cursor!.id),
             ]),
           ]),
         ),
       )
+      .selectAll()
       .orderBy(orderColumn, direction)
       .orderBy("id", direction)
-      .selectAll()
       .execute();
 
     // 順序は維持してくれるみたい

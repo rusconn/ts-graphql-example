@@ -79,10 +79,11 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
         [TodoSortKeys.UpdatedAt]: "updatedAt" as const,
       }[sortKey];
 
-      return await context.loaders
+      const page = await context.loaders
         .userTodos({ ...rest, orderColumn, direction, comp, status })
-        .load(parent)
-        .then((result) => (backward ? result.reverse() : result));
+        .load(parent);
+
+      return backward ? page.reverse() : page;
     },
     () => context.loaders.userTodosCount({ status }).load(parent),
     { first, after, last, before },
