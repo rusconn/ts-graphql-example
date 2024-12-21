@@ -18,23 +18,29 @@ export const parseSomeNodeId =
 
     const { type, id } = parsed;
 
-    return type !== nodeType //
-      ? parseErr(`invalid node id: ${nodeId}`)
-      : id;
+    if (type !== nodeType) {
+      return parseErr(`invalid node id: ${nodeId}`);
+    }
+
+    return id;
   };
 
 export const parseNodeId = (nodeId: Scalars["ID"]["input"]) => {
   const [type, id, ...rest] = nodeId.split(typeIdSep);
 
-  return !isValidNodeType(type) || id == null || !uuid.is(id) || rest.length !== 0
-    ? parseErr(`invalid node id: ${nodeId}`)
-    : { type, id };
+  if (!isValidNodeType(type) || id == null || !uuid.is(id) || rest.length !== 0) {
+    return parseErr(`invalid node id: ${nodeId}`);
+  }
+
+  return { type, id };
 };
 
 export const parseCursor = (id: string) => {
-  return !uuid.is(id) //
-    ? parseErr(`invalid cursor: ${id}`)
-    : id;
+  if (!uuid.is(id)) {
+    return parseErr(`invalid cursor: ${id}`);
+  }
+
+  return id;
 };
 
 const isValidNodeType = (val: string | undefined): val is NodeType => {

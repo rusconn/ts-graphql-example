@@ -4,9 +4,11 @@ import type { User } from "./resolver.ts";
 type AuthUser = Pick<User, "id">;
 
 export const authUserOwner = (context: AuthContext, user: AuthUser) => {
-  return context.user?.id === user.id //
-    ? context.user
-    : authErr();
+  if (context.user?.id !== user.id) {
+    return authErr();
+  }
+
+  return context.user;
 };
 
 if (import.meta.vitest) {
