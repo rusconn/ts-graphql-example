@@ -23,9 +23,9 @@ const typeDef = /* GraphQL */ `
   }
 
   enum ErrorCode {
-    BAD_USER_INPUT
     AUTHENTICATION_ERROR
     FORBIDDEN
+    BAD_USER_INPUT
   }
 `;
 
