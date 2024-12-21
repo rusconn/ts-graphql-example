@@ -62,7 +62,7 @@ export const resolver: MutationResolvers["editUserProfile"] = async (_parent, ar
     };
   }
 
-  const user = await context.db
+  const edited = await context.db
     .updateTable("User")
     .where("id", "=", authed.id)
     .set({
@@ -74,7 +74,7 @@ export const resolver: MutationResolvers["editUserProfile"] = async (_parent, ar
 
   return {
     __typename: "EditUserProfileSuccess",
-    user,
+    user: edited,
   };
 };
 

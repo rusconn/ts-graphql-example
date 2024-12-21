@@ -21,7 +21,7 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
     throw forbiddenErr(authed);
   }
 
-  const updated = await context.db
+  const loggedOut = await context.db
     .updateTable("User")
     .where("id", "=", authed.id)
     .set({
@@ -33,6 +33,6 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
 
   return {
     __typename: "LogoutSuccess",
-    user: updated,
+    user: loggedOut,
   };
 };
