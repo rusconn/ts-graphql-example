@@ -901,10 +901,6 @@ export type ResolversParentTypes = ResolversObject<{
   UserNotFoundError: UserNotFoundError;
 }>;
 
-export type OneOfDirectiveArgs = { };
-
-export type OneOfDirectiveResolver<Result, Parent, ContextType = Context, Args = OneOfDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
 export type BlockUserResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BlockUserResult'] = ResolversParentTypes['BlockUserResult']> = ResolversObject<{
   __resolveType: TypeResolveFn<'BlockUserSuccess' | 'InvalidInputError' | 'ResourceNotFoundError', ParentType, ContextType>;
 }>;
@@ -1401,6 +1397,3 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   UserNotFoundError?: UserNotFoundErrorResolvers<ContextType>;
 }>;
 
-export type DirectiveResolvers<ContextType = Context> = ResolversObject<{
-  oneOf?: OneOfDirectiveResolver<any, any, ContextType>;
-}>;

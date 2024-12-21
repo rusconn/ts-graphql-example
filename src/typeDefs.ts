@@ -6,8 +6,6 @@ import * as scalar from "./modules/scalar/mod.ts";
 import * as user from "./modules/user/mod.ts";
 
 const typeDef = /* GraphQL */ `
-  directive @oneOf on INPUT_OBJECT | FIELD_DEFINITION
-
   type Query
   type Mutation
 
