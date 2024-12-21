@@ -1,7 +1,8 @@
+import { getCursorConnection } from "../../../lib/cursor.ts";
+import * as uuidv7 from "../../../lib/uuidv7.ts";
 import { FollowerSortKeys, type UserFollowersArgs, type UserResolvers } from "../../../schema.ts";
-import { getCursorConnection } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
-import { badUserInputErr, dateByUuid } from "../../common/resolvers.ts";
+import { badUserInputErr } from "../../common/resolvers.ts";
 import { cursorConnection } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 50;
@@ -92,7 +93,7 @@ export const resolver: UserResolvers["followers"] = async (parent, args, context
       getCursor: (record) => ({ id: record.ffid }),
       recordToEdge: (record) => ({
         node: record,
-        followedAt: dateByUuid(record.ffid),
+        followedAt: uuidv7.date(record.ffid),
       }),
     },
   );

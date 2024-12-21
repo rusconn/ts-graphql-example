@@ -1,5 +1,5 @@
+import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { UserResolvers } from "../../../schema.ts";
-import { dateByUuid } from "../../common/resolvers.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -8,5 +8,5 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["createdAt"] = (parent) => {
-  return dateByUuid(parent.id);
+  return uuidv7.date(parent.id);
 };

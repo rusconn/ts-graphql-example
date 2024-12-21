@@ -1,16 +1,14 @@
-import { v7 as uuidv7 } from "uuid";
-
-import { dateByUuid } from "../../src/modules/common/resolvers.ts";
+import * as uuidv7 from "../../src/lib/uuidv7.ts";
 import type { DateTime } from "../../src/modules/scalar/mod.ts";
 
 // DateTime リゾルバーによる変換のシミュレーション
 export const dateTime = (date: Date) => date.toISOString() as DateTime;
 
-export const dateTimeByUuid = (id: Parameters<typeof dateByUuid>[0]) => {
-  const date = dateByUuid(id);
+export const dateTimeByUuid = (id: Parameters<typeof uuidv7.date>[0]) => {
+  const date = uuidv7.date(id);
   return dateTime(date);
 };
 
 export const dummySomeNodeId = (nodeId: (id: string) => string) => () => {
-  return nodeId(uuidv7());
+  return nodeId(uuidv7.gen());
 };

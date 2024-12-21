@@ -1,5 +1,4 @@
-import { v7 as uuidv7 } from "uuid";
-
+import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type {
   MutationCreatePostArgs,
   MutationReplyToPostArgs,
@@ -7,7 +6,7 @@ import type {
 } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
-import { dateByUuid, forbiddenErr } from "../../common/resolvers.ts";
+import { forbiddenErr } from "../../common/resolvers.ts";
 import { parsePostNodeId } from "../common/parser.ts";
 import { CONTENT_MAX } from "./createPost.ts";
 
@@ -46,14 +45,13 @@ export const resolver: MutationResolvers["replyToPost"] = async (_parent, args, 
     };
   }
 
-  const id = uuidv7();
-  const idDate = dateByUuid(id);
+  const { id, date } = uuidv7.genWithDate();
 
   const reply = await context.db
     .insertInto("Post")
     .values({
       id,
-      updatedAt: idDate,
+      updatedAt: date,
       content: parsed.content,
       userId: authed.id,
       parentId: parsed.id,

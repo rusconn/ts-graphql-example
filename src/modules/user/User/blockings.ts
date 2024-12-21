@@ -1,7 +1,8 @@
+import { getCursorConnection } from "../../../lib/cursor.ts";
+import * as uuidv7 from "../../../lib/uuidv7.ts";
 import { BlockingSortKeys, type UserBlockingsArgs, type UserResolvers } from "../../../schema.ts";
-import { getCursorConnection } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
-import { badUserInputErr, dateByUuid, forbiddenErr } from "../../common/resolvers.ts";
+import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
 import { cursorConnection } from "../../common/typeDefs.ts";
 import { authUserOwner } from "../common/authorizer.ts";
 
@@ -99,7 +100,7 @@ export const resolver: UserResolvers["blockings"] = async (parent, args, context
       getCursor: (record) => ({ id: record.bbid }),
       recordToEdge: (record) => ({
         node: record,
-        blockedAt: dateByUuid(record.bbid),
+        blockedAt: uuidv7.date(record.bbid),
       }),
     },
   );

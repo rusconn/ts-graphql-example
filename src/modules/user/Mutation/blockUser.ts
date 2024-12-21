@@ -1,5 +1,4 @@
-import { v7 as uuidv7 } from "uuid";
-
+import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
@@ -56,7 +55,7 @@ export const resolver: MutationResolvers["blockUser"] = async (_parent, args, co
     const block = await trx
       .insertInto("BlockerBlockee")
       .values({
-        id: uuidv7(),
+        id: uuidv7.gen(),
         blockerId: authed.id,
         blockeeId: blockee.id,
       })

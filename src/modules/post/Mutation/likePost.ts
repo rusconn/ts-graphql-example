@@ -1,5 +1,4 @@
-import { v7 as uuidv7 } from "uuid";
-
+import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
@@ -49,7 +48,7 @@ export const resolver: MutationResolvers["likePost"] = async (_parent, args, con
     const like = await trx
       .insertInto("LikerPost")
       .values({
-        id: uuidv7(),
+        id: uuidv7.gen(),
         userId: authed.id,
         postId: post.id,
       })

@@ -1,4 +1,4 @@
-import { validate as uuidValidate } from "uuid";
+import * as uuid from "../../lib/uuid.ts";
 import type { Scalars } from "../../schema.ts";
 import { nodeId } from "./adapters.ts";
 import { type NodeType, nodeTypes, typeIdSep } from "./typeDefs.ts";
@@ -26,13 +26,13 @@ export const parseSomeNodeId =
 export const parseNodeId = (nodeId: Scalars["ID"]["input"]) => {
   const [type, id, ...rest] = nodeId.split(typeIdSep);
 
-  return !isValidNodeType(type) || id == null || !uuidValidate(id) || rest.length !== 0
+  return !isValidNodeType(type) || id == null || !uuid.is(id) || rest.length !== 0
     ? parseErr(`invalid node id: ${nodeId}`)
     : { type, id };
 };
 
 export const parseCursor = (id: string) => {
-  return !uuidValidate(id) //
+  return !uuid.is(id) //
     ? parseErr(`invalid cursor: ${id}`)
     : id;
 };

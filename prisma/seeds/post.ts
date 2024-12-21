@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
-import { v7 as uuidv7 } from "uuid";
 
 import type { DB, User } from "../../src/db/types.ts";
+import * as uuidv7 from "../../src/lib/uuidv7.ts";
 import { randInt } from "./common.ts";
 
 export const seed = async (tsx: Transaction<DB>, userIds: User["id"][]) => {
@@ -71,7 +71,7 @@ const fakeDataOne = (userId: User["id"]) => {
   const numPosts = randInt(0, 10);
 
   return [...Array(numPosts)].map((_) => ({
-    id: uuidv7(),
+    id: uuidv7.gen(),
     updatedAt: faker.date.past(),
     content: faker.lorem.words(randInt(1, 10)),
     parentId: null,

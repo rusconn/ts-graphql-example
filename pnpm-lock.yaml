@@ -19,9 +19,6 @@ importers:
       '@envelop/core':
         specifier: ^5.0.2
         version: 5.0.2
-      '@envelop/extended-validation':
-        specifier: ^4.1.0
-        version: 4.1.0(@envelop/core@5.0.2)(graphql@16.8.1)
       '@escape.tech/graphql-armor':
         specifier: ^3.1.1
         version: 3.1.1(@envelop/core@5.0.2)(@escape.tech/graphql-armor-types@0.7.0)
@@ -562,13 +559,6 @@ packages:
   '@envelop/core@5.0.2':
     resolution: {integrity: sha512-tVL6OrMe6UjqLosiE+EH9uxh2TQC0469GwF4tE014ugRaDDKKVWwFwZe0TBMlcyHKh5MD4ZxktWo/1hqUxIuhw==}
     engines: {node: '>=18.0.0'}
-
-  '@envelop/extended-validation@4.1.0':
-    resolution: {integrity: sha512-S90LQanW+xg3Lkp2sNiHa2KJnXXpKLucKys05Wk5zpiV0vL0SDX+/cuV+tnDhShWJucunAGi34n8xFCXsUUOkA==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      '@envelop/core': ^5.0.2
-      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
 
   '@envelop/types@5.0.0':
     resolution: {integrity: sha512-IPjmgSc4KpQRlO4qbEDnBEixvtb06WDmjKfi/7fkZaryh5HuOmTtixe1EupQI5XfXO8joc3d27uUZ0QdC++euA==}
@@ -4200,13 +4190,6 @@ snapshots:
     dependencies:
       '@envelop/types': 5.0.0
       tslib: 2.8.1
-
-  '@envelop/extended-validation@4.1.0(@envelop/core@5.0.2)(graphql@16.8.1)':
-    dependencies:
-      '@envelop/core': 5.0.2
-      '@graphql-tools/utils': 10.5.5(graphql@16.8.1)
-      graphql: 16.8.1
-      tslib: 2.8.0
 
   '@envelop/types@5.0.0':
     dependencies:

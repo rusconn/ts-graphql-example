@@ -1,7 +1,8 @@
+import { getCursorConnection } from "../../../lib/cursor.ts";
+import * as uuidv7 from "../../../lib/uuidv7.ts";
 import { LikeSortKeys, type UserLikesArgs, type UserResolvers } from "../../../schema.ts";
-import { getCursorConnection } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
-import { badUserInputErr, dateByUuid } from "../../common/resolvers.ts";
+import { badUserInputErr } from "../../common/resolvers.ts";
 import { cursorConnection } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 30;
@@ -90,7 +91,7 @@ export const resolver: UserResolvers["likes"] = async (parent, args, context, in
       getCursor: (record) => ({ id: record.lpid }),
       recordToEdge: (record) => ({
         node: record,
-        likedAt: dateByUuid(record.lpid),
+        likedAt: uuidv7.date(record.lpid),
       }),
     },
   );

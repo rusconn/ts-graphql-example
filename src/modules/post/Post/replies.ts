@@ -1,5 +1,5 @@
+import { getCursorConnection } from "../../../lib/cursor.ts";
 import { ReplySortKeys, type PostRepliesArgs, type PostResolvers } from "../../../schema.ts";
-import { getCursorConnection } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { badUserInputErr } from "../../common/resolvers.ts";
 import { cursorConnection } from "../../common/typeDefs.ts";

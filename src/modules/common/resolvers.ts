@@ -13,12 +13,3 @@ export const badUserInputErr = (message: string, originalError?: Error) =>
     extensions: { code: ErrorCode.BadUserInput },
     originalError,
   });
-
-export const dateByUuid = (id: string) => {
-  return new Date(decodeTime(id));
-};
-
-const decodeTime = (id: string) => {
-  const time = id.replace("-", "").slice(0, 12);
-  return Number.parseInt(time, 16);
-};
