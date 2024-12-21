@@ -1,6 +1,6 @@
 import * as uuid from "../../lib/uuid.ts";
 import type { Scalars } from "../../schema.ts";
-import { nodeId, typeIdSep } from "./adapters.ts";
+import { typeIdSep } from "./adapters.ts";
 import { type NodeType, nodeTypes } from "./typeDefs.ts";
 
 export const parseErr = (message: string) => {
@@ -46,6 +46,8 @@ export const numChars = (s: string) => {
 };
 
 if (import.meta.vitest) {
+  const { nodeId } = await import("./adapters.ts");
+
   describe("parseNodeId", () => {
     describe("node type", () => {
       const id = "0193cb3e-4379-750f-880f-77afae342259";
