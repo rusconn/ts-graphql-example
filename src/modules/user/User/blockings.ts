@@ -71,21 +71,12 @@ export const resolver: UserResolvers["blockings"] = async (parent, args, context
           ? (["asc", ">"] as const)
           : (["desc", "<"] as const);
 
-      const result = await context.db
+      const page = await context.db
         .selectFrom("User")
         .innerJoin("BlockerBlockee", "User.id", "BlockerBlockee.blockerId")
         .where("User.id", "=", parent.id)
         .$if(cursor != null, (qb) =>
-          qb.where(({ eb }) =>
-            eb(
-              "BlockerBlockee.blockeeId",
-              comp,
-              context.db //
-                .selectFrom("BlockerBlockee")
-                .where("blockeeId", "=", cursor!.id)
-                .select("blockeeId"),
-            ),
-          ),
+          qb.where(({ eb }) => eb("BlockerBlockee.id", comp, cursor!.id)),
         )
         .selectAll("User")
         .select(["BlockerBlockee.id as bbid"])
@@ -93,7 +84,7 @@ export const resolver: UserResolvers["blockings"] = async (parent, args, context
         .limit(limit)
         .execute();
 
-      return backward ? result.reverse() : result;
+      return backward ? page.reverse() : page;
     },
     () =>
       context.db
@@ -105,6 +96,7 @@ export const resolver: UserResolvers["blockings"] = async (parent, args, context
     { first, after, last, before },
     {
       resolveInfo: info,
+      getCursor: (record) => ({ id: record.bbid }),
       recordToEdge: (record) => ({
         node: record,
         blockedAt: dateByUuid(record.bbid),

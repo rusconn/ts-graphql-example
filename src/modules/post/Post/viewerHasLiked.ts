@@ -11,12 +11,12 @@ export const resolver: PostResolvers["viewerHasLiked"] = async (parent, _args, c
     return false;
   }
 
-  const result = await context.db
+  const like = await context.db
     .selectFrom("LikerPost")
     .where("userId", "=", context.user.id)
     .where("postId", "=", parent.id)
     .select("userId")
     .executeTakeFirst();
 
-  return result != null;
+  return like != null;
 };

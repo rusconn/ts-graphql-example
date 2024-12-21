@@ -11,12 +11,12 @@ export const resolver: UserResolvers["isFollowingViewer"] = async (parent, _args
     return false;
   }
 
-  const result = await context.db
+  const follow = await context.db
     .selectFrom("FollowerFollowee")
     .where("followerId", "=", parent.id)
     .where("followeeId", "=", context.user.id)
     .select("followerId")
     .executeTakeFirst();
 
-  return result != null;
+  return follow != null;
 };

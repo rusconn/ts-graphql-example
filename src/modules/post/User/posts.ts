@@ -66,20 +66,24 @@ export const resolver: UserResolvers["posts"] = async (parent, args, context, in
         [UserPostSortKeys.UpdatedAt]: "updatedAt" as const,
       }[sortKey];
 
-      const cursorRecord = cursor
-        ? context.db.selectFrom("Post").where("id", "=", cursor.id)
+      const cursorOrderColumn = cursor
+        ? context.db //
+            .selectFrom("Post")
+            .where("id", "=", cursor.id)
+            .select(orderColumn)
         : undefined;
 
-      const result = await context.db
+      const page = await context.db
         .selectFrom("Post")
         .where("userId", "=", parent.id)
-        .$if(cursorRecord != null, (qb) =>
+        .$if(cursorOrderColumn != null, (qb) =>
           qb.where(({ eb }) =>
             eb.or([
-              eb(orderColumn, comp, cursorRecord!.select(orderColumn)),
+              eb(orderColumn, comp, cursorOrderColumn!),
               eb.and([
-                eb(orderColumn, "=", cursorRecord!.select(orderColumn)),
-                eb("id", comp, cursorRecord!.select("id")),
+                //
+                eb(orderColumn, "=", cursorOrderColumn!),
+                eb("id", comp, cursor!.id),
               ]),
             ]),
           ),
@@ -90,7 +94,7 @@ export const resolver: UserResolvers["posts"] = async (parent, args, context, in
         .limit(limit)
         .execute();
 
-      return backward ? result.reverse() : result;
+      return backward ? page.reverse() : page;
     },
     () =>
       context.db

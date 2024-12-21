@@ -64,18 +64,7 @@ export const resolver: PostResolvers["replies"] = async (parent, args, context, 
       const page = await context.db
         .selectFrom("Post")
         .where("parentId", "=", parent.id)
-        .$if(cursor != null, (qb) =>
-          qb.where(({ eb }) =>
-            eb(
-              "id",
-              comp,
-              context.db //
-                .selectFrom("Post")
-                .where("parentId", "=", cursor!.id)
-                .select("id"),
-            ),
-          ),
-        )
+        .$if(cursor != null, (qb) => qb.where(({ eb }) => eb("id", comp, cursor!.id)))
         .selectAll()
         .orderBy("id", direction)
         .limit(limit)

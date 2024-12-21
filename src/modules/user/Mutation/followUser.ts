@@ -1,3 +1,5 @@
+import { v7 as uuidv7 } from "uuid";
+
 import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
@@ -54,6 +56,7 @@ export const resolver: MutationResolvers["followUser"] = async (_parent, args, c
     const follow = await trx
       .insertInto("FollowerFollowee")
       .values({
+        id: uuidv7(),
         followerId: authed.id,
         followeeId: followee.id,
       })

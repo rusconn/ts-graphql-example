@@ -8,7 +8,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: PostResolvers["parents"] = async (parent, _args, context) => {
-  const result = await context.db
+  const parentsInclusive = await context.db
     .withRecursive("replies", (db) =>
       db
         .selectFrom("Post")
@@ -26,5 +26,5 @@ export const resolver: PostResolvers["parents"] = async (parent, _args, context)
     .orderBy("id", "asc")
     .execute();
 
-  return result.slice(0, -1);
+  return parentsInclusive.slice(0, -1);
 };

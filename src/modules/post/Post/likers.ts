@@ -65,29 +65,18 @@ export const resolver: PostResolvers["likers"] = async (parent, args, context, i
           ? (["asc", ">"] as const)
           : (["desc", "<"] as const);
 
-      const result = await context.db
+      const page = await context.db
         .selectFrom("User")
         .innerJoin("LikerPost", "User.id", "LikerPost.userId")
-        .where("postId", "=", parent.id)
-        .$if(cursor != null, (qb) =>
-          qb.where(({ eb }) =>
-            eb(
-              "LikerPost.id",
-              comp,
-              context.db //
-                .selectFrom("LikerPost")
-                .where("postId", "=", cursor!.id)
-                .select("id"),
-            ),
-          ),
-        )
+        .where("LikerPost.postId", "=", parent.id)
+        .$if(cursor != null, (qb) => qb.where(({ eb }) => eb("LikerPost.id", comp, cursor!.id)))
         .selectAll("User")
         .select(["LikerPost.id as lpid"])
         .orderBy("lpid", direction)
         .limit(limit)
         .execute();
 
-      return backward ? result.reverse() : result;
+      return backward ? page.reverse() : page;
     },
     () =>
       context.db
@@ -99,6 +88,7 @@ export const resolver: PostResolvers["likers"] = async (parent, args, context, i
     { first, after, last, before },
     {
       resolveInfo: info,
+      getCursor: (record) => ({ id: record.lpid }),
       recordToEdge: (record) => ({
         node: record,
         likedAt: dateByUuid(record.lpid),
