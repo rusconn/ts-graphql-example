@@ -535,6 +535,7 @@ export type User = Node & {
   name?: Maybe<Scalars['NonEmptyString']['output']>;
   posts?: Maybe<PostConnection>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  viewerIsBlocking?: Maybe<Scalars['Boolean']['output']>;
   viewerIsFollowing?: Maybe<Scalars['Boolean']['output']>;
   website?: Maybe<Scalars['URL']['output']>;
 };
@@ -1254,6 +1255,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   name?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   posts?: Resolver<Maybe<ResolversTypes['PostConnection']>, ParentType, ContextType, RequireFields<UserPostsArgs, 'reverse' | 'sortKey'>>;
   updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  viewerIsBlocking?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   viewerIsFollowing?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   website?: Resolver<Maybe<ResolversTypes['URL']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

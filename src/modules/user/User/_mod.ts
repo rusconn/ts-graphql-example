@@ -12,6 +12,7 @@ import * as isFollowingViewer from "./isFollowingViewer.ts";
 import * as location from "./location.ts";
 import * as name from "./name.ts";
 import * as updatedAt from "./updatedAt.ts";
+import * as viewerIsBlocking from "./viewerIsBlocking.ts";
 import * as viewerIsFollowing from "./viewerIsFollowing.ts";
 import * as website from "./website.ts";
 
@@ -34,6 +35,7 @@ export const typeDefs = [
   location.typeDef,
   name.typeDef,
   updatedAt.typeDef,
+  viewerIsBlocking.typeDef,
   viewerIsFollowing.typeDef,
   website.typeDef,
 ];
@@ -52,6 +54,7 @@ export const resolvers: UserResolvers = {
   location: location.resolver,
   name: name.resolver,
   updatedAt: updatedAt.resolver,
+  viewerIsBlocking: viewerIsBlocking.resolver,
   viewerIsFollowing: viewerIsFollowing.resolver,
   website: website.resolver,
 };
