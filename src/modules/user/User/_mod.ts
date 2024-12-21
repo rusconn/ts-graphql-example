@@ -8,6 +8,7 @@ import * as followers from "./followers.ts";
 import * as followings from "./followings.ts";
 import * as handle from "./handle.ts";
 import * as id from "./id.ts";
+import * as isBlockingViewer from "./isBlockingViewer.ts";
 import * as isFollowingViewer from "./isFollowingViewer.ts";
 import * as location from "./location.ts";
 import * as name from "./name.ts";
@@ -31,6 +32,7 @@ export const typeDefs = [
   followings.typeDef,
   handle.typeDef,
   id.typeDef,
+  isBlockingViewer.typeDef,
   isFollowingViewer.typeDef,
   location.typeDef,
   name.typeDef,
@@ -50,6 +52,7 @@ export const resolvers: UserResolvers = {
   followings: followings.resolver,
   handle: handle.resolver,
   id: id.resolver,
+  isBlockingViewer: isBlockingViewer.resolver,
   isFollowingViewer: isFollowingViewer.resolver,
   location: location.resolver,
   name: name.resolver,

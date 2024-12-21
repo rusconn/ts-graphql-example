@@ -529,6 +529,7 @@ export type User = Node & {
   followings?: Maybe<FollowingConnection>;
   handle?: Maybe<Scalars['NonEmptyString']['output']>;
   id: Scalars['ID']['output'];
+  isBlockingViewer?: Maybe<Scalars['Boolean']['output']>;
   isFollowingViewer?: Maybe<Scalars['Boolean']['output']>;
   likes?: Maybe<LikeConnection>;
   location?: Maybe<Scalars['String']['output']>;
@@ -1249,6 +1250,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   followings?: Resolver<Maybe<ResolversTypes['FollowingConnection']>, ParentType, ContextType, RequireFields<UserFollowingsArgs, 'reverse' | 'sortKey'>>;
   handle?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isBlockingViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isFollowingViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   likes?: Resolver<Maybe<ResolversTypes['LikeConnection']>, ParentType, ContextType, RequireFields<UserLikesArgs, 'reverse' | 'sortKey'>>;
   location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
