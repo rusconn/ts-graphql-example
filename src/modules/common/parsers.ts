@@ -1,7 +1,7 @@
 import * as uuid from "../../lib/uuid.ts";
 import type { Scalars } from "../../schema.ts";
-import { nodeId } from "./adapters.ts";
-import { type NodeType, nodeTypes, typeIdSep } from "./typeDefs.ts";
+import { nodeId, typeIdSep } from "./adapters.ts";
+import { type NodeType, nodeTypes } from "./typeDefs.ts";
 
 export const parseErr = (message: string) => {
   return new Error(message);
