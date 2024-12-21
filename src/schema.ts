@@ -494,11 +494,6 @@ export type ReplyToPostSuccess = {
   post: Post;
 };
 
-export type ResourceLimitExceededError = Error & {
-  __typename?: 'ResourceLimitExceededError';
-  message: Scalars['String']['output'];
-};
-
 export type ResourceNotFoundError = Error & {
   __typename?: 'ResourceNotFoundError';
   message: Scalars['String']['output'];
@@ -733,7 +728,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = Resol
 
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = ResolversObject<{
-  Error: ( InvalidInputError ) | ( ResourceLimitExceededError ) | ( ResourceNotFoundError ) | ( UserEmailAlreadyTakenError ) | ( UserNameAlreadyTakenError ) | ( UserNotFoundError );
+  Error: ( InvalidInputError ) | ( ResourceNotFoundError ) | ( UserEmailAlreadyTakenError ) | ( UserNameAlreadyTakenError ) | ( UserNotFoundError );
   Node: ( PostMapper ) | ( UserMapper );
 }>;
 
@@ -805,7 +800,6 @@ export type ResolversTypes = ResolversObject<{
   ReplySortKeys: ReplySortKeys;
   ReplyToPostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ReplyToPostResult']>;
   ReplyToPostSuccess: ResolverTypeWrapper<Omit<ReplyToPostSuccess, 'post'> & { post: ResolversTypes['Post'] }>;
-  ResourceLimitExceededError: ResolverTypeWrapper<ResourceLimitExceededError>;
   ResourceNotFoundError: ResolverTypeWrapper<ResourceNotFoundError>;
   SignupResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SignupResult']>;
   SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
@@ -883,7 +877,6 @@ export type ResolversParentTypes = ResolversObject<{
   ReplyEdge: Omit<ReplyEdge, 'node'> & { node: Maybe<ResolversParentTypes['Post']> };
   ReplyToPostResult: ResolversUnionTypes<ResolversParentTypes>['ReplyToPostResult'];
   ReplyToPostSuccess: Omit<ReplyToPostSuccess, 'post'> & { post: ResolversParentTypes['Post'] };
-  ResourceLimitExceededError: ResourceLimitExceededError;
   ResourceNotFoundError: ResourceNotFoundError;
   SignupResult: ResolversUnionTypes<ResolversParentTypes>['SignupResult'];
   SignupSuccess: SignupSuccess;
@@ -1023,7 +1016,7 @@ export interface EmailAddressScalarConfig extends GraphQLScalarTypeConfig<Resolv
 }
 
 export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'InvalidInputError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError' | 'UserEmailAlreadyTakenError' | 'UserNameAlreadyTakenError' | 'UserNotFoundError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'InvalidInputError' | 'ResourceNotFoundError' | 'UserEmailAlreadyTakenError' | 'UserNameAlreadyTakenError' | 'UserNotFoundError', ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
@@ -1231,11 +1224,6 @@ export type ReplyToPostSuccessResolvers<ContextType = Context, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ResourceLimitExceededErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ResourceLimitExceededError'] = ResolversParentTypes['ResourceLimitExceededError']> = ResolversObject<{
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
 export type ResourceNotFoundErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ResourceNotFoundError'] = ResolversParentTypes['ResourceNotFoundError']> = ResolversObject<{
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1380,7 +1368,6 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   ReplyEdge?: ReplyEdgeResolvers<ContextType>;
   ReplyToPostResult?: ReplyToPostResultResolvers<ContextType>;
   ReplyToPostSuccess?: ReplyToPostSuccessResolvers<ContextType>;
-  ResourceLimitExceededError?: ResourceLimitExceededErrorResolvers<ContextType>;
   ResourceNotFoundError?: ResourceNotFoundErrorResolvers<ContextType>;
   SignupResult?: SignupResultResolvers<ContextType>;
   SignupSuccess?: SignupSuccessResolvers<ContextType>;

@@ -15,9 +15,6 @@ const typeDef = /* GraphQL */ `
     message: String!
   }
 
-  type ResourceLimitExceededError implements Error {
-    message: String!
-  }
   type ResourceNotFoundError implements Error {
     message: String!
   }
