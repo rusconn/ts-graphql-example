@@ -1,9 +1,8 @@
-import { getCursorConnection } from "../../../lib/cursor.ts";
+import * as cursorConnections from "../../../lib/graphql/cursor.ts";
 import * as uuidv7 from "../../../lib/uuidv7.ts";
 import { BlockingSortKeys, type UserBlockingsArgs, type UserResolvers } from "../../../schema.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
-import { cursorConnection } from "../../common/typeDefs.ts";
 import { authUserOwner } from "../common/authorizer.ts";
 
 const FIRST_MAX = 50;
@@ -36,7 +35,7 @@ export const typeDef = /* GraphQL */ `
     BLOCKED_AT
   }
 
-  ${cursorConnection({
+  ${cursorConnections.define({
     nodeType: "User",
     edgeType: "Blocking",
     additionals: {
@@ -65,7 +64,7 @@ export const resolver: UserResolvers["blockings"] = async (parent, args, context
 
   const { first, after, last, before, reverse } = parsed;
 
-  const connection = await getCursorConnection(
+  const connection = await cursorConnections.get(
     async ({ cursor, limit, backward }) => {
       const [direction, comp] =
         reverse === backward //

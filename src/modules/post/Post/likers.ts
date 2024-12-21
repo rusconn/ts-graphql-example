@@ -1,9 +1,8 @@
-import { getCursorConnection } from "../../../lib/cursor.ts";
+import * as cursorConnections from "../../../lib/graphql/cursor.ts";
 import * as uuidv7 from "../../../lib/uuidv7.ts";
 import { LikerSortKeys, type PostLikersArgs, type PostResolvers } from "../../../schema.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { badUserInputErr } from "../../common/resolvers.ts";
-import { cursorConnection } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 30;
 const LAST_MAX = 30;
@@ -36,7 +35,7 @@ export const typeDef = /* GraphQL */ `
     LIKED_AT
   }
 
-  ${cursorConnection({
+  ${cursorConnections.define({
     nodeType: "User",
     edgeType: "Liker",
     additionals: {
@@ -59,7 +58,7 @@ export const resolver: PostResolvers["likers"] = async (parent, args, context, i
 
   const { first, after, last, before, reverse } = parsed;
 
-  const connection = await getCursorConnection(
+  const connection = await cursorConnections.get(
     async ({ cursor, limit, backward }) => {
       const [direction, comp] =
         reverse === backward //

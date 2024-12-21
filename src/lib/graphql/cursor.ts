@@ -3,7 +3,50 @@
 import type { GraphQLResolveInfo } from "graphql";
 import graphqlFields from "graphql-fields";
 
-export async function getCursorConnection<
+export const PageInfoTypeDefinition = /* GraphQL */ `
+  type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+  }
+`;
+
+export type DefineParams = {
+  nodeType: string;
+  edgeType?: string;
+  additionals?: {
+    connectionFields?: Record<string, string>;
+    edgeFields?: Record<string, string>;
+  };
+};
+
+export const define = ({ nodeType, edgeType = nodeType, additionals }: DefineParams) => {
+  const connectionFields = additionals?.connectionFields ?? {};
+  const edgeFields = additionals?.edgeFields ?? {};
+
+  return `
+    type ${edgeType}Connection {
+      pageInfo: PageInfo!
+      edges: [${edgeType}Edge]
+      nodes: [${nodeType}]
+      ${fieldLines(connectionFields)}
+    }
+
+    type ${edgeType}Edge {
+      node: ${nodeType}
+      cursor: String!
+      ${fieldLines(edgeFields)}
+    }
+  `;
+};
+
+const fieldLines = (fields: Record<string, string>) =>
+  Object.entries(fields)
+    .map(([name, type]) => `${name}: ${type}`)
+    .join("\n");
+
+export async function get<
   Record = { id: string },
   Cursor = { id: string },
   Node = Record,
@@ -236,12 +279,12 @@ if (import.meta.vitest) {
     ];
 
     test.each(valids)("valids %#", async (args) => {
-      const result = await getCursorConnection(getPage, count, args);
+      const result = await get(getPage, count, args);
       expect(result instanceof Error).toBe(false);
     });
 
     test.each(invalids)("invalids %#", async (args) => {
-      const result = await getCursorConnection(getPage, count, args);
+      const result = await get(getPage, count, args);
       expect(result instanceof Error).toBe(true);
     });
   });
@@ -251,7 +294,7 @@ if (import.meta.vitest) {
     const backwards = [{ last: 1 }, { last: 10, before: "" }];
 
     test.each(forwards)("forwards %#", async (args) => {
-      await getCursorConnection(
+      await get(
         ({ backward }) => {
           expect(backward).toBe(false);
           return Promise.resolve([]);
@@ -262,7 +305,7 @@ if (import.meta.vitest) {
     });
 
     test.each(backwards)("backwards %#", async (args) => {
-      await getCursorConnection(
+      await get(
         ({ backward }) => {
           expect(backward).toBe(true);
           return Promise.resolve([]);
@@ -280,7 +323,7 @@ if (import.meta.vitest) {
     const getPage = async () => [{ id: 1 }, { id: 2 }];
 
     test.each(forwards)("forwards %#", async (args) => {
-      const result = await getCursorConnection(getPage, count, args);
+      const result = await get(getPage, count, args);
       if (result instanceof Error) {
         throw new Error();
       }
@@ -288,7 +331,7 @@ if (import.meta.vitest) {
     });
 
     test.each(backwards)("backwards %#", async (args) => {
-      const result = await getCursorConnection(getPage, count, args);
+      const result = await get(getPage, count, args);
       if (result instanceof Error) {
         throw new Error();
       }

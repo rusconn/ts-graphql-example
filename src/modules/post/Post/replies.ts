@@ -1,8 +1,7 @@
-import { getCursorConnection } from "../../../lib/cursor.ts";
+import * as cursorConnections from "../../../lib/graphql/cursor.ts";
 import { ReplySortKeys, type PostRepliesArgs, type PostResolvers } from "../../../schema.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { badUserInputErr } from "../../common/resolvers.ts";
-import { cursorConnection } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 30;
 const LAST_MAX = 30;
@@ -34,7 +33,7 @@ export const typeDef = /* GraphQL */ `
     REPLIED_AT
   }
 
-  ${cursorConnection({
+  ${cursorConnections.define({
     nodeType: "Post",
     edgeType: "Reply",
     additionals: {
@@ -54,7 +53,7 @@ export const resolver: PostResolvers["replies"] = async (parent, args, context, 
 
   const { first, after, last, before, reverse } = parsed;
 
-  const connection = await getCursorConnection(
+  const connection = await cursorConnections.get(
     async ({ cursor, limit, backward }) => {
       const [direction, comp] =
         reverse === backward //

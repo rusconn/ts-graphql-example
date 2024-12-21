@@ -1,9 +1,8 @@
-import { getCursorConnection } from "../../../lib/cursor.ts";
+import * as cursorConnections from "../../../lib/graphql/cursor.ts";
 import * as uuidv7 from "../../../lib/uuidv7.ts";
 import { FollowerSortKeys, type UserFollowersArgs, type UserResolvers } from "../../../schema.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { badUserInputErr } from "../../common/resolvers.ts";
-import { cursorConnection } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 50;
 const LAST_MAX = 50;
@@ -35,7 +34,7 @@ export const typeDef = /* GraphQL */ `
     FOLLOWED_AT
   }
 
-  ${cursorConnection({
+  ${cursorConnections.define({
     nodeType: "User",
     edgeType: "Follower",
     additionals: {
@@ -58,7 +57,7 @@ export const resolver: UserResolvers["followers"] = async (parent, args, context
 
   const { first, after, last, before, reverse } = parsed;
 
-  const connection = await getCursorConnection(
+  const connection = await cursorConnections.get(
     async ({ cursor, limit, backward }) => {
       const [direction, comp] =
         reverse === backward //
