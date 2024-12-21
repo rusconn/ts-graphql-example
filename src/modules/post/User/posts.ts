@@ -118,10 +118,10 @@ const parseArgs = (args: UserPostsArgs) => {
   const { first, after, last, before, ...rest } = args;
 
   if (first && first > FIRST_MAX) {
-    throw parseErr(`"first" must be up to ${FIRST_MAX}`);
+    return parseErr(`"first" must be up to ${FIRST_MAX}`);
   }
   if (last && last > LAST_MAX) {
-    throw parseErr(`"last" must be up to ${LAST_MAX}`);
+    return parseErr(`"last" must be up to ${LAST_MAX}`);
   }
 
   const parsedAfter = after != null ? parseCursor(after) : null;
