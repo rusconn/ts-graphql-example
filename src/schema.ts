@@ -39,6 +39,25 @@ export type BlockUserSuccess = {
   blocker: User;
 };
 
+export type BlockerConnection = {
+  __typename?: 'BlockerConnection';
+  edges?: Maybe<Array<Maybe<BlockerEdge>>>;
+  nodes?: Maybe<Array<Maybe<User>>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type BlockerEdge = {
+  __typename?: 'BlockerEdge';
+  blockedAt?: Maybe<Scalars['DateTime']['output']>;
+  cursor: Scalars['String']['output'];
+  node?: Maybe<User>;
+};
+
+export enum BlockerSortKeys {
+  BlockedAt = 'BLOCKED_AT'
+}
+
 export type BlockingConnection = {
   __typename?: 'BlockingConnection';
   edges?: Maybe<Array<Maybe<BlockingEdge>>>;
@@ -522,6 +541,7 @@ export type User = Node & {
   __typename?: 'User';
   avatar?: Maybe<Scalars['URL']['output']>;
   bio?: Maybe<Scalars['String']['output']>;
+  blockers?: Maybe<BlockerConnection>;
   blockings?: Maybe<BlockingConnection>;
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   email?: Maybe<Scalars['EmailAddress']['output']>;
@@ -539,6 +559,16 @@ export type User = Node & {
   viewerIsBlocking?: Maybe<Scalars['Boolean']['output']>;
   viewerIsFollowing?: Maybe<Scalars['Boolean']['output']>;
   website?: Maybe<Scalars['URL']['output']>;
+};
+
+
+export type UserBlockersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse: Scalars['Boolean']['input'];
+  sortKey: BlockerSortKeys;
 };
 
 
@@ -711,6 +741,9 @@ export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = R
 export type ResolversTypes = ResolversObject<{
   BlockUserResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BlockUserResult']>;
   BlockUserSuccess: ResolverTypeWrapper<Omit<BlockUserSuccess, 'blockee' | 'blocker'> & { blockee: ResolversTypes['User'], blocker: ResolversTypes['User'] }>;
+  BlockerConnection: ResolverTypeWrapper<Omit<BlockerConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['BlockerEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
+  BlockerEdge: ResolverTypeWrapper<Omit<BlockerEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
+  BlockerSortKeys: BlockerSortKeys;
   BlockingConnection: ResolverTypeWrapper<Omit<BlockingConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['BlockingEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
   BlockingEdge: ResolverTypeWrapper<Omit<BlockingEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
   BlockingSortKeys: BlockingSortKeys;
@@ -795,6 +828,8 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   BlockUserResult: ResolversUnionTypes<ResolversParentTypes>['BlockUserResult'];
   BlockUserSuccess: Omit<BlockUserSuccess, 'blockee' | 'blocker'> & { blockee: ResolversParentTypes['User'], blocker: ResolversParentTypes['User'] };
+  BlockerConnection: Omit<BlockerConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['BlockerEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
+  BlockerEdge: Omit<BlockerEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
   BlockingConnection: Omit<BlockingConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['BlockingEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
   BlockingEdge: Omit<BlockingEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
   Boolean: Scalars['Boolean']['output'];
@@ -878,6 +913,21 @@ export type BlockUserSuccessResolvers<ContextType = Context, ParentType extends 
   alreadyBlocked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   blockee?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   blocker?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BlockerConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BlockerConnection'] = ResolversParentTypes['BlockerConnection']> = ResolversObject<{
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['BlockerEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BlockerEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BlockerEdge'] = ResolversParentTypes['BlockerEdge']> = ResolversObject<{
+  blockedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1243,6 +1293,7 @@ export type UnlikePostSuccessResolvers<ContextType = Context, ParentType extends
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   avatar?: Resolver<Maybe<ResolversTypes['URL']>, ParentType, ContextType>;
   bio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  blockers?: Resolver<Maybe<ResolversTypes['BlockerConnection']>, ParentType, ContextType, RequireFields<UserBlockersArgs, 'reverse' | 'sortKey'>>;
   blockings?: Resolver<Maybe<ResolversTypes['BlockingConnection']>, ParentType, ContextType, RequireFields<UserBlockingsArgs, 'reverse' | 'sortKey'>>;
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['EmailAddress']>, ParentType, ContextType>;
@@ -1281,6 +1332,8 @@ export type UserNotFoundErrorResolvers<ContextType = Context, ParentType extends
 export type Resolvers<ContextType = Context> = ResolversObject<{
   BlockUserResult?: BlockUserResultResolvers<ContextType>;
   BlockUserSuccess?: BlockUserSuccessResolvers<ContextType>;
+  BlockerConnection?: BlockerConnectionResolvers<ContextType>;
+  BlockerEdge?: BlockerEdgeResolvers<ContextType>;
   BlockingConnection?: BlockingConnectionResolvers<ContextType>;
   BlockingEdge?: BlockingEdgeResolvers<ContextType>;
   ChangeLoginPasswordResult?: ChangeLoginPasswordResultResolvers<ContextType>;

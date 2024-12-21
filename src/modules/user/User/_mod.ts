@@ -1,6 +1,7 @@
 import type { UserResolvers } from "../../../schema.ts";
 import * as avatar from "./avatar.ts";
 import * as bio from "./bio.ts";
+import * as blockers from "./blockers.ts";
 import * as blockings from "./blockings.ts";
 import * as createdAt from "./createdAt.ts";
 import * as email from "./email.ts";
@@ -25,6 +26,7 @@ export const typeDefs = [
   typeDef,
   avatar.typeDef,
   bio.typeDef,
+  blockers.typeDef,
   blockings.typeDef,
   createdAt.typeDef,
   email.typeDef,
@@ -45,6 +47,7 @@ export const typeDefs = [
 export const resolvers: UserResolvers = {
   avatar: avatar.resolver,
   bio: bio.resolver,
+  blockers: blockers.resolver,
   blockings: blockings.resolver,
   createdAt: createdAt.resolver,
   email: email.resolver,
