@@ -152,11 +152,11 @@ function parseArgs(args: ConnectionArguments): ConnectionArgumentsUnion | Error 
     return new Error('"before" needs to be used with "last"');
   }
 
-  if (args.first != null && args.first <= 0) {
-    return new Error('"first" has to be positive');
+  if (args.first != null && args.first < 0) {
+    return new Error('"first" has to be non-negative integer');
   }
-  if (args.last != null && args.last <= 0) {
-    return new Error('"last" has to be positive');
+  if (args.last != null && args.last < 0) {
+    return new Error('"last" has to be non-negative integer');
   }
 
   return args as ConnectionArgumentsUnion;
@@ -259,8 +259,10 @@ if (import.meta.vitest) {
 
   describe("Parsing", () => {
     const valids = [
-      { first: 1, after: "" },
-      { last: 1, before: "" },
+      { first: 0, after: "" },
+      { first: 10, after: "" },
+      { last: 0, before: "" },
+      { last: 10, before: "" },
     ];
 
     const invalids = [
@@ -268,12 +270,10 @@ if (import.meta.vitest) {
       { first: null },
       { last: null },
       { first: null, last: null },
-      { first: 1, last: 1 },
-      { first: 1, before: "" },
-      { last: 1, after: "" },
-      { first: 0 },
+      { first: 10, last: 10 },
+      { first: 10, before: "" },
+      { last: 10, after: "" },
       { first: -1 },
-      { last: 0 },
       { last: -1 },
       { after: "" },
       { before: "" },
