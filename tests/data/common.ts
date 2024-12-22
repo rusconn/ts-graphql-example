@@ -1,5 +1,5 @@
 import * as uuidv7 from "../../src/lib/uuidv7.ts";
-import type { DateTime } from "../../src/modules/scalar/mod.ts";
+import type { DateTime } from "../../src/modules/scalar/_mod.ts";
 
 // DateTime リゾルバーによる変換のシミュレーション
 export const dateTime = (date: Date) => date.toISOString() as DateTime;

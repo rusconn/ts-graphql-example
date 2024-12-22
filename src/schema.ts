@@ -1,7 +1,7 @@
-import type { ID } from './modules/scalar/mod.ts';
-import type { DateTime } from './modules/scalar/mod.ts';
-import type { EmailAddress } from './modules/scalar/mod.ts';
-import type { NonEmptyString } from './modules/scalar/mod.ts';
+import type { ID } from './modules/scalar/_mod.ts';
+import type { DateTime } from './modules/scalar/_mod.ts';
+import type { EmailAddress } from './modules/scalar/_mod.ts';
+import type { NonEmptyString } from './modules/scalar/_mod.ts';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import type { Node as NodeMapper } from './modules/node/mapper.ts';
 import type { Todo as TodoMapper } from './modules/todo/mapper.ts';

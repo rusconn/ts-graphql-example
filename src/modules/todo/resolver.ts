@@ -1,5 +1,5 @@
 import type { Context } from "../../context.ts";
-import type { TodoKey } from "../../db/loaders/mod.ts";
+import type { TodoKey } from "../../db/loaders/_mod.ts";
 import type { TodoSelect } from "../../db/models.ts";
 
 export type Todo = TodoSelect;

@@ -4,7 +4,7 @@ import { App } from "uWebSockets.js";
 
 import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
 import { db } from "./db/client.ts";
-import { createLoaders } from "./db/loaders/mod.ts";
+import { createLoaders } from "./db/loaders/_mod.ts";
 import { logger } from "./logger.ts";
 import { armor } from "./plugins/armor.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";

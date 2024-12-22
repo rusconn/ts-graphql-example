@@ -10,18 +10,18 @@ const typescript: TypeScriptPluginConfig = {
   scalars: {
     ID: {
       input: "string",
-      output: "./modules/scalar/mod.ts#ID",
+      output: "./modules/scalar/_mod.ts#ID",
     },
     DateTime: {
-      input: "./modules/scalar/mod.ts#DateTime",
+      input: "./modules/scalar/_mod.ts#DateTime",
       output: "Date | DateTime", // DateTime リゾルバーが Date -> DateTime する
     },
     EmailAddress: {
-      input: "./modules/scalar/mod.ts#EmailAddress",
+      input: "./modules/scalar/_mod.ts#EmailAddress",
       output: "string",
     },
     NonEmptyString: {
-      input: "./modules/scalar/mod.ts#NonEmptyString",
+      input: "./modules/scalar/_mod.ts#NonEmptyString",
       output: "string",
     },
   },

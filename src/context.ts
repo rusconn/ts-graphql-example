@@ -2,7 +2,7 @@ import type { YogaInitialContext } from "graphql-yoga";
 import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 
 import type { db } from "./db/client.ts";
-import type { createLoaders } from "./db/loaders/mod.ts";
+import type { createLoaders } from "./db/loaders/_mod.ts";
 import type { UserSelect } from "./db/models.ts";
 import type { logger } from "./logger.ts";
 
