@@ -3,9 +3,10 @@ import type { UserResolvers, UserTodosArgs } from "../../../schema.ts";
 import { TodoSortKeys } from "../../../schema.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { parseCursor } from "../../common/parsers/cursor.ts";
-import { parseErr } from "../../common/parsers/util.ts";
+import { parseConnectionArgs } from "../../common/parsers/connectionArgs.ts";
 import { authAdminOrUserOwner } from "../../user/authorizers/adminOrUserOwner.ts";
+import { parseTodoCursor } from "../parsers/cursor.ts";
+import { parseTodoStatus } from "../parsers/status.ts";
 
 const FIRST_MAX = 50;
 const LAST_MAX = 50;
@@ -99,29 +100,31 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
 };
 
 const parseArgs = (args: UserTodosArgs) => {
-  const { first, after, last, before, status, ...rest } = args;
+  const connectionArgs = parseConnectionArgs(args, {
+    firstMax: FIRST_MAX,
+    lastMax: LAST_MAX,
+    parseCursor: parseTodoCursor,
+  });
 
-  if (first && first > FIRST_MAX) {
-    return parseErr(`"first" must be up to ${FIRST_MAX}`);
-  }
-  if (last && last > LAST_MAX) {
-    return parseErr(`"last" must be up to ${LAST_MAX}`);
-  }
-  if (status === null) {
-    return parseErr('"status" must be not null');
+  if (connectionArgs instanceof Error) {
+    return connectionArgs;
   }
 
-  const parsedAfter = after != null ? parseCursor(after) : null;
-  const parsedBefore = before != null ? parseCursor(before) : null;
+  const status = parseTodoStatus(args, {
+    optional: true,
+    nullable: false,
+  });
 
-  if (parsedAfter instanceof Error) {
-    return parsedAfter;
-  }
-  if (parsedBefore instanceof Error) {
-    return parsedBefore;
+  if (status instanceof Error) {
+    return status;
   }
 
-  return { first, after: parsedAfter, last, before: parsedBefore, status, ...rest };
+  return {
+    ...connectionArgs,
+    reverse: args.reverse,
+    sortKey: args.sortKey,
+    status,
+  };
 };
 
 if (import.meta.vitest) {

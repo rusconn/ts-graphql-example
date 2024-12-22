@@ -1,12 +1,10 @@
-import { numChars } from "../../../lib/string/numChars.ts";
 import type { MutationResolvers, MutationUpdateTodoArgs } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { parseErr } from "../../common/parsers/util.ts";
-import { parseTodoNodeId } from "../parsers/id.ts";
-
-const TITLE_MAX = 100;
-const DESC_MAX = 5000;
+import { TODO_DESCRIPTION_MAX, parseTodoDescription } from "../parsers/description.ts";
+import { parseTodoId } from "../parsers/id.ts";
+import { parseTodoStatus } from "../parsers/status.ts";
+import { TODO_TITLE_MAX, parseTodoTitle } from "../parsers/title.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -14,12 +12,12 @@ export const typeDef = /* GraphQL */ `
       id: ID!
 
       """
-      ${TITLE_MAX}文字まで、null は入力エラー
+      ${TODO_TITLE_MAX}文字まで、null は入力エラー
       """
       title: NonEmptyString
 
       """
-      ${DESC_MAX}文字まで、null は入力エラー
+      ${TODO_DESCRIPTION_MAX}文字まで、null は入力エラー
       """
       description: String
 
@@ -78,31 +76,40 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
 };
 
 const parseArgs = (args: MutationUpdateTodoArgs) => {
-  const parsed = parseTodoNodeId(args.id);
+  const id = parseTodoId(args);
 
-  if (parsed instanceof Error) {
-    return parsed;
-  }
-
-  const { title, description, status } = args;
-
-  if (title === null) {
-    return parseErr('"title" must be not null');
-  }
-  if (description === null) {
-    return parseErr('"description" must be not null');
-  }
-  if (status === null) {
-    return parseErr('"status" must be not null');
-  }
-  if (title && numChars(title) > TITLE_MAX) {
-    return parseErr(`"title" must be up to ${TITLE_MAX} characters`);
-  }
-  if (description && numChars(description) > DESC_MAX) {
-    return parseErr(`"description" must be up to ${DESC_MAX} characters`);
+  if (id instanceof Error) {
+    return id;
   }
 
-  return { id: parsed, title, description, status };
+  const title = parseTodoTitle(args, {
+    optional: true,
+    nullable: false,
+  });
+
+  if (title instanceof Error) {
+    return title;
+  }
+
+  const description = parseTodoDescription(args, {
+    optional: true,
+    nullable: false,
+  });
+
+  if (description instanceof Error) {
+    return description;
+  }
+
+  const status = parseTodoStatus(args, {
+    optional: true,
+    nullable: false,
+  });
+
+  if (status instanceof Error) {
+    return status;
+  }
+
+  return { id, title, description, status };
 };
 
 if (import.meta.vitest) {
@@ -115,15 +122,16 @@ if (import.meta.vitest) {
       { description: "description" },
       { status: TodoStatus.Done },
       { title: "title", description: "description", status: TodoStatus.Done },
-      { title: "A".repeat(TITLE_MAX) },
-      { description: "A".repeat(DESC_MAX) },
+      { title: "A".repeat(TODO_TITLE_MAX) },
+      { description: "A".repeat(TODO_DESCRIPTION_MAX) },
     ] as Omit<MutationUpdateTodoArgs, "id">[];
 
     const invalids = [
+      { title: null },
       { description: null },
       { status: null },
-      { title: "A".repeat(TITLE_MAX + 1) },
-      { description: "A".repeat(DESC_MAX + 1) },
+      { title: "A".repeat(TODO_TITLE_MAX + 1) },
+      { description: "A".repeat(TODO_DESCRIPTION_MAX + 1) },
     ] as Omit<MutationUpdateTodoArgs, "id">[];
 
     const id = "Todo:0193cb3e-5fdd-7264-9f70-1df63d84b251";

@@ -2,7 +2,7 @@ import { TodoStatus } from "../../../db/types.ts";
 import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { parseTodoNodeId } from "../parsers/id.ts";
+import { parseTodoId } from "../parsers/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -23,7 +23,7 @@ export const resolver: MutationResolvers["completeTodo"] = async (_parent, args,
     throw forbiddenErr(authed);
   }
 
-  const parsed = parseTodoNodeId(args.id);
+  const parsed = parseTodoId(args);
 
   if (parsed instanceof Error) {
     return {

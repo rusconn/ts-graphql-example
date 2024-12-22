@@ -1,13 +1,13 @@
 import type { Context } from "../../../context.ts";
-import { numChars } from "../../../lib/string/numChars.ts";
 import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import type { AuthContext } from "../../common/authorizers/types.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { parseErr } from "../../common/parsers/util.ts";
+import { parseTodoDescription } from "../parsers/description.ts";
+import { parseTodoTitle } from "../parsers/title.ts";
 
-const TODOS_MAX = 10000;
+const TODOS_MAX = 10_000;
 const TITLE_MAX = 100;
 const DESC_MAX = 5000;
 
@@ -60,13 +60,22 @@ const authorize = (context: AuthContext) => {
 };
 
 const parseArgs = (args: MutationCreateTodoArgs) => {
-  const { title, description } = args;
+  const title = parseTodoTitle(args, {
+    optional: false,
+    nullable: false,
+  });
 
-  if (numChars(title) > TITLE_MAX) {
-    return parseErr(`"title" must be up to ${TITLE_MAX} characters`);
+  if (title instanceof Error) {
+    return title;
   }
-  if (numChars(description) > DESC_MAX) {
-    return parseErr(`"description" must be up to ${DESC_MAX} characters`);
+
+  const description = parseTodoDescription(args, {
+    optional: false,
+    nullable: false,
+  });
+
+  if (description instanceof Error) {
+    return description;
   }
 
   return { title, description };

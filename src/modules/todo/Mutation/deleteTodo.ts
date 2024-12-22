@@ -2,7 +2,7 @@ import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { todoNodeId } from "../adapters/id.ts";
-import { parseTodoNodeId } from "../parsers/id.ts";
+import { parseTodoId } from "../parsers/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -23,7 +23,7 @@ export const resolver: MutationResolvers["deleteTodo"] = async (_parent, args, c
     throw forbiddenErr(authed);
   }
 
-  const parsed = parseTodoNodeId(args.id);
+  const parsed = parseTodoId(args);
 
   if (parsed instanceof Error) {
     return {
