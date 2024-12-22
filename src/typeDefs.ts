@@ -1,3 +1,4 @@
+import { PageInfoTypeDefinition } from "./lib/graphql/cursor.ts";
 import * as node from "./modules/node/mod.ts";
 import * as scalar from "./modules/scalar/mod.ts";
 import * as todo from "./modules/todo/mod.ts";
@@ -7,12 +8,7 @@ const typeDef = /* GraphQL */ `
   type Query
   type Mutation
 
-  type PageInfo {
-    hasNextPage: Boolean!
-    hasPreviousPage: Boolean!
-    startCursor: String
-    endCursor: String
-  }
+  ${PageInfoTypeDefinition}
 
   interface Error {
     message: String!

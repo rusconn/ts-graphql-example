@@ -1,5 +1,10 @@
 import type { ID } from "../scalar/mod.ts";
-import { type NodeType, typeIdSep } from "./typeDefs.ts";
+
+export type NodeType = (typeof nodeTypes)[number];
+
+export const nodeTypes = ["Todo", "User"] as const;
+
+export const typeIdSep = ":";
 
 export const nodeId =
   <T extends NodeType>(type: T) =>

@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
-import { v7 as uuidv7 } from "uuid";
 
 import { passHashExp } from "../../../config.ts";
 import { UserRole } from "../../../db/types.ts";
+import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
-import { dateByUuid, forbiddenErr } from "../../common/resolvers.ts";
+import { forbiddenErr } from "../../common/resolvers.ts";
 import { isEmail } from "../common/parser.ts";
 
 const NAME_MAX = 100;
@@ -73,15 +73,14 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   }
 
   const hashed = await bcrypt.hash(password, passHashExp);
-  const id = uuidv7();
-  const idDate = dateByUuid(id);
-  const token = uuidv7();
+  const { id, date } = uuidv7.genWithDate();
+  const token = uuidv7.gen();
 
   await context.db
     .insertInto("User")
     .values({
       id,
-      updatedAt: idDate,
+      updatedAt: date,
       name,
       email,
       password: hashed,

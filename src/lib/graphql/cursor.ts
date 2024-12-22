@@ -3,7 +3,49 @@
 import type { GraphQLResolveInfo } from "graphql";
 import graphqlFields from "graphql-fields";
 
-import { parseErr } from "./parsers.ts";
+export const PageInfoTypeDefinition = /* GraphQL */ `
+  type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+  }
+`;
+
+export const cursorConnection = ({
+  nodeType,
+  edgeType = nodeType,
+  additionals: {
+    //
+    connectionFields = {},
+    edgeFields = {},
+  } = {},
+}: {
+  nodeType: string;
+  edgeType?: string;
+  additionals?: {
+    connectionFields?: Record<string, string>;
+    edgeFields?: Record<string, string>;
+  };
+}) => /* GraphQL */ `
+    type ${edgeType}Connection {
+      pageInfo: PageInfo!
+      edges: [${edgeType}Edge]
+      nodes: [${nodeType}]
+      ${fieldLines(connectionFields)}
+    }
+
+    type ${edgeType}Edge {
+      node: ${nodeType}
+      cursor: String!
+      ${fieldLines(edgeFields)}
+    }
+  `;
+
+const fieldLines = (fields: Record<string, string>) =>
+  Object.entries(fields)
+    .map(([name, type]) => `${name}: ${type}`)
+    .join("\n");
 
 export async function getCursorConnection<
   Record = { id: string },
@@ -93,28 +135,28 @@ export async function getCursorConnection<
 
 function parseArgs(args: ConnectionArguments): ConnectionArgumentsUnion | Error {
   if (args.first == null && args.last == null) {
-    return parseErr('One of "first" or "last" is required');
+    return new Error('One of "first" or "last" is required');
   }
 
   if (args.first != null && args.last != null) {
-    return parseErr('Only one of "first" and "last" can be set');
+    return new Error('Only one of "first" and "last" can be set');
   }
   if (args.after != null && args.before != null) {
-    return parseErr('Only one of "after" and "before" can be set');
+    return new Error('Only one of "after" and "before" can be set');
   }
 
   if (args.after != null && args.first == null) {
-    return parseErr('"after" needs to be used with "first"');
+    return new Error('"after" needs to be used with "first"');
   }
   if (args.before != null && args.last == null) {
-    return parseErr('"before" needs to be used with "last"');
+    return new Error('"before" needs to be used with "last"');
   }
 
   if (args.first != null && args.first <= 0) {
-    return parseErr('"first" has to be positive');
+    return new Error('"first" has to be positive');
   }
   if (args.last != null && args.last <= 0) {
-    return parseErr('"last" has to be positive');
+    return new Error('"last" has to be positive');
   }
 
   return args as ConnectionArgumentsUnion;

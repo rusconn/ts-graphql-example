@@ -1,10 +1,9 @@
-import { v7 as uuidv7 } from "uuid";
-
 import type { Context } from "../../../context.ts";
+import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "../../../schema.ts";
 import { type AuthContext, authAuthenticated } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
-import { dateByUuid, forbiddenErr } from "../../common/resolvers.ts";
+import { forbiddenErr } from "../../common/resolvers.ts";
 
 const TODOS_MAX = 10000;
 const TITLE_MAX = 100;
@@ -92,14 +91,13 @@ const logic = async (
     };
   }
 
-  const id = uuidv7();
-  const idDate = dateByUuid(id);
+  const { id, date } = uuidv7.genWithDate();
 
   const todo = await context.db
     .insertInto("Todo")
     .values({
       id,
-      updatedAt: idDate,
+      updatedAt: date,
       userId: authed.id,
       title,
       description,

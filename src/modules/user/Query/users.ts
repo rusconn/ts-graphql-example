@@ -1,10 +1,9 @@
+import { cursorConnection, getCursorConnection } from "../../../lib/graphql/cursor.ts";
 import type { QueryResolvers, QueryUsersArgs } from "../../../schema.ts";
 import { UserSortKeys } from "../../../schema.ts";
 import { authAdmin } from "../../common/authorizers.ts";
-import { getCursorConnection } from "../../common/cursor.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
-import { cursorConnection } from "../../common/typeDefs.ts";
 
 const FIRST_MAX = 30;
 const LAST_MAX = 30;

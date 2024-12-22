@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
-import { v7 as uuidv7 } from "uuid";
 
 import { type DB, UserRole } from "../../src/db/types.ts";
+import * as uuidv7 from "../../src/lib/uuidv7.ts";
 
 export const seed = async (tsx: Transaction<DB>) => {
   const handUsers = [
@@ -60,7 +60,7 @@ const fakeData = (numFakes: number) => {
 };
 
 const fakeDataOne = (nth: number) => {
-  const userId = uuidv7();
+  const userId = uuidv7.gen();
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
 
@@ -73,7 +73,7 @@ const fakeDataOne = (nth: number) => {
       allowSpecialCharacters: true,
     }),
     password: "dummy",
-    token: uuidv7(),
+    token: uuidv7.gen(),
     role: UserRole.USER,
     updatedAt: faker.date.past(),
   };
