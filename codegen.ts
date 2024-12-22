@@ -34,9 +34,9 @@ const typescriptResolvers: TypeScriptResolversPluginConfig = {
   optionalInfoArgument: true,
   mapperTypeSuffix: "Mapper",
   mappers: {
-    Node: "./modules/node/common/resolver.ts#Node",
-    Todo: "./modules/todo/common/resolver.ts#Todo",
-    User: "./modules/user/common/resolver.ts#User",
+    Node: "./modules/node/mapper.ts#Node",
+    Todo: "./modules/todo/mapper.ts#Todo",
+    User: "./modules/user/mapper.ts#User",
   },
   resolversNonOptionalTypename: {
     unionMember: true,
