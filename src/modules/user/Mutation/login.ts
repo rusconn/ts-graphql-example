@@ -3,8 +3,8 @@ import bcrypt from "bcrypt";
 import { numChars } from "../../../lib/string/numChars.ts";
 import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../../schema.ts";
-import { parseErr } from "../../common/parsers.ts";
-import { isEmail } from "../parsers.ts";
+import { parseErr } from "../../common/parsers/util.ts";
+import { isEmail } from "../parsers/email.ts";
 
 const EMAIL_MAX = 100;
 const PASS_MIN = 8;

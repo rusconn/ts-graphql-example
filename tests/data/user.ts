@@ -1,6 +1,6 @@
 import type { UserSelect } from "../../src/db/models.ts";
 import { db } from "../../src/modules/common/testData/db/user.ts";
-import { userNodeId } from "../../src/modules/user/adapters.ts";
+import { userNodeId } from "../../src/modules/user/adapters/id.ts";
 import type * as Graph from "../../src/schema.ts";
 
 import { dateTime, dateTimeByUuid, dummySomeNodeId } from "./common.ts";

@@ -1,7 +1,8 @@
 import type { UserResolvers } from "../../../schema.ts";
-import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
-import { authAdminOrUserOwner } from "../../user/authorizers.ts";
-import { parseTodoNodeId } from "../parsers.ts";
+import { badUserInputErr } from "../../common/errors/badUserInput.ts";
+import { forbiddenErr } from "../../common/errors/forbidden.ts";
+import { authAdminOrUserOwner } from "../../user/authorizers/adminOrUserOwner.ts";
+import { parseTodoNodeId } from "../parsers/id.ts";
 import { getTodo } from "../resolvers.ts";
 
 export const typeDef = /* GraphQL */ `

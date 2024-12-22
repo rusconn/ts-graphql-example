@@ -5,10 +5,10 @@ import { UserRole } from "../../../db/types.ts";
 import { numChars } from "../../../lib/string/numChars.ts";
 import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
-import { authGuest } from "../../common/authorizers.ts";
-import { parseErr } from "../../common/parsers.ts";
-import { forbiddenErr } from "../../common/resolvers.ts";
-import { isEmail } from "../parsers.ts";
+import { authGuest } from "../../common/authorizers/guest.ts";
+import { forbiddenErr } from "../../common/errors/forbidden.ts";
+import { parseErr } from "../../common/parsers/util.ts";
+import { isEmail } from "../parsers/email.ts";
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 100;

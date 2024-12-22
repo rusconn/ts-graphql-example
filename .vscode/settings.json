@@ -5,6 +5,7 @@
     "source.addMissingImports": "explicit",
     "source.organizeImports": "explicit"
   },
+  "explorer.sortOrderLexicographicOptions": "upper",
   "files.associations": {
     ".env*": "env"
   },

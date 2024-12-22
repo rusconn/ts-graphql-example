@@ -1,7 +1,8 @@
 import type { QueryResolvers } from "../../../schema.ts";
-import { authAuthenticated } from "../../common/authorizers.ts";
-import { parseNodeId } from "../../common/parsers.ts";
-import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
+import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
+import { badUserInputErr } from "../../common/errors/badUserInput.ts";
+import { forbiddenErr } from "../../common/errors/forbidden.ts";
+import { parseNodeId } from "../../common/parsers/nodeId.ts";
 import { getTodo } from "../../todo/resolvers.ts";
 import { getUser } from "../../user/resolvers.ts";
 

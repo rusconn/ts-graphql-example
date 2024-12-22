@@ -1,4 +1,4 @@
-import type { ID } from "../scalar/_mod.ts";
+import type { ID } from "../../scalar/_mod.ts";
 
 export type NodeType = (typeof nodeTypes)[number];
 

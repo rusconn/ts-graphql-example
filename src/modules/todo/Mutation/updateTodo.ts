@@ -1,9 +1,9 @@
 import { numChars } from "../../../lib/string/numChars.ts";
 import type { MutationResolvers, MutationUpdateTodoArgs } from "../../../schema.ts";
-import { authAuthenticated } from "../../common/authorizers.ts";
-import { parseErr } from "../../common/parsers.ts";
-import { forbiddenErr } from "../../common/resolvers.ts";
-import { parseTodoNodeId } from "../parsers.ts";
+import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
+import { forbiddenErr } from "../../common/errors/forbidden.ts";
+import { parseErr } from "../../common/parsers/util.ts";
+import { parseTodoNodeId } from "../parsers/id.ts";
 
 const TITLE_MAX = 100;
 const DESC_MAX = 5000;

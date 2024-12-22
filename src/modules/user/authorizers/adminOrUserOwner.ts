@@ -1,5 +1,7 @@
-import type { ResolversParentTypes } from "../../schema.ts";
-import { type AuthContext, authAdmin, authErr } from "../common/authorizers.ts";
+import type { ResolversParentTypes } from "../../../schema.ts";
+import { authAdmin } from "../../common/authorizers/admin.ts";
+import type { AuthContext } from "../../common/authorizers/types.ts";
+import { authErr } from "../../common/authorizers/util.ts";
 
 type ParentUser = Pick<ResolversParentTypes["User"], "id">;
 
@@ -22,8 +24,8 @@ const authUserOwner = (context: AuthContext, user: ParentUser) => {
 };
 
 if (import.meta.vitest) {
-  const { db } = await import("../common/testData/db.ts");
-  const { context } = await import("../common/testData/context.ts");
+  const { db } = await import("../../common/testData/db.ts");
+  const { context } = await import("../../common/testData/context.ts");
 
   describe("authAdminOrUserOwner", () => {
     const allows = [

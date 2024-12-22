@@ -3,10 +3,10 @@ import bcrypt from "bcrypt";
 import { passHashExp } from "../../../config.ts";
 import { numChars } from "../../../lib/string/numChars.ts";
 import type { MutationResolvers, MutationUpdateAccountArgs } from "../../../schema.ts";
-import { authAuthenticated } from "../../common/authorizers.ts";
-import { parseErr } from "../../common/parsers.ts";
-import { forbiddenErr } from "../../common/resolvers.ts";
-import { isEmail } from "../parsers.ts";
+import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
+import { forbiddenErr } from "../../common/errors/forbidden.ts";
+import { parseErr } from "../../common/parsers/util.ts";
+import { isEmail } from "../parsers/email.ts";
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 100;

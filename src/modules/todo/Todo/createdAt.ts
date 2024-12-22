@@ -1,7 +1,7 @@
 import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { TodoResolvers } from "../../../schema.ts";
-import { forbiddenErr } from "../../common/resolvers.ts";
-import { authAdminOrTodoOwner } from "../authorizers.ts";
+import { forbiddenErr } from "../../common/errors/forbidden.ts";
+import { authAdminOrTodoOwner } from "../authorizers/adminOrTodoOwner.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
