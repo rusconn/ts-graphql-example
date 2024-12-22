@@ -5,7 +5,7 @@ import type { MutationResolvers, MutationUpdateAccountArgs } from "../../../sche
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
-import { isEmail } from "../parser.ts";
+import { isEmail } from "../parsers.ts";
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 100;

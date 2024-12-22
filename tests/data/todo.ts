@@ -1,6 +1,6 @@
 import type { TodoSelect } from "../../src/db/models.ts";
 import { db } from "../../src/modules/common/testData/db/todo.ts";
-import { todoNodeId, todoStatus } from "../../src/modules/todo/adapter.ts";
+import { todoNodeId, todoStatus } from "../../src/modules/todo/adapters.ts";
 import type * as Graph from "../../src/schema.ts";
 
 import { dateTime, dateTimeByUuid, dummySomeNodeId } from "./common.ts";

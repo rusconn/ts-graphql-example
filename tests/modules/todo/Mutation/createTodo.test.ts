@@ -1,6 +1,6 @@
 import { db } from "../../../../src/db/client.ts";
 import { TodoStatus } from "../../../../src/db/types.ts";
-import { parseTodoNodeId } from "../../../../src/modules/todo/parser.ts";
+import { parseTodoNodeId } from "../../../../src/modules/todo/parsers.ts";
 
 import { Data } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";

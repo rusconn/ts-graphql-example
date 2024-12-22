@@ -1,7 +1,7 @@
 import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { UserResolvers } from "../../../schema.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
-import { authAdminOrUserOwner } from "../authorizer.ts";
+import { authAdminOrUserOwner } from "../authorizers.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
