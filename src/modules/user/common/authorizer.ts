@@ -1,20 +1,24 @@
+import type { ResolversParentTypes } from "../../../schema.ts";
 import { type AuthContext, authAdmin, authErr } from "../../common/authorizers.ts";
-import type { User } from "./resolver.ts";
 
-type AuthUser = Pick<User, "id">;
+type ParentUser = Pick<ResolversParentTypes["User"], "id">;
 
-export const authAdminOrUserOwner = (context: AuthContext, user: AuthUser) => {
+export const authAdminOrUserOwner = (context: AuthContext, user: ParentUser) => {
   const authed = authAdmin(context);
 
-  return authed instanceof Error //
-    ? authUserOwner(context, user)
-    : authed;
+  if (authed instanceof Error) {
+    return authUserOwner(context, user);
+  }
+
+  return authed;
 };
 
-const authUserOwner = (context: AuthContext, user: AuthUser) => {
-  return context.user?.id === user.id //
-    ? context.user
-    : authErr();
+const authUserOwner = (context: AuthContext, user: ParentUser) => {
+  if (context.user?.id !== user.id) {
+    return authErr();
+  }
+
+  return context.user;
 };
 
 if (import.meta.vitest) {

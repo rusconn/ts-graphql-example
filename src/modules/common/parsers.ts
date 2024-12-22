@@ -1,6 +1,6 @@
 import * as uuid from "../../lib/uuid.ts";
 import type { Scalars } from "../../schema.ts";
-import { type NodeType, nodeId, nodeTypes, typeIdSep } from "./adapters.ts";
+import { type NodeType, nodeTypes, typeIdSep } from "./adapters.ts";
 
 export const parseErr = (message: string) => {
   return new Error(message);
@@ -17,23 +17,29 @@ export const parseSomeNodeId =
 
     const { type, id } = parsed;
 
-    return type !== nodeType //
-      ? parseErr(`invalid node id: ${nodeId}`)
-      : id;
+    if (type !== nodeType) {
+      return parseErr(`invalid node id: ${nodeId}`);
+    }
+
+    return id;
   };
 
 export const parseNodeId = (nodeId: Scalars["ID"]["input"]) => {
   const [type, id, ...rest] = nodeId.split(typeIdSep);
 
-  return !isValidNodeType(type) || id == null || !uuid.is(id) || rest.length !== 0
-    ? parseErr(`invalid node id: ${nodeId}`)
-    : { type, id };
+  if (!isValidNodeType(type) || id == null || !uuid.is(id) || rest.length !== 0) {
+    return parseErr(`invalid node id: ${nodeId}`);
+  }
+
+  return { type, id };
 };
 
 export const parseCursor = (id: string) => {
-  return !uuid.is(id) //
-    ? parseErr(`invalid cursor: ${id}`)
-    : id;
+  if (!uuid.is(id)) {
+    return parseErr(`invalid cursor: ${id}`);
+  }
+
+  return id;
 };
 
 const isValidNodeType = (val: string | undefined): val is NodeType => {
@@ -45,6 +51,8 @@ export const numChars = (s: string) => {
 };
 
 if (import.meta.vitest) {
+  const { nodeId } = await import("./adapters.ts");
+
   describe("parseNodeId", () => {
     describe("node type", () => {
       const id = "0193cb3e-4379-750f-880f-77afae342259";

@@ -7,21 +7,27 @@ export const authErr = () => {
 export type AuthContext = Pick<Context, "user">;
 
 export const authAdmin = (context: AuthContext) => {
-  return context.user?.role === "ADMIN" //
-    ? context.user
-    : authErr();
+  if (context.user?.role !== "ADMIN") {
+    return authErr();
+  }
+
+  return context.user;
 };
 
 export const authGuest = (context: AuthContext) => {
-  return context.user == null //
-    ? context.user
-    : authErr();
+  if (context.user != null) {
+    return authErr();
+  }
+
+  return context.user;
 };
 
 export const authAuthenticated = (context: AuthContext) => {
-  return context.user != null //
-    ? context.user
-    : authErr();
+  if (context.user == null) {
+    return authErr();
+  }
+
+  return context.user;
 };
 
 if (import.meta.vitest) {
