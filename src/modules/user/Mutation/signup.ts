@@ -7,7 +7,7 @@ import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
-import { isEmail } from "../common/parser.ts";
+import { isEmail } from "../parser.ts";
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 100;

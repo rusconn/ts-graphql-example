@@ -2,7 +2,7 @@ import type { MutationResolvers, MutationUpdateTodoArgs } from "../../../schema.
 import { authAuthenticated } from "../../common/authorizers.ts";
 import { numChars, parseErr } from "../../common/parsers.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
-import { parseTodoNodeId } from "../common/parser.ts";
+import { parseTodoNodeId } from "../parser.ts";
 
 const TITLE_MAX = 100;
 const DESC_MAX = 5000;

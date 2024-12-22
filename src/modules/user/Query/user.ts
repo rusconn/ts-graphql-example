@@ -1,8 +1,8 @@
 import type { QueryResolvers } from "../../../schema.ts";
 import { authAdmin } from "../../common/authorizers.ts";
 import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
-import { parseUserNodeId } from "../common/parser.ts";
-import { getUser } from "../common/resolver.ts";
+import { parseUserNodeId } from "../parser.ts";
+import { getUser } from "../resolver.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {

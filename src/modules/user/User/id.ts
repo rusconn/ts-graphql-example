@@ -1,7 +1,7 @@
 import type { UserResolvers } from "../../../schema.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
-import { userNodeId } from "../common/adapter.ts";
-import { authAdminOrUserOwner } from "../common/authorizer.ts";
+import { userNodeId } from "../adapter.ts";
+import { authAdminOrUserOwner } from "../authorizer.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User implements Node {

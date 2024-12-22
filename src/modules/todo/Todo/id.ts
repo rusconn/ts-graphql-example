@@ -1,7 +1,7 @@
 import type { TodoResolvers } from "../../../schema.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
-import { todoNodeId } from "../common/adapter.ts";
-import { authAdminOrTodoOwner } from "../common/authorizer.ts";
+import { todoNodeId } from "../adapter.ts";
+import { authAdminOrTodoOwner } from "../authorizer.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo implements Node {

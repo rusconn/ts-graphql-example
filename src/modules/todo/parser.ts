@@ -1,5 +1,5 @@
-import { nodeId } from "../../common/adapters.ts";
-import { parseSomeNodeId } from "../../common/parsers.ts";
+import { nodeId } from "../common/adapters.ts";
+import { parseSomeNodeId } from "../common/parsers.ts";
 
 export const parseTodoNodeId = parseSomeNodeId("Todo");
 

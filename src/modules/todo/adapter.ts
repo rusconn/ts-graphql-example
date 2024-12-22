@@ -1,6 +1,6 @@
-import { TodoStatus } from "../../../db/types.ts";
-import * as Graph from "../../../schema.ts";
-import { nodeId } from "../../common/adapters.ts";
+import { TodoStatus } from "../../db/types.ts";
+import * as Graph from "../../schema.ts";
+import { nodeId } from "../common/adapters.ts";
 import type { Todo } from "./resolver.ts";
 
 export const todoNodeId = nodeId("Todo");

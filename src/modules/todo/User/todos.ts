@@ -3,7 +3,7 @@ import type { UserResolvers, UserTodosArgs } from "../../../schema.ts";
 import { TodoSortKeys } from "../../../schema.ts";
 import { parseCursor, parseErr } from "../../common/parsers.ts";
 import { badUserInputErr, forbiddenErr } from "../../common/resolvers.ts";
-import { authAdminOrUserOwner } from "../../user/common/authorizer.ts";
+import { authAdminOrUserOwner } from "../../user/authorizer.ts";
 
 const FIRST_MAX = 50;
 const LAST_MAX = 50;

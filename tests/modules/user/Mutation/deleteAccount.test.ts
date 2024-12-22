@@ -1,5 +1,5 @@
 import { db } from "../../../../src/db/client.ts";
-import { parseUserNodeId } from "../../../../src/modules/user/common/parser.ts";
+import { parseUserNodeId } from "../../../../src/modules/user/parser.ts";
 
 import { Data } from "../../../data.ts";
 import { clearUsers, fail } from "../../../helpers.ts";
