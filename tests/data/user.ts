@@ -1,12 +1,12 @@
 import type { UserSelect } from "../../src/db/models.ts";
 import { db } from "../../src/modules/common/testData/db/user.ts";
-import { userNodeId } from "../../src/modules/user/adapters/id.ts";
+import { userId } from "../../src/modules/user/adapters/id.ts";
 import type * as Graph from "../../src/schema.ts";
 
-import { dateTime, dateTimeByUuid, dummySomeNodeId } from "./common.ts";
+import { dateTime, dateTimeByUuid, dummySomeId } from "./common.ts";
 
 const node = (user: UserSelect): Graph.User => ({
-  id: userNodeId(user.id),
+  id: userId(user.id),
   createdAt: dateTimeByUuid(user.id),
   updatedAt: dateTime(user.updatedAt),
   name: user.name,
@@ -20,4 +20,4 @@ export const graph = {
 
 export { db };
 
-export const dummyNodeId = dummySomeNodeId(userNodeId);
+export const dummyId = dummySomeId(userId);

@@ -1,6 +1,6 @@
 import { db } from "../../../../src/db/client.ts";
 
-import { Data, dummyNodeId } from "../../../data.ts";
+import { Data, dummyId } from "../../../data.ts";
 import { clearTables } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
 import type { NodeQuery, NodeQueryVariables } from "../../schema.ts";
@@ -31,7 +31,7 @@ beforeAll(async () => {
 
 test("not exists", async () => {
   const { data } = await executeQuery({
-    variables: { id: dummyNodeId.todo() },
+    variables: { id: dummyId.todo() },
   });
 
   expect(data?.node).toBeNull();

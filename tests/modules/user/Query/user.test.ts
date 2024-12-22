@@ -1,6 +1,6 @@
 import { db } from "../../../../src/db/client.ts";
 
-import { Data, dummyNodeId } from "../../../data.ts";
+import { Data, dummyId } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
 import type { UserQuery, UserQueryVariables } from "../../schema.ts";
@@ -40,7 +40,7 @@ it("should return item correctly", async () => {
 
 it("should return null if not found", async () => {
   const { data } = await executeQuery({
-    variables: { id: dummyNodeId.user() },
+    variables: { id: dummyId.user() },
   });
 
   expect(data?.user).toBeNull();

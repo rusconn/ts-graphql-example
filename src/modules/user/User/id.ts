@@ -1,6 +1,6 @@
 import type { UserResolvers } from "../../../schema.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { userNodeId } from "../adapters/id.ts";
+import { userId } from "../adapters/id.ts";
 import { authAdminOrUserOwner } from "../authorizers/adminOrUserOwner.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -16,5 +16,5 @@ export const resolver: UserResolvers["id"] = (parent, _args, context) => {
     throw forbiddenErr(authed);
   }
 
-  return userNodeId(parent.id);
+  return userId(parent.id);
 };

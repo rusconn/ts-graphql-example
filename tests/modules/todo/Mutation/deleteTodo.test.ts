@@ -1,6 +1,6 @@
 import { db } from "../../../../src/db/client.ts";
 
-import { Data, dummyNodeId } from "../../../data.ts";
+import { Data, dummyId } from "../../../data.ts";
 import { clearTables, clearTodos } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
 import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "../../schema.ts";
@@ -42,7 +42,7 @@ beforeEach(async () => {
 
 test("invalid input", async () => {
   const { data } = await executeMutation({
-    variables: { id: dummyNodeId.todo().slice(0, -1) },
+    variables: { id: dummyId.todo().slice(0, -1) },
   });
 
   expect(data?.deleteTodo?.__typename === "InvalidInputError").toBe(true);
@@ -50,7 +50,7 @@ test("invalid input", async () => {
 
 test("not exists", async () => {
   const { data } = await executeMutation({
-    variables: { id: dummyNodeId.todo() },
+    variables: { id: dummyId.todo() },
   });
 
   expect(data?.deleteTodo?.__typename === "ResourceNotFoundError").toBe(true);

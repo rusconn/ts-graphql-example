@@ -1,7 +1,7 @@
 import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { todoNodeId } from "../adapters/id.ts";
+import { todoId } from "../adapters/id.ts";
 import { parseTodoId } from "../parsers/id.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -42,7 +42,7 @@ export const resolver: MutationResolvers["deleteTodo"] = async (_parent, args, c
   return todo
     ? {
         __typename: "DeleteTodoSuccess",
-        id: todoNodeId(todo.id),
+        id: todoId(todo.id),
       }
     : {
         __typename: "ResourceNotFoundError",
