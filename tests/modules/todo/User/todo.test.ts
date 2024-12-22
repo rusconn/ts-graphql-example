@@ -1,6 +1,6 @@
 import { db } from "../../../../src/db/client.ts";
 
-import { Data, dummyNodeId } from "../../../data.ts";
+import { Data, dummyId } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
 import type { UserTodoQuery, UserTodoQueryVariables } from "../../schema.ts";
@@ -41,7 +41,7 @@ test("not exists", async () => {
   const { data } = await executeQuery({
     variables: {
       id: Data.graph.admin.id,
-      todoId: dummyNodeId.todo(),
+      todoId: dummyId.todo(),
     },
   });
 

@@ -9,6 +9,6 @@ export const dateTimeByUuid = (id: Parameters<typeof uuidv7.date>[0]) => {
   return dateTime(date);
 };
 
-export const dummySomeNodeId = (nodeId: (id: string) => string) => () => {
+export const dummySomeId = (nodeId: (id: string) => string) => () => {
   return nodeId(uuidv7.gen());
 };

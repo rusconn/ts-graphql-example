@@ -3,7 +3,7 @@ import { omit } from "es-toolkit";
 import { db } from "../../../../src/db/client.ts";
 import { TodoStatus } from "../../../../src/db/types.ts";
 
-import { Data, dummyNodeId } from "../../../data.ts";
+import { Data, dummyId } from "../../../data.ts";
 import { clearTables } from "../../../helpers.ts";
 import { executeSingleResultOperation } from "../../../server.ts";
 import type { CompleteTodoMutation, CompleteTodoMutationVariables } from "../../schema.ts";
@@ -54,7 +54,7 @@ beforeEach(async () => {
 
 test("invalid input", async () => {
   const { data } = await executeMutation({
-    variables: { id: dummyNodeId.todo().slice(0, -1) },
+    variables: { id: dummyId.todo().slice(0, -1) },
   });
 
   expect(data?.completeTodo?.__typename === "InvalidInputError").toBe(true);
@@ -62,7 +62,7 @@ test("invalid input", async () => {
 
 test("not exists", async () => {
   const { data } = await executeMutation({
-    variables: { id: dummyNodeId.todo() },
+    variables: { id: dummyId.todo() },
   });
 
   expect(data?.completeTodo?.__typename === "ResourceNotFoundError").toBe(true);

@@ -15,7 +15,7 @@ export const Data = {
   },
 };
 
-export const dummyNodeId = {
-  todo: todo.dummyNodeId,
-  user: user.dummyNodeId,
+export const dummyId = {
+  todo: todo.dummyId,
+  user: user.dummyId,
 };

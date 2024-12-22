@@ -1,7 +1,7 @@
 import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { userNodeId } from "../adapters/id.ts";
+import { userId } from "../adapters/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -33,6 +33,6 @@ export const resolver: MutationResolvers["deleteAccount"] = async (_parent, _arg
 
   return {
     __typename: "DeleteAccountSuccess",
-    id: userNodeId(deleted.id),
+    id: userId(deleted.id),
   };
 };

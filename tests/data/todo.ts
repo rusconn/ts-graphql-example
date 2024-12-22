@@ -1,13 +1,13 @@
 import type { TodoSelect } from "../../src/db/models.ts";
 import { db } from "../../src/modules/common/testData/db/todo.ts";
-import { todoNodeId } from "../../src/modules/todo/adapters/id.ts";
+import { todoId } from "../../src/modules/todo/adapters/id.ts";
 import { todoStatus } from "../../src/modules/todo/adapters/status.ts";
 import type * as Graph from "../../src/schema.ts";
 
-import { dateTime, dateTimeByUuid, dummySomeNodeId } from "./common.ts";
+import { dateTime, dateTimeByUuid, dummySomeId } from "./common.ts";
 
 const node = (todo: TodoSelect): Graph.Todo => ({
-  id: todoNodeId(todo.id),
+  id: todoId(todo.id),
   createdAt: dateTimeByUuid(todo.id),
   updatedAt: dateTime(todo.updatedAt),
   title: todo.title,
@@ -24,4 +24,4 @@ export const graph = {
 
 export { db };
 
-export const dummyNodeId = dummySomeNodeId(todoNodeId);
+export const dummyId = dummySomeId(todoId);
