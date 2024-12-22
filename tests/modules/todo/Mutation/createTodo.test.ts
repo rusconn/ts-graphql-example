@@ -1,6 +1,6 @@
 import { db } from "../../../../src/db/client.ts";
 import { TodoStatus } from "../../../../src/db/types.ts";
-import { parseTodoNodeId } from "../../../../src/modules/todo/parsers/id.ts";
+import { parseTodoId } from "../../../../src/modules/todo/parsers/id.ts";
 
 import { Data } from "../../../data.ts";
 import { clearTables, fail } from "../../../helpers.ts";
@@ -63,15 +63,15 @@ it("should create todo using input", async () => {
     fail();
   }
 
-  const id = parseTodoNodeId(data.createTodo.todo.id);
+  const parsed = parseTodoId(data.createTodo.todo);
 
-  if (id instanceof Error) {
+  if (parsed instanceof Error) {
     fail();
   }
 
   const todo = await db
     .selectFrom("Todo")
-    .where("id", "=", id)
+    .where("id", "=", parsed)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -88,15 +88,15 @@ test('description should be "" by default', async () => {
     fail();
   }
 
-  const id = parseTodoNodeId(data.createTodo.todo.id);
+  const parsed = parseTodoId(data.createTodo.todo);
 
-  if (id instanceof Error) {
+  if (parsed instanceof Error) {
     fail();
   }
 
   const todo = await db
     .selectFrom("Todo")
-    .where("id", "=", id)
+    .where("id", "=", parsed)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -112,15 +112,15 @@ test("status should be PENDING by default", async () => {
     fail();
   }
 
-  const id = parseTodoNodeId(data.createTodo.todo.id);
+  const parsed = parseTodoId(data.createTodo.todo);
 
-  if (id instanceof Error) {
+  if (parsed instanceof Error) {
     fail();
   }
 
   const todo = await db
     .selectFrom("Todo")
-    .where("id", "=", id)
+    .where("id", "=", parsed)
     .selectAll()
     .executeTakeFirstOrThrow();
 

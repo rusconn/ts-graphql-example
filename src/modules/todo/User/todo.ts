@@ -2,7 +2,7 @@ import type { UserResolvers } from "../../../schema.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { authAdminOrUserOwner } from "../../user/authorizers/adminOrUserOwner.ts";
-import { parseTodoNodeId } from "../parsers/id.ts";
+import { parseTodoId } from "../parsers/id.ts";
 import { getTodo } from "../resolvers.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -18,7 +18,7 @@ export const resolver: UserResolvers["todo"] = async (parent, args, context) => 
     throw forbiddenErr(authed);
   }
 
-  const parsed = parseTodoNodeId(args.id);
+  const parsed = parseTodoId(args);
 
   if (parsed instanceof Error) {
     throw badUserInputErr(`invalid node id: ${args.id}`, parsed);

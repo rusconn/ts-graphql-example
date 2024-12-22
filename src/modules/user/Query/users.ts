@@ -4,8 +4,8 @@ import { UserSortKeys } from "../../../schema.ts";
 import { authAdmin } from "../../common/authorizers/admin.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { parseCursor } from "../../common/parsers/cursor.ts";
-import { parseErr } from "../../common/parsers/util.ts";
+import { parseConnectionArgs } from "../../common/parsers/connectionArgs.ts";
+import { parseUserCursor } from "../parsers/cursor.ts";
 
 const FIRST_MAX = 30;
 const LAST_MAX = 30;
@@ -122,26 +122,21 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 };
 
 const parseArgs = (args: QueryUsersArgs) => {
-  const { first, after, last, before, ...rest } = args;
+  const connectionArgs = parseConnectionArgs(args, {
+    firstMax: FIRST_MAX,
+    lastMax: LAST_MAX,
+    parseCursor: parseUserCursor,
+  });
 
-  if (first && first > FIRST_MAX) {
-    return parseErr(`"first" must be up to ${FIRST_MAX}`);
-  }
-  if (last && last > LAST_MAX) {
-    return parseErr(`"last" must be up to ${LAST_MAX}`);
-  }
-
-  const parsedAfter = after != null ? parseCursor(after) : null;
-  const parsedBefore = before != null ? parseCursor(before) : null;
-
-  if (parsedAfter instanceof Error) {
-    return parsedAfter;
-  }
-  if (parsedBefore instanceof Error) {
-    return parsedBefore;
+  if (connectionArgs instanceof Error) {
+    return connectionArgs;
   }
 
-  return { first, after: parsedAfter, last, before: parsedBefore, ...rest };
+  return {
+    ...connectionArgs,
+    reverse: args.reverse,
+    sortKey: args.sortKey,
+  };
 };
 
 if (import.meta.vitest) {

@@ -2,34 +2,29 @@ import bcrypt from "bcrypt";
 
 import { passHashExp } from "../../../config.ts";
 import { UserRole } from "../../../db/types.ts";
-import { numChars } from "../../../lib/string/numChars.ts";
 import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers/guest.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { parseErr } from "../../common/parsers/util.ts";
-import { isEmail } from "../parsers/email.ts";
-
-const NAME_MAX = 100;
-const EMAIL_MAX = 100;
-const PASS_MIN = 8;
-const PASS_MAX = 50;
+import { USER_EMAIL_MAX, parseUserEmail } from "../parsers/email.ts";
+import { USER_NAME_MAX, parseUserName } from "../parsers/name.ts";
+import { USER_PASSWORD_MAX, USER_PASSWORD_MIN, parseUserPassword } from "../parsers/password.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     signup(
       """
-      ${NAME_MAX}文字まで
+      ${USER_NAME_MAX}文字まで
       """
       name: NonEmptyString!
 
       """
-      ${EMAIL_MAX}文字まで、既に存在する場合はエラー
+      ${USER_EMAIL_MAX}文字まで、既に存在する場合はエラー
       """
       email: NonEmptyString!
 
       """
-      ${PASS_MIN}文字以上、${PASS_MAX}文字まで
+      ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
       """
       password: NonEmptyString!
     ): SignupResult
@@ -98,22 +93,31 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 };
 
 const parseArgs = (args: MutationSignupArgs) => {
-  const { name, email, password } = args;
+  const name = parseUserName(args, {
+    optional: false,
+    nullable: false,
+  });
 
-  if (numChars(name) > NAME_MAX) {
-    return parseErr(`"name" must be up to ${NAME_MAX} characters`);
+  if (name instanceof Error) {
+    return name;
   }
-  if (numChars(email) > EMAIL_MAX) {
-    return parseErr(`"email" must be up to ${EMAIL_MAX} characters`);
+
+  const email = parseUserEmail(args, {
+    optional: false,
+    nullable: false,
+  });
+
+  if (email instanceof Error) {
+    return email;
   }
-  if (!isEmail(email)) {
-    return parseErr(`invalid "email"`);
-  }
-  if (numChars(password) < PASS_MIN) {
-    return parseErr(`"password" must be at least ${PASS_MIN} characters`);
-  }
-  if (numChars(password) > PASS_MAX) {
-    return parseErr(`"password" must be up to ${PASS_MAX} characters`);
+
+  const password = parseUserPassword(args, {
+    optional: false,
+    nullable: false,
+  });
+
+  if (password instanceof Error) {
+    return password;
   }
 
   return { name, email, password };
@@ -125,15 +129,15 @@ if (import.meta.vitest) {
 
     const valids = [
       { ...validInput },
-      { ...validInput, name: "A".repeat(NAME_MAX) },
-      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10)}@email.com` },
-      { ...validInput, password: "A".repeat(PASS_MIN) },
+      { ...validInput, name: "A".repeat(USER_NAME_MAX) },
+      { ...validInput, email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
+      { ...validInput, password: "A".repeat(USER_PASSWORD_MIN) },
     ] as MutationSignupArgs[];
 
     const invalids = [
-      { ...validInput, name: "A".repeat(NAME_MAX + 1) },
-      { ...validInput, email: `${"A".repeat(EMAIL_MAX - 10 + 1)}@email.com` },
-      { ...validInput, password: "A".repeat(PASS_MIN - 1) },
+      { ...validInput, name: "A".repeat(USER_NAME_MAX + 1) },
+      { ...validInput, email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` },
+      { ...validInput, password: "A".repeat(USER_PASSWORD_MIN - 1) },
       { ...validInput, email: "emailemail.com" },
     ] as MutationSignupArgs[];
 

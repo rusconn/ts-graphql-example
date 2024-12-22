@@ -1,10 +1,11 @@
-import * as uuid from "../../../lib/uuid.ts";
 import { parseErr } from "./util.ts";
 
-export const parseCursor = (id: string) => {
-  if (!uuid.is(id)) {
-    return parseErr(`invalid cursor: ${id}`);
-  }
+export const parseCursor =
+  <T>(isCursor: (input: unknown) => input is T) =>
+  (input: unknown) => {
+    if (!isCursor(input)) {
+      return parseErr(`invalid cursor: ${input}`);
+    }
 
-  return id;
-};
+    return input;
+  };

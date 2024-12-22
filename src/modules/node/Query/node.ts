@@ -2,7 +2,7 @@ import type { QueryResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { parseNodeId } from "../../common/parsers/nodeId.ts";
+import { parseId } from "../../common/parsers/id.ts";
 import { getTodo } from "../../todo/resolvers.ts";
 import { getUser } from "../../user/resolvers.ts";
 
@@ -19,20 +19,20 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
     throw forbiddenErr(authed);
   }
 
-  const parsed = parseNodeId(args.id);
+  const parsed = parseId(args);
 
   if (parsed instanceof Error) {
     throw badUserInputErr(`invalid node id: ${args.id}`, parsed);
   }
 
-  const { type, id } = parsed;
+  const { type, internalId } = parsed;
 
   const getNode = {
     Todo: getTodo,
     User: getUser,
   }[type];
 
-  const node = await getNode(context, { id });
+  const node = await getNode(context, { id: internalId });
 
   return node == null ? null : { type, ...node };
 };

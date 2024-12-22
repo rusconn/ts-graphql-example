@@ -1,5 +1,5 @@
 import { db } from "../../../../src/db/client.ts";
-import { parseUserNodeId } from "../../../../src/modules/user/parsers/id.ts";
+import { parseUserId } from "../../../../src/modules/user/parsers/id.ts";
 
 import { Data } from "../../../data.ts";
 import { clearUsers, fail } from "../../../helpers.ts";
@@ -42,13 +42,13 @@ it("should delete user", async () => {
     fail();
   }
 
-  const id = parseUserNodeId(data.deleteAccount.id);
+  const parsed = parseUserId(data.deleteAccount);
 
-  if (id instanceof Error) {
+  if (parsed instanceof Error) {
     fail();
   }
 
-  const user = await db.selectFrom("User").where("id", "=", id).selectAll().executeTakeFirst();
+  const user = await db.selectFrom("User").where("id", "=", parsed).selectAll().executeTakeFirst();
 
   expect(user).toBeUndefined();
 });
@@ -65,13 +65,13 @@ it("should not delete others", async () => {
     fail();
   }
 
-  const id = parseUserNodeId(data.deleteAccount.id);
+  const parsed = parseUserId(data.deleteAccount);
 
-  if (id instanceof Error) {
+  if (parsed instanceof Error) {
     fail();
   }
 
-  const user = await db.selectFrom("User").where("id", "=", id).selectAll().executeTakeFirst();
+  const user = await db.selectFrom("User").where("id", "=", parsed).selectAll().executeTakeFirst();
 
   const after = await db
     .selectFrom("User")
