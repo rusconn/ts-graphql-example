@@ -2,10 +2,11 @@ import bcrypt from "bcrypt";
 
 import { passHashExp } from "../../../config.ts";
 import { UserRole } from "../../../db/types.ts";
+import { numChars } from "../../../lib/string/numChars.ts";
 import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers.ts";
-import { numChars, parseErr } from "../../common/parsers.ts";
+import { parseErr } from "../../common/parsers.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
 import { isEmail } from "../parsers.ts";
 

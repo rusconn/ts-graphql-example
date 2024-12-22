@@ -1,8 +1,9 @@
 import type { Context } from "../../../context.ts";
+import { numChars } from "../../../lib/string/numChars.ts";
 import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "../../../schema.ts";
 import { type AuthContext, authAuthenticated } from "../../common/authorizers.ts";
-import { numChars, parseErr } from "../../common/parsers.ts";
+import { parseErr } from "../../common/parsers.ts";
 import { forbiddenErr } from "../../common/resolvers.ts";
 
 const TODOS_MAX = 10000;
