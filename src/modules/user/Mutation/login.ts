@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import * as uuidv7 from "../../../lib/uuidv7.ts";
+import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../../schema.ts";
 import { USER_EMAIL_MAX, parseUserEmail } from "../parsers/email.ts";
 import { USER_PASSWORD_MAX, USER_PASSWORD_MIN, parseUserPassword } from "../parsers/password.ts";

@@ -3,7 +3,7 @@ import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
 import { type DB, UserRole } from "../../src/db/types.ts";
-import * as uuidv7 from "../../src/lib/uuidv7.ts";
+import * as uuidv7 from "../../src/lib/uuid/v7.ts";
 
 export const seed = async (tsx: Transaction<DB>) => {
   const handUsers = [
