@@ -24,13 +24,13 @@ export const parseConnectionArgs = <T>(args: ConnectionArgs, config: Config<T>) 
     return parseErr(`"last" must be up to ${lastMax}`);
   }
 
-  const parsedAfter = after != null ? parseCursor(after) : null;
+  const parsedAfter = after != null ? parseCursor(after) : after;
 
   if (parsedAfter instanceof Error) {
     return parsedAfter;
   }
 
-  const parsedBefore = before != null ? parseCursor(before) : null;
+  const parsedBefore = before != null ? parseCursor(before) : before;
 
   if (parsedBefore instanceof Error) {
     return parsedBefore;
