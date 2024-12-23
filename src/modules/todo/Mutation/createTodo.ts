@@ -4,12 +4,10 @@ import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import type { AuthContext } from "../../common/authorizers/types.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { parseTodoDescription } from "../parsers/description.ts";
-import { parseTodoTitle } from "../parsers/title.ts";
+import { TODO_DESCRIPTION_MAX, parseTodoDescription } from "../parsers/description.ts";
+import { TODO_TITLE_MAX, parseTodoTitle } from "../parsers/title.ts";
 
 const TODOS_MAX = 10_000;
-const TITLE_MAX = 100;
-const DESC_MAX = 5000;
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -18,12 +16,12 @@ export const typeDef = /* GraphQL */ `
     """
     createTodo(
       """
-      ${TITLE_MAX}文字まで
+      ${TODO_TITLE_MAX}文字まで
       """
       title: NonEmptyString!
 
       """
-      ${DESC_MAX}文字まで
+      ${TODO_DESCRIPTION_MAX}文字まで
       """
       description: String! = ""
     ): CreateTodoResult
@@ -135,13 +133,13 @@ if (import.meta.vitest) {
 
     const valids = [
       { ...validInput },
-      { ...validInput, title: "A".repeat(TITLE_MAX) },
-      { ...validInput, description: "A".repeat(DESC_MAX) },
+      { ...validInput, title: "A".repeat(TODO_TITLE_MAX) },
+      { ...validInput, description: "A".repeat(TODO_DESCRIPTION_MAX) },
     ] as MutationCreateTodoArgs[];
 
     const invalids = [
-      { ...validInput, title: "A".repeat(TITLE_MAX + 1) },
-      { ...validInput, description: "A".repeat(DESC_MAX + 1) },
+      { ...validInput, title: "A".repeat(TODO_TITLE_MAX + 1) },
+      { ...validInput, description: "A".repeat(TODO_DESCRIPTION_MAX + 1) },
     ] as MutationCreateTodoArgs[];
 
     test.each(valids)("valids %#", (args) => {
