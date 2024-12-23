@@ -22,7 +22,7 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
   const parsed = parseId(args);
 
   if (parsed instanceof Error) {
-    throw badUserInputErr(`invalid node id: ${args.id}`, parsed);
+    throw badUserInputErr(parsed.message, parsed);
   }
 
   const { type, internalId } = parsed;

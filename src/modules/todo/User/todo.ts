@@ -21,7 +21,7 @@ export const resolver: UserResolvers["todo"] = async (parent, args, context) => 
   const parsed = parseTodoId(args);
 
   if (parsed instanceof Error) {
-    throw badUserInputErr(`invalid node id: ${args.id}`, parsed);
+    throw badUserInputErr(parsed.message, parsed);
   }
 
   const todo = await getTodo(context, { id: parsed, userId: parent.id });
