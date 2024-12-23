@@ -129,17 +129,15 @@ if (import.meta.vitest) {
   };
 
   describe("Parsing", () => {
-    const validInput = valid.args;
-
     const valids = [
-      { ...validInput },
-      { ...validInput, title: "A".repeat(TODO_TITLE_MAX) },
-      { ...validInput, description: "A".repeat(TODO_DESCRIPTION_MAX) },
+      { ...valid.args },
+      { ...valid.args, title: "A".repeat(TODO_TITLE_MAX) },
+      { ...valid.args, description: "A".repeat(TODO_DESCRIPTION_MAX) },
     ] as MutationCreateTodoArgs[];
 
     const invalids = [
-      { ...validInput, title: "A".repeat(TODO_TITLE_MAX + 1) },
-      { ...validInput, description: "A".repeat(TODO_DESCRIPTION_MAX + 1) },
+      { ...valid.args, title: "A".repeat(TODO_TITLE_MAX + 1) },
+      { ...valid.args, description: "A".repeat(TODO_DESCRIPTION_MAX + 1) },
     ] as MutationCreateTodoArgs[];
 
     test.each(valids)("valids %#", (args) => {
@@ -154,8 +152,6 @@ if (import.meta.vitest) {
   });
 
   describe("Maximum num todos", () => {
-    const validInput = valid.args;
-
     const createDb = (num: number) =>
       ({
         selectFrom: () => ({
@@ -179,15 +175,13 @@ if (import.meta.vitest) {
 
     test.each(notExceededs)("notExceededs %#", async (num) => {
       const db = createDb(num);
-
-      await logic(valid.user, validInput, { db } as Context);
+      const result = await logic(valid.user, valid.args, { db } as Context);
+      expect(result?.__typename === "ResourceLimitExceededError").toBe(false);
     });
 
     test.each(exceededs)("exceededs %#", async (num) => {
       const db = createDb(num);
-
-      const result = await logic(valid.user, validInput, { db } as Context);
-
+      const result = await logic(valid.user, valid.args, { db } as Context);
       expect(result?.__typename === "ResourceLimitExceededError").toBe(true);
     });
   });

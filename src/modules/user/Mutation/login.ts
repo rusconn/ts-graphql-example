@@ -107,18 +107,18 @@ const parseArgs = (args: MutationLoginArgs) => {
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
-    const validInput = { email: "email@email.com", password: "password" };
+    const validArgs = { email: "email@email.com", password: "password" };
 
     const valids = [
-      { ...validInput },
-      { ...validInput, email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
-      { ...validInput, password: "A".repeat(USER_PASSWORD_MIN) },
+      { ...validArgs },
+      { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
+      { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN) },
     ] as MutationLoginArgs[];
 
     const invalids = [
-      { ...validInput, email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` },
-      { ...validInput, password: "A".repeat(USER_PASSWORD_MIN - 1) },
-      { ...validInput, email: "emailemail.com" },
+      { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` },
+      { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN - 1) },
+      { ...validArgs, email: "emailemail.com" },
     ] as MutationLoginArgs[];
 
     test.each(valids)("valids %#", (args) => {
