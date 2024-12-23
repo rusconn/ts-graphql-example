@@ -1,7 +1,7 @@
-import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import { parseSomeId } from "../../common/parsers/someId.ts";
+import * as todoId from "../internal/id.ts";
 
-export const parseTodoId = parseSomeId("Todo", uuidv7.is);
+export const parseTodoId = parseSomeId("Todo", todoId.is);
 
 if (import.meta.vitest) {
   const { nodeId } = await import("../../common/adapters/id.ts");

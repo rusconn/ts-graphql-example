@@ -1,9 +1,9 @@
 import type { Context } from "../../../context.ts";
-import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import type { AuthContext } from "../../common/authorizers/types.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
+import * as todoId from "../internal/id.ts";
 import { TODO_DESCRIPTION_MAX, parseTodoDescription } from "../parsers/description.ts";
 import { TODO_TITLE_MAX, parseTodoTitle } from "../parsers/title.ts";
 
@@ -100,7 +100,7 @@ const logic = async (
     };
   }
 
-  const { id, date } = uuidv7.genWithDate();
+  const { id, date } = todoId.genWithDate();
 
   const todo = await context.db
     .insertInto("Todo")

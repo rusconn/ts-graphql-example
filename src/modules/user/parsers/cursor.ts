@@ -1,4 +1,4 @@
-import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import { parseCursor } from "../../common/parsers/cursor.ts";
+import * as userId from "../internal/id.ts";
 
-export const parseUserCursor = parseCursor(uuidv7.is);
+export const parseUserCursor = parseCursor(userId.is);

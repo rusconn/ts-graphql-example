@@ -1,7 +1,7 @@
-import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import type { UserResolvers } from "../../../schema.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { authAdminOrUserOwner } from "../authorizers/adminOrUserOwner.ts";
+import * as userId from "../internal/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -16,5 +16,5 @@ export const resolver: UserResolvers["createdAt"] = (parent, _args, context) => 
     throw forbiddenErr(authed);
   }
 
-  return uuidv7.date(parent.id);
+  return userId.date(parent.id);
 };
