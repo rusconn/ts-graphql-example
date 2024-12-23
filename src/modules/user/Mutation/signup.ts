@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 
 import { passHashExp } from "../../../config.ts";
 import { UserRole } from "../../../db/types.ts";
-import * as uuidv7 from "../../../lib/uuidv7.ts";
+import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers/guest.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";

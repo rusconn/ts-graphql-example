@@ -1,5 +1,5 @@
 import type { Context } from "../../../context.ts";
-import * as uuidv7 from "../../../lib/uuidv7.ts";
+import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import type { AuthContext } from "../../common/authorizers/types.ts";

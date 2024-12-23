@@ -1,4 +1,4 @@
-import * as uuidv7 from "../../../lib/uuidv7.ts";
+import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import type { TodoResolvers } from "../../../schema.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { authAdminOrTodoOwner } from "../authorizers/adminOrTodoOwner.ts";

@@ -1,4 +1,4 @@
-import * as uuidv7 from "../../../lib/uuidv7.ts";
+import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import { parseSomeId } from "../../common/parsers/someId.ts";
 
 export const parseTodoId = parseSomeId("Todo", uuidv7.is);

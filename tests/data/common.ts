@@ -1,4 +1,4 @@
-import * as uuidv7 from "../../src/lib/uuidv7.ts";
+import * as uuidv7 from "../../src/lib/uuid/v7.ts";
 import type { DateTime } from "../../src/modules/scalar/_mod.ts";
 
 // DateTime リゾルバーによる変換のシミュレーション

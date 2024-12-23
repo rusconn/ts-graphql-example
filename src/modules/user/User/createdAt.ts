@@ -1,4 +1,4 @@
-import * as uuidv7 from "../../../lib/uuidv7.ts";
+import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import type { UserResolvers } from "../../../schema.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { authAdminOrUserOwner } from "../authorizers/adminOrUserOwner.ts";

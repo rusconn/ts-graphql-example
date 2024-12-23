@@ -1,8 +1,8 @@
 import type { Tagged } from "type-fest";
 import { v7 } from "uuid";
 
-import type { UUID } from "./uuid.ts";
-import * as uuid from "./uuid.ts";
+import type { UUID } from "./vn.ts";
+import * as uuid from "./vn.ts";
 
 export type UUIDv7 = Tagged<UUID, "UUIDv7">;
 
