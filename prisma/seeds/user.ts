@@ -2,9 +2,9 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
+import * as userId from "../../src/datasources/user/types/id.ts";
+import * as userToken from "../../src/datasources/user/types/token.ts";
 import { type DB, UserRole } from "../../src/db/types.ts";
-import * as userId from "../../src/modules/user/internal/id.ts";
-import * as userToken from "../../src/modules/user/internal/token.ts";
 
 export const seed = async (tsx: Transaction<DB>) => {
   const handUsers = [

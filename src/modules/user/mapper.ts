@@ -1,3 +1,3 @@
-import type { UserSelect } from "../../db/models.ts";
+import type { User as DataSourceUser } from "../../datasources/user.ts";
 
-export type User = UserSelect;
+export type User = DataSourceUser;

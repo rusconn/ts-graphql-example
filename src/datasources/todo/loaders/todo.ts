@@ -2,9 +2,9 @@ import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 import type { SetOptional } from "type-fest";
 
-import type { TodoSelect } from "../models.ts";
-import type { DB } from "../types.ts";
-import { sort } from "./common.ts";
+import type { TodoSelect } from "../../../db/models.ts";
+import type { DB } from "../../../db/types.ts";
+import { sort } from "../../common/sort.ts";
 
 export type Key = SetOptional<Pick<TodoSelect, "id" | "userId">, "userId">;
 

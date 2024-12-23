@@ -1,9 +1,9 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { UserSelect } from "../models.ts";
-import type { DB } from "../types.ts";
-import { sort } from "./common.ts";
+import type { UserSelect } from "../../../db/models.ts";
+import type { DB } from "../../../db/types.ts";
+import { sort } from "../../common/sort.ts";
 
 export type Key = Pick<UserSelect, "id">;
 

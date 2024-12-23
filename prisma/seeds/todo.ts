@@ -2,8 +2,8 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
+import * as todoId from "../../src/datasources/todo/types/id.ts";
 import { type DB, TodoStatus, type User } from "../../src/db/types.ts";
-import * as todoId from "../../src/modules/todo/internal/id.ts";
 import { randInt } from "./common.ts";
 
 export const seed = async (tsx: Transaction<DB>, userIds: User["id"][]) => {

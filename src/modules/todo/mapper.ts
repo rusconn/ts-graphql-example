@@ -1,3 +1,3 @@
-import type { TodoSelect } from "../../db/models.ts";
+import type { Todo as DataSourceTodo } from "../../datasources/todo.ts";
 
-export type Todo = TodoSelect;
+export type Todo = DataSourceTodo;

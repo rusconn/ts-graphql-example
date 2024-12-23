@@ -1,37 +1,42 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { TodoSelect, UserSelect } from "../models.ts";
-import type { DB, TodoStatus } from "../types.ts";
+import type { TodoSelect, UserSelect } from "../../../db/models.ts";
+import type { DB, TodoStatus } from "../../../db/types.ts";
 
 type Key = Pick<UserSelect, "id">;
 
-type Params = Filter & Pagination;
-
-type Filter = {
-  status?: TodoStatus;
-};
+type Params = Pagination & Filter;
 
 type Pagination = {
   cursor?: Pick<TodoSelect, "id">;
   limit: number;
-  orderColumn: "id" | "updatedAt";
-  direction: "asc" | "desc";
-  comp: ">" | "<";
+  sortKey: "createdAt" | "updatedAt";
+  reverse: boolean;
+};
+
+type Filter = {
+  status?: TodoStatus;
 };
 
 export const initClosure = (db: Kysely<DB>) => {
   let sharedParams: Params | undefined;
 
   const batchGet = async (keys: readonly Key[]) => {
-    const { status, cursor, limit, orderColumn, direction, comp } = sharedParams!;
+    const { cursor, limit, sortKey, reverse, status } = sharedParams!;
 
-    const cursorOrderColumn = cursor //
-      ? db //
-          .selectFrom("Todo")
-          .where("id", "=", cursor.id)
-          .select(orderColumn)
-      : undefined;
+    const orderKey = sortKey === "createdAt" ? "id" : sortKey;
+
+    const [direction, comp] = reverse //
+      ? (["desc", "<"] as const)
+      : (["asc", ">"] as const);
+
+    const cursorOrderKey =
+      cursor &&
+      db //
+        .selectFrom("Todo")
+        .where("id", "=", cursor.id)
+        .select(orderKey);
 
     // 本当は各 key に対する select limit を union したいが、
     // kysely がサポートしていないようなので、全件取得した後オンメモリでそれぞれ limit する
@@ -45,20 +50,20 @@ export const initClosure = (db: Kysely<DB>) => {
         keys.map((key) => key.id),
       )
       .$if(status != null, (qb) => qb.where("status", "=", status!))
-      .$if(cursorOrderColumn != null, (qb) =>
+      .$if(cursorOrderKey != null, (qb) =>
         qb.where(({ eb }) =>
           eb.or([
-            eb(orderColumn, comp, cursorOrderColumn!),
+            eb(orderKey, comp, cursorOrderKey!),
             eb.and([
               //
-              eb(orderColumn, "=", cursorOrderColumn!),
+              eb(orderKey, "=", cursorOrderKey!),
               eb("id", comp, cursor!.id),
             ]),
           ]),
         ),
       )
       .selectAll()
-      .orderBy(orderColumn, direction)
+      .orderBy(orderKey, direction)
       .orderBy("id", direction)
       .execute();
 

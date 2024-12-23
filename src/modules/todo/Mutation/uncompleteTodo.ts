@@ -32,16 +32,10 @@ export const resolver: MutationResolvers["uncompleteTodo"] = async (_parent, arg
     };
   }
 
-  const todo = await context.db
-    .updateTable("Todo")
-    .where("id", "=", parsed)
-    .where("userId", "=", authed.id)
-    .set({
-      updatedAt: new Date(),
-      status: TodoStatus.PENDING,
-    })
-    .returningAll()
-    .executeTakeFirst();
+  const todo = await context.api.todo.updateByIds(
+    { id: parsed, userId: authed.id },
+    { status: TodoStatus.PENDING },
+  );
 
   return todo
     ? {

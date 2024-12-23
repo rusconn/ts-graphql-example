@@ -1,12 +1,10 @@
+import * as todoId from "../../../datasources/todo/types/id.ts";
+import * as userId from "../../../datasources/user/types/id.ts";
 import type { QueryResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { parseId } from "../../common/parsers/id.ts";
-import * as todoId from "../../todo/internal/id.ts";
-import { getTodo } from "../../todo/resolvers.ts";
-import * as userId from "../../user/internal/id.ts";
-import { getUser } from "../../user/resolvers.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
@@ -29,10 +27,10 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
 
   const { type, internalId } = parsed;
 
-  const [getNode, isInternalId] = (
+  const [isInternalId, getNode] = (
     {
-      Todo: [getTodo, todoId.is],
-      User: [getUser, userId.is],
+      Todo: [todoId.is, context.api.todo.getById],
+      User: [userId.is, context.api.user.getById],
     } as const
   )[type];
 
@@ -40,7 +38,7 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
     throw badUserInputErr(`invalid node id: ${args.id}`);
   }
 
-  const node = await getNode(context, { id: internalId });
+  const node = await getNode(internalId);
 
   return node == null ? null : { type, ...node };
 };

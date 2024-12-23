@@ -3,7 +3,6 @@ import { authAdmin } from "../../common/authorizers/admin.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { parseUserId } from "../parsers/id.ts";
-import { getUser } from "../resolvers.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
@@ -24,7 +23,7 @@ export const resolver: QueryResolvers["user"] = async (_parent, args, context) =
     throw badUserInputErr(parsed.message, parsed);
   }
 
-  const user = await getUser(context, { id: parsed });
+  const user = await context.api.user.getById(parsed);
 
   return user ?? null;
 };
