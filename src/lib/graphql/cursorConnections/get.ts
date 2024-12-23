@@ -1,51 +1,14 @@
 // @devoxa/prisma-relay-cursor-connection をパクって改造した
 
-import type { GraphQLResolveInfo } from "graphql";
 import graphqlFields from "graphql-fields";
 
-export const PageInfoTypeDefinition = /* GraphQL */ `
-  type PageInfo {
-    hasNextPage: Boolean!
-    hasPreviousPage: Boolean!
-    startCursor: String
-    endCursor: String
-  }
-`;
-
-export const cursorConnection = ({
-  nodeType,
-  edgeType = nodeType,
-  additionals: {
-    //
-    connectionFields = {},
-    edgeFields = {},
-  } = {},
-}: {
-  nodeType: string;
-  edgeType?: string;
-  additionals?: {
-    connectionFields?: Record<string, string>;
-    edgeFields?: Record<string, string>;
-  };
-}) => /* GraphQL */ `
-    type ${edgeType}Connection {
-      pageInfo: PageInfo!
-      edges: [${edgeType}Edge]
-      nodes: [${nodeType}]
-      ${fieldLines(connectionFields)}
-    }
-
-    type ${edgeType}Edge {
-      node: ${nodeType}
-      cursor: String!
-      ${fieldLines(edgeFields)}
-    }
-  `;
-
-const fieldLines = (fields: Record<string, string>) =>
-  Object.entries(fields)
-    .map(([name, type]) => `${name}: ${type}`)
-    .join("\n");
+import type {
+  Connection,
+  ConnectionArguments,
+  Edge,
+  GetPageArguments,
+  Options,
+} from "./interfaces.ts";
 
 export async function getCursorConnection<
   Record = { id: string },
@@ -170,6 +133,7 @@ type ForwardPaginationArguments = {
   last?: undefined;
   before?: undefined;
 };
+
 type BackwardPaginationArguments = {
   first?: undefined;
   after?: undefined;
@@ -177,7 +141,7 @@ type BackwardPaginationArguments = {
   before?: string;
 };
 
-type MergedOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>> = Required<
+export type MergedOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>> = Required<
   Options<Record, Cursor, Node, CustomEdge>
 >;
 
@@ -213,54 +177,16 @@ function encodeCursor<Record, Cursor, Node, CustomEdge extends Edge<Node>>(
   return options.encodeCursor(options.getCursor(record));
 }
 
-interface Options<Record, Cursor, Node, CustomEdge extends Edge<Node>> {
-  getCursor?: (record: Record) => Cursor;
-  encodeCursor?: (cursor: Cursor) => string;
-  decodeCursor?: (cursorString: string) => Cursor;
-  recordToEdge?: (record: Record) => Omit<CustomEdge, "cursor">;
-  resolveInfo?: GraphQLResolveInfo | null;
-}
-
-interface GetPageArguments<Cursor> {
-  cursor?: Cursor;
-  limit: number;
-  backward: boolean;
-}
-
-interface ConnectionArguments {
-  first?: number | null;
-  after?: string | null;
-  last?: number | null;
-  before?: string | null;
-}
-
-interface Connection<T, CustomEdge extends Edge<T> = Edge<T>> {
-  nodes: T[];
-  edges: CustomEdge[];
-  pageInfo: PageInfo;
-  totalCount: number;
-}
-
-interface Edge<T> {
-  cursor: string;
-  node: T;
-}
-
-interface PageInfo {
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  startCursor: string | null;
-  endCursor: string | null;
-}
-
 if (import.meta.vitest) {
   const getPage = async () => [];
   const count = async () => 0;
 
   describe("Parsing", () => {
     const valids = [
+      { first: 0 },
       { first: 0, after: "" },
       { first: 10, after: "" },
+      { last: 0 },
       { last: 0, before: "" },
       { last: 10, before: "" },
     ];

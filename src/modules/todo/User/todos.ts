@@ -1,4 +1,5 @@
-import { cursorConnection, getCursorConnection } from "../../../lib/graphql/cursor.ts";
+import { getCursorConnection } from "../../../lib/graphql/cursorConnections/get.ts";
+import { cursorConnection } from "../../../lib/graphql/cursorConnections/sdl.ts";
 import type { UserResolvers, UserTodosArgs } from "../../../schema.ts";
 import { TodoSortKeys } from "../../../schema.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";

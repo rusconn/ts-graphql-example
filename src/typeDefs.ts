@@ -1,4 +1,4 @@
-import { PageInfoTypeDefinition } from "./lib/graphql/cursor.ts";
+import { PageInfoTypeDefinition } from "./lib/graphql/cursorConnections/sdl.ts";
 import * as node from "./modules/node/_mod.ts";
 import * as scalar from "./modules/scalar/_mod.ts";
 import * as todo from "./modules/todo/_mod.ts";
