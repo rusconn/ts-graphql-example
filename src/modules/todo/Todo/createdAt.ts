@@ -1,7 +1,7 @@
-import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import type { TodoResolvers } from "../../../schema.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { authAdminOrTodoOwner } from "../authorizers/adminOrTodoOwner.ts";
+import * as todoId from "../internal/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
@@ -16,5 +16,5 @@ export const resolver: TodoResolvers["createdAt"] = (parent, _args, context) => 
     throw forbiddenErr(authed);
   }
 
-  return uuidv7.date(parent.id);
+  return todoId.date(parent.id);
 };

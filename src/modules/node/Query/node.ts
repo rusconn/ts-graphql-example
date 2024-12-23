@@ -1,10 +1,11 @@
-import * as uuidv7 from "../../../lib/uuid/v7.ts";
 import type { QueryResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { parseId } from "../../common/parsers/id.ts";
+import * as todoId from "../../todo/internal/id.ts";
 import { getTodo } from "../../todo/resolvers.ts";
+import * as userId from "../../user/internal/id.ts";
 import { getUser } from "../../user/resolvers.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -30,8 +31,8 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
 
   const [getNode, isInternalId] = (
     {
-      Todo: [getTodo, uuidv7.is],
-      User: [getUser, uuidv7.is],
+      Todo: [getTodo, todoId.is],
+      User: [getUser, userId.is],
     } as const
   )[type];
 

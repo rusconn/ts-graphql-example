@@ -3,7 +3,7 @@ import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
 import { type DB, TodoStatus, type User } from "../../src/db/types.ts";
-import * as uuidv7 from "../../src/lib/uuid/v7.ts";
+import * as todoId from "../../src/modules/todo/internal/id.ts";
 import { randInt } from "./common.ts";
 
 export const seed = async (tsx: Transaction<DB>, userIds: User["id"][]) => {
@@ -56,7 +56,7 @@ const fakeDataOne = (userId: User["id"]) => {
   const numTodos = randInt(0, 10);
 
   return [...Array(numTodos)].map((_) => ({
-    id: uuidv7.gen(),
+    id: todoId.gen(),
     title: faker.lorem.words(randInt(1, 3)),
     description: faker.lorem.text(),
     status: faker.helpers.arrayElement([TodoStatus.DONE, TodoStatus.PENDING]),
