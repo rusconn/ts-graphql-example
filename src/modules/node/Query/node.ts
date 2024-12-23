@@ -1,3 +1,4 @@
+import * as uuidv7 from "../../../lib/uuidv7.ts";
 import type { QueryResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
@@ -27,10 +28,16 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
 
   const { type, internalId } = parsed;
 
-  const getNode = {
-    Todo: getTodo,
-    User: getUser,
-  }[type];
+  const [getNode, isInternalId] = (
+    {
+      Todo: [getTodo, uuidv7.is],
+      User: [getUser, uuidv7.is],
+    } as const
+  )[type];
+
+  if (!isInternalId(internalId)) {
+    throw badUserInputErr(`invalid node id: ${args.id}`);
+  }
 
   const node = await getNode(context, { id: internalId });
 
