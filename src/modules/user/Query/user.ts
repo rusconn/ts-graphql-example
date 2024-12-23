@@ -21,7 +21,7 @@ export const resolver: QueryResolvers["user"] = async (_parent, args, context) =
   const parsed = parseUserId(args);
 
   if (parsed instanceof Error) {
-    throw badUserInputErr(`invalid node id: ${args.id}`, parsed);
+    throw badUserInputErr(parsed.message, parsed);
   }
 
   const user = await getUser(context, { id: parsed });
