@@ -1,4 +1,4 @@
-import { db } from "../../../../src/db/client.ts";
+import { client } from "../../../../src/db/client.ts";
 
 import { Data, dummyId } from "../../../data.ts";
 import { clearTables, clearTodos } from "../../../helpers.ts";
@@ -25,8 +25,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => db.insertInto("User").values(testData.users).execute(),
-  todos: () => db.insertInto("Todo").values(testData.todos).execute(),
+  users: () => client.insertInto("User").values(testData.users).execute(),
+  todos: () => client.insertInto("Todo").values(testData.todos).execute(),
 };
 
 beforeAll(async () => {
@@ -71,7 +71,7 @@ it("should delete todo", async () => {
 
   expect(data?.deleteTodo?.__typename === "DeleteTodoSuccess").toBe(true);
 
-  const todo = await db
+  const todo = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -81,7 +81,7 @@ it("should delete todo", async () => {
 });
 
 it("should not delete others", async () => {
-  const before = await db
+  const before = await client
     .selectFrom("Todo")
     .select(({ fn }) => fn.countAll().as("count"))
     .executeTakeFirstOrThrow();
@@ -92,13 +92,13 @@ it("should not delete others", async () => {
 
   expect(data?.deleteTodo?.__typename === "DeleteTodoSuccess").toBe(true);
 
-  const todo = await db
+  const todo = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
     .executeTakeFirst();
 
-  const after = await db
+  const after = await client
     .selectFrom("Todo")
     .select(({ fn }) => fn.countAll().as("count"))
     .executeTakeFirstOrThrow();

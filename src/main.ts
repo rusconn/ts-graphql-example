@@ -1,7 +1,7 @@
 import process from "node:process";
 
 import { port } from "./config.ts";
-import { db } from "./db/client.ts";
+import { client } from "./db/client.ts";
 import { logger } from "./logger.ts";
 import { server } from "./server.ts";
 
@@ -11,7 +11,7 @@ server.listen(port, () => {
 
 const shutdown = async () => {
   server.close();
-  await db.destroy();
+  await client.destroy();
   logger.flush();
 };
 

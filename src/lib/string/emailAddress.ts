@@ -1,4 +1,8 @@
-export const isEmail = (input: string) => {
+import type { Tagged } from "type-fest";
+
+export type EmailAddress = Tagged<string, "EmailAddress">;
+
+export const is = (input: string): input is EmailAddress => {
   return emailRegex.test(input);
 };
 

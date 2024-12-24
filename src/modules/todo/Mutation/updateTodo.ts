@@ -53,16 +53,13 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
 
   const { id, ...rest } = parsed;
 
-  const todo = await context.db
-    .updateTable("Todo")
-    .where("id", "=", id)
-    .where("userId", "=", authed.id)
-    .set({
-      updatedAt: new Date(),
-      ...rest,
-    })
-    .returningAll()
-    .executeTakeFirst();
+  const todo = await context.api.user.updateTodo(
+    {
+      userId: authed.id,
+      todoId: id,
+    },
+    rest,
+  );
 
   return todo
     ? {

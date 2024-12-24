@@ -1,13 +1,13 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { UserSelect } from "../models.ts";
-import type { DB, TodoStatus } from "../types.ts";
-import { sort } from "./common.ts";
+import type { DB, TodoStatus } from "../../../../db/generated/types.ts";
+import type { User } from "../../../../db/models/user.ts";
+import { sort } from "../../../utils/sort.ts";
 
-export type Key = Pick<UserSelect, "id">;
+type Key = Pick<User, "id">;
 
-type Params = Filter;
+export type Params = Filter;
 
 type Filter = {
   status?: TodoStatus;
@@ -32,7 +32,9 @@ export const initClosure = (db: Kysely<DB>) => {
       .select(({ fn }) => fn.count("userId").as("count"))
       .execute();
 
-    return sort(keys, todos).map((result) => Number(result?.count ?? 0));
+    type Count = Pick<User, "id"> & Pick<(typeof todos)[number], "count">;
+
+    return sort(keys, todos as Count[]).map((result) => Number(result?.count ?? 0));
   };
 
   const loader = new DataLoader(batchGet, { cacheKeyFn: (key) => key.id });

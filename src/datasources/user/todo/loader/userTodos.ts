@@ -1,37 +1,43 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { TodoSelect, UserSelect } from "../models.ts";
-import type { DB, TodoStatus } from "../types.ts";
+import type { DB, TodoStatus } from "../../../../db/generated/types.ts";
+import type { Todo } from "../../../../db/models/todo.ts";
+import type { User } from "../../../../db/models/user.ts";
 
-type Key = Pick<UserSelect, "id">;
+type Key = Pick<User, "id">;
 
-type Params = Filter & Pagination;
+export type Params = Filter & Pagination;
 
 type Filter = {
   status?: TodoStatus;
 };
 
 type Pagination = {
-  cursor?: Pick<TodoSelect, "id">;
+  cursor?: Pick<Todo, "id">;
+  sortKey: "createdAt" | "updatedAt";
   limit: number;
-  orderColumn: "id" | "updatedAt";
-  direction: "asc" | "desc";
-  comp: ">" | "<";
+  reverse: boolean;
 };
 
 export const initClosure = (db: Kysely<DB>) => {
   let sharedParams: Params | undefined;
 
   const batchGet = async (keys: readonly Key[]) => {
-    const { status, cursor, limit, orderColumn, direction, comp } = sharedParams!;
+    const { status, cursor, sortKey, limit, reverse } = sharedParams!;
 
-    const cursorOrderColumn = cursor //
-      ? db //
-          .selectFrom("Todo")
-          .where("id", "=", cursor.id)
-          .select(orderColumn)
-      : undefined;
+    const orderColumn = sortKey === "createdAt" ? "id" : sortKey;
+
+    const [direction, comp] = reverse //
+      ? (["desc", "<"] as const)
+      : (["asc", ">"] as const);
+
+    const cursorOrderColumn =
+      cursor &&
+      db //
+        .selectFrom("Todo")
+        .where("id", "=", cursor.id)
+        .select(orderColumn);
 
     // 本当は各 key に対する select limit を union したいが、
     // kysely がサポートしていないようなので、全件取得した後オンメモリでそれぞれ limit する
@@ -63,7 +69,7 @@ export const initClosure = (db: Kysely<DB>) => {
       .execute();
 
     // 順序は維持してくれるみたい
-    const userTodos = Map.groupBy(todos, (todo) => todo.userId);
+    const userTodos = Map.groupBy(todos as Todo[], (todo) => todo.userId);
 
     const kv = new Map(userTodos.entries().map(([key, value]) => [key, value.slice(0, limit)]));
 

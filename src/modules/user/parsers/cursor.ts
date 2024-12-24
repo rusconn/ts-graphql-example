@@ -1,4 +1,4 @@
+import * as userId from "../../../db/models/user/id.ts";
 import { parseCursor } from "../../common/parsers/cursor.ts";
-import * as userId from "../internal/id.ts";
 
 export const parseUserCursor = parseCursor(userId.is);

@@ -1,4 +1,4 @@
-import { db } from "../src/db/client.ts";
+import { client } from "../src/db/client.ts";
 
 export const clearTables = async () => {
   // CASCADE Todo
@@ -6,11 +6,11 @@ export const clearTables = async () => {
 };
 
 export const clearTodos = async () => {
-  await db.deleteFrom("Todo").executeTakeFirstOrThrow();
+  await client.deleteFrom("Todo").executeTakeFirstOrThrow();
 };
 
 export const clearUsers = async () => {
-  await db.deleteFrom("User").executeTakeFirstOrThrow();
+  await client.deleteFrom("User").executeTakeFirstOrThrow();
 };
 
 export function fail(): never {

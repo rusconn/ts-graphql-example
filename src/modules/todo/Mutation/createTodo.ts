@@ -3,7 +3,7 @@ import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import type { AuthContext } from "../../common/authorizers/types.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import * as todoId from "../internal/id.ts";
+import { internalServerError } from "../../common/errors/internalServerError.ts";
 import { TODO_DESCRIPTION_MAX, parseTodoDescription } from "../parsers/description.ts";
 import { TODO_TITLE_MAX, parseTodoTitle } from "../parsers/title.ts";
 
@@ -86,12 +86,7 @@ const logic = async (
 ): Promise<ResolversTypes["CreateTodoResult"]> => {
   const { title, description } = parsed;
 
-  const count = await context.db
-    .selectFrom("Todo")
-    .where("userId", "=", authed.id)
-    .select(({ fn }) => fn.countAll().as("count"))
-    .executeTakeFirstOrThrow()
-    .then((result) => Number(result.count));
+  const count = await context.api.user.countTodo(authed.id);
 
   if (count >= TODOS_MAX) {
     return {
@@ -100,19 +95,14 @@ const logic = async (
     };
   }
 
-  const { id, date } = todoId.genWithDate();
+  const todo = await context.api.user.createTodo(authed.id, {
+    title,
+    description,
+  });
 
-  const todo = await context.db
-    .insertInto("Todo")
-    .values({
-      id,
-      updatedAt: date,
-      userId: authed.id,
-      title,
-      description,
-    })
-    .returningAll()
-    .executeTakeFirstOrThrow();
+  if (!todo) {
+    throw internalServerError();
+  }
 
   return {
     __typename: "CreateTodoSuccess",
@@ -152,36 +142,26 @@ if (import.meta.vitest) {
   });
 
   describe("Maximum num todos", () => {
-    const createDb = (num: number) =>
+    const createAPIs = (num: number) =>
       ({
-        selectFrom: () => ({
-          where: () => ({
-            select: () => ({
-              executeTakeFirstOrThrow: async () => ({ count: num }),
-            }),
-          }),
-        }),
-        insertInto: () => ({
-          values: () => ({
-            returningAll: () => ({
-              executeTakeFirstOrThrow: async () => {},
-            }),
-          }),
-        }),
-      }) as unknown as Context["db"];
+        user: {
+          countTodo: async () => num,
+          createTodo: async () => ({ id: "dummy" }),
+        },
+      }) as unknown as Context["api"];
 
     const notExceededs = [0, 1, TODOS_MAX - 1];
     const exceededs = [TODOS_MAX, TODOS_MAX + 1];
 
     test.each(notExceededs)("notExceededs %#", async (num) => {
-      const db = createDb(num);
-      const result = await logic(valid.user, valid.args, { db } as Context);
+      const api = createAPIs(num);
+      const result = await logic(valid.user, valid.args, { api } as Context);
       expect(result?.__typename === "ResourceLimitExceededError").toBe(false);
     });
 
     test.each(exceededs)("exceededs %#", async (num) => {
-      const db = createDb(num);
-      const result = await logic(valid.user, valid.args, { db } as Context);
+      const api = createAPIs(num);
+      const result = await logic(valid.user, valid.args, { api } as Context);
       expect(result?.__typename === "ResourceLimitExceededError").toBe(true);
     });
   });

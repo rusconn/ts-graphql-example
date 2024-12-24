@@ -1,4 +1,4 @@
-import { isEmail } from "../../../lib/string/isEmail.ts";
+import * as userEmail from "../../../db/models/user/email.ts";
 import { numChars } from "../../../lib/string/numChars.ts";
 import type {
   MutationLoginArgs,
@@ -29,7 +29,7 @@ export const parseUserEmail = <T extends boolean, U extends boolean>(
   if (email != null && numChars(email) > USER_EMAIL_MAX) {
     return parseErr(`"email" must be up to ${USER_EMAIL_MAX} characters`);
   }
-  if (email != null && !isEmail(email)) {
+  if (email != null && !userEmail.is(email)) {
     return parseErr(`invalid "email"`);
   }
 

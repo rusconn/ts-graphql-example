@@ -1,6 +1,7 @@
 import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
+import { internalServerError } from "../../common/errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -21,15 +22,13 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
     throw forbiddenErr(authed);
   }
 
-  const updated = await context.db
-    .updateTable("User")
-    .where("id", "=", authed.id)
-    .set({
-      updatedAt: new Date(),
-      token: null,
-    })
-    .returningAll()
-    .executeTakeFirstOrThrow();
+  const updated = await context.api.user.updateById(authed.id, {
+    token: null,
+  });
+
+  if (!updated) {
+    throw internalServerError();
+  }
 
   return {
     __typename: "LogoutSuccess",

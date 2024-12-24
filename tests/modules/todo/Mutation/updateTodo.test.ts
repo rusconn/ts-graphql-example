@@ -1,6 +1,6 @@
 import { omit } from "es-toolkit";
 
-import { db } from "../../../../src/db/client.ts";
+import { client } from "../../../../src/db/client.ts";
 import * as Graph from "../../../../src/schema.ts";
 
 import { Data, dummyId } from "../../../data.ts";
@@ -34,8 +34,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => db.insertInto("User").values(testData.users).execute(),
-  todos: () => db.insertInto("Todo").values(testData.todos).execute(),
+  users: () => client.insertInto("User").values(testData.users).execute(),
+  todos: () => client.insertInto("Todo").values(testData.todos).execute(),
 };
 
 beforeAll(async () => {
@@ -45,7 +45,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  await db
+  await client
     .insertInto("Todo")
     .values(Data.db.adminTodo)
     .onConflict((oc) => oc.column("id").doUpdateSet(Data.db.adminTodo))
@@ -91,7 +91,7 @@ it("should update using input", async () => {
 
   expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
 
-  const todo = await db
+  const todo = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -103,7 +103,7 @@ it("should update using input", async () => {
 });
 
 it("should not update fields if the field is absent", async () => {
-  const before = await db
+  const before = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -115,7 +115,7 @@ it("should not update fields if the field is absent", async () => {
 
   expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
 
-  const after = await db
+  const after = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -127,7 +127,7 @@ it("should not update fields if the field is absent", async () => {
 });
 
 it("should update updatedAt", async () => {
-  const before = await db
+  const before = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -139,7 +139,7 @@ it("should update updatedAt", async () => {
 
   expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
 
-  const after = await db
+  const after = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -152,7 +152,7 @@ it("should update updatedAt", async () => {
 });
 
 it("should not update other attrs", async () => {
-  const before = await db
+  const before = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -164,7 +164,7 @@ it("should not update other attrs", async () => {
 
   expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
 
-  const after = await db
+  const after = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()

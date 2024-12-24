@@ -1,6 +1,5 @@
 import type { TodoResolvers } from "../../../schema.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import { getUser } from "../../user/resolvers.ts";
 import { authAdminOrTodoOwner } from "../authorizers/adminOrTodoOwner.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -16,7 +15,7 @@ export const resolver: TodoResolvers["user"] = async (parent, _args, context) =>
     throw forbiddenErr(authed);
   }
 
-  const user = await getUser(context, { id: parent.userId });
+  const user = await context.api.user.load(parent.userId);
 
   return user ?? null;
 };

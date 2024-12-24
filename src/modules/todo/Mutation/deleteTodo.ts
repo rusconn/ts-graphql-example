@@ -32,12 +32,10 @@ export const resolver: MutationResolvers["deleteTodo"] = async (_parent, args, c
     };
   }
 
-  const todo = await context.db
-    .deleteFrom("Todo")
-    .where("id", "=", parsed)
-    .where("userId", "=", authed.id)
-    .returning("id")
-    .executeTakeFirst();
+  const todo = await context.api.user.deleteTodo({
+    userId: authed.id,
+    todoId: parsed,
+  });
 
   return todo
     ? {

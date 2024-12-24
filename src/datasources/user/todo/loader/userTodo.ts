@@ -1,12 +1,11 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
-import type { SetOptional } from "type-fest";
 
-import type { TodoSelect } from "../models.ts";
-import type { DB } from "../types.ts";
-import { sort } from "./common.ts";
+import type { DB } from "../../../../db/generated/types.ts";
+import type { Todo } from "../../../../db/models/todo.ts";
+import { sort } from "../../../utils/sort.ts";
 
-export type Key = SetOptional<Pick<TodoSelect, "id" | "userId">, "userId">;
+type Key = Pick<Todo, "id" | "userId">;
 
 export const init = (db: Kysely<DB>) => {
   return new DataLoader(batchGet(db), { cacheKeyFn: (key) => key.id + key.userId });
@@ -18,14 +17,16 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
     .where((eb) =>
       eb.or(
         keys.map((key) =>
-          key.userId == null
-            ? eb("id", "=", key.id)
-            : eb.and([eb("id", "=", key.id), eb("userId", "=", key.userId)]),
+          eb.and([
+            //
+            eb("id", "=", key.id),
+            eb("userId", "=", key.userId),
+          ]),
         ),
       ),
     )
     .selectAll()
     .execute();
 
-  return sort(keys, todos);
+  return sort(keys, todos as Todo[]);
 };

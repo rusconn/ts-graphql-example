@@ -1,6 +1,6 @@
-import { TodoStatus } from "../../../db/types.ts";
+import { TodoStatus } from "../../../db/generated/types.ts";
 import * as Graph from "../../../schema.ts";
-import type { Todo } from "../resolvers.ts";
+import type { Todo } from "../mapper.ts";
 
 export const todoStatus = (status: Todo["status"]) => {
   return {

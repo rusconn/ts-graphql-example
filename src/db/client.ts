@@ -3,7 +3,7 @@ import pg from "pg";
 
 import { connectionString, isProd } from "../config.ts";
 import { logger } from "../logger.ts";
-import type { DB } from "./types.ts";
+import type { DB } from "./generated/types.ts";
 
 const [logQuery, logError] = isProd
   ? [
@@ -16,7 +16,7 @@ const [logQuery, logError] = isProd
     ];
 
 /** Node.js 環境下ではモジュールキャッシュにより singleton */
-export const db = new Kysely<DB>({
+export const client = new Kysely<DB>({
   dialect: new PostgresDialect({
     pool: new pg.Pool({
       connectionString,

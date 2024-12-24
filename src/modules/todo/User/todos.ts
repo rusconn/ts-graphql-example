@@ -6,6 +6,7 @@ import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { parseConnectionArgs } from "../../common/parsers/connectionArgs.ts";
 import { authAdminOrUserOwner } from "../../user/authorizers/adminOrUserOwner.ts";
+import type { Todo } from "../mapper.ts";
 import { parseTodoCursor } from "../parsers/cursor.ts";
 import { parseTodoStatus } from "../parsers/status.ts";
 
@@ -70,25 +71,22 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
 
   const { first, after, last, before, reverse, sortKey, status } = parsed;
 
-  const connection = await getCursorConnection(
-    async ({ backward, ...rest }) => {
-      const [direction, comp] =
-        reverse === backward //
-          ? (["asc", ">"] as const)
-          : (["desc", "<"] as const);
-
-      const orderColumn = {
-        [TodoSortKeys.CreatedAt]: "id" as const,
-        [TodoSortKeys.UpdatedAt]: "updatedAt" as const,
-      }[sortKey];
-
-      const page = await context.loaders
-        .userTodos({ ...rest, orderColumn, direction, comp, status })
-        .load(parent);
+  const connection = await getCursorConnection<Todo, Pick<Todo, "id">>(
+    async ({ cursor, limit, backward }) => {
+      const page = await context.api.user.loadTodoPage(parent.id, {
+        cursor,
+        sortKey: {
+          [TodoSortKeys.CreatedAt]: "createdAt" as const,
+          [TodoSortKeys.UpdatedAt]: "updatedAt" as const,
+        }[sortKey],
+        limit,
+        reverse: reverse !== backward,
+        status,
+      });
 
       return backward ? page.reverse() : page;
     },
-    () => context.loaders.userTodosCount({ status }).load(parent),
+    () => context.api.user.loadTodoCount(parent.id, { status }),
     { first, after, last, before },
     { resolveInfo: info },
   );

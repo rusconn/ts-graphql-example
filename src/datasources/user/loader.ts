@@ -1,11 +1,11 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { UserSelect } from "../models.ts";
-import type { DB } from "../types.ts";
-import { sort } from "./common.ts";
+import type { DB } from "../../db/generated/types.ts";
+import type { User } from "../../db/models/user.ts";
+import { sort } from "../utils/sort.ts";
 
-export type Key = Pick<UserSelect, "id">;
+type Key = Pick<User, "id">;
 
 export const init = (db: Kysely<DB>) => {
   return new DataLoader(batchGet(db), { cacheKeyFn: (key) => key.id });
@@ -22,5 +22,5 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
     .selectAll()
     .execute();
 
-  return sort(keys, users);
+  return sort(keys, users as User[]);
 };

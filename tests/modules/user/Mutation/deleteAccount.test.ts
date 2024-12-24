@@ -1,4 +1,4 @@
-import { db } from "../../../../src/db/client.ts";
+import { client } from "../../../../src/db/client.ts";
 import { parseUserId } from "../../../../src/modules/user/parsers/id.ts";
 
 import { Data } from "../../../data.ts";
@@ -26,8 +26,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => db.insertInto("User").values(testData.users).execute(),
-  todos: () => db.insertInto("Todo").values(testData.todos).execute(),
+  users: () => client.insertInto("User").values(testData.users).execute(),
+  todos: () => client.insertInto("Todo").values(testData.todos).execute(),
 };
 
 beforeEach(async () => {
@@ -48,13 +48,17 @@ it("should delete user", async () => {
     fail();
   }
 
-  const user = await db.selectFrom("User").where("id", "=", parsed).selectAll().executeTakeFirst();
+  const user = await client
+    .selectFrom("User")
+    .where("id", "=", parsed)
+    .selectAll()
+    .executeTakeFirst();
 
   expect(user).toBeUndefined();
 });
 
 it("should not delete others", async () => {
-  const before = await db
+  const before = await client
     .selectFrom("User")
     .select(({ fn }) => fn.countAll().as("count"))
     .executeTakeFirstOrThrow();
@@ -71,9 +75,13 @@ it("should not delete others", async () => {
     fail();
   }
 
-  const user = await db.selectFrom("User").where("id", "=", parsed).selectAll().executeTakeFirst();
+  const user = await client
+    .selectFrom("User")
+    .where("id", "=", parsed)
+    .selectAll()
+    .executeTakeFirst();
 
-  const after = await db
+  const after = await client
     .selectFrom("User")
     .select(({ fn }) => fn.countAll().as("count"))
     .executeTakeFirstOrThrow();
@@ -88,7 +96,7 @@ it("should not delete others", async () => {
 it("should delete his resources", async () => {
   await seedData.todos();
 
-  const before = await db
+  const before = await client
     .selectFrom("Todo")
     .where("userId", "=", Data.db.admin.id)
     .select(({ fn }) => fn.countAll().as("count"))
@@ -98,7 +106,7 @@ it("should delete his resources", async () => {
 
   expect(data?.deleteAccount?.__typename === "DeleteAccountSuccess").toBe(true);
 
-  const after = await db
+  const after = await client
     .selectFrom("Todo")
     .where("userId", "=", Data.db.admin.id)
     .select(({ fn }) => fn.countAll().as("count"))

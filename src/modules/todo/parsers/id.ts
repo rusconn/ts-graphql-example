@@ -1,5 +1,5 @@
+import * as todoId from "../../../db/models/todo/id.ts";
 import { parseSomeId } from "../../common/parsers/someId.ts";
-import * as todoId from "../internal/id.ts";
 
 export const parseTodoId = parseSomeId("Todo", todoId.is);
 

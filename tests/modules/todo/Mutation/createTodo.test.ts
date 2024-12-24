@@ -1,5 +1,5 @@
-import { db } from "../../../../src/db/client.ts";
-import { TodoStatus } from "../../../../src/db/types.ts";
+import { client } from "../../../../src/db/client.ts";
+import { TodoStatus } from "../../../../src/db/generated/types.ts";
 import { parseTodoId } from "../../../../src/modules/todo/parsers/id.ts";
 
 import { Data } from "../../../data.ts";
@@ -31,7 +31,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => db.insertInto("User").values(testData.users).execute(),
+  users: () => client.insertInto("User").values(testData.users).execute(),
 };
 
 beforeAll(async () => {
@@ -69,7 +69,7 @@ it("should create todo using input", async () => {
     fail();
   }
 
-  const todo = await db
+  const todo = await client
     .selectFrom("Todo")
     .where("id", "=", parsed)
     .selectAll()
@@ -94,7 +94,7 @@ test('description should be "" by default', async () => {
     fail();
   }
 
-  const todo = await db
+  const todo = await client
     .selectFrom("Todo")
     .where("id", "=", parsed)
     .selectAll()
@@ -118,7 +118,7 @@ test("status should be PENDING by default", async () => {
     fail();
   }
 
-  const todo = await db
+  const todo = await client
     .selectFrom("Todo")
     .where("id", "=", parsed)
     .selectAll()

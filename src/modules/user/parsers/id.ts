@@ -1,5 +1,5 @@
+import * as userId from "../../../db/models/user/id.ts";
 import { parseSomeId } from "../../common/parsers/someId.ts";
-import * as userId from "../internal/id.ts";
 
 export const parseUserId = parseSomeId("User", userId.is);
 

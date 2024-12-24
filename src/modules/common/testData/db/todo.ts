@@ -1,4 +1,5 @@
-import { TodoStatus } from "../../../../db/types.ts";
+import { TodoStatus } from "../../../../db/generated/types.ts";
+import type { Todo } from "../../../todo/mapper.ts";
 import { db as users } from "./user.ts";
 
 export const db = {
@@ -10,7 +11,7 @@ export const db = {
     description: "admin todo 1",
     status: TodoStatus.PENDING,
     userId: users.admin.id,
-  },
+  } as Todo,
   adminTodo2: {
     /** Date: 2024-12-15T17:43:30.901Z */
     id: "0193cb6b-0d55-711b-a11b-6eb96871a3a7",
@@ -19,7 +20,7 @@ export const db = {
     description: "admin todo 2",
     status: TodoStatus.DONE,
     userId: users.admin.id,
-  },
+  } as Todo,
   adminTodo3: {
     /** Date: 2024-12-15T17:43:41.742Z */
     id: "0193cb6b-37ae-716b-b774-a3c81db18659",
@@ -28,7 +29,7 @@ export const db = {
     description: "admin todo 3",
     status: TodoStatus.PENDING,
     userId: users.admin.id,
-  },
+  } as Todo,
   aliceTodo: {
     /** Date: 2024-12-15T17:43:49.654Z */
     id: "0193cb6b-5696-7022-bc97-98ecd41d1957",
@@ -37,5 +38,5 @@ export const db = {
     description: "alice todo 1",
     status: TodoStatus.PENDING,
     userId: users.alice.id,
-  },
-} as const;
+  } as Todo,
+};

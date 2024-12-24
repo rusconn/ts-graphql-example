@@ -1,7 +1,7 @@
 import { omit } from "es-toolkit";
 
-import { db } from "../../../../src/db/client.ts";
-import { TodoStatus } from "../../../../src/db/types.ts";
+import { client } from "../../../../src/db/client.ts";
+import { TodoStatus } from "../../../../src/db/generated/types.ts";
 
 import { Data, dummyId } from "../../../data.ts";
 import { clearTables } from "../../../helpers.ts";
@@ -34,8 +34,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => db.insertInto("User").values(testData.users).execute(),
-  todos: () => db.insertInto("Todo").values(testData.todos).execute(),
+  users: () => client.insertInto("User").values(testData.users).execute(),
+  todos: () => client.insertInto("Todo").values(testData.todos).execute(),
 };
 
 beforeAll(async () => {
@@ -45,7 +45,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  await db
+  await client
     .updateTable("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .set({ status: TodoStatus.DONE })
@@ -77,7 +77,7 @@ test("exists, but not owned", async () => {
 });
 
 it("should update status", async () => {
-  const before = await db
+  const before = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -89,7 +89,7 @@ it("should update status", async () => {
 
   expect(data?.uncompleteTodo?.__typename === "UncompleteTodoSuccess").toBe(true);
 
-  const after = await db
+  const after = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -100,7 +100,7 @@ it("should update status", async () => {
 });
 
 it("should update updatedAt", async () => {
-  const before = await db
+  const before = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -112,7 +112,7 @@ it("should update updatedAt", async () => {
 
   expect(data?.uncompleteTodo?.__typename === "UncompleteTodoSuccess").toBe(true);
 
-  const after = await db
+  const after = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -125,7 +125,7 @@ it("should update updatedAt", async () => {
 });
 
 it("should not update other attrs", async () => {
-  const before = await db
+  const before = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()
@@ -137,7 +137,7 @@ it("should not update other attrs", async () => {
 
   expect(data?.uncompleteTodo?.__typename === "UncompleteTodoSuccess").toBe(true);
 
-  const after = await db
+  const after = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
     .selectAll()

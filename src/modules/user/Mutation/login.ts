@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
 
+import * as userToken from "../../../db/models/user/token.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../../schema.ts";
-import * as userToken from "../internal/token.ts";
+import { internalServerError } from "../../common/errors/internalServerError.ts";
 import { USER_EMAIL_MAX, parseUserEmail } from "../parsers/email.ts";
 import { USER_PASSWORD_MAX, USER_PASSWORD_MIN, parseUserPassword } from "../parsers/password.ts";
 
@@ -43,11 +44,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   const { email, password } = parsed;
 
-  const found = await context.db
-    .selectFrom("User")
-    .where("email", "=", email)
-    .select("password")
-    .executeTakeFirst();
+  const found = await context.api.user.getByEmail(email);
 
   if (!found) {
     return {
@@ -67,15 +64,13 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   const token = userToken.gen();
 
-  await context.db
-    .updateTable("User")
-    .where("email", "=", email)
-    .set({
-      updatedAt: new Date(),
-      token,
-    })
-    .returning("token")
-    .executeTakeFirstOrThrow();
+  const updated = await context.api.user.updateByEmail(email, {
+    token,
+  });
+
+  if (!updated) {
+    throw internalServerError();
+  }
 
   return {
     __typename: "LoginSuccess",

@@ -1,12 +1,12 @@
-import type { UserSelect } from "../../src/db/models.ts";
+import * as internalId from "../../src/db/models/user/id.ts";
 import { db } from "../../src/modules/common/testData/db/user.ts";
 import { userId } from "../../src/modules/user/adapters/id.ts";
-import * as internalId from "../../src/modules/user/internal/id.ts";
+import type { User } from "../../src/modules/user/mapper.ts";
 import type * as Graph from "../../src/schema.ts";
 
 import { dateTime } from "./common.ts";
 
-const node = (user: UserSelect): Graph.User => ({
+const node = (user: User): Graph.User => ({
   id: userId(user.id),
   createdAt: dateTime(internalId.date(user.id)),
   updatedAt: dateTime(user.updatedAt),

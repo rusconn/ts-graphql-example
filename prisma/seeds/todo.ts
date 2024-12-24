@@ -2,11 +2,11 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import { type DB, TodoStatus, type User } from "../../src/db/types.ts";
-import * as todoId from "../../src/modules/todo/internal/id.ts";
+import { type DB, TodoStatus, type User } from "../../src/db/generated/types.ts";
+import * as todoId from "../../src/db/models/todo/id.ts";
 import { randInt } from "./common.ts";
 
-export const seed = async (tsx: Transaction<DB>, userIds: User["id"][]) => {
+export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
   const handTodos = [
     {
       /** Date: 2024-12-15T16:54:42.909Z */
@@ -43,7 +43,7 @@ export const seed = async (tsx: Transaction<DB>, userIds: User["id"][]) => {
 
   // 一度に insert する件数が多いとエラーが発生するので小分けにしている
   const chunks = chunk(todos, 5_000);
-  const inserts = chunks.map((ts) => tsx.insertInto("Todo").values(ts).execute());
+  const inserts = chunks.map((ts) => trx.insertInto("Todo").values(ts).execute());
 
   await Promise.all(inserts);
 };

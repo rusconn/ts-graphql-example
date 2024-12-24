@@ -28,6 +28,7 @@ const typeDef = /* GraphQL */ `
     BAD_USER_INPUT
     AUTHENTICATION_ERROR
     FORBIDDEN
+    INTERNAL_SERVER_ERROR
   }
 `;
 

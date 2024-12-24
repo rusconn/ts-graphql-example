@@ -1,7 +1,8 @@
 import { EmailAddressResolver, EmailAddressTypeDefinition } from "graphql-scalars";
-import type { Tagged } from "type-fest";
 
-export type EmailAddress = Tagged<string, "EmailAddress">;
+import type { EmailAddress as Email } from "../../lib/string/emailAddress.ts";
+
+export type EmailAddress = Email;
 
 export const typeDef = EmailAddressTypeDefinition;
 

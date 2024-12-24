@@ -1,5 +1,5 @@
-import { db } from "../../../../src/db/client.ts";
-import { UserRole } from "../../../../src/db/types.ts";
+import { client } from "../../../../src/db/client.ts";
+import { UserRole } from "../../../../src/db/generated/types.ts";
 
 import { Data } from "../../../data.ts";
 import { clearUsers, fail } from "../../../helpers.ts";
@@ -25,7 +25,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => db.insertInto("User").values(testData.users).execute(),
+  users: () => client.insertInto("User").values(testData.users).execute(),
 };
 
 beforeEach(async () => {
@@ -75,7 +75,7 @@ it("should create user using input", async () => {
 
   const { token } = data.signup;
 
-  const user = await db
+  const user = await client
     .selectFrom("User")
     .where("token", "=", token)
     .selectAll()
@@ -101,7 +101,7 @@ test("role should be USER by default", async () => {
 
   const { token } = data.signup;
 
-  const user = await db
+  const user = await client
     .selectFrom("User")
     .where("token", "=", token)
     .selectAll()

@@ -6,6 +6,7 @@ import { authAdmin } from "../../common/authorizers/admin.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { parseConnectionArgs } from "../../common/parsers/connectionArgs.ts";
+import type { User } from "../mapper.ts";
 import { parseUserCursor } from "../parsers/cursor.ts";
 
 const FIRST_MAX = 30;
@@ -64,53 +65,21 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 
   const { first, after, last, before, reverse, sortKey } = parsed;
 
-  const connection = await getCursorConnection(
+  const connection = await getCursorConnection<User, Pick<User, "id">>(
     async ({ cursor, limit, backward }) => {
-      const [direction, comp] =
-        reverse === backward //
-          ? (["asc", ">"] as const)
-          : (["desc", "<"] as const);
-
-      const orderColumn = {
-        [UserSortKeys.CreatedAt]: "id" as const,
-        [UserSortKeys.UpdatedAt]: "updatedAt" as const,
-      }[sortKey];
-
-      const cursorOrderColumn = cursor
-        ? context.db //
-            .selectFrom("User")
-            .where("id", "=", cursor.id)
-            .select(orderColumn)
-        : undefined;
-
-      const page = await context.db
-        .selectFrom("User")
-        .$if(cursorOrderColumn != null, (qb) =>
-          qb.where(({ eb }) =>
-            eb.or([
-              eb(orderColumn, comp, cursorOrderColumn!),
-              eb.and([
-                //
-                eb(orderColumn, "=", cursorOrderColumn!),
-                eb("id", comp, cursor!.id),
-              ]),
-            ]),
-          ),
-        )
-        .selectAll()
-        .orderBy(orderColumn, direction)
-        .orderBy("id", direction)
-        .limit(limit)
-        .execute();
+      const page = await context.api.user.getPage({
+        cursor,
+        sortKey: {
+          [UserSortKeys.CreatedAt]: "createdAt" as const,
+          [UserSortKeys.UpdatedAt]: "updatedAt" as const,
+        }[sortKey],
+        limit,
+        reverse: reverse !== backward,
+      });
 
       return backward ? page.reverse() : page;
     },
-    () =>
-      context.db
-        .selectFrom("User")
-        .select(({ fn }) => fn.countAll().as("count"))
-        .executeTakeFirstOrThrow()
-        .then((result) => Number(result.count)),
+    context.api.user.count,
     { first, after, last, before },
     { resolveInfo: info },
   );

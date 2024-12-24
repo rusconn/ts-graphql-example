@@ -2,11 +2,11 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import { type DB, UserRole } from "../../src/db/types.ts";
-import * as userId from "../../src/modules/user/internal/id.ts";
-import * as userToken from "../../src/modules/user/internal/token.ts";
+import { type DB, UserRole } from "../../src/db/generated/types.ts";
+import * as userId from "../../src/db/models/user/id.ts";
+import * as userToken from "../../src/db/models/user/token.ts";
 
-export const seed = async (tsx: Transaction<DB>) => {
+export const seed = async (trx: Transaction<DB>) => {
   const handUsers = [
     {
       /** Date: 2024-12-15T16:54:35.641Z */
@@ -49,7 +49,7 @@ export const seed = async (tsx: Transaction<DB>) => {
 
   // 一度に insert する件数が多いとエラーが発生するので小分けにしている
   const chunks = chunk(users, 5_000);
-  const inserts = chunks.map((us) => tsx.insertInto("User").values(us).execute());
+  const inserts = chunks.map((us) => trx.insertInto("User").values(us).execute());
 
   await Promise.all(inserts);
 

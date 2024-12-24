@@ -1,3 +1,3 @@
-import type { TodoSelect } from "../../db/models.ts";
+import type { Todo as TodoModel } from "../../db/models/todo.ts";
 
-export type Todo = TodoSelect;
+export type Todo = TodoModel;

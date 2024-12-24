@@ -1,4 +1,4 @@
-import { db } from "../../../../src/db/client.ts";
+import { client } from "../../../../src/db/client.ts";
 
 import { Data, dummyId } from "../../../data.ts";
 import { clearTables } from "../../../helpers.ts";
@@ -19,8 +19,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => db.insertInto("User").values(testData.users).execute(),
-  todos: () => db.insertInto("Todo").values(testData.todos).execute(),
+  users: () => client.insertInto("User").values(testData.users).execute(),
+  todos: () => client.insertInto("Todo").values(testData.todos).execute(),
 };
 
 beforeAll(async () => {

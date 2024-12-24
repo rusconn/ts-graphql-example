@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
 
 import { passHashExp } from "../../../config.ts";
-import { UserRole } from "../../../db/types.ts";
+import { UserRole } from "../../../db/generated/types.ts";
+import * as userToken from "../../../db/models/user/token.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../../schema.ts";
 import { authGuest } from "../../common/authorizers/guest.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
-import * as userId from "../internal/id.ts";
-import * as userToken from "../internal/token.ts";
+import { internalServerError } from "../../common/errors/internalServerError.ts";
 import { USER_EMAIL_MAX, parseUserEmail } from "../parsers/email.ts";
 import { USER_NAME_MAX, parseUserName } from "../parsers/name.ts";
 import { USER_PASSWORD_MAX, USER_PASSWORD_MIN, parseUserPassword } from "../parsers/password.ts";
@@ -56,11 +56,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 
   const { name, email, password } = parsed;
 
-  const found = await context.db
-    .selectFrom("User")
-    .where("email", "=", email)
-    .select("id")
-    .executeTakeFirst();
+  const found = await context.api.user.getByEmail(email);
 
   if (found) {
     return {
@@ -70,22 +66,19 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   }
 
   const hashed = await bcrypt.hash(password, passHashExp);
-  const { id, date } = userId.genWithDate();
   const token = userToken.gen();
 
-  await context.db
-    .insertInto("User")
-    .values({
-      id,
-      updatedAt: date,
-      name,
-      email,
-      password: hashed,
-      role: UserRole.USER,
-      token,
-    })
-    .returning("token")
-    .executeTakeFirstOrThrow();
+  const signedUp = await context.api.user.create({
+    name,
+    email,
+    password: hashed,
+    role: UserRole.USER,
+    token,
+  });
+
+  if (!signedUp) {
+    throw internalServerError();
+  }
 
   return {
     __typename: "SignupSuccess",

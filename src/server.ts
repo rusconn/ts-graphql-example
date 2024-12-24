@@ -3,10 +3,10 @@ import { createSchema, createYoga } from "graphql-yoga";
 import { App } from "uWebSockets.js";
 
 import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
-import { db } from "./db/client.ts";
-import { createLoaders } from "./db/loaders/_mod.ts";
+import { UserAPI } from "./datasources/user.ts";
+import { client } from "./db/client.ts";
+import * as userToken from "./db/models/user/token.ts";
 import { logger } from "./logger.ts";
-import * as userToken from "./modules/user/internal/token.ts";
 import { armor } from "./plugins/armor.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
 import { introspection } from "./plugins/introspection.ts";
@@ -28,25 +28,29 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
     const start = Date.now();
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
-    let user: Context["user"] = null;
+    const api = {
+      user: new UserAPI(client),
+    };
+
+    let user: Context["user"] | undefined = null;
     if (token != null) {
       if (!userToken.is(token)) {
         throw authenErr();
       }
 
-      user = await db
-        .selectFrom("User")
-        .where("token", "=", token)
-        .selectAll()
-        .executeTakeFirstOrThrow(authenErr);
+      user = await api.user.getByToken(token);
+
+      if (user === undefined) {
+        throw authenErr();
+      }
     }
 
     return {
       start,
       logger: logger.child({ requestId }),
-      db,
-      loaders: createLoaders(db),
       user,
+      db: client,
+      api,
     };
   },
   // 自分でログする

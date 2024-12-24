@@ -1,6 +1,6 @@
 generator kysely {
   provider        = "prisma-kysely"
-  output          = "../src/db"
+  output          = "../src/db/generated"
   previewFeatures = ["prismaSchemaFolder"]
 }
 

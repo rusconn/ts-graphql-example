@@ -1,4 +1,4 @@
-import { db } from "../../../../src/db/client.ts";
+import { client } from "../../../../src/db/client.ts";
 
 import { Data } from "../../../data.ts";
 import { clearUsers } from "../../../helpers.ts";
@@ -24,7 +24,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => db.insertInto("User").values(testData.users).execute(),
+  users: () => client.insertInto("User").values(testData.users).execute(),
 };
 
 beforeEach(async () => {
@@ -77,7 +77,7 @@ test("correct input", async () => {
 });
 
 test("login changes token", async () => {
-  const before = await db
+  const before = await client
     .selectFrom("User")
     .where("id", "=", Data.db.admin.id)
     .selectAll()
@@ -92,7 +92,7 @@ test("login changes token", async () => {
 
   expect(data?.login?.__typename === "LoginSuccess").toBe(true);
 
-  const after = await db
+  const after = await client
     .selectFrom("User")
     .where("id", "=", Data.db.admin.id)
     .selectAll()
@@ -102,7 +102,7 @@ test("login changes token", async () => {
 });
 
 test("login does not changes other attrs", async () => {
-  const before = await db
+  const before = await client
     .selectFrom("User")
     .where("id", "=", Data.db.admin.id)
     .selectAll()
@@ -117,7 +117,7 @@ test("login does not changes other attrs", async () => {
 
   expect(data?.login?.__typename === "LoginSuccess").toBe(true);
 
-  const after = await db
+  const after = await client
     .selectFrom("User")
     .where("id", "=", Data.db.admin.id)
     .selectAll()

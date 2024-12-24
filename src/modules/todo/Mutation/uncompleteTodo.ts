@@ -1,4 +1,4 @@
-import { TodoStatus } from "../../../db/types.ts";
+import { TodoStatus } from "../../../db/generated/types.ts";
 import type { MutationResolvers } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
@@ -32,16 +32,10 @@ export const resolver: MutationResolvers["uncompleteTodo"] = async (_parent, arg
     };
   }
 
-  const todo = await context.db
-    .updateTable("Todo")
-    .where("id", "=", parsed)
-    .where("userId", "=", authed.id)
-    .set({
-      updatedAt: new Date(),
-      status: TodoStatus.PENDING,
-    })
-    .returningAll()
-    .executeTakeFirst();
+  const todo = await context.api.user.updateTodo(
+    { userId: authed.id, todoId: parsed },
+    { status: TodoStatus.PENDING },
+  );
 
   return todo
     ? {

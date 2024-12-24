@@ -3,7 +3,6 @@ import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { authAdminOrUserOwner } from "../../user/authorizers/adminOrUserOwner.ts";
 import { parseTodoId } from "../parsers/id.ts";
-import { getTodo } from "../resolvers.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -24,7 +23,10 @@ export const resolver: UserResolvers["todo"] = async (parent, args, context) => 
     throw badUserInputErr(parsed.message, parsed);
   }
 
-  const todo = await getTodo(context, { id: parsed, userId: parent.id });
+  const todo = await context.api.user.loadTodo({
+    userId: parent.id,
+    todoId: parsed,
+  });
 
   return todo ?? null;
 };
