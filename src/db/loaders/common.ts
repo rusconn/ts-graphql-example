@@ -1,4 +1,8 @@
-export const sort = <Id, Key extends { id: Id }, Value extends Key>(
+export const sort = <
+  Id extends string | number | bigint,
+  Key extends { id: Id },
+  Value extends Key,
+>(
   keys: readonly Key[],
   values: readonly Value[],
 ) => {
