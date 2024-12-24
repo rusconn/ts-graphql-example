@@ -6,6 +6,7 @@ import type { Context, PluginContext, ServerContext, UserContext } from "./conte
 import { db } from "./db/client.ts";
 import { createLoaders } from "./db/loaders/_mod.ts";
 import { logger } from "./logger.ts";
+import * as userToken from "./modules/user/internal/token.ts";
 import { armor } from "./plugins/armor.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
 import { introspection } from "./plugins/introspection.ts";
@@ -27,13 +28,18 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
     const start = Date.now();
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
-    const user: Context["user"] = token
-      ? await db
-          .selectFrom("User")
-          .where("token", "=", token)
-          .selectAll()
-          .executeTakeFirstOrThrow(authenErr)
-      : null;
+    let user: Context["user"] = null;
+    if (token != null) {
+      if (!userToken.is(token)) {
+        throw authenErr();
+      }
+
+      user = await db
+        .selectFrom("User")
+        .where("token", "=", token)
+        .selectAll()
+        .executeTakeFirstOrThrow(authenErr);
+    }
 
     return {
       start,
