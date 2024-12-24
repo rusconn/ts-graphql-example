@@ -1,7 +1,14 @@
+import type { Tagged } from "type-fest";
+
+import type { UUIDv7 } from "../../../lib/uuid/v7.ts";
 import * as uuidv7 from "../../../lib/uuid/v7.ts";
 
-export type UserToken = uuidv7.UUIDv7;
+export type UserToken = Tagged<UUIDv7, "UserToken">;
 
-export const is = uuidv7.is;
+export const is = (input: unknown): input is UserToken => {
+  return uuidv7.is(input);
+};
 
-export const gen = uuidv7.gen;
+export const gen = () => {
+  return uuidv7.gen() as UserToken;
+};

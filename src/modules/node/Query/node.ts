@@ -38,6 +38,7 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
     throw badUserInputErr(`invalid node id: ${args.id}`);
   }
 
+  // @ts-expect-error: isInternalId と getNode がペアであることを認識できない
   const node = await getNode(internalId);
 
   return node == null ? null : { type, ...node };
