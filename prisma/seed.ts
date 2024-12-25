@@ -1,3 +1,5 @@
+import process from "node:process";
+
 import { db } from "../src/db/client.ts";
 import * as todo from "./seeds/todo.ts";
 import * as user from "./seeds/user.ts";
@@ -13,6 +15,7 @@ try {
   await seed();
 } catch (e) {
   console.error(e);
+  process.exitCode = 1;
 } finally {
   await db.destroy();
 }
