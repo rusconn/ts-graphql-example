@@ -24,9 +24,13 @@ export const parseTodoTitle = <T extends boolean, U extends boolean>(
     return parseErr(`"title" must be up to ${TODO_TITLE_MAX} characters`);
   }
 
+  type Title = typeof title;
+
   return title as T extends true
     ? U extends true
-      ? Input["title"]
-      : Exclude<Input["title"], null>
-    : NonNullable<Input["title"]>;
+      ? Title
+      : Exclude<Title, null>
+    : U extends true
+      ? Exclude<Title, undefined>
+      : NonNullable<Title>;
 };

@@ -24,9 +24,13 @@ export const parseTodoDescription = <T extends boolean, U extends boolean>(
     return parseErr(`"description" must be up to ${TODO_DESCRIPTION_MAX} characters`);
   }
 
+  type Description = typeof description;
+
   return description as T extends true
     ? U extends true
-      ? Input["description"]
-      : Exclude<Input["description"], null>
-    : NonNullable<Input["description"]>;
+      ? Description
+      : Exclude<Description, null>
+    : U extends true
+      ? Exclude<Description, undefined>
+      : NonNullable<Description>;
 };

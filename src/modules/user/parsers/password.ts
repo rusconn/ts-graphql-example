@@ -33,9 +33,13 @@ export const parseUserPassword = <T extends boolean, U extends boolean>(
     return parseErr(`"password" must be up to ${USER_PASSWORD_MAX} characters`);
   }
 
+  type Password = typeof password;
+
   return password as T extends true
     ? U extends true
-      ? Input["password"]
-      : Exclude<Input["password"], null>
-    : NonNullable<Input["password"]>;
+      ? Password
+      : Exclude<Password, null>
+    : U extends true
+      ? Exclude<Password, undefined>
+      : NonNullable<Password>;
 };

@@ -33,9 +33,13 @@ export const parseUserEmail = <T extends boolean, U extends boolean>(
     return parseErr(`invalid "email"`);
   }
 
+  type Email = typeof email;
+
   return email as T extends true
     ? U extends true
-      ? Input["email"]
-      : Exclude<Input["email"], null>
-    : NonNullable<Input["email"]>;
+      ? Email
+      : Exclude<Email, null>
+    : U extends true
+      ? Exclude<Email, undefined>
+      : NonNullable<Email>;
 };

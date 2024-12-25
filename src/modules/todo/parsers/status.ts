@@ -16,9 +16,13 @@ export const parseTodoStatus = <T extends boolean, U extends boolean>(
     return parseErr('"status" must not be null');
   }
 
+  type Status = typeof status;
+
   return status as T extends true
     ? U extends true
-      ? Input["status"]
-      : Exclude<Input["status"], null>
-    : NonNullable<Input["status"]>;
+      ? Status
+      : Exclude<Status, null>
+    : U extends true
+      ? Exclude<Status, undefined>
+      : NonNullable<Status>;
 };

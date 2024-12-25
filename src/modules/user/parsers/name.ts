@@ -24,9 +24,13 @@ export const parseUserName = <T extends boolean, U extends boolean>(
     return parseErr(`"name" must be up to ${USER_NAME_MAX} characters`);
   }
 
+  type Name = typeof name;
+
   return name as T extends true
     ? U extends true
-      ? Input["name"]
-      : Exclude<Input["name"], null>
-    : NonNullable<Input["name"]>;
+      ? Name
+      : Exclude<Name, null>
+    : U extends true
+      ? Exclude<Name, undefined>
+      : NonNullable<Name>;
 };
