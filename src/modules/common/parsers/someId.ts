@@ -4,7 +4,10 @@ import { parseId } from "./id.ts";
 import { parseErr } from "./util.ts";
 
 export const parseSomeId =
-  <T extends NodeType, U>(nodeType: T, isInternalId: (input: unknown) => input is U) =>
+  <T extends NodeType, U extends string>(
+    nodeType: T,
+    isInternalId: (input: string) => input is U,
+  ) =>
   ({ id }: { id: Scalars["ID"]["input"] }) => {
     const parsed = parseId({ id });
 

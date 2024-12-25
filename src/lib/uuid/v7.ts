@@ -8,7 +8,7 @@ export type UUIDv7 = Tagged<UUID, "UUIDv7">;
 
 export const gen = () => v7() as UUIDv7;
 
-export const is = (input: unknown): input is UUIDv7 => {
+export const is = (input: string): input is UUIDv7 => {
   return uuid.is(input) && input.charAt(14) === "7";
 };
 
