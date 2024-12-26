@@ -35,7 +35,7 @@ export class UserAPI {
   }
 
   load = async (id: User["id"]) => {
-    return await this.#loaders.user.load({ id });
+    return await this.#loaders.user.load(id);
   };
 
   getById = async (id: User["id"], trx?: Transaction<DB>) => {

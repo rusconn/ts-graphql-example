@@ -3,9 +3,8 @@ import type { Kysely } from "kysely";
 
 import type { DB, TodoStatus } from "../../../../db/generated/types.ts";
 import type { Todo } from "../../../../db/models/todo.ts";
-import type { User } from "../../../../db/models/user.ts";
 
-type Key = Pick<User, "id">;
+type Key = Todo["userId"];
 
 export type Params = Filter & Pagination;
 
@@ -45,11 +44,7 @@ export const initClosure = (db: Kysely<DB>) => {
     // 即死も有り得る😱
     const todos = await db
       .selectFrom("Todo")
-      .where(
-        "userId",
-        "in",
-        keys.map((key) => key.id),
-      )
+      .where("userId", "in", keys)
       .$if(status != null, (qb) => qb.where("status", "=", status!))
       .$if(cursorOrderColumn != null, (qb) =>
         qb.where(({ eb }) =>
@@ -73,10 +68,10 @@ export const initClosure = (db: Kysely<DB>) => {
 
     const kv = new Map(userTodos.entries().map(([key, value]) => [key, value.slice(0, limit)]));
 
-    return keys.map((key) => kv.get(key.id) ?? []);
+    return keys.map((key) => kv.get(key) ?? []);
   };
 
-  const loader = new DataLoader(batchGet, { cacheKeyFn: (key) => key.id });
+  const loader = new DataLoader(batchGet);
 
   return (params: Params) => {
     sharedParams ??= params;

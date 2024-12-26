@@ -1,11 +1,8 @@
-export const sort = <
-  Id extends string | number | bigint,
-  Key extends { id: Id },
-  Value extends Key,
->(
+export const sort = <Key extends string | number | bigint, Value>(
   keys: readonly Key[],
   values: readonly Value[],
+  toKey: (value: Value) => Key,
 ) => {
-  const kv = new Map(values.map((value) => [value.id, value]));
-  return keys.map((key) => kv.get(key.id));
+  const kv = new Map(values.map((value) => [toKey(value), value]));
+  return keys.map((key) => kv.get(key));
 };

@@ -8,7 +8,7 @@ import { sort } from "../../../utils/sort.ts";
 type Key = Pick<Todo, "id" | "userId">;
 
 export const init = (db: Kysely<DB>) => {
-  return new DataLoader(batchGet(db), { cacheKeyFn: (key) => key.id + key.userId });
+  return new DataLoader(batchGet(db), { cacheKeyFn: combine });
 };
 
 const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
@@ -28,5 +28,9 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
     .selectAll()
     .execute();
 
-  return sort(keys, todos as Todo[]);
+  return sort(keys.map(combine), todos as Todo[], combine);
+};
+
+const combine = (key: Key) => {
+  return key.id + key.userId;
 };

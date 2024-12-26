@@ -34,11 +34,11 @@ export class UserTodoAPI {
       reverse: boolean;
     },
   ) => {
-    return await this.#loaders.userTodos(params).load({ id: userId });
+    return await this.#loaders.userTodos(params).load(userId);
   };
 
   loadCount = async (userId: Todo["userId"], params: userTodoCountLoader.Params) => {
-    return await this.#loaders.userTodoCount(params).load({ id: userId });
+    return await this.#loaders.userTodoCount(params).load(userId);
   };
 
   count = async (userId: Todo["userId"]) => {
