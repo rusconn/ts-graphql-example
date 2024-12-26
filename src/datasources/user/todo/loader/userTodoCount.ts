@@ -3,7 +3,7 @@ import type { Kysely } from "kysely";
 
 import type { DB, TodoStatus } from "../../../../db/generated/types.ts";
 import type { Todo } from "../../../../db/models/todo.ts";
-import { sort } from "../../../utils/sort.ts";
+import { sort } from "../../../../lib/dataloader/sort.ts";
 
 type Key = Todo["userId"];
 

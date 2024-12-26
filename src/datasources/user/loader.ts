@@ -3,7 +3,7 @@ import type { Kysely } from "kysely";
 
 import type { DB } from "../../db/generated/types.ts";
 import type { User } from "../../db/models/user.ts";
-import { sort } from "../utils/sort.ts";
+import { sort } from "../../lib/dataloader/sort.ts";
 
 type Key = User["id"];
 
