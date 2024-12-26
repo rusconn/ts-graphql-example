@@ -5,7 +5,7 @@ import { todoStatus } from "../../src/modules/todo/adapters/status.ts";
 import * as internalId from "../../src/modules/todo/internal/id.ts";
 import type * as Graph from "../../src/schema.ts";
 
-import { dateTime, dummySomeId } from "./common.ts";
+import { dateTime } from "./common.ts";
 
 const node = (todo: TodoSelect): Graph.Todo => ({
   id: todoId(todo.id),
@@ -25,4 +25,4 @@ export const graph = {
 
 export { db };
 
-export const dummyId = dummySomeId(todoId, internalId.gen);
+export const dummyId = () => todoId(internalId.gen());

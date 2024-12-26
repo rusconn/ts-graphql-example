@@ -4,7 +4,7 @@ import { userId } from "../../src/modules/user/adapters/id.ts";
 import * as internalId from "../../src/modules/user/internal/id.ts";
 import type * as Graph from "../../src/schema.ts";
 
-import { dateTime, dummySomeId } from "./common.ts";
+import { dateTime } from "./common.ts";
 
 const node = (user: UserSelect): Graph.User => ({
   id: userId(user.id),
@@ -21,4 +21,4 @@ export const graph = {
 
 export { db };
 
-export const dummyId = dummySomeId(userId, internalId.gen);
+export const dummyId = () => userId(internalId.gen());
