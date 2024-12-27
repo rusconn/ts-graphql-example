@@ -14,15 +14,11 @@ export const init = (db: Kysely<DB>) => {
 const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
   const todos = await db
     .selectFrom("Todo")
-    .where((eb) =>
-      eb.or(
-        keys.map((key) =>
-          eb.and([
-            //
-            eb("id", "=", key.id),
-            eb("userId", "=", key.userId),
-          ]),
-        ),
+    .where(({ eb, refTuple, tuple }) =>
+      eb(
+        refTuple("id", "userId"),
+        "in",
+        keys.map((key) => tuple(key.id, key.userId)),
       ),
     )
     .selectAll()
