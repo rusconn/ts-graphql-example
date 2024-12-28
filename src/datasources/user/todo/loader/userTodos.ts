@@ -13,7 +13,7 @@ type Filter = {
 };
 
 type Pagination = {
-  cursor?: Pick<Todo, "id">;
+  cursor?: Todo["id"];
   sortKey: "createdAt" | "updatedAt";
   limit: number;
   reverse: boolean;
@@ -35,7 +35,7 @@ export const initClosure = (db: Kysely<DB>) => {
       cursor &&
       db //
         .selectFrom("Todo")
-        .where("id", "=", cursor.id)
+        .where("id", "=", cursor)
         .select(orderColumn);
 
     // 本当は各 key に対する select limit を union したいが、
@@ -53,7 +53,7 @@ export const initClosure = (db: Kysely<DB>) => {
             eb.and([
               //
               eb(orderColumn, "=", cursorOrderColumn!),
-              eb("id", comp, cursor!.id),
+              eb("id", comp, cursor!),
             ]),
           ]),
         ),

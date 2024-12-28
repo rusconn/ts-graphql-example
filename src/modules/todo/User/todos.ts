@@ -74,7 +74,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
   const connection = await getCursorConnection<Todo, Pick<Todo, "id">>(
     async ({ cursor, limit, backward }) => {
       const page = await context.api.user.loadTodoPage(parent.id, {
-        cursor,
+        cursor: cursor?.id,
         sortKey: {
           [TodoSortKeys.CreatedAt]: "createdAt" as const,
           [TodoSortKeys.UpdatedAt]: "updatedAt" as const,

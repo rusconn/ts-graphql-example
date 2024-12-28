@@ -69,7 +69,7 @@ export class UserAPI {
     limit,
     reverse,
   }: {
-    cursor?: Pick<User, "id">;
+    cursor?: User["id"];
     sortKey: "createdAt" | "updatedAt";
     limit: number;
     reverse: boolean;
@@ -84,7 +84,7 @@ export class UserAPI {
       cursor &&
       this.#db //
         .selectFrom("User")
-        .where("id", "=", cursor.id)
+        .where("id", "=", cursor)
         .select(orderColumn);
 
     const page = await this.#db
@@ -96,7 +96,7 @@ export class UserAPI {
             eb.and([
               //
               eb(orderColumn, "=", cursorOrderColumn!),
-              eb("id", comp, cursor!.id),
+              eb("id", comp, cursor!),
             ]),
           ]),
         ),
