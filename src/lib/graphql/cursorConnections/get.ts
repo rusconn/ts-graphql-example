@@ -141,7 +141,7 @@ type BackwardPaginationArguments = {
   before?: string;
 };
 
-export type MergedOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>> = Required<
+type MergedOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>> = Required<
   Options<Record, Cursor, Node, CustomEdge>
 >;
 
