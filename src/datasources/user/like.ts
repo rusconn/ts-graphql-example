@@ -3,71 +3,27 @@ import type { Kysely, Transaction } from "kysely";
 import type { DB } from "../../db/generated/types.ts";
 import type { Like, NewLike } from "../../db/models/like.ts";
 import * as likeId from "../../db/models/like/id.ts";
-import type { Post } from "../../db/models/post.ts";
-import type { User } from "../../db/models/user.ts";
+import * as userLikeCountLoader from "./like/loader/userLikeCount.ts";
+import * as userLikedsLoader from "./like/loader/userLikeds.ts";
 
 export class UserLikeAPI {
   #db;
+  #loaders;
 
   constructor(db: Kysely<DB>) {
     this.#db = db;
+    this.#loaders = {
+      likeCount: userLikeCountLoader.init(db),
+      likedPage: userLikedsLoader.initClosure(db),
+    };
   }
 
-  // TODO: dataloaderを使う
-  load = async (key: {
-    userId: Like["userId"];
-    postId: Like["postId"];
-  }) => {
-    const like = await this.#db
-      .selectFrom("Like")
-      .where("userId", "=", key.userId)
-      .where("postId", "=", key.postId)
-      .selectAll()
-      .executeTakeFirst();
-
-    return like as Like | undefined;
+  loadLikedPage = async (key: userLikedsLoader.Key, params: userLikedsLoader.Params) => {
+    return await this.#loaders.likedPage(params).load(key);
   };
 
-  // TODO: dataloaderを使う
-  loadLikedPage = async (
-    id: User["id"],
-    {
-      cursor,
-      limit,
-      reverse,
-    }: {
-      cursor?: Like["id"];
-      limit: number;
-      reverse: boolean;
-    },
-  ) => {
-    const [direction, comp] = reverse //
-      ? (["desc", "<"] as const)
-      : (["asc", ">"] as const);
-
-    const page = await this.#db
-      .selectFrom("Like")
-      .innerJoin("Post", "Like.postId", "Post.id")
-      .where("Like.userId", "=", id)
-      .$if(cursor != null, (qb) => qb.where(({ eb }) => eb("Like.id", comp, cursor!)))
-      .selectAll("Post")
-      .select("Like.id as lid")
-      .orderBy("lid", direction)
-      .limit(limit)
-      .execute();
-
-    return page as (Post & { lid: Like["id"] })[];
-  };
-
-  // TODO: dataloaderを使う
-  loadCount = async (userId: Like["userId"]) => {
-    const result = await this.#db
-      .selectFrom("Like")
-      .where("userId", "=", userId)
-      .select(({ fn }) => fn.countAll().as("count"))
-      .executeTakeFirstOrThrow();
-
-    return Number(result.count);
+  loadCount = async (key: userLikeCountLoader.Key) => {
+    return await this.#loaders.likeCount.load(key);
   };
 
   create = async (

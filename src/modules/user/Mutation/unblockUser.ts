@@ -47,10 +47,7 @@ export const resolver: MutationResolvers["unblockUser"] = async (_parent, args, 
     }
 
     const block = await context.api.user.deleteBlock(
-      {
-        blockerId: authed.id,
-        blockeeId: unblockee.id,
-      },
+      { blockerId: authed.id, blockeeId: unblockee.id },
       trx,
     );
 

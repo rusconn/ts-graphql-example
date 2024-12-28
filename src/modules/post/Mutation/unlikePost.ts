@@ -40,10 +40,7 @@ export const resolver: MutationResolvers["unlikePost"] = async (_parent, args, c
     }
 
     const like = await context.api.user.deleteLike(
-      {
-        userId: authed.id,
-        postId: post.id,
-      },
+      { userId: authed.id, postId: post.id }, //
       trx,
     );
 

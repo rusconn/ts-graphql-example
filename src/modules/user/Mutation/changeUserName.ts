@@ -50,13 +50,7 @@ export const resolver: MutationResolvers["changeUserName"] = async (_parent, arg
       return { type: "alreadyTaken" } as const;
     }
 
-    const changed = await context.api.user.updateById(
-      authed.id,
-      {
-        name: parsed.name,
-      },
-      trx,
-    );
+    const changed = await context.api.user.updateById(authed.id, parsed, trx);
 
     if (!changed) {
       throw internalServerError();

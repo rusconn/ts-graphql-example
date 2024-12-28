@@ -134,6 +134,7 @@ if (import.meta.vitest) {
 
     const valids = [
       { ...validArgs },
+      { ...validArgs, avatar: null },
       { ...validArgs, avatar: "a".repeat(USER_AVATAR_MAX) },
       { ...validArgs, handle: "a".repeat(USER_HANDLE_MAX) },
       { ...validArgs, bio: "a".repeat(USER_BIO_MAX) },

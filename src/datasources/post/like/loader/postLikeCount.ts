@@ -2,10 +2,10 @@ import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
 import type { DB } from "../../../../db/generated/types.ts";
-import type { Post } from "../../../../db/models/post.ts";
+import type { Like } from "../../../../db/models/like.ts";
 import { sort } from "../../../../lib/dataloader/sort.ts";
 
-type Key = Post["userId"];
+export type Key = Like["postId"];
 
 export const init = (db: Kysely<DB>) => {
   return new DataLoader(batchGet(db));
@@ -13,15 +13,15 @@ export const init = (db: Kysely<DB>) => {
 
 const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
   const counts = await db
-    .selectFrom("Post")
-    .where("userId", "in", keys)
-    .groupBy("userId")
-    .select("userId")
-    .select(({ fn }) => fn.count("userId").as("count"))
+    .selectFrom("Like")
+    .where("postId", "in", keys)
+    .groupBy("postId")
+    .select("postId")
+    .select(({ fn }) => fn.count("postId").as("count"))
     .execute();
 
-  type Count = Pick<Post, "userId"> & Pick<(typeof counts)[number], "count">;
+  type Count = Pick<Like, "postId"> & Pick<(typeof counts)[number], "count">;
 
-  return sort(keys, counts as Count[], (count) => count.userId) //
+  return sort(keys, counts as Count[], (count) => count.postId) //
     .map((result) => Number(result?.count ?? 0));
 };

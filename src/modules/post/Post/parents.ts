@@ -1,5 +1,5 @@
+import type { Post } from "../../../db/models/post.ts";
 import type { PostResolvers } from "../../../schema.ts";
-import type { Post } from "../mapper.ts";
 
 // connection にする必要はあるか？
 export const typeDef = /* GraphQL */ `

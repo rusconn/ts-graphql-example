@@ -21,7 +21,7 @@ export class PostAPI {
     const likeAPI = new PostLikeAPI(db);
     this.loadLike = likeAPI.load;
     this.loadLikerPage = likeAPI.loadLikerPage;
-    this.loadLikeCount = likeAPI.loadLikeCount;
+    this.loadLikeCount = likeAPI.loadCount;
 
     const replyAPI = new PostReplyAPI(db);
     this.loadReplyPage = replyAPI.loadPage;

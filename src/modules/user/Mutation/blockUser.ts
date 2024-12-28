@@ -48,10 +48,7 @@ export const resolver: MutationResolvers["blockUser"] = async (_parent, args, co
     }
 
     const block = await context.api.user.createBlock(
-      {
-        blockerId: authed.id,
-        blockeeId: blockee.id,
-      },
+      { blockerId: authed.id, blockeeId: blockee.id },
       trx,
     );
 

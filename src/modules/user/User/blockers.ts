@@ -1,11 +1,11 @@
 import type { Block } from "../../../db/models/block.ts";
 import * as blockId from "../../../db/models/block/id.ts";
+import type { User } from "../../../db/models/user.ts";
 import { getCursorConnection } from "../../../lib/graphql/cursorConnections/get.ts";
 import { cursorConnection } from "../../../lib/graphql/cursorConnections/sdl.ts";
 import { BlockerSortKeys, type UserBlockersArgs, type UserResolvers } from "../../../schema.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { parseConnectionArgs } from "../../common/parsers/connectionArgs.ts";
-import type { User } from "../mapper.ts";
 import { parseUserCursor } from "../parsers/cursor.ts";
 
 const FIRST_MAX = 30;

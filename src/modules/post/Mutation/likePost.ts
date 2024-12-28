@@ -40,10 +40,7 @@ export const resolver: MutationResolvers["likePost"] = async (_parent, args, con
     }
 
     const like = await context.api.user.createLike(
-      {
-        userId: authed.id,
-        postId: post.id,
-      },
+      { userId: authed.id, postId: post.id }, //
       trx,
     );
 

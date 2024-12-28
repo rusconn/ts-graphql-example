@@ -1,9 +1,9 @@
+import type { Post } from "../../../db/models/post.ts";
 import { getCursorConnection } from "../../../lib/graphql/cursorConnections/get.ts";
 import { cursorConnection } from "../../../lib/graphql/cursorConnections/sdl.ts";
 import { UserPostSortKeys, type UserPostsArgs, type UserResolvers } from "../../../schema.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { parseConnectionArgs } from "../../common/parsers/connectionArgs.ts";
-import type { Post } from "../mapper.ts";
 import { parsePostCursor } from "../parsers/cursor.ts";
 
 const FIRST_MAX = 30;

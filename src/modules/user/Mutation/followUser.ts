@@ -47,10 +47,7 @@ export const resolver: MutationResolvers["followUser"] = async (_parent, args, c
     }
 
     const follow = await context.api.user.createFollow(
-      {
-        followerId: authed.id,
-        followeeId: followee.id,
-      },
+      { followerId: authed.id, followeeId: followee.id },
       trx,
     );
 

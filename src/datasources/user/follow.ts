@@ -3,49 +3,33 @@ import type { Kysely, Transaction } from "kysely";
 import type { DB } from "../../db/generated/types.ts";
 import type { Follow, NewFollow } from "../../db/models/follow.ts";
 import * as followId from "../../db/models/follow/id.ts";
+import * as userFollowLoader from "./follow/loader.ts";
+import * as userFollowerCountLoader from "./follow/loader/userFollowerCount.ts";
+import * as userFollowingCountLoader from "./follow/loader/userFollowingCount.ts";
 
 export class UserFollowAPI {
   #db;
+  #loaders;
 
   constructor(db: Kysely<DB>) {
     this.#db = db;
+    this.#loaders = {
+      follow: userFollowLoader.init(db),
+      followerCount: userFollowerCountLoader.init(db),
+      followingCount: userFollowingCountLoader.init(db),
+    };
   }
 
-  // TODO: dataloaderを使う
-  load = async (key: {
-    followerId: Follow["followerId"];
-    followeeId: Follow["followeeId"];
-  }) => {
-    const follow = await this.#db
-      .selectFrom("Follow")
-      .where("followerId", "=", key.followerId)
-      .where("followeeId", "=", key.followeeId)
-      .selectAll()
-      .executeTakeFirst();
-
-    return follow as Follow | undefined;
+  load = async (key: userFollowLoader.Key) => {
+    return this.#loaders.follow.load(key);
   };
 
-  // TODO: dataloaderを使う
-  loadFollowerCount = async (followeeId: Follow["followeeId"]) => {
-    const result = await this.#db
-      .selectFrom("Follow")
-      .where("followeeId", "=", followeeId)
-      .select(({ fn }) => fn.countAll().as("count"))
-      .executeTakeFirstOrThrow();
-
-    return Number(result.count);
+  loadFollowerCount = async (key: userFollowerCountLoader.Key) => {
+    return this.#loaders.followerCount.load(key);
   };
 
-  // TODO: dataloaderを使う
-  loadFolloweeCount = async (followerId: Follow["followerId"]) => {
-    const result = await this.#db
-      .selectFrom("Follow")
-      .where("followerId", "=", followerId)
-      .select(({ fn }) => fn.countAll().as("count"))
-      .executeTakeFirstOrThrow();
-
-    return Number(result.count);
+  loadFollowingCount = async (key: userFollowerCountLoader.Key) => {
+    return this.#loaders.followingCount.load(key);
   };
 
   create = async (

@@ -8,7 +8,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: PostResolvers["user"] = async (parent, _args, context) => {
-  const user = await context.api.user.getById(parent.userId);
+  const user = await context.api.user.load(parent.userId);
 
   if (!user) {
     throw internalServerError();

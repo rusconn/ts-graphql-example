@@ -48,14 +48,14 @@ export class UserAPI {
 
     const blockAPI = new UserBlockAPI(db);
     this.loadBlock = blockAPI.load;
-    this.loadBlockingCount = blockAPI.loadBlockeeCount;
+    this.loadBlockingCount = blockAPI.loadBlockingCount;
     this.loadBlockerCount = blockAPI.loadBlockerCount;
     this.createBlock = blockAPI.create;
     this.deleteBlock = blockAPI.delete;
 
     const followAPI = new UserFollowAPI(db);
     this.loadFollow = followAPI.load;
-    this.loadFollowingCount = followAPI.loadFolloweeCount;
+    this.loadFollowingCount = followAPI.loadFollowingCount;
     this.loadFollowerCount = followAPI.loadFollowerCount;
     this.createFollow = followAPI.create;
     this.deleteFollow = followAPI.delete;

@@ -47,10 +47,7 @@ export const resolver: MutationResolvers["unfollowUser"] = async (_parent, args,
     }
 
     const follow = await context.api.user.deleteFollow(
-      {
-        followerId: authed.id,
-        followeeId: unfollowee.id,
-      },
+      { followerId: authed.id, followeeId: unfollowee.id },
       trx,
     );
 
