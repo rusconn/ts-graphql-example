@@ -38,37 +38,51 @@ export const initClosure = (db: Kysely<DB>) => {
         .where("id", "=", cursor)
         .select(orderColumn);
 
-    // 本当は各 key に対する select limit を union したいが、
-    // kysely がサポートしていないようなので、全件取得した後オンメモリでそれぞれ limit する
-    // この方法には結果セットが必要以上に大きくなり得るという問題がある
-    // 即死も有り得る😱
+    // 本当は各 key に対する select limit を union all したいが、
+    // kysely が集合演算を正しく実装していないようなので別の方法で実現した。
+    // クエリの効率は悪いが、全件取得後にオンメモリで limit するよりマシ。
     const todos = await db
-      .selectFrom("Todo")
-      .where("userId", "in", keys)
-      .$if(status != null, (qb) => qb.where("status", "=", status!))
-      .$if(cursorOrderColumn != null, (qb) =>
-        qb.where(({ eb }) =>
-          eb.or([
-            eb(orderColumn, comp, cursorOrderColumn!),
-            eb.and([
-              //
-              eb(orderColumn, "=", cursorOrderColumn!),
-              eb("id", comp, cursor!),
-            ]),
-          ]),
-        ),
+      .with("results", (db) =>
+        db
+          .selectFrom("Todo")
+          .where("userId", "in", keys)
+          .$if(status != null, (qb) => qb.where("status", "=", status!))
+          .$if(cursorOrderColumn != null, (qb) =>
+            qb.where(({ eb }) =>
+              eb.or([
+                eb(orderColumn, comp, cursorOrderColumn!),
+                eb.and([
+                  //
+                  eb(orderColumn, "=", cursorOrderColumn!),
+                  eb("id", comp, cursor!),
+                ]),
+              ]),
+            ),
+          )
+          .selectAll()
+          .select(({ fn }) =>
+            fn
+              .agg<number>("row_number")
+              .over((x) =>
+                x //
+                  .partitionBy("userId")
+                  .orderBy(orderColumn, direction)
+                  .orderBy("id", direction),
+              )
+              .as("nth"),
+          ),
       )
+      .selectFrom("results")
+      .where("nth", "<=", limit)
       .selectAll()
       .orderBy(orderColumn, direction)
       .orderBy("id", direction)
       .execute();
 
     // 順序は維持してくれるみたい
-    const userTodos = Map.groupBy(todos as Todo[], (todo) => todo.userId);
+    const userTodos = Map.groupBy(todos as (Todo & { nth: number })[], (todo) => todo.userId);
 
-    const kv = new Map(userTodos.entries().map(([key, value]) => [key, value.slice(0, limit)]));
-
-    return keys.map((key) => kv.get(key) ?? []);
+    return keys.map((key) => userTodos.get(key) ?? []);
   };
 
   const loader = new DataLoader(batchGet);
