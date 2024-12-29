@@ -1,8 +1,6 @@
 import type { Kysely, Transaction } from "kysely";
 
 import type { DB } from "../db/generated/types.ts";
-import type { Block } from "../db/models/block.ts";
-import type { Follow } from "../db/models/follow.ts";
 import type { NewUser, UpdUser, User } from "../db/models/user.ts";
 import * as userId from "../db/models/user/id.ts";
 import { UserBlockAPI } from "./user/block.ts";
@@ -15,25 +13,29 @@ export class UserAPI {
   #db;
   #loaders;
 
-  loadBlockingCount;
-  loadBlockerCount;
   loadBlock;
+  loadBlockers;
+  loadBlockerCount;
+  loadBlockings;
+  loadBlockingCount;
   createBlock;
   deleteBlock;
 
-  loadFollowingCount;
-  loadFollowerCount;
   loadFollow;
+  loadFollowers;
+  loadFollowerCount;
+  loadFollowings;
+  loadFollowingCount;
   createFollow;
   deleteFollow;
 
-  loadLikedPage;
+  loadLikeds;
   loadLikeCount;
   createLike;
   deleteLike;
 
   loadPost;
-  loadPostPage;
+  loadPosts;
   loadPostCount;
   countPost;
   createPost;
@@ -48,27 +50,31 @@ export class UserAPI {
 
     const blockAPI = new UserBlockAPI(db);
     this.loadBlock = blockAPI.load;
-    this.loadBlockingCount = blockAPI.loadBlockingCount;
+    this.loadBlockers = blockAPI.loadBlockers;
     this.loadBlockerCount = blockAPI.loadBlockerCount;
+    this.loadBlockings = blockAPI.loadBlockings;
+    this.loadBlockingCount = blockAPI.loadBlockingCount;
     this.createBlock = blockAPI.create;
     this.deleteBlock = blockAPI.delete;
 
     const followAPI = new UserFollowAPI(db);
     this.loadFollow = followAPI.load;
-    this.loadFollowingCount = followAPI.loadFollowingCount;
+    this.loadFollowers = followAPI.loadFollowers;
     this.loadFollowerCount = followAPI.loadFollowerCount;
+    this.loadFollowings = followAPI.loadFollowings;
+    this.loadFollowingCount = followAPI.loadFollowingCount;
     this.createFollow = followAPI.create;
     this.deleteFollow = followAPI.delete;
 
     const likeAPI = new UserLikeAPI(db);
-    this.loadLikedPage = likeAPI.loadLikedPage;
+    this.loadLikeds = likeAPI.loadLikeds;
     this.loadLikeCount = likeAPI.loadCount;
     this.createLike = likeAPI.create;
     this.deleteLike = likeAPI.delete;
 
     const postAPI = new UserPostAPI(db);
     this.loadPost = postAPI.load;
-    this.loadPostPage = postAPI.loadPage;
+    this.loadPosts = postAPI.loads;
     this.loadPostCount = postAPI.loadCount;
     this.countPost = postAPI.count;
     this.createPost = postAPI.create;
@@ -112,7 +118,7 @@ export class UserAPI {
       return user as User | undefined;
     };
 
-  getPage = async ({
+  gets = async ({
     cursor,
     sortKey,
     limit,
@@ -228,129 +234,5 @@ export class UserAPI {
       .executeTakeFirst();
 
     return user as User | undefined;
-  };
-
-  // TODO: dataloaderを使う
-  loadBlockerPage = async (
-    id: User["id"],
-    {
-      cursor,
-      limit,
-      reverse,
-    }: {
-      cursor?: Block["id"];
-      limit: number;
-      reverse: boolean;
-    },
-  ) => {
-    const [direction, comp] = reverse //
-      ? (["desc", "<"] as const)
-      : (["asc", ">"] as const);
-
-    const page = await this.#db
-      .selectFrom("User")
-      .innerJoin("Block", "User.id", "Block.blockeeId")
-      .where("User.id", "=", id)
-      .$if(cursor != null, (qb) => qb.where(({ eb }) => eb("Block.id", comp, cursor!)))
-      .selectAll("User")
-      .select("Block.id as bid")
-      .orderBy("bid", direction)
-      .limit(limit)
-      .execute();
-
-    return page as (User & { bid: Block["id"] })[];
-  };
-
-  // TODO: dataloaderを使う
-  loadBlockingPage = async (
-    id: User["id"],
-    {
-      cursor,
-      limit,
-      reverse,
-    }: {
-      cursor?: Block["id"];
-      limit: number;
-      reverse: boolean;
-    },
-  ) => {
-    const [direction, comp] = reverse //
-      ? (["desc", "<"] as const)
-      : (["asc", ">"] as const);
-
-    const page = await this.#db
-      .selectFrom("User")
-      .innerJoin("Block", "User.id", "Block.blockerId")
-      .where("User.id", "=", id)
-      .$if(cursor != null, (qb) => qb.where(({ eb }) => eb("Block.id", comp, cursor!)))
-      .selectAll("User")
-      .select("Block.id as bid")
-      .orderBy("bid", direction)
-      .limit(limit)
-      .execute();
-
-    return page as (User & { bid: Block["id"] })[];
-  };
-
-  // TODO: dataloaderを使う
-  loadFollowerPage = async (
-    id: User["id"],
-    {
-      cursor,
-      limit,
-      reverse,
-    }: {
-      cursor?: Follow["id"];
-      limit: number;
-      reverse: boolean;
-    },
-  ) => {
-    const [direction, comp] = reverse //
-      ? (["desc", "<"] as const)
-      : (["asc", ">"] as const);
-
-    const page = await this.#db
-      .selectFrom("User")
-      .innerJoin("Follow", "User.id", "Follow.followeeId")
-      .where("User.id", "=", id)
-      .$if(cursor != null, (qb) => qb.where(({ eb }) => eb("Follow.id", comp, cursor!)))
-      .selectAll("User")
-      .select("Follow.id as fid")
-      .orderBy("fid", direction)
-      .limit(limit)
-      .execute();
-
-    return page as (User & { fid: Follow["id"] })[];
-  };
-
-  // TODO: dataloaderを使う
-  loadFollowingPage = async (
-    id: User["id"],
-    {
-      cursor,
-      limit,
-      reverse,
-    }: {
-      cursor?: Follow["id"];
-      limit: number;
-      reverse: boolean;
-    },
-  ) => {
-    const [direction, comp] = reverse //
-      ? (["desc", "<"] as const)
-      : (["asc", ">"] as const);
-
-    const page = await this.#db
-      .selectFrom("User")
-      .innerJoin("Follow", "User.id", "Follow.followerId")
-      .where("User.id", "=", id)
-      .$if(cursor != null, (qb) => qb.where(({ eb }) => eb("Follow.id", comp, cursor!)))
-      .selectAll("User")
-      .select("Follow.id as fid")
-      .orderBy("fid", direction)
-      .limit(limit)
-      .execute();
-
-    return page as (User & { fid: Follow["id"] })[];
   };
 }

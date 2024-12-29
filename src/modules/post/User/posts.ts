@@ -58,7 +58,7 @@ export const resolver: UserResolvers["posts"] = async (parent, args, context, in
 
   const connection = await getCursorConnection<Post, Pick<Post, "id">>(
     async ({ cursor, limit, backward }) => {
-      const page = await context.api.user.loadPostPage(parent.id, {
+      const page = await context.api.user.loadPosts(parent.id, {
         cursor: cursor?.id,
         limit,
         sortKey: {

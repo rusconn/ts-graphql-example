@@ -5,7 +5,7 @@ import type { SetNonNullable } from "type-fest";
 import type { DB } from "../../../../db/generated/types.ts";
 import type { Post } from "../../../../db/models/post.ts";
 
-type Key = Post["id"];
+export type Key = Post["id"];
 
 export type Params = Pagination;
 
@@ -25,15 +25,29 @@ export const initClosure = (db: Kysely<DB>) => {
       ? (["desc", "<"] as const)
       : (["asc", ">"] as const);
 
-    // TODO: partition by へ変更する
-
     // 本当は各 key に対する select limit を union all したいが、
     // kysely が集合演算を正しく実装していないようなので別の方法で実現した。
     // クエリの効率は悪いが、全件取得後にオンメモリで limit するよりマシ。
     const replies = await db
-      .selectFrom("Post")
-      .where("parentId", "in", keys)
-      .$if(cursor != null, (qb) => qb.where("id", comp, cursor!))
+      .with("results", (db) =>
+        db
+          .selectFrom("Post")
+          .where("parentId", "in", keys)
+          .$if(cursor != null, (qb) => qb.where("id", comp, cursor!))
+          .selectAll()
+          .select(({ fn }) =>
+            fn
+              .agg<number>("row_number")
+              .over((ob) =>
+                ob //
+                  .partitionBy("parentId")
+                  .orderBy("id", direction),
+              )
+              .as("nth"),
+          ),
+      )
+      .selectFrom("results")
+      .where("nth", "<=", limit)
       .selectAll()
       .orderBy("id", direction)
       .execute();
@@ -41,7 +55,7 @@ export const initClosure = (db: Kysely<DB>) => {
     // SetNonNullable: parentId が NULL のレコードは返されない
     // 順序は維持してくれるみたい
     const postReplies = Map.groupBy(
-      replies as SetNonNullable<Post, "parentId">[],
+      replies as (SetNonNullable<Post, "parentId"> & { nth: number })[],
       (reply) => reply.parentId,
     );
 

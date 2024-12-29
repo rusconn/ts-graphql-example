@@ -24,7 +24,7 @@ export class UserPostAPI {
     return await this.#loaders.userPost.load({ id: postId, userId });
   };
 
-  loadPage = async (
+  loads = async (
     userId: Post["userId"],
     params: Omit<userPostsLoader.Params, "orderColumn" | "direction" | "comp"> & {
       sortKey: "createdAt" | "updatedAt";

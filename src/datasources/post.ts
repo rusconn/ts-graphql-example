@@ -39,7 +39,7 @@ export class PostAPI {
     return post as Post | undefined;
   };
 
-  getPage = async ({
+  gets = async ({
     cursor,
     sortKey,
     limit,

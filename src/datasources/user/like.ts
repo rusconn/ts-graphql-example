@@ -18,7 +18,7 @@ export class UserLikeAPI {
     };
   }
 
-  loadLikedPage = async (key: userLikedsLoader.Key, params: userLikedsLoader.Params) => {
+  loadLikeds = async (key: userLikedsLoader.Key, params: userLikedsLoader.Params) => {
     return await this.#loaders.likedPage(params).load(key);
   };
 

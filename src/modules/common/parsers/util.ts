@@ -16,10 +16,10 @@ export const parseArgs =
     const arg = toArg(args);
 
     if (!optional && arg === undefined) {
-      return parseErr(`${name} is required`);
+      return parseErr(`"${name}" is required`);
     }
     if (!nullable && arg === null) {
-      return parseErr(`${name} must not be null`);
+      return parseErr(`"${name}" must not be null`);
     }
 
     const parsed = additionalParse(arg, optional, nullable);

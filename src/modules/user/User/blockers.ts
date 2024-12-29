@@ -63,7 +63,7 @@ export const resolver: UserResolvers["blockers"] = async (parent, args, context,
 
   const connection = await getCursorConnection<User & { bid: Block["id"] }, Pick<Block, "id">>(
     async ({ cursor, limit, backward }) => {
-      const page = await context.api.user.loadBlockerPage(parent.id, {
+      const page = await context.api.user.loadBlockers(parent.id, {
         cursor: cursor?.id,
         limit,
         reverse: reverse !== backward,

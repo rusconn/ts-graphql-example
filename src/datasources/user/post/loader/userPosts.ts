@@ -58,8 +58,8 @@ export const initClosure = (db: Kysely<DB>) => {
           .select(({ fn }) =>
             fn
               .agg<number>("row_number")
-              .over((x) =>
-                x //
+              .over((ob) =>
+                ob //
                   .partitionBy("userId")
                   .orderBy(orderColumn, direction)
                   .orderBy("id", direction),

@@ -63,7 +63,7 @@ export const resolver: UserResolvers["followings"] = async (parent, args, contex
 
   const connection = await getCursorConnection<User & { fid: Follow["id"] }, Pick<Follow, "id">>(
     async ({ cursor, limit, backward }) => {
-      const page = await context.api.user.loadFollowingPage(parent.id, {
+      const page = await context.api.user.loadFollowings(parent.id, {
         cursor: cursor?.id,
         limit,
         reverse: reverse !== backward,

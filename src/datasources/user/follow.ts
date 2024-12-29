@@ -5,7 +5,9 @@ import type { Follow, NewFollow } from "../../db/models/follow.ts";
 import * as followId from "../../db/models/follow/id.ts";
 import * as userFollowLoader from "./follow/loader.ts";
 import * as userFollowerCountLoader from "./follow/loader/userFollowerCount.ts";
+import * as userFollowersLoader from "./follow/loader/userFollowers.ts";
 import * as userFollowingCountLoader from "./follow/loader/userFollowingCount.ts";
+import * as userFollowingsLoader from "./follow/loader/userFollowings.ts";
 
 export class UserFollowAPI {
   #db;
@@ -15,7 +17,9 @@ export class UserFollowAPI {
     this.#db = db;
     this.#loaders = {
       follow: userFollowLoader.init(db),
+      followers: userFollowersLoader.initClosure(db),
       followerCount: userFollowerCountLoader.init(db),
+      followings: userFollowingsLoader.initClosure(db),
       followingCount: userFollowingCountLoader.init(db),
     };
   }
@@ -24,12 +28,20 @@ export class UserFollowAPI {
     return this.#loaders.follow.load(key);
   };
 
+  loadFollowers = async (key: userFollowersLoader.Key, params: userFollowersLoader.Params) => {
+    return await this.#loaders.followers(params).load(key);
+  };
+
   loadFollowerCount = async (key: userFollowerCountLoader.Key) => {
-    return this.#loaders.followerCount.load(key);
+    return await this.#loaders.followerCount.load(key);
+  };
+
+  loadFollowings = async (key: userFollowingsLoader.Key, params: userFollowingsLoader.Params) => {
+    return await this.#loaders.followings(params).load(key);
   };
 
   loadFollowingCount = async (key: userFollowerCountLoader.Key) => {
-    return this.#loaders.followingCount.load(key);
+    return await this.#loaders.followingCount.load(key);
   };
 
   create = async (

@@ -59,7 +59,7 @@ export const resolver: QueryResolvers["posts"] = async (_parent, args, context, 
 
   const connection = await getCursorConnection<Post, Pick<Post, "id">>(
     async ({ cursor, limit, backward }) => {
-      const page = await context.api.post.getPage({
+      const page = await context.api.post.gets({
         cursor: cursor?.id,
         sortKey: {
           [PostSortKeys.CreatedAt]: "createdAt" as const,

@@ -63,7 +63,7 @@ export const resolver: UserResolvers["likes"] = async (parent, args, context, in
 
   const connection = await getCursorConnection<Post & { lid: Like["id"] }, Pick<Like, "id">>(
     async ({ cursor, limit, backward }) => {
-      const page = await context.api.user.loadLikedPage(parent.id, {
+      const page = await context.api.user.loadLikeds(parent.id, {
         cursor: cursor?.id,
         limit,
         reverse: reverse !== backward,
