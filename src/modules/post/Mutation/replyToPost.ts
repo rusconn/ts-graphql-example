@@ -5,6 +5,7 @@ import type {
 } from "../../../schema.ts";
 import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
+import { internalServerError } from "../../common/errors/internalServerError.ts";
 import { POST_CONTENT_MAX, parsePostContent } from "../parsers/content.ts";
 import { parsePostId } from "../parsers/id.ts";
 
@@ -43,20 +44,40 @@ export const resolver: MutationResolvers["replyToPost"] = async (_parent, args, 
     };
   }
 
-  const reply = await context.api.user.createPost(authed.id, {
-    content: parsed.content,
-    parentId: parsed.id,
+  const result = await context.db.transaction().execute(async (trx) => {
+    const post = await context.api.post.getById(parsed.id, trx);
+
+    if (!post) {
+      return { type: "notFound" } as const;
+    }
+
+    const reply = await context.api.user.createPost(
+      authed.id,
+      { content: parsed.content, parentId: post.id },
+      trx,
+    );
+
+    if (!reply) {
+      throw internalServerError();
+    }
+
+    return { type: "ok", reply } as const;
   });
 
-  return reply
-    ? {
-        __typename: "ReplyToPostSuccess",
-        post: reply,
-      }
-    : {
+  switch (result.type) {
+    case "notFound":
+      return {
         __typename: "ResourceNotFoundError",
         message: "post not found",
       };
+    case "ok":
+      return {
+        __typename: "ReplyToPostSuccess",
+        post: result.reply,
+      };
+    default:
+      throw new Error(result satisfies never);
+  }
 };
 
 const parseArgs = (args: MutationReplyToPostArgs) => {
