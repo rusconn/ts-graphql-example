@@ -9,6 +9,13 @@ export type Block = {
   blockerId: string;
   blockeeId: string;
 };
+export type DeletedPost = {
+  id: string;
+  updatedAt: Timestamp;
+  content: string;
+  userId: string;
+  parentId: string | null;
+};
 export type Follow = {
   id: string;
   followerId: string;
@@ -49,6 +56,7 @@ export type User = {
 };
 export type DB = {
   Block: Block;
+  DeletedPost: DeletedPost;
   Follow: Follow;
   Hashtag: Hashtag;
   Like: Like;

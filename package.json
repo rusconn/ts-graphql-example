@@ -10,6 +10,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "scripts": {
+    "playground": "dotenvx run -- tsx playground.ts",
     "dev": "dotenvx run -- tsx watch src/main.ts",
     "build": "dotenvx run -- vite build",
     "start": "dotenvx run -f .env -f .env.production --overload -- node --enable-source-maps dist/main.js",

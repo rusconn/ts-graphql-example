@@ -119,6 +119,11 @@ export type DeletePostSuccess = {
   id: Scalars['ID']['output'];
 };
 
+export type DeletedPost = {
+  __typename?: 'DeletedPost';
+  id: Scalars['String']['output'];
+};
+
 export type EditPostResult = EditPostSuccess | InvalidInputError | ResourceNotFoundError;
 
 export type EditPostSuccess = {
@@ -380,6 +385,26 @@ export type PageInfo = {
   startCursor?: Maybe<Scalars['String']['output']>;
 };
 
+export type PossiblyDeletedPost = DeletedPost | Post;
+
+export type PossiblyDeletedPostConnection = {
+  __typename?: 'PossiblyDeletedPostConnection';
+  edges?: Maybe<Array<Maybe<PossiblyDeletedPostEdge>>>;
+  nodes?: Maybe<Array<Maybe<PossiblyDeletedPost>>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type PossiblyDeletedPostEdge = {
+  __typename?: 'PossiblyDeletedPostEdge';
+  cursor: Scalars['String']['output'];
+  node?: Maybe<PossiblyDeletedPost>;
+};
+
+export enum PossiblyDeletedPostSortKeys {
+  CreatedAt = 'CREATED_AT'
+}
+
 export type Post = Node & {
   __typename?: 'Post';
   content?: Maybe<Scalars['String']['output']>;
@@ -388,7 +413,7 @@ export type Post = Node & {
   id: Scalars['ID']['output'];
   likeCount?: Maybe<Scalars['Int']['output']>;
   likers?: Maybe<LikerConnection>;
-  parents?: Maybe<Array<Maybe<Post>>>;
+  parents?: Maybe<PossiblyDeletedPostConnection>;
   replies?: Maybe<ReplyConnection>;
   replyCount?: Maybe<Scalars['Int']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -405,6 +430,16 @@ export type PostLikersArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   reverse: Scalars['Boolean']['input'];
   sortKey: LikerSortKeys;
+};
+
+
+export type PostParentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse: Scalars['Boolean']['input'];
+  sortKey: PossiblyDeletedPostSortKeys;
 };
 
 
@@ -721,6 +756,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = Resol
   LikePostResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( Omit<LikePostSuccess, 'post'> & { post: RefType['Post'] } & { __typename: 'LikePostSuccess' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
   LoginResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( LoginSuccess & { __typename: 'LoginSuccess' } ) | ( UserNotFoundError & { __typename: 'UserNotFoundError' } );
   LogoutResult: ( Omit<LogoutSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'LogoutSuccess' } );
+  PossiblyDeletedPost: ( DeletedPost & { __typename: 'DeletedPost' } ) | ( PostMapper & { __typename: 'Post' } );
   ReplyToPostResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( Omit<ReplyToPostSuccess, 'post'> & { post: RefType['Post'] } & { __typename: 'ReplyToPostSuccess' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } );
   SignupResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( SignupSuccess & { __typename: 'SignupSuccess' } ) | ( UserEmailAlreadyTakenError & { __typename: 'UserEmailAlreadyTakenError' } ) | ( UserNameAlreadyTakenError & { __typename: 'UserNameAlreadyTakenError' } );
   UnblockUserResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<UnblockUserSuccess, 'unblockee' | 'unblocker'> & { unblockee: RefType['User'], unblocker: RefType['User'] } & { __typename: 'UnblockUserSuccess' } );
@@ -758,6 +794,7 @@ export type ResolversTypes = ResolversObject<{
   DeleteAccountSuccess: ResolverTypeWrapper<DeleteAccountSuccess>;
   DeletePostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeletePostResult']>;
   DeletePostSuccess: ResolverTypeWrapper<DeletePostSuccess>;
+  DeletedPost: ResolverTypeWrapper<DeletedPost>;
   EditPostResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EditPostResult']>;
   EditPostSuccess: ResolverTypeWrapper<Omit<EditPostSuccess, 'post'> & { post: ResolversTypes['Post'] }>;
   EditUserProfileResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EditUserProfileResult']>;
@@ -792,6 +829,10 @@ export type ResolversTypes = ResolversObject<{
   Node: ResolverTypeWrapper<NodeMapper>;
   NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']['output']>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
+  PossiblyDeletedPost: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['PossiblyDeletedPost']>;
+  PossiblyDeletedPostConnection: ResolverTypeWrapper<Omit<PossiblyDeletedPostConnection, 'nodes'> & { nodes: Maybe<Array<Maybe<ResolversTypes['PossiblyDeletedPost']>>> }>;
+  PossiblyDeletedPostEdge: ResolverTypeWrapper<Omit<PossiblyDeletedPostEdge, 'node'> & { node: Maybe<ResolversTypes['PossiblyDeletedPost']> }>;
+  PossiblyDeletedPostSortKeys: PossiblyDeletedPostSortKeys;
   Post: ResolverTypeWrapper<PostMapper>;
   PostConnection: ResolverTypeWrapper<Omit<PostConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['PostEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['Post']>>> }>;
   PostEdge: ResolverTypeWrapper<Omit<PostEdge, 'node'> & { node: Maybe<ResolversTypes['Post']> }>;
@@ -842,6 +883,7 @@ export type ResolversParentTypes = ResolversObject<{
   DeleteAccountSuccess: DeleteAccountSuccess;
   DeletePostResult: ResolversUnionTypes<ResolversParentTypes>['DeletePostResult'];
   DeletePostSuccess: DeletePostSuccess;
+  DeletedPost: DeletedPost;
   EditPostResult: ResolversUnionTypes<ResolversParentTypes>['EditPostResult'];
   EditPostSuccess: Omit<EditPostSuccess, 'post'> & { post: ResolversParentTypes['Post'] };
   EditUserProfileResult: ResolversUnionTypes<ResolversParentTypes>['EditUserProfileResult'];
@@ -871,6 +913,9 @@ export type ResolversParentTypes = ResolversObject<{
   Node: NodeMapper;
   NonEmptyString: Scalars['NonEmptyString']['output'];
   PageInfo: PageInfo;
+  PossiblyDeletedPost: ResolversUnionTypes<ResolversParentTypes>['PossiblyDeletedPost'];
+  PossiblyDeletedPostConnection: Omit<PossiblyDeletedPostConnection, 'nodes'> & { nodes: Maybe<Array<Maybe<ResolversParentTypes['PossiblyDeletedPost']>>> };
+  PossiblyDeletedPostEdge: Omit<PossiblyDeletedPostEdge, 'node'> & { node: Maybe<ResolversParentTypes['PossiblyDeletedPost']> };
   Post: PostMapper;
   PostConnection: Omit<PostConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['PostEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['Post']>>> };
   PostEdge: Omit<PostEdge, 'node'> & { node: Maybe<ResolversParentTypes['Post']> };
@@ -992,6 +1037,11 @@ export type DeletePostResultResolvers<ContextType = Context, ParentType extends 
 
 export type DeletePostSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeletePostSuccess'] = ResolversParentTypes['DeletePostSuccess']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DeletedPostResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeletedPost'] = ResolversParentTypes['DeletedPost']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1164,6 +1214,24 @@ export type PageInfoResolvers<ContextType = Context, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PossiblyDeletedPostResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PossiblyDeletedPost'] = ResolversParentTypes['PossiblyDeletedPost']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'DeletedPost' | 'Post', ParentType, ContextType>;
+}>;
+
+export type PossiblyDeletedPostConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PossiblyDeletedPostConnection'] = ResolversParentTypes['PossiblyDeletedPostConnection']> = ResolversObject<{
+  edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['PossiblyDeletedPostEdge']>>>, ParentType, ContextType>;
+  nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['PossiblyDeletedPost']>>>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PossiblyDeletedPostEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PossiblyDeletedPostEdge'] = ResolversParentTypes['PossiblyDeletedPostEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['PossiblyDeletedPost']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PostResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
   content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -1171,7 +1239,7 @@ export type PostResolvers<ContextType = Context, ParentType extends ResolversPar
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   likeCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   likers?: Resolver<Maybe<ResolversTypes['LikerConnection']>, ParentType, ContextType, RequireFields<PostLikersArgs, 'reverse' | 'sortKey'>>;
-  parents?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType>;
+  parents?: Resolver<Maybe<ResolversTypes['PossiblyDeletedPostConnection']>, ParentType, ContextType, RequireFields<PostParentsArgs, 'reverse' | 'sortKey'>>;
   replies?: Resolver<Maybe<ResolversTypes['ReplyConnection']>, ParentType, ContextType, RequireFields<PostRepliesArgs, 'reverse' | 'sortKey'>>;
   replyCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -1336,6 +1404,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   DeleteAccountSuccess?: DeleteAccountSuccessResolvers<ContextType>;
   DeletePostResult?: DeletePostResultResolvers<ContextType>;
   DeletePostSuccess?: DeletePostSuccessResolvers<ContextType>;
+  DeletedPost?: DeletedPostResolvers<ContextType>;
   EditPostResult?: EditPostResultResolvers<ContextType>;
   EditPostSuccess?: EditPostSuccessResolvers<ContextType>;
   EditUserProfileResult?: EditUserProfileResultResolvers<ContextType>;
@@ -1363,6 +1432,9 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Node?: NodeResolvers<ContextType>;
   NonEmptyString?: GraphQLScalarType;
   PageInfo?: PageInfoResolvers<ContextType>;
+  PossiblyDeletedPost?: PossiblyDeletedPostResolvers<ContextType>;
+  PossiblyDeletedPostConnection?: PossiblyDeletedPostConnectionResolvers<ContextType>;
+  PossiblyDeletedPostEdge?: PossiblyDeletedPostEdgeResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   PostConnection?: PostConnectionResolvers<ContextType>;
   PostEdge?: PostEdgeResolvers<ContextType>;

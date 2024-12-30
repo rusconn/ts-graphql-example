@@ -11,10 +11,11 @@ model User {
   password  String   @pg.VarChar(100)
   token     String?  @unique @pg.Uuid
 
-  posts     Post[]
-  likers    Like[]
-  blockers  Block[]  @relation("blockedBy")
-  blockees  Block[]  @relation("blocking")
-  followers Follow[] @relation("followedBy")
-  followees Follow[] @relation("following")
+  posts        Post[]
+  deletedPosts DeletedPost[]
+  likers       Like[]
+  blockers     Block[]       @relation("blockedBy")
+  blockees     Block[]       @relation("blocking")
+  followers    Follow[]      @relation("followedBy")
+  followees    Follow[]      @relation("following")
 }
