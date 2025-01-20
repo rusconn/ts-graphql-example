@@ -1,8 +1,8 @@
 import * as internalId from "../../src/db/models/todo/id.ts";
-import { db } from "../../src/modules/common/testData/db/todo.ts";
-import type { Todo } from "../../src/modules/todo/Todo/_mapper.ts";
-import { todoId } from "../../src/modules/todo/adapters/id.ts";
-import { todoStatus } from "../../src/modules/todo/adapters/status.ts";
+import type { Todo } from "../../src/graphql/Todo/_mapper.ts";
+import { todoId } from "../../src/graphql/_adapters/todo/id.ts";
+import { todoStatus } from "../../src/graphql/_adapters/todo/status.ts";
+import { db } from "../../src/graphql/_testData/db/todo.ts";
 import type * as Graph from "../../src/schema.ts";
 
 import { dateTime } from "./common.ts";

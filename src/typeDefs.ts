@@ -1,8 +1,12 @@
+import * as DateTime from "./graphql/DateTime.ts";
+import * as EmailAddress from "./graphql/EmailAddress.ts";
+import * as Mutation from "./graphql/Mutation/_mod.ts";
+import * as Node from "./graphql/Node/_mod.ts";
+import * as NonEmptyString from "./graphql/NonEmptyString.ts";
+import * as Query from "./graphql/Query/_mod.ts";
+import * as Todo from "./graphql/Todo/_mod.ts";
+import * as User from "./graphql/User/_mod.ts";
 import { PageInfoTypeDefinition } from "./lib/graphql/cursorConnections/sdl.ts";
-import * as node from "./modules/node/_mod.ts";
-import * as scalar from "./modules/scalar/_mod.ts";
-import * as todo from "./modules/todo/_mod.ts";
-import * as user from "./modules/user/_mod.ts";
 
 const typeDef = /* GraphQL */ `
   type Query
@@ -14,6 +18,9 @@ const typeDef = /* GraphQL */ `
     message: String!
   }
 
+  type EmailAlreadyTakenError implements Error {
+    message: String!
+  }
   type ResourceLimitExceededError implements Error {
     message: String!
   }
@@ -32,4 +39,14 @@ const typeDef = /* GraphQL */ `
   }
 `;
 
-export const typeDefs = [typeDef, node.typeDefs, scalar.typeDefs, todo.typeDefs, user.typeDefs];
+export const typeDefs = [
+  typeDef,
+  Mutation.typeDefs,
+  Node.typeDefs,
+  Query.typeDefs,
+  Todo.typeDefs,
+  User.typeDefs,
+  DateTime.typeDef,
+  EmailAddress.typeDef,
+  NonEmptyString.typeDef,
+];

@@ -7,7 +7,7 @@
       "dist",
       "src/db/generated/types.ts",
       "src/schema.ts",
-      "tests/modules/schema.ts"
+      "tests/graphql/schema.ts"
     ]
   },
   "linter": {

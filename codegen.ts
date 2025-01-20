@@ -10,18 +10,18 @@ const typescript: TypeScriptPluginConfig = {
   scalars: {
     ID: {
       input: "string",
-      output: "./modules/scalar/_mod.ts#ID",
+      output: "./graphql/ID.ts#ID",
     },
     DateTime: {
-      input: "./modules/scalar/_mod.ts#DateTime",
+      input: "./graphql/DateTime.ts#DateTime",
       output: "Date | DateTime", // DateTime リゾルバーが Date -> DateTime する
     },
     EmailAddress: {
-      input: "./modules/scalar/_mod.ts#EmailAddress",
+      input: "./graphql/EmailAddress.ts#EmailAddress",
       output: "string",
     },
     NonEmptyString: {
-      input: "./modules/scalar/_mod.ts#NonEmptyString",
+      input: "./graphql/NonEmptyString.ts#NonEmptyString",
       output: "string",
     },
   },
@@ -34,9 +34,9 @@ const typescriptResolvers: TypeScriptResolversPluginConfig = {
   optionalInfoArgument: true,
   mapperTypeSuffix: "Mapper",
   mappers: {
-    Node: "./modules/node/Node/_mapper.ts#Node",
-    Todo: "./modules/todo/Todo/_mapper.ts#Todo",
-    User: "./modules/user/User/_mapper.ts#User",
+    Node: "./graphql/Node/_mapper.ts#Node",
+    Todo: "./graphql/Todo/_mapper.ts#Todo",
+    User: "./graphql/User/_mapper.ts#User",
   },
   resolversNonOptionalTypename: {
     unionMember: true,
@@ -67,8 +67,8 @@ const config: CodegenConfig = {
         ...typescriptResolvers,
       },
     },
-    "tests/modules/schema.ts": {
-      documents: "tests/modules/**/*.ts",
+    "tests/graphql/schema.ts": {
+      documents: "tests/graphql/**/*.ts",
       plugins: ["typescript", "typescript-operations"],
       config: {
         ...typescript,
