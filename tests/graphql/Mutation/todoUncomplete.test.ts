@@ -6,16 +6,16 @@ import { TodoStatus } from "../../../src/db/generated/types.ts";
 import { Data, dummyId } from "../../data.ts";
 import { clearTables } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { CompleteTodoMutation, CompleteTodoMutationVariables } from "../schema.ts";
+import type { TodoUncompleteMutation, TodoUncompleteMutationVariables } from "../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
-  CompleteTodoMutation,
-  CompleteTodoMutationVariables
+  TodoUncompleteMutation,
+  TodoUncompleteMutationVariables
 >(/* GraphQL */ `
-  mutation CompleteTodo($id: ID!) {
-    completeTodo(id: $id) {
+  mutation TodoUncomplete($id: ID!) {
+    todoUncomplete(id: $id) {
       __typename
-      ... on CompleteTodoSuccess {
+      ... on TodoUncompleteSuccess {
         todo {
           id
           updatedAt
@@ -46,9 +46,9 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await client
-    .insertInto("Todo")
-    .values(Data.db.adminTodo)
-    .onConflict((oc) => oc.column("id").doUpdateSet(Data.db.adminTodo))
+    .updateTable("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .set({ status: TodoStatus.DONE })
     .executeTakeFirstOrThrow();
 });
 
@@ -57,7 +57,7 @@ test("invalid input", async () => {
     variables: { id: dummyId.todo().slice(0, -1) },
   });
 
-  expect(data?.completeTodo?.__typename === "InvalidInputError").toBe(true);
+  expect(data?.todoUncomplete?.__typename === "InvalidInputError").toBe(true);
 });
 
 test("not exists", async () => {
@@ -65,7 +65,7 @@ test("not exists", async () => {
     variables: { id: dummyId.todo() },
   });
 
-  expect(data?.completeTodo?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoUncomplete?.__typename === "ResourceNotFoundError").toBe(true);
 });
 
 test("exists, but not owned", async () => {
@@ -73,7 +73,7 @@ test("exists, but not owned", async () => {
     variables: { id: Data.graph.aliceTodo.id },
   });
 
-  expect(data?.completeTodo?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoUncomplete?.__typename === "ResourceNotFoundError").toBe(true);
 });
 
 it("should update status", async () => {
@@ -87,7 +87,7 @@ it("should update status", async () => {
     variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.completeTodo?.__typename === "CompleteTodoSuccess").toBe(true);
+  expect(data?.todoUncomplete?.__typename === "TodoUncompleteSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")
@@ -95,8 +95,8 @@ it("should update status", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(before.status).toBe(TodoStatus.PENDING);
-  expect(after.status).toBe(TodoStatus.DONE);
+  expect(before.status).toBe(TodoStatus.DONE);
+  expect(after.status).toBe(TodoStatus.PENDING);
 });
 
 it("should update updatedAt", async () => {
@@ -110,7 +110,7 @@ it("should update updatedAt", async () => {
     variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.completeTodo?.__typename === "CompleteTodoSuccess").toBe(true);
+  expect(data?.todoUncomplete?.__typename === "TodoUncompleteSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")
@@ -135,7 +135,7 @@ it("should not update other attrs", async () => {
     variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.completeTodo?.__typename === "CompleteTodoSuccess").toBe(true);
+  expect(data?.todoUncomplete?.__typename === "TodoUncompleteSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")

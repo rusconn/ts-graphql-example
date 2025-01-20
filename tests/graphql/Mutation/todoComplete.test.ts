@@ -1,21 +1,21 @@
 import { omit } from "es-toolkit";
 
 import { client } from "../../../src/db/client.ts";
-import * as Graph from "../../../src/schema.ts";
+import { TodoStatus } from "../../../src/db/generated/types.ts";
 
 import { Data, dummyId } from "../../data.ts";
 import { clearTables } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { UpdateTodoMutation, UpdateTodoMutationVariables } from "../schema.ts";
+import type { TodoCompleteMutation, TodoCompleteMutationVariables } from "../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
-  UpdateTodoMutation,
-  UpdateTodoMutationVariables
+  TodoCompleteMutation,
+  TodoCompleteMutationVariables
 >(/* GraphQL */ `
-  mutation UpdateTodo($id: ID!, $title: NonEmptyString, $description: String, $status: TodoStatus) {
-    updateTodo(id: $id, title: $title, description: $description, status: $status) {
+  mutation TodoComplete($id: ID!) {
+    todoComplete(id: $id) {
       __typename
-      ... on UpdateTodoSuccess {
+      ... on TodoCompleteSuccess {
         todo {
           id
           updatedAt
@@ -52,20 +52,12 @@ beforeEach(async () => {
     .executeTakeFirstOrThrow();
 });
 
-const variables = {
-  title: "bar",
-  description: "baz",
-  status: Graph.TodoStatus.Done,
-};
-
 test("invalid input", async () => {
-  const invalidTitle = "A".repeat(100 + 1);
-
   const { data } = await executeMutation({
-    variables: { id: dummyId.todo(), ...variables, title: invalidTitle },
+    variables: { id: dummyId.todo().slice(0, -1) },
   });
 
-  expect(data?.updateTodo?.__typename === "InvalidInputError").toBe(true);
+  expect(data?.todoComplete?.__typename === "InvalidInputError").toBe(true);
 });
 
 test("not exists", async () => {
@@ -73,7 +65,7 @@ test("not exists", async () => {
     variables: { id: dummyId.todo() },
   });
 
-  expect(data?.updateTodo?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoComplete?.__typename === "ResourceNotFoundError").toBe(true);
 });
 
 test("exists, but not owned", async () => {
@@ -81,28 +73,10 @@ test("exists, but not owned", async () => {
     variables: { id: Data.graph.aliceTodo.id },
   });
 
-  expect(data?.updateTodo?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoComplete?.__typename === "ResourceNotFoundError").toBe(true);
 });
 
-it("should update using input", async () => {
-  const { data } = await executeMutation({
-    variables: { id: Data.graph.adminTodo.id, ...variables },
-  });
-
-  expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
-
-  const todo = await client
-    .selectFrom("Todo")
-    .where("id", "=", Data.db.adminTodo.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  expect(todo.title).toBe(variables.title);
-  expect(todo.description).toBe(variables.description);
-  expect(todo.status).toBe(variables.status);
-});
-
-it("should not update fields if the field is absent", async () => {
+it("should update status", async () => {
   const before = await client
     .selectFrom("Todo")
     .where("id", "=", Data.db.adminTodo.id)
@@ -113,7 +87,7 @@ it("should not update fields if the field is absent", async () => {
     variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
+  expect(data?.todoComplete?.__typename === "TodoCompleteSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")
@@ -121,9 +95,8 @@ it("should not update fields if the field is absent", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(before.title).toBe(after.title);
-  expect(before.description).toBe(after.description);
-  expect(before.status).toBe(after.status);
+  expect(before.status).toBe(TodoStatus.PENDING);
+  expect(after.status).toBe(TodoStatus.DONE);
 });
 
 it("should update updatedAt", async () => {
@@ -134,10 +107,10 @@ it("should update updatedAt", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    variables: { id: Data.graph.adminTodo.id, ...variables },
+    variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
+  expect(data?.todoComplete?.__typename === "TodoCompleteSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")
@@ -159,10 +132,10 @@ it("should not update other attrs", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    variables: { id: Data.graph.adminTodo.id, ...variables },
+    variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.updateTodo?.__typename === "UpdateTodoSuccess").toBe(true);
+  expect(data?.todoComplete?.__typename === "TodoCompleteSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")
@@ -171,8 +144,8 @@ it("should not update other attrs", async () => {
     .executeTakeFirstOrThrow();
 
   // これらのフィールドは変化する想定
-  const beforeToCompare = omit(before, ["title", "description", "status", "updatedAt"]);
-  const afterToCompare = omit(after, ["title", "description", "status", "updatedAt"]);
+  const beforeToCompare = omit(before, ["status", "updatedAt"]);
+  const afterToCompare = omit(after, ["status", "updatedAt"]);
 
   expect(afterToCompare).toStrictEqual(beforeToCompare);
 });

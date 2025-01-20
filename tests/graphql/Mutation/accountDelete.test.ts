@@ -4,16 +4,16 @@ import { parseUserId } from "../../../src/graphql/_parsers/user/id.ts";
 import { Data } from "../../data.ts";
 import { clearUsers, fail } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { DeleteAccountMutation, DeleteAccountMutationVariables } from "../schema.ts";
+import type { AccountDeleteMutation, AccountDeleteMutationVariables } from "../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
-  DeleteAccountMutation,
-  DeleteAccountMutationVariables
+  AccountDeleteMutation,
+  AccountDeleteMutationVariables
 >(/* GraphQL */ `
-  mutation DeleteAccount {
-    deleteAccount {
+  mutation AccountDelete {
+    accountDelete {
       __typename
-      ... on DeleteAccountSuccess {
+      ... on AccountDeleteSuccess {
         id
       }
     }
@@ -38,11 +38,11 @@ beforeEach(async () => {
 it("should delete user", async () => {
   const { data } = await executeMutation({});
 
-  if (!data || !data.deleteAccount || data.deleteAccount.__typename !== "DeleteAccountSuccess") {
+  if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
     fail();
   }
 
-  const parsed = parseUserId(data.deleteAccount);
+  const parsed = parseUserId(data.accountDelete);
 
   if (parsed instanceof Error) {
     fail();
@@ -65,11 +65,11 @@ it("should not delete others", async () => {
 
   const { data } = await executeMutation({});
 
-  if (!data || !data.deleteAccount || data.deleteAccount.__typename !== "DeleteAccountSuccess") {
+  if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
     fail();
   }
 
-  const parsed = parseUserId(data.deleteAccount);
+  const parsed = parseUserId(data.accountDelete);
 
   if (parsed instanceof Error) {
     fail();
@@ -104,7 +104,7 @@ it("should delete his resources", async () => {
 
   const { data } = await executeMutation({});
 
-  expect(data?.deleteAccount?.__typename === "DeleteAccountSuccess").toBe(true);
+  expect(data?.accountDelete?.__typename === "AccountDeleteSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")

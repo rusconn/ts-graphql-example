@@ -5,16 +5,16 @@ import { client } from "../../../src/db/client.ts";
 import { Data } from "../../data.ts";
 import { clearUsers } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { UpdateAccountMutation, UpdateAccountMutationVariables } from "../schema.ts";
+import type { AccountUpdateMutation, AccountUpdateMutationVariables } from "../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
-  UpdateAccountMutation,
-  UpdateAccountMutationVariables
+  AccountUpdateMutation,
+  AccountUpdateMutationVariables
 >(/* GraphQL */ `
-  mutation UpdateAccount($name: NonEmptyString, $email: NonEmptyString, $password: NonEmptyString) {
-    updateAccount(name: $name, email: $email, password: $password) {
+  mutation AccountUpdate($name: NonEmptyString, $email: NonEmptyString, $password: NonEmptyString) {
+    accountUpdate(name: $name, email: $email, password: $password) {
       __typename
-      ... on UpdateAccountSuccess {
+      ... on AccountUpdateSuccess {
         user {
           id
           name
@@ -46,7 +46,7 @@ test("invalid input", async () => {
     variables: { email: invalidEmail },
   });
 
-  expect(data?.updateAccount?.__typename === "InvalidInputError").toBe(true);
+  expect(data?.accountUpdate?.__typename === "InvalidInputError").toBe(true);
 });
 
 test("email already exists", async () => {
@@ -56,7 +56,7 @@ test("email already exists", async () => {
     variables: { email },
   });
 
-  expect(data?.updateAccount?.__typename === "EmailAlreadyTakenError").toBe(true);
+  expect(data?.accountUpdate?.__typename === "EmailAlreadyTakenError").toBe(true);
 });
 
 it("should update using input", async () => {
@@ -67,7 +67,7 @@ it("should update using input", async () => {
     variables: { name, email },
   });
 
-  expect(data?.updateAccount?.__typename === "UpdateAccountSuccess").toBe(true);
+  expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
 
   const user = await client
     .selectFrom("User")
@@ -90,7 +90,7 @@ it("should not update fields if the field is absent", async () => {
     variables: {},
   });
 
-  expect(data?.updateAccount?.__typename === "UpdateAccountSuccess").toBe(true);
+  expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
 
   const after = await client
     .selectFrom("User")
@@ -114,7 +114,7 @@ it("should update updatedAt", async () => {
     variables: { name: "bar" },
   });
 
-  expect(data?.updateAccount?.__typename === "UpdateAccountSuccess").toBe(true);
+  expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
 
   const after = await client
     .selectFrom("User")
@@ -139,7 +139,7 @@ it("should not update other attrs", async () => {
     variables: { name: "baz" },
   });
 
-  expect(data?.updateAccount?.__typename === "UpdateAccountSuccess").toBe(true);
+  expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
 
   const after = await client
     .selectFrom("User")

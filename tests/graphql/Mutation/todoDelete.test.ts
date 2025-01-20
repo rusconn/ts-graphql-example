@@ -3,16 +3,16 @@ import { client } from "../../../src/db/client.ts";
 import { Data, dummyId } from "../../data.ts";
 import { clearTables, clearTodos } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { DeleteTodoMutation, DeleteTodoMutationVariables } from "../schema.ts";
+import type { TodoDeleteMutation, TodoDeleteMutationVariables } from "../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
-  DeleteTodoMutation,
-  DeleteTodoMutationVariables
+  TodoDeleteMutation,
+  TodoDeleteMutationVariables
 >(/* GraphQL */ `
-  mutation DeleteTodo($id: ID!) {
-    deleteTodo(id: $id) {
+  mutation TodoDelete($id: ID!) {
+    todoDelete(id: $id) {
       __typename
-      ... on DeleteTodoSuccess {
+      ... on TodoDeleteSuccess {
         id
       }
     }
@@ -45,7 +45,7 @@ test("invalid input", async () => {
     variables: { id: dummyId.todo().slice(0, -1) },
   });
 
-  expect(data?.deleteTodo?.__typename === "InvalidInputError").toBe(true);
+  expect(data?.todoDelete?.__typename === "InvalidInputError").toBe(true);
 });
 
 test("not exists", async () => {
@@ -53,7 +53,7 @@ test("not exists", async () => {
     variables: { id: dummyId.todo() },
   });
 
-  expect(data?.deleteTodo?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoDelete?.__typename === "ResourceNotFoundError").toBe(true);
 });
 
 test("exists, but not owned", async () => {
@@ -61,7 +61,7 @@ test("exists, but not owned", async () => {
     variables: { id: Data.graph.aliceTodo.id },
   });
 
-  expect(data?.deleteTodo?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoDelete?.__typename === "ResourceNotFoundError").toBe(true);
 });
 
 it("should delete todo", async () => {
@@ -69,7 +69,7 @@ it("should delete todo", async () => {
     variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.deleteTodo?.__typename === "DeleteTodoSuccess").toBe(true);
+  expect(data?.todoDelete?.__typename === "TodoDeleteSuccess").toBe(true);
 
   const todo = await client
     .selectFrom("Todo")
@@ -90,7 +90,7 @@ it("should not delete others", async () => {
     variables: { id: Data.graph.adminTodo.id },
   });
 
-  expect(data?.deleteTodo?.__typename === "DeleteTodoSuccess").toBe(true);
+  expect(data?.todoDelete?.__typename === "TodoDeleteSuccess").toBe(true);
 
   const todo = await client
     .selectFrom("Todo")

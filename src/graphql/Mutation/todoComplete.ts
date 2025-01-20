@@ -6,17 +6,17 @@ import { parseTodoId } from "../_parsers/todo/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    uncompleteTodo(id: ID!): UncompleteTodoResult
+    todoComplete(id: ID!): TodoCompleteResult
   }
 
-  union UncompleteTodoResult = UncompleteTodoSuccess | InvalidInputError | ResourceNotFoundError
+  union TodoCompleteResult = TodoCompleteSuccess | InvalidInputError | ResourceNotFoundError
 
-  type UncompleteTodoSuccess {
+  type TodoCompleteSuccess {
     todo: Todo!
   }
 `;
 
-export const resolver: MutationResolvers["uncompleteTodo"] = async (_parent, args, context) => {
+export const resolver: MutationResolvers["todoComplete"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
   if (authed instanceof Error) {
@@ -34,12 +34,12 @@ export const resolver: MutationResolvers["uncompleteTodo"] = async (_parent, arg
 
   const todo = await context.api.user.updateTodo(
     { userId: authed.id, todoId: parsed },
-    { status: TodoStatus.PENDING },
+    { status: TodoStatus.DONE },
   );
 
   return todo
     ? {
-        __typename: "UncompleteTodoSuccess",
+        __typename: "TodoCompleteSuccess",
         todo,
       }
     : {

@@ -5,16 +5,16 @@ import { parseTodoId } from "../../../src/graphql/_parsers/todo/id.ts";
 import { Data } from "../../data.ts";
 import { clearTables, fail } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { CreateTodoMutation, CreateTodoMutationVariables } from "../schema.ts";
+import type { TodoCreateMutation, TodoCreateMutationVariables } from "../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
-  CreateTodoMutation,
-  CreateTodoMutationVariables
+  TodoCreateMutation,
+  TodoCreateMutationVariables
 >(/* GraphQL */ `
-  mutation CreateTodo($title: NonEmptyString!, $description: String) {
-    createTodo(title: $title, description: $description) {
+  mutation TodoCreate($title: NonEmptyString!, $description: String) {
+    todoCreate(title: $title, description: $description) {
       __typename
-      ... on CreateTodoSuccess {
+      ... on TodoCreateSuccess {
         todo {
           id
           title
@@ -51,7 +51,7 @@ test("invalid input", async () => {
     variables: { ...variables, title: invalidTitle },
   });
 
-  expect(data?.createTodo?.__typename === "InvalidInputError").toBe(true);
+  expect(data?.todoCreate?.__typename === "InvalidInputError").toBe(true);
 });
 
 it("should create todo using input", async () => {
@@ -59,11 +59,11 @@ it("should create todo using input", async () => {
     variables,
   });
 
-  if (data?.createTodo?.__typename !== "CreateTodoSuccess") {
+  if (data?.todoCreate?.__typename !== "TodoCreateSuccess") {
     fail();
   }
 
-  const parsed = parseTodoId(data.createTodo.todo);
+  const parsed = parseTodoId(data.todoCreate.todo);
 
   if (parsed instanceof Error) {
     fail();
@@ -84,11 +84,11 @@ test('description should be "" by default', async () => {
     variables: { title: variables.title },
   });
 
-  if (data?.createTodo?.__typename !== "CreateTodoSuccess") {
+  if (data?.todoCreate?.__typename !== "TodoCreateSuccess") {
     fail();
   }
 
-  const parsed = parseTodoId(data.createTodo.todo);
+  const parsed = parseTodoId(data.todoCreate.todo);
 
   if (parsed instanceof Error) {
     fail();
@@ -108,11 +108,11 @@ test("status should be PENDING by default", async () => {
     variables,
   });
 
-  if (data?.createTodo?.__typename !== "CreateTodoSuccess") {
+  if (data?.todoCreate?.__typename !== "TodoCreateSuccess") {
     fail();
   }
 
-  const parsed = parseTodoId(data.createTodo.todo);
+  const parsed = parseTodoId(data.todoCreate.todo);
 
   if (parsed instanceof Error) {
     fail();

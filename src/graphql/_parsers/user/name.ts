@@ -1,11 +1,11 @@
 import { numChars } from "../../../lib/string/numChars.ts";
-import type { MutationSignupArgs, MutationUpdateAccountArgs } from "../../../schema.ts";
+import type { MutationAccountUpdateArgs, MutationSignupArgs } from "../../../schema.ts";
 import { parseArgs, parseErr } from "../util.ts";
 
 type Args = {
   name?:
     | MutationSignupArgs["name"] //
-    | MutationUpdateAccountArgs["name"];
+    | MutationAccountUpdateArgs["name"];
 };
 
 export const USER_NAME_MAX = 100;

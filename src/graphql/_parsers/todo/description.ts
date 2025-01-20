@@ -1,11 +1,11 @@
 import { numChars } from "../../../lib/string/numChars.ts";
-import type { MutationCreateTodoArgs, MutationUpdateTodoArgs } from "../../../schema.ts";
+import type { MutationTodoCreateArgs, MutationTodoUpdateArgs } from "../../../schema.ts";
 import { parseArgs, parseErr } from "../util.ts";
 
 type Args = {
   description?:
-    | MutationCreateTodoArgs["description"] //
-    | MutationUpdateTodoArgs["description"];
+    | MutationTodoCreateArgs["description"] //
+    | MutationTodoUpdateArgs["description"];
 };
 
 export const TODO_DESCRIPTION_MAX = 5_000;

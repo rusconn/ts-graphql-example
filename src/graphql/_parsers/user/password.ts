@@ -1,8 +1,8 @@
 import { numChars } from "../../../lib/string/numChars.ts";
 import type {
+  MutationAccountUpdateArgs,
   MutationLoginArgs,
   MutationSignupArgs,
-  MutationUpdateAccountArgs,
 } from "../../../schema.ts";
 import { parseArgs, parseErr } from "../util.ts";
 
@@ -10,7 +10,7 @@ type Args = {
   password?:
     | MutationSignupArgs["password"]
     | MutationLoginArgs["password"]
-    | MutationUpdateAccountArgs["password"];
+    | MutationAccountUpdateArgs["password"];
 };
 
 export const USER_PASSWORD_MIN = 8;

@@ -6,17 +6,17 @@ import { parseTodoId } from "../_parsers/todo/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    deleteTodo(id: ID!): DeleteTodoResult
+    todoDelete(id: ID!): TodoDeleteResult
   }
 
-  union DeleteTodoResult = DeleteTodoSuccess | InvalidInputError | ResourceNotFoundError
+  union TodoDeleteResult = TodoDeleteSuccess | InvalidInputError | ResourceNotFoundError
 
-  type DeleteTodoSuccess {
+  type TodoDeleteSuccess {
     id: ID!
   }
 `;
 
-export const resolver: MutationResolvers["deleteTodo"] = async (_parent, args, context) => {
+export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
   if (authed instanceof Error) {
@@ -39,7 +39,7 @@ export const resolver: MutationResolvers["deleteTodo"] = async (_parent, args, c
 
   return todo
     ? {
-        __typename: "DeleteTodoSuccess",
+        __typename: "TodoDeleteSuccess",
         id: todoId(todo.id),
       }
     : {

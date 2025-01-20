@@ -1,5 +1,5 @@
 import type { Context } from "../../context.ts";
-import type { MutationCreateTodoArgs, MutationResolvers, ResolversTypes } from "../../schema.ts";
+import type { MutationResolvers, MutationTodoCreateArgs, ResolversTypes } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import type { AuthContext } from "../_authorizers/types.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -14,7 +14,7 @@ export const typeDef = /* GraphQL */ `
     """
     ${TODOS_MAX}件まで
     """
-    createTodo(
+    todoCreate(
       """
       ${TODO_TITLE_MAX}文字まで
       """
@@ -24,17 +24,17 @@ export const typeDef = /* GraphQL */ `
       ${TODO_DESCRIPTION_MAX}文字まで
       """
       description: String! = ""
-    ): CreateTodoResult
+    ): TodoCreateResult
   }
 
-  union CreateTodoResult = CreateTodoSuccess | InvalidInputError | ResourceLimitExceededError
+  union TodoCreateResult = TodoCreateSuccess | InvalidInputError | ResourceLimitExceededError
 
-  type CreateTodoSuccess {
+  type TodoCreateSuccess {
     todo: Todo!
   }
 `;
 
-export const resolver: MutationResolvers["createTodo"] = async (_parent, args, context) => {
+export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, context) => {
   const authed = authorize(context);
 
   if (authed instanceof Error) {
@@ -57,7 +57,7 @@ const authorize = (context: AuthContext) => {
   return authAuthenticated(context);
 };
 
-const parseArgs = (args: MutationCreateTodoArgs) => {
+const parseArgs = (args: MutationTodoCreateArgs) => {
   const title = parseTodoTitle(args, {
     optional: false,
     nullable: false,
@@ -83,7 +83,7 @@ const logic = async (
   authed: Exclude<ReturnType<typeof authorize>, Error>,
   parsed: Exclude<ReturnType<typeof parseArgs>, Error>,
   context: Context,
-): Promise<ResolversTypes["CreateTodoResult"]> => {
+): Promise<ResolversTypes["TodoCreateResult"]> => {
   const { title, description } = parsed;
 
   const count = await context.api.user.countTodo(authed.id);
@@ -105,7 +105,7 @@ const logic = async (
   }
 
   return {
-    __typename: "CreateTodoSuccess",
+    __typename: "TodoCreateSuccess",
     todo,
   };
 };
@@ -114,7 +114,7 @@ if (import.meta.vitest) {
   const { context } = await import("../_testData/context.ts");
 
   const valid = {
-    args: { title: "title", description: "description" } as MutationCreateTodoArgs,
+    args: { title: "title", description: "description" } as MutationTodoCreateArgs,
     user: context.admin,
   };
 
@@ -123,12 +123,12 @@ if (import.meta.vitest) {
       { ...valid.args },
       { ...valid.args, title: "A".repeat(TODO_TITLE_MAX) },
       { ...valid.args, description: "A".repeat(TODO_DESCRIPTION_MAX) },
-    ] as MutationCreateTodoArgs[];
+    ] as MutationTodoCreateArgs[];
 
     const invalids = [
       { ...valid.args, title: "A".repeat(TODO_TITLE_MAX + 1) },
       { ...valid.args, description: "A".repeat(TODO_DESCRIPTION_MAX + 1) },
-    ] as MutationCreateTodoArgs[];
+    ] as MutationTodoCreateArgs[];
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);

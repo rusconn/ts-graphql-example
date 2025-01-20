@@ -1,15 +1,15 @@
 import type { Resolvers } from "../../schema.ts";
 
-import * as completeTodo from "./completeTodo.ts";
-import * as createTodo from "./createTodo.ts";
-import * as deleteAccount from "./deleteAccount.ts";
-import * as deleteTodo from "./deleteTodo.ts";
+import * as accountDelete from "./accountDelete.ts";
+import * as accountUpdate from "./accountUpdate.ts";
 import * as login from "./login.ts";
 import * as logout from "./logout.ts";
 import * as signup from "./signup.ts";
-import * as uncompleteTodo from "./uncompleteTodo.ts";
-import * as updateAccount from "./updateAccount.ts";
-import * as updateTodo from "./updateTodo.ts";
+import * as todoComplete from "./todoComplete.ts";
+import * as todoCreate from "./todoCreate.ts";
+import * as todoDelete from "./todoDelete.ts";
+import * as todoUncomplete from "./todoUncomplete.ts";
+import * as todoUpdate from "./todoUpdate.ts";
 
 const typeDef = /* GraphQL */ `
   type Mutation
@@ -17,27 +17,27 @@ const typeDef = /* GraphQL */ `
 
 export const typeDefs = [
   typeDef,
-  completeTodo.typeDef,
-  createTodo.typeDef,
-  deleteAccount.typeDef,
-  deleteTodo.typeDef,
+  accountDelete.typeDef,
+  accountUpdate.typeDef,
   login.typeDef,
   logout.typeDef,
   signup.typeDef,
-  uncompleteTodo.typeDef,
-  updateAccount.typeDef,
-  updateTodo.typeDef,
+  todoComplete.typeDef,
+  todoCreate.typeDef,
+  todoDelete.typeDef,
+  todoUncomplete.typeDef,
+  todoUpdate.typeDef,
 ];
 
 export const resolvers: Resolvers["Mutation"] = {
-  completeTodo: completeTodo.resolver,
-  createTodo: createTodo.resolver,
-  deleteAccount: deleteAccount.resolver,
-  deleteTodo: deleteTodo.resolver,
+  accountDelete: accountDelete.resolver,
+  accountUpdate: accountUpdate.resolver,
   login: login.resolver,
   logout: logout.resolver,
   signup: signup.resolver,
-  uncompleteTodo: uncompleteTodo.resolver,
-  updateAccount: updateAccount.resolver,
-  updateTodo: updateTodo.resolver,
+  todoComplete: todoComplete.resolver,
+  todoCreate: todoCreate.resolver,
+  todoDelete: todoDelete.resolver,
+  todoUncomplete: todoUncomplete.resolver,
+  todoUpdate: todoUpdate.resolver,
 };

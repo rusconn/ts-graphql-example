@@ -1,4 +1,4 @@
-import type { MutationResolvers, MutationUpdateTodoArgs } from "../../schema.ts";
+import type { MutationResolvers, MutationTodoUpdateArgs } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { TODO_DESCRIPTION_MAX, parseTodoDescription } from "../_parsers/todo/description.ts";
@@ -8,7 +8,7 @@ import { TODO_TITLE_MAX, parseTodoTitle } from "../_parsers/todo/title.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    updateTodo(
+    todoUpdate(
       id: ID!
 
       """
@@ -25,17 +25,17 @@ export const typeDef = /* GraphQL */ `
       null は入力エラー
       """
       status: TodoStatus
-    ): UpdateTodoResult
+    ): TodoUpdateResult
   }
 
-  union UpdateTodoResult = UpdateTodoSuccess | InvalidInputError | ResourceNotFoundError
+  union TodoUpdateResult = TodoUpdateSuccess | InvalidInputError | ResourceNotFoundError
 
-  type UpdateTodoSuccess {
+  type TodoUpdateSuccess {
     todo: Todo!
   }
 `;
 
-export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, context) => {
+export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
   if (authed instanceof Error) {
@@ -63,7 +63,7 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
 
   return todo
     ? {
-        __typename: "UpdateTodoSuccess",
+        __typename: "TodoUpdateSuccess",
         todo,
       }
     : {
@@ -72,7 +72,7 @@ export const resolver: MutationResolvers["updateTodo"] = async (_parent, args, c
       };
 };
 
-const parseArgs = (args: MutationUpdateTodoArgs) => {
+const parseArgs = (args: MutationTodoUpdateArgs) => {
   const id = parseTodoId(args);
 
   if (id instanceof Error) {
@@ -121,7 +121,7 @@ if (import.meta.vitest) {
       { title: "title", description: "description", status: TodoStatus.Done },
       { title: "A".repeat(TODO_TITLE_MAX) },
       { description: "A".repeat(TODO_DESCRIPTION_MAX) },
-    ] as Omit<MutationUpdateTodoArgs, "id">[];
+    ] as Omit<MutationTodoUpdateArgs, "id">[];
 
     const invalids = [
       { title: null },
@@ -129,7 +129,7 @@ if (import.meta.vitest) {
       { status: null },
       { title: "A".repeat(TODO_TITLE_MAX + 1) },
       { description: "A".repeat(TODO_DESCRIPTION_MAX + 1) },
-    ] as Omit<MutationUpdateTodoArgs, "id">[];
+    ] as Omit<MutationTodoUpdateArgs, "id">[];
 
     const id = "Todo:0193cb3e-5fdd-7264-9f70-1df63d84b251";
 

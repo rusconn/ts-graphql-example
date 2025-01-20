@@ -9,17 +9,17 @@ export const typeDef = /* GraphQL */ `
     """
     紐づくリソースは全て削除される
     """
-    deleteAccount: DeleteAccountResult
+    accountDelete: AccountDeleteResult
   }
 
-  union DeleteAccountResult = DeleteAccountSuccess
+  union AccountDeleteResult = AccountDeleteSuccess
 
-  type DeleteAccountSuccess {
+  type AccountDeleteSuccess {
     id: ID!
   }
 `;
 
-export const resolver: MutationResolvers["deleteAccount"] = async (_parent, _args, context) => {
+export const resolver: MutationResolvers["accountDelete"] = async (_parent, _args, context) => {
   const authed = authAuthenticated(context);
 
   if (authed instanceof Error) {
@@ -33,7 +33,7 @@ export const resolver: MutationResolvers["deleteAccount"] = async (_parent, _arg
   }
 
   return {
-    __typename: "DeleteAccountSuccess",
+    __typename: "AccountDeleteSuccess",
     id: userId(deleted.id),
   };
 };

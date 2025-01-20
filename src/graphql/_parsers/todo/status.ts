@@ -1,8 +1,8 @@
-import type { MutationUpdateTodoArgs } from "../../../schema.ts";
+import type { MutationTodoUpdateArgs } from "../../../schema.ts";
 import { parseArgs } from "../util.ts";
 
 type Args = {
-  status?: MutationUpdateTodoArgs["status"];
+  status?: MutationTodoUpdateArgs["status"];
 };
 
 export const parseTodoStatus = parseArgs(
