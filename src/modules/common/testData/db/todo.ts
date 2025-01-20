@@ -1,5 +1,5 @@
 import { TodoStatus } from "../../../../db/generated/types.ts";
-import type { Todo } from "../../../todo/mapper.ts";
+import type { Todo } from "../../../todo/Todo/_mapper.ts";
 import { db as users } from "./user.ts";
 
 export const db = {

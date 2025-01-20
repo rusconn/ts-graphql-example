@@ -5,7 +5,7 @@ import { authAdmin } from "../../common/authorizers/admin.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { parseConnectionArgs } from "../../common/parsers/connectionArgs.ts";
-import type { User } from "../mapper.ts";
+import type { User } from "../User/_mapper.ts";
 import { parseUserCursor } from "../parsers/cursor.ts";
 
 const FIRST_MAX = 30;

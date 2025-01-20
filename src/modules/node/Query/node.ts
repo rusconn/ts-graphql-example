@@ -5,8 +5,8 @@ import { authAuthenticated } from "../../common/authorizers/authenticated.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { parseId } from "../../common/parsers/id.ts";
-import * as todo from "../../todo/node.ts";
-import * as user from "../../user/node.ts";
+import * as todo from "../../todo/Todo/_node.ts";
+import * as user from "../../user/User/_node.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {

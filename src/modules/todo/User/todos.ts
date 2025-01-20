@@ -5,7 +5,7 @@ import { badUserInputErr } from "../../common/errors/badUserInput.ts";
 import { forbiddenErr } from "../../common/errors/forbidden.ts";
 import { parseConnectionArgs } from "../../common/parsers/connectionArgs.ts";
 import { authAdminOrUserOwner } from "../../user/authorizers/adminOrUserOwner.ts";
-import type { Todo } from "../mapper.ts";
+import type { Todo } from "../Todo/_mapper.ts";
 import { parseTodoCursor } from "../parsers/cursor.ts";
 import { parseTodoStatus } from "../parsers/status.ts";
 

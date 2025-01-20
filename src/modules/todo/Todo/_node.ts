@@ -1,5 +1,5 @@
-import type { Context } from "../../context.ts";
-import type { Todo } from "./mapper.ts";
+import type { Context } from "../../../context.ts";
+import type { Todo } from "./_mapper.ts";
 
 export const getNode = async (context: Pick<Context, "db">, id: Todo["id"]) => {
   const node = await context.db

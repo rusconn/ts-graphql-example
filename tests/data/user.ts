@@ -1,7 +1,7 @@
 import * as internalId from "../../src/db/models/user/id.ts";
 import { db } from "../../src/modules/common/testData/db/user.ts";
+import type { User } from "../../src/modules/user/User/_mapper.ts";
 import { userId } from "../../src/modules/user/adapters/id.ts";
-import type { User } from "../../src/modules/user/mapper.ts";
 import type * as Graph from "../../src/schema.ts";
 
 import { dateTime } from "./common.ts";
