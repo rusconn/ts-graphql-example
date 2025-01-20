@@ -1,46 +1,20 @@
 import * as DateTime from "./graphql/DateTime.ts";
 import * as EmailAddress from "./graphql/EmailAddress.ts";
+import * as EmailAlreadyTakenError from "./graphql/EmailAlreadyTakenError.ts";
+import * as Error_ from "./graphql/Error.ts";
+import * as ErrorCode from "./graphql/ErrorCode.ts";
+import * as InvalidInputError from "./graphql/InvalidInputError.ts";
 import * as Mutation from "./graphql/Mutation/_mod.ts";
 import * as Node from "./graphql/Node/_mod.ts";
 import * as NonEmptyString from "./graphql/NonEmptyString.ts";
+import * as PageInfo from "./graphql/PageInfo.ts";
 import * as Query from "./graphql/Query/_mod.ts";
+import * as ResourceLimitExceededError from "./graphql/ResourceLimitExceededError.ts";
+import * as ResourceNotFoundError from "./graphql/ResourceNotFoundError.ts";
 import * as Todo from "./graphql/Todo/_mod.ts";
 import * as User from "./graphql/User/_mod.ts";
-import { PageInfoTypeDefinition } from "./lib/graphql/cursorConnections/sdl.ts";
-
-const typeDef = /* GraphQL */ `
-  type Query
-  type Mutation
-
-  ${PageInfoTypeDefinition}
-
-  interface Error {
-    message: String!
-  }
-
-  type EmailAlreadyTakenError implements Error {
-    message: String!
-  }
-  type ResourceLimitExceededError implements Error {
-    message: String!
-  }
-  type ResourceNotFoundError implements Error {
-    message: String!
-  }
-  type InvalidInputError implements Error {
-    message: String!
-  }
-
-  enum ErrorCode {
-    BAD_USER_INPUT
-    AUTHENTICATION_ERROR
-    FORBIDDEN
-    INTERNAL_SERVER_ERROR
-  }
-`;
 
 export const typeDefs = [
-  typeDef,
   Mutation.typeDefs,
   Node.typeDefs,
   Query.typeDefs,
@@ -48,5 +22,12 @@ export const typeDefs = [
   User.typeDefs,
   DateTime.typeDef,
   EmailAddress.typeDef,
+  EmailAlreadyTakenError.typeDef,
+  Error_.typeDef,
+  ErrorCode.typeDef,
+  InvalidInputError.typeDef,
   NonEmptyString.typeDef,
+  PageInfo.typeDef,
+  ResourceLimitExceededError.typeDef,
+  ResourceNotFoundError.typeDef,
 ];

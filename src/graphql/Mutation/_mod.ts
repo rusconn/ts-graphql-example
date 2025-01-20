@@ -11,7 +11,12 @@ import * as uncompleteTodo from "./uncompleteTodo.ts";
 import * as updateAccount from "./updateAccount.ts";
 import * as updateTodo from "./updateTodo.ts";
 
+const typeDef = /* GraphQL */ `
+  type Mutation
+`;
+
 export const typeDefs = [
+  typeDef,
   completeTodo.typeDef,
   createTodo.typeDef,
   deleteAccount.typeDef,

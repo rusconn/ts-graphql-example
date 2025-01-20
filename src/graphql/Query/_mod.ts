@@ -5,8 +5,13 @@ import * as user from "./user.ts";
 import * as users from "./users.ts";
 import * as viewer from "./viewer.ts";
 
+const typeDef = /* GraphQL */ `
+  type Query
+`;
+
 export const typeDefs = [
   //
+  typeDef,
   node.typeDef,
   user.typeDef,
   users.typeDef,
