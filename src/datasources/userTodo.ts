@@ -1,11 +1,11 @@
 import type { Kysely, Transaction } from "kysely";
 
-import type { DB } from "../../db/generated/types.ts";
-import type { NewTodo, Todo, UpdTodo } from "../../db/models/todo.ts";
-import * as todoId from "../../db/models/todo/id.ts";
-import * as userTodoLoader from "./todo/loader/userTodo.ts";
-import * as userTodoCountLoader from "./todo/loader/userTodoCount.ts";
-import * as userTodosLoader from "./todo/loader/userTodos.ts";
+import type { DB } from "../db/generated/types.ts";
+import type { NewTodo, Todo, UpdTodo } from "../db/models/todo.ts";
+import * as todoId from "../db/models/todo/id.ts";
+import * as userTodoLoader from "./loaders/userTodo.ts";
+import * as userTodoCountLoader from "./loaders/userTodoCount.ts";
+import * as userTodosLoader from "./loaders/userTodos.ts";
 
 export class UserTodoAPI {
   #db;
@@ -29,7 +29,7 @@ export class UserTodoAPI {
 
   loadPage = async (
     userId: Todo["userId"],
-    params: Omit<userTodosLoader.Params, "orderColumn" | "direction" | "comp"> & {
+    params: userTodosLoader.Params & {
       sortKey: "createdAt" | "updatedAt";
       reverse: boolean;
     },

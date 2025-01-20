@@ -3,35 +3,17 @@ import type { Kysely, Transaction } from "kysely";
 import type { DB } from "../db/generated/types.ts";
 import type { NewUser, UpdUser, User } from "../db/models/user.ts";
 import * as userId from "../db/models/user/id.ts";
-import * as userLoader from "./user/loader.ts";
-import { UserTodoAPI } from "./user/todo.ts";
+import * as userLoader from "./loaders/user.ts";
 
 export class UserAPI {
   #db;
   #loaders;
-
-  loadTodo;
-  loadTodoPage;
-  loadTodoCount;
-  countTodo;
-  createTodo;
-  updateTodo;
-  deleteTodo;
 
   constructor(db: Kysely<DB>) {
     this.#db = db;
     this.#loaders = {
       user: userLoader.init(db),
     };
-
-    const todoAPI = new UserTodoAPI(db);
-    this.loadTodo = todoAPI.load;
-    this.loadTodoPage = todoAPI.loadPage;
-    this.loadTodoCount = todoAPI.loadCount;
-    this.countTodo = todoAPI.count;
-    this.createTodo = todoAPI.create;
-    this.updateTodo = todoAPI.update;
-    this.deleteTodo = todoAPI.delete;
   }
 
   load = async (id: User["id"]) => {

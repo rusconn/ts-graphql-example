@@ -86,7 +86,7 @@ const logic = async (
 ): Promise<ResolversTypes["TodoCreateResult"]> => {
   const { title, description } = parsed;
 
-  const count = await context.api.user.countTodo(authed.id);
+  const count = await context.api.userTodo.count(authed.id);
 
   if (count >= TODOS_MAX) {
     return {
@@ -95,7 +95,7 @@ const logic = async (
     };
   }
 
-  const todo = await context.api.user.createTodo(authed.id, {
+  const todo = await context.api.userTodo.create(authed.id, {
     title,
     description,
   });
@@ -144,9 +144,9 @@ if (import.meta.vitest) {
   describe("Maximum num todos", () => {
     const createAPIs = (num: number) =>
       ({
-        user: {
-          countTodo: async () => num,
-          createTodo: async () => ({ id: "dummy" }),
+        userTodo: {
+          count: async () => num,
+          create: async () => ({ id: "dummy" }),
         },
       }) as unknown as Context["api"];
 

@@ -4,6 +4,7 @@ import { App } from "uWebSockets.js";
 
 import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
 import { UserAPI } from "./datasources/user.ts";
+import { UserTodoAPI } from "./datasources/userTodo.ts";
 import { client } from "./db/client.ts";
 import * as userToken from "./db/models/user/token.ts";
 import { logger } from "./logger.ts";
@@ -30,6 +31,7 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
 
     const api = {
       user: new UserAPI(client),
+      userTodo: new UserTodoAPI(client),
     };
 
     let user: Context["user"] | undefined = null;

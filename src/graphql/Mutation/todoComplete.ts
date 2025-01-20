@@ -32,7 +32,7 @@ export const resolver: MutationResolvers["todoComplete"] = async (_parent, args,
     };
   }
 
-  const todo = await context.api.user.updateTodo(
+  const todo = await context.api.userTodo.update(
     { userId: authed.id, todoId: parsed },
     { status: TodoStatus.DONE },
   );
