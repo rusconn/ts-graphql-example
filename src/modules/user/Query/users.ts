@@ -1,5 +1,4 @@
 import { getCursorConnection } from "../../../lib/graphql/cursorConnections/get.ts";
-import { cursorConnection } from "../../../lib/graphql/cursorConnections/sdl.ts";
 import type { QueryResolvers, QueryUsersArgs } from "../../../schema.ts";
 import { UserSortKeys } from "../../../schema.ts";
 import { authAdmin } from "../../common/authorizers/admin.ts";
@@ -40,14 +39,17 @@ export const typeDef = /* GraphQL */ `
     UPDATED_AT
   }
 
-  ${cursorConnection({
-    nodeType: "User",
-    additionals: {
-      connectionFields: {
-        totalCount: "Int",
-      },
-    },
-  })}
+  type UserConnection {
+    pageInfo: PageInfo!
+    edges: [UserEdge]
+    nodes: [User]
+    totalCount: Int
+  }
+
+  type UserEdge {
+    cursor: String!
+    node: User
+  }
 `;
 
 export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {

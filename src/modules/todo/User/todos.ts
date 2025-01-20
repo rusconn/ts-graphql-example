@@ -1,5 +1,4 @@
 import { getCursorConnection } from "../../../lib/graphql/cursorConnections/get.ts";
-import { cursorConnection } from "../../../lib/graphql/cursorConnections/sdl.ts";
 import type { UserResolvers, UserTodosArgs } from "../../../schema.ts";
 import { TodoSortKeys } from "../../../schema.ts";
 import { badUserInputErr } from "../../common/errors/badUserInput.ts";
@@ -46,14 +45,17 @@ export const typeDef = /* GraphQL */ `
     UPDATED_AT
   }
 
-  ${cursorConnection({
-    nodeType: "Todo",
-    additionals: {
-      connectionFields: {
-        totalCount: "Int",
-      },
-    },
-  })}
+  type TodoConnection {
+    pageInfo: PageInfo!
+    edges: [TodoEdge]
+    nodes: [Todo]
+    totalCount: Int
+  }
+
+  type TodoEdge {
+    cursor: String!
+    node: Todo
+  }
 `;
 
 export const resolver: UserResolvers["todos"] = async (parent, args, context, info) => {
