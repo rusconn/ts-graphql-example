@@ -1,0 +1,25 @@
+model Post {
+  id        String     @id @pg.Uuid
+  updatedAt DateTime
+  content   String     @pg.VarChar(280)
+  status    PostStatus @default(Active)
+  authorId  String     @pg.Uuid
+  parentId  String?    @pg.Uuid
+
+  author  User   @relation(fields: authorId, references: id, onDelete: Cascade)
+  parent  Post?  @relation("Parent-Reply", fields: parentId, references: id)
+  replies Post[] @relation("Parent-Reply")
+  likes   Like[]
+
+  // 投稿一覧、更新日時によるソート
+  @@index([updatedAt, id])
+  // ユーザーの投稿一覧、作成日時によるソート
+  @@index([authorId, id])
+  // ユーザーの投稿一覧、更新日時によるソート
+  @@index([authorId, updatedAt, id])
+}
+
+enum PostStatus {
+  Active
+  Deleted
+}

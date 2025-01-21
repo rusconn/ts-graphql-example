@@ -6,7 +6,22 @@ import type { User, UserNew, UserUpd, UserWithCredential, UserWithToken } from "
 import * as UserId from "../models/user/id.ts";
 import * as UserPassword from "../models/user/password.ts";
 import * as UserTokens from "../models/user/token.ts";
+import * as blockerCountLoader from "./loaders/blockerCount.ts";
+import * as blockersLoader from "./loaders/blockers.ts";
+import * as blockingCountLoader from "./loaders/blockingCount.ts";
+import * as blockingsLoader from "./loaders/blockings.ts";
+import * as followerCountLoader from "./loaders/followerCount.ts";
+import * as followersLoader from "./loaders/followers.ts";
+import * as followingCountLoader from "./loaders/followingCount.ts";
+import * as followingsLoader from "./loaders/followings.ts";
+import * as likersLoader from "./loaders/likers.ts";
 import * as userLoader from "./loaders/user.ts";
+
+export type { Blocker } from "./loaders/blockers.ts";
+export type { Blocking } from "./loaders/blockings.ts";
+export type { Follower } from "./loaders/followers.ts";
+export type { Following } from "./loaders/followings.ts";
+export type { Liker } from "./loaders/likers.ts";
 
 export class UserAPI {
   #db;
@@ -16,6 +31,15 @@ export class UserAPI {
     this.#db = db;
     this.#loaders = {
       user: userLoader.init(db),
+      blockers: blockersLoader.init(db),
+      blockerCount: blockerCountLoader.init(db),
+      blockings: blockingsLoader.init(db),
+      blockingCount: blockingCountLoader.init(db),
+      followers: followersLoader.init(db),
+      followerCount: followerCountLoader.init(db),
+      followings: followingsLoader.init(db),
+      followingCount: followingCountLoader.init(db),
+      likers: likersLoader.init(db),
     };
   }
 
@@ -40,6 +64,18 @@ export class UserAPI {
     return user as User | undefined;
   };
 
+  getWithCredencialByName = async (name: User["name"]) => {
+    const user = await this.#db
+      .selectFrom("UserCredential")
+      .innerJoin("User", "UserCredential.userId", "User.id")
+      .where("name", "=", name)
+      .selectAll("User")
+      .select("UserCredential.password")
+      .executeTakeFirst();
+
+    return user as UserWithCredential | undefined;
+  };
+
   getWithCredencialByEmail = async (email: User["email"]) => {
     const user = await this.#db
       .selectFrom("UserCredential")
@@ -62,8 +98,8 @@ export class UserAPI {
 
     const orderColumn = sortKey === "createdAt" ? "id" : sortKey;
 
-    const [direction, comp] = reverse //
-      ? (["desc", "<"] as const)
+    const [direction, comp] = reverse
+      ? (["desc", "<"] as const) //
       : (["asc", ">"] as const);
 
     const cursorOrderColumn =
@@ -127,11 +163,14 @@ export class UserAPI {
 
         const userWithToken = { ...user, token: userToken.token } as UserWithToken;
 
-        return { type: "Success", ...userWithToken } as const;
+        return { type: "Success", user: userWithToken } as const;
       });
     } catch (e) {
       if (isPgError(e)) {
         if (e.code === PgErrorCode.UniqueViolation) {
+          if (e.constraint?.includes("name")) {
+            return { type: "NameAlreadyExists" } as const;
+          }
           if (e.constraint?.includes("email")) {
             return { type: "EmailAlreadyExists" } as const;
           }
@@ -146,20 +185,21 @@ export class UserAPI {
   };
 
   updateById = async (id: User["id"], data: UserUpd) => {
-    const date = new Date();
-
     try {
       const user = await this.#db
         .updateTable("User")
         .where("id", "=", id)
-        .set({ updatedAt: date, ...data })
+        .set({ updatedAt: new Date(), ...data })
         .returningAll()
         .executeTakeFirstOrThrow();
 
-      return { type: "Success", ...(user as User) } as const;
+      return { type: "Success", user: user as User } as const;
     } catch (e) {
       if (isPgError(e)) {
         if (e.code === PgErrorCode.UniqueViolation) {
+          if (e.constraint?.includes("name")) {
+            return { type: "NameAlreadyExists" } as const;
+          }
           if (e.constraint?.includes("email")) {
             return { type: "EmailAlreadyExists" } as const;
           }
@@ -217,5 +257,41 @@ export class UserAPI {
 
   load = async (key: userLoader.Key) => {
     return await this.#loaders.user.load(key);
+  };
+
+  loadBlockerPage = async (key: blockersLoader.Key) => {
+    return await this.#loaders.blockers.load(key);
+  };
+
+  loadBlockerCount = async (key: blockerCountLoader.Key) => {
+    return await this.#loaders.blockerCount.load(key);
+  };
+
+  loadBlockingPage = async (key: blockingsLoader.Key) => {
+    return await this.#loaders.blockings.load(key);
+  };
+
+  loadBlockingCount = async (key: blockingCountLoader.Key) => {
+    return await this.#loaders.blockingCount.load(key);
+  };
+
+  loadFollowerPage = async (key: followersLoader.Key) => {
+    return await this.#loaders.followers.load(key);
+  };
+
+  loadFollowerCount = async (key: followerCountLoader.Key) => {
+    return await this.#loaders.followerCount.load(key);
+  };
+
+  loadFollowingPage = async (key: followingsLoader.Key) => {
+    return await this.#loaders.followings.load(key);
+  };
+
+  loadFollowingCount = async (key: followingCountLoader.Key) => {
+    return await this.#loaders.followingCount.load(key);
+  };
+
+  loadLikerPage = async (key: likersLoader.Key) => {
+    return await this.#loaders.likers.load(key);
   };
 }

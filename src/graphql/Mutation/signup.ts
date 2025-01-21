@@ -1,4 +1,3 @@
-import { UserRole } from "../../db/types.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../schema.ts";
 import { authGuest } from "../_authorizers/guest.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -16,7 +15,7 @@ export const typeDef = /* GraphQL */ `
   extend type Mutation {
     signup(
       """
-      ${USER_NAME_MIN}文字以上、${USER_NAME_MAX}文字まで
+      ${USER_NAME_MIN}文字以上、${USER_NAME_MAX}文字まで、既に存在する場合はエラー。使える文字は半角英数字とアンダースコアのみ。
       """
       name: String!
 
@@ -32,7 +31,11 @@ export const typeDef = /* GraphQL */ `
     ): SignupResult @semanticNonNull
   }
 
-  union SignupResult = SignupSuccess | InvalidInputErrors | EmailAlreadyTakenError
+  union SignupResult =
+      SignupSuccess
+    | InvalidInputErrors
+    | UserNameAlreadyTakenError
+    | UserEmailAlreadyTakenError
 
   type SignupSuccess {
     token: String!
@@ -54,18 +57,23 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 
   const result = await context.api.user.create({
     ...parsed,
-    role: UserRole.USER,
+    handle: parsed.name,
   });
 
   switch (result.type) {
     case "Success":
       return {
         __typename: "SignupSuccess",
-        token: result.token,
+        token: result.user.token,
+      };
+    case "NameAlreadyExists":
+      return {
+        __typename: "UserNameAlreadyTakenError",
+        message: "The name already taken.",
       };
     case "EmailAlreadyExists":
       return {
-        __typename: "EmailAlreadyTakenError",
+        __typename: "UserEmailAlreadyTakenError",
         message: "The email already taken.",
       };
     case "Unknown":
@@ -137,6 +145,7 @@ if (import.meta.vitest) {
       [{ ...validArgs, name: invalidArgs.name }, ["name"]],
       [{ ...validArgs, email: invalidArgs.email }, ["email"]],
       [{ ...validArgs, password: invalidArgs.password }, ["password"]],
+      [{ ...validArgs, password: "A".repeat(USER_PASSWORD_MIN - 1) }, ["password"]],
       [{ ...validArgs, ...invalidArgs }, ["name", "email", "password"]],
     ];
 

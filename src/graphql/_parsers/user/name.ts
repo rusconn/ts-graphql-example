@@ -1,15 +1,14 @@
 import { numChars } from "../../../lib/string/numChars.ts";
-import type { MutationAccountUpdateArgs, MutationSignupArgs } from "../../../schema.ts";
+import * as UserName from "../../../models/user/name.ts";
+import type { MutationSignupArgs } from "../../../schema.ts";
 import { ParseErr, parseArg } from "../util.ts";
 
-type Arg =
-  | MutationSignupArgs["name"] //
-  | MutationAccountUpdateArgs["name"];
+type Arg = MutationSignupArgs["name"];
 
-export const USER_NAME_MIN = 1;
-export const USER_NAME_MAX = 100;
+export const USER_NAME_MIN = 5;
+export const USER_NAME_MAX = 15;
 
-export const parseUserName = parseArg((arg: Arg, argName) => {
+export const parseUserNameAdditional = (arg: Arg, argName: string) => {
   if (arg != null && numChars(arg) < USER_NAME_MIN) {
     return new ParseErr(
       argName,
@@ -22,6 +21,11 @@ export const parseUserName = parseArg((arg: Arg, argName) => {
       `The ${argName} exceeds the maximum number of ${USER_NAME_MAX} characters.`,
     );
   }
+  if (arg != null && !UserName.is(arg)) {
+    return new ParseErr(argName, `Invalid ${argName}`);
+  }
 
   return arg;
-});
+};
+
+export const parseUserName = parseArg(parseUserNameAdditional);

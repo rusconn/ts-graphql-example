@@ -12,7 +12,7 @@ export const typeDef = /* GraphQL */ `
   union LogoutResult = LogoutSuccess
 
   type LogoutSuccess {
-    id: ID!
+    userId: ID!
   }
 `;
 
@@ -31,6 +31,6 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
 
   return {
     __typename: "LogoutSuccess",
-    id: userId(authed.id),
+    userId: userId(authed.id),
   };
 };

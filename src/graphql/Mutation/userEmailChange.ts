@@ -15,7 +15,10 @@ export const typeDef = /* GraphQL */ `
     ): UserEmailChangeResult @semanticNonNull
   }
 
-  union UserEmailChangeResult = UserEmailChangeSuccess | InvalidInputErrors | EmailAlreadyTakenError
+  union UserEmailChangeResult =
+      UserEmailChangeSuccess
+    | InvalidInputErrors
+    | UserEmailAlreadyTakenError
 
   type UserEmailChangeSuccess {
     user: User!
@@ -41,13 +44,15 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
     case "Success":
       return {
         __typename: "UserEmailChangeSuccess",
-        user: result,
+        user: result.user,
       };
     case "EmailAlreadyExists":
       return {
-        __typename: "EmailAlreadyTakenError",
-        message: "The email already taken.",
+        __typename: "UserEmailAlreadyTakenError",
+        message: "The email already taken",
       };
+    case "NameAlreadyExists":
+      throw new Error("unreachable");
     case "Unknown":
       throw internalServerError(result.e);
     default:

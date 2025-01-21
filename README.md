@@ -2,8 +2,8 @@
 
 TypeScript を使って GraphQL API を作る。
 
-とりあえず簡単な Todo アプリのバックエンドを想定して作る。\
-アプリのシップではなく、設計や実装のノウハウを手に入れることが目的。
+Twitter ライクな SNS アプリの Public API を想定して作る。\
+設計や実装のノウハウを手に入れることが目的なので、アプリのシップはしない。
 
 ## 事前準備
 
@@ -26,6 +26,12 @@ node --run dev
 クエリの実行は [Web コンソール](http://localhost:4000/graphql) で。\
 token を Authorization ヘッダへ Bearer でセットしておくこと。\
 token は [seed スクリプト](./prisma/seed.ts) から取得する。
+
+## DB へのログイン方法
+
+```shell
+docker compose exec db bash -c "psql -U postgres postgres"
+```
 
 ## 設計記録
 

@@ -1,5 +1,5 @@
 import * as UserId from "../../../models/user/id.ts";
-import { parseSomeId } from "../someId.ts";
+import { parseSomeId } from "../../_parsers/someId.ts";
 
 export const parseUserId = parseSomeId("User", UserId.is);
 
@@ -14,7 +14,7 @@ if (import.meta.vitest) {
   });
 
   test("invalid", () => {
-    const parsed = parseUserId(nodeId("Todo")(id));
+    const parsed = parseUserId(nodeId("Post")(id));
     expect(parsed instanceof Error).toBe(true);
   });
 }

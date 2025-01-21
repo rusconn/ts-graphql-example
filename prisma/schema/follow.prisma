@@ -1,0 +1,10 @@
+model Follow {
+  createdAt  DateTime
+  followerId String   @pg.Uuid
+  followeeId String   @pg.Uuid
+
+  follower  User @relation("followedBy", fields: followerId, references: id, onDelete: Cascade)
+  following User @relation("following", fields: followeeId, references: id, onDelete: Cascade)
+
+  @@id([followerId, followeeId])
+}

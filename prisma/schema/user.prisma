@@ -1,18 +1,20 @@
 model User {
   id        String   @id @pg.Uuid
   updatedAt DateTime
-  name      String   @pg.VarChar(100)
+  avatar    String?  @pg.VarChar(300)
+  name      String   @unique @pg.VarChar(15)
+  handle    String   @pg.VarChar(50)
+  bio       String   @default("") @pg.VarChar(160)
+  location  String   @default("") @pg.VarChar(30)
+  website   String   @default("") @pg.VarChar(100)
   email     String   @unique @pg.VarChar(100)
-  role      UserRole @default(USER)
 
-  todos      Todo[]
   token      UserToken?
   credential UserCredential? // 本当は必須だが Prisma の制限によりオプショナルにしている
-
-  @@index([updatedAt, id])
-}
-
-enum UserRole {
-  ADMIN
-  USER
+  posts      Post[]
+  likes      Like[]
+  blockers   Block[]         @relation("blockedBy")
+  blockings  Block[]         @relation("blocking")
+  followers  Follow[]        @relation("followedBy")
+  followings Follow[]        @relation("following")
 }

@@ -4,10 +4,19 @@
 
 import type { Insertable, Selectable } from "kysely";
 
-import type { Todo, User, UserCredential, UserToken } from "./types.ts";
+import type { Block, Follow, Like, Post, User, UserCredential, UserToken } from "./types.ts";
 
-export type TodoSelect = Selectable<Todo>;
-export type TodoInsert = Insertable<Todo>;
+export type BlockSelect = Selectable<Block>;
+export type BlockInsert = Insertable<Block>;
+
+export type FollowSelect = Selectable<Follow>;
+export type FollowInsert = Insertable<Follow>;
+
+export type LikeSelect = Selectable<Like>;
+export type LikeInsert = Insertable<Like>;
+
+export type PostSelect = Selectable<Post>;
+export type PostInsert = Insertable<Post>;
 
 export type UserSelect = Selectable<User>;
 export type UserInsert = Insertable<User>;

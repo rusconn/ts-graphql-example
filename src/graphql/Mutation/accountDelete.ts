@@ -15,7 +15,7 @@ export const typeDef = /* GraphQL */ `
   union AccountDeleteResult = AccountDeleteSuccess
 
   type AccountDeleteSuccess {
-    id: ID!
+    userId: ID!
   }
 `;
 
@@ -34,6 +34,6 @@ export const resolver: MutationResolvers["accountDelete"] = async (_parent, _arg
 
   return {
     __typename: "AccountDeleteSuccess",
-    id: userId(authed.id),
+    userId: userId(authed.id),
   };
 };

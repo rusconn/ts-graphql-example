@@ -2,34 +2,34 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import { type DB, UserRole } from "../../src/db/types.ts";
+import type { DB } from "../../src/db/types.ts";
 import * as UserId from "../../src/models/user/id.ts";
 
 export const seed = async (trx: Transaction<DB>) => {
   const handUsers = [
     {
-      /** Date: 2024-12-15T16:54:35.641Z */
-      id: "0193cb3e-4379-750f-880f-77afae342259",
-      updatedAt: new Date("2024-12-15T16:54:41.152Z"),
-      name: "admin",
-      email: "admin@admin.com",
-      role: UserRole.ADMIN,
+      /** Date: 2024-12-15T17:41:37.938Z */
+      id: "0193cb69-5412-759b-a780-8de48a4c054d",
+      updatedAt: new Date("2024-12-15T17:41:58.591Z"),
+      avatar: "https://example.com/avatars/alice",
+      name: "alice",
+      handle: "Alice",
+      bio: "CS -> programmer",
+      location: "U.S.",
+      website: "https://example.com/websites/alice",
+      email: "alice@example.com",
     },
     {
-      /** Date: 2024-12-15T16:54:38.927Z */
-      id: "0193cb3e-504f-72e9-897c-2c71f389f3ad",
-      updatedAt: new Date("2024-12-15T16:54:38.927Z"),
-      name: "hoge",
-      email: "hoge@hoge.com",
-      role: UserRole.USER,
-    },
-    {
-      /** Date: 2024-12-15T16:54:41.150Z */
-      id: "0193cb3e-58fe-772b-8306-412afa147cdd",
-      updatedAt: new Date("2024-12-15T16:54:41.151Z"),
-      name: "piyo",
-      email: "piyo@piyo.com",
-      role: UserRole.USER,
+      /** Date: 2024-12-15T17:41:58.590Z */
+      id: "0193cb69-a4be-754e-a5a0-462df1202f5e",
+      updatedAt: new Date("2024-12-15T17:41:58.590Z"),
+      avatar: "https://example.com/avatars/bob",
+      name: "bob",
+      handle: "Super Bob",
+      bio: "plumber -> firefighter",
+      location: "earth",
+      website: "https://example.com/websites/bob",
+      email: "bob@example.com",
     },
   ];
 
@@ -43,7 +43,7 @@ export const seed = async (trx: Transaction<DB>) => {
 
   await Promise.all(inserts);
 
-  return fakeUsers.map((user) => user.id);
+  return users.map((user) => user.id);
 };
 
 const fakeData = (numFakes: number) => {
@@ -58,12 +58,16 @@ const fakeDataOne = (nth: number) => {
   return {
     id,
     updatedAt: faker.date.past(),
-    name: firstName + lastName,
+    avatar: null,
+    name: firstName + nth, // make unique
+    handle: faker.lorem.words(2),
+    bio: "",
+    location: "",
+    website: "",
     email: faker.internet.email({
       firstName,
       lastName: lastName + nth, // make unique
       allowSpecialCharacters: true,
     }),
-    role: UserRole.USER,
   };
 };

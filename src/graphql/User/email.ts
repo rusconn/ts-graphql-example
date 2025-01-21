@@ -1,5 +1,5 @@
 import type { UserResolvers } from "../../schema.ts";
-import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
+import { authUserOwner } from "../_authorizers/user/userOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -9,10 +9,10 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: UserResolvers["email"] = (parent, _args, context) => {
-  const authed = authAdminOrUserOwner(context, parent);
+  const authed = authUserOwner(context, parent);
 
   if (authed instanceof Error) {
-    throw forbiddenErr(authed);
+    throw forbiddenErr();
   }
 
   return parent.email;

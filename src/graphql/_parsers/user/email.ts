@@ -8,13 +8,13 @@ import type {
 import { ParseErr, parseArg } from "../util.ts";
 
 type Arg =
+  | MutationLoginArgs["loginId"]
   | MutationSignupArgs["email"]
-  | MutationLoginArgs["email"]
   | MutationUserEmailChangeArgs["email"];
 
 export const USER_EMAIL_MAX = 100;
 
-export const parseUserEmail = parseArg((arg: Arg, argName) => {
+export const parseUserEmailAdditional = (arg: Arg, argName: string) => {
   if (arg != null && numChars(arg) > USER_EMAIL_MAX) {
     return new ParseErr(
       argName,
@@ -26,4 +26,6 @@ export const parseUserEmail = parseArg((arg: Arg, argName) => {
   }
 
   return arg;
-});
+};
+
+export const parseUserEmail = parseArg(parseUserEmailAdditional);
