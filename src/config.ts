@@ -39,3 +39,11 @@ if (DATABASE_URL == null) {
 }
 
 export { DATABASE_URL as connectionString };
+
+const { ORIGIN } = process.env;
+
+if (ORIGIN == null) {
+  throw new Error("Invalid ORIGIN");
+}
+
+export { ORIGIN };

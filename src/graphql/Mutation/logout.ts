@@ -23,16 +23,16 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
     throw forbiddenErr(authed);
   }
 
-  const updated = await context.api.user.updateById(authed.id, {
+  const loggedOut = await context.api.user.updateById(authed.id, {
     token: null,
   });
 
-  if (!updated) {
+  if (!loggedOut) {
     throw internalServerError();
   }
 
   return {
     __typename: "LogoutSuccess",
-    id: userId(updated.id),
+    id: userId(loggedOut.id),
   };
 };

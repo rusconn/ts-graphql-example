@@ -3,7 +3,10 @@ import { createSchema, createYoga } from "graphql-yoga";
 import { App } from "uWebSockets.js";
 
 import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
-import { TodoAPI } from "./datasources/todo.ts";
+import { BlockAPI } from "./datasources/block.ts";
+import { FollowAPI } from "./datasources/follow.ts";
+import { LikeAPI } from "./datasources/like.ts";
+import { PostAPI } from "./datasources/post.ts";
 import { UserAPI } from "./datasources/user.ts";
 import { client } from "./db/client.ts";
 import * as userToken from "./db/models/user/token.ts";
@@ -30,7 +33,10 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
     const api = {
-      todo: new TodoAPI(client),
+      block: new BlockAPI(client),
+      follow: new FollowAPI(client),
+      like: new LikeAPI(client),
+      post: new PostAPI(client),
       user: new UserAPI(client),
     };
 

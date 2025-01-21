@@ -11,7 +11,7 @@ const options: LoggerOptions = {
   },
   ...(isProd && {
     redact: {
-      paths: ["variables.email", "variables.password"],
+      paths: ["variables.email", "variables.password", "variables.loginId"],
       censor: "***",
     },
   }),

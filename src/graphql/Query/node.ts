@@ -1,11 +1,9 @@
-import * as todoId from "../../db/models/todo/id.ts";
+import * as postId from "../../db/models/post/id.ts";
 import * as userId from "../../db/models/user/id.ts";
 import type { QueryResolvers } from "../../schema.ts";
-import * as todo from "../Todo/_node.ts";
+import * as post from "../Post/_node.ts";
 import * as user from "../User/_node.ts";
-import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
-import { forbiddenErr } from "../_errors/forbidden.ts";
 import { parseId } from "../_parsers/id.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -15,12 +13,6 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["node"] = async (_parent, args, context) => {
-  const authed = authAuthenticated(context);
-
-  if (authed instanceof Error) {
-    throw forbiddenErr(authed);
-  }
-
   const parsed = parseId(args);
 
   if (parsed instanceof Error) {
@@ -30,7 +22,7 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
   const { type, internalId } = parsed;
 
   const pairs = {
-    Todo: [todoId.is, todo.getNode],
+    Post: [postId.is, post.getNode],
     User: [userId.is, user.getNode],
   } as const;
 
