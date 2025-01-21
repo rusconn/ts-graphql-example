@@ -46,6 +46,7 @@ if (BASE_URL == null) {
   throw new Error("Invalid BASE_URL");
 }
 
-const endpoint = `${BASE_URL}:${port}/graphql`;
+const baseUrl = BASE_URL;
+const endpoint = `${baseUrl}:${port}/graphql`;
 
-export { endpoint };
+export { baseUrl, endpoint };

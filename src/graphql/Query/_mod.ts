@@ -1,7 +1,8 @@
 import type { Resolvers } from "../../schema.ts";
 import * as node from "./node.ts";
+import * as post from "./post.ts";
+import * as posts from "./posts.ts";
 import * as user from "./user.ts";
-import * as users from "./users.ts";
 import * as viewer from "./viewer.ts";
 
 const typeDef = /* GraphQL */ `
@@ -9,16 +10,18 @@ const typeDef = /* GraphQL */ `
 `;
 
 export const typeDefs = [
-  typeDef, //
+  typeDef,
   node.typeDef,
+  post.typeDef,
+  posts.typeDef,
   user.typeDef,
-  users.typeDef,
   viewer.typeDef,
 ];
 
 export const resolvers: Resolvers["Query"] = {
   node: node.resolver,
+  post: post.resolver,
+  posts: posts.resolver,
   user: user.resolver,
-  users: users.resolver,
   viewer: viewer.resolver,
 };

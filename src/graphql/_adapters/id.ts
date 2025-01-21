@@ -2,7 +2,7 @@ import type { ID } from "../ID.ts";
 
 export type NodeType = (typeof nodeTypes)[number];
 
-export const nodeTypes = ["Todo", "User"] as const;
+export const nodeTypes = ["Post", "User"] as const;
 
 export const typeIdSep = ":";
 

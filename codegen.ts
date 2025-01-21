@@ -24,6 +24,10 @@ const typescript: TypeScriptPluginConfig = {
       input: "./graphql/EmailAddress.ts#EmailAddress",
       output: "./graphql/EmailAddress.ts#EmailAddress",
     },
+    URL: {
+      input: "./graphql/URL.ts#URL",
+      output: "./graphql/URL.ts#URL",
+    },
   },
   useTypeImports: true,
 };
@@ -34,7 +38,7 @@ const typescriptResolvers: TypeScriptResolversPluginConfig = {
   mapperTypeSuffix: "Mapper",
   mappers: {
     Node: "./graphql/Node/_mapper.ts#Node",
-    Todo: "./graphql/Todo/_mapper.ts#Todo",
+    Post: "./graphql/Post/_mapper.ts#Post",
     User: "./graphql/User/_mapper.ts#User",
   },
   resolversNonOptionalTypename: {
@@ -51,6 +55,7 @@ const typescriptOperations: TypeScriptDocumentsPluginConfig = {
       output: "Date",
     },
     EmailAddress: "string",
+    URL: "string",
   },
   skipTypename: true,
 };
@@ -65,14 +70,14 @@ const config: CodegenConfig = {
         ...typescriptResolvers,
       },
     },
-    "tests/graphql/schema.ts": {
-      documents: "tests/graphql/**/*.ts",
-      plugins: ["typescript", "typescript-operations"],
-      config: {
-        ...typescript,
-        ...typescriptOperations,
-      },
-    },
+    // "tests/graphql/schema.ts": {
+    //   documents: "tests/graphql/**/*.ts",
+    //   plugins: ["typescript", "typescript-operations"],
+    //   config: {
+    //     ...typescript,
+    //     ...typescriptOperations,
+    //   },
+    // },
   },
   emitLegacyCommonJSImports: false,
 };

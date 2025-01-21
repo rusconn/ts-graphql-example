@@ -1,5 +1,5 @@
 import { client } from "../src/db/client.ts";
-import type { Todo } from "../src/models/todo.ts";
+import type { Post } from "../src/models/post.ts";
 import type { UserFull } from "../src/models/user.ts";
 
 export const clearTables = async () => {
@@ -7,8 +7,8 @@ export const clearTables = async () => {
   await clearUsers();
 };
 
-export const clearTodos = async () => {
-  await client.deleteFrom("Todo").executeTakeFirstOrThrow();
+export const clearPosts = async () => {
+  await client.deleteFrom("Post").executeTakeFirstOrThrow();
 };
 
 export const clearUsers = async () => {
@@ -42,9 +42,9 @@ export const seed = {
 
       return await Promise.all(seeds);
     }),
-  todo: (todos: Todo[]) =>
+  post: (posts: Post[]) =>
     client
-      .insertInto("Todo") //
-      .values(todos)
+      .insertInto("Post") //
+      .values(posts)
       .executeTakeFirstOrThrow(),
 };

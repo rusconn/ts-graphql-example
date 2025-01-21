@@ -1,19 +1,19 @@
-import * as todo from "./data/todo.ts";
+import * as post from "./data/post.ts";
 import * as user from "./data/user.ts";
 
 export const Data = {
   token: user.token,
   db: {
-    ...todo.db,
+    ...post.db,
     ...user.db,
   },
   graph: {
-    ...todo.graph,
+    ...post.graph,
     ...user.graph,
   },
 };
 
 export const dummyId = {
-  todo: todo.dummyId,
+  post: post.dummyId,
   user: user.dummyId,
 };

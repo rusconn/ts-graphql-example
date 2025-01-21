@@ -4,30 +4,44 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   : ColumnType<T, T | undefined, T>;
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-export const TodoStatus = {
-  DONE: "DONE",
-  PENDING: "PENDING",
+export const PostStatus = {
+  Active: "Active",
+  Deleted: "Deleted",
 } as const;
-export type TodoStatus = typeof TodoStatus[keyof typeof TodoStatus];
-export const UserRole = {
-  ADMIN: "ADMIN",
-  USER: "USER",
-} as const;
-export type UserRole = typeof UserRole[keyof typeof UserRole];
-export type Todo = {
+export type PostStatus = typeof PostStatus[keyof typeof PostStatus];
+export type Block = {
+  createdAt: Timestamp;
+  blockerId: string;
+  blockeeId: string;
+};
+export type Follow = {
+  createdAt: Timestamp;
+  followerId: string;
+  followeeId: string;
+};
+export type Like = {
+  createdAt: Timestamp;
+  userId: string;
+  postId: string;
+};
+export type Post = {
   id: string;
   updatedAt: Timestamp;
-  title: string;
-  description: Generated<string>;
-  status: Generated<TodoStatus>;
-  userId: string;
+  content: string;
+  status: Generated<PostStatus>;
+  authorId: string;
+  parentId: string | null;
 };
 export type User = {
   id: string;
   updatedAt: Timestamp;
+  avatar: string | null;
   name: string;
+  handle: string;
+  bio: Generated<string>;
+  location: Generated<string>;
+  website: Generated<string>;
   email: string;
-  role: Generated<UserRole>;
 };
 export type UserCredential = {
   userId: string;
@@ -40,7 +54,10 @@ export type UserToken = {
   token: string;
 };
 export type DB = {
-  Todo: Todo;
+  Block: Block;
+  Follow: Follow;
+  Like: Like;
+  Post: Post;
   User: User;
   UserCredential: UserCredential;
   UserToken: UserToken;

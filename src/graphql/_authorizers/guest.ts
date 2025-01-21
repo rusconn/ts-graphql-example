@@ -13,7 +13,7 @@ if (import.meta.vitest) {
   const { context } = await import("../_testData/context.ts");
 
   const allows = [context.guest];
-  const denies = [context.admin, context.alice];
+  const denies = [context.alice, context.bob];
 
   test.each(allows)("allows %#", (user) => {
     const authed = authGuest({ user });
