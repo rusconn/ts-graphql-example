@@ -7,7 +7,7 @@ import * as userTodoLoader from "./loaders/userTodo.ts";
 import * as userTodoCountLoader from "./loaders/userTodoCount.ts";
 import * as userTodosLoader from "./loaders/userTodos.ts";
 
-export class UserTodoAPI {
+export class TodoAPI {
   #db;
   #loaders;
 
@@ -20,31 +20,10 @@ export class UserTodoAPI {
     };
   }
 
-  load = async (key: {
-    userId: Todo["userId"];
-    todoId: Todo["id"];
-  }) => {
-    return await this.#loaders.userTodo.load({ userId: key.userId, id: key.todoId });
-  };
-
-  loadPage = async (
-    userId: Todo["userId"],
-    params: userTodosLoader.Params & {
-      sortKey: "createdAt" | "updatedAt";
-      reverse: boolean;
-    },
-  ) => {
-    return await this.#loaders.userTodos(params).load(userId);
-  };
-
-  loadCount = async (userId: Todo["userId"], params: userTodoCountLoader.Params) => {
-    return await this.#loaders.userTodoCount(params).load(userId);
-  };
-
-  count = async (userId: Todo["userId"]) => {
+  count = async (userId?: Todo["userId"]) => {
     const result = await this.#db
       .selectFrom("Todo")
-      .where("userId", "=", userId)
+      .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
       .select(({ fn }) => fn.countAll().as("count"))
       .executeTakeFirstOrThrow();
 
@@ -74,16 +53,16 @@ export class UserTodoAPI {
 
   update = async (
     key: {
-      userId: Todo["userId"];
-      todoId: Todo["id"];
+      id: Todo["id"];
+      userId?: Todo["userId"];
     },
     data: Omit<UpdTodo, "userId" | "id" | "updatedAt">,
     trx?: Transaction<DB>,
   ) => {
     const todo = await (trx ?? this.#db)
       .updateTable("Todo")
-      .where("userId", "=", key.userId)
-      .where("id", "=", key.todoId)
+      .where("id", "=", key.id)
+      .$if(key.userId != null, (qb) => qb.where("userId", "=", key.userId!))
       .set({
         updatedAt: new Date(),
         ...data,
@@ -96,18 +75,30 @@ export class UserTodoAPI {
 
   delete = async (
     key: {
-      userId: Todo["userId"];
-      todoId: Todo["id"];
+      id: Todo["id"];
+      userId?: Todo["userId"];
     },
     trx?: Transaction<DB>,
   ) => {
     const todo = await (trx ?? this.#db)
       .deleteFrom("Todo")
-      .where("userId", "=", key.userId)
-      .where("id", "=", key.todoId)
+      .where("id", "=", key.id)
+      .$if(key.userId != null, (qb) => qb.where("userId", "=", key.userId!))
       .returningAll()
       .executeTakeFirst();
 
     return todo as Todo | undefined;
+  };
+
+  loadTheir = async (key: userTodoLoader.Key) => {
+    return await this.#loaders.userTodo.load(key);
+  };
+
+  loadTheirPage = async (key: userTodosLoader.Key, params: userTodosLoader.Params) => {
+    return await this.#loaders.userTodos(params).load(key);
+  };
+
+  loadTheirCount = async (key: userTodoCountLoader.Key, params: userTodoCountLoader.Params) => {
+    return await this.#loaders.userTodoCount(params).load(key);
   };
 }

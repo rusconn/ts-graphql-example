@@ -1,8 +1,8 @@
 import type { YogaInitialContext } from "graphql-yoga";
 import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 
+import type { TodoAPI } from "./datasources/todo.ts";
 import type { UserAPI } from "./datasources/user.ts";
-import type { UserTodoAPI } from "./datasources/userTodo.ts";
 import type { client } from "./db/client.ts";
 import type { User as UserModel } from "./db/models/user.ts";
 import type { logger } from "./logger.ts";
@@ -24,8 +24,8 @@ export type UserContext = {
   user: Admin | User | Guest;
   db: typeof client;
   api: {
+    todo: TodoAPI;
     user: UserAPI;
-    userTodo: UserTodoAPI;
   };
 };
 

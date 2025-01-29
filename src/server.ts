@@ -3,8 +3,8 @@ import { createSchema, createYoga } from "graphql-yoga";
 import { App } from "uWebSockets.js";
 
 import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
+import { TodoAPI } from "./datasources/todo.ts";
 import { UserAPI } from "./datasources/user.ts";
-import { UserTodoAPI } from "./datasources/userTodo.ts";
 import { client } from "./db/client.ts";
 import * as userToken from "./db/models/user/token.ts";
 import { logger } from "./logger.ts";
@@ -30,8 +30,8 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
     const api = {
+      todo: new TodoAPI(client),
       user: new UserAPI(client),
-      userTodo: new UserTodoAPI(client),
     };
 
     let user: Context["user"] | undefined = null;

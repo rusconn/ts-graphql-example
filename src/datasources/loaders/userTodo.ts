@@ -5,7 +5,7 @@ import type { DB } from "../../db/generated/types.ts";
 import type { Todo } from "../../db/models/todo.ts";
 import { sort } from "../../lib/dataloader/sort.ts";
 
-type Key = Pick<Todo, "id" | "userId">;
+export type Key = Pick<Todo, "id" | "userId">;
 
 export const init = (db: Kysely<DB>) => {
   return new DataLoader(batchGet(db), { cacheKeyFn: combine });

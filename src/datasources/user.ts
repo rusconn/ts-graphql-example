@@ -16,10 +16,6 @@ export class UserAPI {
     };
   }
 
-  load = async (id: User["id"]) => {
-    return await this.#loaders.user.load(id);
-  };
-
   getById = async (id: User["id"], trx?: Transaction<DB>) => {
     return await this.#getByKey("id")(id, trx);
   };
@@ -34,7 +30,7 @@ export class UserAPI {
 
   #getByKey =
     (key: "id" | "email" | "token") =>
-    async (val: User["id"] | User["email"] | User["token"], trx?: Transaction<DB>) => {
+    async (val: User["id" | "email" | "token"], trx?: Transaction<DB>) => {
       const user = await (trx ?? this.#db)
         .selectFrom("User")
         .where(key, "=", val)
@@ -136,7 +132,7 @@ export class UserAPI {
   #updateByKey =
     (key: "id" | "email") =>
     async (
-      val: User["id"] | User["email"],
+      val: User["id" | "email"],
       data: Omit<UpdUser, "id" | "updatedAt">,
       trx?: Transaction<DB>,
     ) => {
@@ -161,5 +157,9 @@ export class UserAPI {
       .executeTakeFirst();
 
     return user as User | undefined;
+  };
+
+  load = async (key: userLoader.Key) => {
+    return await this.#loaders.user.load(key);
   };
 }

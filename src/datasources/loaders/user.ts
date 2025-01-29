@@ -5,7 +5,7 @@ import type { DB } from "../../db/generated/types.ts";
 import type { User } from "../../db/models/user.ts";
 import { sort } from "../../lib/dataloader/sort.ts";
 
-type Key = User["id"];
+export type Key = User["id"];
 
 export const init = (db: Kysely<DB>) => {
   return new DataLoader(batchGet(db));

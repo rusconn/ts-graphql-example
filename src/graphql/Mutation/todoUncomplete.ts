@@ -32,8 +32,8 @@ export const resolver: MutationResolvers["todoUncomplete"] = async (_parent, arg
     };
   }
 
-  const todo = await context.api.userTodo.update(
-    { userId: authed.id, todoId: parsed },
+  const todo = await context.api.todo.update(
+    { id: parsed, userId: authed.id },
     { status: TodoStatus.PENDING },
   );
 

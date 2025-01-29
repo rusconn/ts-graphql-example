@@ -75,7 +75,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
 
   const connection = await getCursorConnection<Todo, Pick<Todo, "id">>(
     async ({ cursor, limit, backward }) => {
-      const page = await context.api.userTodo.loadPage(parent.id, {
+      const page = await context.api.todo.loadTheirPage(parent.id, {
         cursor: cursor?.id,
         sortKey: {
           [TodoSortKeys.CreatedAt]: "createdAt" as const,
@@ -88,7 +88,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
 
       return backward ? page.reverse() : page;
     },
-    () => context.api.userTodo.loadCount(parent.id, { status }),
+    () => context.api.todo.loadTheirCount(parent.id, { status }),
     { first, after, last, before },
     { resolveInfo: info },
   );

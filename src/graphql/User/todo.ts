@@ -23,9 +23,9 @@ export const resolver: UserResolvers["todo"] = async (parent, args, context) => 
     throw badUserInputErr(parsed.message, parsed);
   }
 
-  const todo = await context.api.userTodo.load({
+  const todo = await context.api.todo.loadTheir({
+    id: parsed,
     userId: parent.id,
-    todoId: parsed,
   });
 
   return todo ?? null;
