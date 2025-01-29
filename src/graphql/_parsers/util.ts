@@ -27,7 +27,7 @@ export const parseArgs =
       return parsed;
     }
 
-    return arg as Optional extends true
+    return parsed as Optional extends true
       ? Nullable extends true
         ? Output
         : Exclude<Output, null>
