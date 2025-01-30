@@ -20,6 +20,17 @@ export class TodoAPI {
     };
   }
 
+  getById = async (id: Todo["id"], trx?: Transaction<DB>) => {
+    const user = await (trx ?? this.#db)
+      .selectFrom("Todo")
+      .where("id", "=", id)
+      .selectAll()
+      .$if(trx != null, (qb) => qb.forUpdate())
+      .executeTakeFirst();
+
+    return user as Todo | undefined;
+  };
+
   count = async (userId?: Todo["userId"]) => {
     const result = await this.#db
       .selectFrom("Todo")
