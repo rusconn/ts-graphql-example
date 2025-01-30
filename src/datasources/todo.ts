@@ -1,7 +1,7 @@
 import type { Kysely, Transaction } from "kysely";
 
 import type { DB } from "../db/generated/types.ts";
-import type { NewTodo, Todo, UpdTodo } from "../db/models/todo.ts";
+import type { NewTodo, Todo, TodoKey, UpdTodo } from "../db/models/todo.ts";
 import * as todoId from "../db/models/todo/id.ts";
 import * as userTodoLoader from "./loaders/userTodo.ts";
 import * as userTodoCountLoader from "./loaders/userTodoCount.ts";
@@ -30,11 +30,7 @@ export class TodoAPI {
     return Number(result.count);
   };
 
-  create = async (
-    userId: Todo["userId"],
-    data: Omit<NewTodo, "userId" | "id" | "updatedAt">,
-    trx?: Transaction<DB>,
-  ) => {
+  create = async (data: Omit<NewTodo, "id" | "updatedAt">, trx?: Transaction<DB>) => {
     const { id, date } = todoId.genWithDate();
 
     const todo = await (trx ?? this.#db)
@@ -43,7 +39,6 @@ export class TodoAPI {
         id,
         updatedAt: date,
         ...data,
-        userId,
       })
       .returningAll()
       .executeTakeFirst();
@@ -52,17 +47,14 @@ export class TodoAPI {
   };
 
   update = async (
-    key: {
-      id: Todo["id"];
-      userId?: Todo["userId"];
-    },
+    { id, userId }: TodoKey,
     data: Omit<UpdTodo, "userId" | "id" | "updatedAt">,
     trx?: Transaction<DB>,
   ) => {
     const todo = await (trx ?? this.#db)
       .updateTable("Todo")
-      .where("id", "=", key.id)
-      .$if(key.userId != null, (qb) => qb.where("userId", "=", key.userId!))
+      .where("id", "=", id)
+      .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
       .set({
         updatedAt: new Date(),
         ...data,
@@ -73,17 +65,11 @@ export class TodoAPI {
     return todo as Todo | undefined;
   };
 
-  delete = async (
-    key: {
-      id: Todo["id"];
-      userId?: Todo["userId"];
-    },
-    trx?: Transaction<DB>,
-  ) => {
+  delete = async ({ id, userId }: TodoKey, trx?: Transaction<DB>) => {
     const todo = await (trx ?? this.#db)
       .deleteFrom("Todo")
-      .where("id", "=", key.id)
-      .$if(key.userId != null, (qb) => qb.where("userId", "=", key.userId!))
+      .where("id", "=", id)
+      .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
       .returningAll()
       .executeTakeFirst();
 

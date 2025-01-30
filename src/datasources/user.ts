@@ -1,7 +1,7 @@
 import type { Kysely, Transaction } from "kysely";
 
 import type { DB } from "../db/generated/types.ts";
-import type { NewUser, UpdUser, User } from "../db/models/user.ts";
+import type { NewUser, UpdUser, User, UserKey, UserKeyCols } from "../db/models/user.ts";
 import * as userId from "../db/models/user/id.ts";
 import * as userLoader from "./loaders/user.ts";
 
@@ -24,22 +24,20 @@ export class UserAPI {
     return await this.#getByKey("email")(email, trx);
   };
 
-  getByToken = async (token: User["token"], trx?: Transaction<DB>) => {
+  getByToken = async (token: Exclude<User["token"], null>, trx?: Transaction<DB>) => {
     return await this.#getByKey("token")(token, trx);
   };
 
-  #getByKey =
-    (key: "id" | "email" | "token") =>
-    async (val: User["id" | "email" | "token"], trx?: Transaction<DB>) => {
-      const user = await (trx ?? this.#db)
-        .selectFrom("User")
-        .where(key, "=", val)
-        .selectAll()
-        .$if(trx != null, (qb) => qb.forUpdate())
-        .executeTakeFirst();
+  #getByKey = (key: UserKeyCols) => async (val: UserKey, trx?: Transaction<DB>) => {
+    const user = await (trx ?? this.#db)
+      .selectFrom("User")
+      .where(key, "=", val)
+      .selectAll()
+      .$if(trx != null, (qb) => qb.forUpdate())
+      .executeTakeFirst();
 
-      return user as User | undefined;
-    };
+    return user as User | undefined;
+  };
 
   getPage = async ({
     cursor,
@@ -130,12 +128,8 @@ export class UserAPI {
   };
 
   #updateByKey =
-    (key: "id" | "email") =>
-    async (
-      val: User["id" | "email"],
-      data: Omit<UpdUser, "id" | "updatedAt">,
-      trx?: Transaction<DB>,
-    ) => {
+    (key: UserKeyCols) =>
+    async (val: UserKey, data: Omit<UpdUser, "id" | "updatedAt">, trx?: Transaction<DB>) => {
       const user = await (trx ?? this.#db)
         .updateTable("User")
         .where(key, "=", val)

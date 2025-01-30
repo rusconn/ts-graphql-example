@@ -95,9 +95,10 @@ const logic = async (
     };
   }
 
-  const todo = await context.api.todo.create(authed.id, {
+  const todo = await context.api.todo.create({
     title,
     description,
+    userId: authed.id,
   });
 
   if (!todo) {
