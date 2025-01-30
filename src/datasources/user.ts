@@ -65,16 +65,14 @@ export class UserAPI {
 
     const page = await this.#db
       .selectFrom("User")
-      .$if(cursorOrderColumn != null, (qb) =>
-        qb.where(({ eb }) =>
-          eb.or([
-            eb(orderColumn, comp, cursorOrderColumn!),
-            eb.and([
-              //
-              eb(orderColumn, "=", cursorOrderColumn!),
-              eb("id", comp, cursor!),
-            ]),
-          ]),
+      .$if(cursor != null, (qb) =>
+        qb.where(({ eb, refTuple, tuple }) =>
+          eb(
+            //
+            refTuple(orderColumn, "id"),
+            comp,
+            tuple(cursorOrderColumn!, cursor!),
+          ),
         ),
       )
       .selectAll()

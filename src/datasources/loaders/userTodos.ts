@@ -47,16 +47,14 @@ export const initClosure = (db: Kysely<DB>) => {
           .selectFrom("Todo")
           .where("userId", "in", keys)
           .$if(status != null, (qb) => qb.where("status", "=", status!))
-          .$if(cursorOrderColumn != null, (qb) =>
-            qb.where(({ eb }) =>
-              eb.or([
-                eb(orderColumn, comp, cursorOrderColumn!),
-                eb.and([
-                  //
-                  eb(orderColumn, "=", cursorOrderColumn!),
-                  eb("id", comp, cursor!),
-                ]),
-              ]),
+          .$if(cursor != null, (qb) =>
+            qb.where(({ eb, refTuple, tuple }) =>
+              eb(
+                //
+                refTuple(orderColumn, "id"),
+                comp,
+                tuple(cursorOrderColumn!, cursor!),
+              ),
             ),
           )
           .selectAll()
