@@ -18,7 +18,7 @@ export async function getCursorConnection<
 >(
   getPage: (args: GetPageArguments<Cursor>) => Promise<Record[]>,
   count: () => Promise<number>,
-  connArgs: ConnectionArguments = {},
+  connArgs: ConnectionArguments<Cursor> = {},
   pOptions?: Options<Record, Cursor, Node, CustomEdge>,
 ): Promise<Connection<Node, CustomEdge> | Error> {
   const args = parseArgs(connArgs);
@@ -39,7 +39,7 @@ export async function getCursorConnection<
   if (isForwardPagination(args)) {
     [records, totalCount] = await Promise.all([
       getPage({
-        cursor: decodeCursor(args.after, options),
+        cursor: args.after,
         limit: args.first + 1,
         backward: false,
       }),
@@ -55,7 +55,7 @@ export async function getCursorConnection<
   } else {
     [records, totalCount] = await Promise.all([
       getPage({
-        cursor: decodeCursor(args.before, options),
+        cursor: args.before,
         limit: args.last + 1,
         backward: true,
       }),
@@ -96,7 +96,9 @@ export async function getCursorConnection<
   };
 }
 
-function parseArgs(args: ConnectionArguments): ConnectionArgumentsUnion | Error {
+function parseArgs<Cursor>(
+  args: ConnectionArguments<Cursor>,
+): ConnectionArgumentsUnion<Cursor> | Error {
   if (args.first == null && args.last == null) {
     return new Error('One of "first" or "last" is required');
   }
@@ -122,23 +124,25 @@ function parseArgs(args: ConnectionArguments): ConnectionArgumentsUnion | Error 
     return new Error('"last" has to be non-negative integer');
   }
 
-  return args as ConnectionArgumentsUnion;
+  return args as ConnectionArgumentsUnion<Cursor>;
 }
 
-type ConnectionArgumentsUnion = ForwardPaginationArguments | BackwardPaginationArguments;
+type ConnectionArgumentsUnion<Cursor> =
+  | ForwardPaginationArguments<Cursor>
+  | BackwardPaginationArguments<Cursor>;
 
-type ForwardPaginationArguments = {
+type ForwardPaginationArguments<Cursor> = {
   first: number;
-  after?: string;
+  after?: Cursor;
   last?: undefined;
   before?: undefined;
 };
 
-type BackwardPaginationArguments = {
+type BackwardPaginationArguments<Cursor> = {
   first?: undefined;
   after?: undefined;
   last: number;
-  before?: string;
+  before?: Cursor;
 };
 
 type MergedOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>> = Required<
@@ -152,22 +156,14 @@ function mergeDefaultOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>
     getCursor: (record: Record) =>
       ({ id: (record as unknown as { id: string }).id }) as unknown as Cursor,
     encodeCursor: (cursor: Cursor) => (cursor as unknown as { id: string }).id,
-    decodeCursor: (cursorString: string) => ({ id: cursorString }) as unknown as Cursor,
     recordToEdge: (record: Record) => ({ node: record }) as unknown as Omit<CustomEdge, "cursor">,
     resolveInfo: null,
     ...pOptions,
   };
 }
 
-function isForwardPagination(args: ConnectionArgumentsUnion) {
+function isForwardPagination<Cursor>(args: ConnectionArgumentsUnion<Cursor>) {
   return "first" in args && args.first != null;
-}
-
-function decodeCursor<Record, Cursor, Node, CustomEdge extends Edge<Node>>(
-  connectionCursor: string | undefined,
-  options: MergedOptions<Record, Cursor, Node, CustomEdge>,
-): Cursor | undefined {
-  return connectionCursor ? options.decodeCursor(connectionCursor) : undefined;
 }
 
 function encodeCursor<Record, Cursor, Node, CustomEdge extends Edge<Node>>(

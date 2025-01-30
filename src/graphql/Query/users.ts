@@ -67,10 +67,10 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 
   const { first, after, last, before, reverse, sortKey } = parsed;
 
-  const connection = await getCursorConnection<User, Pick<User, "id">>(
+  const connection = await getCursorConnection<User, User["id"]>(
     async ({ cursor, limit, backward }) => {
       const page = await context.api.user.getPage({
-        cursor: cursor?.id,
+        cursor,
         sortKey: {
           [UserSortKeys.CreatedAt]: "createdAt" as const,
           [UserSortKeys.UpdatedAt]: "updatedAt" as const,

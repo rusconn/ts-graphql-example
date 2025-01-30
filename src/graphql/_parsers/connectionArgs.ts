@@ -1,13 +1,13 @@
 import type { ConnectionArguments } from "../../lib/graphql/cursorConnections/interfaces.ts";
 import { parseErr } from "./util.ts";
 
-type Config<T> = {
+type Config<Cursor> = {
   firstMax: number;
   lastMax: number;
-  parseCursor: (cursor: string) => T | Error;
+  parseCursor: (cursor: string) => Cursor | Error;
 };
 
-export const parseConnectionArgs = <T>(args: ConnectionArguments, config: Config<T>) => {
+export const parseConnectionArgs = <Cursor>(args: ConnectionArguments, config: Config<Cursor>) => {
   const { first, after, last, before } = args;
   const { firstMax, lastMax, parseCursor } = config;
 
