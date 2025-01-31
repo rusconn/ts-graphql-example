@@ -61,8 +61,8 @@ export const initClosure = (db: Kysely<DB>) => {
           .select(({ fn }) =>
             fn
               .agg<number>("row_number")
-              .over((x) =>
-                x //
+              .over((ob) =>
+                ob //
                   .partitionBy("userId")
                   .orderBy(orderColumn, direction)
                   .orderBy("id", direction),
@@ -72,13 +72,19 @@ export const initClosure = (db: Kysely<DB>) => {
       )
       .selectFrom("results")
       .where("nth", "<=", limit)
-      .selectAll()
-      .orderBy(orderColumn, direction)
-      .orderBy("id", direction)
+      .select([
+        "id", //
+        "updatedAt",
+        "title",
+        "description",
+        "status",
+        "userId",
+      ])
+      .orderBy("nth", "asc")
       .execute();
 
     // 順序は維持してくれるみたい
-    const userTodos = Map.groupBy(todos as (Todo & { nth: number })[], (todo) => todo.userId);
+    const userTodos = Map.groupBy(todos as Todo[], (todo) => todo.userId);
 
     return keys.map((key) => userTodos.get(key) ?? []);
   };
