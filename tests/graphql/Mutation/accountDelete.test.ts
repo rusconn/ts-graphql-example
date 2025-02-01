@@ -2,7 +2,7 @@ import { client } from "../../../src/db/client.ts";
 import { parseUserId } from "../../../src/graphql/_parsers/user/id.ts";
 
 import { Data } from "../../data.ts";
-import { clearUsers, fail } from "../../helpers.ts";
+import { clearUsers, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { AccountDeleteMutation, AccountDeleteMutationVariables } from "../schema.ts";
 
@@ -26,8 +26,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => client.insertInto("User").values(testData.users).execute(),
-  todos: () => client.insertInto("Todo").values(testData.todos).execute(),
+  users: () => seed.user(testData.users),
+  todos: () => seed.todo(testData.todos),
 };
 
 beforeEach(async () => {
@@ -35,7 +35,7 @@ beforeEach(async () => {
   await seedData.users();
 });
 
-it("should delete user", async () => {
+it("should delete user and user-*", async () => {
   const { data } = await executeMutation({
     token: Data.token.admin,
   });
@@ -50,13 +50,27 @@ it("should delete user", async () => {
     fail();
   }
 
-  const user = await client
-    .selectFrom("User") //
-    .where("id", "=", id)
-    .selectAll()
-    .executeTakeFirst();
+  const [user, userCredential, userToken] = await Promise.all([
+    client //
+      .selectFrom("User")
+      .where("id", "=", id)
+      .selectAll()
+      .executeTakeFirst(),
+    client //
+      .selectFrom("UserCredential")
+      .where("userId", "=", id)
+      .selectAll()
+      .executeTakeFirst(),
+    client //
+      .selectFrom("UserToken")
+      .where("userId", "=", id)
+      .selectAll()
+      .executeTakeFirst(),
+  ]);
 
   expect(user).toBeUndefined();
+  expect(userCredential).toBeUndefined();
+  expect(userToken).toBeUndefined();
 });
 
 it("should not delete others", async () => {

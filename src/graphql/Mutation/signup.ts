@@ -1,7 +1,4 @@
 import { UserRole } from "../../db/types.ts";
-import { PgErrorCode, isPgError } from "../../lib/pg/error.ts";
-import * as UserPassword from "../../models/user/password.ts";
-import * as UserToken from "../../models/user/token.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../schema.ts";
 import { authGuest } from "../_authorizers/guest.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -55,38 +52,27 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     return invalidInputErrors(parsed);
   }
 
-  const { password, ...exceptPassword } = parsed;
+  const result = await context.api.user.create({
+    ...parsed,
+    role: UserRole.USER,
+  });
 
-  let signedUp;
-  try {
-    signedUp = await context.api.user.create({
-      ...exceptPassword,
-      password: await UserPassword.gen(password),
-      role: UserRole.USER,
-      token: UserToken.gen(),
-    });
-  } catch (e) {
-    if (!isPgError(e)) throw e;
-
-    if (e.code === PgErrorCode.UniqueViolation) {
-      if (e.constraint?.includes("email"))
-        return {
-          __typename: "EmailAlreadyTakenError",
-          message: "The email already taken.",
-        };
-    }
-
-    throw e;
+  switch (result.type) {
+    case "Success":
+      return {
+        __typename: "SignupSuccess",
+        token: result.token,
+      };
+    case "EmailAlreadyExists":
+      return {
+        __typename: "EmailAlreadyTakenError",
+        message: "The email already taken.",
+      };
+    case "Unknown":
+      throw internalServerError(result.e);
+    default:
+      throw new Error(result satisfies never);
   }
-
-  if (!signedUp) {
-    throw internalServerError();
-  }
-
-  return {
-    __typename: "SignupSuccess",
-    token: signedUp.token!,
-  };
 };
 
 const parseArgs = (args: MutationSignupArgs) => {

@@ -1,5 +1,4 @@
 import * as UserPassword from "../../models/user/password.ts";
-import * as UserToken from "../../models/user/token.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../schema.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { USER_EMAIL_MAX, parseUserEmail } from "../_parsers/user/email.ts";
@@ -45,7 +44,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   const { email, password } = parsed;
 
-  const found = await context.api.user.getByEmail(email);
+  const found = await context.api.user.getWithCredencialByEmail(email);
 
   if (!found) {
     return {
@@ -63,9 +62,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const updated = await context.api.user.updateByEmail(email, {
-    token: UserToken.gen(),
-  });
+  const updated = await context.api.user.updateTokenById(found.id);
 
   if (!updated) {
     throw internalServerError();
@@ -73,7 +70,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   return {
     __typename: "LoginSuccess",
-    token: updated.token!,
+    token: updated,
   };
 };
 

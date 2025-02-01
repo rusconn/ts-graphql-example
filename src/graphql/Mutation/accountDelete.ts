@@ -26,14 +26,14 @@ export const resolver: MutationResolvers["accountDelete"] = async (_parent, _arg
     throw forbiddenErr(authed);
   }
 
-  const deleted = await context.api.user.delete(authed.id);
+  const success = await context.api.user.deleteById(authed.id);
 
-  if (!deleted) {
+  if (!success) {
     throw internalServerError();
   }
 
   return {
     __typename: "AccountDeleteSuccess",
-    id: userId(deleted.id),
+    id: userId(authed.id),
   };
 };

@@ -27,11 +27,21 @@ export type User = {
   updatedAt: Timestamp;
   name: string;
   email: string;
-  password: string;
-  token: string | null;
   role: Generated<UserRole>;
+};
+export type UserCredential = {
+  userId: string;
+  updatedAt: Timestamp;
+  password: string;
+};
+export type UserToken = {
+  userId: string;
+  updatedAt: Timestamp;
+  token: string;
 };
 export type DB = {
   Todo: Todo;
   User: User;
+  UserCredential: UserCredential;
+  UserToken: UserToken;
 };

@@ -2,7 +2,7 @@ import { client } from "../../../src/db/client.ts";
 import { UserRole } from "../../../src/db/types.ts";
 
 import { Data } from "../../data.ts";
-import { clearUsers, fail } from "../../helpers.ts";
+import { clearUsers, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { SignupMutation, SignupMutationVariables } from "../schema.ts";
 
@@ -21,11 +21,11 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
+  users: [Data.db.admin],
 };
 
 const seedData = {
-  users: () => client.insertInto("User").values(testData.users).execute(),
+  users: () => seed.user(testData.users),
 };
 
 beforeEach(async () => {
@@ -74,8 +74,9 @@ it("should create user using input", async () => {
 
   const user = await client
     .selectFrom("User")
+    .innerJoin("UserToken", "User.id", "UserToken.userId")
     .where("token", "=", token)
-    .selectAll()
+    .selectAll("User")
     .executeTakeFirstOrThrow();
 
   expect(user.name).toBe(name);
@@ -99,8 +100,9 @@ test("role should be USER by default", async () => {
 
   const user = await client
     .selectFrom("User")
+    .innerJoin("UserToken", "User.id", "UserToken.userId")
     .where("token", "=", token)
-    .selectAll()
+    .selectAll("User")
     .executeTakeFirstOrThrow();
 
   expect(user.role).toBe(UserRole.USER);

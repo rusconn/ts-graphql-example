@@ -1,7 +1,7 @@
 import { client } from "../../../src/db/client.ts";
 
 import { Data } from "../../data.ts";
-import { clearUsers } from "../../helpers.ts";
+import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { LogoutMutation, LogoutMutationVariables } from "../schema.ts";
 
@@ -24,7 +24,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => client.insertInto("User").values(testData.users).execute(),
+  users: () => seed.user(testData.users),
 };
 
 beforeEach(async () => {
@@ -34,10 +34,10 @@ beforeEach(async () => {
 
 test("logout deletes token", async () => {
   const before = await client
-    .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .selectFrom("UserToken")
+    .where("userId", "=", Data.db.admin.id)
     .selectAll()
-    .executeTakeFirstOrThrow();
+    .executeTakeFirst();
 
   const { data } = await executeMutation({
     token: Data.token.admin,
@@ -46,13 +46,13 @@ test("logout deletes token", async () => {
   expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .selectFrom("UserToken")
+    .where("userId", "=", Data.db.admin.id)
     .selectAll()
-    .executeTakeFirstOrThrow();
+    .executeTakeFirst();
 
-  expect(before.token).not.toBeNull();
-  expect(after.token).toBeNull();
+  expect(before == null).not.toBe(true);
+  expect(after == null).toBe(true);
 });
 
 test("logout does not changes other attrs", async () => {

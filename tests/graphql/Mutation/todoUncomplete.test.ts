@@ -5,7 +5,7 @@ import { TodoStatus } from "../../../src/db/types.ts";
 import { ErrorCode } from "../../../src/schema.ts";
 
 import { Data, dummyId } from "../../data.ts";
-import { clearTables } from "../../helpers.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoUncompleteMutation, TodoUncompleteMutationVariables } from "../schema.ts";
 
@@ -35,8 +35,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => client.insertInto("User").values(testData.users).execute(),
-  todos: () => client.insertInto("Todo").values(testData.todos).execute(),
+  users: () => seed.user(testData.users),
+  todos: () => seed.todo(testData.todos),
 };
 
 beforeAll(async () => {

@@ -3,7 +3,7 @@ import { omit } from "es-toolkit";
 import { client } from "../../../src/db/client.ts";
 
 import { Data } from "../../data.ts";
-import { clearUsers } from "../../helpers.ts";
+import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { AccountUpdateMutation, AccountUpdateMutationVariables } from "../schema.ts";
 
@@ -31,7 +31,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => client.insertInto("User").values(testData.users).execute(),
+  users: () => seed.user(testData.users),
 };
 
 beforeEach(async () => {
@@ -85,8 +85,9 @@ it("should update using input", async () => {
 it("should not update fields if the field is absent", async () => {
   const before = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
-    .selectAll()
+    .innerJoin("UserCredential", "User.id", "UserCredential.userId")
+    .where("User.id", "=", Data.db.admin.id)
+    .select(["name", "email", "password"])
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
@@ -98,8 +99,9 @@ it("should not update fields if the field is absent", async () => {
 
   const after = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
-    .selectAll()
+    .innerJoin("UserCredential", "User.id", "UserCredential.userId")
+    .where("User.id", "=", Data.db.admin.id)
+    .select(["name", "email", "password"])
     .executeTakeFirstOrThrow();
 
   expect(before.name).toBe(after.name);

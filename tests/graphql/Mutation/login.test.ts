@@ -1,7 +1,7 @@
 import { client } from "../../../src/db/client.ts";
 
 import { Data } from "../../data.ts";
-import { clearUsers } from "../../helpers.ts";
+import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { LoginMutation, LoginMutationVariables } from "../schema.ts";
 
@@ -24,7 +24,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => client.insertInto("User").values(testData.users).execute(),
+  users: () => seed.user(testData.users),
 };
 
 beforeEach(async () => {
@@ -82,8 +82,8 @@ test("correct input", async () => {
 
 test("login changes token", async () => {
   const before = await client
-    .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .selectFrom("UserToken")
+    .where("userId", "=", Data.db.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -98,8 +98,8 @@ test("login changes token", async () => {
   expect(data?.login?.__typename === "LoginSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .selectFrom("UserToken")
+    .where("userId", "=", Data.db.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 

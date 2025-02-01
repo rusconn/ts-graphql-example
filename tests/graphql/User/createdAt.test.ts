@@ -1,7 +1,5 @@
-import { client } from "../../../src/db/client.ts";
-
 import { Data } from "../../data.ts";
-import { clearTables, fail } from "../../helpers.ts";
+import { clearTables, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UserCreatedAtQuery, UserCreatedAtQueryVariables } from "../schema.ts";
 
@@ -24,7 +22,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => client.insertInto("User").values(testData.users).execute(),
+  users: () => seed.user(testData.users),
 };
 
 beforeAll(async () => {

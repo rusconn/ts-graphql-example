@@ -7,7 +7,7 @@ import { yoga } from "../src/server.ts";
 import type { Data } from "./data.ts";
 
 type ExecuteOperationParams<TVariables> = {
-  token?: (typeof Data.token)[keyof typeof Data.token];
+  token?: typeof Data.token.admin;
   variables?: TVariables;
 };
 

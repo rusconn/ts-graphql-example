@@ -4,7 +4,6 @@ import type { Transaction } from "kysely";
 
 import { type DB, UserRole } from "../../src/db/types.ts";
 import * as UserId from "../../src/models/user/id.ts";
-import * as UserToken from "../../src/models/user/token.ts";
 
 export const seed = async (trx: Transaction<DB>) => {
   const handUsers = [
@@ -14,9 +13,6 @@ export const seed = async (trx: Transaction<DB>) => {
       updatedAt: new Date("2024-12-15T16:54:41.152Z"),
       name: "admin",
       email: "admin@admin.com",
-      /** raw: adminadmin */
-      password: "$2b$10$4YuHiiiZiodsyu7mx18d/OX7CaLC5uH61XX2nHddWabigsfDh87me",
-      token: "0193cb3e-4b23-75ba-a4d8-802869ed8951",
       role: UserRole.ADMIN,
     },
     {
@@ -25,9 +21,6 @@ export const seed = async (trx: Transaction<DB>) => {
       updatedAt: new Date("2024-12-15T16:54:38.927Z"),
       name: "hoge",
       email: "hoge@hoge.com",
-      /** raw: hogehoge */
-      password: "$2b$10$RjosB2FTBUCsjBsZm0OmiO3jpWqNmt54ybRybC5C1LnUkERwOSzji",
-      token: "0193cb3e-5576-752c-b9e1-404be1fb777e",
       role: UserRole.USER,
     },
     {
@@ -36,9 +29,6 @@ export const seed = async (trx: Transaction<DB>) => {
       updatedAt: new Date("2024-12-15T16:54:41.151Z"),
       name: "piyo",
       email: "piyo@piyo.com",
-      /** raw: piyopiyo */
-      password: "$2b$10$tt1xSvAUjwVuBzxaUi.yMugSpVGmka/XfgxtSamq4Zeei7XOC5RK.",
-      token: "0193cb3e-5c56-76ff-a5a4-c692182e3749",
       role: UserRole.USER,
     },
   ];
@@ -67,15 +57,13 @@ const fakeDataOne = (nth: number) => {
 
   return {
     id,
+    updatedAt: faker.date.past(),
     name: firstName + lastName,
     email: faker.internet.email({
       firstName,
       lastName: lastName + nth, // make unique
       allowSpecialCharacters: true,
     }),
-    password: "dummy",
-    token: UserToken.gen(),
     role: UserRole.USER,
-    updatedAt: faker.date.past(),
   };
 };

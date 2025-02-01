@@ -1,7 +1,5 @@
-import { client } from "../../../src/db/client.ts";
-
 import { Data } from "../../data.ts";
-import { clearTables, fail } from "../../helpers.ts";
+import { clearTables, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoUserQuery, TodoUserQueryVariables } from "../schema.ts";
 
@@ -27,8 +25,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => client.insertInto("User").values(testData.users).execute(),
-  todos: () => client.insertInto("Todo").values(testData.todos).execute(),
+  users: () => seed.user(testData.users),
+  todos: () => seed.todo(testData.todos),
 };
 
 beforeAll(async () => {

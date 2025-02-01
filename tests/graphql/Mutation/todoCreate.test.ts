@@ -3,7 +3,7 @@ import { TodoStatus } from "../../../src/db/types.ts";
 import { parseTodoId } from "../../../src/graphql/_parsers/todo/id.ts";
 
 import { Data } from "../../data.ts";
-import { clearTables, fail } from "../../helpers.ts";
+import { clearTables, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoCreateMutation, TodoCreateMutationVariables } from "../schema.ts";
 
@@ -31,10 +31,10 @@ const testData = {
 };
 
 const seedData = {
-  users: () => client.insertInto("User").values(testData.users).execute(),
+  users: () => seed.user(testData.users),
 };
 
-beforeAll(async () => {
+beforeEach(async () => {
   await clearTables();
   await seedData.users();
 });

@@ -2,7 +2,7 @@ import { client } from "../../../src/db/client.ts";
 import { ErrorCode } from "../../../src/schema.ts";
 
 import { Data, dummyId } from "../../data.ts";
-import { clearTables, clearTodos } from "../../helpers.ts";
+import { clearTables, clearTodos, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoDeleteMutation, TodoDeleteMutationVariables } from "../schema.ts";
 
@@ -26,14 +26,13 @@ const testData = {
 };
 
 const seedData = {
-  users: () => client.insertInto("User").values(testData.users).execute(),
-  todos: () => client.insertInto("Todo").values(testData.todos).execute(),
+  users: () => seed.user(testData.users),
+  todos: () => seed.todo(testData.todos),
 };
 
 beforeAll(async () => {
   await clearTables();
   await seedData.users();
-  await seedData.todos();
 });
 
 beforeEach(async () => {

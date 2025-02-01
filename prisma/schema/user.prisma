@@ -3,10 +3,11 @@ model User {
   updatedAt DateTime
   name      String   @pg.VarChar(100)
   email     String   @unique @pg.VarChar(100)
-  password  String   @pg.Char(60)
-  token     String?  @unique @pg.Uuid
   role      UserRole @default(USER)
-  todos     Todo[]
+
+  todos      Todo[]
+  token      UserToken?
+  credential UserCredential? // 本当は必須だが Prisma の制限によりオプショナルにしている
 
   @@index([updatedAt, id])
 }

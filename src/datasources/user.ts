@@ -1,8 +1,11 @@
 import type { Kysely } from "kysely";
 
 import type { DB } from "../db/types.ts";
-import type { User, UserKey, UserKeyCols, UserNew, UserUpd } from "../models/user.ts";
+import { PgErrorCode, isPgError } from "../lib/pg/error.ts";
+import type { User, UserNew, UserUpd, UserWithCredential, UserWithToken } from "../models/user.ts";
 import * as UserId from "../models/user/id.ts";
+import * as UserPassword from "../models/user/password.ts";
+import * as UserTokens from "../models/user/token.ts";
 import * as userLoader from "./loaders/user.ts";
 
 export class UserAPI {
@@ -17,25 +20,36 @@ export class UserAPI {
   }
 
   getById = async (id: User["id"]) => {
-    return await this.#getByKey("id")(id);
-  };
-
-  getByEmail = async (email: User["email"]) => {
-    return await this.#getByKey("email")(email);
-  };
-
-  getByToken = async (token: Exclude<User["token"], null>) => {
-    return await this.#getByKey("token")(token);
-  };
-
-  #getByKey = (key: UserKeyCols) => async (val: UserKey) => {
     const user = await this.#db
       .selectFrom("User")
-      .where(key, "=", val)
+      .where("id", "=", id)
       .selectAll()
       .executeTakeFirst();
 
     return user as User | undefined;
+  };
+
+  getByToken = async (token: UserWithToken["token"]) => {
+    const user = await this.#db
+      .selectFrom("User")
+      .innerJoin("UserToken", "User.id", "UserToken.userId")
+      .where("token", "=", token)
+      .selectAll("User")
+      .executeTakeFirst();
+
+    return user as User | undefined;
+  };
+
+  getWithCredencialByEmail = async (email: User["email"]) => {
+    const user = await this.#db
+      .selectFrom("UserCredential")
+      .innerJoin("User", "UserCredential.userId", "User.id")
+      .where("email", "=", email)
+      .selectAll("User")
+      .select("UserCredential.password")
+      .executeTakeFirst();
+
+    return user as UserWithCredential | undefined;
   };
 
   getPage = async (params: {
@@ -88,52 +102,117 @@ export class UserAPI {
     return result.count;
   };
 
-  create = async (data: UserNew) => {
+  create = async ({ password: source, ...data }: UserNew) => {
     const { id, date } = UserId.genWithDate();
+    const password = await UserPassword.gen(source);
+    const token = UserTokens.gen();
 
-    const user = await this.#db
-      .insertInto("User")
-      .values({
-        id,
-        updatedAt: date,
-        ...data,
-      })
-      .returningAll()
+    try {
+      return await this.#db.transaction().execute(async (trx) => {
+        const user = await trx
+          .insertInto("User")
+          .values({ id, updatedAt: date, ...data })
+          .returningAll()
+          .executeTakeFirstOrThrow();
+        const _userCredential = await trx
+          .insertInto("UserCredential")
+          .values({ userId: user.id, updatedAt: date, password })
+          .returning("userId")
+          .executeTakeFirstOrThrow();
+        const userToken = await trx
+          .insertInto("UserToken")
+          .values({ userId: user.id, updatedAt: date, token })
+          .returning("token")
+          .executeTakeFirstOrThrow();
+
+        const userWithToken = { ...user, token: userToken.token } as UserWithToken;
+
+        return { type: "Success", ...userWithToken } as const;
+      });
+    } catch (e) {
+      if (isPgError(e)) {
+        if (e.code === PgErrorCode.UniqueViolation) {
+          if (e.constraint?.includes("email")) {
+            return { type: "EmailAlreadyExists" } as const;
+          }
+        }
+      }
+
+      return {
+        type: "Unknown",
+        e: e instanceof Error ? e : new Error("unknown", { cause: e }),
+      } as const;
+    }
+  };
+
+  updateById = async (id: User["id"], { password: source, ...data }: UserUpd) => {
+    const password = source != null ? await UserPassword.gen(source) : undefined;
+    const date = new Date();
+
+    try {
+      return await this.#db.transaction().execute(async (trx) => {
+        const user = await trx
+          .updateTable("User")
+          .where("id", "=", id)
+          .set({ updatedAt: date, ...data })
+          .returningAll()
+          .executeTakeFirstOrThrow();
+        if (password) {
+          const _userCredential = await trx
+            .updateTable("UserCredential")
+            .where("userId", "=", id)
+            .set({ updatedAt: date, password })
+            .returning("userId")
+            .executeTakeFirstOrThrow();
+        }
+
+        return { type: "Success", ...(user as User) } as const;
+      });
+    } catch (e) {
+      if (isPgError(e)) {
+        if (e.code === PgErrorCode.UniqueViolation) {
+          if (e.constraint?.includes("email")) {
+            return { type: "EmailAlreadyExists" } as const;
+          }
+        }
+      }
+
+      return {
+        type: "Unknown",
+        e: e instanceof Error ? e : new Error("unknown", { cause: e }),
+      } as const;
+    }
+  };
+
+  updateTokenById = async (id: User["id"]) => {
+    const userToken = await this.#db
+      .updateTable("UserToken")
+      .where("userId", "=", id)
+      .set({ updatedAt: new Date(), token: UserTokens.gen() })
+      .returning("token")
       .executeTakeFirst();
 
-    return user as User | undefined;
+    return userToken?.token as UserWithToken["token"] | undefined;
   };
 
-  updateById = async (id: User["id"], data: UserUpd) => {
-    return await this.#updateByKey("id")(id, data);
-  };
-
-  updateByEmail = async (email: User["email"], data: UserUpd) => {
-    return await this.#updateByKey("email")(email, data);
-  };
-
-  #updateByKey = (key: UserKeyCols) => async (val: UserKey, data: UserUpd) => {
-    const user = await this.#db
-      .updateTable("User")
-      .where(key, "=", val)
-      .set({
-        updatedAt: new Date(),
-        ...data,
-      })
-      .returningAll()
-      .executeTakeFirst();
-
-    return user as User | undefined;
-  };
-
-  delete = async (id: User["id"]) => {
+  deleteById = async (id: User["id"]) => {
     const user = await this.#db
       .deleteFrom("User")
       .where("id", "=", id)
-      .returningAll()
+      .returning("id")
       .executeTakeFirst();
 
-    return user as User | undefined;
+    return user != null;
+  };
+
+  deleteTokenById = async (id: User["id"]) => {
+    const userToken = await this.#db
+      .deleteFrom("UserToken")
+      .where("userId", "=", id)
+      .returning("userId")
+      .executeTakeFirst();
+
+    return userToken != null;
   };
 
   load = async (key: userLoader.Key) => {

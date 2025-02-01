@@ -5,7 +5,7 @@ import { TodoStatus } from "../../../src/db/types.ts";
 import { ErrorCode } from "../../../src/schema.ts";
 
 import { Data, dummyId } from "../../data.ts";
-import { clearTables } from "../../helpers.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoCompleteMutation, TodoCompleteMutationVariables } from "../schema.ts";
 
@@ -35,8 +35,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => client.insertInto("User").values(testData.users).execute(),
-  todos: () => client.insertInto("Todo").values(testData.todos).execute(),
+  users: () => seed.user(testData.users),
+  todos: () => seed.todo(testData.todos),
 };
 
 beforeAll(async () => {
@@ -47,9 +47,9 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await client
-    .insertInto("Todo")
-    .values(Data.db.adminTodo)
-    .onConflict((oc) => oc.column("id").doUpdateSet(Data.db.adminTodo))
+    .updateTable("Todo")
+    .where("id", "=", Data.db.adminTodo.id)
+    .set({ status: TodoStatus.PENDING })
     .executeTakeFirstOrThrow();
 });
 

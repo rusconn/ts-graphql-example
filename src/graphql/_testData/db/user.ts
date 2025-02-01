@@ -1,5 +1,5 @@
 import { UserRole } from "../../../db/types.ts";
-import type { User } from "../../../models/user.ts";
+import type { UserFull } from "../../../models/user.ts";
 
 export const db = {
   admin: {
@@ -12,7 +12,7 @@ export const db = {
     password: "$2b$04$aIswdZ6eFo8qQTheMa8x1.s2sd7I9uZr.vUkGwl9OylshNLCMqH8i",
     role: UserRole.ADMIN,
     token: "0193cb69-740b-7589-9e85-34d9cece28fe",
-  } as User,
+  } as UserFull,
   alice: {
     /** Date: 2024-12-15T17:41:58.590Z */
     id: "0193cb69-a4be-754e-a5a0-462df1202f5e",
@@ -23,5 +23,5 @@ export const db = {
     password: "$2b$04$vox810wl680PtUOq1CPTL.lMhjWYsjFqVIMOmzrMIXKvqTh/XZ5Gy",
     role: UserRole.USER,
     token: "0193cb69-c86c-747c-82b4-85506f4a592f",
-  } as User,
+  } as UserFull,
 };

@@ -1,6 +1,4 @@
 import { pickDefined } from "../../lib/object/pickDefined.ts";
-import { PgErrorCode, isPgError } from "../../lib/pg/error.ts";
-import * as UserPassword from "../../models/user/password.ts";
 import type { MutationAccountUpdateArgs, MutationResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -54,38 +52,24 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
     return invalidInputErrors(parsed);
   }
 
-  const { password, ...exceptPassword } = parsed;
+  const result = await context.api.user.updateById(authed.id, parsed);
 
-  let updated;
-  try {
-    updated = await context.api.user.updateById(authed.id, {
-      ...exceptPassword,
-      ...(password != null && {
-        password: await UserPassword.gen(password),
-      }),
-    });
-  } catch (e) {
-    if (!isPgError(e)) throw e;
-
-    if (e.code === PgErrorCode.UniqueViolation) {
-      if (e.constraint?.includes("email"))
-        return {
-          __typename: "EmailAlreadyTakenError",
-          message: "The email already taken.",
-        };
-    }
-
-    throw e;
+  switch (result.type) {
+    case "Success":
+      return {
+        __typename: "AccountUpdateSuccess",
+        user: result,
+      };
+    case "EmailAlreadyExists":
+      return {
+        __typename: "EmailAlreadyTakenError",
+        message: "The email already taken.",
+      };
+    case "Unknown":
+      throw internalServerError(result.e);
+    default:
+      throw new Error(result satisfies never);
   }
-
-  if (!updated) {
-    throw internalServerError();
-  }
-
-  return {
-    __typename: "AccountUpdateSuccess",
-    user: updated,
-  };
 };
 
 const parseArgs = (args: MutationAccountUpdateArgs) => {
