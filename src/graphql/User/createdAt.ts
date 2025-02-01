@@ -1,4 +1,4 @@
-import * as userId from "../../db/models/user/id.ts";
+import * as UserId from "../../db/models/user/id.ts";
 import type { UserResolvers } from "../../schema.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -16,5 +16,5 @@ export const resolver: UserResolvers["createdAt"] = (parent, _args, context) => 
     throw forbiddenErr(authed);
   }
 
-  return userId.date(parent.id);
+  return UserId.date(parent.id);
 };

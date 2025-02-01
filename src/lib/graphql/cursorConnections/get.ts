@@ -213,8 +213,15 @@ if (import.meta.vitest) {
   });
 
   describe("Callback backward", () => {
-    const forwards = [{ first: 1 }, { first: 10, after: "" }];
-    const backwards = [{ last: 1 }, { last: 10, before: "" }];
+    const forwards = [
+      { first: 1 }, //
+      { first: 10, after: "" },
+    ];
+
+    const backwards = [
+      { last: 1 }, //
+      { last: 10, before: "" },
+    ];
 
     test.each(forwards)("forwards %#", async (args) => {
       await getCursorConnection(
@@ -240,8 +247,13 @@ if (import.meta.vitest) {
   });
 
   describe("Result direction", () => {
-    const forwards = [{ first: 2, after: "" }];
-    const backwards = [{ last: 2, before: "" }];
+    const forwards = [
+      { first: 2, after: "" }, //
+    ];
+
+    const backwards = [
+      { last: 2, before: "" }, //
+    ];
 
     const getPage = async () => [{ id: 1 }, { id: 2 }];
 

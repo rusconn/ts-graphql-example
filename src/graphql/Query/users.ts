@@ -113,9 +113,17 @@ const parseArgs = (args: QueryUsersArgs) => {
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
-    const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
+    const valids = [
+      { first: 10 }, //
+      { last: 10 },
+      { first: FIRST_MAX },
+      { last: LAST_MAX },
+    ];
 
-    const invalids = [{ first: FIRST_MAX + 1 }, { last: LAST_MAX + 1 }];
+    const invalids = [
+      { first: FIRST_MAX + 1 }, //
+      { last: LAST_MAX + 1 },
+    ];
 
     const reverse = true;
     const sortKey = UserSortKeys.CreatedAt;

@@ -130,7 +130,12 @@ const parseArgs = (args: UserTodosArgs) => {
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
-    const valids = [{ first: 10 }, { last: 10 }, { first: FIRST_MAX }, { last: LAST_MAX }];
+    const valids = [
+      { first: 10 }, //
+      { last: 10 },
+      { first: FIRST_MAX },
+      { last: LAST_MAX },
+    ];
 
     const invalids = [
       { first: 10, status: null },

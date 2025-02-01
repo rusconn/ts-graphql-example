@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 
-import * as userToken from "../../db/models/user/token.ts";
+import * as UserToken from "../../db/models/user/token.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../schema.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { USER_EMAIL_MAX, parseUserEmail } from "../_parsers/user/email.ts";
@@ -66,7 +66,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const token = userToken.gen();
+  const token = UserToken.gen();
 
   const updated = await context.api.user.updateByEmail(email, {
     token,

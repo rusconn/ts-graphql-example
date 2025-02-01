@@ -6,7 +6,7 @@ import type { Context, PluginContext, ServerContext, UserContext } from "./conte
 import { TodoAPI } from "./datasources/todo.ts";
 import { UserAPI } from "./datasources/user.ts";
 import { client } from "./db/client.ts";
-import * as userToken from "./db/models/user/token.ts";
+import * as UserToken from "./db/models/user/token.ts";
 import { logger } from "./logger.ts";
 import { armor } from "./plugins/armor.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
@@ -36,7 +36,7 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
 
     let user: Context["user"] | undefined = null;
     if (token != null) {
-      if (!userToken.is(token)) {
+      if (!UserToken.is(token)) {
         throw authenErr();
       }
 

@@ -1,25 +1,24 @@
 import type { Tagged } from "type-fest";
 
-import type { UUIDv7 } from "../../../lib/uuid/v7.ts";
-import * as uuidv7 from "../../../lib/uuid/v7.ts";
+import * as Uuidv7 from "../../../lib/uuid/v7.ts";
 
-export type TodoId = Tagged<UUIDv7, "TodoId">;
+export type TodoId = Tagged<Uuidv7.Uuidv7, "TodoId">;
 
 export const is = (input: string): input is TodoId => {
-  return uuidv7.is(input);
+  return Uuidv7.is(input);
 };
 
 export const gen = () => {
-  return uuidv7.gen() as TodoId;
+  return Uuidv7.gen() as TodoId;
 };
 
 export const genWithDate = () => {
-  return uuidv7.genWithDate() as {
+  return Uuidv7.genWithDate() as {
     id: TodoId;
     date: Date;
   };
 };
 
 export const date = (id: TodoId) => {
-  return uuidv7.date(id);
+  return Uuidv7.date(id);
 };

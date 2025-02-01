@@ -1,15 +1,14 @@
 import type { Tagged } from "type-fest";
 import { v7 } from "uuid";
 
-import type { UUID } from "./vn.ts";
-import * as uuid from "./vn.ts";
+import * as Uuid from "./vn.ts";
 
-export type UUIDv7 = Tagged<UUID, "UUIDv7">;
+export type Uuidv7 = Tagged<Uuid.Uuid, "Uuidv7">;
 
-export const gen = () => v7() as UUIDv7;
+export const gen = () => v7() as Uuidv7;
 
-export const is = (input: string): input is UUIDv7 => {
-  return uuid.is(input) && input.charAt(14) === "7";
+export const is = (input: string): input is Uuidv7 => {
+  return Uuid.is(input) && input.charAt(14) === "7";
 };
 
 export const genWithDate = () => {

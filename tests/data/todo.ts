@@ -1,4 +1,4 @@
-import * as internalId from "../../src/db/models/todo/id.ts";
+import * as TodoId from "../../src/db/models/todo/id.ts";
 import type { Todo } from "../../src/graphql/Todo/_mapper.ts";
 import { todoId } from "../../src/graphql/_adapters/todo/id.ts";
 import { todoStatus } from "../../src/graphql/_adapters/todo/status.ts";
@@ -9,7 +9,7 @@ import { dateTime } from "./common.ts";
 
 const node = (todo: Todo): Graph.Todo => ({
   id: todoId(todo.id),
-  createdAt: dateTime(internalId.date(todo.id)),
+  createdAt: dateTime(TodoId.date(todo.id)),
   updatedAt: dateTime(todo.updatedAt),
   title: todo.title,
   description: todo.description,
@@ -25,4 +25,4 @@ export const graph = {
 
 export { db };
 
-export const dummyId = () => todoId(internalId.gen());
+export const dummyId = () => todoId(TodoId.gen());

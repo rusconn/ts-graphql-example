@@ -1,4 +1,4 @@
-import * as userEmail from "../../../db/models/user/email.ts";
+import * as UserEmail from "../../../db/models/user/email.ts";
 import { numChars } from "../../../lib/string/numChars.ts";
 import type {
   MutationAccountUpdateArgs,
@@ -23,7 +23,7 @@ export const parseUserEmail = parseArgs(
     if (email != null && numChars(email) > USER_EMAIL_MAX) {
       return parseErr(`"email" must be up to ${USER_EMAIL_MAX} characters`);
     }
-    if (email != null && !userEmail.is(email)) {
+    if (email != null && !UserEmail.is(email)) {
       return parseErr(`invalid "email"`);
     }
 

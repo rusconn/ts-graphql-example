@@ -10,8 +10,7 @@ const typeDef = /* GraphQL */ `
 `;
 
 export const typeDefs = [
-  //
-  typeDef,
+  typeDef, //
   node.typeDef,
   user.typeDef,
   users.typeDef,

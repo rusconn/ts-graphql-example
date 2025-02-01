@@ -3,8 +3,8 @@ import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
 import { type DB, UserRole } from "../../src/db/generated/types.ts";
-import * as userId from "../../src/db/models/user/id.ts";
-import * as userToken from "../../src/db/models/user/token.ts";
+import * as UserId from "../../src/db/models/user/id.ts";
+import * as UserToken from "../../src/db/models/user/token.ts";
 
 export const seed = async (trx: Transaction<DB>) => {
   const handUsers = [
@@ -61,7 +61,7 @@ const fakeData = (numFakes: number) => {
 };
 
 const fakeDataOne = (nth: number) => {
-  const id = userId.gen();
+  const id = UserId.gen();
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
 
@@ -74,7 +74,7 @@ const fakeDataOne = (nth: number) => {
       allowSpecialCharacters: true,
     }),
     password: "dummy",
-    token: userToken.gen(),
+    token: UserToken.gen(),
     role: UserRole.USER,
     updatedAt: faker.date.past(),
   };

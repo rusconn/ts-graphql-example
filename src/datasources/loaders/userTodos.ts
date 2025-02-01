@@ -50,8 +50,7 @@ export const initClosure = (db: Kysely<DB>) => {
           .$if(cursor != null, (qb) =>
             qb.where(({ eb, refTuple, tuple }) =>
               eb(
-                //
-                refTuple(orderColumn, "id"),
+                refTuple(orderColumn, "id"), //
                 comp,
                 tuple(cursorOrderColumn!, cursor!),
               ),

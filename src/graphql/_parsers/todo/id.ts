@@ -1,7 +1,7 @@
-import * as todoId from "../../../db/models/todo/id.ts";
+import * as TodoId from "../../../db/models/todo/id.ts";
 import { parseSomeId } from "../someId.ts";
 
-export const parseTodoId = parseSomeId("Todo", todoId.is);
+export const parseTodoId = parseSomeId("Todo", TodoId.is);
 
 if (import.meta.vitest) {
   const { nodeId } = await import("../../_adapters/id.ts");

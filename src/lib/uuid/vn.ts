@@ -1,8 +1,8 @@
 import type { Tagged } from "type-fest";
 import { validate } from "uuid";
 
-export type UUID = Tagged<string, "UUID">;
+export type Uuid = Tagged<string, "Uuid">;
 
-export const is = (input: string): input is UUID => {
+export const is = (input: string): input is Uuid => {
   return validate(input);
 };

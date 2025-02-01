@@ -2,7 +2,7 @@ import type { Kysely, Transaction } from "kysely";
 
 import type { DB } from "../db/generated/types.ts";
 import type { NewUser, UpdUser, User, UserKey, UserKeyCols } from "../db/models/user.ts";
-import * as userId from "../db/models/user/id.ts";
+import * as UserId from "../db/models/user/id.ts";
 import * as userLoader from "./loaders/user.ts";
 
 export class UserAPI {
@@ -68,8 +68,7 @@ export class UserAPI {
       .$if(cursor != null, (qb) =>
         qb.where(({ eb, refTuple, tuple }) =>
           eb(
-            //
-            refTuple(orderColumn, "id"),
+            refTuple(orderColumn, "id"), //
             comp,
             tuple(cursorOrderColumn!, cursor!),
           ),
@@ -94,7 +93,7 @@ export class UserAPI {
   };
 
   create = async (data: Omit<NewUser, "id" | "updatedAt">, trx?: Transaction<DB>) => {
-    const { id, date } = userId.genWithDate();
+    const { id, date } = UserId.genWithDate();
 
     const user = await (trx ?? this.#db)
       .insertInto("User")

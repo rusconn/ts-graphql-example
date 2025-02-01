@@ -1,4 +1,4 @@
-import * as todoId from "../../db/models/todo/id.ts";
+import * as TodoId from "../../db/models/todo/id.ts";
 import type { TodoResolvers } from "../../schema.ts";
 import { authAdminOrTodoOwner } from "../_authorizers/todo/adminOrTodoOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -16,5 +16,5 @@ export const resolver: TodoResolvers["createdAt"] = (parent, _args, context) => 
     throw forbiddenErr(authed);
   }
 
-  return todoId.date(parent.id);
+  return TodoId.date(parent.id);
 };

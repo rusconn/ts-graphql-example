@@ -2,7 +2,7 @@ import type { Kysely, Transaction } from "kysely";
 
 import type { DB } from "../db/generated/types.ts";
 import type { NewTodo, Todo, TodoKey, UpdTodo } from "../db/models/todo.ts";
-import * as todoId from "../db/models/todo/id.ts";
+import * as TodoId from "../db/models/todo/id.ts";
 import * as userTodoLoader from "./loaders/userTodo.ts";
 import * as userTodoCountLoader from "./loaders/userTodoCount.ts";
 import * as userTodosLoader from "./loaders/userTodos.ts";
@@ -42,7 +42,7 @@ export class TodoAPI {
   };
 
   create = async (data: Omit<NewTodo, "id" | "updatedAt">, trx?: Transaction<DB>) => {
-    const { id, date } = todoId.genWithDate();
+    const { id, date } = TodoId.genWithDate();
 
     const todo = await (trx ?? this.#db)
       .insertInto("Todo")
