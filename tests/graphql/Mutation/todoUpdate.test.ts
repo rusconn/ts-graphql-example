@@ -62,7 +62,7 @@ test("invalid input", async () => {
   const invalidTitle = "A".repeat(100 + 1);
 
   const { data } = await executeMutation({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: { id: dummyId.todo(), ...variables, title: invalidTitle },
   });
 
@@ -71,7 +71,7 @@ test("invalid input", async () => {
 
 test("not exists", async () => {
   const { data } = await executeMutation({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: { id: dummyId.todo() },
   });
 
@@ -80,7 +80,7 @@ test("not exists", async () => {
 
 test("exists, but not owned", async () => {
   const { data } = await executeMutation({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: { id: Data.graph.aliceTodo.id },
   });
 
@@ -89,7 +89,7 @@ test("exists, but not owned", async () => {
 
 it("should update using input", async () => {
   const { data } = await executeMutation({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: { id: Data.graph.adminTodo.id, ...variables },
   });
 
@@ -114,7 +114,7 @@ it("should not update fields if the field is absent", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: { id: Data.graph.adminTodo.id },
   });
 
@@ -139,7 +139,7 @@ it("should update updatedAt", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: { id: Data.graph.adminTodo.id, ...variables },
   });
 
@@ -165,7 +165,7 @@ it("should not update other attrs", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: { id: Data.graph.adminTodo.id, ...variables },
   });
 

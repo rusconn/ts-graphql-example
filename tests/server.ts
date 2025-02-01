@@ -6,20 +6,20 @@ import { yoga } from "../src/server.ts";
 import type { Data } from "./data.ts";
 
 type ExecuteOperationParams<TVariables> = {
+  token?: (typeof Data.token)[keyof typeof Data.token];
   variables?: TVariables;
-  user: (typeof Data.context)[keyof typeof Data.context];
 };
 
 export const executeSingleResultOperation =
   <TData, TVariables extends object>(query: string) =>
-  async ({ variables, user }: ExecuteOperationParams<TVariables>) => {
+  async ({ variables, token }: ExecuteOperationParams<TVariables>) => {
     const result = await executor<TData, TVariables>({
       document: parse(query),
       variables,
       extensions: {
         headers: {
-          ...(user?.token && {
-            authorization: `Bearer ${user.token}`,
+          ...(token && {
+            authorization: `Bearer ${token}`,
           }),
         },
       },

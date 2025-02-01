@@ -37,7 +37,7 @@ beforeEach(async () => {
 
 it("should delete user", async () => {
   const { data } = await executeMutation({
-    user: Data.context.admin,
+    token: Data.token.admin,
   });
 
   if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
@@ -66,7 +66,7 @@ it("should not delete others", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    user: Data.context.admin,
+    token: Data.token.admin,
   });
 
   if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
@@ -107,7 +107,7 @@ it("should delete his resources", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    user: Data.context.admin,
+    token: Data.token.admin,
   });
 
   expect(data?.accountDelete?.__typename === "AccountDeleteSuccess").toBe(true);

@@ -39,7 +39,7 @@ beforeAll(async () => {
 
 test("not exists", async () => {
   const { data } = await executeQuery({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: {
       id: Data.graph.admin.id,
       todoId: dummyId.todo(),
@@ -55,7 +55,7 @@ test("not exists", async () => {
 
 test("exists, owned", async () => {
   const { data } = await executeQuery({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: {
       id: Data.graph.admin.id,
       todoId: Data.graph.adminTodo.id,
@@ -71,13 +71,13 @@ test("exists, owned", async () => {
 
 describe("exists, but not owned", () => {
   const patterns = [
-    [Data.context.admin, Data.graph.admin.id, Data.graph.aliceTodo.id],
-    [Data.context.alice, Data.graph.alice.id, Data.graph.adminTodo.id],
+    [Data.token.admin, Data.graph.admin.id, Data.graph.aliceTodo.id],
+    [Data.token.alice, Data.graph.alice.id, Data.graph.adminTodo.id],
   ] as const;
 
-  test.each(patterns)("%o %s %s", async (user, id, todoId) => {
+  test.each(patterns)("%o %s %s", async (token, id, todoId) => {
     const { data } = await executeQuery({
-      user,
+      token,
       variables: { id, todoId },
     });
 

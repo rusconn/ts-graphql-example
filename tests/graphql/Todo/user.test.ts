@@ -39,7 +39,7 @@ beforeAll(async () => {
 
 test("owned", async () => {
   const { data } = await executeQuery({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: { id: Data.graph.adminTodo.id },
   });
 
@@ -52,7 +52,7 @@ test("owned", async () => {
 
 test("not owned", async () => {
   const { data } = await executeQuery({
-    user: Data.context.alice,
+    token: Data.token.alice,
     variables: { id: Data.graph.adminTodo.id },
   });
 

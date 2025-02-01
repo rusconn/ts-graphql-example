@@ -14,6 +14,11 @@ const node = (user: User): Graph.User => ({
   email: user.email,
 });
 
+export const token = {
+  admin: db.admin.token,
+  alice: db.alice.token,
+};
+
 export const graph = {
   admin: node(db.admin),
   alice: node(db.alice),

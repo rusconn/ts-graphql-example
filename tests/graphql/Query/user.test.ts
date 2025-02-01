@@ -28,7 +28,7 @@ beforeAll(async () => {
 
 it("should return item correctly", async () => {
   const { data } = await executeQuery({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: { id: Data.graph.admin.id },
   });
 
@@ -41,7 +41,7 @@ it("should return item correctly", async () => {
 
 it("should return null if not found", async () => {
   const { data } = await executeQuery({
-    user: Data.context.admin,
+    token: Data.token.admin,
     variables: { id: dummyId.user() },
   });
 

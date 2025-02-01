@@ -39,7 +39,6 @@ test("invalid input", async () => {
   const password = "password";
 
   const { data } = await executeMutation({
-    user: Data.context.guest,
     variables: { name, email: invalidEmail, password },
   });
 
@@ -52,7 +51,6 @@ test("email already exists", async () => {
   const password = "password";
 
   const { data } = await executeMutation({
-    user: Data.context.guest,
     variables: { name, email, password },
   });
 
@@ -65,7 +63,6 @@ it("should create user using input", async () => {
   const password = "password";
 
   const { data } = await executeMutation({
-    user: Data.context.guest,
     variables: { name, email, password },
   });
 
@@ -91,7 +88,6 @@ test("role should be USER by default", async () => {
   const password = "password";
 
   const { data } = await executeMutation({
-    user: Data.context.guest,
     variables: { name, email, password },
   });
 

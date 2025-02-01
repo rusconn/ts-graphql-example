@@ -1,10 +1,8 @@
-import { context } from "../src/graphql/_testData/context.ts";
-
 import * as todo from "./data/todo.ts";
 import * as user from "./data/user.ts";
 
 export const Data = {
-  context,
+  token: user.token,
   db: {
     ...todo.db,
     ...user.db,

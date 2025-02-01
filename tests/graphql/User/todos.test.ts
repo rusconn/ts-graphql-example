@@ -72,7 +72,7 @@ describe("number of items", () => {
     const first = testData.todos.length - 1;
 
     const { data } = await executeQuery({
-      user: Data.context.admin,
+      token: Data.token.admin,
       variables: { id: Data.graph.admin.id, first },
     });
 
@@ -87,7 +87,7 @@ describe("number of items", () => {
     const last = testData.todos.length - 1;
 
     const { data } = await executeQuery({
-      user: Data.context.admin,
+      token: Data.token.admin,
       variables: { id: Data.graph.admin.id, last },
     });
 
@@ -122,7 +122,7 @@ describe("order of items", () => {
 
   test.each(patterns)("%o %o", async (variables, expectedTodos) => {
     const { data } = await executeQuery({
-      user: Data.context.admin,
+      token: Data.token.admin,
       variables: { ...variables, id: Data.graph.admin.id, first: 10 },
     });
 
@@ -143,7 +143,7 @@ describe("pagination", () => {
 
     const execute = () =>
       executeQuery({
-        user: Data.context.admin,
+        token: Data.token.admin,
         variables: { id: Data.graph.admin.id, first },
       });
 
@@ -267,7 +267,7 @@ describe("pagination", () => {
       "patterns %#",
       async (variables, firstExpect, additionals, secondExpect) => {
         const { data: data1 } = await executeQuery({
-          user: Data.context.admin,
+          token: Data.token.admin,
           variables,
         });
 
@@ -282,7 +282,7 @@ describe("pagination", () => {
         );
 
         const { data: data2 } = await executeQuery({
-          user: Data.context.admin,
+          token: Data.token.admin,
           variables: {
             ...variables,
             ...additionals(data1.node.todos.pageInfo),
@@ -312,7 +312,7 @@ describe("filter by status", () => {
 
   test.each(patterns)("patterns %#", async (variables, expectedTodos) => {
     const { data } = await executeQuery({
-      user: Data.context.admin,
+      token: Data.token.admin,
       variables: { id: Data.graph.admin.id, first: 10, ...variables },
     });
 
