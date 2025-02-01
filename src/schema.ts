@@ -74,7 +74,7 @@ export type LogoutResult = LogoutSuccess;
 
 export type LogoutSuccess = {
   __typename?: 'LogoutSuccess';
-  user: User;
+  id: Scalars['ID']['output'];
 };
 
 export type Mutation = {
@@ -393,7 +393,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = Resol
   AccountDeleteResult: ( AccountDeleteSuccess & { __typename: 'AccountDeleteSuccess' } );
   AccountUpdateResult: ( Omit<AccountUpdateSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'AccountUpdateSuccess' } ) | ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } );
   LoginResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( LoginSuccess & { __typename: 'LoginSuccess' } ) | ( UserNotFoundError & { __typename: 'UserNotFoundError' } );
-  LogoutResult: ( Omit<LogoutSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'LogoutSuccess' } );
+  LogoutResult: ( LogoutSuccess & { __typename: 'LogoutSuccess' } );
   SignupResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( SignupSuccess & { __typename: 'SignupSuccess' } );
   TodoCompleteResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoCompleteSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'TodoCompleteSuccess' } );
   TodoCreateResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceLimitExceededError & { __typename: 'ResourceLimitExceededError' } ) | ( Omit<TodoCreateSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'TodoCreateSuccess' } );
@@ -426,7 +426,7 @@ export type ResolversTypes = ResolversObject<{
   LoginResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LoginResult']>;
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
   LogoutResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LogoutResult']>;
-  LogoutSuccess: ResolverTypeWrapper<Omit<LogoutSuccess, 'user'> & { user: ResolversTypes['User'] }>;
+  LogoutSuccess: ResolverTypeWrapper<LogoutSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
   Node: ResolverTypeWrapper<NodeMapper>;
   NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']['output']>;
@@ -476,7 +476,7 @@ export type ResolversParentTypes = ResolversObject<{
   LoginResult: ResolversUnionTypes<ResolversParentTypes>['LoginResult'];
   LoginSuccess: LoginSuccess;
   LogoutResult: ResolversUnionTypes<ResolversParentTypes>['LogoutResult'];
-  LogoutSuccess: Omit<LogoutSuccess, 'user'> & { user: ResolversParentTypes['User'] };
+  LogoutSuccess: LogoutSuccess;
   Mutation: {};
   Node: NodeMapper;
   NonEmptyString: Scalars['NonEmptyString']['output'];
@@ -561,7 +561,7 @@ export type LogoutResultResolvers<ContextType = Context, ParentType extends Reso
 }>;
 
 export type LogoutSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LogoutSuccess'] = ResolversParentTypes['LogoutSuccess']> = ResolversObject<{
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

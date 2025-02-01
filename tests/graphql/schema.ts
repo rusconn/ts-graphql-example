@@ -64,7 +64,7 @@ export type LoginMutation = { login?: { __typename: 'InvalidInputError' } | { __
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type LogoutMutation = { logout?: { __typename: 'LogoutSuccess', user: { id: string, name?: string | null, email?: string | null } } | null };
+export type LogoutMutation = { logout?: { __typename: 'LogoutSuccess', id: string } | null };
 
 export type SignupMutationVariables = Exact<{
   name: Scalars['NonEmptyString']['input'];

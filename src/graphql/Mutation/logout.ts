@@ -1,4 +1,5 @@
 import type { MutationResolvers } from "../../schema.ts";
+import { userId } from "../_adapters/user/id.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
@@ -11,7 +12,7 @@ export const typeDef = /* GraphQL */ `
   union LogoutResult = LogoutSuccess
 
   type LogoutSuccess {
-    user: User!
+    id: ID!
   }
 `;
 
@@ -32,6 +33,6 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
 
   return {
     __typename: "LogoutSuccess",
-    user: updated,
+    id: userId(updated.id),
   };
 };

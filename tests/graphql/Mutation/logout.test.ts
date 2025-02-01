@@ -13,11 +13,7 @@ const executeMutation = executeSingleResultOperation<
     logout {
       __typename
       ... on LogoutSuccess {
-        user {
-          id
-          name
-          email
-        }
+        id
       }
     }
   }
