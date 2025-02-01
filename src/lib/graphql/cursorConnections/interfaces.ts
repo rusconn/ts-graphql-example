@@ -1,23 +1,20 @@
 import type { GraphQLResolveInfo } from "graphql";
 
-export interface Options<Record, Cursor, Node, CustomEdge extends Edge<Node>> {
-  getCursor?: (record: Record) => Cursor;
-  encodeCursor?: (cursor: Cursor) => string;
-  recordToEdge?: (record: Record) => Omit<CustomEdge, "cursor">;
-  resolveInfo?: GraphQLResolveInfo | null;
-}
-
 export interface GetPageArguments<Cursor> {
   cursor?: Cursor;
   limit: number;
   backward: boolean;
 }
 
-export interface ConnectionArguments<Cursor = string> {
-  first?: number | null;
-  after?: Cursor | null;
-  last?: number | null;
-  before?: Cursor | null;
+export type ConnectionArgumentsUnion<Cursor = string> =
+  | { first: number; after?: Cursor }
+  | { last: number; before?: Cursor };
+
+export interface Options<Record, Cursor, Node, CustomEdge extends Edge<Node>> {
+  getCursor?: (record: Record) => Cursor;
+  encodeCursor?: (cursor: Cursor) => string;
+  recordToEdge?: (record: Record) => Omit<CustomEdge, "cursor">;
+  resolveInfo?: GraphQLResolveInfo | null;
 }
 
 export interface Connection<T, CustomEdge extends Edge<T> = Edge<T>> {
@@ -37,4 +34,11 @@ export interface PageInfo {
   hasPreviousPage: boolean;
   startCursor?: string | null;
   endCursor?: string | null;
+}
+
+export interface ConnectionArguments {
+  first?: number | null;
+  after?: string | null;
+  last?: number | null;
+  before?: string | null;
 }
