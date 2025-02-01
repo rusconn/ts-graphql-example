@@ -37,6 +37,7 @@ beforeAll(async () => {
 
 test("owned", async () => {
   const { data } = await executeQuery({
+    user: Data.context.admin,
     variables: { id: Data.graph.adminTodo.id },
   });
 

@@ -48,6 +48,7 @@ test("invalid input", async () => {
   const invalidTitle = "A".repeat(100 + 1);
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { ...variables, title: invalidTitle },
   });
 
@@ -56,6 +57,7 @@ test("invalid input", async () => {
 
 it("should create todo using input", async () => {
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables,
   });
 
@@ -81,6 +83,7 @@ it("should create todo using input", async () => {
 
 test('description should be "" by default', async () => {
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { title: variables.title },
   });
 
@@ -105,6 +108,7 @@ test('description should be "" by default', async () => {
 
 test("status should be PENDING by default", async () => {
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables,
   });
 

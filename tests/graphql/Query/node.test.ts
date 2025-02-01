@@ -31,6 +31,7 @@ beforeAll(async () => {
 
 test("not exists", async () => {
   const { data } = await executeQuery({
+    user: Data.context.admin,
     variables: { id: dummyId.todo() },
   });
 
@@ -39,6 +40,7 @@ test("not exists", async () => {
 
 test("exists, but not owned", async () => {
   const { data } = await executeQuery({
+    user: Data.context.admin,
     variables: { id: Data.graph.alice.id },
   });
 
@@ -50,6 +52,7 @@ describe("should return item correctly", () => {
 
   test.each(ids)("%s", async (id) => {
     const { data } = await executeQuery({
+      user: Data.context.admin,
       variables: { id },
     });
 

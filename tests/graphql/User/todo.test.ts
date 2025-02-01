@@ -39,6 +39,7 @@ beforeAll(async () => {
 
 test("not exists", async () => {
   const { data } = await executeQuery({
+    user: Data.context.admin,
     variables: {
       id: Data.graph.admin.id,
       todoId: dummyId.todo(),
@@ -54,6 +55,7 @@ test("not exists", async () => {
 
 test("exists, owned", async () => {
   const { data } = await executeQuery({
+    user: Data.context.admin,
     variables: {
       id: Data.graph.admin.id,
       todoId: Data.graph.adminTodo.id,

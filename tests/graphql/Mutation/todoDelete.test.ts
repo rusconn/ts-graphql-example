@@ -42,6 +42,7 @@ beforeEach(async () => {
 
 test("invalid input", async () => {
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { id: dummyId.todo().slice(0, -1) },
   });
 
@@ -50,6 +51,7 @@ test("invalid input", async () => {
 
 test("not exists", async () => {
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { id: dummyId.todo() },
   });
 
@@ -58,6 +60,7 @@ test("not exists", async () => {
 
 test("exists, but not owned", async () => {
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { id: Data.graph.aliceTodo.id },
   });
 
@@ -66,6 +69,7 @@ test("exists, but not owned", async () => {
 
 it("should delete todo", async () => {
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { id: Data.graph.adminTodo.id },
   });
 
@@ -87,6 +91,7 @@ it("should not delete others", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { id: Data.graph.adminTodo.id },
   });
 

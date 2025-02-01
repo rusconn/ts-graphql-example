@@ -43,7 +43,9 @@ test("logout deletes token", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  const { data } = await executeMutation({});
+  const { data } = await executeMutation({
+    user: Data.context.admin,
+  });
 
   expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
 
@@ -64,7 +66,9 @@ test("logout does not changes other attrs", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  const { data } = await executeMutation({});
+  const { data } = await executeMutation({
+    user: Data.context.admin,
+  });
 
   expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
 

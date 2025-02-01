@@ -58,6 +58,7 @@ describe("number of items", () => {
     const first = testData.users.length - 1;
 
     const { data } = await executeQuery({
+      user: Data.context.admin,
       variables: { first },
     });
 
@@ -68,6 +69,7 @@ describe("number of items", () => {
     const last = testData.users.length - 1;
 
     const { data } = await executeQuery({
+      user: Data.context.admin,
       variables: { last },
     });
 
@@ -86,6 +88,7 @@ describe("order of items", () => {
 
   test.each(patterns)("%o, %o", async (variables, expectedUsers) => {
     const { data } = await executeQuery({
+      user: Data.context.admin,
       variables: { ...variables, first: 10 },
     });
 
@@ -102,6 +105,7 @@ describe("pagination", () => {
 
     const execute = () =>
       executeQuery({
+        user: Data.context.admin,
         variables: { first },
       });
 
@@ -217,6 +221,7 @@ describe("pagination", () => {
       "patterns %#",
       async (variables, firstExpect, additionals, secondExpect) => {
         const { data: data1 } = await executeQuery({
+          user: Data.context.admin,
           variables,
         });
 
@@ -229,6 +234,7 @@ describe("pagination", () => {
         expect(data1.users.edges?.map((edge) => edge?.node?.id)).toStrictEqual(firstExpect.ids);
 
         const { data: data2 } = await executeQuery({
+          user: Data.context.admin,
           variables: {
             ...variables,
             ...additionals(data1.users.pageInfo),

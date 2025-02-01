@@ -36,7 +36,9 @@ beforeEach(async () => {
 });
 
 it("should delete user", async () => {
-  const { data } = await executeMutation({});
+  const { data } = await executeMutation({
+    user: Data.context.admin,
+  });
 
   if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
     fail();
@@ -63,7 +65,9 @@ it("should not delete others", async () => {
     .select(({ fn }) => fn.countAll().as("count"))
     .executeTakeFirstOrThrow();
 
-  const { data } = await executeMutation({});
+  const { data } = await executeMutation({
+    user: Data.context.admin,
+  });
 
   if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
     fail();
@@ -102,7 +106,9 @@ it("should delete his resources", async () => {
     .select(({ fn }) => fn.countAll().as("count"))
     .executeTakeFirstOrThrow();
 
-  const { data } = await executeMutation({});
+  const { data } = await executeMutation({
+    user: Data.context.admin,
+  });
 
   expect(data?.accountDelete?.__typename === "AccountDeleteSuccess").toBe(true);
 

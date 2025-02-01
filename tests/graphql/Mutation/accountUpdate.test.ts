@@ -43,6 +43,7 @@ test("invalid input", async () => {
   const invalidEmail = "emailemail.com";
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { email: invalidEmail },
   });
 
@@ -53,6 +54,7 @@ test("email already exists", async () => {
   const { email } = Data.db.alice;
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { email },
   });
 
@@ -64,6 +66,7 @@ it("should update using input", async () => {
   const email = "foo@foo.com";
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { name, email },
   });
 
@@ -87,6 +90,7 @@ it("should not update fields if the field is absent", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: {},
   });
 
@@ -111,6 +115,7 @@ it("should update updatedAt", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { name: "bar" },
   });
 
@@ -136,6 +141,7 @@ it("should not update other attrs", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { name: "baz" },
   });
 

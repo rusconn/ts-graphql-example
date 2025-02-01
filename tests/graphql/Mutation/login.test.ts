@@ -37,6 +37,7 @@ test("invalid input", async () => {
   const password = "adminadmin";
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { email: invalidEmail, password },
   });
 
@@ -48,6 +49,7 @@ test("wrong email", async () => {
   const password = "adminadmin";
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { email: wrongEmail, password },
   });
 
@@ -59,6 +61,7 @@ test("wrong password", async () => {
   const wrongPassword = "dminadmin";
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { email, password: wrongPassword },
   });
 
@@ -70,6 +73,7 @@ test("correct input", async () => {
   const password = "adminadmin";
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { email, password },
   });
 
@@ -87,6 +91,7 @@ test("login changes token", async () => {
   const password = "adminadmin";
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { email, password },
   });
 
@@ -112,6 +117,7 @@ test("login does not changes other attrs", async () => {
   const password = "adminadmin";
 
   const { data } = await executeMutation({
+    user: Data.context.admin,
     variables: { email, password },
   });
 
