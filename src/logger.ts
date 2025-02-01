@@ -1,6 +1,7 @@
 import { type LoggerOptions, destination, pino, stdTimeFunctions } from "pino";
 
 import { isDev, isProd, isTest } from "./config.ts";
+import { Ki } from "./lib/number/prefix.ts";
 
 const options: LoggerOptions = {
   enabled: !isTest,
@@ -22,11 +23,9 @@ const options: LoggerOptions = {
   }),
 };
 
-const KiB = 2 ** 10;
-
 const stream = destination({
   sync: false,
-  minLength: 8 * KiB,
+  minLength: 8 * Ki,
 });
 
 export const logger = pino(options, stream);
