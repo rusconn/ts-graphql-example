@@ -4,11 +4,12 @@ import graphqlFields from "graphql-fields";
 
 import type {
   Connection,
-  ConnectionArguments,
+  ConnectionArgumentsUnion,
   Edge,
   GetPageArguments,
   Options,
 } from "./interfaces.ts";
+import { isForwardPagination } from "./util.ts";
 
 export async function getCursorConnection<
   Record = { id: string },
@@ -18,15 +19,9 @@ export async function getCursorConnection<
 >(
   getPage: (args: GetPageArguments<Cursor>) => Promise<Record[]>,
   count: () => Promise<number>,
-  connArgs: ConnectionArguments<Cursor> = {},
+  args: ConnectionArgumentsUnion<Cursor>,
   pOptions?: Options<Record, Cursor, Node, CustomEdge>,
-): Promise<Connection<Node, CustomEdge> | Error> {
-  const args = parseArgs(connArgs);
-
-  if (args instanceof Error) {
-    return args;
-  }
-
+): Promise<Connection<Node, CustomEdge>> {
   const options = mergeDefaultOptions(pOptions);
   const requestedFields = options.resolveInfo && Object.keys(graphqlFields(options.resolveInfo));
   const hasRequestedField = (key: string) => !requestedFields || requestedFields.includes(key);
@@ -96,55 +91,6 @@ export async function getCursorConnection<
   };
 }
 
-function parseArgs<Cursor>(
-  args: ConnectionArguments<Cursor>,
-): ConnectionArgumentsUnion<Cursor> | Error {
-  if (args.first == null && args.last == null) {
-    return new Error('One of "first" or "last" is required');
-  }
-
-  if (args.first != null && args.last != null) {
-    return new Error('Only one of "first" and "last" can be set');
-  }
-  if (args.after != null && args.before != null) {
-    return new Error('Only one of "after" and "before" can be set');
-  }
-
-  if (args.after != null && args.first == null) {
-    return new Error('"after" needs to be used with "first"');
-  }
-  if (args.before != null && args.last == null) {
-    return new Error('"before" needs to be used with "last"');
-  }
-
-  if (args.first != null && args.first < 0) {
-    return new Error('"first" has to be non-negative integer');
-  }
-  if (args.last != null && args.last < 0) {
-    return new Error('"last" has to be non-negative integer');
-  }
-
-  return args as ConnectionArgumentsUnion<Cursor>;
-}
-
-type ConnectionArgumentsUnion<Cursor> =
-  | ForwardPaginationArguments<Cursor>
-  | BackwardPaginationArguments<Cursor>;
-
-type ForwardPaginationArguments<Cursor> = {
-  first: number;
-  after?: Cursor;
-  last?: undefined;
-  before?: undefined;
-};
-
-type BackwardPaginationArguments<Cursor> = {
-  first?: undefined;
-  after?: undefined;
-  last: number;
-  before?: Cursor;
-};
-
 type MergedOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>> = Required<
   Options<Record, Cursor, Node, CustomEdge>
 >;
@@ -162,10 +108,6 @@ function mergeDefaultOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>
   };
 }
 
-function isForwardPagination<Cursor>(args: ConnectionArgumentsUnion<Cursor>) {
-  return "first" in args && args.first != null;
-}
-
 function encodeCursor<Record, Cursor, Node, CustomEdge extends Edge<Node>>(
   record: Record,
   options: MergedOptions<Record, Cursor, Node, CustomEdge>,
@@ -174,43 +116,7 @@ function encodeCursor<Record, Cursor, Node, CustomEdge extends Edge<Node>>(
 }
 
 if (import.meta.vitest) {
-  const getPage = async () => [];
   const count = async () => 0;
-
-  describe("Parsing", () => {
-    const valids = [
-      { first: 0 },
-      { first: 0, after: "" },
-      { first: 10, after: "" },
-      { last: 0 },
-      { last: 0, before: "" },
-      { last: 10, before: "" },
-    ];
-
-    const invalids = [
-      {},
-      { first: null },
-      { last: null },
-      { first: null, last: null },
-      { first: 10, last: 10 },
-      { first: 10, before: "" },
-      { last: 10, after: "" },
-      { first: -1 },
-      { last: -1 },
-      { after: "" },
-      { before: "" },
-    ];
-
-    test.each(valids)("valids %#", async (args) => {
-      const result = await getCursorConnection(getPage, count, args);
-      expect(result instanceof Error).toBe(false);
-    });
-
-    test.each(invalids)("invalids %#", async (args) => {
-      const result = await getCursorConnection(getPage, count, args);
-      expect(result instanceof Error).toBe(true);
-    });
-  });
 
   describe("Callback backward", () => {
     const forwards = [
@@ -259,17 +165,11 @@ if (import.meta.vitest) {
 
     test.each(forwards)("forwards %#", async (args) => {
       const result = await getCursorConnection(getPage, count, args);
-      if (result instanceof Error) {
-        throw new Error();
-      }
       expect(result.nodes).toStrictEqual(await getPage());
     });
 
     test.each(backwards)("backwards %#", async (args) => {
       const result = await getCursorConnection(getPage, count, args);
-      if (result instanceof Error) {
-        throw new Error();
-      }
       expect(result.nodes).toStrictEqual(await getPage());
     });
   });

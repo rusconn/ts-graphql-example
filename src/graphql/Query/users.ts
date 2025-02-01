@@ -65,9 +65,9 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
     throw badUserInputErr(parsed.message, parsed);
   }
 
-  const { first, after, last, before, reverse, sortKey } = parsed;
+  const { connectionArgs, reverse, sortKey } = parsed;
 
-  const connection = await getCursorConnection<User, User["id"]>(
+  return await getCursorConnection<User, User["id"]>(
     async ({ cursor, limit, backward }) => {
       const page = await context.api.user.getPage({
         cursor,
@@ -82,15 +82,9 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
       return backward ? page.reverse() : page;
     },
     context.api.user.count,
-    { first, after, last, before },
+    connectionArgs,
     { resolveInfo: info },
   );
-
-  if (connection instanceof Error) {
-    throw connection;
-  }
-
-  return connection;
 };
 
 const parseArgs = (args: QueryUsersArgs) => {
@@ -105,37 +99,8 @@ const parseArgs = (args: QueryUsersArgs) => {
   }
 
   return {
-    ...connectionArgs,
+    connectionArgs,
     reverse: args.reverse,
     sortKey: args.sortKey,
   };
 };
-
-if (import.meta.vitest) {
-  describe("Parsing", () => {
-    const valids = [
-      { first: 10 }, //
-      { last: 10 },
-      { first: FIRST_MAX },
-      { last: LAST_MAX },
-    ];
-
-    const invalids = [
-      { first: FIRST_MAX + 1 }, //
-      { last: LAST_MAX + 1 },
-    ];
-
-    const reverse = true;
-    const sortKey = UserSortKeys.CreatedAt;
-
-    test.each(valids)("valids %#", (args) => {
-      const parsed = parseArgs({ ...args, reverse, sortKey });
-      expect(parsed instanceof Error).toBe(false);
-    });
-
-    test.each(invalids)("invalids %#", (args) => {
-      const parsed = parseArgs({ ...args, reverse, sortKey });
-      expect(parsed instanceof Error).toBe(true);
-    });
-  });
-}

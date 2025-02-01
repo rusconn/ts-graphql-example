@@ -71,9 +71,9 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
     throw badUserInputErr(parsed.message, parsed);
   }
 
-  const { first, after, last, before, reverse, sortKey, status } = parsed;
+  const { connectionArgs, reverse, sortKey, status } = parsed;
 
-  const connection = await getCursorConnection<Todo, Todo["id"]>(
+  return await getCursorConnection<Todo, Todo["id"]>(
     async ({ cursor, limit, backward }) => {
       const page = await context.api.todo.loadTheirPage(parent.id, {
         cursor,
@@ -89,15 +89,9 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
       return backward ? page.reverse() : page;
     },
     () => context.api.todo.loadTheirCount(parent.id, { status }),
-    { first, after, last, before },
+    connectionArgs,
     { resolveInfo: info },
   );
-
-  if (connection instanceof Error) {
-    throw connection;
-  }
-
-  return connection;
 };
 
 const parseArgs = (args: UserTodosArgs) => {
@@ -121,39 +115,9 @@ const parseArgs = (args: UserTodosArgs) => {
   }
 
   return {
-    ...connectionArgs,
+    connectionArgs,
     reverse: args.reverse,
     sortKey: args.sortKey,
     status,
   };
 };
-
-if (import.meta.vitest) {
-  describe("Parsing", () => {
-    const valids = [
-      { first: 10 }, //
-      { last: 10 },
-      { first: FIRST_MAX },
-      { last: LAST_MAX },
-    ];
-
-    const invalids = [
-      { first: 10, status: null },
-      { first: FIRST_MAX + 1 },
-      { last: LAST_MAX + 1 },
-    ];
-
-    const reverse = true;
-    const sortKey = TodoSortKeys.UpdatedAt;
-
-    test.each(valids)("valids %#", (args) => {
-      const parsed = parseArgs({ ...args, reverse, sortKey });
-      expect(parsed instanceof Error).toBe(false);
-    });
-
-    test.each(invalids)("invalids %#", (args) => {
-      const parsed = parseArgs({ ...args, reverse, sortKey });
-      expect(parsed instanceof Error).toBe(true);
-    });
-  });
-}
