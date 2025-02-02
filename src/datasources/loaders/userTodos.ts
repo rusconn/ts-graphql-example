@@ -38,48 +38,33 @@ export const initClosure = (db: Kysely<DB>) => {
         .where("id", "=", cursor)
         .select(orderColumn);
 
-    // 本当は各 key に対する select limit を union all したいが、
-    // kysely が集合演算を正しく実装していないようなので別の方法で実現した。
-    // クエリの効率は悪いが、全件取得後にオンメモリで limit するよりマシ。
     const todos = await db
-      .with("results", (db) =>
-        db
-          .selectFrom("Todo")
-          .where("userId", "in", keys)
-          .$if(status != null, (qb) => qb.where("status", "=", status!))
-          .$if(cursor != null, (qb) =>
-            qb.where(({ eb, refTuple, tuple }) =>
-              eb(
-                refTuple(orderColumn, "id"), //
-                comp,
-                tuple(cursorOrderColumn!, cursor!),
+      .selectFrom("User")
+      .innerJoinLateral(
+        (eb) =>
+          eb
+            .selectFrom("Todo")
+            .whereRef("User.id", "=", "Todo.userId")
+            .$if(cursor != null, (qb) =>
+              qb.where(({ eb, refTuple, tuple }) =>
+                eb(
+                  refTuple(orderColumn, "id"), //
+                  comp,
+                  tuple(cursorOrderColumn!, cursor!),
+                ),
               ),
-            ),
-          )
-          .selectAll()
-          .select(({ fn }) =>
-            fn
-              .agg<number>("row_number")
-              .over((ob) =>
-                ob //
-                  .partitionBy("userId")
-                  .orderBy(orderColumn, direction)
-                  .orderBy("id", direction),
-              )
-              .as("nth"),
-          ),
+            )
+            .$if(status != null, (qb) => qb.where("status", "=", status!))
+            .selectAll("Todo")
+            .orderBy(orderColumn, direction)
+            .orderBy("id", direction)
+            .limit(limit)
+            .as("todos"),
+        (join) => join.onTrue(),
       )
-      .selectFrom("results")
-      .where("nth", "<=", limit)
-      .select([
-        "id", //
-        "updatedAt",
-        "title",
-        "description",
-        "status",
-        "userId",
-      ])
-      .orderBy("nth", "asc")
+      .where("User.id", "in", keys)
+      .selectAll("todos")
+      // サブクエリの結果順を維持することを想定して order by は指定していない
       .execute();
 
     // 順序は維持してくれるみたい
