@@ -4,7 +4,7 @@ import * as Uuidv7 from "../../../lib/uuid/v7.ts";
 
 export type TodoId = Tagged<Uuidv7.Uuidv7, "TodoId">;
 
-export const is = (input: string): input is TodoId => {
+export const is = (input: unknown): input is TodoId => {
   return Uuidv7.is(input);
 };
 
