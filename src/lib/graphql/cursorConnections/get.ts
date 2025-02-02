@@ -13,7 +13,7 @@ import { isForwardPagination } from "./util.ts";
 
 export async function getCursorConnection<
   Record = { id: string },
-  Cursor = { id: string },
+  Cursor = string,
   Node = Record,
   CustomEdge extends Edge<Node> = Edge<Node>,
 >(
@@ -101,9 +101,8 @@ function mergeDefaultOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>
   pOptions?: Options<Record, Cursor, Node, CustomEdge>,
 ): MergedOptions<Record, Cursor, Node, CustomEdge> {
   return {
-    getCursor: (record: Record) =>
-      ({ id: (record as unknown as { id: string }).id }) as unknown as Cursor,
-    encodeCursor: (cursor: Cursor) => (cursor as unknown as { id: string }).id,
+    getCursor: (record: Record) => (record as { id: string }).id as Cursor,
+    encodeCursor: (cursor: Cursor) => cursor as string,
     recordToEdge: (record: Record) => ({ node: record }) as unknown as Omit<CustomEdge, "cursor">,
     resolveInfo: null,
     ...pOptions,
