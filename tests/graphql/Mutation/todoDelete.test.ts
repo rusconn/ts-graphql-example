@@ -87,7 +87,7 @@ it("should delete todo", async () => {
 it("should not delete others", async () => {
   const before = await client
     .selectFrom("Todo")
-    .select(({ fn }) => fn.countAll().as("count"))
+    .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
@@ -105,12 +105,9 @@ it("should not delete others", async () => {
 
   const after = await client
     .selectFrom("Todo")
-    .select(({ fn }) => fn.countAll().as("count"))
+    .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
-  const beforeCount = Number(before.count);
-  const afterCount = Number(after.count);
-
   expect(todo).toBeUndefined();
-  expect(afterCount).toBe(beforeCount - 1);
+  expect(after.count).toBe(before.count - 1);
 });

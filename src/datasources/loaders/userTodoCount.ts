@@ -25,13 +25,13 @@ export const initClosure = (db: Kysely<DB>) => {
       .$if(status != null, (qb) => qb.where("status", "=", status!))
       .groupBy("userId")
       .select("userId")
-      .select(({ fn }) => fn.count("userId").as("count"))
+      .select(({ fn }) => fn.count<number>("userId").as("count"))
       .execute();
 
     type Count = Pick<Todo, "userId"> & Pick<(typeof counts)[number], "count">;
 
     return sort(keys, counts as Count[], (count) => count.userId) //
-      .map((result) => Number(result?.count ?? 0));
+      .map((result) => result?.count ?? 0);
   };
 
   const loader = new DataLoader(batchGet);

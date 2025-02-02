@@ -62,7 +62,7 @@ it("should delete user", async () => {
 it("should not delete others", async () => {
   const before = await client
     .selectFrom("User")
-    .select(({ fn }) => fn.countAll().as("count"))
+    .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
@@ -87,14 +87,11 @@ it("should not delete others", async () => {
 
   const after = await client
     .selectFrom("User")
-    .select(({ fn }) => fn.countAll().as("count"))
+    .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
-  const beforeCount = Number(before.count);
-  const afterCount = Number(after.count);
-
   expect(user).toBeUndefined();
-  expect(afterCount).toBe(beforeCount - 1);
+  expect(after.count).toBe(before.count - 1);
 });
 
 it("should delete his resources", async () => {
@@ -103,7 +100,7 @@ it("should delete his resources", async () => {
   const before = await client
     .selectFrom("Todo")
     .where("userId", "=", Data.db.admin.id)
-    .select(({ fn }) => fn.countAll().as("count"))
+    .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
@@ -115,9 +112,9 @@ it("should delete his resources", async () => {
   const after = await client
     .selectFrom("Todo")
     .where("userId", "=", Data.db.admin.id)
-    .select(({ fn }) => fn.countAll().as("count"))
+    .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
-  expect(before.count).not.toBe("0");
-  expect(after.count).toBe("0");
+  expect(before.count).not.toBe(0);
+  expect(after.count).toBe(0);
 });

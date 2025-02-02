@@ -5,6 +5,9 @@ import { connectionString, isProd } from "../config.ts";
 import { logger } from "../logger.ts";
 import type { DB } from "./generated/types.ts";
 
+// PostgreSQL's string of int8(bigint, bigserial) -> js number(possible loss of precision)
+pg.types.setTypeParser(pg.types.builtins.INT8, Number);
+
 const [logQuery, logError] = isProd
   ? [
       (obj: object) => logger.info(obj, "query-info"),

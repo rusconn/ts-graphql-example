@@ -86,10 +86,10 @@ export class UserAPI {
   count = async () => {
     const result = await this.#db
       .selectFrom("User")
-      .select(({ fn }) => fn.countAll().as("count"))
+      .select(({ fn }) => fn.countAll<number>().as("count"))
       .executeTakeFirstOrThrow();
 
-    return Number(result.count);
+    return result.count;
   };
 
   create = async (data: Omit<NewUser, "id" | "updatedAt">, trx?: Transaction<DB>) => {

@@ -35,10 +35,10 @@ export class TodoAPI {
     const result = await this.#db
       .selectFrom("Todo")
       .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
-      .select(({ fn }) => fn.countAll().as("count"))
+      .select(({ fn }) => fn.countAll<number>().as("count"))
       .executeTakeFirstOrThrow();
 
-    return Number(result.count);
+    return result.count;
   };
 
   create = async (data: Omit<NewTodo, "id" | "updatedAt">, trx?: Transaction<DB>) => {
