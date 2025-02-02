@@ -68,8 +68,8 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
   const { connectionArgs, reverse, sortKey } = parsed;
 
   return await getCursorConnection<User, User["id"]>(
-    async ({ cursor, limit, backward }) => {
-      const page = await context.api.user.getPage({
+    ({ cursor, limit, backward }) =>
+      context.api.user.getPage({
         cursor,
         sortKey: {
           [UserSortKeys.CreatedAt]: "createdAt" as const,
@@ -77,10 +77,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
         }[sortKey],
         limit,
         reverse: reverse !== backward,
-      });
-
-      return backward ? page.reverse() : page;
-    },
+      }),
     context.api.user.count,
     connectionArgs,
     { resolveInfo: info },

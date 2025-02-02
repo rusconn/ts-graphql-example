@@ -61,8 +61,10 @@ export async function getCursorConnection<
     hasPreviousPage = records.length > args.last;
 
     if (hasPreviousPage) {
-      records.shift();
+      records.pop();
     }
+
+    records.reverse();
   }
 
   const [startCursor, endCursor] =
@@ -170,7 +172,7 @@ if (import.meta.vitest) {
 
     test.each(backwards)("backwards %#", async (args) => {
       const result = await getCursorConnection(getPage, count, args);
-      expect(result.nodes).toStrictEqual(await getPage());
+      expect(result.nodes).toStrictEqual((await getPage()).toReversed());
     });
   });
 }
