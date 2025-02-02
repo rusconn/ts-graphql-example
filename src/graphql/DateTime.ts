@@ -1,7 +1,6 @@
 import { DateTimeResolver, DateTimeTypeDefinition } from "graphql-scalars";
-import type { Tagged } from "type-fest";
 
-export type DateTime = Tagged<string, "DateTime">;
+export type { DateTime } from "../lib/string/dateTime.ts";
 
 export const typeDef = DateTimeTypeDefinition;
 
