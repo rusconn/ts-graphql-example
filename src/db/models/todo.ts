@@ -1,8 +1,8 @@
 import type { OverrideProperties } from "type-fest";
 
-import type { NonEmptyString } from "../../lib/string/nonEmptyString.ts";
 import type { TodoInsert, TodoSelect, TodoUpdate } from "../generated/types-extension.ts";
 import type { TodoId } from "./todo/id.ts";
+import type { TodoTitle } from "./todo/title.ts";
 import type { UserId } from "./user/id.ts";
 
 export type TodoKey = {
@@ -14,7 +14,7 @@ export type Todo = OverrideProperties<
   TodoSelect,
   {
     id: TodoId;
-    title: NonEmptyString;
+    title: TodoTitle;
     userId: UserId;
   }
 >;
@@ -23,7 +23,7 @@ export type NewTodo = OverrideProperties<
   TodoInsert,
   {
     id: TodoId;
-    title: NonEmptyString;
+    title: TodoTitle;
     userId: UserId;
   }
 >;
@@ -32,7 +32,7 @@ export type UpdTodo = OverrideProperties<
   TodoUpdate,
   {
     id?: TodoId;
-    title?: NonEmptyString;
+    title?: TodoTitle;
     userId?: UserId;
   }
 >;
