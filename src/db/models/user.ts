@@ -1,5 +1,6 @@
 import type { OverrideProperties } from "type-fest";
 
+import type { NonEmptyString } from "../../lib/string/nonEmptyString.ts";
 import type { UserInsert, UserSelect, UserUpdate } from "../generated/types-extension.ts";
 import type { UserEmail } from "./user/email.ts";
 import type { UserId } from "./user/id.ts";
@@ -13,6 +14,7 @@ export type User = OverrideProperties<
   UserSelect,
   {
     id: UserId;
+    name: NonEmptyString;
     email: UserEmail;
     password: UserPassword;
     token: UserToken | null;
@@ -23,6 +25,7 @@ export type NewUser = OverrideProperties<
   UserInsert,
   {
     id: UserId;
+    name: NonEmptyString;
     email: UserEmail;
     password: UserPassword;
     token?: UserToken | null;
@@ -32,6 +35,8 @@ export type NewUser = OverrideProperties<
 export type UpdUser = OverrideProperties<
   UserUpdate,
   {
+    id?: UserId;
+    name?: NonEmptyString;
     email?: UserEmail;
     password?: UserPassword;
     token?: UserToken | null;
