@@ -1,6 +1,4 @@
-import bcrypt from "bcrypt";
-
-import { passHashExp } from "../../config.ts";
+import * as UserPassword from "../../db/models/user/password.ts";
 import type { MutationAccountUpdateArgs, MutationResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -69,12 +67,12 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
     }
   }
 
-  const hashed = password && (await bcrypt.hash(password, passHashExp));
-
   const updated = await context.api.user.updateById(authed.id, {
     name,
     email,
-    password: hashed,
+    ...(password && {
+      password: await UserPassword.gen(password),
+    }),
   });
 
   if (!updated) {

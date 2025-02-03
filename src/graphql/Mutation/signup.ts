@@ -1,7 +1,5 @@
-import bcrypt from "bcrypt";
-
-import { passHashExp } from "../../config.ts";
 import { UserRole } from "../../db/generated/types.ts";
+import * as UserPassword from "../../db/models/user/password.ts";
 import * as UserToken from "../../db/models/user/token.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../schema.ts";
 import { authGuest } from "../_authorizers/guest.ts";
@@ -69,13 +67,12 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     };
   }
 
-  const hashed = await bcrypt.hash(password, passHashExp);
   const token = UserToken.gen();
 
   const signedUp = await context.api.user.create({
     name,
     email,
-    password: hashed,
+    password: await UserPassword.gen(password),
     role: UserRole.USER,
     token,
   });
