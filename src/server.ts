@@ -2,11 +2,13 @@ import { GraphQLError } from "graphql";
 import { createSchema, createYoga } from "graphql-yoga";
 import { App } from "uWebSockets.js";
 
+import { endpoint } from "./config.ts";
 import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
 import { TodoAPI } from "./datasources/todo.ts";
 import { UserAPI } from "./datasources/user.ts";
 import { client } from "./db/client.ts";
 import * as UserToken from "./db/models/user/token.ts";
+import { renderApolloStudio } from "./lib/graphql-yoga/renderApolloStudio.ts";
 import { logger } from "./logger.ts";
 import { armor } from "./plugins/armor.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
@@ -24,6 +26,7 @@ const authenErr = () =>
   });
 
 export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
+  renderGraphiQL: () => renderApolloStudio(endpoint),
   schema: createSchema({ typeDefs, resolvers }),
   context: async ({ request, requestId }) => {
     const start = Date.now();

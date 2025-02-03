@@ -39,3 +39,13 @@ if (DATABASE_URL == null) {
 }
 
 export { DATABASE_URL as connectionString };
+
+const { BASE_URL } = process.env;
+
+if (BASE_URL == null) {
+  throw new Error("Invalid BASE_URL");
+}
+
+const endpoint = `${BASE_URL}:${port}/graphql`;
+
+export { endpoint };
