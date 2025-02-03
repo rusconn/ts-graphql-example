@@ -3,7 +3,6 @@ import type { OverrideProperties } from "type-fest";
 import type { UserInsert, UserSelect, UserUpdate } from "../generated/types-extension.ts";
 import type { UserEmail } from "./user/email.ts";
 import type { UserId } from "./user/id.ts";
-import type { UserName } from "./user/name.ts";
 import type { UserPassword } from "./user/password.ts";
 import type { UserToken } from "./user/token.ts";
 
@@ -14,7 +13,6 @@ export type User = OverrideProperties<
   UserSelect,
   {
     id: UserId;
-    name: UserName;
     email: UserEmail;
     password: UserPassword;
     token: UserToken | null;
@@ -25,7 +23,6 @@ export type NewUser = OverrideProperties<
   UserInsert,
   {
     id: UserId;
-    name: UserName;
     email: UserEmail;
     password: UserPassword;
     token?: UserToken | null;
@@ -36,7 +33,6 @@ export type UpdUser = OverrideProperties<
   UserUpdate,
   {
     id?: UserId;
-    name?: UserName;
     email?: UserEmail;
     password?: UserPassword;
     token?: UserToken | null;

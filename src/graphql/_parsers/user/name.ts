@@ -1,4 +1,3 @@
-import * as UserName from "../../../db/models/user/name.ts";
 import { numChars } from "../../../lib/string/numChars.ts";
 import type { MutationAccountUpdateArgs, MutationSignupArgs } from "../../../schema.ts";
 import { parseArgs, parseErr } from "../util.ts";
@@ -21,9 +20,6 @@ export const parseUserName = parseArgs(
     }
     if (name != null && numChars(name) > USER_NAME_MAX) {
       return parseErr(`"name" must be up to ${USER_NAME_MAX} characters`);
-    }
-    if (name != null && !UserName.is(name)) {
-      return parseErr(`invalid "name"`);
     }
 
     return name;
