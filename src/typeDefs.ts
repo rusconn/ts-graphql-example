@@ -6,7 +6,6 @@ import * as ErrorCode from "./graphql/ErrorCode.ts";
 import * as InvalidInputError from "./graphql/InvalidInputError.ts";
 import * as Mutation from "./graphql/Mutation/_mod.ts";
 import * as Node from "./graphql/Node/_mod.ts";
-import * as NonEmptyString from "./graphql/NonEmptyString.ts";
 import * as PageInfo from "./graphql/PageInfo.ts";
 import * as Query from "./graphql/Query/_mod.ts";
 import * as ResourceLimitExceededError from "./graphql/ResourceLimitExceededError.ts";
@@ -26,7 +25,6 @@ export const typeDefs = [
   Error_.typeDef,
   ErrorCode.typeDef,
   InvalidInputError.typeDef,
-  NonEmptyString.typeDef,
   PageInfo.typeDef,
   ResourceLimitExceededError.typeDef,
   ResourceNotFoundError.typeDef,

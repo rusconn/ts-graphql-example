@@ -11,7 +11,7 @@ const executeMutation = executeSingleResultOperation<
   AccountUpdateMutation,
   AccountUpdateMutationVariables
 >(/* GraphQL */ `
-  mutation AccountUpdate($name: NonEmptyString, $email: NonEmptyString, $password: NonEmptyString) {
+  mutation AccountUpdate($name: String, $email: String, $password: String) {
     accountUpdate(name: $name, email: $email, password: $password) {
       __typename
       ... on AccountUpdateSuccess {

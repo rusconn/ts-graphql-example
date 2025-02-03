@@ -2,7 +2,6 @@ import * as DateTime from "./graphql/DateTime.ts";
 import * as EmailAddress from "./graphql/EmailAddress.ts";
 import * as Mutation from "./graphql/Mutation/_mod.ts";
 import * as Node from "./graphql/Node/_mod.ts";
-import * as NonEmptyString from "./graphql/NonEmptyString.ts";
 import * as Query from "./graphql/Query/_mod.ts";
 import * as Todo from "./graphql/Todo/_mod.ts";
 import * as User from "./graphql/User/_mod.ts";
@@ -16,5 +15,4 @@ export const resolvers: Resolvers = {
   User: User.resolvers,
   DateTime: DateTime.resolver,
   EmailAddress: EmailAddress.resolver,
-  NonEmptyString: NonEmptyString.resolver,
 };

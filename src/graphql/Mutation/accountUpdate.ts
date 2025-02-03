@@ -4,7 +4,7 @@ import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { USER_EMAIL_MAX, parseUserEmail } from "../_parsers/user/email.ts";
-import { USER_NAME_MAX, parseUserName } from "../_parsers/user/name.ts";
+import { USER_NAME_MAX, USER_NAME_MIN, parseUserName } from "../_parsers/user/name.ts";
 import {
   USER_PASSWORD_MAX,
   USER_PASSWORD_MIN,
@@ -15,19 +15,19 @@ export const typeDef = /* GraphQL */ `
   extend type Mutation {
     accountUpdate(
       """
-      ${USER_NAME_MAX}文字まで、null は入力エラー
+      ${USER_NAME_MIN}文字以上、${USER_NAME_MAX}文字まで、null は入力エラー
       """
-      name: NonEmptyString
+      name: String
 
       """
       ${USER_EMAIL_MAX}文字まで、既に存在する場合はエラー、null は入力エラー
       """
-      email: NonEmptyString
+      email: String
 
       """
       ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで、null は入力エラー
       """
-      password: NonEmptyString
+      password: String
     ): AccountUpdateResult
   }
 

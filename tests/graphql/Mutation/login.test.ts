@@ -9,7 +9,7 @@ const executeMutation = executeSingleResultOperation<
   LoginMutation,
   LoginMutationVariables
 >(/* GraphQL */ `
-  mutation Login($email: NonEmptyString!, $password: NonEmptyString!) {
+  mutation Login($email: String!, $password: String!) {
     login(email: $email, password: $password) {
       __typename
       ... on LoginSuccess {

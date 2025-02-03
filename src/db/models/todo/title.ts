@@ -1,9 +1,7 @@
 import type { Tagged } from "type-fest";
 
-import type { NonEmptyString } from "../../../lib/string/nonEmptyString.ts";
+export type TodoTitle = Tagged<string, "TodoTitle">;
 
-export type TodoTitle = Tagged<NonEmptyString, "TodoTitle">;
-
-export const is = (s: NonEmptyString): s is TodoTitle => {
+export const is = (s: string): s is TodoTitle => {
   return s.length <= 255;
 };

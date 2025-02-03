@@ -6,7 +6,7 @@ import { authGuest } from "../_authorizers/guest.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { USER_EMAIL_MAX, parseUserEmail } from "../_parsers/user/email.ts";
-import { USER_NAME_MAX, parseUserName } from "../_parsers/user/name.ts";
+import { USER_NAME_MAX, USER_NAME_MIN, parseUserName } from "../_parsers/user/name.ts";
 import {
   USER_PASSWORD_MAX,
   USER_PASSWORD_MIN,
@@ -17,26 +17,26 @@ export const typeDef = /* GraphQL */ `
   extend type Mutation {
     signup(
       """
-      ${USER_NAME_MAX}文字まで
+      ${USER_NAME_MIN}文字以上、${USER_NAME_MAX}文字まで
       """
-      name: NonEmptyString!
+      name: String!
 
       """
       ${USER_EMAIL_MAX}文字まで、既に存在する場合はエラー
       """
-      email: NonEmptyString!
+      email: String!
 
       """
       ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
       """
-      password: NonEmptyString!
+      password: String!
     ): SignupResult
   }
 
   union SignupResult = SignupSuccess | InvalidInputError | EmailAlreadyTakenError
 
   type SignupSuccess {
-    token: NonEmptyString!
+    token: String!
   }
 `;
 

@@ -20,10 +20,6 @@ const typescript: TypeScriptPluginConfig = {
       input: "./graphql/EmailAddress.ts#EmailAddress",
       output: "./graphql/EmailAddress.ts#EmailAddress",
     },
-    NonEmptyString: {
-      input: "./graphql/NonEmptyString.ts#NonEmptyString",
-      output: "./graphql/NonEmptyString.ts#NonEmptyString",
-    },
   },
   useTypeImports: true,
 };
@@ -52,7 +48,6 @@ const typescriptOperations: TypeScriptDocumentsPluginConfig = {
       output: "Date",
     },
     EmailAddress: "string",
-    NonEmptyString: "string",
   },
   skipTypename: true,
 };

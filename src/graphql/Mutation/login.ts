@@ -16,19 +16,19 @@ export const typeDef = /* GraphQL */ `
       """
       ${USER_EMAIL_MAX}文字まで
       """
-      email: NonEmptyString!
+      email: String!
 
       """
       ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
       """
-      password: NonEmptyString!
+      password: String!
     ): LoginResult
   }
 
   union LoginResult = LoginSuccess | InvalidInputError | UserNotFoundError
 
   type LoginSuccess {
-    token: NonEmptyString!
+    token: String!
   }
 
   type UserNotFoundError implements Error {

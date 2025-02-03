@@ -1,7 +1,6 @@
 import type { ID } from './graphql/ID.ts';
 import type { DateTime } from './graphql/DateTime.ts';
 import type { EmailAddress } from './graphql/EmailAddress.ts';
-import type { NonEmptyString } from './graphql/NonEmptyString.ts';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import type { Node as NodeMapper } from './graphql/Node/_mapper.ts';
 import type { Todo as TodoMapper } from './graphql/Todo/_mapper.ts';
@@ -25,7 +24,6 @@ export type Scalars = {
   Float: { input: number; output: number; }
   DateTime: { input: DateTime; output: Date | DateTime; }
   EmailAddress: { input: EmailAddress; output: EmailAddress; }
-  NonEmptyString: { input: NonEmptyString; output: NonEmptyString; }
 };
 
 export type AccountDeleteResult = AccountDeleteSuccess;
@@ -67,7 +65,7 @@ export type LoginResult = InvalidInputError | LoginSuccess | UserNotFoundError;
 
 export type LoginSuccess = {
   __typename?: 'LoginSuccess';
-  token: Scalars['NonEmptyString']['output'];
+  token: Scalars['String']['output'];
 };
 
 export type LogoutResult = LogoutSuccess;
@@ -95,22 +93,22 @@ export type Mutation = {
 
 
 export type MutationAccountUpdateArgs = {
-  email?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  name?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  password?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type MutationLoginArgs = {
-  email: Scalars['NonEmptyString']['input'];
-  password: Scalars['NonEmptyString']['input'];
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
 };
 
 
 export type MutationSignupArgs = {
-  email: Scalars['NonEmptyString']['input'];
-  name: Scalars['NonEmptyString']['input'];
-  password: Scalars['NonEmptyString']['input'];
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  password: Scalars['String']['input'];
 };
 
 
@@ -121,7 +119,7 @@ export type MutationTodoCompleteArgs = {
 
 export type MutationTodoCreateArgs = {
   description: Scalars['String']['input'];
-  title: Scalars['NonEmptyString']['input'];
+  title: Scalars['String']['input'];
 };
 
 
@@ -139,7 +137,7 @@ export type MutationTodoUpdateArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   status?: InputMaybe<TodoStatus>;
-  title?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Node = {
@@ -196,7 +194,7 @@ export type SignupResult = EmailAlreadyTakenError | InvalidInputError | SignupSu
 
 export type SignupSuccess = {
   __typename?: 'SignupSuccess';
-  token: Scalars['NonEmptyString']['output'];
+  token: Scalars['String']['output'];
 };
 
 export type Todo = Node & {
@@ -205,7 +203,7 @@ export type Todo = Node & {
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   status?: Maybe<TodoStatus>;
-  title?: Maybe<Scalars['NonEmptyString']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
   user?: Maybe<User>;
 };
@@ -274,7 +272,7 @@ export type User = Node & {
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   email?: Maybe<Scalars['EmailAddress']['output']>;
   id: Scalars['ID']['output'];
-  name?: Maybe<Scalars['NonEmptyString']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
   todo?: Maybe<Todo>;
   todos?: Maybe<TodoConnection>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -429,7 +427,6 @@ export type ResolversTypes = ResolversObject<{
   LogoutSuccess: ResolverTypeWrapper<LogoutSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
   Node: ResolverTypeWrapper<NodeMapper>;
-  NonEmptyString: ResolverTypeWrapper<Scalars['NonEmptyString']['output']>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<{}>;
   ResourceLimitExceededError: ResolverTypeWrapper<ResourceLimitExceededError>;
@@ -479,7 +476,6 @@ export type ResolversParentTypes = ResolversObject<{
   LogoutSuccess: LogoutSuccess;
   Mutation: {};
   Node: NodeMapper;
-  NonEmptyString: Scalars['NonEmptyString']['output'];
   PageInfo: PageInfo;
   Query: {};
   ResourceLimitExceededError: ResourceLimitExceededError;
@@ -552,7 +548,7 @@ export type LoginResultResolvers<ContextType = Context, ParentType extends Resol
 }>;
 
 export type LoginSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginSuccess'] = ResolversParentTypes['LoginSuccess']> = ResolversObject<{
-  token?: Resolver<ResolversTypes['NonEmptyString'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -582,10 +578,6 @@ export type NodeResolvers<ContextType = Context, ParentType extends ResolversPar
   __resolveType: TypeResolveFn<'Todo' | 'User', ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
 }>;
-
-export interface NonEmptyStringScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['NonEmptyString'], any> {
-  name: 'NonEmptyString';
-}
 
 export type PageInfoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
   endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -617,7 +609,7 @@ export type SignupResultResolvers<ContextType = Context, ParentType extends Reso
 }>;
 
 export type SignupSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignupSuccess'] = ResolversParentTypes['SignupSuccess']> = ResolversObject<{
-  token?: Resolver<ResolversTypes['NonEmptyString'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -626,7 +618,7 @@ export type TodoResolvers<ContextType = Context, ParentType extends ResolversPar
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   status?: Resolver<Maybe<ResolversTypes['TodoStatus']>, ParentType, ContextType>;
-  title?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
+  title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -695,7 +687,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['EmailAddress']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['NonEmptyString']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<UserTodoArgs, 'id'>>;
   todos?: Resolver<Maybe<ResolversTypes['TodoConnection']>, ParentType, ContextType, RequireFields<UserTodosArgs, 'reverse' | 'sortKey'>>;
   updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -737,7 +729,6 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   LogoutSuccess?: LogoutSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
-  NonEmptyString?: GraphQLScalarType;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   ResourceLimitExceededError?: ResourceLimitExceededErrorResolvers<ContextType>;

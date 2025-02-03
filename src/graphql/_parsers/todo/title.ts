@@ -19,7 +19,7 @@ export const parseTodoTitle = parseArgs(
       return parseErr(`"title" must be up to ${TODO_TITLE_MAX} characters`);
     }
     if (title != null && !TodoTitle.is(title)) {
-      return parseErr(`invalid "name"`);
+      return parseErr(`invalid "title"`);
     }
 
     return title;

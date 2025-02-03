@@ -14,7 +14,7 @@ export const typeDef = /* GraphQL */ `
       """
       ${TODO_TITLE_MAX}文字まで、null は入力エラー
       """
-      title: NonEmptyString
+      title: String
 
       """
       ${TODO_DESCRIPTION_MAX}文字まで、null は入力エラー

@@ -14,7 +14,6 @@ export type Scalars = {
   Float: { input: number; output: number; }
   DateTime: { input: string; output: Date; }
   EmailAddress: { input: string; output: string; }
-  NonEmptyString: { input: string; output: string; }
 };
 
 export enum ErrorCode {
@@ -45,17 +44,17 @@ export type AccountDeleteMutationVariables = Exact<{ [key: string]: never; }>;
 export type AccountDeleteMutation = { accountDelete?: { __typename: 'AccountDeleteSuccess', id: string } | null };
 
 export type AccountUpdateMutationVariables = Exact<{
-  name?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  email?: InputMaybe<Scalars['NonEmptyString']['input']>;
-  password?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
 export type AccountUpdateMutation = { accountUpdate?: { __typename: 'AccountUpdateSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } } | { __typename: 'EmailAlreadyTakenError' } | { __typename: 'InvalidInputError' } | null };
 
 export type LoginMutationVariables = Exact<{
-  email: Scalars['NonEmptyString']['input'];
-  password: Scalars['NonEmptyString']['input'];
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
 }>;
 
 
@@ -67,9 +66,9 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 export type LogoutMutation = { logout?: { __typename: 'LogoutSuccess', id: string } | null };
 
 export type SignupMutationVariables = Exact<{
-  name: Scalars['NonEmptyString']['input'];
-  email: Scalars['NonEmptyString']['input'];
-  password: Scalars['NonEmptyString']['input'];
+  name: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
 }>;
 
 
@@ -83,7 +82,7 @@ export type TodoCompleteMutationVariables = Exact<{
 export type TodoCompleteMutation = { todoComplete?: { __typename: 'InvalidInputError' } | { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoCompleteSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type TodoCreateMutationVariables = Exact<{
-  title: Scalars['NonEmptyString']['input'];
+  title: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
 }>;
 
@@ -106,7 +105,7 @@ export type TodoUncompleteMutation = { todoUncomplete?: { __typename: 'InvalidIn
 
 export type TodoUpdateMutationVariables = Exact<{
   id: Scalars['ID']['input'];
-  title?: InputMaybe<Scalars['NonEmptyString']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<TodoStatus>;
 }>;

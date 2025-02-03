@@ -11,7 +11,7 @@ const executeMutation = executeSingleResultOperation<
   TodoCreateMutation,
   TodoCreateMutationVariables
 >(/* GraphQL */ `
-  mutation TodoCreate($title: NonEmptyString!, $description: String) {
+  mutation TodoCreate($title: String!, $description: String) {
     todoCreate(title: $title, description: $description) {
       __typename
       ... on TodoCreateSuccess {

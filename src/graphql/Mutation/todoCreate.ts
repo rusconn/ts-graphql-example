@@ -18,7 +18,7 @@ export const typeDef = /* GraphQL */ `
       """
       ${TODO_TITLE_MAX}文字まで
       """
-      title: NonEmptyString!
+      title: String! = ""
 
       """
       ${TODO_DESCRIPTION_MAX}文字まで

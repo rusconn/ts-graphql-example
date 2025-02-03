@@ -4,7 +4,7 @@ import { forbiddenErr } from "../_errors/forbidden.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
-    title: NonEmptyString
+    title: String
   }
 `;
 

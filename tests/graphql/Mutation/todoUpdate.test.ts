@@ -12,7 +12,7 @@ const executeMutation = executeSingleResultOperation<
   TodoUpdateMutation,
   TodoUpdateMutationVariables
 >(/* GraphQL */ `
-  mutation TodoUpdate($id: ID!, $title: NonEmptyString, $description: String, $status: TodoStatus) {
+  mutation TodoUpdate($id: ID!, $title: String, $description: String, $status: TodoStatus) {
     todoUpdate(id: $id, title: $title, description: $description, status: $status) {
       __typename
       ... on TodoUpdateSuccess {

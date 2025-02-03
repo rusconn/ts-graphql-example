@@ -10,7 +10,7 @@ const executeMutation = executeSingleResultOperation<
   SignupMutation,
   SignupMutationVariables
 >(/* GraphQL */ `
-  mutation Signup($name: NonEmptyString!, $email: NonEmptyString!, $password: NonEmptyString!) {
+  mutation Signup($name: String!, $email: String!, $password: String!) {
     signup(name: $name, email: $email, password: $password) {
       __typename
       ... on SignupSuccess {
