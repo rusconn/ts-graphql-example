@@ -66,10 +66,8 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const token = UserToken.gen();
-
   const updated = await context.api.user.updateByEmail(email, {
-    token,
+    token: UserToken.gen(),
   });
 
   if (!updated) {
@@ -78,7 +76,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   return {
     __typename: "LoginSuccess",
-    token,
+    token: updated.token!,
   };
 };
 

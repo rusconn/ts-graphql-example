@@ -24,8 +24,8 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   DateTime: { input: DateTime; output: Date | DateTime; }
-  EmailAddress: { input: EmailAddress; output: string; }
-  NonEmptyString: { input: NonEmptyString; output: string; }
+  EmailAddress: { input: EmailAddress; output: EmailAddress; }
+  NonEmptyString: { input: NonEmptyString; output: NonEmptyString; }
 };
 
 export type AccountDeleteResult = AccountDeleteSuccess;

@@ -18,11 +18,11 @@ const typescript: TypeScriptPluginConfig = {
     },
     EmailAddress: {
       input: "./graphql/EmailAddress.ts#EmailAddress",
-      output: "string",
+      output: "./graphql/EmailAddress.ts#EmailAddress",
     },
     NonEmptyString: {
       input: "./graphql/NonEmptyString.ts#NonEmptyString",
-      output: "string",
+      output: "./graphql/NonEmptyString.ts#NonEmptyString",
     },
   },
   useTypeImports: true,
