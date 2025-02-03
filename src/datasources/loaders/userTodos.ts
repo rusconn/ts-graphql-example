@@ -3,6 +3,7 @@ import type { Kysely } from "kysely";
 
 import type { DB, TodoStatus } from "../../db/generated/types.ts";
 import type { Todo } from "../../db/models/todo.ts";
+import { sortGroup } from "../../lib/dataloader/sortGroup.ts";
 
 export type Key = Todo["userId"];
 
@@ -67,10 +68,7 @@ export const initClosure = (db: Kysely<DB>) => {
       // サブクエリの結果順を維持することを想定して order by は指定していない
       .execute();
 
-    // 順序は維持してくれるみたい
-    const userTodos = Map.groupBy(todos as Todo[], (todo) => todo.userId);
-
-    return keys.map((key) => userTodos.get(key) ?? []);
+    return sortGroup(keys, todos as Todo[], (todo) => todo.userId);
   };
 
   const loader = new DataLoader(batchGet);

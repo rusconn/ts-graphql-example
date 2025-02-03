@@ -28,10 +28,12 @@ export const initClosure = (db: Kysely<DB>) => {
       .select(({ fn }) => fn.count<number>("userId").as("count"))
       .execute();
 
-    type Count = Pick<Todo, "userId"> & Pick<(typeof counts)[number], "count">;
+    type Count = {
+      userId: Todo["userId"];
+      count: number;
+    };
 
-    return sort(keys, counts as Count[], (count) => count.userId) //
-      .map((result) => result?.count ?? 0);
+    return sort(keys, counts as Count[], (count) => count.userId) as Count[];
   };
 
   const loader = new DataLoader(batchGet);

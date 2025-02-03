@@ -96,6 +96,8 @@ export class TodoAPI {
   };
 
   loadTheirCount = async (key: userTodoCountLoader.Key, params: userTodoCountLoader.Params) => {
-    return await this.#loaders.userTodoCount(params).load(key);
+    const result = await this.#loaders.userTodoCount(params).load(key);
+
+    return result.count;
   };
 }
