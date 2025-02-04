@@ -28,7 +28,6 @@ const typescript: TypeScriptPluginConfig = {
 const typescriptResolvers: TypeScriptResolversPluginConfig = {
   useIndexSignature: true,
   contextType: "./context.ts#Context",
-  optionalInfoArgument: true,
   mapperTypeSuffix: "Mapper",
   mappers: {
     Node: "./graphql/Node/_mapper.ts#Node",
