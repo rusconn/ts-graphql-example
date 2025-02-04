@@ -88,7 +88,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 };
 
 const parseArgs = (args: MutationSignupArgs) => {
-  const name = parseUserName(args, {
+  const name = parseUserName(args.name, "name", {
     optional: false,
     nullable: false,
   });
@@ -97,7 +97,7 @@ const parseArgs = (args: MutationSignupArgs) => {
     return name;
   }
 
-  const email = parseUserEmail(args, {
+  const email = parseUserEmail(args.email, "email", {
     optional: false,
     nullable: false,
   });
@@ -106,7 +106,7 @@ const parseArgs = (args: MutationSignupArgs) => {
     return email;
   }
 
-  const password = parseUserPassword(args, {
+  const password = parseUserPassword(args.password, "password", {
     optional: false,
     nullable: false,
   });

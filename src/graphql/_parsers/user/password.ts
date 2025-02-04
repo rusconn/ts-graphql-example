@@ -4,29 +4,23 @@ import type {
   MutationLoginArgs,
   MutationSignupArgs,
 } from "../../../schema.ts";
-import { parseArgs, parseErr } from "../util.ts";
+import { parseArg, parseErr } from "../util.ts";
 
-type Args = {
-  password?:
-    | MutationSignupArgs["password"]
-    | MutationLoginArgs["password"]
-    | MutationAccountUpdateArgs["password"];
-};
+type Arg =
+  | MutationSignupArgs["password"]
+  | MutationLoginArgs["password"]
+  | MutationAccountUpdateArgs["password"];
 
 export const USER_PASSWORD_MIN = 8;
 export const USER_PASSWORD_MAX = 50;
 
-export const parseUserPassword = parseArgs(
-  "password",
-  (args: Args) => args.password,
-  (password) => {
-    if (password != null && numChars(password) < USER_PASSWORD_MIN) {
-      return parseErr(`"password" must be at least ${USER_PASSWORD_MIN} characters`);
-    }
-    if (password != null && numChars(password) > USER_PASSWORD_MAX) {
-      return parseErr(`"password" must be up to ${USER_PASSWORD_MAX} characters`);
-    }
+export const parseUserPassword = parseArg((arg: Arg, argName) => {
+  if (arg != null && numChars(arg) < USER_PASSWORD_MIN) {
+    return parseErr(`"${argName}" must be at least ${USER_PASSWORD_MIN} characters`);
+  }
+  if (arg != null && numChars(arg) > USER_PASSWORD_MAX) {
+    return parseErr(`"${argName}" must be up to ${USER_PASSWORD_MAX} characters`);
+  }
 
-    return password;
-  },
-);
+  return arg;
+});

@@ -102,7 +102,7 @@ const parseArgs = (args: UserTodosArgs) => {
     return connectionArgs;
   }
 
-  const status = parseTodoStatus(args, {
+  const status = parseTodoStatus(args.status, "status", {
     optional: true,
     nullable: false,
   });

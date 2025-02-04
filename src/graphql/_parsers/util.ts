@@ -2,26 +2,29 @@ export const parseErr = (message: string) => {
   return new Error(message);
 };
 
-export const parseArgs =
-  <Args, Arg, Output>(
-    name: string,
-    toArg: (args: Args) => Arg,
-    additionalParse: (arg: Arg) => Output | Error,
+export const parseArg =
+  <
+    Arg, //
+    Output,
+  >(
+    additionalParse: (arg: Arg, argName: string) => Output | Error,
   ) =>
-  <Optional extends boolean, Nullable extends boolean>(
-    args: Args,
+  <
+    Optional extends boolean, //
+    Nullable extends boolean,
+  >(
+    arg: Arg,
+    argName: string,
     { optional, nullable }: { optional: Optional; nullable: Nullable },
   ) => {
-    const arg = toArg(args);
-
     if (!optional && arg === undefined) {
-      return parseErr(`${name} is required`);
+      return parseErr(`${argName} is required`);
     }
     if (!nullable && arg === null) {
-      return parseErr(`${name} must not be null`);
+      return parseErr(`${argName} must not be null`);
     }
 
-    const parsed = additionalParse(arg);
+    const parsed = additionalParse(arg, argName);
 
     if (parsed instanceof Error) {
       return parsed;

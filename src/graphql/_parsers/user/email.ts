@@ -5,28 +5,22 @@ import type {
   MutationLoginArgs,
   MutationSignupArgs,
 } from "../../../schema.ts";
-import { parseArgs, parseErr } from "../util.ts";
+import { parseArg, parseErr } from "../util.ts";
 
-type Args = {
-  email?:
-    | MutationSignupArgs["email"]
-    | MutationLoginArgs["email"]
-    | MutationAccountUpdateArgs["email"];
-};
+type Arg =
+  | MutationSignupArgs["email"]
+  | MutationLoginArgs["email"]
+  | MutationAccountUpdateArgs["email"];
 
 export const USER_EMAIL_MAX = 100;
 
-export const parseUserEmail = parseArgs(
-  "email",
-  (args: Args) => args.email,
-  (email) => {
-    if (email != null && numChars(email) > USER_EMAIL_MAX) {
-      return parseErr(`"email" must be up to ${USER_EMAIL_MAX} characters`);
-    }
-    if (email != null && !UserEmail.is(email)) {
-      return parseErr(`invalid "email"`);
-    }
+export const parseUserEmail = parseArg((arg: Arg, argName) => {
+  if (arg != null && numChars(arg) > USER_EMAIL_MAX) {
+    return parseErr(`"${argName}" must be up to ${USER_EMAIL_MAX} characters`);
+  }
+  if (arg != null && !UserEmail.is(arg)) {
+    return parseErr(`invalid "${argName}"`);
+  }
 
-    return email;
-  },
-);
+  return arg;
+});

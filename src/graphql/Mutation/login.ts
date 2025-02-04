@@ -81,7 +81,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 };
 
 const parseArgs = (args: MutationLoginArgs) => {
-  const email = parseUserEmail(args, {
+  const email = parseUserEmail(args.email, "email", {
     optional: false,
     nullable: false,
   });
@@ -90,7 +90,7 @@ const parseArgs = (args: MutationLoginArgs) => {
     return email;
   }
 
-  const password = parseUserPassword(args, {
+  const password = parseUserPassword(args.password, "password", {
     optional: false,
     nullable: false,
   });

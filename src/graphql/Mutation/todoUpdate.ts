@@ -76,7 +76,7 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
     return id;
   }
 
-  const title = parseTodoTitle(args, {
+  const title = parseTodoTitle(args.title, "title", {
     optional: true,
     nullable: false,
   });
@@ -85,7 +85,7 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
     return title;
   }
 
-  const description = parseTodoDescription(args, {
+  const description = parseTodoDescription(args.description, "description", {
     optional: true,
     nullable: false,
   });
@@ -94,7 +94,7 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
     return description;
   }
 
-  const status = parseTodoStatus(args, {
+  const status = parseTodoStatus(args.status, "status", {
     optional: true,
     nullable: false,
   });
