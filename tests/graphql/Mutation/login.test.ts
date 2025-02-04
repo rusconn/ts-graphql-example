@@ -53,7 +53,7 @@ test("wrong email", async () => {
     variables: { email: wrongEmail, password },
   });
 
-  expect(data?.login?.__typename === "UserNotFoundError").toBe(true);
+  expect(data?.login?.__typename === "LoginFailedError").toBe(true);
 });
 
 test("wrong password", async () => {
@@ -65,7 +65,7 @@ test("wrong password", async () => {
     variables: { email, password: wrongPassword },
   });
 
-  expect(data?.login?.__typename === "UserNotFoundError").toBe(true);
+  expect(data?.login?.__typename === "LoginFailedError").toBe(true);
 });
 
 test("correct input", async () => {

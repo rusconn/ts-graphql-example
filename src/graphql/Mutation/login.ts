@@ -24,13 +24,13 @@ export const typeDef = /* GraphQL */ `
     ): LoginResult
   }
 
-  union LoginResult = LoginSuccess | InvalidInputError | UserNotFoundError
+  union LoginResult = LoginSuccess | InvalidInputError | LoginFailedError
 
   type LoginSuccess {
     token: String!
   }
 
-  type UserNotFoundError implements Error {
+  type LoginFailedError implements Error {
     message: String!
   }
 `;
@@ -51,8 +51,8 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   if (!found) {
     return {
-      __typename: "UserNotFoundError",
-      message: "user not found",
+      __typename: "LoginFailedError",
+      message: "Incorrect email or password.",
     };
   }
 
@@ -60,8 +60,8 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   if (!match) {
     return {
-      __typename: "UserNotFoundError",
-      message: "user not found",
+      __typename: "LoginFailedError",
+      message: "Incorrect email or password.",
     };
   }
 

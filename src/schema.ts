@@ -62,7 +62,12 @@ export type InvalidInputError = Error & {
   message: Scalars['String']['output'];
 };
 
-export type LoginResult = InvalidInputError | LoginSuccess | UserNotFoundError;
+export type LoginFailedError = Error & {
+  __typename?: 'LoginFailedError';
+  message: Scalars['String']['output'];
+};
+
+export type LoginResult = InvalidInputError | LoginFailedError | LoginSuccess;
 
 export type LoginSuccess = {
   __typename?: 'LoginSuccess';
@@ -311,11 +316,6 @@ export type UserEdge = {
   node?: Maybe<User>;
 };
 
-export type UserNotFoundError = Error & {
-  __typename?: 'UserNotFoundError';
-  message: Scalars['String']['output'];
-};
-
 export const UserSortKeys = {
   CreatedAt: 'CREATED_AT',
   UpdatedAt: 'UPDATED_AT'
@@ -394,7 +394,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = ResolversObject<{
   AccountDeleteResult: ( AccountDeleteSuccess & { __typename: 'AccountDeleteSuccess' } );
   AccountUpdateResult: ( Omit<AccountUpdateSuccess, 'user'> & { user: RefType['User'] } & { __typename: 'AccountUpdateSuccess' } ) | ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } );
-  LoginResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( LoginSuccess & { __typename: 'LoginSuccess' } ) | ( UserNotFoundError & { __typename: 'UserNotFoundError' } );
+  LoginResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( LoginFailedError & { __typename: 'LoginFailedError' } ) | ( LoginSuccess & { __typename: 'LoginSuccess' } );
   LogoutResult: ( LogoutSuccess & { __typename: 'LogoutSuccess' } );
   SignupResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( SignupSuccess & { __typename: 'SignupSuccess' } );
   TodoCompleteResult: ( InvalidInputError & { __typename: 'InvalidInputError' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoCompleteSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'TodoCompleteSuccess' } );
@@ -406,7 +406,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = Resol
 
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = ResolversObject<{
-  Error: ( EmailAlreadyTakenError ) | ( InvalidInputError ) | ( ResourceLimitExceededError ) | ( ResourceNotFoundError ) | ( UserNotFoundError );
+  Error: ( EmailAlreadyTakenError ) | ( InvalidInputError ) | ( LoginFailedError ) | ( ResourceLimitExceededError ) | ( ResourceNotFoundError );
   Node: ( TodoMapper ) | ( UserMapper );
 }>;
 
@@ -425,6 +425,7 @@ export type ResolversTypes = ResolversObject<{
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   InvalidInputError: ResolverTypeWrapper<InvalidInputError>;
+  LoginFailedError: ResolverTypeWrapper<LoginFailedError>;
   LoginResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LoginResult']>;
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
   LogoutResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LogoutResult']>;
@@ -456,7 +457,6 @@ export type ResolversTypes = ResolversObject<{
   User: ResolverTypeWrapper<UserMapper>;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversTypes['UserEdge']>>>, nodes: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node: Maybe<ResolversTypes['User']> }>;
-  UserNotFoundError: ResolverTypeWrapper<UserNotFoundError>;
   UserSortKeys: UserSortKeys;
 }>;
 
@@ -474,6 +474,7 @@ export type ResolversParentTypes = ResolversObject<{
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   InvalidInputError: InvalidInputError;
+  LoginFailedError: LoginFailedError;
   LoginResult: ResolversUnionTypes<ResolversParentTypes>['LoginResult'];
   LoginSuccess: LoginSuccess;
   LogoutResult: ResolversUnionTypes<ResolversParentTypes>['LogoutResult'];
@@ -503,7 +504,6 @@ export type ResolversParentTypes = ResolversObject<{
   User: UserMapper;
   UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges: Maybe<Array<Maybe<ResolversParentTypes['UserEdge']>>>, nodes: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
   UserEdge: Omit<UserEdge, 'node'> & { node: Maybe<ResolversParentTypes['User']> };
-  UserNotFoundError: UserNotFoundError;
 }>;
 
 export type AccountDeleteResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AccountDeleteResult'] = ResolversParentTypes['AccountDeleteResult']> = ResolversObject<{
@@ -538,7 +538,7 @@ export type EmailAlreadyTakenErrorResolvers<ContextType = Context, ParentType ex
 }>;
 
 export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'InvalidInputError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError' | 'UserNotFoundError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'InvalidInputError' | 'LoginFailedError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError', ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
@@ -547,8 +547,13 @@ export type InvalidInputErrorResolvers<ContextType = Context, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LoginFailedErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginFailedError'] = ResolversParentTypes['LoginFailedError']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type LoginResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginResult'] = ResolversParentTypes['LoginResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'InvalidInputError' | 'LoginSuccess' | 'UserNotFoundError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'InvalidInputError' | 'LoginFailedError' | 'LoginSuccess', ParentType, ContextType>;
 }>;
 
 export type LoginSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginSuccess'] = ResolversParentTypes['LoginSuccess']> = ResolversObject<{
@@ -712,11 +717,6 @@ export type UserEdgeResolvers<ContextType = Context, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type UserNotFoundErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserNotFoundError'] = ResolversParentTypes['UserNotFoundError']> = ResolversObject<{
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
 export type Resolvers<ContextType = Context> = ResolversObject<{
   AccountDeleteResult?: AccountDeleteResultResolvers<ContextType>;
   AccountDeleteSuccess?: AccountDeleteSuccessResolvers<ContextType>;
@@ -727,6 +727,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   EmailAlreadyTakenError?: EmailAlreadyTakenErrorResolvers<ContextType>;
   Error?: ErrorResolvers<ContextType>;
   InvalidInputError?: InvalidInputErrorResolvers<ContextType>;
+  LoginFailedError?: LoginFailedErrorResolvers<ContextType>;
   LoginResult?: LoginResultResolvers<ContextType>;
   LoginSuccess?: LoginSuccessResolvers<ContextType>;
   LogoutResult?: LogoutResultResolvers<ContextType>;
@@ -755,6 +756,5 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   User?: UserResolvers<ContextType>;
   UserConnection?: UserConnectionResolvers<ContextType>;
   UserEdge?: UserEdgeResolvers<ContextType>;
-  UserNotFoundError?: UserNotFoundErrorResolvers<ContextType>;
 }>;
 

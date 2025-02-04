@@ -62,7 +62,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { login?: { __typename: 'InvalidInputError' } | { __typename: 'LoginSuccess', token: string } | { __typename: 'UserNotFoundError' } | null };
+export type LoginMutation = { login?: { __typename: 'InvalidInputError' } | { __typename: 'LoginFailedError' } | { __typename: 'LoginSuccess', token: string } | null };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
