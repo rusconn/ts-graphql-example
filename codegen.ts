@@ -7,6 +7,7 @@ const typescript: TypeScriptPluginConfig = {
   avoidOptionals: {
     defaultValue: true,
   },
+  enumsAsConst: true,
   scalars: {
     ID: {
       input: "string",

@@ -16,28 +16,32 @@ export type Scalars = {
   EmailAddress: { input: string; output: string; }
 };
 
-export enum ErrorCode {
-  AuthenticationError = 'AUTHENTICATION_ERROR',
-  BadUserInput = 'BAD_USER_INPUT',
-  Forbidden = 'FORBIDDEN',
-  InternalServerError = 'INTERNAL_SERVER_ERROR'
-}
+export const ErrorCode = {
+  AuthenticationError: 'AUTHENTICATION_ERROR',
+  BadUserInput: 'BAD_USER_INPUT',
+  Forbidden: 'FORBIDDEN',
+  InternalServerError: 'INTERNAL_SERVER_ERROR'
+} as const;
 
-export enum TodoSortKeys {
-  CreatedAt = 'CREATED_AT',
-  UpdatedAt = 'UPDATED_AT'
-}
+export type ErrorCode = typeof ErrorCode[keyof typeof ErrorCode];
+export const TodoSortKeys = {
+  CreatedAt: 'CREATED_AT',
+  UpdatedAt: 'UPDATED_AT'
+} as const;
 
-export enum TodoStatus {
-  Done = 'DONE',
-  Pending = 'PENDING'
-}
+export type TodoSortKeys = typeof TodoSortKeys[keyof typeof TodoSortKeys];
+export const TodoStatus = {
+  Done: 'DONE',
+  Pending: 'PENDING'
+} as const;
 
-export enum UserSortKeys {
-  CreatedAt = 'CREATED_AT',
-  UpdatedAt = 'UPDATED_AT'
-}
+export type TodoStatus = typeof TodoStatus[keyof typeof TodoStatus];
+export const UserSortKeys = {
+  CreatedAt: 'CREATED_AT',
+  UpdatedAt: 'UPDATED_AT'
+} as const;
 
+export type UserSortKeys = typeof UserSortKeys[keyof typeof UserSortKeys];
 export type AccountDeleteMutationVariables = Exact<{ [key: string]: never; }>;
 
 

@@ -49,13 +49,14 @@ export type Error = {
   message: Scalars['String']['output'];
 };
 
-export enum ErrorCode {
-  AuthenticationError = 'AUTHENTICATION_ERROR',
-  BadUserInput = 'BAD_USER_INPUT',
-  Forbidden = 'FORBIDDEN',
-  InternalServerError = 'INTERNAL_SERVER_ERROR'
-}
+export const ErrorCode = {
+  AuthenticationError: 'AUTHENTICATION_ERROR',
+  BadUserInput: 'BAD_USER_INPUT',
+  Forbidden: 'FORBIDDEN',
+  InternalServerError: 'INTERNAL_SERVER_ERROR'
+} as const;
 
+export type ErrorCode = typeof ErrorCode[keyof typeof ErrorCode];
 export type InvalidInputError = Error & {
   __typename?: 'InvalidInputError';
   message: Scalars['String']['output'];
@@ -243,16 +244,18 @@ export type TodoEdge = {
   node?: Maybe<Todo>;
 };
 
-export enum TodoSortKeys {
-  CreatedAt = 'CREATED_AT',
-  UpdatedAt = 'UPDATED_AT'
-}
+export const TodoSortKeys = {
+  CreatedAt: 'CREATED_AT',
+  UpdatedAt: 'UPDATED_AT'
+} as const;
 
-export enum TodoStatus {
-  Done = 'DONE',
-  Pending = 'PENDING'
-}
+export type TodoSortKeys = typeof TodoSortKeys[keyof typeof TodoSortKeys];
+export const TodoStatus = {
+  Done: 'DONE',
+  Pending: 'PENDING'
+} as const;
 
+export type TodoStatus = typeof TodoStatus[keyof typeof TodoStatus];
 export type TodoUncompleteResult = InvalidInputError | ResourceNotFoundError | TodoUncompleteSuccess;
 
 export type TodoUncompleteSuccess = {
@@ -313,11 +316,12 @@ export type UserNotFoundError = Error & {
   message: Scalars['String']['output'];
 };
 
-export enum UserSortKeys {
-  CreatedAt = 'CREATED_AT',
-  UpdatedAt = 'UPDATED_AT'
-}
+export const UserSortKeys = {
+  CreatedAt: 'CREATED_AT',
+  UpdatedAt: 'UPDATED_AT'
+} as const;
 
+export type UserSortKeys = typeof UserSortKeys[keyof typeof UserSortKeys];
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 

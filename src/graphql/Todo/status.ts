@@ -1,5 +1,4 @@
 import type { TodoResolvers } from "../../schema.ts";
-import { todoStatus } from "../_adapters/todo/status.ts";
 import { authTodoOwner } from "../_authorizers/todo/todoOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 
@@ -21,5 +20,5 @@ export const resolver: TodoResolvers["status"] = (parent, _args, context) => {
     throw forbiddenErr(authed);
   }
 
-  return todoStatus(parent.status);
+  return parent.status;
 };
