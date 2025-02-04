@@ -1,5 +1,4 @@
-import bcrypt from "bcrypt";
-
+import * as UserPassword from "../../db/models/user/password.ts";
 import * as UserToken from "../../db/models/user/token.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../schema.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
@@ -57,7 +56,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const match = await bcrypt.compare(password, found.password);
+  const match = await UserPassword.match(password, found.password);
 
   if (!match) {
     return {
