@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "dotenvx run -- tsx watch src/main.ts",
     "build": "dotenvx run -- vite build",
-    "start": "dotenvx run -f .env -f .env.production --overload -- node --enable-source-maps dist/main.js",
+    "preview": "dotenvx run -f .env -f .env.preview --overload -- node --enable-source-maps dist/main.js",
     "test": "dotenvx run -f .env -f .env.test --overload -- pnpm run --sequential /test:/",
     "test:ut": "vitest --dir src",
     "test:it": "prisma migrate reset --force --skip-seed --skip-generate && vitest --dir tests",
