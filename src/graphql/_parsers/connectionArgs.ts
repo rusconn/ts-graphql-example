@@ -30,9 +30,6 @@ const parseConnectionArgsCommon = (args: ConnectionArguments) => {
   if (first != null && last != null) {
     return new Error('Only one of "first" and "last" can be set');
   }
-  if (after != null && before != null) {
-    return new Error('Only one of "after" and "before" can be set');
-  }
 
   if (first != null) {
     if (before != null) {
