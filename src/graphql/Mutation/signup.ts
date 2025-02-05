@@ -63,7 +63,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   if (found) {
     return {
       __typename: "EmailAlreadyTakenError",
-      message: "specified email already taken",
+      message: "The email already taken.",
     };
   }
 

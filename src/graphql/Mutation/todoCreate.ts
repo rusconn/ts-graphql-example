@@ -91,7 +91,7 @@ const logic = async (
   if (count >= TODOS_MAX) {
     return {
       __typename: "ResourceLimitExceededError",
-      message: "the number of todos exceeded the limit",
+      message: `The number of todos exceeds the maximum number of ${TODOS_MAX}.`,
     };
   }
 

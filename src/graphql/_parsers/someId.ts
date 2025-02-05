@@ -18,7 +18,7 @@ export const parseSomeId =
     const { type, internalId } = parsed;
 
     if (type !== nodeType || !isInternalId(internalId)) {
-      return parseErr(`invalid node id: ${id}`);
+      return parseErr(`Invalid global id '${id}'`);
     }
 
     return internalId;

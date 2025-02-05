@@ -18,10 +18,10 @@ export const parseArg =
     { optional, nullable }: { optional: Optional; nullable: Nullable },
   ) => {
     if (!optional && arg === undefined) {
-      return parseErr(`${argName} is required`);
+      return parseErr(`${argName} is required.`);
     }
     if (!nullable && arg === null) {
-      return parseErr(`${argName} must not be null`);
+      return parseErr(`The ${argName} must not be null.`);
     }
 
     const parsed = additionalParse(arg, argName);

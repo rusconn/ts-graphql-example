@@ -25,28 +25,28 @@ const parseConnectionArgsCommon = (args: ConnectionArguments) => {
   const { first, after, last, before } = args;
 
   if (first == null && last == null) {
-    return new Error('One of "first" or "last" is required');
+    return new Error("you must provide one of first or last");
   }
   if (first != null && last != null) {
-    return new Error('Only one of "first" and "last" can be set');
+    return new Error("providing both first and last is not supported");
   }
 
   if (first != null) {
     if (before != null) {
-      return new Error('"before" needs to be used with "last"');
+      return new Error("using first with before is not supported");
     }
     if (first < 0) {
-      return new Error('"first" has to be non-negative integer');
+      return new Error("first cannot be negative");
     }
 
     return { first, ...(after != null && { after }) };
   }
   if (last != null) {
     if (after != null) {
-      return new Error('"after" needs to be used with "first"');
+      return new Error("using last with after is not supported");
     }
     if (last < 0) {
-      return new Error('"last" has to be non-negative integer');
+      return new Error("last cannot be negative");
     }
 
     return { last, ...(before != null && { before }) };
@@ -65,7 +65,7 @@ const parseConnectionArgsAdditional = <Cursor>(
     const { first, after } = args;
 
     if (first > firstMax) {
-      return parseErr(`"first" must be up to ${firstMax}`);
+      return parseErr(`first cannot exceed ${firstMax}`);
     }
 
     const parsedAfter = after != null ? parseCursor(after) : after;
@@ -79,7 +79,7 @@ const parseConnectionArgsAdditional = <Cursor>(
     const { last, before } = args;
 
     if (last > lastMax) {
-      return parseErr(`"last" must be up to ${lastMax}`);
+      return parseErr(`last cannot exceed ${lastMax}`);
     }
 
     const parsedBefore = before != null ? parseCursor(before) : before;

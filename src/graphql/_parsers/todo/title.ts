@@ -10,7 +10,7 @@ export const TODO_TITLE_MAX = 100;
 
 export const parseTodoTitle = parseArg((arg: Arg, argName) => {
   if (arg != null && numChars(arg) > TODO_TITLE_MAX) {
-    return parseErr(`"${argName}" must be up to ${TODO_TITLE_MAX} characters`);
+    return parseErr(`The ${argName} exceeds the maximum number of ${TODO_TITLE_MAX} characters.`);
   }
 
   return arg;

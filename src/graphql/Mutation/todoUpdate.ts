@@ -65,7 +65,7 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
       }
     : {
         __typename: "ResourceNotFoundError",
-        message: "todo not found",
+        message: "The specified todo does not exist.",
       };
 };
 

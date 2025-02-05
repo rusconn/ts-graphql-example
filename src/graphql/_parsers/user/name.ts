@@ -11,10 +11,10 @@ export const USER_NAME_MAX = 100;
 
 export const parseUserName = parseArg((arg: Arg, argName) => {
   if (arg != null && numChars(arg) < USER_NAME_MIN) {
-    return parseErr(`"${argName}" must be at least ${USER_NAME_MIN} characters`);
+    return parseErr(`The ${argName} is below the minimum number of ${USER_NAME_MIN} characters.`);
   }
   if (arg != null && numChars(arg) > USER_NAME_MAX) {
-    return parseErr(`"${argName}" must be up to ${USER_NAME_MAX} characters`);
+    return parseErr(`The ${argName} exceeds the maximum number of ${USER_NAME_MAX} characters.`);
   }
 
   return arg;

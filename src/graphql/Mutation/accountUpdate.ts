@@ -62,7 +62,7 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
     if (found) {
       return {
         __typename: "EmailAlreadyTakenError",
-        message: "specified email already taken",
+        message: "The email already taken.",
       };
     }
   }

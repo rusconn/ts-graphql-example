@@ -10,7 +10,9 @@ export const TODO_DESCRIPTION_MAX = 5_000;
 
 export const parseTodoDescription = parseArg((arg: Arg, argName) => {
   if (arg != null && numChars(arg) > TODO_DESCRIPTION_MAX) {
-    return parseErr(`"${argName}" must be up to ${TODO_DESCRIPTION_MAX} characters`);
+    return parseErr(
+      `The ${argName} exceeds the maximum number of ${TODO_DESCRIPTION_MAX} characters.`,
+    );
   }
 
   return arg;

@@ -16,10 +16,14 @@ export const USER_PASSWORD_MAX = 50;
 
 export const parseUserPassword = parseArg((arg: Arg, argName) => {
   if (arg != null && numChars(arg) < USER_PASSWORD_MIN) {
-    return parseErr(`"${argName}" must be at least ${USER_PASSWORD_MIN} characters`);
+    return parseErr(
+      `The ${argName} is below the minimum number of ${USER_PASSWORD_MIN} characters.`,
+    );
   }
   if (arg != null && numChars(arg) > USER_PASSWORD_MAX) {
-    return parseErr(`"${argName}" must be up to ${USER_PASSWORD_MAX} characters`);
+    return parseErr(
+      `The ${argName} exceeds the maximum number of ${USER_PASSWORD_MAX} characters.`,
+    );
   }
 
   return arg;

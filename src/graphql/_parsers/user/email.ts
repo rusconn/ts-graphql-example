@@ -16,10 +16,10 @@ export const USER_EMAIL_MAX = 100;
 
 export const parseUserEmail = parseArg((arg: Arg, argName) => {
   if (arg != null && numChars(arg) > USER_EMAIL_MAX) {
-    return parseErr(`"${argName}" must be up to ${USER_EMAIL_MAX} characters`);
+    return parseErr(`The ${argName} exceeds the maximum number of ${USER_EMAIL_MAX} characters.`);
   }
   if (arg != null && !UserEmail.is(arg)) {
-    return parseErr(`invalid "${argName}"`);
+    return parseErr(`Invalid ${argName}.`);
   }
 
   return arg;

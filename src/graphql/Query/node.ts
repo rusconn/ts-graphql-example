@@ -37,7 +37,7 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
   const [isInternalId, getNode] = pairs[type];
 
   if (!isInternalId(internalId)) {
-    throw badUserInputErr(`invalid node id: ${args.id}`);
+    throw badUserInputErr(`Invalid global id '${args.id}'`);
   }
 
   // @ts-expect-error: 分岐を書くのが面倒だったので…
