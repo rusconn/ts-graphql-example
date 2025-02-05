@@ -5,6 +5,7 @@ import { TODO_DESCRIPTION_MAX, parseTodoDescription } from "../_parsers/todo/des
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import { parseTodoStatus } from "../_parsers/todo/status.ts";
 import { TODO_TITLE_MAX, parseTodoTitle } from "../_parsers/todo/title.ts";
+import { ParseErr } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -44,9 +45,10 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
 
   const parsed = parseArgs(args);
 
-  if (parsed instanceof Error) {
+  if (parsed instanceof ParseErr) {
     return {
       __typename: "InvalidInputError",
+      field: parsed.field,
       message: parsed.message,
     };
   }
@@ -54,7 +56,7 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
   const { id, ...rest } = parsed;
 
   const todo = await context.api.todo.update(
-    { id: id, userId: authed.id }, //
+    { id, userId: authed.id }, //
     rest,
   );
 
@@ -73,7 +75,7 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
   const id = parseTodoId(args);
 
   if (id instanceof Error) {
-    return id;
+    return new ParseErr("id", id.message, { cause: id });
   }
 
   const title = parseTodoTitle(args.title, "title", {
@@ -81,7 +83,7 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
     nullable: false,
   });
 
-  if (title instanceof Error) {
+  if (title instanceof ParseErr) {
     return title;
   }
 
@@ -90,7 +92,7 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
     nullable: false,
   });
 
-  if (description instanceof Error) {
+  if (description instanceof ParseErr) {
     return description;
   }
 
@@ -99,7 +101,7 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
     nullable: false,
   });
 
-  if (status instanceof Error) {
+  if (status instanceof ParseErr) {
     return status;
   }
 
@@ -124,22 +126,23 @@ if (import.meta.vitest) {
       { description: "A".repeat(TODO_DESCRIPTION_MAX) },
     ];
 
-    const invalids: Omit<MutationTodoUpdateArgs, "id">[] = [
-      { title: null },
-      { description: null },
-      { status: null },
-      { title: "A".repeat(TODO_TITLE_MAX + 1) },
-      { description: "A".repeat(TODO_DESCRIPTION_MAX + 1) },
+    const invalids: [Omit<MutationTodoUpdateArgs, "id">, keyof MutationTodoUpdateArgs][] = [
+      [{ title: null }, "title"],
+      [{ description: null }, "description"],
+      [{ status: null }, "status"],
+      [{ title: "A".repeat(TODO_TITLE_MAX + 1) }, "title"],
+      [{ description: "A".repeat(TODO_DESCRIPTION_MAX + 1) }, "description"],
     ];
 
     test.each(valids)("valids %#", (rest) => {
       const parsed = parseArgs({ id, ...rest });
-      expect(parsed instanceof Error).toBe(false);
+      expect(parsed instanceof ParseErr).toBe(false);
     });
 
-    test.each(invalids)("invalids %#", (rest) => {
+    test.each(invalids)("invalids %#", (rest, field) => {
       const parsed = parseArgs({ id, ...rest });
-      expect(parsed instanceof Error).toBe(true);
+      expect(parsed instanceof ParseErr).toBe(true);
+      expect((parsed as ParseErr).field === field).toBe(true);
     });
   });
 }

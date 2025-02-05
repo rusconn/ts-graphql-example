@@ -28,6 +28,7 @@ export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, c
   if (parsed instanceof Error) {
     return {
       __typename: "InvalidInputError",
+      field: "id",
       message: parsed.message,
     };
   }

@@ -59,6 +59,7 @@ export const ErrorCode = {
 export type ErrorCode = typeof ErrorCode[keyof typeof ErrorCode];
 export type InvalidInputError = Error & {
   __typename?: 'InvalidInputError';
+  field: Scalars['String']['output'];
   message: Scalars['String']['output'];
 };
 
@@ -543,6 +544,7 @@ export type ErrorResolvers<ContextType = Context, ParentType extends ResolversPa
 }>;
 
 export type InvalidInputErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['InvalidInputError'] = ResolversParentTypes['InvalidInputError']> = ResolversObject<{
+  field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

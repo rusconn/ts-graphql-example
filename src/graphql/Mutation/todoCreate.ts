@@ -6,6 +6,7 @@ import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { TODO_DESCRIPTION_MAX, parseTodoDescription } from "../_parsers/todo/description.ts";
 import { TODO_TITLE_MAX, parseTodoTitle } from "../_parsers/todo/title.ts";
+import { ParseErr } from "../_parsers/util.ts";
 
 const TODOS_MAX = 10_000;
 
@@ -43,9 +44,10 @@ export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, c
 
   const parsed = parseArgs(args);
 
-  if (parsed instanceof Error) {
+  if (parsed instanceof ParseErr) {
     return {
       __typename: "InvalidInputError",
+      field: parsed.field,
       message: parsed.message,
     };
   }
@@ -63,7 +65,7 @@ const parseArgs = (args: MutationTodoCreateArgs) => {
     nullable: false,
   });
 
-  if (title instanceof Error) {
+  if (title instanceof ParseErr) {
     return title;
   }
 
@@ -72,7 +74,7 @@ const parseArgs = (args: MutationTodoCreateArgs) => {
     nullable: false,
   });
 
-  if (description instanceof Error) {
+  if (description instanceof ParseErr) {
     return description;
   }
 
@@ -126,19 +128,20 @@ if (import.meta.vitest) {
       { ...valid.args, description: "A".repeat(TODO_DESCRIPTION_MAX) },
     ];
 
-    const invalids: MutationTodoCreateArgs[] = [
-      { ...valid.args, title: "A".repeat(TODO_TITLE_MAX + 1) },
-      { ...valid.args, description: "A".repeat(TODO_DESCRIPTION_MAX + 1) },
+    const invalids: [MutationTodoCreateArgs, keyof MutationTodoCreateArgs][] = [
+      [{ ...valid.args, title: "A".repeat(TODO_TITLE_MAX + 1) }, "title"],
+      [{ ...valid.args, description: "A".repeat(TODO_DESCRIPTION_MAX + 1) }, "description"],
     ];
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);
-      expect(parsed instanceof Error).toBe(false);
+      expect(parsed instanceof ParseErr).toBe(false);
     });
 
-    test.each(invalids)("invalids %#", (args) => {
+    test.each(invalids)("invalids %#", (args, field) => {
       const parsed = parseArgs(args);
-      expect(parsed instanceof Error).toBe(true);
+      expect(parsed instanceof ParseErr).toBe(true);
+      expect((parsed as ParseErr).field === field).toBe(true);
     });
   });
 

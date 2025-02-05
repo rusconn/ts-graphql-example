@@ -12,6 +12,7 @@ import {
   USER_PASSWORD_MIN,
   parseUserPassword,
 } from "../_parsers/user/password.ts";
+import { ParseErr } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -49,9 +50,10 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 
   const parsed = parseArgs(args);
 
-  if (parsed instanceof Error) {
+  if (parsed instanceof ParseErr) {
     return {
       __typename: "InvalidInputError",
+      field: parsed.field,
       message: parsed.message,
     };
   }
@@ -93,7 +95,7 @@ const parseArgs = (args: MutationSignupArgs) => {
     nullable: false,
   });
 
-  if (name instanceof Error) {
+  if (name instanceof ParseErr) {
     return name;
   }
 
@@ -102,7 +104,7 @@ const parseArgs = (args: MutationSignupArgs) => {
     nullable: false,
   });
 
-  if (email instanceof Error) {
+  if (email instanceof ParseErr) {
     return email;
   }
 
@@ -111,7 +113,7 @@ const parseArgs = (args: MutationSignupArgs) => {
     nullable: false,
   });
 
-  if (password instanceof Error) {
+  if (password instanceof ParseErr) {
     return password;
   }
 
@@ -133,21 +135,22 @@ if (import.meta.vitest) {
       { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN) },
     ];
 
-    const invalids: MutationSignupArgs[] = [
-      { ...validArgs, name: "A".repeat(USER_NAME_MAX + 1) },
-      { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` },
-      { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN - 1) },
-      { ...validArgs, email: "emailemail.com" },
+    const invalids: [MutationSignupArgs, keyof MutationSignupArgs][] = [
+      [{ ...validArgs, name: "A".repeat(USER_NAME_MAX + 1) }, "name"],
+      [{ ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` }, "email"],
+      [{ ...validArgs, password: "A".repeat(USER_PASSWORD_MIN - 1) }, "password"],
+      [{ ...validArgs, email: "emailemail.com" }, "email"],
     ];
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);
-      expect(parsed instanceof Error).toBe(false);
+      expect(parsed instanceof ParseErr).toBe(false);
     });
 
-    test.each(invalids)("invalids %#", (args) => {
+    test.each(invalids)("invalids %#", (args, field) => {
       const parsed = parseArgs(args);
-      expect(parsed instanceof Error).toBe(true);
+      expect(parsed instanceof ParseErr).toBe(true);
+      expect((parsed as ParseErr).field === field).toBe(true);
     });
   });
 }

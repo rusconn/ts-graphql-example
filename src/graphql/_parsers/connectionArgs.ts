@@ -3,7 +3,6 @@ import type {
   ConnectionArgumentsUnion,
 } from "../../lib/graphql/cursorConnections/interfaces.ts";
 import { isForwardPagination } from "../../lib/graphql/cursorConnections/util.ts";
-import { parseErr } from "./util.ts";
 
 type Config<Cursor> = {
   firstMax: number;
@@ -15,7 +14,7 @@ export const parseConnectionArgs = <Cursor>(args: ConnectionArguments, config: C
   const result = parseConnectionArgsCommon(args);
 
   if (result instanceof Error) {
-    return parseErr(result.message);
+    return result;
   }
 
   return parseConnectionArgsAdditional(result, config);
@@ -65,7 +64,7 @@ const parseConnectionArgsAdditional = <Cursor>(
     const { first, after } = args;
 
     if (first > firstMax) {
-      return parseErr(`first cannot exceed ${firstMax}`);
+      return new Error(`first cannot exceed ${firstMax}`);
     }
 
     const parsedAfter = after != null ? parseCursor(after) : after;
@@ -79,7 +78,7 @@ const parseConnectionArgsAdditional = <Cursor>(
     const { last, before } = args;
 
     if (last > lastMax) {
-      return parseErr(`last cannot exceed ${lastMax}`);
+      return new Error(`last cannot exceed ${lastMax}`);
     }
 
     const parsedBefore = before != null ? parseCursor(before) : before;

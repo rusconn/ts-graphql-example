@@ -28,6 +28,7 @@ export const resolver: MutationResolvers["todoUncomplete"] = async (_parent, arg
   if (parsed instanceof Error) {
     return {
       __typename: "InvalidInputError",
+      field: "id",
       message: parsed.message,
     };
   }

@@ -1,7 +1,6 @@
 import type { Scalars } from "../../schema.ts";
 import type { NodeType } from "../_adapters/id.ts";
 import { parseId } from "./id.ts";
-import { parseErr } from "./util.ts";
 
 export const parseSomeId =
   <T extends NodeType, U extends string>(
@@ -18,7 +17,7 @@ export const parseSomeId =
     const { type, internalId } = parsed;
 
     if (type !== nodeType || !isInternalId(internalId)) {
-      return parseErr(`Invalid global id '${id}'`);
+      return new Error(`Invalid global id '${id}'`);
     }
 
     return internalId;

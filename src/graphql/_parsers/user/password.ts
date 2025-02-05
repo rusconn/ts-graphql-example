@@ -4,7 +4,7 @@ import type {
   MutationLoginArgs,
   MutationSignupArgs,
 } from "../../../schema.ts";
-import { parseArg, parseErr } from "../util.ts";
+import { ParseErr, parseArg } from "../util.ts";
 
 type Arg =
   | MutationSignupArgs["password"]
@@ -16,12 +16,14 @@ export const USER_PASSWORD_MAX = 50;
 
 export const parseUserPassword = parseArg((arg: Arg, argName) => {
   if (arg != null && numChars(arg) < USER_PASSWORD_MIN) {
-    return parseErr(
+    return new ParseErr(
+      argName,
       `The ${argName} is below the minimum number of ${USER_PASSWORD_MIN} characters.`,
     );
   }
   if (arg != null && numChars(arg) > USER_PASSWORD_MAX) {
-    return parseErr(
+    return new ParseErr(
+      argName,
       `The ${argName} exceeds the maximum number of ${USER_PASSWORD_MAX} characters.`,
     );
   }
