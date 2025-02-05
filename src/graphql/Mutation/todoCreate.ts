@@ -115,21 +115,21 @@ if (import.meta.vitest) {
   const { context } = await import("../_testData/context.ts");
 
   const valid = {
-    args: { title: "title", description: "description" } as MutationTodoCreateArgs,
+    args: { title: "title", description: "description" },
     user: context.admin,
   };
 
   describe("Parsing", () => {
-    const valids = [
+    const valids: MutationTodoCreateArgs[] = [
       { ...valid.args },
       { ...valid.args, title: "A".repeat(TODO_TITLE_MAX) },
       { ...valid.args, description: "A".repeat(TODO_DESCRIPTION_MAX) },
-    ] as MutationTodoCreateArgs[];
+    ];
 
-    const invalids = [
+    const invalids: MutationTodoCreateArgs[] = [
       { ...valid.args, title: "A".repeat(TODO_TITLE_MAX + 1) },
       { ...valid.args, description: "A".repeat(TODO_DESCRIPTION_MAX + 1) },
-    ] as MutationTodoCreateArgs[];
+    ];
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);
@@ -143,8 +143,6 @@ if (import.meta.vitest) {
   });
 
   describe("Maximum num todos", () => {
-    const parsed = valid.args as Exclude<ReturnType<typeof parseArgs>, Error>;
-
     const createAPIs = (num: number) =>
       ({
         todo: {
@@ -158,13 +156,13 @@ if (import.meta.vitest) {
 
     test.each(notExceededs)("notExceededs %#", async (num) => {
       const api = createAPIs(num);
-      const result = await logic(valid.user, parsed, { api } as Context);
+      const result = await logic(valid.user, valid.args, { api } as Context);
       expect(result?.__typename === "ResourceLimitExceededError").toBe(false);
     });
 
     test.each(exceededs)("exceededs %#", async (num) => {
       const api = createAPIs(num);
-      const result = await logic(valid.user, parsed, { api } as Context);
+      const result = await logic(valid.user, valid.args, { api } as Context);
       expect(result?.__typename === "ResourceLimitExceededError").toBe(true);
     });
   });

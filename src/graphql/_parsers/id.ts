@@ -32,7 +32,7 @@ if (import.meta.vitest) {
     "User",
     `${internalId}:User`,
     "",
-  ] as const;
+  ];
 
   test.each(valids)("valids %#", (id) => {
     const parsed = parseId({ id });

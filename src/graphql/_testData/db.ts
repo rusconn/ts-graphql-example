@@ -4,4 +4,4 @@ import { db as users } from "./db/user.ts";
 export const db = {
   ...todos,
   ...users,
-} as const;
+};

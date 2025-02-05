@@ -120,21 +120,25 @@ const parseArgs = (args: MutationSignupArgs) => {
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
-    const validArgs = { name: "name", email: "email@email.com", password: "password" };
+    const validArgs: MutationSignupArgs = {
+      name: "name",
+      email: "email@email.com",
+      password: "password",
+    };
 
-    const valids = [
+    const valids: MutationSignupArgs[] = [
       { ...validArgs },
       { ...validArgs, name: "A".repeat(USER_NAME_MAX) },
       { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
       { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN) },
-    ] as MutationSignupArgs[];
+    ];
 
-    const invalids = [
+    const invalids: MutationSignupArgs[] = [
       { ...validArgs, name: "A".repeat(USER_NAME_MAX + 1) },
       { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` },
       { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN - 1) },
       { ...validArgs, email: "emailemail.com" },
-    ] as MutationSignupArgs[];
+    ];
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);

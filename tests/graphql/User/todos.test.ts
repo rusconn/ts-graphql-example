@@ -1,5 +1,11 @@
 import { client } from "../../../src/db/client.ts";
-import { type PageInfo, TodoSortKeys, TodoStatus } from "../../../src/schema.ts";
+import {
+  type PageInfo,
+  type Todo,
+  TodoSortKeys,
+  TodoStatus,
+  type UserTodosArgs,
+} from "../../../src/schema.ts";
 
 import { Data } from "../../data.ts";
 import { clearTables, fail } from "../../helpers.ts";
@@ -100,7 +106,7 @@ describe("number of items", () => {
 });
 
 describe("order of items", () => {
-  const patterns = [
+  const patterns: [Partial<UserTodosArgs>, Todo[]][] = [
     [{}, [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2]], // defaults to updatedAt desc
     [
       { reverse: false, sortKey: TodoSortKeys.CreatedAt },
@@ -118,7 +124,7 @@ describe("order of items", () => {
       { reverse: true, sortKey: TodoSortKeys.UpdatedAt },
       [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2],
     ],
-  ] as const;
+  ];
 
   test.each(patterns)("%o %o", async (variables, expectedTodos) => {
     const { data } = await executeQuery({
@@ -164,7 +170,15 @@ describe("pagination", () => {
   });
 
   describe("cursor", () => {
-    const patterns = [
+    type Excpect = {
+      length: number;
+      ids: Todo["id"][];
+      pageInfo: PageInfo;
+    };
+
+    type MakeCursor = (pageInfo: PageInfo) => Pick<UserTodosQueryVariables, "after" | "before">;
+
+    const patterns: [UserTodosQueryVariables, Excpect, MakeCursor, Excpect][] = [
       [
         { id: Data.graph.admin.id, first: 2, reverse: false, sortKey: TodoSortKeys.UpdatedAt },
         {
@@ -261,54 +275,47 @@ describe("pagination", () => {
           },
         },
       ],
-    ] as const;
+    ];
 
-    test.each(patterns)(
-      "patterns %#",
-      async (variables, firstExpect, additionals, secondExpect) => {
-        const { data: data1 } = await executeQuery({
-          token: Data.token.admin,
-          variables,
-        });
+    test.each(patterns)("patterns %#", async (variables, firstExpect, makeCursor, secondExpect) => {
+      const { data: data1 } = await executeQuery({
+        token: Data.token.admin,
+        variables,
+      });
 
-        if (!data1 || data1.node?.__typename !== "User" || !data1.node.todos) {
-          fail();
-        }
+      if (!data1 || data1.node?.__typename !== "User" || !data1.node.todos) {
+        fail();
+      }
 
-        expect(data1.node.todos.edges?.length).toBe(firstExpect.length);
-        expect(data1.node.todos.pageInfo).toStrictEqual(firstExpect.pageInfo);
-        expect(data1.node.todos.edges?.map((edge) => edge?.node?.id)).toStrictEqual(
-          firstExpect.ids,
-        );
+      expect(data1.node.todos.edges?.length).toBe(firstExpect.length);
+      expect(data1.node.todos.pageInfo).toStrictEqual(firstExpect.pageInfo);
+      expect(data1.node.todos.edges?.map((edge) => edge?.node?.id)).toStrictEqual(firstExpect.ids);
 
-        const { data: data2 } = await executeQuery({
-          token: Data.token.admin,
-          variables: {
-            ...variables,
-            ...additionals(data1.node.todos.pageInfo),
-          },
-        });
+      const { data: data2 } = await executeQuery({
+        token: Data.token.admin,
+        variables: {
+          ...variables,
+          ...makeCursor(data1.node.todos.pageInfo),
+        },
+      });
 
-        if (!data2 || data2.node?.__typename !== "User" || !data2.node.todos) {
-          fail();
-        }
+      if (!data2 || data2.node?.__typename !== "User" || !data2.node.todos) {
+        fail();
+      }
 
-        expect(data2.node.todos.edges?.length).toBe(secondExpect.length);
-        expect(data2.node.todos.pageInfo).toStrictEqual(secondExpect.pageInfo);
-        expect(data2.node.todos.edges?.map((edge) => edge?.node?.id)).toStrictEqual(
-          secondExpect.ids,
-        );
-      },
-    );
+      expect(data2.node.todos.edges?.length).toBe(secondExpect.length);
+      expect(data2.node.todos.pageInfo).toStrictEqual(secondExpect.pageInfo);
+      expect(data2.node.todos.edges?.map((edge) => edge?.node?.id)).toStrictEqual(secondExpect.ids);
+    });
   });
 });
 
 describe("filter by status", () => {
-  const patterns = [
+  const patterns: [Partial<UserTodosArgs>, Todo[]][] = [
     [{}, [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2]],
     [{ status: TodoStatus.Done }, [Data.graph.adminTodo2]],
     [{ status: TodoStatus.Pending }, [Data.graph.adminTodo, Data.graph.adminTodo3]],
-  ] as const;
+  ];
 
   test.each(patterns)("patterns %#", async (variables, expectedTodos) => {
     const { data } = await executeQuery({

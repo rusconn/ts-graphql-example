@@ -1,5 +1,5 @@
 import { client } from "../../../src/db/client.ts";
-import { type PageInfo, UserSortKeys } from "../../../src/schema.ts";
+import { type PageInfo, type User, UserSortKeys } from "../../../src/schema.ts";
 
 import { Data } from "../../data.ts";
 import { clearUsers, fail } from "../../helpers.ts";
@@ -78,13 +78,13 @@ describe("number of items", () => {
 });
 
 describe("order of items", () => {
-  const patterns = [
+  const patterns: [UsersQueryVariables, [User, User]][] = [
     [{}, [Data.graph.alice, Data.graph.admin]], // defaults to createdAt desc
     [{ reverse: false, sortKey: UserSortKeys.CreatedAt }, [Data.graph.admin, Data.graph.alice]],
     [{ reverse: true, sortKey: UserSortKeys.CreatedAt }, [Data.graph.alice, Data.graph.admin]],
     [{ reverse: false, sortKey: UserSortKeys.UpdatedAt }, [Data.graph.alice, Data.graph.admin]],
     [{ reverse: true, sortKey: UserSortKeys.UpdatedAt }, [Data.graph.admin, Data.graph.alice]],
-  ] as const;
+  ];
 
   test.each(patterns)("%o, %o", async (variables, expectedUsers) => {
     const { data } = await executeQuery({
@@ -118,7 +118,15 @@ describe("pagination", () => {
   });
 
   describe("cursor", () => {
-    const patterns = [
+    type Excpect = {
+      length: number;
+      ids: User["id"][];
+      pageInfo: PageInfo;
+    };
+
+    type MakeCursor = (pageInfo: PageInfo) => Pick<UsersQueryVariables, "after" | "before">;
+
+    const patterns: [UsersQueryVariables, Excpect, MakeCursor, Excpect][] = [
       [
         { first: 1, reverse: false, sortKey: UserSortKeys.CreatedAt },
         {
@@ -215,40 +223,37 @@ describe("pagination", () => {
           },
         },
       ],
-    ] as const;
+    ];
 
-    test.each(patterns)(
-      "patterns %#",
-      async (variables, firstExpect, additionals, secondExpect) => {
-        const { data: data1 } = await executeQuery({
-          token: Data.token.admin,
-          variables,
-        });
+    test.each(patterns)("patterns %#", async (variables, firstExpect, makeCursor, secondExpect) => {
+      const { data: data1 } = await executeQuery({
+        token: Data.token.admin,
+        variables,
+      });
 
-        if (!data1 || !data1.users) {
-          fail();
-        }
+      if (!data1 || !data1.users) {
+        fail();
+      }
 
-        expect(data1.users.edges?.length).toBe(firstExpect.length);
-        expect(data1.users.pageInfo).toStrictEqual(firstExpect.pageInfo);
-        expect(data1.users.edges?.map((edge) => edge?.node?.id)).toStrictEqual(firstExpect.ids);
+      expect(data1.users.edges?.length).toBe(firstExpect.length);
+      expect(data1.users.pageInfo).toStrictEqual(firstExpect.pageInfo);
+      expect(data1.users.edges?.map((edge) => edge?.node?.id)).toStrictEqual(firstExpect.ids);
 
-        const { data: data2 } = await executeQuery({
-          token: Data.token.admin,
-          variables: {
-            ...variables,
-            ...additionals(data1.users.pageInfo),
-          },
-        });
+      const { data: data2 } = await executeQuery({
+        token: Data.token.admin,
+        variables: {
+          ...variables,
+          ...makeCursor(data1.users.pageInfo),
+        },
+      });
 
-        if (!data2 || !data2.users) {
-          fail();
-        }
+      if (!data2 || !data2.users) {
+        fail();
+      }
 
-        expect(data2.users.edges?.length).toBe(secondExpect.length);
-        expect(data2.users.pageInfo).toStrictEqual(secondExpect.pageInfo);
-        expect(data2.users.edges?.map((edge) => edge?.node?.id)).toStrictEqual(secondExpect.ids);
-      },
-    );
+      expect(data2.users.edges?.length).toBe(secondExpect.length);
+      expect(data2.users.pageInfo).toStrictEqual(secondExpect.pageInfo);
+      expect(data2.users.edges?.map((edge) => edge?.node?.id)).toStrictEqual(secondExpect.ids);
+    });
   });
 });

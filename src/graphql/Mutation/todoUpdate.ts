@@ -107,10 +107,14 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
 };
 
 if (import.meta.vitest) {
+  const TodoId = await import("../../db/models/todo/id.ts");
   const { TodoStatus } = await import("../../schema.ts");
+  const { todoId } = await import("../_adapters/todo/id.ts");
 
   describe("Parsing", () => {
-    const valids = [
+    const id = todoId(TodoId.gen());
+
+    const valids: Omit<MutationTodoUpdateArgs, "id">[] = [
       {},
       { title: "title" },
       { description: "description" },
@@ -118,17 +122,15 @@ if (import.meta.vitest) {
       { title: "title", description: "description", status: TodoStatus.Done },
       { title: "A".repeat(TODO_TITLE_MAX) },
       { description: "A".repeat(TODO_DESCRIPTION_MAX) },
-    ] as Omit<MutationTodoUpdateArgs, "id">[];
+    ];
 
-    const invalids = [
+    const invalids: Omit<MutationTodoUpdateArgs, "id">[] = [
       { title: null },
       { description: null },
       { status: null },
       { title: "A".repeat(TODO_TITLE_MAX + 1) },
       { description: "A".repeat(TODO_DESCRIPTION_MAX + 1) },
-    ] as Omit<MutationTodoUpdateArgs, "id">[];
-
-    const id = "Todo:0193cb3e-5fdd-7264-9f70-1df63d84b251";
+    ];
 
     test.each(valids)("valids %#", (rest) => {
       const parsed = parseArgs({ id, ...rest });
