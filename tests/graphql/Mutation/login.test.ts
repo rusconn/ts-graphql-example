@@ -41,7 +41,7 @@ test("invalid input", async () => {
     variables: { email: invalidEmail, password },
   });
 
-  expect(data?.login?.__typename === "InvalidInputError").toBe(true);
+  expect(data?.login?.__typename === "InvalidInputErrors").toBe(true);
 });
 
 test("wrong email", async () => {

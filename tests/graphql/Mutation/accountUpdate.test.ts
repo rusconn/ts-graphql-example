@@ -47,7 +47,7 @@ test("invalid input", async () => {
     variables: { email: invalidEmail },
   });
 
-  expect(data?.accountUpdate?.__typename === "InvalidInputError").toBe(true);
+  expect(data?.accountUpdate?.__typename === "InvalidInputErrors").toBe(true);
 });
 
 test("email already exists", async () => {

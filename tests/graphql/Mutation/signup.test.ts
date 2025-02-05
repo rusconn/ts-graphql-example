@@ -42,7 +42,7 @@ test("invalid input", async () => {
     variables: { name, email: invalidEmail, password },
   });
 
-  expect(data?.signup?.__typename === "InvalidInputError").toBe(true);
+  expect(data?.signup?.__typename === "InvalidInputErrors").toBe(true);
 });
 
 test("email already exists", async () => {

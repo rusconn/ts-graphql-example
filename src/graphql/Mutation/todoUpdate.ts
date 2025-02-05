@@ -29,7 +29,7 @@ export const typeDef = /* GraphQL */ `
     ): TodoUpdateResult
   }
 
-  union TodoUpdateResult = TodoUpdateSuccess | InvalidInputError | ResourceNotFoundError
+  union TodoUpdateResult = TodoUpdateSuccess | InvalidInputErrors | ResourceNotFoundError
 
   type TodoUpdateSuccess {
     todo: Todo!
@@ -45,11 +45,13 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
 
   const parsed = parseArgs(args);
 
-  if (parsed instanceof ParseErr) {
+  if (Array.isArray(parsed)) {
     return {
-      __typename: "InvalidInputError",
-      field: parsed.field,
-      message: parsed.message,
+      __typename: "InvalidInputErrors",
+      errors: parsed.map((e) => ({
+        field: e.field,
+        message: e.message,
+      })),
     };
   }
 
@@ -74,38 +76,44 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
 const parseArgs = (args: MutationTodoUpdateArgs) => {
   const id = parseTodoId(args);
 
-  if (id instanceof Error) {
-    return new ParseErr("id", id.message, { cause: id });
-  }
-
   const title = parseTodoTitle(args.title, "title", {
     optional: true,
     nullable: false,
   });
-
-  if (title instanceof ParseErr) {
-    return title;
-  }
-
   const description = parseTodoDescription(args.description, "description", {
     optional: true,
     nullable: false,
   });
-
-  if (description instanceof ParseErr) {
-    return description;
-  }
-
   const status = parseTodoStatus(args.status, "status", {
     optional: true,
     nullable: false,
   });
 
-  if (status instanceof ParseErr) {
-    return status;
-  }
+  if (
+    id instanceof Error ||
+    title instanceof ParseErr ||
+    description instanceof ParseErr ||
+    status instanceof ParseErr
+  ) {
+    const errors = [];
 
-  return { id, title, description, status };
+    if (id instanceof Error) {
+      errors.push(new ParseErr("id", id.message, { cause: id }));
+    }
+    if (title instanceof ParseErr) {
+      errors.push(title);
+    }
+    if (description instanceof ParseErr) {
+      errors.push(description);
+    }
+    if (status instanceof ParseErr) {
+      errors.push(status);
+    }
+
+    return errors;
+  } else {
+    return { id, title, description, status };
+  }
 };
 
 if (import.meta.vitest) {
@@ -115,34 +123,40 @@ if (import.meta.vitest) {
 
   describe("Parsing", () => {
     const id = todoId(TodoId.gen());
+    const invalidId = id.slice(0, -1);
 
-    const valids: Omit<MutationTodoUpdateArgs, "id">[] = [
-      {},
-      { title: "title" },
-      { description: "description" },
-      { status: TodoStatus.Done },
-      { title: "title", description: "description", status: TodoStatus.Done },
-      { title: "A".repeat(TODO_TITLE_MAX) },
-      { description: "A".repeat(TODO_DESCRIPTION_MAX) },
+    const valids: MutationTodoUpdateArgs[] = [
+      { id },
+      { id, title: "title" },
+      { id, description: "description" },
+      { id, status: TodoStatus.Done },
+      { id, title: "title", description: "description", status: TodoStatus.Done },
+      { id, title: "A".repeat(TODO_TITLE_MAX) },
+      { id, description: "A".repeat(TODO_DESCRIPTION_MAX) },
     ];
 
-    const invalids: [Omit<MutationTodoUpdateArgs, "id">, keyof MutationTodoUpdateArgs][] = [
-      [{ title: null }, "title"],
-      [{ description: null }, "description"],
-      [{ status: null }, "status"],
-      [{ title: "A".repeat(TODO_TITLE_MAX + 1) }, "title"],
-      [{ description: "A".repeat(TODO_DESCRIPTION_MAX + 1) }, "description"],
+    const invalids: [MutationTodoUpdateArgs, (keyof MutationTodoUpdateArgs)[]][] = [
+      [{ id: invalidId }, ["id"]],
+      [{ id, title: null }, ["title"]],
+      [{ id, description: null }, ["description"]],
+      [{ id, status: null }, ["status"]],
+      [{ id, title: "A".repeat(TODO_TITLE_MAX + 1) }, ["title"]],
+      [{ id, description: "A".repeat(TODO_DESCRIPTION_MAX + 1) }, ["description"]],
+      [
+        { id: invalidId, title: null, description: null, status: null },
+        ["id", "title", "description", "status"],
+      ],
     ];
 
-    test.each(valids)("valids %#", (rest) => {
-      const parsed = parseArgs({ id, ...rest });
-      expect(parsed instanceof ParseErr).toBe(false);
+    test.each(valids)("valids %#", (args) => {
+      const parsed = parseArgs(args);
+      expect(Array.isArray(parsed)).toBe(false);
     });
 
-    test.each(invalids)("invalids %#", (rest, field) => {
-      const parsed = parseArgs({ id, ...rest });
-      expect(parsed instanceof ParseErr).toBe(true);
-      expect((parsed as ParseErr).field === field).toBe(true);
+    test.each(invalids)("invalids %#", (args, fields) => {
+      const parsed = parseArgs(args);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect((parsed as ParseErr[]).map((e) => e.field)).toStrictEqual(fields);
     });
   });
 }

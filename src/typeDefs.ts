@@ -4,6 +4,7 @@ import * as EmailAlreadyTakenError from "./graphql/EmailAlreadyTakenError.ts";
 import * as Error_ from "./graphql/Error.ts";
 import * as ErrorCode from "./graphql/ErrorCode.ts";
 import * as InvalidInputError from "./graphql/InvalidInputError.ts";
+import * as InvalidInputErrors from "./graphql/InvalidInputErrors.ts";
 import * as Mutation from "./graphql/Mutation/_mod.ts";
 import * as Node from "./graphql/Node/_mod.ts";
 import * as PageInfo from "./graphql/PageInfo.ts";
@@ -25,6 +26,7 @@ export const typeDefs = [
   Error_.typeDef,
   ErrorCode.typeDef,
   InvalidInputError.typeDef,
+  InvalidInputErrors.typeDef,
   PageInfo.typeDef,
   ResourceLimitExceededError.typeDef,
   ResourceNotFoundError.typeDef,

@@ -32,7 +32,7 @@ export const typeDef = /* GraphQL */ `
     ): AccountUpdateResult
   }
 
-  union AccountUpdateResult = AccountUpdateSuccess | InvalidInputError | EmailAlreadyTakenError
+  union AccountUpdateResult = AccountUpdateSuccess | InvalidInputErrors | EmailAlreadyTakenError
 
   type AccountUpdateSuccess {
     user: User!
@@ -48,11 +48,13 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
 
   const parsed = parseArgs(args);
 
-  if (parsed instanceof ParseErr) {
+  if (Array.isArray(parsed)) {
     return {
-      __typename: "InvalidInputError",
-      field: parsed.field,
-      message: parsed.message,
+      __typename: "InvalidInputErrors",
+      errors: parsed.map((e) => ({
+        field: e.field,
+        message: e.message,
+      })),
     };
   }
 
@@ -92,30 +94,36 @@ const parseArgs = (args: MutationAccountUpdateArgs) => {
     optional: true,
     nullable: false,
   });
-
-  if (name instanceof ParseErr) {
-    return name;
-  }
-
   const email = parseUserEmail(args.email, "email", {
     optional: true,
     nullable: false,
   });
-
-  if (email instanceof ParseErr) {
-    return email;
-  }
-
   const password = parseUserPassword(args.password, "password", {
     optional: true,
     nullable: false,
   });
 
-  if (password instanceof ParseErr) {
-    return password;
-  }
+  if (
+    name instanceof ParseErr || //
+    email instanceof ParseErr ||
+    password instanceof ParseErr
+  ) {
+    const errors = [];
 
-  return { name, email, password };
+    if (name instanceof ParseErr) {
+      errors.push(name);
+    }
+    if (email instanceof ParseErr) {
+      errors.push(email);
+    }
+    if (password instanceof ParseErr) {
+      errors.push(password);
+    }
+
+    return errors;
+  } else {
+    return { name, email, password };
+  }
 };
 
 if (import.meta.vitest) {
@@ -131,25 +139,26 @@ if (import.meta.vitest) {
       { password: "A".repeat(USER_PASSWORD_MIN) },
     ];
 
-    const invalids: [MutationAccountUpdateArgs, keyof MutationAccountUpdateArgs][] = [
-      [{ name: null }, "name"],
-      [{ email: null }, "email"],
-      [{ password: null }, "password"],
-      [{ name: "A".repeat(USER_NAME_MAX + 1) }, "name"],
-      [{ email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` }, "email"],
-      [{ password: "A".repeat(USER_PASSWORD_MIN - 1) }, "password"],
-      [{ email: "emailemail.com" }, "email"],
+    const invalids: [MutationAccountUpdateArgs, (keyof MutationAccountUpdateArgs)[]][] = [
+      [{ name: null }, ["name"]],
+      [{ email: null }, ["email"]],
+      [{ password: null }, ["password"]],
+      [{ name: "A".repeat(USER_NAME_MAX + 1) }, ["name"]],
+      [{ email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` }, ["email"]],
+      [{ password: "A".repeat(USER_PASSWORD_MIN - 1) }, ["password"]],
+      [{ email: "emailemail.com" }, ["email"]],
+      [{ name: null, email: null, password: null }, ["name", "email", "password"]],
     ];
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);
-      expect(parsed instanceof ParseErr).toBe(false);
+      expect(Array.isArray(parsed)).toBe(false);
     });
 
-    test.each(invalids)("invalids %#", (args, field) => {
+    test.each(invalids)("invalids %#", (args, fields) => {
       const parsed = parseArgs(args);
-      expect(parsed instanceof ParseErr).toBe(true);
-      expect((parsed as ParseErr).field === field).toBe(true);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect((parsed as ParseErr[]).map((e) => e.field)).toStrictEqual(fields);
     });
   });
 }

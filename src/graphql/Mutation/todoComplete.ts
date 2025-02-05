@@ -9,7 +9,7 @@ export const typeDef = /* GraphQL */ `
     todoComplete(id: ID!): TodoCompleteResult
   }
 
-  union TodoCompleteResult = TodoCompleteSuccess | InvalidInputError | ResourceNotFoundError
+  union TodoCompleteResult = TodoCompleteSuccess | InvalidInputErrors | ResourceNotFoundError
 
   type TodoCompleteSuccess {
     todo: Todo!
@@ -27,9 +27,8 @@ export const resolver: MutationResolvers["todoComplete"] = async (_parent, args,
 
   if (parsed instanceof Error) {
     return {
-      __typename: "InvalidInputError",
-      field: "id",
-      message: parsed.message,
+      __typename: "InvalidInputErrors",
+      errors: [{ field: "id", message: parsed.message }],
     };
   }
 

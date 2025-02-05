@@ -58,7 +58,7 @@ test("invalid input", async () => {
     variables: { id: dummyId.todo().slice(0, -1) },
   });
 
-  expect(data?.todoUncomplete?.__typename === "InvalidInputError").toBe(true);
+  expect(data?.todoUncomplete?.__typename === "InvalidInputErrors").toBe(true);
 });
 
 test("not exists", async () => {

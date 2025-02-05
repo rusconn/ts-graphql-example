@@ -52,7 +52,7 @@ test("invalid input", async () => {
     variables: { ...variables, title: invalidTitle },
   });
 
-  expect(data?.todoCreate?.__typename === "InvalidInputError").toBe(true);
+  expect(data?.todoCreate?.__typename === "InvalidInputErrors").toBe(true);
 });
 
 it("should create todo using input", async () => {

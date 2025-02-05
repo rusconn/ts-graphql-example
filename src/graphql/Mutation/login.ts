@@ -25,7 +25,7 @@ export const typeDef = /* GraphQL */ `
     ): LoginResult
   }
 
-  union LoginResult = LoginSuccess | InvalidInputError | LoginFailedError
+  union LoginResult = LoginSuccess | InvalidInputErrors | LoginFailedError
 
   type LoginSuccess {
     token: String!
@@ -39,11 +39,13 @@ export const typeDef = /* GraphQL */ `
 export const resolver: MutationResolvers["login"] = async (_parent, args, context) => {
   const parsed = parseArgs(args);
 
-  if (parsed instanceof ParseErr) {
+  if (Array.isArray(parsed)) {
     return {
-      __typename: "InvalidInputError",
-      field: parsed.field,
-      message: parsed.message,
+      __typename: "InvalidInputErrors",
+      errors: parsed.map((e) => ({
+        field: e.field,
+        message: e.message,
+      })),
     };
   }
 
@@ -86,21 +88,28 @@ const parseArgs = (args: MutationLoginArgs) => {
     optional: false,
     nullable: false,
   });
-
-  if (email instanceof ParseErr) {
-    return email;
-  }
-
   const password = parseUserPassword(args.password, "password", {
     optional: false,
     nullable: false,
   });
 
-  if (password instanceof ParseErr) {
-    return password;
-  }
+  if (
+    email instanceof ParseErr || //
+    password instanceof ParseErr
+  ) {
+    const errors = [];
 
-  return { email, password };
+    if (email instanceof ParseErr) {
+      errors.push(email);
+    }
+    if (password instanceof ParseErr) {
+      errors.push(password);
+    }
+
+    return errors;
+  } else {
+    return { email, password };
+  }
 };
 
 if (import.meta.vitest) {
@@ -110,27 +119,33 @@ if (import.meta.vitest) {
       password: "password",
     };
 
+    const invalidArgs: MutationLoginArgs = {
+      email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com`,
+      password: "A".repeat(USER_PASSWORD_MIN - 1),
+    };
+
     const valids: MutationLoginArgs[] = [
       { ...validArgs },
       { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
       { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN) },
     ];
 
-    const invalids: [MutationLoginArgs, keyof MutationLoginArgs][] = [
-      [{ ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` }, "email"],
-      [{ ...validArgs, password: "A".repeat(USER_PASSWORD_MIN - 1) }, "password"],
-      [{ ...validArgs, email: "emailemail.com" }, "email"],
+    const invalids: [MutationLoginArgs, (keyof MutationLoginArgs)[]][] = [
+      [{ ...validArgs, email: invalidArgs.email }, ["email"]],
+      [{ ...validArgs, password: invalidArgs.password }, ["password"]],
+      [{ ...validArgs, email: "emailemail.com" }, ["email"]],
+      [{ ...validArgs, ...invalidArgs }, ["email", "password"]],
     ];
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);
-      expect(parsed instanceof ParseErr).toBe(false);
+      expect(Array.isArray(parsed)).toBe(false);
     });
 
-    test.each(invalids)("invalids %#", (args, field) => {
+    test.each(invalids)("invalids %#", (args, fields) => {
       const parsed = parseArgs(args);
-      expect(parsed instanceof ParseErr).toBe(true);
-      expect((parsed as ParseErr).field === field).toBe(true);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect((parsed as ParseErr[]).map((e) => e.field)).toStrictEqual(fields);
     });
   });
 }

@@ -28,7 +28,7 @@ export const typeDef = /* GraphQL */ `
     ): TodoCreateResult
   }
 
-  union TodoCreateResult = TodoCreateSuccess | InvalidInputError | ResourceLimitExceededError
+  union TodoCreateResult = TodoCreateSuccess | InvalidInputErrors | ResourceLimitExceededError
 
   type TodoCreateSuccess {
     todo: Todo!
@@ -44,11 +44,13 @@ export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, c
 
   const parsed = parseArgs(args);
 
-  if (parsed instanceof ParseErr) {
+  if (Array.isArray(parsed)) {
     return {
-      __typename: "InvalidInputError",
-      field: parsed.field,
-      message: parsed.message,
+      __typename: "InvalidInputErrors",
+      errors: parsed.map((e) => ({
+        field: e.field,
+        message: e.message,
+      })),
     };
   }
 
@@ -64,26 +66,33 @@ const parseArgs = (args: MutationTodoCreateArgs) => {
     optional: false,
     nullable: false,
   });
-
-  if (title instanceof ParseErr) {
-    return title;
-  }
-
   const description = parseTodoDescription(args.description, "description", {
     optional: false,
     nullable: false,
   });
 
-  if (description instanceof ParseErr) {
-    return description;
-  }
+  if (
+    title instanceof ParseErr || //
+    description instanceof ParseErr
+  ) {
+    const errors = [];
 
-  return { title, description };
+    if (title instanceof ParseErr) {
+      errors.push(title);
+    }
+    if (description instanceof ParseErr) {
+      errors.push(description);
+    }
+
+    return errors;
+  } else {
+    return { title, description };
+  }
 };
 
 const logic = async (
   authed: Exclude<ReturnType<typeof authorize>, Error>,
-  parsed: Exclude<ReturnType<typeof parseArgs>, Error>,
+  parsed: Exclude<ReturnType<typeof parseArgs>, Error[]>,
   context: Context,
 ): Promise<ResolversTypes["TodoCreateResult"]> => {
   const { title, description } = parsed;
@@ -121,6 +130,13 @@ if (import.meta.vitest) {
     user: context.admin,
   };
 
+  const invalid = {
+    args: {
+      title: "A".repeat(TODO_TITLE_MAX + 1),
+      description: "A".repeat(TODO_DESCRIPTION_MAX + 1),
+    },
+  };
+
   describe("Parsing", () => {
     const valids: MutationTodoCreateArgs[] = [
       { ...valid.args },
@@ -128,20 +144,21 @@ if (import.meta.vitest) {
       { ...valid.args, description: "A".repeat(TODO_DESCRIPTION_MAX) },
     ];
 
-    const invalids: [MutationTodoCreateArgs, keyof MutationTodoCreateArgs][] = [
-      [{ ...valid.args, title: "A".repeat(TODO_TITLE_MAX + 1) }, "title"],
-      [{ ...valid.args, description: "A".repeat(TODO_DESCRIPTION_MAX + 1) }, "description"],
+    const invalids: [MutationTodoCreateArgs, (keyof MutationTodoCreateArgs)[]][] = [
+      [{ ...valid.args, title: invalid.args.title }, ["title"]],
+      [{ ...valid.args, description: invalid.args.description }, ["description"]],
+      [{ ...valid.args, ...invalid.args }, ["title", "description"]],
     ];
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);
-      expect(parsed instanceof ParseErr).toBe(false);
+      expect(Array.isArray(parsed)).toBe(false);
     });
 
-    test.each(invalids)("invalids %#", (args, field) => {
+    test.each(invalids)("invalids %#", (args, fields) => {
       const parsed = parseArgs(args);
-      expect(parsed instanceof ParseErr).toBe(true);
-      expect((parsed as ParseErr).field === field).toBe(true);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect((parsed as ParseErr[]).map((e) => e.field)).toStrictEqual(fields);
     });
   });
 

@@ -9,7 +9,7 @@ export const typeDef = /* GraphQL */ `
     todoDelete(id: ID!): TodoDeleteResult
   }
 
-  union TodoDeleteResult = TodoDeleteSuccess | InvalidInputError | ResourceNotFoundError
+  union TodoDeleteResult = TodoDeleteSuccess | InvalidInputErrors | ResourceNotFoundError
 
   type TodoDeleteSuccess {
     id: ID!
@@ -27,9 +27,8 @@ export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, c
 
   if (parsed instanceof Error) {
     return {
-      __typename: "InvalidInputError",
-      field: "id",
-      message: parsed.message,
+      __typename: "InvalidInputErrors",
+      errors: [{ field: "id", message: parsed.message }],
     };
   }
 
