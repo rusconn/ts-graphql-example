@@ -24,7 +24,7 @@ export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, c
     throw forbiddenErr(authed);
   }
 
-  const id = parseTodoId(args);
+  const id = parseTodoId(args.id);
 
   if (id instanceof Error) {
     throw badUserInputErr(id.message, id);

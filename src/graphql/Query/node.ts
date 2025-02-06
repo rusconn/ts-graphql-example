@@ -21,7 +21,7 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
     throw forbiddenErr(authed);
   }
 
-  const id = parseId(args);
+  const id = parseId(args.id);
 
   if (id instanceof Error) {
     throw badUserInputErr(id.message, id);

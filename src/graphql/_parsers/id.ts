@@ -1,7 +1,7 @@
 import type { Scalars } from "../../schema.ts";
 import { type NodeType, nodeTypes, typeIdSep } from "../_adapters/id.ts";
 
-export const parseId = ({ id }: { id: Scalars["ID"]["input"] }) => {
+export const parseId = (id: Scalars["ID"]["input"]) => {
   const [type, internalId, ...rest] = id.split(typeIdSep);
 
   if (!isValidNodeType(type) || internalId == null || rest.length !== 0) {
@@ -34,12 +34,12 @@ if (import.meta.vitest) {
   ];
 
   test.each(valids)("valids %#", (id) => {
-    const parsed = parseId({ id });
+    const parsed = parseId(id);
     expect(parsed instanceof Error).toBe(false);
   });
 
   test.each(invalids)("invalids %#", (id) => {
-    const parsed = parseId({ id });
+    const parsed = parseId(id);
     expect(parsed instanceof Error).toBe(true);
   });
 }

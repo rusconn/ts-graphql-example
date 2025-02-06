@@ -9,12 +9,12 @@ if (import.meta.vitest) {
   const id = "0193cb3e-4379-750f-880f-77afae342259";
 
   test("valid", () => {
-    const parsed = parseTodoId({ id: nodeId("Todo")(id) });
+    const parsed = parseTodoId(nodeId("Todo")(id));
     expect(parsed instanceof Error).toBe(false);
   });
 
   test("invalid", () => {
-    const parsed = parseTodoId({ id: nodeId("User")(id) });
+    const parsed = parseTodoId(nodeId("User")(id));
     expect(parsed instanceof Error).toBe(true);
   });
 }

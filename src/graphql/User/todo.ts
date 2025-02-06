@@ -17,7 +17,7 @@ export const resolver: UserResolvers["todo"] = async (parent, args, context) => 
     throw forbiddenErr(authed);
   }
 
-  const id = parseTodoId(args);
+  const id = parseTodoId(args.id);
 
   if (id instanceof Error) {
     throw badUserInputErr(id.message, id);

@@ -7,8 +7,8 @@ export const parseSomeId =
     nodeType: T,
     isInternalId: (input: string) => input is U,
   ) =>
-  ({ id }: { id: Scalars["ID"]["input"] }) => {
-    const parsed = parseId({ id });
+  (id: Scalars["ID"]["input"]) => {
+    const parsed = parseId(id);
 
     if (parsed instanceof Error) {
       return parsed;
