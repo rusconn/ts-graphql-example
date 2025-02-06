@@ -1,6 +1,7 @@
 import { TodoStatus } from "../../db/generated/types.ts";
 import type { MutationResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
+import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 
@@ -9,7 +10,7 @@ export const typeDef = /* GraphQL */ `
     todoUncomplete(id: ID!): TodoUncompleteResult
   }
 
-  union TodoUncompleteResult = TodoUncompleteSuccess | InvalidInputErrors | ResourceNotFoundError
+  union TodoUncompleteResult = TodoUncompleteSuccess | ResourceNotFoundError
 
   type TodoUncompleteSuccess {
     todo: Todo!
@@ -23,17 +24,14 @@ export const resolver: MutationResolvers["todoUncomplete"] = async (_parent, arg
     throw forbiddenErr(authed);
   }
 
-  const parsed = parseTodoId(args);
+  const id = parseTodoId(args);
 
-  if (parsed instanceof Error) {
-    return {
-      __typename: "InvalidInputErrors",
-      errors: [{ field: "id", message: parsed.message }],
-    };
+  if (id instanceof Error) {
+    throw badUserInputErr(id.message);
   }
 
   const todo = await context.api.todo.update(
-    { id: parsed, userId: authed.id },
+    { id, userId: authed.id },
     { status: TodoStatus.PENDING },
   );
 

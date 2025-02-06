@@ -83,7 +83,7 @@ export type TodoCompleteMutationVariables = Exact<{
 }>;
 
 
-export type TodoCompleteMutation = { todoComplete?: { __typename: 'InvalidInputErrors' } | { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoCompleteSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+export type TodoCompleteMutation = { todoComplete?: { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoCompleteSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type TodoCreateMutationVariables = Exact<{
   title: Scalars['String']['input'];
@@ -98,14 +98,14 @@ export type TodoDeleteMutationVariables = Exact<{
 }>;
 
 
-export type TodoDeleteMutation = { todoDelete?: { __typename: 'InvalidInputErrors' } | { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoDeleteSuccess', id: string } | null };
+export type TodoDeleteMutation = { todoDelete?: { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoDeleteSuccess', id: string } | null };
 
 export type TodoUncompleteMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type TodoUncompleteMutation = { todoUncomplete?: { __typename: 'InvalidInputErrors' } | { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoUncompleteSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+export type TodoUncompleteMutation = { todoUncomplete?: { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoUncompleteSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
 
 export type TodoUpdateMutationVariables = Exact<{
   id: Scalars['ID']['input'];

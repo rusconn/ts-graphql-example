@@ -220,7 +220,7 @@ export type Todo = Node & {
   user?: Maybe<User>;
 };
 
-export type TodoCompleteResult = InvalidInputErrors | ResourceNotFoundError | TodoCompleteSuccess;
+export type TodoCompleteResult = ResourceNotFoundError | TodoCompleteSuccess;
 
 export type TodoCompleteSuccess = {
   __typename?: 'TodoCompleteSuccess';
@@ -242,7 +242,7 @@ export type TodoCreateSuccess = {
   todo: Todo;
 };
 
-export type TodoDeleteResult = InvalidInputErrors | ResourceNotFoundError | TodoDeleteSuccess;
+export type TodoDeleteResult = ResourceNotFoundError | TodoDeleteSuccess;
 
 export type TodoDeleteSuccess = {
   __typename?: 'TodoDeleteSuccess';
@@ -267,7 +267,7 @@ export const TodoStatus = {
 } as const;
 
 export type TodoStatus = typeof TodoStatus[keyof typeof TodoStatus];
-export type TodoUncompleteResult = InvalidInputErrors | ResourceNotFoundError | TodoUncompleteSuccess;
+export type TodoUncompleteResult = ResourceNotFoundError | TodoUncompleteSuccess;
 
 export type TodoUncompleteSuccess = {
   __typename?: 'TodoUncompleteSuccess';
@@ -403,10 +403,10 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = Resol
   LoginResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( LoginFailedError & { __typename: 'LoginFailedError' } ) | ( LoginSuccess & { __typename: 'LoginSuccess' } );
   LogoutResult: ( LogoutSuccess & { __typename: 'LogoutSuccess' } );
   SignupResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( SignupSuccess & { __typename: 'SignupSuccess' } );
-  TodoCompleteResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoCompleteSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'TodoCompleteSuccess' } );
+  TodoCompleteResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoCompleteSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'TodoCompleteSuccess' } );
   TodoCreateResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceLimitExceededError & { __typename: 'ResourceLimitExceededError' } ) | ( Omit<TodoCreateSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'TodoCreateSuccess' } );
-  TodoDeleteResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( TodoDeleteSuccess & { __typename: 'TodoDeleteSuccess' } );
-  TodoUncompleteResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoUncompleteSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'TodoUncompleteSuccess' } );
+  TodoDeleteResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( TodoDeleteSuccess & { __typename: 'TodoDeleteSuccess' } );
+  TodoUncompleteResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoUncompleteSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'TodoUncompleteSuccess' } );
   TodoUpdateResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoUpdateSuccess, 'todo'> & { todo: RefType['Todo'] } & { __typename: 'TodoUpdateSuccess' } );
 }>;
 
@@ -648,7 +648,7 @@ export type TodoResolvers<ContextType = Context, ParentType extends ResolversPar
 }>;
 
 export type TodoCompleteResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoCompleteResult'] = ResolversParentTypes['TodoCompleteResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'InvalidInputErrors' | 'ResourceNotFoundError' | 'TodoCompleteSuccess', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ResourceNotFoundError' | 'TodoCompleteSuccess', ParentType, ContextType>;
 }>;
 
 export type TodoCompleteSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoCompleteSuccess'] = ResolversParentTypes['TodoCompleteSuccess']> = ResolversObject<{
@@ -674,7 +674,7 @@ export type TodoCreateSuccessResolvers<ContextType = Context, ParentType extends
 }>;
 
 export type TodoDeleteResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoDeleteResult'] = ResolversParentTypes['TodoDeleteResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'InvalidInputErrors' | 'ResourceNotFoundError' | 'TodoDeleteSuccess', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ResourceNotFoundError' | 'TodoDeleteSuccess', ParentType, ContextType>;
 }>;
 
 export type TodoDeleteSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoDeleteSuccess'] = ResolversParentTypes['TodoDeleteSuccess']> = ResolversObject<{
@@ -689,7 +689,7 @@ export type TodoEdgeResolvers<ContextType = Context, ParentType extends Resolver
 }>;
 
 export type TodoUncompleteResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoUncompleteResult'] = ResolversParentTypes['TodoUncompleteResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'InvalidInputErrors' | 'ResourceNotFoundError' | 'TodoUncompleteSuccess', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ResourceNotFoundError' | 'TodoUncompleteSuccess', ParentType, ContextType>;
 }>;
 
 export type TodoUncompleteSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoUncompleteSuccess'] = ResolversParentTypes['TodoUncompleteSuccess']> = ResolversObject<{

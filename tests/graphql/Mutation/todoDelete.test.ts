@@ -1,4 +1,5 @@
 import { client } from "../../../src/db/client.ts";
+import { ErrorCode } from "../../../src/schema.ts";
 
 import { Data, dummyId } from "../../data.ts";
 import { clearTables, clearTodos } from "../../helpers.ts";
@@ -41,12 +42,13 @@ beforeEach(async () => {
 });
 
 test("invalid input", async () => {
-  const { data } = await executeMutation({
+  const { data, errors } = await executeMutation({
     token: Data.token.admin,
     variables: { id: dummyId.todo().slice(0, -1) },
   });
 
-  expect(data?.todoDelete?.__typename === "InvalidInputErrors").toBe(true);
+  expect(data?.todoDelete === null).toBe(true);
+  expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
 });
 
 test("not exists", async () => {

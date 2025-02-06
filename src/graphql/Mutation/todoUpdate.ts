@@ -1,5 +1,6 @@
 import type { MutationResolvers, MutationTodoUpdateArgs } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
+import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { TODO_DESCRIPTION_MAX, parseTodoDescription } from "../_parsers/todo/description.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
@@ -43,6 +44,12 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
     throw forbiddenErr(authed);
   }
 
+  const id = parseTodoId(args);
+
+  if (id instanceof Error) {
+    throw badUserInputErr(id.message);
+  }
+
   const parsed = parseArgs(args);
 
   if (Array.isArray(parsed)) {
@@ -55,11 +62,9 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
     };
   }
 
-  const { id, ...rest } = parsed;
-
   const todo = await context.api.todo.update(
     { id, userId: authed.id }, //
-    rest,
+    parsed,
   );
 
   return todo
@@ -73,9 +78,7 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
       };
 };
 
-const parseArgs = (args: MutationTodoUpdateArgs) => {
-  const id = parseTodoId(args);
-
+const parseArgs = (args: Omit<MutationTodoUpdateArgs, "id">) => {
   const title = parseTodoTitle(args.title, "title", {
     optional: true,
     nullable: false,
@@ -90,16 +93,12 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
   });
 
   if (
-    id instanceof Error ||
-    title instanceof ParseErr ||
+    title instanceof ParseErr || //
     description instanceof ParseErr ||
     status instanceof ParseErr
   ) {
     const errors = [];
 
-    if (id instanceof Error) {
-      errors.push(new ParseErr("id", id.message, { cause: id }));
-    }
     if (title instanceof ParseErr) {
       errors.push(title);
     }
@@ -112,40 +111,34 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
 
     return errors;
   } else {
-    return { id, title, description, status };
+    return { title, description, status };
   }
 };
 
 if (import.meta.vitest) {
-  const TodoId = await import("../../db/models/todo/id.ts");
   const { TodoStatus } = await import("../../schema.ts");
-  const { todoId } = await import("../_adapters/todo/id.ts");
 
   describe("Parsing", () => {
-    const id = todoId(TodoId.gen());
-    const invalidId = id.slice(0, -1);
-
-    const valids: MutationTodoUpdateArgs[] = [
-      { id },
-      { id, title: "title" },
-      { id, description: "description" },
-      { id, status: TodoStatus.Done },
-      { id, title: "title", description: "description", status: TodoStatus.Done },
-      { id, title: "A".repeat(TODO_TITLE_MAX) },
-      { id, description: "A".repeat(TODO_DESCRIPTION_MAX) },
+    const valids: Omit<MutationTodoUpdateArgs, "id">[] = [
+      {},
+      { title: "title" },
+      { description: "description" },
+      { status: TodoStatus.Done },
+      { title: "title", description: "description", status: TodoStatus.Done },
+      { title: "A".repeat(TODO_TITLE_MAX) },
+      { description: "A".repeat(TODO_DESCRIPTION_MAX) },
     ];
 
-    const invalids: [MutationTodoUpdateArgs, (keyof MutationTodoUpdateArgs)[]][] = [
-      [{ id: invalidId }, ["id"]],
-      [{ id, title: null }, ["title"]],
-      [{ id, description: null }, ["description"]],
-      [{ id, status: null }, ["status"]],
-      [{ id, title: "A".repeat(TODO_TITLE_MAX + 1) }, ["title"]],
-      [{ id, description: "A".repeat(TODO_DESCRIPTION_MAX + 1) }, ["description"]],
-      [
-        { id: invalidId, title: null, description: null, status: null },
-        ["id", "title", "description", "status"],
-      ],
+    const invalids: [
+      Omit<MutationTodoUpdateArgs, "id">,
+      (keyof Omit<MutationTodoUpdateArgs, "id">)[],
+    ][] = [
+      [{ title: null }, ["title"]],
+      [{ description: null }, ["description"]],
+      [{ status: null }, ["status"]],
+      [{ title: "A".repeat(TODO_TITLE_MAX + 1) }, ["title"]],
+      [{ description: "A".repeat(TODO_DESCRIPTION_MAX + 1) }, ["description"]],
+      [{ title: null, description: null, status: null }, ["title", "description", "status"]],
     ];
 
     test.each(valids)("valids %#", (args) => {

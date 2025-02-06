@@ -2,6 +2,7 @@ import { omit } from "es-toolkit";
 
 import { client } from "../../../src/db/client.ts";
 import { TodoStatus } from "../../../src/db/generated/types.ts";
+import { ErrorCode } from "../../../src/schema.ts";
 
 import { Data, dummyId } from "../../data.ts";
 import { clearTables } from "../../helpers.ts";
@@ -53,12 +54,13 @@ beforeEach(async () => {
 });
 
 test("invalid input", async () => {
-  const { data } = await executeMutation({
+  const { data, errors } = await executeMutation({
     token: Data.token.admin,
     variables: { id: dummyId.todo().slice(0, -1) },
   });
 
-  expect(data?.todoUncomplete?.__typename === "InvalidInputErrors").toBe(true);
+  expect(data?.todoUncomplete === null).toBe(true);
+  expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
 });
 
 test("not exists", async () => {

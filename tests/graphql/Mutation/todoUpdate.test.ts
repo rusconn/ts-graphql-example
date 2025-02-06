@@ -1,7 +1,7 @@
 import { omit } from "es-toolkit";
 
 import { client } from "../../../src/db/client.ts";
-import * as Graph from "../../../src/schema.ts";
+import { ErrorCode, TodoStatus } from "../../../src/schema.ts";
 
 import { Data, dummyId } from "../../data.ts";
 import { clearTables } from "../../helpers.ts";
@@ -55,10 +55,20 @@ beforeEach(async () => {
 const variables = {
   title: "bar",
   description: "baz",
-  status: Graph.TodoStatus.Done,
+  status: TodoStatus.Done,
 };
 
-test("invalid input", async () => {
+test("invalid input id", async () => {
+  const { data, errors } = await executeMutation({
+    token: Data.token.admin,
+    variables: { id: dummyId.todo().slice(0, -1), ...variables },
+  });
+
+  expect(data?.todoUpdate === null).toBe(true);
+  expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
+});
+
+test("invalid input args", async () => {
   const invalidTitle = "A".repeat(100 + 1);
 
   const { data } = await executeMutation({

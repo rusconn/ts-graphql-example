@@ -1,6 +1,7 @@
 import type { MutationResolvers } from "../../schema.ts";
 import { todoId } from "../_adapters/todo/id.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
+import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 
@@ -9,7 +10,7 @@ export const typeDef = /* GraphQL */ `
     todoDelete(id: ID!): TodoDeleteResult
   }
 
-  union TodoDeleteResult = TodoDeleteSuccess | InvalidInputErrors | ResourceNotFoundError
+  union TodoDeleteResult = TodoDeleteSuccess | ResourceNotFoundError
 
   type TodoDeleteSuccess {
     id: ID!
@@ -23,17 +24,14 @@ export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, c
     throw forbiddenErr(authed);
   }
 
-  const parsed = parseTodoId(args);
+  const id = parseTodoId(args);
 
-  if (parsed instanceof Error) {
-    return {
-      __typename: "InvalidInputErrors",
-      errors: [{ field: "id", message: parsed.message }],
-    };
+  if (id instanceof Error) {
+    throw badUserInputErr(id.message);
   }
 
   const todo = await context.api.todo.delete({
-    id: parsed,
+    id,
     userId: authed.id,
   });
 
