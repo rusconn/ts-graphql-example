@@ -6,7 +6,7 @@ import { TODO_DESCRIPTION_MAX, parseTodoDescription } from "../_parsers/todo/des
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import { parseTodoStatus } from "../_parsers/todo/status.ts";
 import { TODO_TITLE_MAX, parseTodoTitle } from "../_parsers/todo/title.ts";
-import { ParseErr } from "../_parsers/util.ts";
+import { ParseErr, invalidInputErrors } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -53,13 +53,7 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
   const parsed = parseArgs(args);
 
   if (Array.isArray(parsed)) {
-    return {
-      __typename: "InvalidInputErrors",
-      errors: parsed.map((e) => ({
-        field: e.field,
-        message: e.message,
-      })),
-    };
+    return invalidInputErrors(parsed);
   }
 
   const todo = await context.api.todo.update(

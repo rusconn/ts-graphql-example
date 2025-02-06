@@ -1,3 +1,5 @@
+import type { InvalidInputErrors } from "../../schema.ts";
+
 export class ParseErr extends Error {
   field: string;
 
@@ -10,6 +12,16 @@ export class ParseErr extends Error {
     this.field = field;
   }
 }
+
+export const invalidInputErrors = (errors: ParseErr[]): Required<InvalidInputErrors> => {
+  return {
+    __typename: "InvalidInputErrors",
+    errors: errors.map((e) => ({
+      field: e.field,
+      message: e.message,
+    })),
+  };
+};
 
 export const parseArg =
   <

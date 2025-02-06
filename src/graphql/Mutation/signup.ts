@@ -12,7 +12,7 @@ import {
   USER_PASSWORD_MIN,
   parseUserPassword,
 } from "../_parsers/user/password.ts";
-import { ParseErr } from "../_parsers/util.ts";
+import { ParseErr, invalidInputErrors } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -51,13 +51,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   const parsed = parseArgs(args);
 
   if (Array.isArray(parsed)) {
-    return {
-      __typename: "InvalidInputErrors",
-      errors: parsed.map((e) => ({
-        field: e.field,
-        message: e.message,
-      })),
-    };
+    return invalidInputErrors(parsed);
   }
 
   const { name, email, password } = parsed;
