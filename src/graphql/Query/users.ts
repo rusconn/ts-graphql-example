@@ -5,8 +5,8 @@ import type { User } from "../User/_mapper.ts";
 import { authAdmin } from "../_authorizers/admin.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
-import { parseConnectionArgs } from "../_parsers/connectionArgs.ts";
-import { parseUserCursor } from "../_parsers/user/cursor.ts";
+import { connectionArgsSchema } from "../_parsers/connectionArgs.ts";
+import { userCursorSchema } from "../_parsers/user/cursor.ts";
 
 const FIRST_MAX = 30;
 const LAST_MAX = 30;
@@ -59,13 +59,13 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
     throw forbiddenErr(authed);
   }
 
-  const parsed = parseArgs(args);
+  const parseResult = parseArgs(args);
 
-  if (parsed instanceof Error) {
-    throw badUserInputErr(parsed.message, parsed);
+  if (!parseResult.success) {
+    throw badUserInputErr("", parseResult.error);
   }
 
-  const { connectionArgs, reverse, sortKey } = parsed;
+  const { connectionArgs, reverse, sortKey } = parseResult.data;
 
   return await getCursorConnection<User, User["id"]>(
     ({ cursor, limit, backward }) =>
@@ -85,19 +85,17 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 };
 
 const parseArgs = (args: QueryUsersArgs) => {
-  const connectionArgs = parseConnectionArgs(args, {
+  const { reverse, sortKey, ...rest } = args;
+
+  return connectionArgsSchema({
     firstMax: FIRST_MAX,
     lastMax: LAST_MAX,
-    parseCursor: parseUserCursor,
-  });
-
-  if (connectionArgs instanceof Error) {
-    return connectionArgs;
-  }
-
-  return {
-    connectionArgs,
-    reverse: args.reverse,
-    sortKey: args.sortKey,
-  };
+    cursorSchema: userCursorSchema,
+  })
+    .transform((args) => ({
+      connectionArgs: args,
+      reverse,
+      sortKey,
+    }))
+    .safeParse(rest);
 };

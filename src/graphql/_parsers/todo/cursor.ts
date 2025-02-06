@@ -1,4 +1,4 @@
 import * as TodoId from "../../../db/models/todo/id.ts";
-import { parseCursor } from "../cursor.ts";
+import { cursorSchema } from "../cursor.ts";
 
-export const parseTodoCursor = parseCursor(TodoId.is);
+export const todoCursorSchema = cursorSchema(TodoId.is);

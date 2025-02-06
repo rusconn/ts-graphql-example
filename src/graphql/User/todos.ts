@@ -6,7 +6,7 @@ import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { parseConnectionArgs } from "../_parsers/connectionArgs.ts";
-import { parseTodoCursor } from "../_parsers/todo/cursor.ts";
+import { todoCursorSchema } from "../_parsers/todo/cursor.ts";
 import { parseTodoStatus } from "../_parsers/todo/status.ts";
 
 const FIRST_MAX = 50;
@@ -95,7 +95,7 @@ const parseArgs = (args: UserTodosArgs) => {
   const connectionArgs = parseConnectionArgs(args, {
     firstMax: FIRST_MAX,
     lastMax: LAST_MAX,
-    parseCursor: parseTodoCursor,
+    parseCursor: todoCursorSchema,
   });
 
   if (connectionArgs instanceof Error) {

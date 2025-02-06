@@ -1,9 +1,4 @@
-export const parseCursor =
-  <T>(isCursor: (x: unknown) => x is T) =>
-  (input: string) => {
-    if (!isCursor(input)) {
-      return new Error("Malformed cursor");
-    }
+import { z } from "zod";
 
-    return input;
-  };
+export const cursorSchema = <T>(isCursor: (x: unknown) => x is T) =>
+  z.string().refine((s) => isCursor(s), { message: "Malformed cursor" });

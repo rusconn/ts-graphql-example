@@ -1,65 +1,81 @@
-import type {
-  ConnectionArguments,
-  ConnectionArgumentsUnion,
-} from "../../lib/graphql/cursorConnections/interfaces.ts";
+import { type ZodSchema, type ZodTypeDef, z } from "zod";
+
+import type { ConnectionArgumentsUnion } from "../../lib/graphql/cursorConnections/interfaces.ts";
 import { isForwardPagination } from "../../lib/graphql/cursorConnections/util.ts";
 
 type Config<Cursor> = {
   firstMax: number;
   lastMax: number;
-  parseCursor: (cursor: string) => Cursor | Error;
+  cursorSchema: ZodSchema<Cursor, ZodTypeDef, string>;
 };
 
-export const parseConnectionArgs = <Cursor>(args: ConnectionArguments, config: Config<Cursor>) => {
-  const result = parseConnectionArgsCommon(args);
-
-  if (result instanceof Error) {
-    return result;
-  }
-
-  return parseConnectionArgsAdditional(result, config);
+export const connectionArgsSchema = <Cursor>(config: Config<Cursor>) => {
+  return connectionArgsCommonSchema.pipe(connectionArgsAdditionalSchema(config));
 };
 
-const parseConnectionArgsCommon = (args: ConnectionArguments) => {
-  const { first, after, last, before } = args;
-
-  if (first == null && last == null) {
-    return new Error("you must provide one of first or last");
-  }
-  if (first != null && last != null) {
-    return new Error("providing both first and last is not supported");
-  }
-
-  if (first != null) {
-    if (before != null) {
-      return new Error("using first with before is not supported");
+const connectionArgsCommonSchema = z
+  .object({
+    first: z.number().int().nonnegative().nullish(),
+    after: z.string().nullish(),
+    last: z.number().int().nonnegative().nullish(),
+    before: z.string().nullish(),
+  })
+  .refine(({ first, last }) => first != null || last != null, {
+    message: "you must provide one of first or last",
+  })
+  .refine(({ first, last }) => first == null || last == null, {
+    message: "providing both first and last is not supported",
+  })
+  .superRefine(({ first, after, last, before }, ctx) => {
+    if (first != null && before != null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "using first with before is not supported",
+      });
     }
-    if (first < 0) {
-      return new Error("first cannot be negative");
+    if (first != null && first < 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "first cannot be negative",
+      });
     }
-
-    return { first, ...(after != null && { after }) };
-  }
-  if (last != null) {
-    if (after != null) {
-      return new Error("using last with after is not supported");
+    if (last != null && after != null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "using last with after is not supported",
+      });
     }
-    if (last < 0) {
-      return new Error("last cannot be negative");
+    if (last != null && last < 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "last cannot be negative",
+      });
     }
+  })
+  .transform((args) => args as ConnectionArgumentsUnion);
 
-    return { last, ...(before != null && { before }) };
-  }
-
-  throw new Error("unreachable");
+const connectionArgsAdditionalSchema2 = <Cursor>({
+  firstMax,
+  lastMax,
+  cursorSchema,
+}: Config<Cursor>) => {
+  return z.union([
+    z.object({
+      first: z.number().int().nonnegative(),
+      after: z.string().nullish(),
+    }),
+    z.object({
+      last: z.number().int().nonnegative(),
+      before: z.string().nullish(),
+    }),
+  ]);
 };
 
-const parseConnectionArgsAdditional = <Cursor>(
-  args: ConnectionArgumentsUnion,
-  config: Config<Cursor>,
-) => {
-  const { firstMax, lastMax, parseCursor } = config;
-
+const connectionArgsAdditionalSchema = <Cursor>({
+  firstMax,
+  lastMax,
+  cursorSchema,
+}: Config<Cursor>) => {
   if (isForwardPagination(args)) {
     const { first, after } = args;
 
@@ -67,13 +83,13 @@ const parseConnectionArgsAdditional = <Cursor>(
       return new Error(`first cannot exceed ${firstMax}`);
     }
 
-    const parsedAfter = after != null ? parseCursor(after) : after;
+    const parsed = after != null ? cursorSchema.safeParse(after) : after;
 
-    if (parsedAfter instanceof Error) {
-      return parsedAfter;
+    if (parsed != null && !parsed.success) {
+      return parsed.error;
     }
 
-    return { first, ...(after != null && { after: parsedAfter }) };
+    return { first, ...(parsed != null && { after: parsed.data }) };
   } else {
     const { last, before } = args;
 
@@ -81,13 +97,13 @@ const parseConnectionArgsAdditional = <Cursor>(
       return new Error(`last cannot exceed ${lastMax}`);
     }
 
-    const parsedBefore = before != null ? parseCursor(before) : before;
+    const parsed = before != null ? cursorSchema.safeParse(before) : before;
 
-    if (parsedBefore instanceof Error) {
-      return parsedBefore;
+    if (parsed != null && !parsed.success) {
+      return parsed.error;
     }
 
-    return { last, ...(before != null && { before: parsedBefore }) };
+    return { last, ...(parsed != null && { before: parsed.data }) };
   }
 };
 
@@ -147,7 +163,7 @@ if (import.meta.vitest) {
       const result = parseConnectionArgsAdditional(args, {
         firstMax: 30,
         lastMax: 30,
-        parseCursor: (cursor) => cursor,
+        parseCursor: z.string(),
       });
       expect(result instanceof Error).toBe(false);
     });
@@ -156,7 +172,7 @@ if (import.meta.vitest) {
       const result = parseConnectionArgsAdditional(args, {
         firstMax: 30,
         lastMax: 30,
-        parseCursor: (cursor) => cursor,
+        parseCursor: z.string(),
       });
       expect(result instanceof Error).toBe(true);
     });
