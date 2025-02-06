@@ -1,8 +1,8 @@
 import { EnvelopArmorPlugin } from "@escape.tech/graphql-armor";
 
-import { maxCost, maxDepth } from "../config.ts";
+import { MAX_COST, MAX_DEPTH } from "../config.ts";
 
 export const armor = EnvelopArmorPlugin({
-  costLimit: { maxCost },
-  maxDepth: { n: maxDepth },
+  costLimit: { maxCost: MAX_COST },
+  maxDepth: { n: MAX_DEPTH },
 });

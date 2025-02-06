@@ -1,7 +1,7 @@
 import { type ErrorLogEvent, Kysely, PostgresDialect } from "kysely";
 import pg from "pg";
 
-import { connectionString, isProd } from "../config.ts";
+import { DATABASE_URL, isProd } from "../config.ts";
 import { logger } from "../logger.ts";
 import type { DB } from "./generated/types.ts";
 
@@ -22,7 +22,7 @@ const [logQuery, logError] = isProd
 export const client = new Kysely<DB>({
   dialect: new PostgresDialect({
     pool: new pg.Pool({
-      connectionString,
+      connectionString: DATABASE_URL,
     }),
   }),
   log(event) {
