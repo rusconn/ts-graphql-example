@@ -17,13 +17,13 @@ export const resolver: QueryResolvers["user"] = async (_parent, args, context) =
     throw forbiddenErr(authed);
   }
 
-  const parsed = parseUserId(args);
+  const id = parseUserId(args);
 
-  if (parsed instanceof Error) {
-    throw badUserInputErr(parsed.message, parsed);
+  if (id instanceof Error) {
+    throw badUserInputErr(id.message, id);
   }
 
-  const user = await context.api.user.getById(parsed);
+  const user = await context.api.user.getById(id);
 
   return user ?? null;
 };

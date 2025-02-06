@@ -27,7 +27,7 @@ export const resolver: MutationResolvers["todoUncomplete"] = async (_parent, arg
   const id = parseTodoId(args);
 
   if (id instanceof Error) {
-    throw badUserInputErr(id.message);
+    throw badUserInputErr(id.message, id);
   }
 
   const todo = await context.api.todo.update(

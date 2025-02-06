@@ -65,15 +65,15 @@ it("should create todo using input", async () => {
     fail();
   }
 
-  const parsed = parseTodoId(data.todoCreate.todo);
+  const id = parseTodoId(data.todoCreate.todo);
 
-  if (parsed instanceof Error) {
+  if (id instanceof Error) {
     fail();
   }
 
   const todo = await client
     .selectFrom("Todo")
-    .where("id", "=", parsed)
+    .where("id", "=", id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -91,15 +91,15 @@ test('description should be "" by default', async () => {
     fail();
   }
 
-  const parsed = parseTodoId(data.todoCreate.todo);
+  const id = parseTodoId(data.todoCreate.todo);
 
-  if (parsed instanceof Error) {
+  if (id instanceof Error) {
     fail();
   }
 
   const todo = await client
     .selectFrom("Todo")
-    .where("id", "=", parsed)
+    .where("id", "=", id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -116,15 +116,15 @@ test("status should be PENDING by default", async () => {
     fail();
   }
 
-  const parsed = parseTodoId(data.todoCreate.todo);
+  const id = parseTodoId(data.todoCreate.todo);
 
-  if (parsed instanceof Error) {
+  if (id instanceof Error) {
     fail();
   }
 
   const todo = await client
     .selectFrom("Todo")
-    .where("id", "=", parsed)
+    .where("id", "=", id)
     .selectAll()
     .executeTakeFirstOrThrow();
 

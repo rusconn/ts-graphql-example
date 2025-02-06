@@ -47,7 +47,7 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
   const id = parseTodoId(args);
 
   if (id instanceof Error) {
-    throw badUserInputErr(id.message);
+    throw badUserInputErr(id.message, id);
   }
 
   const parsed = parseArgs(args);

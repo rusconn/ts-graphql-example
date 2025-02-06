@@ -44,15 +44,15 @@ it("should delete user", async () => {
     fail();
   }
 
-  const parsed = parseUserId(data.accountDelete);
+  const id = parseUserId(data.accountDelete);
 
-  if (parsed instanceof Error) {
+  if (id instanceof Error) {
     fail();
   }
 
   const user = await client
-    .selectFrom("User")
-    .where("id", "=", parsed)
+    .selectFrom("User") //
+    .where("id", "=", id)
     .selectAll()
     .executeTakeFirst();
 
@@ -73,15 +73,15 @@ it("should not delete others", async () => {
     fail();
   }
 
-  const parsed = parseUserId(data.accountDelete);
+  const id = parseUserId(data.accountDelete);
 
-  if (parsed instanceof Error) {
+  if (id instanceof Error) {
     fail();
   }
 
   const user = await client
-    .selectFrom("User")
-    .where("id", "=", parsed)
+    .selectFrom("User") //
+    .where("id", "=", id)
     .selectAll()
     .executeTakeFirst();
 

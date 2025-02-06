@@ -17,14 +17,14 @@ export const resolver: UserResolvers["todo"] = async (parent, args, context) => 
     throw forbiddenErr(authed);
   }
 
-  const parsed = parseTodoId(args);
+  const id = parseTodoId(args);
 
-  if (parsed instanceof Error) {
-    throw badUserInputErr(parsed.message, parsed);
+  if (id instanceof Error) {
+    throw badUserInputErr(id.message, id);
   }
 
   const todo = await context.api.todo.loadTheir({
-    id: parsed,
+    id,
     userId: parent.id,
   });
 

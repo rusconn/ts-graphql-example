@@ -21,13 +21,13 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
     throw forbiddenErr(authed);
   }
 
-  const parsed = parseId(args);
+  const id = parseId(args);
 
-  if (parsed instanceof Error) {
-    throw badUserInputErr(parsed.message, parsed);
+  if (id instanceof Error) {
+    throw badUserInputErr(id.message, id);
   }
 
-  const { type, internalId } = parsed;
+  const { type, internalId } = id;
 
   const pairs = {
     Todo: [TodoId.is, Todo.getNode],
