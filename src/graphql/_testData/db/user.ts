@@ -1,4 +1,4 @@
-import { UserRole } from "../../../db/generated/types.ts";
+import { UserRole } from "../../../db/types.ts";
 import type { User } from "../../User/_mapper.ts";
 
 export const db = {

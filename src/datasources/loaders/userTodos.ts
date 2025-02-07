@@ -1,8 +1,8 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { DB, TodoStatus } from "../../db/generated/types.ts";
 import type { Todo } from "../../db/models/todo.ts";
+import type { DB, TodoStatus } from "../../db/types.ts";
 import { sortGroup } from "../../lib/dataloader/sortGroup.ts";
 
 export type Key = Todo["userId"];

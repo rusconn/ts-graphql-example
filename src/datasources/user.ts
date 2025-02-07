@@ -1,8 +1,8 @@
 import type { Kysely, Transaction } from "kysely";
 
-import type { DB } from "../db/generated/types.ts";
 import type { NewUser, UpdUser, User, UserKey, UserKeyCols } from "../db/models/user.ts";
 import * as UserId from "../db/models/user/id.ts";
+import type { DB } from "../db/types.ts";
 import * as userLoader from "./loaders/user.ts";
 
 export class UserAPI {

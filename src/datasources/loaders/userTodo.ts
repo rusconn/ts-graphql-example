@@ -1,8 +1,8 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { DB } from "../../db/generated/types.ts";
 import type { Todo } from "../../db/models/todo.ts";
+import type { DB } from "../../db/types.ts";
 import { sort } from "../../lib/dataloader/sort.ts";
 
 export type Key = Pick<Todo, "id" | "userId">;

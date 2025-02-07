@@ -5,7 +5,7 @@
       "**/node_modules/**",
       ".vscode",
       "dist",
-      "src/db/generated/types.ts",
+      "src/db/types.ts",
       "src/schema.ts",
       "tests/graphql/schema.ts"
     ]

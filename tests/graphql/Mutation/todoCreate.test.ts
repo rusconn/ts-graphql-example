@@ -1,5 +1,5 @@
 import { client } from "../../../src/db/client.ts";
-import { TodoStatus } from "../../../src/db/generated/types.ts";
+import { TodoStatus } from "../../../src/db/types.ts";
 import { parseTodoId } from "../../../src/graphql/_parsers/todo/id.ts";
 
 import { Data } from "../../data.ts";

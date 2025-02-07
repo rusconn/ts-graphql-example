@@ -1,4 +1,4 @@
-import { TodoStatus } from "../../../db/generated/types.ts";
+import { TodoStatus } from "../../../db/types.ts";
 import type { Todo } from "../../Todo/_mapper.ts";
 import { db as users } from "./user.ts";
 
