@@ -6,6 +6,9 @@ import type { TypeScriptResolversPluginConfig } from "@graphql-codegen/typescrip
 const typescript: TypeScriptPluginConfig = {
   avoidOptionals: {
     defaultValue: true,
+    query: true,
+    mutation: true,
+    subscription: true,
   },
   enumsAsConst: true,
   scalars: {

@@ -1,4 +1,3 @@
-import { pickDefined } from "../../lib/object/pickDefined.ts";
 import type { Resolvers } from "../../schema.ts";
 import * as node from "./node.ts";
 import * as user from "./user.ts";
@@ -17,9 +16,9 @@ export const typeDefs = [
   viewer.typeDef,
 ];
 
-export const resolvers: Resolvers["Query"] = pickDefined({
+export const resolvers: Resolvers["Query"] = {
   node: node.resolver,
   user: user.resolver,
   users: users.resolver,
   viewer: viewer.resolver,
-});
+};

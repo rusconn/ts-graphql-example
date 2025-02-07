@@ -1,4 +1,3 @@
-import { pickDefined } from "../../lib/object/pickDefined.ts";
 import type { Resolvers } from "../../schema.ts";
 import * as accountDelete from "./accountDelete.ts";
 import * as accountUpdate from "./accountUpdate.ts";
@@ -29,7 +28,7 @@ export const typeDefs = [
   todoUpdate.typeDef,
 ];
 
-export const resolvers: Resolvers["Mutation"] = pickDefined({
+export const resolvers: Resolvers["Mutation"] = {
   accountDelete: accountDelete.resolver,
   accountUpdate: accountUpdate.resolver,
   login: login.resolver,
@@ -40,4 +39,4 @@ export const resolvers: Resolvers["Mutation"] = pickDefined({
   todoDelete: todoDelete.resolver,
   todoUncomplete: todoUncomplete.resolver,
   todoUpdate: todoUpdate.resolver,
-});
+};
