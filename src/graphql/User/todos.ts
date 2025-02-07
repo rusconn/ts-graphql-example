@@ -1,4 +1,5 @@
 import { getCursorConnection } from "../../lib/graphql/cursorConnections/get.ts";
+import { pickDefined } from "../../lib/object/pickDefined.ts";
 import type { UserResolvers, UserTodosArgs } from "../../schema.ts";
 import { TodoSortKeys } from "../../schema.ts";
 import type { Todo } from "../Todo/_mapper.ts";
@@ -71,21 +72,20 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
     throw badUserInputErr(parsed.message, parsed);
   }
 
-  const { connectionArgs, reverse, sortKey, status } = parsed;
+  const { connectionArgs, reverse, sortKey, filter } = parsed;
 
   return await getCursorConnection<Todo, Todo["id"]>(
-    ({ cursor, limit, backward }) =>
+    ({ backward, ...exceptBackward }) =>
       context.api.todo.loadTheirPage(parent.id, {
-        cursor,
         sortKey: {
           [TodoSortKeys.CreatedAt]: "createdAt" as const,
           [TodoSortKeys.UpdatedAt]: "updatedAt" as const,
         }[sortKey],
-        limit,
         reverse: reverse !== backward,
-        status,
+        ...exceptBackward,
+        ...filter,
       }),
-    () => context.api.todo.loadTheirCount(parent.id, { status }),
+    () => context.api.todo.loadTheirCount(parent.id, filter),
     connectionArgs,
     { resolveInfo: info },
   );
@@ -115,6 +115,6 @@ const parseArgs = (args: UserTodosArgs) => {
     connectionArgs,
     reverse: args.reverse,
     sortKey: args.sortKey,
-    status,
+    filter: pickDefined({ status }),
   };
 };

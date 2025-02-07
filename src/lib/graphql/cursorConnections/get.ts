@@ -34,9 +34,9 @@ export async function getCursorConnection<
   if (isForwardPagination(args)) {
     [records, totalCount] = await Promise.all([
       getPage({
-        cursor: args.after,
-        limit: args.first + 1,
         backward: false,
+        ...(args.after != null && { cursor: args.after }),
+        limit: args.first + 1,
       }),
       hasRequestedField("totalCount") ? count() : -1,
     ]);
@@ -50,9 +50,9 @@ export async function getCursorConnection<
   } else {
     [records, totalCount] = await Promise.all([
       getPage({
-        cursor: args.before,
-        limit: args.last + 1,
         backward: true,
+        ...(args.before != null && { cursor: args.before }),
+        limit: args.last + 1,
       }),
       hasRequestedField("totalCount") ? count() : -1,
     ]);

@@ -1,4 +1,5 @@
 import * as UserPassword from "../../db/models/user/password.ts";
+import { pickDefined } from "../../lib/object/pickDefined.ts";
 import type { MutationAccountUpdateArgs, MutationResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -52,10 +53,10 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
     return invalidInputErrors(parsed);
   }
 
-  const { name, email, password } = parsed;
+  const { password, ...exceptPassword } = parsed;
 
-  if (email) {
-    const found = await context.api.user.getByEmail(email);
+  if (exceptPassword.email) {
+    const found = await context.api.user.getByEmail(exceptPassword.email);
 
     if (found) {
       return {
@@ -66,9 +67,8 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
   }
 
   const updated = await context.api.user.updateById(authed.id, {
-    name,
-    email,
-    ...(password && {
+    ...exceptPassword,
+    ...(password != null && {
       password: await UserPassword.gen(password),
     }),
   });
@@ -116,7 +116,7 @@ const parseArgs = (args: MutationAccountUpdateArgs) => {
 
     return errors;
   } else {
-    return { name, email, password };
+    return pickDefined({ name, email, password });
   }
 };
 

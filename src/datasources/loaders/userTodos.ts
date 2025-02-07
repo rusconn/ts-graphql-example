@@ -7,17 +7,17 @@ import { sortGroup } from "../../lib/dataloader/sortGroup.ts";
 
 export type Key = Todo["userId"];
 
-export type Params = Filter & Pagination;
+export type Params = Pagination & Filter;
+
+type Pagination = {
+  sortKey: "createdAt" | "updatedAt";
+  reverse: boolean;
+  cursor?: Todo["id"];
+  limit: number;
+};
 
 type Filter = {
   status?: TodoStatus;
-};
-
-type Pagination = {
-  cursor?: Todo["id"];
-  sortKey: "createdAt" | "updatedAt";
-  limit: number;
-  reverse: boolean;
 };
 
 export const initClosure = (db: Kysely<DB>) => {

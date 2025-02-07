@@ -1,3 +1,4 @@
+import { pickDefined } from "../../lib/object/pickDefined.ts";
 import type { TodoResolvers } from "../../schema.ts";
 import * as createdAt from "./createdAt.ts";
 import * as description from "./description.ts";
@@ -22,7 +23,7 @@ export const typeDefs = [
   user.typeDef,
 ];
 
-export const resolvers: TodoResolvers = {
+export const resolvers: TodoResolvers = pickDefined({
   createdAt: createdAt.resolver,
   description: description.resolver,
   id: id.resolver,
@@ -30,4 +31,4 @@ export const resolvers: TodoResolvers = {
   title: title.resolver,
   updatedAt: updatedAt.resolver,
   user: user.resolver,
-};
+});

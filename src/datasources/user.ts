@@ -40,15 +40,15 @@ export class UserAPI {
   };
 
   getPage = async ({
-    cursor,
     sortKey,
-    limit,
     reverse,
+    cursor,
+    limit,
   }: {
-    cursor?: User["id"];
     sortKey: "createdAt" | "updatedAt";
-    limit: number;
     reverse: boolean;
+    cursor?: User["id"];
+    limit: number;
   }) => {
     const orderColumn = sortKey === "createdAt" ? "id" : sortKey;
 

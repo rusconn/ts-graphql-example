@@ -1,6 +1,7 @@
 import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 import { parse } from "graphql";
 
+import { pickDefined } from "../src/lib/object/pickDefined.ts";
 import { yoga } from "../src/server.ts";
 
 import type { Data } from "./data.ts";
@@ -13,17 +14,19 @@ type ExecuteOperationParams<TVariables> = {
 export const executeSingleResultOperation =
   <TData, TVariables extends object>(query: string) =>
   async ({ variables, token }: ExecuteOperationParams<TVariables>) => {
-    const result = await executor<TData, TVariables>({
-      document: parse(query),
-      variables,
-      extensions: {
-        headers: {
-          ...(token && {
-            authorization: `Bearer ${token}`,
-          }),
+    const result = await executor<TData, TVariables>(
+      pickDefined({
+        document: parse(query),
+        variables,
+        extensions: {
+          headers: {
+            ...(token != null && {
+              authorization: `Bearer ${token}`,
+            }),
+          },
         },
-      },
-    });
+      }),
+    );
 
     assertSingleResult(result);
 

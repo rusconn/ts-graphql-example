@@ -1,9 +1,9 @@
 import type { GraphQLResolveInfo } from "graphql";
 
 export interface GetPageArguments<Cursor> {
+  backward: boolean;
   cursor?: Cursor;
   limit: number;
-  backward: boolean;
 }
 
 export type ConnectionArgumentsUnion<Cursor = string> =
