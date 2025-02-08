@@ -1,6 +1,6 @@
-import type { OverrideProperties } from "type-fest";
+import type { Except, OverrideProperties } from "type-fest";
 
-import type { UserInsert, UserSelect, UserUpdate } from "../db/types-extension.ts";
+import type { UserInsert, UserSelect } from "../db/types-extension.ts";
 import type { UserEmail } from "./user/email.ts";
 import type { UserId } from "./user/id.ts";
 import type { UserPassword } from "./user/password.ts";
@@ -19,22 +19,13 @@ export type User = OverrideProperties<
   }
 >;
 
-export type NewUser = OverrideProperties<
-  UserInsert,
+export type UserNew = OverrideProperties<
+  Except<UserInsert, "id" | "updatedAt">,
   {
-    id: UserId;
     email: UserEmail;
     password: UserPassword;
     token?: UserToken | null;
   }
 >;
 
-export type UpdUser = OverrideProperties<
-  UserUpdate,
-  {
-    id?: UserId;
-    email?: UserEmail;
-    password?: UserPassword;
-    token?: UserToken | null;
-  }
->;
+export type UserUpd = Partial<UserNew>;

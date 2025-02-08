@@ -1,12 +1,12 @@
-import type { OverrideProperties } from "type-fest";
+import type { Except, OverrideProperties } from "type-fest";
 
-import type { TodoInsert, TodoSelect, TodoUpdate } from "../db/types-extension.ts";
+import type { TodoInsert, TodoSelect } from "../db/types-extension.ts";
 import type { TodoId } from "./todo/id.ts";
 import type { UserId } from "./user/id.ts";
 
 export type TodoKey = {
-  id: Todo["id"];
-  userId?: Todo["userId"];
+  id: TodoId;
+  userId?: UserId;
 };
 
 export type Todo = OverrideProperties<
@@ -17,18 +17,11 @@ export type Todo = OverrideProperties<
   }
 >;
 
-export type NewTodo = OverrideProperties<
-  TodoInsert,
+export type TodoNew = OverrideProperties<
+  Except<TodoInsert, "id" | "updatedAt">,
   {
-    id: TodoId;
     userId: UserId;
   }
 >;
 
-export type UpdTodo = OverrideProperties<
-  TodoUpdate,
-  {
-    id?: TodoId;
-    userId?: UserId;
-  }
->;
+export type TodoUpd = Partial<TodoNew>;

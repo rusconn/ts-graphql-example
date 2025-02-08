@@ -1,7 +1,7 @@
 import type { Kysely, Transaction } from "kysely";
 
 import type { DB } from "../db/types.ts";
-import type { NewTodo, Todo, TodoKey, UpdTodo } from "../models/todo.ts";
+import type { Todo, TodoKey, TodoNew, TodoUpd } from "../models/todo.ts";
 import * as TodoId from "../models/todo/id.ts";
 import * as userTodoLoader from "./loaders/userTodo.ts";
 import * as userTodoCountLoader from "./loaders/userTodoCount.ts";
@@ -41,7 +41,7 @@ export class TodoAPI {
     return result.count;
   };
 
-  create = async (data: Omit<NewTodo, "id" | "updatedAt">, trx?: Transaction<DB>) => {
+  create = async (data: TodoNew, trx?: Transaction<DB>) => {
     const { id, date } = TodoId.genWithDate();
 
     const todo = await (trx ?? this.#db)
@@ -57,11 +57,7 @@ export class TodoAPI {
     return todo as Todo | undefined;
   };
 
-  update = async (
-    { id, userId }: TodoKey,
-    data: Omit<UpdTodo, "userId" | "id" | "updatedAt">,
-    trx?: Transaction<DB>,
-  ) => {
+  update = async ({ id, userId }: TodoKey, data: TodoUpd, trx?: Transaction<DB>) => {
     const todo = await (trx ?? this.#db)
       .updateTable("Todo")
       .where("id", "=", id)

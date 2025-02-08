@@ -1,7 +1,7 @@
 import type { Kysely, Transaction } from "kysely";
 
 import type { DB } from "../db/types.ts";
-import type { NewUser, UpdUser, User, UserKey, UserKeyCols } from "../models/user.ts";
+import type { User, UserKey, UserKeyCols, UserNew, UserUpd } from "../models/user.ts";
 import * as UserId from "../models/user/id.ts";
 import * as userLoader from "./loaders/user.ts";
 
@@ -92,7 +92,7 @@ export class UserAPI {
     return result.count;
   };
 
-  create = async (data: Omit<NewUser, "id" | "updatedAt">, trx?: Transaction<DB>) => {
+  create = async (data: UserNew, trx?: Transaction<DB>) => {
     const { id, date } = UserId.genWithDate();
 
     const user = await (trx ?? this.#db)
@@ -108,25 +108,16 @@ export class UserAPI {
     return user as User | undefined;
   };
 
-  updateById = async (
-    id: User["id"],
-    data: Omit<UpdUser, "id" | "updatedAt">,
-    trx?: Transaction<DB>,
-  ) => {
+  updateById = async (id: User["id"], data: UserUpd, trx?: Transaction<DB>) => {
     return await this.#updateByKey("id")(id, data, trx);
   };
 
-  updateByEmail = async (
-    email: User["email"],
-    data: Omit<UpdUser, "id" | "updatedAt">,
-    trx?: Transaction<DB>,
-  ) => {
+  updateByEmail = async (email: User["email"], data: UserUpd, trx?: Transaction<DB>) => {
     return await this.#updateByKey("email")(email, data, trx);
   };
 
   #updateByKey =
-    (key: UserKeyCols) =>
-    async (val: UserKey, data: Omit<UpdUser, "id" | "updatedAt">, trx?: Transaction<DB>) => {
+    (key: UserKeyCols) => async (val: UserKey, data: UserUpd, trx?: Transaction<DB>) => {
       const user = await (trx ?? this.#db)
         .updateTable("User")
         .where(key, "=", val)
