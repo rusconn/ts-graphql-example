@@ -1,7 +1,7 @@
 import { getCursorConnection } from "../../lib/graphql/cursorConnections/get.ts";
+import type { User } from "../../models/user.ts";
 import type { QueryResolvers, QueryUsersArgs } from "../../schema.ts";
 import { UserSortKeys } from "../../schema.ts";
-import type { User } from "../User/_mapper.ts";
 import { authAdmin } from "../_authorizers/admin.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";

@@ -1,5 +1,5 @@
 import { UserRole } from "../../../db/types.ts";
-import type { User } from "../../User/_mapper.ts";
+import type { User } from "../../../models/user.ts";
 
 export const db = {
   admin: {

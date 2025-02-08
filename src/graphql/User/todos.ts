@@ -1,8 +1,8 @@
 import { getCursorConnection } from "../../lib/graphql/cursorConnections/get.ts";
 import { pickDefined } from "../../lib/object/pickDefined.ts";
+import type { Todo } from "../../models/todo.ts";
 import type { UserResolvers, UserTodosArgs } from "../../schema.ts";
 import { TodoSortKeys } from "../../schema.ts";
-import type { Todo } from "../Todo/_mapper.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
