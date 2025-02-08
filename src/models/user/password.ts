@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import type { Tagged } from "type-fest";
 
-import { passHashExp } from "../../../config.ts";
+import { passHashExp } from "../../config.ts";
 
 export type UserPassword = Tagged<string, "UserPassword">;
 

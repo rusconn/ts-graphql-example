@@ -7,9 +7,9 @@ import type { Context, PluginContext, ServerContext, UserContext } from "./conte
 import { TodoAPI } from "./datasources/todo.ts";
 import { UserAPI } from "./datasources/user.ts";
 import { client } from "./db/client.ts";
-import * as UserToken from "./db/models/user/token.ts";
 import { renderApolloStudio } from "./lib/graphql-yoga/renderApolloStudio.ts";
 import { logger } from "./logger.ts";
+import * as UserToken from "./models/user/token.ts";
 import { armor } from "./plugins/armor.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
 import { introspection } from "./plugins/introspection.ts";

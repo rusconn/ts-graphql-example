@@ -1,5 +1,5 @@
-import * as TodoId from "../../db/models/todo/id.ts";
-import * as UserId from "../../db/models/user/id.ts";
+import * as TodoId from "../../models/todo/id.ts";
+import * as UserId from "../../models/user/id.ts";
 import type { QueryResolvers } from "../../schema.ts";
 import * as Todo from "../Todo/_node.ts";
 import * as User from "../User/_node.ts";

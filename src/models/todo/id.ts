@@ -1,6 +1,6 @@
 import type { Tagged } from "type-fest";
 
-import * as Uuidv7 from "../../../lib/uuid/v7.ts";
+import * as Uuidv7 from "../../lib/uuid/v7.ts";
 
 export type TodoId = Tagged<Uuidv7.Uuidv7, "TodoId">;
 

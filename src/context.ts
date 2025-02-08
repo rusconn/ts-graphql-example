@@ -4,8 +4,8 @@ import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 import type { TodoAPI } from "./datasources/todo.ts";
 import type { UserAPI } from "./datasources/user.ts";
 import type { client } from "./db/client.ts";
-import type { User as UserModel } from "./db/models/user.ts";
 import type { logger } from "./logger.ts";
+import type { User as UserModel } from "./models/user.ts";
 
 export type Context = ServerContext & PluginContext & YogaInitialContext & UserContext;
 

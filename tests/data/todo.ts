@@ -1,7 +1,7 @@
-import * as TodoId from "../../src/db/models/todo/id.ts";
 import type { Todo } from "../../src/graphql/Todo/_mapper.ts";
 import { todoId } from "../../src/graphql/_adapters/todo/id.ts";
 import { db } from "../../src/graphql/_testData/db/todo.ts";
+import * as TodoId from "../../src/models/todo/id.ts";
 import type * as Graph from "../../src/schema.ts";
 
 import { dateTime } from "./common.ts";

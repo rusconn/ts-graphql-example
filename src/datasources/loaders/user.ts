@@ -1,9 +1,9 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { User } from "../../db/models/user.ts";
 import type { DB } from "../../db/types.ts";
 import { sort } from "../../lib/dataloader/sort.ts";
+import type { User } from "../../models/user.ts";
 
 export type Key = User["id"];
 

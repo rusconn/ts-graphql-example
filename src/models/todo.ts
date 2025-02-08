@@ -1,6 +1,6 @@
 import type { OverrideProperties } from "type-fest";
 
-import type { TodoInsert, TodoSelect, TodoUpdate } from "../types-extension.ts";
+import type { TodoInsert, TodoSelect, TodoUpdate } from "../db/types-extension.ts";
 import type { TodoId } from "./todo/id.ts";
 import type { UserId } from "./user/id.ts";
 

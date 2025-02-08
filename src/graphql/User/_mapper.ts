@@ -1,3 +1,3 @@
-import type { User as UserModel } from "../../db/models/user.ts";
+import type { User as UserModel } from "../../models/user.ts";
 
 export type User = UserModel;

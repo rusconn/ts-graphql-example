@@ -1,6 +1,6 @@
-import * as UserPassword from "../../db/models/user/password.ts";
-import * as UserToken from "../../db/models/user/token.ts";
 import { UserRole } from "../../db/types.ts";
+import * as UserPassword from "../../models/user/password.ts";
+import * as UserToken from "../../models/user/token.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../schema.ts";
 import { authGuest } from "../_authorizers/guest.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";

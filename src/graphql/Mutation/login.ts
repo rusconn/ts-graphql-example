@@ -1,5 +1,5 @@
-import * as UserPassword from "../../db/models/user/password.ts";
-import * as UserToken from "../../db/models/user/token.ts";
+import * as UserPassword from "../../models/user/password.ts";
+import * as UserToken from "../../models/user/token.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../schema.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { USER_EMAIL_MAX, parseUserEmail } from "../_parsers/user/email.ts";

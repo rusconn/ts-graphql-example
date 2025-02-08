@@ -1,5 +1,5 @@
-import * as UserPassword from "../../db/models/user/password.ts";
 import { pickDefined } from "../../lib/object/pickDefined.ts";
+import * as UserPassword from "../../models/user/password.ts";
 import type { MutationAccountUpdateArgs, MutationResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";

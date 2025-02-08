@@ -1,5 +1,5 @@
-import * as UserEmail from "../../../db/models/user/email.ts";
 import { numChars } from "../../../lib/string/numChars.ts";
+import * as UserEmail from "../../../models/user/email.ts";
 import type {
   MutationAccountUpdateArgs,
   MutationLoginArgs,

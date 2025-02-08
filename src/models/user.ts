@@ -1,6 +1,6 @@
 import type { OverrideProperties } from "type-fest";
 
-import type { UserInsert, UserSelect, UserUpdate } from "../types-extension.ts";
+import type { UserInsert, UserSelect, UserUpdate } from "../db/types-extension.ts";
 import type { UserEmail } from "./user/email.ts";
 import type { UserId } from "./user/id.ts";
 import type { UserPassword } from "./user/password.ts";

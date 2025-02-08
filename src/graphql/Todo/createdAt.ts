@@ -1,4 +1,4 @@
-import * as TodoId from "../../db/models/todo/id.ts";
+import * as TodoId from "../../models/todo/id.ts";
 import type { TodoResolvers } from "../../schema.ts";
 import { authAdminOrTodoOwner } from "../_authorizers/todo/adminOrTodoOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
