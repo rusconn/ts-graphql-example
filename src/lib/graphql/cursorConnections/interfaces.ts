@@ -10,10 +10,10 @@ export type ConnectionArgumentsUnion<Cursor = string> =
   | { first: number; after?: Cursor }
   | { last: number; before?: Cursor };
 
-export interface Options<Record, Cursor, Node, CustomEdge extends Edge<Node>> {
-  getCursor?: (record: Record) => Cursor;
+export interface Options<Item, Cursor, Node, CustomEdge extends Edge<Node>> {
+  getCursor?: (item: Item) => Cursor;
   encodeCursor?: (cursor: Cursor) => string;
-  recordToEdge?: (record: Record) => Omit<CustomEdge, "cursor">;
+  itemToEdge?: (item: Item) => Omit<CustomEdge, "cursor">;
   resolveInfo?: GraphQLResolveInfo | null;
 }
 

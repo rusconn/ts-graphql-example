@@ -12,27 +12,27 @@ import type {
 import { isForwardPagination } from "./util.ts";
 
 export async function getCursorConnection<
-  Record = { id: string },
+  Item = { id: string },
   Cursor = string,
-  Node = Record,
+  Node = Item,
   CustomEdge extends Edge<Node> = Edge<Node>,
 >(
-  getPage: (args: GetPageArguments<Cursor>) => Promise<Record[]>,
+  getPage: (args: GetPageArguments<Cursor>) => Promise<Item[]>,
   count: () => Promise<number>,
   args: ConnectionArgumentsUnion<Cursor>,
-  pOptions?: Options<Record, Cursor, Node, CustomEdge>,
+  pOptions?: Options<Item, Cursor, Node, CustomEdge>,
 ): Promise<Connection<Node, CustomEdge>> {
   const options = mergeDefaultOptions(pOptions);
   const requestedFields = options.resolveInfo && Object.keys(graphqlFields(options.resolveInfo));
   const hasRequestedField = (key: string) => !requestedFields || requestedFields.includes(key);
 
-  let records: Record[];
+  let items: Item[];
   let totalCount: number;
   let hasNextPage: boolean;
   let hasPreviousPage: boolean;
 
   if (isForwardPagination(args)) {
-    [records, totalCount] = await Promise.all([
+    [items, totalCount] = await Promise.all([
       getPage({
         backward: false,
         ...(args.after != null && { cursor: args.after }),
@@ -42,13 +42,13 @@ export async function getCursorConnection<
     ]);
 
     hasPreviousPage = !!args.after;
-    hasNextPage = records.length > args.first;
+    hasNextPage = items.length > args.first;
 
     if (hasNextPage) {
-      records.pop();
+      items.pop();
     }
   } else {
-    [records, totalCount] = await Promise.all([
+    [items, totalCount] = await Promise.all([
       getPage({
         backward: true,
         ...(args.before != null && { cursor: args.before }),
@@ -58,30 +58,30 @@ export async function getCursorConnection<
     ]);
 
     hasNextPage = !!args.before;
-    hasPreviousPage = records.length > args.last;
+    hasPreviousPage = items.length > args.last;
 
     if (hasPreviousPage) {
-      records.pop();
+      items.pop();
     }
 
-    records.reverse();
+    items.reverse();
   }
 
   const [startCursor, endCursor] =
-    records.length > 0
-      ? [encodeCursor(records.at(0)!, options), encodeCursor(records.at(-1)!, options)]
+    items.length > 0
+      ? [encodeCursor(items.at(0)!, options), encodeCursor(items.at(-1)!, options)]
       : [null, null];
 
-  type EdgeExtended = typeof options.recordToEdge extends (record: Record) => infer X
+  type EdgeExtended = typeof options.itemToEdge extends (item: Item) => infer X
     ? X extends CustomEdge
       ? X & { cursor: string }
       : CustomEdge
     : CustomEdge;
 
-  const edges = records.map((record) => {
+  const edges = items.map((item) => {
     return {
-      ...options.recordToEdge(record),
-      cursor: encodeCursor(record, options),
+      ...options.itemToEdge(item),
+      cursor: encodeCursor(item, options),
     } as EdgeExtended;
   });
 
@@ -93,27 +93,27 @@ export async function getCursorConnection<
   };
 }
 
-type MergedOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>> = Required<
-  Options<Record, Cursor, Node, CustomEdge>
+type MergedOptions<Item, Cursor, Node, CustomEdge extends Edge<Node>> = Required<
+  Options<Item, Cursor, Node, CustomEdge>
 >;
 
-function mergeDefaultOptions<Record, Cursor, Node, CustomEdge extends Edge<Node>>(
-  pOptions?: Options<Record, Cursor, Node, CustomEdge>,
-): MergedOptions<Record, Cursor, Node, CustomEdge> {
+function mergeDefaultOptions<Item, Cursor, Node, CustomEdge extends Edge<Node>>(
+  pOptions?: Options<Item, Cursor, Node, CustomEdge>,
+): MergedOptions<Item, Cursor, Node, CustomEdge> {
   return {
-    getCursor: (record: Record) => (record as { id: string }).id as Cursor,
+    getCursor: (item: Item) => (item as { id: string }).id as Cursor,
     encodeCursor: (cursor: Cursor) => cursor as string,
-    recordToEdge: (record: Record) => ({ node: record }) as unknown as Omit<CustomEdge, "cursor">,
+    itemToEdge: (item: Item) => ({ node: item }) as unknown as Omit<CustomEdge, "cursor">,
     resolveInfo: null,
     ...pOptions,
   };
 }
 
-function encodeCursor<Record, Cursor, Node, CustomEdge extends Edge<Node>>(
-  record: Record,
-  options: MergedOptions<Record, Cursor, Node, CustomEdge>,
+function encodeCursor<Item, Cursor, Node, CustomEdge extends Edge<Node>>(
+  item: Item,
+  options: MergedOptions<Item, Cursor, Node, CustomEdge>,
 ): string {
-  return options.encodeCursor(options.getCursor(record));
+  return options.encodeCursor(options.getCursor(item));
 }
 
 if (import.meta.vitest) {
