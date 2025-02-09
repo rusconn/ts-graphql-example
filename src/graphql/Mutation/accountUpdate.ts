@@ -1,4 +1,5 @@
 import { pickDefined } from "../../lib/object/pickDefined.ts";
+import { PgErrorCode, isPgError } from "../../lib/pg/error.ts";
 import * as UserPassword from "../../models/user/password.ts";
 import type { MutationAccountUpdateArgs, MutationResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
@@ -55,23 +56,26 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
 
   const { password, ...exceptPassword } = parsed;
 
-  if (exceptPassword.email) {
-    const found = await context.api.user.getByEmail(exceptPassword.email);
+  let updated;
+  try {
+    updated = await context.api.user.updateById(authed.id, {
+      ...exceptPassword,
+      ...(password != null && {
+        password: await UserPassword.gen(password),
+      }),
+    });
+  } catch (e) {
+    if (!isPgError(e)) throw e;
 
-    if (found) {
+    if (e.code === PgErrorCode.UniqueViolation) {
       return {
         __typename: "EmailAlreadyTakenError",
         message: "The email already taken.",
       };
     }
-  }
 
-  const updated = await context.api.user.updateById(authed.id, {
-    ...exceptPassword,
-    ...(password != null && {
-      password: await UserPassword.gen(password),
-    }),
-  });
+    throw e;
+  }
 
   if (!updated) {
     throw internalServerError();

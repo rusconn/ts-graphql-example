@@ -1,4 +1,5 @@
 import { UserRole } from "../../db/types.ts";
+import { PgErrorCode, isPgError } from "../../lib/pg/error.ts";
 import * as UserPassword from "../../models/user/password.ts";
 import * as UserToken from "../../models/user/token.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../schema.ts";
@@ -54,26 +55,28 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     return invalidInputErrors(parsed);
   }
 
-  const { name, email, password } = parsed;
+  const { password, ...exceptPassword } = parsed;
 
-  const found = await context.api.user.getByEmail(email);
+  let signedUp;
+  try {
+    signedUp = await context.api.user.create({
+      ...exceptPassword,
+      password: await UserPassword.gen(password),
+      role: UserRole.USER,
+      token: UserToken.gen(),
+    });
+  } catch (e) {
+    if (!isPgError(e)) throw e;
 
-  if (found) {
-    return {
-      __typename: "EmailAlreadyTakenError",
-      message: "The email already taken.",
-    };
+    if (e.code === PgErrorCode.UniqueViolation) {
+      return {
+        __typename: "EmailAlreadyTakenError",
+        message: "The email already taken.",
+      };
+    }
+
+    throw e;
   }
-
-  const token = UserToken.gen();
-
-  const signedUp = await context.api.user.create({
-    name,
-    email,
-    password: await UserPassword.gen(password),
-    role: UserRole.USER,
-    token,
-  });
 
   if (!signedUp) {
     throw internalServerError();
@@ -81,7 +84,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 
   return {
     __typename: "SignupSuccess",
-    token,
+    token: signedUp.token!,
   };
 };
 
