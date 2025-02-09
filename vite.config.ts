@@ -6,7 +6,7 @@ import { dependencies } from "./package.json";
 
 export default defineConfig({
   build: {
-    target: "es2022",
+    target: "es2023",
     sourcemap: true,
     rollupOptions: {
       external: [/^node:.+/, ...builtinModules, ...Object.keys(dependencies)],
@@ -24,9 +24,8 @@ export default defineConfig({
     globals: true,
     silent: true,
     poolOptions: {
-      threads: {
-        useAtomics: true,
-        singleThread: true,
+      forks: {
+        singleFork: true,
       },
     },
     watch: false,
