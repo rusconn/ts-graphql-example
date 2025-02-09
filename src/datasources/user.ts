@@ -12,7 +12,7 @@ export class UserAPI {
   constructor(db: Kysely<DB>) {
     this.#db = db;
     this.#loaders = {
-      user: userLoader.init(db),
+      user: userLoader.initClosure(db),
     };
   }
 
@@ -44,11 +44,13 @@ export class UserAPI {
     reverse,
     cursor,
     limit,
+    columns,
   }: {
     sortKey: "createdAt" | "updatedAt";
     reverse: boolean;
     cursor?: User["id"];
     limit: number;
+    columns: Set<keyof User>;
   }) => {
     const orderColumn = sortKey === "createdAt" ? "id" : sortKey;
 
@@ -74,7 +76,7 @@ export class UserAPI {
           ),
         ),
       )
-      .selectAll()
+      .select(columns.values().toArray())
       .orderBy(orderColumn, direction)
       .orderBy("id", direction)
       .limit(limit)
@@ -141,7 +143,7 @@ export class UserAPI {
     return user as User | undefined;
   };
 
-  load = async (key: userLoader.Key) => {
-    return await this.#loaders.user.load(key);
+  load = async (key: userLoader.Key, params: userLoader.Params) => {
+    return await this.#loaders.user(params).load(key);
   };
 }

@@ -15,5 +15,5 @@ export const resolver: TodoResolvers["title"] = (parent, _args, context) => {
     throw forbiddenErr(authed);
   }
 
-  return parent.title;
+  return parent.title!;
 };

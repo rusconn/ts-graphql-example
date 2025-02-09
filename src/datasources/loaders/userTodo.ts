@@ -7,24 +7,41 @@ import type { Todo } from "../../models/todo.ts";
 
 export type Key = Pick<Todo, "id" | "userId">;
 
-export const init = (db: Kysely<DB>) => {
-  return new DataLoader(batchGet(db), { cacheKeyFn: combine });
+export type Params = Select;
+
+type Select = {
+  columns: Set<keyof Todo>;
 };
 
-const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
-  const todos = await db
-    .selectFrom("Todo")
-    .where(({ eb, refTuple, tuple }) =>
-      eb(
-        refTuple("id", "userId"),
-        "in",
-        keys.map((key) => tuple(key.id, key.userId)),
-      ),
-    )
-    .selectAll()
-    .execute();
+export const initClosure = (db: Kysely<DB>) => {
+  let sharedParams: Params | undefined;
 
-  return sort(keys.map(combine), todos as Todo[], combine);
+  const batchGet = async (keys: readonly Key[]) => {
+    const { columns } = sharedParams!;
+
+    columns.add("id").add("userId");
+
+    const todos = await db
+      .selectFrom("Todo")
+      .where(({ eb, refTuple, tuple }) =>
+        eb(
+          refTuple("id", "userId"),
+          "in",
+          keys.map((key) => tuple(key.id, key.userId)),
+        ),
+      )
+      .select(columns.values().toArray())
+      .execute();
+
+    return sort(keys.map(combine), todos as Todo[], combine);
+  };
+
+  const loader = new DataLoader(batchGet);
+
+  return (params: Params) => {
+    sharedParams ??= params;
+    return loader;
+  };
 };
 
 const combine = (key: Key) => {

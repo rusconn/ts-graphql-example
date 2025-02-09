@@ -16,5 +16,5 @@ export const resolver: TodoResolvers["createdAt"] = (parent, _args, context) => 
     throw forbiddenErr(authed);
   }
 
-  return TodoId.date(parent.id);
+  return TodoId.date(parent.id!);
 };

@@ -16,5 +16,5 @@ export const resolver: TodoResolvers["id"] = (parent, _args, context) => {
     throw forbiddenErr(authed);
   }
 
-  return todoId(parent.id);
+  return todoId(parent.id!);
 };

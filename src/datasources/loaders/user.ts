@@ -7,16 +7,33 @@ import type { User } from "../../models/user.ts";
 
 export type Key = User["id"];
 
-export const init = (db: Kysely<DB>) => {
-  return new DataLoader(batchGet(db));
+export type Params = Select;
+
+type Select = {
+  columns: Set<keyof User>;
 };
 
-const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
-  const users = await db //
-    .selectFrom("User")
-    .where("id", "in", keys)
-    .selectAll()
-    .execute();
+export const initClosure = (db: Kysely<DB>) => {
+  let sharedParams: Params | undefined;
 
-  return sort(keys, users as User[], (user) => user.id);
+  const batchGet = async (keys: readonly Key[]) => {
+    const { columns } = sharedParams!;
+
+    columns.add("id");
+
+    const users = await db //
+      .selectFrom("User")
+      .where("id", "in", keys)
+      .select(columns.values().toArray())
+      .execute();
+
+    return sort(keys, users as User[], (user) => user.id);
+  };
+
+  const loader = new DataLoader(batchGet);
+
+  return (params: Params) => {
+    sharedParams ??= params;
+    return loader;
+  };
 };

@@ -14,7 +14,7 @@ export class TodoAPI {
   constructor(db: Kysely<DB>) {
     this.#db = db;
     this.#loaders = {
-      userTodo: userTodoLoader.init(db),
+      userTodo: userTodoLoader.initClosure(db),
       userTodos: userTodosLoader.initClosure(db),
       userTodoCount: userTodoCountLoader.initClosure(db),
     };
@@ -83,8 +83,8 @@ export class TodoAPI {
     return todo as Todo | undefined;
   };
 
-  loadTheir = async (key: userTodoLoader.Key) => {
-    return await this.#loaders.userTodo.load(key);
+  loadTheir = async (key: userTodoLoader.Key, params: userTodoLoader.Params) => {
+    return await this.#loaders.userTodo(params).load(key);
   };
 
   loadTheirPage = async (key: userTodosLoader.Key, params: userTodosLoader.Params) => {

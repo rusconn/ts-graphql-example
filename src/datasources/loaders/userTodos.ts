@@ -7,7 +7,7 @@ import type { Todo } from "../../models/todo.ts";
 
 export type Key = Todo["userId"];
 
-export type Params = Pagination & Filter;
+export type Params = Pagination & Filter & Select;
 
 type Pagination = {
   sortKey: "createdAt" | "updatedAt";
@@ -20,11 +20,17 @@ type Filter = {
   status?: TodoStatus;
 };
 
+type Select = {
+  columns: Set<keyof Todo>;
+};
+
 export const initClosure = (db: Kysely<DB>) => {
   let sharedParams: Params | undefined;
 
   const batchGet = async (keys: readonly Key[]) => {
-    const { status, cursor, sortKey, limit, reverse } = sharedParams!;
+    const { sortKey, reverse, cursor, limit, status, columns } = sharedParams!;
+
+    columns.add("userId");
 
     const orderColumn = sortKey === "createdAt" ? "id" : sortKey;
 
@@ -56,7 +62,7 @@ export const initClosure = (db: Kysely<DB>) => {
               ),
             )
             .$if(status != null, (qb) => qb.where("status", "=", status!))
-            .selectAll("Todo")
+            .select(columns.values().toArray())
             .orderBy(orderColumn, direction)
             .orderBy("id", direction)
             .limit(limit)

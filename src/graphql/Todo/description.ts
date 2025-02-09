@@ -15,5 +15,5 @@ export const resolver: TodoResolvers["description"] = (parent, _args, context) =
     throw forbiddenErr(authed);
   }
 
-  return parent.description;
+  return parent.description!;
 };

@@ -16,5 +16,5 @@ export const resolver: UserResolvers["createdAt"] = (parent, _args, context) => 
     throw forbiddenErr(authed);
   }
 
-  return UserId.date(parent.id);
+  return UserId.date(parent.id!);
 };

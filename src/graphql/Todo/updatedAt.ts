@@ -15,5 +15,5 @@ export const resolver: TodoResolvers["updatedAt"] = (parent, _args, context) => 
     throw forbiddenErr(authed);
   }
 
-  return parent.updatedAt;
+  return parent.updatedAt!;
 };

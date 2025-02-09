@@ -34,9 +34,9 @@ importers:
       graphql:
         specifier: ^16.8.1
         version: 16.8.1
-      graphql-fields:
-        specifier: ^2.0.3
-        version: 2.0.3
+      graphql-list-fields:
+        specifier: ^2.0.4
+        version: 2.0.4
       graphql-scalars:
         specifier: ^1.22.4
         version: 1.22.4(graphql@16.8.1)
@@ -86,9 +86,6 @@ importers:
       '@types/bcrypt':
         specifier: ^5.0.0
         version: 5.0.0
-      '@types/graphql-fields':
-        specifier: ^1.3.9
-        version: 1.3.9
       '@types/pg':
         specifier: ^8.11.2
         version: 8.11.2
@@ -1414,9 +1411,6 @@ packages:
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
-  '@types/graphql-fields@1.3.9':
-    resolution: {integrity: sha512-HynTnp1HrE58uYcFcAK5UOfdrHSOIHDLCjvMU4yCmQLMj21uo7ZiZqnDGrD27pgCgHH5a1e8GYNK98Ndmma7ig==}
-
   '@types/js-yaml@4.0.9':
     resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
 
@@ -2161,8 +2155,8 @@ packages:
       cosmiconfig-toml-loader:
         optional: true
 
-  graphql-fields@2.0.3:
-    resolution: {integrity: sha512-x3VE5lUcR4XCOxPIqaO4CE+bTK8u6gVouOdpQX9+EKHr+scqtK5Pp/l8nIGqIpN1TUlkKE6jDCCycm/WtLRAwA==}
+  graphql-list-fields@2.0.4:
+    resolution: {integrity: sha512-q3prnhAL/dBsD+vaGr83B8DzkBijg+Yh+lbt7qp2dW1fpuO+q/upzDXvFJstVsSAA8m11MHGkSxxyxXeLou4MA==}
 
   graphql-request@6.1.0:
     resolution: {integrity: sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==}
@@ -5266,10 +5260,6 @@ snapshots:
 
   '@types/estree@1.0.6': {}
 
-  '@types/graphql-fields@1.3.9':
-    dependencies:
-      graphql: 16.8.1
-
   '@types/js-yaml@4.0.9': {}
 
   '@types/ms@0.7.34': {}
@@ -6166,7 +6156,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  graphql-fields@2.0.3: {}
+  graphql-list-fields@2.0.4: {}
 
   graphql-request@6.1.0(graphql@16.8.1):
     dependencies:

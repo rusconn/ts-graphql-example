@@ -20,5 +20,5 @@ export const resolver: TodoResolvers["status"] = (parent, _args, context) => {
     throw forbiddenErr(authed);
   }
 
-  return parent.status;
+  return parent.status!;
 };

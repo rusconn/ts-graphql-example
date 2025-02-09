@@ -3,6 +3,7 @@ import { pickDefined } from "../../lib/object/pickDefined.ts";
 import type { Todo } from "../../models/todo.ts";
 import type { UserResolvers, UserTodosArgs } from "../../schema.ts";
 import { TodoSortKeys } from "../../schema.ts";
+import { todoConnectionColumnsUnchecked } from "../Todo/_mapper.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -76,7 +77,7 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
 
   return await getCursorConnection<Todo, Todo["id"]>(
     ({ backward, ...exceptBackward }) =>
-      context.api.todo.loadTheirPage(parent.id, {
+      context.api.todo.loadTheirPage(parent.id!, {
         sortKey: {
           [TodoSortKeys.CreatedAt]: "createdAt" as const,
           [TodoSortKeys.UpdatedAt]: "updatedAt" as const,
@@ -84,8 +85,9 @@ export const resolver: UserResolvers["todos"] = async (parent, args, context, in
         reverse: reverse !== backward,
         ...exceptBackward,
         ...filter,
+        columns: todoConnectionColumnsUnchecked(info),
       }),
-    () => context.api.todo.loadTheirCount(parent.id, filter),
+    () => context.api.todo.loadTheirCount(parent.id!, filter),
     connectionArgs,
     { resolveInfo: info },
   );

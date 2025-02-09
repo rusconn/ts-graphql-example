@@ -15,5 +15,5 @@ export const resolver: UserResolvers["name"] = (parent, _args, context) => {
     throw forbiddenErr(authed);
   }
 
-  return parent.name;
+  return parent.name!;
 };
