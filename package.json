@@ -67,7 +67,8 @@
       "braces@<3.0.3": ">=3.0.3",
       "semver@<5.7.2": ">=5.7.2",
       "micromatch@<4.0.8": ">=4.0.8",
-      "dset@<3.1.4": ">=3.1.4"
+      "dset@<3.1.4": ">=3.1.4",
+      "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5"
     },
     "onlyBuiltDependencies": ["bcrypt", "@biomejs/biome", "@prisma/engines", "esbuild", "prisma"]
   }
