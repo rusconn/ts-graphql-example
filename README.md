@@ -10,8 +10,7 @@ TypeScript を使って GraphQL API を作る。
 ```shell
 cp .env.example .env
 docker compose up -d
-corepack enable
-pnpm install
+pnpm install # global pnpm >= 10 is required
 node --run migrate -- reset --force
 ```
 

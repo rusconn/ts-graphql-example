@@ -2,7 +2,7 @@
   "license": "MIT",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@9.3.0",
+  "packageManager": "pnpm@10.2.1",
   "engines": {
     "node": "^22.11.0"
   },
@@ -68,6 +68,7 @@
       "semver@<5.7.2": ">=5.7.2",
       "micromatch@<4.0.8": ">=4.0.8",
       "dset@<3.1.4": ">=3.1.4"
-    }
+    },
+    "onlyBuiltDependencies": ["bcrypt", "@biomejs/biome", "@prisma/engines", "esbuild", "prisma"]
   }
 }
