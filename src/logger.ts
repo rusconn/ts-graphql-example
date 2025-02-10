@@ -1,6 +1,6 @@
 import { type LoggerOptions, destination, pino, stdTimeFunctions } from "pino";
 
-import { isDev, isProd, isTest } from "./config.ts";
+import { isDev, isTest } from "./config.ts";
 import { Ki } from "./lib/number/prefix.ts";
 
 const options: LoggerOptions = {
@@ -10,12 +10,6 @@ const options: LoggerOptions = {
     // pid と hostname を省く
     bindings: () => ({}),
   },
-  ...(isProd && {
-    redact: {
-      paths: ["variables.email", "variables.password"],
-      censor: "***",
-    },
-  }),
   ...(isDev && {
     transport: {
       target: "pino-pretty",

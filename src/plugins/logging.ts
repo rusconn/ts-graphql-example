@@ -1,5 +1,6 @@
-import { useLogger } from "graphql-yoga";
+import { type GraphQLParams, useLogger } from "graphql-yoga";
 
+import { isProd } from "../config.ts";
 import type { Context } from "../context.ts";
 
 export const logging = useLogger({
@@ -11,11 +12,20 @@ export const logging = useLogger({
     const { start, logger, user, params } = contextValue;
 
     if (eventName === "execute-start" || eventName === "subscribe-start") {
-      const { query, variables } = params;
-      logger.info({ userId: user?.id, query, variables }, eventName);
+      logger.info({ userId: user?.id, ...(isProd ? mask(params) : params) }, eventName);
     } else {
       logger.info({ duration: `${Date.now() - start}ms` }, eventName);
     }
   },
   skipIntrospection: true,
 });
+
+const mask = ({ query, variables }: GraphQLParams<Record<string, unknown>>) => {
+  if (query == null) return undefined;
+
+  const sensitiveOperations = ["accountUpdate", "login", "signup"];
+
+  return sensitiveOperations.some((sop) => query.includes(sop))
+    ? { query: "***", variables: "***" }
+    : { query, variables };
+};
