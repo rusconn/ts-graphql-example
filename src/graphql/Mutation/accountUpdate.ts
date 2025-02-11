@@ -68,10 +68,11 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
     if (!isPgError(e)) throw e;
 
     if (e.code === PgErrorCode.UniqueViolation) {
-      return {
-        __typename: "EmailAlreadyTakenError",
-        message: "The email already taken.",
-      };
+      if (e.constraint?.includes("email"))
+        return {
+          __typename: "EmailAlreadyTakenError",
+          message: "The email already taken.",
+        };
     }
 
     throw e;
