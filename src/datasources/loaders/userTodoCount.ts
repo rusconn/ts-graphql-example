@@ -38,7 +38,9 @@ export const initClosure = (db: Kysely<DB>) => {
       count: 0,
     } as Count;
 
-    return sort(keys, counts as Count[], (count) => count.userId, defaultValue);
+    return sort(keys, counts as Count[], (count) => count.userId, defaultValue).map(
+      ({ count }) => count,
+    );
   };
 
   const loader = new DataLoader(batchGet);
