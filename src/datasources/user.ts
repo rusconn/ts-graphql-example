@@ -1,4 +1,4 @@
-import type { Kysely, Transaction } from "kysely";
+import type { Kysely } from "kysely";
 
 import type { DB } from "../db/types.ts";
 import type { User, UserKey, UserKeyCols, UserNew, UserUpd } from "../models/user.ts";
@@ -16,24 +16,23 @@ export class UserAPI {
     };
   }
 
-  getById = async (id: User["id"], trx?: Transaction<DB>) => {
-    return await this.#getByKey("id")(id, trx);
+  getById = async (id: User["id"]) => {
+    return await this.#getByKey("id")(id);
   };
 
-  getByEmail = async (email: User["email"], trx?: Transaction<DB>) => {
-    return await this.#getByKey("email")(email, trx);
+  getByEmail = async (email: User["email"]) => {
+    return await this.#getByKey("email")(email);
   };
 
-  getByToken = async (token: Exclude<User["token"], null>, trx?: Transaction<DB>) => {
-    return await this.#getByKey("token")(token, trx);
+  getByToken = async (token: Exclude<User["token"], null>) => {
+    return await this.#getByKey("token")(token);
   };
 
-  #getByKey = (key: UserKeyCols) => async (val: UserKey, trx?: Transaction<DB>) => {
-    const user = await (trx ?? this.#db)
+  #getByKey = (key: UserKeyCols) => async (val: UserKey) => {
+    const user = await this.#db
       .selectFrom("User")
       .where(key, "=", val)
       .selectAll()
-      .$if(trx != null, (qb) => qb.forUpdate())
       .executeTakeFirst();
 
     return user as User | undefined;
@@ -92,10 +91,10 @@ export class UserAPI {
     return result.count;
   };
 
-  create = async (data: UserNew, trx?: Transaction<DB>) => {
+  create = async (data: UserNew) => {
     const { id, date } = UserId.genWithDate();
 
-    const user = await (trx ?? this.#db)
+    const user = await this.#db
       .insertInto("User")
       .values({
         id,
@@ -108,31 +107,30 @@ export class UserAPI {
     return user as User | undefined;
   };
 
-  updateById = async (id: User["id"], data: UserUpd, trx?: Transaction<DB>) => {
-    return await this.#updateByKey("id")(id, data, trx);
+  updateById = async (id: User["id"], data: UserUpd) => {
+    return await this.#updateByKey("id")(id, data);
   };
 
-  updateByEmail = async (email: User["email"], data: UserUpd, trx?: Transaction<DB>) => {
-    return await this.#updateByKey("email")(email, data, trx);
+  updateByEmail = async (email: User["email"], data: UserUpd) => {
+    return await this.#updateByKey("email")(email, data);
   };
 
-  #updateByKey =
-    (key: UserKeyCols) => async (val: UserKey, data: UserUpd, trx?: Transaction<DB>) => {
-      const user = await (trx ?? this.#db)
-        .updateTable("User")
-        .where(key, "=", val)
-        .set({
-          updatedAt: new Date(),
-          ...data,
-        })
-        .returningAll()
-        .executeTakeFirst();
+  #updateByKey = (key: UserKeyCols) => async (val: UserKey, data: UserUpd) => {
+    const user = await this.#db
+      .updateTable("User")
+      .where(key, "=", val)
+      .set({
+        updatedAt: new Date(),
+        ...data,
+      })
+      .returningAll()
+      .executeTakeFirst();
 
-      return user as User | undefined;
-    };
+    return user as User | undefined;
+  };
 
-  delete = async (id: User["id"], trx?: Transaction<DB>) => {
-    const user = await (trx ?? this.#db)
+  delete = async (id: User["id"]) => {
+    const user = await this.#db
       .deleteFrom("User")
       .where("id", "=", id)
       .returningAll()
