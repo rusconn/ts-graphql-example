@@ -38,17 +38,14 @@ export class UserAPI {
     return user as User | undefined;
   };
 
-  getPage = async ({
-    sortKey,
-    reverse,
-    cursor,
-    limit,
-  }: {
+  getPage = async (params: {
     sortKey: "createdAt" | "updatedAt";
     reverse: boolean;
     cursor?: User["id"];
     limit: number;
   }) => {
+    const { sortKey, reverse, cursor, limit } = params;
+
     const orderColumn = sortKey === "createdAt" ? "id" : sortKey;
 
     const [direction, comp] = reverse //

@@ -24,7 +24,7 @@ export const initClosure = (db: Kysely<DB>) => {
   let sharedParams: Params | undefined;
 
   const batchGet = async (keys: readonly Key[]) => {
-    const { status, cursor, sortKey, limit, reverse } = sharedParams!;
+    const { sortKey, reverse, cursor, limit, status } = sharedParams!;
 
     const orderColumn = sortKey === "createdAt" ? "id" : sortKey;
 

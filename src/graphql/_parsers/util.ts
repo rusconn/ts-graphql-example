@@ -24,16 +24,10 @@ export const invalidInputErrors = (errors: ParseErr[]): Required<InvalidInputErr
 };
 
 export const parseArg =
-  <
-    Arg, //
-    Output,
-  >(
-    additionalParse: (arg: Arg, argName: string) => Output | ParseErr,
+  <Arg, Output>(
+    additionalParse: (arg: Arg, argName: string) => Output | ParseErr, //
   ) =>
-  <
-    Optional extends boolean, //
-    Nullable extends boolean,
-  >(
+  <Optional extends boolean, Nullable extends boolean>(
     arg: Arg,
     argName: string,
     { optional, nullable }: { optional: Optional; nullable: Nullable },
