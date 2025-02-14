@@ -1,4 +1,3 @@
-import { TodoStatus } from "../../db/types.ts";
 import type { MutationResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
@@ -7,17 +6,17 @@ import { parseTodoId } from "../_parsers/todo/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    todoComplete(id: ID!): TodoCompleteResult
+    todoStatusChange(id: ID!, status: TodoStatus!): TodoStatusChangeResult
   }
 
-  union TodoCompleteResult = TodoCompleteSuccess | ResourceNotFoundError
+  union TodoStatusChangeResult = TodoStatusChangeSuccess | ResourceNotFoundError
 
-  type TodoCompleteSuccess {
+  type TodoStatusChangeSuccess {
     todo: Todo!
   }
 `;
 
-export const resolver: MutationResolvers["todoComplete"] = async (_parent, args, context) => {
+export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
   if (authed instanceof Error) {
@@ -31,13 +30,13 @@ export const resolver: MutationResolvers["todoComplete"] = async (_parent, args,
   }
 
   const todo = await context.api.todo.update(
-    { id, userId: authed.id },
-    { status: TodoStatus.DONE },
+    { id, userId: authed.id }, //
+    { status: args.status },
   );
 
   return todo
     ? {
-        __typename: "TodoCompleteSuccess",
+        __typename: "TodoStatusChangeSuccess",
         todo,
       }
     : {

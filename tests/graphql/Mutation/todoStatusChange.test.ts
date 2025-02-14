@@ -2,21 +2,21 @@ import { omit } from "es-toolkit";
 
 import { client } from "../../../src/db/client.ts";
 import { TodoStatus } from "../../../src/db/types.ts";
-import { ErrorCode } from "../../../src/schema.ts";
+import * as Graph from "../../../src/schema.ts";
 
 import { Data, dummyId } from "../../data.ts";
 import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { TodoUncompleteMutation, TodoUncompleteMutationVariables } from "../schema.ts";
+import type { TodoStatusChangeMutation, TodoStatusChangeMutationVariables } from "../schema.ts";
 
 const executeMutation = executeSingleResultOperation<
-  TodoUncompleteMutation,
-  TodoUncompleteMutationVariables
+  TodoStatusChangeMutation,
+  TodoStatusChangeMutationVariables
 >(/* GraphQL */ `
-  mutation TodoUncomplete($id: ID!) {
-    todoUncomplete(id: $id) {
+  mutation TodoStatusChange($id: ID!, $status: TodoStatus!) {
+    todoStatusChange(id: $id, status: $status) {
       __typename
-      ... on TodoUncompleteSuccess {
+      ... on TodoStatusChangeSuccess {
         todo {
           id
           updatedAt
@@ -49,36 +49,36 @@ beforeEach(async () => {
   await client
     .updateTable("Todo")
     .where("id", "=", Data.db.adminTodo.id)
-    .set({ status: TodoStatus.DONE })
+    .set({ status: TodoStatus.PENDING })
     .executeTakeFirstOrThrow();
 });
 
 test("invalid input", async () => {
   const { data, errors } = await executeMutation({
     token: Data.token.admin,
-    variables: { id: dummyId.todo().slice(0, -1) },
+    variables: { id: dummyId.todo().slice(0, -1), status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoUncomplete === null).toBe(true);
-  expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
+  expect(data?.todoStatusChange === null).toBe(true);
+  expect(errors?.map((e) => e.extensions.code)).toStrictEqual([Graph.ErrorCode.BadUserInput]);
 });
 
 test("not exists", async () => {
   const { data } = await executeMutation({
     token: Data.token.admin,
-    variables: { id: dummyId.todo() },
+    variables: { id: dummyId.todo(), status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoUncomplete?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoStatusChange?.__typename === "ResourceNotFoundError").toBe(true);
 });
 
 test("exists, but not owned", async () => {
   const { data } = await executeMutation({
     token: Data.token.admin,
-    variables: { id: Data.graph.aliceTodo.id },
+    variables: { id: Data.graph.aliceTodo.id, status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoUncomplete?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoStatusChange?.__typename === "ResourceNotFoundError").toBe(true);
 });
 
 it("should update status", async () => {
@@ -90,10 +90,10 @@ it("should update status", async () => {
 
   const { data } = await executeMutation({
     token: Data.token.admin,
-    variables: { id: Data.graph.adminTodo.id },
+    variables: { id: Data.graph.adminTodo.id, status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoUncomplete?.__typename === "TodoUncompleteSuccess").toBe(true);
+  expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")
@@ -101,8 +101,8 @@ it("should update status", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(before.status).toBe(TodoStatus.DONE);
-  expect(after.status).toBe(TodoStatus.PENDING);
+  expect(before.status).toBe(TodoStatus.PENDING);
+  expect(after.status).toBe(TodoStatus.DONE);
 });
 
 it("should update updatedAt", async () => {
@@ -114,10 +114,10 @@ it("should update updatedAt", async () => {
 
   const { data } = await executeMutation({
     token: Data.token.admin,
-    variables: { id: Data.graph.adminTodo.id },
+    variables: { id: Data.graph.adminTodo.id, status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoUncomplete?.__typename === "TodoUncompleteSuccess").toBe(true);
+  expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")
@@ -140,10 +140,10 @@ it("should not update other attrs", async () => {
 
   const { data } = await executeMutation({
     token: Data.token.admin,
-    variables: { id: Data.graph.adminTodo.id },
+    variables: { id: Data.graph.adminTodo.id, status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoUncomplete?.__typename === "TodoUncompleteSuccess").toBe(true);
+  expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")

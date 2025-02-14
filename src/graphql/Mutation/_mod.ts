@@ -4,10 +4,9 @@ import * as accountUpdate from "./accountUpdate.ts";
 import * as login from "./login.ts";
 import * as logout from "./logout.ts";
 import * as signup from "./signup.ts";
-import * as todoComplete from "./todoComplete.ts";
 import * as todoCreate from "./todoCreate.ts";
 import * as todoDelete from "./todoDelete.ts";
-import * as todoUncomplete from "./todoUncomplete.ts";
+import * as todoStatusChange from "./todoStatusChange.ts";
 import * as todoUpdate from "./todoUpdate.ts";
 
 const typeDef = /* GraphQL */ `
@@ -21,10 +20,9 @@ export const typeDefs = [
   login.typeDef,
   logout.typeDef,
   signup.typeDef,
-  todoComplete.typeDef,
   todoCreate.typeDef,
   todoDelete.typeDef,
-  todoUncomplete.typeDef,
+  todoStatusChange.typeDef,
   todoUpdate.typeDef,
 ];
 
@@ -34,9 +32,8 @@ export const resolvers: Resolvers["Mutation"] = {
   login: login.resolver,
   logout: logout.resolver,
   signup: signup.resolver,
-  todoComplete: todoComplete.resolver,
   todoCreate: todoCreate.resolver,
   todoDelete: todoDelete.resolver,
-  todoUncomplete: todoUncomplete.resolver,
+  todoStatusChange: todoStatusChange.resolver,
   todoUpdate: todoUpdate.resolver,
 };

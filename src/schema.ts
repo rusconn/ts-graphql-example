@@ -95,11 +95,10 @@ export type Mutation = {
   login?: Maybe<LoginResult>;
   logout?: Maybe<LogoutResult>;
   signup?: Maybe<SignupResult>;
-  todoComplete?: Maybe<TodoCompleteResult>;
   /** 10000件まで */
   todoCreate?: Maybe<TodoCreateResult>;
   todoDelete?: Maybe<TodoDeleteResult>;
-  todoUncomplete?: Maybe<TodoUncompleteResult>;
+  todoStatusChange?: Maybe<TodoStatusChangeResult>;
   todoUpdate?: Maybe<TodoUpdateResult>;
 };
 
@@ -124,11 +123,6 @@ export type MutationSignupArgs = {
 };
 
 
-export type MutationTodoCompleteArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
 export type MutationTodoCreateArgs = {
   description: Scalars['String']['input'];
   title: Scalars['String']['input'];
@@ -140,8 +134,9 @@ export type MutationTodoDeleteArgs = {
 };
 
 
-export type MutationTodoUncompleteArgs = {
+export type MutationTodoStatusChangeArgs = {
   id: Scalars['ID']['input'];
+  status: TodoStatus;
 };
 
 
@@ -220,13 +215,6 @@ export type Todo = Node & {
   user?: Maybe<User>;
 };
 
-export type TodoCompleteResult = ResourceNotFoundError | TodoCompleteSuccess;
-
-export type TodoCompleteSuccess = {
-  __typename?: 'TodoCompleteSuccess';
-  todo: Todo;
-};
-
 export type TodoConnection = {
   __typename?: 'TodoConnection';
   edges?: Maybe<Array<Maybe<TodoEdge>>>;
@@ -267,10 +255,10 @@ export const TodoStatus = {
 } as const;
 
 export type TodoStatus = typeof TodoStatus[keyof typeof TodoStatus];
-export type TodoUncompleteResult = ResourceNotFoundError | TodoUncompleteSuccess;
+export type TodoStatusChangeResult = ResourceNotFoundError | TodoStatusChangeSuccess;
 
-export type TodoUncompleteSuccess = {
-  __typename?: 'TodoUncompleteSuccess';
+export type TodoStatusChangeSuccess = {
+  __typename?: 'TodoStatusChangeSuccess';
   todo: Todo;
 };
 
@@ -403,10 +391,9 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = Reso
   LoginResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( LoginFailedError & { __typename: 'LoginFailedError' } ) | ( LoginSuccess & { __typename: 'LoginSuccess' } );
   LogoutResult: ( LogoutSuccess & { __typename: 'LogoutSuccess' } );
   SignupResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( SignupSuccess & { __typename: 'SignupSuccess' } );
-  TodoCompleteResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoCompleteSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoCompleteSuccess' } );
   TodoCreateResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceLimitExceededError & { __typename: 'ResourceLimitExceededError' } ) | ( Omit<TodoCreateSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoCreateSuccess' } );
   TodoDeleteResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( TodoDeleteSuccess & { __typename: 'TodoDeleteSuccess' } );
-  TodoUncompleteResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoUncompleteSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoUncompleteSuccess' } );
+  TodoStatusChangeResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoStatusChangeSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoStatusChangeSuccess' } );
   TodoUpdateResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoUpdateSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoUpdateSuccess' } );
 }>;
 
@@ -447,8 +434,6 @@ export type ResolversTypes = ResolversObject<{
   SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Todo: ResolverTypeWrapper<TodoMapper>;
-  TodoCompleteResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TodoCompleteResult']>;
-  TodoCompleteSuccess: ResolverTypeWrapper<Omit<TodoCompleteSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges?: Maybe<Array<Maybe<ResolversTypes['TodoEdge']>>>, nodes?: Maybe<Array<Maybe<ResolversTypes['Todo']>>> }>;
   TodoCreateResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TodoCreateResult']>;
   TodoCreateSuccess: ResolverTypeWrapper<Omit<TodoCreateSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
@@ -457,8 +442,8 @@ export type ResolversTypes = ResolversObject<{
   TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node?: Maybe<ResolversTypes['Todo']> }>;
   TodoSortKeys: TodoSortKeys;
   TodoStatus: TodoStatus;
-  TodoUncompleteResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TodoUncompleteResult']>;
-  TodoUncompleteSuccess: ResolverTypeWrapper<Omit<TodoUncompleteSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
+  TodoStatusChangeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TodoStatusChangeResult']>;
+  TodoStatusChangeSuccess: ResolverTypeWrapper<Omit<TodoStatusChangeSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   TodoUpdateResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TodoUpdateResult']>;
   TodoUpdateSuccess: ResolverTypeWrapper<Omit<TodoUpdateSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   User: ResolverTypeWrapper<UserMapper>;
@@ -497,16 +482,14 @@ export type ResolversParentTypes = ResolversObject<{
   SignupSuccess: SignupSuccess;
   String: Scalars['String']['output'];
   Todo: TodoMapper;
-  TodoCompleteResult: ResolversUnionTypes<ResolversParentTypes>['TodoCompleteResult'];
-  TodoCompleteSuccess: Omit<TodoCompleteSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges?: Maybe<Array<Maybe<ResolversParentTypes['TodoEdge']>>>, nodes?: Maybe<Array<Maybe<ResolversParentTypes['Todo']>>> };
   TodoCreateResult: ResolversUnionTypes<ResolversParentTypes>['TodoCreateResult'];
   TodoCreateSuccess: Omit<TodoCreateSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   TodoDeleteResult: ResolversUnionTypes<ResolversParentTypes>['TodoDeleteResult'];
   TodoDeleteSuccess: TodoDeleteSuccess;
   TodoEdge: Omit<TodoEdge, 'node'> & { node?: Maybe<ResolversParentTypes['Todo']> };
-  TodoUncompleteResult: ResolversUnionTypes<ResolversParentTypes>['TodoUncompleteResult'];
-  TodoUncompleteSuccess: Omit<TodoUncompleteSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
+  TodoStatusChangeResult: ResolversUnionTypes<ResolversParentTypes>['TodoStatusChangeResult'];
+  TodoStatusChangeSuccess: Omit<TodoStatusChangeSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   TodoUpdateResult: ResolversUnionTypes<ResolversParentTypes>['TodoUpdateResult'];
   TodoUpdateSuccess: Omit<TodoUpdateSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   User: UserMapper;
@@ -590,10 +573,9 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   login: Resolver<Maybe<ResolversTypes['LoginResult']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout: Resolver<Maybe<ResolversTypes['LogoutResult']>, ParentType, ContextType>;
   signup: Resolver<Maybe<ResolversTypes['SignupResult']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'email' | 'name' | 'password'>>;
-  todoComplete: Resolver<Maybe<ResolversTypes['TodoCompleteResult']>, ParentType, ContextType, RequireFields<MutationTodoCompleteArgs, 'id'>>;
   todoCreate: Resolver<Maybe<ResolversTypes['TodoCreateResult']>, ParentType, ContextType, RequireFields<MutationTodoCreateArgs, 'description' | 'title'>>;
   todoDelete: Resolver<Maybe<ResolversTypes['TodoDeleteResult']>, ParentType, ContextType, RequireFields<MutationTodoDeleteArgs, 'id'>>;
-  todoUncomplete: Resolver<Maybe<ResolversTypes['TodoUncompleteResult']>, ParentType, ContextType, RequireFields<MutationTodoUncompleteArgs, 'id'>>;
+  todoStatusChange: Resolver<Maybe<ResolversTypes['TodoStatusChangeResult']>, ParentType, ContextType, RequireFields<MutationTodoStatusChangeArgs, 'id' | 'status'>>;
   todoUpdate: Resolver<Maybe<ResolversTypes['TodoUpdateResult']>, ParentType, ContextType, RequireFields<MutationTodoUpdateArgs, 'id'>>;
 }>;
 
@@ -647,15 +629,6 @@ export type TodoResolvers<ContextType = Context, ParentType extends ResolversPar
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TodoCompleteResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoCompleteResult'] = ResolversParentTypes['TodoCompleteResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'ResourceNotFoundError' | 'TodoCompleteSuccess', ParentType, ContextType>;
-}>;
-
-export type TodoCompleteSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoCompleteSuccess'] = ResolversParentTypes['TodoCompleteSuccess']> = ResolversObject<{
-  todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
 export type TodoConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoConnection'] = ResolversParentTypes['TodoConnection']> = ResolversObject<{
   edges?: Resolver<Maybe<Array<Maybe<ResolversTypes['TodoEdge']>>>, ParentType, ContextType>;
   nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['Todo']>>>, ParentType, ContextType>;
@@ -688,11 +661,11 @@ export type TodoEdgeResolvers<ContextType = Context, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TodoUncompleteResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoUncompleteResult'] = ResolversParentTypes['TodoUncompleteResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'ResourceNotFoundError' | 'TodoUncompleteSuccess', ParentType, ContextType>;
+export type TodoStatusChangeResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoStatusChangeResult'] = ResolversParentTypes['TodoStatusChangeResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'ResourceNotFoundError' | 'TodoStatusChangeSuccess', ParentType, ContextType>;
 }>;
 
-export type TodoUncompleteSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoUncompleteSuccess'] = ResolversParentTypes['TodoUncompleteSuccess']> = ResolversObject<{
+export type TodoStatusChangeSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoStatusChangeSuccess'] = ResolversParentTypes['TodoStatusChangeSuccess']> = ResolversObject<{
   todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -756,16 +729,14 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   SignupResult?: SignupResultResolvers<ContextType>;
   SignupSuccess?: SignupSuccessResolvers<ContextType>;
   Todo?: TodoResolvers<ContextType>;
-  TodoCompleteResult?: TodoCompleteResultResolvers<ContextType>;
-  TodoCompleteSuccess?: TodoCompleteSuccessResolvers<ContextType>;
   TodoConnection?: TodoConnectionResolvers<ContextType>;
   TodoCreateResult?: TodoCreateResultResolvers<ContextType>;
   TodoCreateSuccess?: TodoCreateSuccessResolvers<ContextType>;
   TodoDeleteResult?: TodoDeleteResultResolvers<ContextType>;
   TodoDeleteSuccess?: TodoDeleteSuccessResolvers<ContextType>;
   TodoEdge?: TodoEdgeResolvers<ContextType>;
-  TodoUncompleteResult?: TodoUncompleteResultResolvers<ContextType>;
-  TodoUncompleteSuccess?: TodoUncompleteSuccessResolvers<ContextType>;
+  TodoStatusChangeResult?: TodoStatusChangeResultResolvers<ContextType>;
+  TodoStatusChangeSuccess?: TodoStatusChangeSuccessResolvers<ContextType>;
   TodoUpdateResult?: TodoUpdateResultResolvers<ContextType>;
   TodoUpdateSuccess?: TodoUpdateSuccessResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
