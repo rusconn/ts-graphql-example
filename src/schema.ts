@@ -33,7 +33,7 @@ export type AccountDeleteSuccess = {
   id: Scalars['ID']['output'];
 };
 
-export type AccountUpdateResult = AccountUpdateSuccess | EmailAlreadyTakenError | InvalidInputErrors;
+export type AccountUpdateResult = AccountUpdateSuccess | InvalidInputErrors;
 
 export type AccountUpdateSuccess = {
   __typename?: 'AccountUpdateSuccess';
@@ -113,11 +113,11 @@ export type Mutation = {
   todoDelete?: Maybe<TodoDeleteResult>;
   todoStatusChange?: Maybe<TodoStatusChangeResult>;
   todoUpdate?: Maybe<TodoUpdateResult>;
+  userEmailChange?: Maybe<UserEmailChangeResult>;
 };
 
 
 export type MutationAccountUpdateArgs = {
-  email?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -163,6 +163,11 @@ export type MutationTodoUpdateArgs = {
   id: Scalars['ID']['input'];
   status?: InputMaybe<TodoStatus>;
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUserEmailChangeArgs = {
+  email: Scalars['String']['input'];
 };
 
 export type Node = {
@@ -333,6 +338,13 @@ export type UserEdge = {
   node?: Maybe<User>;
 };
 
+export type UserEmailChangeResult = EmailAlreadyTakenError | InvalidInputErrors | UserEmailChangeSuccess;
+
+export type UserEmailChangeSuccess = {
+  __typename?: 'UserEmailChangeSuccess';
+  user: User;
+};
+
 export const UserSortKeys = {
   CreatedAt: 'CREATED_AT',
   UpdatedAt: 'UPDATED_AT'
@@ -410,7 +422,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping of union types */
 export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
   AccountDeleteResult: ( AccountDeleteSuccess & { __typename: 'AccountDeleteSuccess' } );
-  AccountUpdateResult: ( Omit<AccountUpdateSuccess, 'user'> & { user: _RefType['User'] } & { __typename: 'AccountUpdateSuccess' } ) | ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } );
+  AccountUpdateResult: ( Omit<AccountUpdateSuccess, 'user'> & { user: _RefType['User'] } & { __typename: 'AccountUpdateSuccess' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } );
   LoginPasswordChangeResult: ( IncorrectOldPasswordError & { __typename: 'IncorrectOldPasswordError' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( LoginPasswordChangeSuccess & { __typename: 'LoginPasswordChangeSuccess' } ) | ( SamePasswordsError & { __typename: 'SamePasswordsError' } );
   LoginResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( LoginFailedError & { __typename: 'LoginFailedError' } ) | ( LoginSuccess & { __typename: 'LoginSuccess' } );
   LogoutResult: ( LogoutSuccess & { __typename: 'LogoutSuccess' } );
@@ -419,6 +431,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = Reso
   TodoDeleteResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( TodoDeleteSuccess & { __typename: 'TodoDeleteSuccess' } );
   TodoStatusChangeResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoStatusChangeSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoStatusChangeSuccess' } );
   TodoUpdateResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoUpdateSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoUpdateSuccess' } );
+  UserEmailChangeResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( Omit<UserEmailChangeSuccess, 'user'> & { user: _RefType['User'] } & { __typename: 'UserEmailChangeSuccess' } );
 }>;
 
 /** Mapping of interface types */
@@ -477,6 +490,8 @@ export type ResolversTypes = ResolversObject<{
   User: ResolverTypeWrapper<UserMapper>;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges?: Maybe<Array<Maybe<ResolversTypes['UserEdge']>>>, nodes?: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node?: Maybe<ResolversTypes['User']> }>;
+  UserEmailChangeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserEmailChangeResult']>;
+  UserEmailChangeSuccess: ResolverTypeWrapper<Omit<UserEmailChangeSuccess, 'user'> & { user: ResolversTypes['User'] }>;
   UserSortKeys: UserSortKeys;
 }>;
 
@@ -527,6 +542,8 @@ export type ResolversParentTypes = ResolversObject<{
   User: UserMapper;
   UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges?: Maybe<Array<Maybe<ResolversParentTypes['UserEdge']>>>, nodes?: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
   UserEdge: Omit<UserEdge, 'node'> & { node?: Maybe<ResolversParentTypes['User']> };
+  UserEmailChangeResult: ResolversUnionTypes<ResolversParentTypes>['UserEmailChangeResult'];
+  UserEmailChangeSuccess: Omit<UserEmailChangeSuccess, 'user'> & { user: ResolversParentTypes['User'] };
 }>;
 
 export type AccountDeleteResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AccountDeleteResult'] = ResolversParentTypes['AccountDeleteResult']> = ResolversObject<{
@@ -539,7 +556,7 @@ export type AccountDeleteSuccessResolvers<ContextType = Context, ParentType exte
 }>;
 
 export type AccountUpdateResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AccountUpdateResult'] = ResolversParentTypes['AccountUpdateResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'AccountUpdateSuccess' | 'EmailAlreadyTakenError' | 'InvalidInputErrors', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'AccountUpdateSuccess' | 'InvalidInputErrors', ParentType, ContextType>;
 }>;
 
 export type AccountUpdateSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AccountUpdateSuccess'] = ResolversParentTypes['AccountUpdateSuccess']> = ResolversObject<{
@@ -624,6 +641,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   todoDelete: Resolver<Maybe<ResolversTypes['TodoDeleteResult']>, ParentType, ContextType, RequireFields<MutationTodoDeleteArgs, 'id'>>;
   todoStatusChange: Resolver<Maybe<ResolversTypes['TodoStatusChangeResult']>, ParentType, ContextType, RequireFields<MutationTodoStatusChangeArgs, 'id' | 'status'>>;
   todoUpdate: Resolver<Maybe<ResolversTypes['TodoUpdateResult']>, ParentType, ContextType, RequireFields<MutationTodoUpdateArgs, 'id'>>;
+  userEmailChange: Resolver<Maybe<ResolversTypes['UserEmailChangeResult']>, ParentType, ContextType, RequireFields<MutationUserEmailChangeArgs, 'email'>>;
 }>;
 
 export type NodeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = ResolversObject<{
@@ -756,6 +774,15 @@ export type UserEdgeResolvers<ContextType = Context, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type UserEmailChangeResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserEmailChangeResult'] = ResolversParentTypes['UserEmailChangeResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'InvalidInputErrors' | 'UserEmailChangeSuccess', ParentType, ContextType>;
+}>;
+
+export type UserEmailChangeSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserEmailChangeSuccess'] = ResolversParentTypes['UserEmailChangeSuccess']> = ResolversObject<{
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = Context> = ResolversObject<{
   AccountDeleteResult?: AccountDeleteResultResolvers<ContextType>;
   AccountDeleteSuccess?: AccountDeleteSuccessResolvers<ContextType>;
@@ -798,5 +825,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   User?: UserResolvers<ContextType>;
   UserConnection?: UserConnectionResolvers<ContextType>;
   UserEdge?: UserEdgeResolvers<ContextType>;
+  UserEmailChangeResult?: UserEmailChangeResultResolvers<ContextType>;
+  UserEmailChangeSuccess?: UserEmailChangeSuccessResolvers<ContextType>;
 }>;
 

@@ -49,11 +49,10 @@ export type AccountDeleteMutation = { accountDelete?: { __typename: 'AccountDele
 
 export type AccountUpdateMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;
-  email?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type AccountUpdateMutation = { accountUpdate?: { __typename: 'AccountUpdateSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } } | { __typename: 'EmailAlreadyTakenError' } | { __typename: 'InvalidInputErrors' } | null };
+export type AccountUpdateMutation = { accountUpdate?: { __typename: 'AccountUpdateSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } } | { __typename: 'InvalidInputErrors' } | null };
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -117,6 +116,13 @@ export type TodoUpdateMutationVariables = Exact<{
 
 
 export type TodoUpdateMutation = { todoUpdate?: { __typename: 'InvalidInputErrors' } | { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoUpdateSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+
+export type UserEmailChangeMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+}>;
+
+
+export type UserEmailChangeMutation = { userEmailChange?: { __typename: 'EmailAlreadyTakenError' } | { __typename: 'InvalidInputErrors' } | { __typename: 'UserEmailChangeSuccess', user: { id: string } } | null };
 
 export type NodeQueryVariables = Exact<{
   id: Scalars['ID']['input'];

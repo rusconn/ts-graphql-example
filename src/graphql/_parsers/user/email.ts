@@ -1,16 +1,16 @@
 import { numChars } from "../../../lib/string/numChars.ts";
 import * as UserEmail from "../../../models/user/email.ts";
 import type {
-  MutationAccountUpdateArgs,
   MutationLoginArgs,
   MutationSignupArgs,
+  MutationUserEmailChangeArgs,
 } from "../../../schema.ts";
 import { ParseErr, parseArg } from "../util.ts";
 
 type Arg =
   | MutationSignupArgs["email"]
   | MutationLoginArgs["email"]
-  | MutationAccountUpdateArgs["email"];
+  | MutationUserEmailChangeArgs["email"];
 
 export const USER_EMAIL_MAX = 100;
 

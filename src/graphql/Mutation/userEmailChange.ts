@@ -1,29 +1,28 @@
-import { pickDefined } from "../../lib/object/pickDefined.ts";
-import type { MutationAccountUpdateArgs, MutationResolvers } from "../../schema.ts";
+import type { MutationResolvers, MutationUserEmailChangeArgs } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { USER_NAME_MAX, USER_NAME_MIN, parseUserName } from "../_parsers/user/name.ts";
+import { USER_EMAIL_MAX, parseUserEmail } from "../_parsers/user/email.ts";
 import { ParseErr, invalidInputErrors } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    accountUpdate(
+    userEmailChange(
       """
-      ${USER_NAME_MIN}文字以上、${USER_NAME_MAX}文字まで、null は入力エラー
+      ${USER_EMAIL_MAX}文字まで、既に存在する場合はエラー
       """
-      name: String
-    ): AccountUpdateResult
+      email: String!
+    ): UserEmailChangeResult
   }
 
-  union AccountUpdateResult = AccountUpdateSuccess | InvalidInputErrors
+  union UserEmailChangeResult = UserEmailChangeSuccess | InvalidInputErrors | EmailAlreadyTakenError
 
-  type AccountUpdateSuccess {
+  type UserEmailChangeSuccess {
     user: User!
   }
 `;
 
-export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args, context) => {
+export const resolver: MutationResolvers["userEmailChange"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
 
   if (authed instanceof Error) {
@@ -41,11 +40,14 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
   switch (result.type) {
     case "Success":
       return {
-        __typename: "AccountUpdateSuccess",
+        __typename: "UserEmailChangeSuccess",
         user: result,
       };
     case "EmailAlreadyExists":
-      throw new Error("unreachable");
+      return {
+        __typename: "EmailAlreadyTakenError",
+        message: "The email already taken.",
+      };
     case "Unknown":
       throw internalServerError(result.e);
     default:
@@ -53,38 +55,37 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
   }
 };
 
-const parseArgs = (args: MutationAccountUpdateArgs) => {
-  const name = parseUserName(args.name, "name", {
-    optional: true,
+const parseArgs = (args: MutationUserEmailChangeArgs) => {
+  const email = parseUserEmail(args.email, "email", {
+    optional: false,
     nullable: false,
   });
 
   if (
-    name instanceof ParseErr //
+    email instanceof ParseErr //
   ) {
     const errors = [];
 
-    if (name instanceof ParseErr) {
-      errors.push(name);
+    if (email instanceof ParseErr) {
+      errors.push(email);
     }
 
     return errors;
   } else {
-    return pickDefined({ name });
+    return { email };
   }
 };
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
-    const valids: MutationAccountUpdateArgs[] = [
-      {},
-      { name: "name" },
-      { name: "A".repeat(USER_NAME_MAX) },
+    const valids: MutationUserEmailChangeArgs[] = [
+      { email: "email@email.com" },
+      { email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
     ];
 
-    const invalids: [MutationAccountUpdateArgs, (keyof MutationAccountUpdateArgs)[]][] = [
-      [{ name: null }, ["name"]],
-      [{ name: "A".repeat(USER_NAME_MAX + 1) }, ["name"]],
+    const invalids: [MutationUserEmailChangeArgs, (keyof MutationUserEmailChangeArgs)[]][] = [
+      [{ email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` }, ["email"]],
+      [{ email: "emailemail.com" }, ["email"]],
     ];
 
     test.each(valids)("valids %#", (args) => {

@@ -11,8 +11,8 @@ const executeMutation = executeSingleResultOperation<
   AccountUpdateMutation,
   AccountUpdateMutationVariables
 >(/* GraphQL */ `
-  mutation AccountUpdate($name: String, $email: String) {
-    accountUpdate(name: $name, email: $email) {
+  mutation AccountUpdate($name: String) {
+    accountUpdate(name: $name) {
       __typename
       ... on AccountUpdateSuccess {
         user {
@@ -40,34 +40,20 @@ beforeEach(async () => {
 });
 
 test("invalid input", async () => {
-  const invalidEmail = "emailemail.com";
-
   const { data } = await executeMutation({
     token: Data.token.admin,
-    variables: { email: invalidEmail },
+    variables: { name: "" },
   });
 
   expect(data?.accountUpdate?.__typename === "InvalidInputErrors").toBe(true);
 });
 
-test("email already exists", async () => {
-  const { email } = Data.db.alice;
-
-  const { data } = await executeMutation({
-    token: Data.token.admin,
-    variables: { email },
-  });
-
-  expect(data?.accountUpdate?.__typename === "EmailAlreadyTakenError").toBe(true);
-});
-
 it("should update using input", async () => {
   const name = "foo";
-  const email = "foo@foo.com";
 
   const { data } = await executeMutation({
     token: Data.token.admin,
-    variables: { name, email },
+    variables: { name },
   });
 
   expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
@@ -79,14 +65,13 @@ it("should update using input", async () => {
     .executeTakeFirstOrThrow();
 
   expect(user.name).toBe(name);
-  expect(user.email).toBe(email);
 });
 
 it("should not update fields if the field is absent", async () => {
   const before = await client
     .selectFrom("User")
     .where("User.id", "=", Data.db.admin.id)
-    .select(["name", "email"])
+    .select(["name"])
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
@@ -99,11 +84,10 @@ it("should not update fields if the field is absent", async () => {
   const after = await client
     .selectFrom("User")
     .where("User.id", "=", Data.db.admin.id)
-    .select(["name", "email"])
+    .select(["name"])
     .executeTakeFirstOrThrow();
 
   expect(before.name).toBe(after.name);
-  expect(before.email).toBe(after.email);
 });
 
 it("should update updatedAt", async () => {
