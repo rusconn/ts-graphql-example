@@ -11,8 +11,8 @@ const executeMutation = executeSingleResultOperation<
   AccountUpdateMutation,
   AccountUpdateMutationVariables
 >(/* GraphQL */ `
-  mutation AccountUpdate($name: String, $email: String, $password: String) {
-    accountUpdate(name: $name, email: $email, password: $password) {
+  mutation AccountUpdate($name: String, $email: String) {
+    accountUpdate(name: $name, email: $email) {
       __typename
       ... on AccountUpdateSuccess {
         user {
@@ -85,9 +85,8 @@ it("should update using input", async () => {
 it("should not update fields if the field is absent", async () => {
   const before = await client
     .selectFrom("User")
-    .innerJoin("UserCredential", "User.id", "UserCredential.userId")
     .where("User.id", "=", Data.db.admin.id)
-    .select(["name", "email", "password"])
+    .select(["name", "email"])
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
@@ -99,14 +98,12 @@ it("should not update fields if the field is absent", async () => {
 
   const after = await client
     .selectFrom("User")
-    .innerJoin("UserCredential", "User.id", "UserCredential.userId")
     .where("User.id", "=", Data.db.admin.id)
-    .select(["name", "email", "password"])
+    .select(["name", "email"])
     .executeTakeFirstOrThrow();
 
   expect(before.name).toBe(after.name);
   expect(before.email).toBe(after.email);
-  expect(before.password).toBe(after.password);
 });
 
 it("should update updatedAt", async () => {

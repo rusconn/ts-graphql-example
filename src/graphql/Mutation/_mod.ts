@@ -2,6 +2,7 @@ import type { Resolvers } from "../../schema.ts";
 import * as accountDelete from "./accountDelete.ts";
 import * as accountUpdate from "./accountUpdate.ts";
 import * as login from "./login.ts";
+import * as loginPasswordChange from "./loginPasswordChange.ts";
 import * as logout from "./logout.ts";
 import * as signup from "./signup.ts";
 import * as todoCreate from "./todoCreate.ts";
@@ -18,6 +19,7 @@ export const typeDefs = [
   accountDelete.typeDef,
   accountUpdate.typeDef,
   login.typeDef,
+  loginPasswordChange.typeDef,
   logout.typeDef,
   signup.typeDef,
   todoCreate.typeDef,
@@ -30,6 +32,7 @@ export const resolvers: Resolvers["Mutation"] = {
   accountDelete: accountDelete.resolver,
   accountUpdate: accountUpdate.resolver,
   login: login.resolver,
+  loginPasswordChange: loginPasswordChange.resolver,
   logout: logout.resolver,
   signup: signup.resolver,
   todoCreate: todoCreate.resolver,

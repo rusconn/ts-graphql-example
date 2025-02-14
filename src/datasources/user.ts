@@ -145,29 +145,18 @@ export class UserAPI {
     }
   };
 
-  updateById = async (id: User["id"], { password: source, ...data }: UserUpd) => {
-    const password = source != null ? await UserPassword.gen(source) : undefined;
+  updateById = async (id: User["id"], data: UserUpd) => {
     const date = new Date();
 
     try {
-      return await this.#db.transaction().execute(async (trx) => {
-        const user = await trx
-          .updateTable("User")
-          .where("id", "=", id)
-          .set({ updatedAt: date, ...data })
-          .returningAll()
-          .executeTakeFirstOrThrow();
-        if (password) {
-          const _userCredential = await trx
-            .updateTable("UserCredential")
-            .where("userId", "=", id)
-            .set({ updatedAt: date, password })
-            .returning("userId")
-            .executeTakeFirstOrThrow();
-        }
+      const user = await this.#db
+        .updateTable("User")
+        .where("id", "=", id)
+        .set({ updatedAt: date, ...data })
+        .returningAll()
+        .executeTakeFirstOrThrow();
 
-        return { type: "Success", ...(user as User) } as const;
-      });
+      return { type: "Success", ...(user as User) } as const;
     } catch (e) {
       if (isPgError(e)) {
         if (e.code === PgErrorCode.UniqueViolation) {
@@ -182,6 +171,17 @@ export class UserAPI {
         e: e instanceof Error ? e : new Error("unknown", { cause: e }),
       } as const;
     }
+  };
+
+  updatePasswordById = async (id: User["id"], source: string) => {
+    const userPassword = await this.#db
+      .updateTable("UserCredential")
+      .where("userId", "=", id)
+      .set({ updatedAt: new Date(), password: await UserPassword.gen(source) })
+      .returning("userId")
+      .executeTakeFirst();
+
+    return userPassword?.userId as UserWithCredential["id"] | undefined;
   };
 
   updateTokenById = async (id: User["id"]) => {

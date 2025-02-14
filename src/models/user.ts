@@ -34,4 +34,4 @@ export type UserNew = OverrideProperties<
   }
 >;
 
-export type UserUpd = Partial<UserNew>;
+export type UserUpd = Partial<Except<UserNew, "password">>;

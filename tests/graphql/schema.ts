@@ -50,7 +50,6 @@ export type AccountDeleteMutation = { accountDelete?: { __typename: 'AccountDele
 export type AccountUpdateMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
-  password?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -63,6 +62,14 @@ export type LoginMutationVariables = Exact<{
 
 
 export type LoginMutation = { login?: { __typename: 'InvalidInputErrors' } | { __typename: 'LoginFailedError' } | { __typename: 'LoginSuccess', token: string } | null };
+
+export type LoginPasswordChangeMutationVariables = Exact<{
+  oldPassword: Scalars['String']['input'];
+  newPassword: Scalars['String']['input'];
+}>;
+
+
+export type LoginPasswordChangeMutation = { loginPasswordChange?: { __typename: 'IncorrectOldPasswordError' } | { __typename: 'InvalidInputErrors' } | { __typename: 'LoginPasswordChangeSuccess', id: string } | { __typename: 'SamePasswordsError' } | null };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 

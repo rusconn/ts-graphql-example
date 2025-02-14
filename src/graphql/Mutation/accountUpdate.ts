@@ -5,11 +5,6 @@ import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { USER_EMAIL_MAX, parseUserEmail } from "../_parsers/user/email.ts";
 import { USER_NAME_MAX, USER_NAME_MIN, parseUserName } from "../_parsers/user/name.ts";
-import {
-  USER_PASSWORD_MAX,
-  USER_PASSWORD_MIN,
-  parseUserPassword,
-} from "../_parsers/user/password.ts";
 import { ParseErr, invalidInputErrors } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -24,11 +19,6 @@ export const typeDef = /* GraphQL */ `
       ${USER_EMAIL_MAX}文字まで、既に存在する場合はエラー、null は入力エラー
       """
       email: String
-
-      """
-      ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで、null は入力エラー
-      """
-      password: String
     ): AccountUpdateResult
   }
 
@@ -81,15 +71,10 @@ const parseArgs = (args: MutationAccountUpdateArgs) => {
     optional: true,
     nullable: false,
   });
-  const password = parseUserPassword(args.password, "password", {
-    optional: true,
-    nullable: false,
-  });
 
   if (
     name instanceof ParseErr || //
-    email instanceof ParseErr ||
-    password instanceof ParseErr
+    email instanceof ParseErr
   ) {
     const errors = [];
 
@@ -99,13 +84,10 @@ const parseArgs = (args: MutationAccountUpdateArgs) => {
     if (email instanceof ParseErr) {
       errors.push(email);
     }
-    if (password instanceof ParseErr) {
-      errors.push(password);
-    }
 
     return errors;
   } else {
-    return pickDefined({ name, email, password });
+    return pickDefined({ name, email });
   }
 };
 
@@ -115,22 +97,18 @@ if (import.meta.vitest) {
       {},
       { name: "name" },
       { email: "email@email.com" },
-      { password: "password" },
-      { name: "name", email: "email@email.com", password: "password" },
+      { name: "name", email: "email@email.com" },
       { name: "A".repeat(USER_NAME_MAX) },
       { email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
-      { password: "A".repeat(USER_PASSWORD_MIN) },
     ];
 
     const invalids: [MutationAccountUpdateArgs, (keyof MutationAccountUpdateArgs)[]][] = [
       [{ name: null }, ["name"]],
       [{ email: null }, ["email"]],
-      [{ password: null }, ["password"]],
       [{ name: "A".repeat(USER_NAME_MAX + 1) }, ["name"]],
       [{ email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` }, ["email"]],
-      [{ password: "A".repeat(USER_PASSWORD_MIN - 1) }, ["password"]],
       [{ email: "emailemail.com" }, ["email"]],
-      [{ name: null, email: null, password: null }, ["name", "email", "password"]],
+      [{ name: null, email: null }, ["name", "email"]],
     ];
 
     test.each(valids)("valids %#", (args) => {
