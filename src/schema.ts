@@ -547,6 +547,12 @@ export type ResolversParentTypes = ResolversObject<{
   UserEmailChangeSuccess: Omit<UserEmailChangeSuccess, 'user'> & { user: ResolversParentTypes['User'] };
 }>;
 
+export type SemanticNonNullDirectiveArgs = {
+  levels?: Maybe<Array<Maybe<Scalars['Int']['input']>>>;
+};
+
+export type SemanticNonNullDirectiveResolver<Result, Parent, ContextType = Context, Args = SemanticNonNullDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
 export type AccountDeleteResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AccountDeleteResult'] = ResolversParentTypes['AccountDeleteResult']> = ResolversObject<{
   __resolveType: TypeResolveFn<'AccountDeleteSuccess', ParentType, ContextType>;
 }>;
@@ -831,3 +837,6 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   UserEmailChangeSuccess?: UserEmailChangeSuccessResolvers<ContextType>;
 }>;
 
+export type DirectiveResolvers<ContextType = Context> = ResolversObject<{
+  semanticNonNull?: SemanticNonNullDirectiveResolver<any, any, ContextType>;
+}>;

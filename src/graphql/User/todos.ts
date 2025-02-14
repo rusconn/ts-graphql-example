@@ -38,7 +38,7 @@ export const typeDef = /* GraphQL */ `
       指定すると絞り込む、null は入力エラー
       """
       status: TodoStatus
-    ): TodoConnection
+    ): TodoConnection @semanticNonNull
   }
 
   enum TodoSortKeys {
@@ -48,14 +48,14 @@ export const typeDef = /* GraphQL */ `
 
   type TodoConnection {
     pageInfo: PageInfo!
-    edges: [TodoEdge]
-    nodes: [Todo]
-    totalCount: Int
+    edges: [TodoEdge] @semanticNonNull(levels: [0, 1])
+    nodes: [Todo] @semanticNonNull(levels: [0, 1])
+    totalCount: Int @semanticNonNull
   }
 
   type TodoEdge {
     cursor: String!
-    node: Todo
+    node: Todo @semanticNonNull
   }
 `;
 

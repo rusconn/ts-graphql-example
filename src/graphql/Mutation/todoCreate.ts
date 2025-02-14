@@ -25,7 +25,7 @@ export const typeDef = /* GraphQL */ `
       ${TODO_DESCRIPTION_MAX}文字まで
       """
       description: String! = ""
-    ): TodoCreateResult
+    ): TodoCreateResult @semanticNonNull
   }
 
   union TodoCreateResult = TodoCreateSuccess | InvalidInputErrors | ResourceLimitExceededError

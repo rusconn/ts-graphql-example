@@ -1,10 +1,11 @@
 import type { TodoResolvers } from "../../schema.ts";
 import { authAdminOrTodoOwner } from "../_authorizers/todo/adminOrTodoOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
+import { internalServerError } from "../_errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
-    user: User
+    user: User @semanticNonNull
   }
 `;
 
@@ -17,5 +18,9 @@ export const resolver: TodoResolvers["user"] = async (parent, _args, context) =>
 
   const user = await context.api.user.load(parent.userId);
 
-  return user ?? null;
+  if (!user) {
+    throw internalServerError();
+  }
+
+  return user;
 };

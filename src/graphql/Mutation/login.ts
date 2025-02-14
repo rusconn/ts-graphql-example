@@ -21,7 +21,7 @@ export const typeDef = /* GraphQL */ `
       ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
       """
       password: String!
-    ): LoginResult
+    ): LoginResult @semanticNonNull
   }
 
   union LoginResult = LoginSuccess | InvalidInputErrors | LoginFailedError

@@ -31,7 +31,7 @@ export const typeDef = /* GraphQL */ `
       reverse: Boolean! = true
 
       sortKey: UserSortKeys! = CREATED_AT
-    ): UserConnection
+    ): UserConnection @semanticNonNull
   }
 
   enum UserSortKeys {
@@ -41,14 +41,14 @@ export const typeDef = /* GraphQL */ `
 
   type UserConnection {
     pageInfo: PageInfo!
-    edges: [UserEdge]
-    nodes: [User]
-    totalCount: Int
+    edges: [UserEdge] @semanticNonNull(levels: [0, 1])
+    nodes: [User] @semanticNonNull(levels: [0, 1])
+    totalCount: Int @semanticNonNull
   }
 
   type UserEdge {
     cursor: String!
-    node: User
+    node: User @semanticNonNull
   }
 `;
 

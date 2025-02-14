@@ -4,7 +4,7 @@ import { forbiddenErr } from "../_errors/forbidden.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
-    status: TodoStatus
+    status: TodoStatus @semanticNonNull
   }
 
   enum TodoStatus {

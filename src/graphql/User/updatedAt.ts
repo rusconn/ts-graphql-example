@@ -4,7 +4,7 @@ import { forbiddenErr } from "../_errors/forbidden.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
-    updatedAt: DateTime
+    updatedAt: DateTime @semanticNonNull
   }
 `;
 

@@ -6,7 +6,7 @@ import { parseTodoId } from "../_parsers/todo/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    todoStatusChange(id: ID!, status: TodoStatus!): TodoStatusChangeResult
+    todoStatusChange(id: ID!, status: TodoStatus!): TodoStatusChangeResult @semanticNonNull
   }
 
   union TodoStatusChangeResult = TodoStatusChangeSuccess | ResourceNotFoundError

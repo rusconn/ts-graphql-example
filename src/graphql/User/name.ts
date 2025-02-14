@@ -4,7 +4,7 @@ import { forbiddenErr } from "../_errors/forbidden.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
-    name: String
+    name: String @semanticNonNull
   }
 `;
 
