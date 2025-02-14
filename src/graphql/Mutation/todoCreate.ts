@@ -32,6 +32,7 @@ export const typeDef = /* GraphQL */ `
 
   type TodoCreateSuccess {
     todo: Todo!
+    todoEdge: TodoEdge!
   }
 `;
 
@@ -113,6 +114,10 @@ const logic = async (
   return {
     __typename: "TodoCreateSuccess",
     todo,
+    todoEdge: {
+      cursor: todo.id,
+      node: todo,
+    },
   };
 };
 

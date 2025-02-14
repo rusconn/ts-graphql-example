@@ -256,6 +256,7 @@ export type TodoCreateResult = InvalidInputErrors | ResourceLimitExceededError |
 export type TodoCreateSuccess = {
   __typename?: 'TodoCreateSuccess';
   todo: Todo;
+  todoEdge: TodoEdge;
 };
 
 export type TodoDeleteResult = ResourceNotFoundError | TodoDeleteSuccess;
@@ -427,7 +428,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = Reso
   LoginResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( LoginFailedError & { __typename: 'LoginFailedError' } ) | ( LoginSuccess & { __typename: 'LoginSuccess' } );
   LogoutResult: ( LogoutSuccess & { __typename: 'LogoutSuccess' } );
   SignupResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( SignupSuccess & { __typename: 'SignupSuccess' } );
-  TodoCreateResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceLimitExceededError & { __typename: 'ResourceLimitExceededError' } ) | ( Omit<TodoCreateSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoCreateSuccess' } );
+  TodoCreateResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceLimitExceededError & { __typename: 'ResourceLimitExceededError' } ) | ( Omit<TodoCreateSuccess, 'todo' | 'todoEdge'> & { todo: _RefType['Todo'], todoEdge: _RefType['TodoEdge'] } & { __typename: 'TodoCreateSuccess' } );
   TodoDeleteResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( TodoDeleteSuccess & { __typename: 'TodoDeleteSuccess' } );
   TodoStatusChangeResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoStatusChangeSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoStatusChangeSuccess' } );
   TodoUpdateResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoUpdateSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoUpdateSuccess' } );
@@ -477,7 +478,7 @@ export type ResolversTypes = ResolversObject<{
   Todo: ResolverTypeWrapper<TodoMapper>;
   TodoConnection: ResolverTypeWrapper<Omit<TodoConnection, 'edges' | 'nodes'> & { edges?: Maybe<Array<Maybe<ResolversTypes['TodoEdge']>>>, nodes?: Maybe<Array<Maybe<ResolversTypes['Todo']>>> }>;
   TodoCreateResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TodoCreateResult']>;
-  TodoCreateSuccess: ResolverTypeWrapper<Omit<TodoCreateSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
+  TodoCreateSuccess: ResolverTypeWrapper<Omit<TodoCreateSuccess, 'todo' | 'todoEdge'> & { todo: ResolversTypes['Todo'], todoEdge: ResolversTypes['TodoEdge'] }>;
   TodoDeleteResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TodoDeleteResult']>;
   TodoDeleteSuccess: ResolverTypeWrapper<TodoDeleteSuccess>;
   TodoEdge: ResolverTypeWrapper<Omit<TodoEdge, 'node'> & { node?: Maybe<ResolversTypes['Todo']> }>;
@@ -531,7 +532,7 @@ export type ResolversParentTypes = ResolversObject<{
   Todo: TodoMapper;
   TodoConnection: Omit<TodoConnection, 'edges' | 'nodes'> & { edges?: Maybe<Array<Maybe<ResolversParentTypes['TodoEdge']>>>, nodes?: Maybe<Array<Maybe<ResolversParentTypes['Todo']>>> };
   TodoCreateResult: ResolversUnionTypes<ResolversParentTypes>['TodoCreateResult'];
-  TodoCreateSuccess: Omit<TodoCreateSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
+  TodoCreateSuccess: Omit<TodoCreateSuccess, 'todo' | 'todoEdge'> & { todo: ResolversParentTypes['Todo'], todoEdge: ResolversParentTypes['TodoEdge'] };
   TodoDeleteResult: ResolversUnionTypes<ResolversParentTypes>['TodoDeleteResult'];
   TodoDeleteSuccess: TodoDeleteSuccess;
   TodoEdge: Omit<TodoEdge, 'node'> & { node?: Maybe<ResolversParentTypes['Todo']> };
@@ -713,6 +714,7 @@ export type TodoCreateResultResolvers<ContextType = Context, ParentType extends 
 
 export type TodoCreateSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoCreateSuccess'] = ResolversParentTypes['TodoCreateSuccess']> = ResolversObject<{
   todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType>;
+  todoEdge?: Resolver<ResolversTypes['TodoEdge'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
