@@ -1,0 +1,323 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+directive @semanticNonNull(levels: [Int] = [0]) on FIELD_DEFINITION
+
+type Mutation {
+  """
+  紐づくリソースは全て削除される
+  """
+  accountDelete: AccountDeleteResult @semanticNonNull
+  accountUpdate(
+    """
+    1文字以上、100文字まで、null は入力エラー
+    """
+    name: String
+  ): AccountUpdateResult @semanticNonNull
+  login(
+    """
+    100文字まで
+    """
+    email: String!
+    """
+    8文字以上、50文字まで
+    """
+    password: String!
+  ): LoginResult @semanticNonNull
+  loginPasswordChange(
+    """
+    8文字以上、50文字まで
+    """
+    oldPassword: String!
+    """
+    8文字以上、50文字まで
+    """
+    newPassword: String!
+  ): LoginPasswordChangeResult @semanticNonNull
+  logout: LogoutResult @semanticNonNull
+  signup(
+    """
+    1文字以上、100文字まで
+    """
+    name: String!
+    """
+    100文字まで、既に存在する場合はエラー
+    """
+    email: String!
+    """
+    8文字以上、50文字まで
+    """
+    password: String!
+  ): SignupResult @semanticNonNull
+  """
+  10000件まで
+  """
+  todoCreate(
+    """
+    100文字まで
+    """
+    title: String! = ""
+    """
+    5000文字まで
+    """
+    description: String! = ""
+  ): TodoCreateResult @semanticNonNull
+  todoDelete(id: ID!): TodoDeleteResult @semanticNonNull
+  todoStatusChange(id: ID!, status: TodoStatus!): TodoStatusChangeResult @semanticNonNull
+  todoUpdate(
+    id: ID!
+    """
+    100文字まで、null は入力エラー
+    """
+    title: String
+    """
+    5000文字まで、null は入力エラー
+    """
+    description: String
+    """
+    null は入力エラー
+    """
+    status: TodoStatus
+  ): TodoUpdateResult @semanticNonNull
+  userEmailChange(
+    """
+    100文字まで、既に存在する場合はエラー
+    """
+    email: String!
+  ): UserEmailChangeResult @semanticNonNull
+}
+
+union AccountDeleteResult = AccountDeleteSuccess
+
+type AccountDeleteSuccess {
+  id: ID!
+}
+
+union AccountUpdateResult = AccountUpdateSuccess | InvalidInputErrors
+
+type AccountUpdateSuccess {
+  user: User!
+}
+
+union LoginResult = LoginSuccess | InvalidInputErrors | LoginFailedError
+
+type LoginSuccess {
+  token: String!
+}
+
+type LoginFailedError implements Error {
+  message: String!
+}
+
+union LoginPasswordChangeResult =
+  | LoginPasswordChangeSuccess
+  | InvalidInputErrors
+  | SamePasswordsError
+  | IncorrectOldPasswordError
+
+type LoginPasswordChangeSuccess {
+  id: ID!
+}
+
+type SamePasswordsError implements Error {
+  message: String!
+}
+
+type IncorrectOldPasswordError implements Error {
+  message: String!
+}
+
+union LogoutResult = LogoutSuccess
+
+type LogoutSuccess {
+  id: ID!
+}
+
+union SignupResult = SignupSuccess | InvalidInputErrors | EmailAlreadyTakenError
+
+type SignupSuccess {
+  token: String!
+}
+
+union TodoCreateResult = TodoCreateSuccess | InvalidInputErrors | ResourceLimitExceededError
+
+type TodoCreateSuccess {
+  todo: Todo!
+  todoEdge: TodoEdge!
+}
+
+union TodoDeleteResult = TodoDeleteSuccess | ResourceNotFoundError
+
+type TodoDeleteSuccess {
+  id: ID!
+}
+
+union TodoStatusChangeResult = TodoStatusChangeSuccess | ResourceNotFoundError
+
+type TodoStatusChangeSuccess {
+  todo: Todo!
+}
+
+union TodoUpdateResult = TodoUpdateSuccess | InvalidInputErrors | ResourceNotFoundError
+
+type TodoUpdateSuccess {
+  todo: Todo!
+}
+
+union UserEmailChangeResult = UserEmailChangeSuccess | InvalidInputErrors | EmailAlreadyTakenError
+
+type UserEmailChangeSuccess {
+  user: User!
+}
+
+interface Node {
+  id: ID!
+}
+
+type Query {
+  node(id: ID!): Node
+  user(id: ID!): User
+  users(
+    """
+    max: 30
+    """
+    first: Int
+    after: String
+    """
+    max: 30
+    """
+    last: Int
+    before: String
+    reverse: Boolean! = true
+    sortKey: UserSortKeys! = CREATED_AT
+  ): UserConnection @semanticNonNull
+  viewer: User
+}
+
+enum UserSortKeys {
+  CREATED_AT
+  UPDATED_AT
+}
+
+type UserConnection {
+  pageInfo: PageInfo!
+  edges: [UserEdge] @semanticNonNull(levels: [0, 1])
+  nodes: [User] @semanticNonNull(levels: [0, 1])
+  totalCount: Int @semanticNonNull
+}
+
+type UserEdge {
+  cursor: String!
+  node: User @semanticNonNull
+}
+
+type Todo implements Node {
+  createdAt: DateTime @semanticNonNull
+  description: String @semanticNonNull
+  id: ID!
+  status: TodoStatus @semanticNonNull
+  title: String @semanticNonNull
+  updatedAt: DateTime @semanticNonNull
+  user: User @semanticNonNull
+}
+
+enum TodoStatus {
+  DONE
+  PENDING
+}
+
+type User implements Node {
+  createdAt: DateTime @semanticNonNull
+  email: EmailAddress @semanticNonNull
+  id: ID!
+  name: String @semanticNonNull
+  todo(id: ID!): Todo
+  todos(
+    """
+    max: 50
+    """
+    first: Int
+    after: String
+    """
+    max: 50
+    """
+    last: Int
+    before: String
+    reverse: Boolean! = true
+    sortKey: TodoSortKeys! = UPDATED_AT
+    """
+    指定すると絞り込む、null は入力エラー
+    """
+    status: TodoStatus
+  ): TodoConnection @semanticNonNull
+  updatedAt: DateTime @semanticNonNull
+}
+
+enum TodoSortKeys {
+  CREATED_AT
+  UPDATED_AT
+}
+
+type TodoConnection {
+  pageInfo: PageInfo!
+  edges: [TodoEdge] @semanticNonNull(levels: [0, 1])
+  nodes: [Todo] @semanticNonNull(levels: [0, 1])
+  totalCount: Int @semanticNonNull
+}
+
+type TodoEdge {
+  cursor: String!
+  node: Todo @semanticNonNull
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+"""
+A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
+"""
+scalar EmailAddress
+  @specifiedBy(url: "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address")
+
+type EmailAlreadyTakenError implements Error {
+  message: String!
+}
+
+interface Error {
+  message: String!
+}
+
+enum ErrorCode {
+  BAD_USER_INPUT
+  AUTHENTICATION_ERROR
+  FORBIDDEN
+  INTERNAL_SERVER_ERROR
+}
+
+type InvalidInputError implements Error {
+  field: String!
+  message: String!
+}
+
+type InvalidInputErrors {
+  errors: [InvalidInputError!]!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type ResourceLimitExceededError implements Error {
+  message: String!
+}
+
+type ResourceNotFoundError implements Error {
+  message: String!
+}

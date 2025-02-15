@@ -27,5 +27,8 @@
   },
   "[dockercompose]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[graphql]": {
+    "editor.defaultFormatter": "biomejs.biome"
   }
 }

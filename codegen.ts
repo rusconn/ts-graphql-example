@@ -56,7 +56,7 @@ const typescriptOperations: TypeScriptDocumentsPluginConfig = {
 };
 
 const config: CodegenConfig = {
-  schema: "http://localhost:4000/graphql",
+  schema: "schema.graphql",
   generates: {
     "src/schema.ts": {
       plugins: ["typescript", "typescript-resolvers"],
