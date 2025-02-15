@@ -1,6 +1,5 @@
 import { GraphQLError } from "graphql";
 import { createSchema, createYoga } from "graphql-yoga";
-import { App } from "uWebSockets.js";
 
 import { endpoint } from "./config.ts";
 import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
@@ -62,5 +61,3 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
   logging: false,
   plugins: [readinessCheck, introspection, requestId, armor, logging, errorHandling],
 });
-
-export const server = App().any("/*", yoga);

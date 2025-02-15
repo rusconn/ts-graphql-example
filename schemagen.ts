@@ -8,7 +8,7 @@ import fs from "node:fs";
 
 import { printSchemaWithDirectives } from "@graphql-tools/utils";
 
-import { yoga } from "./src/server.ts";
+import { yoga } from "./src/yoga.ts";
 
 const { schema } = yoga.getEnveloped();
 const sdl = printSchemaWithDirectives(schema);

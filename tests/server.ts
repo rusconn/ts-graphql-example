@@ -2,7 +2,7 @@ import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 import { parse } from "graphql";
 
 import { pickDefined } from "../src/lib/object/pickDefined.ts";
-import { yoga } from "../src/server.ts";
+import { yoga } from "../src/yoga.ts";
 
 import type { Data } from "./data.ts";
 
