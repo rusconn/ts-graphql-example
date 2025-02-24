@@ -117,7 +117,7 @@ export class UserAPI {
 
   create = async ({ password: source, ...data }: UserNew) => {
     const { id, date } = UserId.genWithDate();
-    const password = await UserPassword.gen(source);
+    const password = await UserPassword.hash(source);
     const token = UserTokens.gen();
     const hashed = await UserTokens.hash(token);
 
@@ -191,7 +191,7 @@ export class UserAPI {
     const userPassword = await this.#db
       .updateTable("UserCredential")
       .where("userId", "=", id)
-      .set({ updatedAt: new Date(), password: await UserPassword.gen(source) })
+      .set({ updatedAt: new Date(), password: await UserPassword.hash(source) })
       .returning("userId")
       .executeTakeFirst();
 

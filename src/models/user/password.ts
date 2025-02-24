@@ -3,13 +3,13 @@ import type { Tagged } from "type-fest";
 
 import { passHashExp } from "../../config.ts";
 
-export type UserPassword = Tagged<string, "UserPassword">;
+export type UserPasswordHashed = Tagged<string, "UserPasswordHashed">;
 
-export const gen = async (source: string) => {
+export const hash = async (source: string) => {
   const hashed = await bcrypt.hash(source, passHashExp);
-  return hashed as UserPassword;
+  return hashed as UserPasswordHashed;
 };
 
-export const match = async (source: string, gened: UserPassword) => {
-  return await bcrypt.compare(source, gened);
+export const match = async (source: string, hashed: UserPasswordHashed) => {
+  return await bcrypt.compare(source, hashed);
 };

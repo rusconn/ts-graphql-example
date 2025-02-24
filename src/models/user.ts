@@ -3,8 +3,8 @@ import type { Except, OverrideProperties } from "type-fest";
 import type { UserCredentialInsert, UserInsert, UserSelect } from "../db/types-extension.ts";
 import type { UserEmail } from "./user/email.ts";
 import type { UserId } from "./user/id.ts";
-import type { UserPassword } from "./user/password.ts";
-import type { UserToken } from "./user/token.ts";
+import type { UserPasswordHashed } from "./user/password.ts";
+import type { UserTokenHashed } from "./user/token.ts";
 
 export type User = OverrideProperties<
   UserSelect,
@@ -15,12 +15,12 @@ export type User = OverrideProperties<
 >;
 
 export type UserWithCredential = User & {
-  password: UserPassword;
+  password: UserPasswordHashed;
 };
 
 export type UserFull = User & {
-  password: UserWithCredential["password"];
-  token: UserToken;
+  password: UserPasswordHashed;
+  token: UserTokenHashed;
 };
 
 export type UserNew = OverrideProperties<
