@@ -1,4 +1,4 @@
-import { domain } from "../config.ts";
+import { domain } from "../config/url.ts";
 
 export const getRefreshTokenCookie = async (request: Request) => {
   return await request.cookieStore!.get("refresh_token");

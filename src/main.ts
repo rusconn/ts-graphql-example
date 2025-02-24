@@ -2,7 +2,7 @@ import process from "node:process";
 
 import { App } from "uWebSockets.js";
 
-import { endpoint, port } from "./config.ts";
+import { endpoint, port } from "./config/url.ts";
 import { client } from "./db/client.ts";
 import { logger } from "./logger.ts";
 import { yoga } from "./yoga.ts";

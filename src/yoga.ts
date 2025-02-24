@@ -1,6 +1,6 @@
 import { createSchema, createYoga } from "graphql-yoga";
 
-import { endpoint } from "./config.ts";
+import { endpoint } from "./config/url.ts";
 import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
 import { TodoAPI } from "./datasources/todo.ts";
 import { UserAPI } from "./datasources/user.ts";

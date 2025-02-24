@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import type { Tagged } from "type-fest";
 
-import { tokenHashSalt } from "../../config.ts";
+import { tokenHashSalt } from "../../config/hash.ts";
 import * as Uuidv4 from "../../lib/uuid/v4.ts";
 
 export type UserToken = Tagged<Uuidv4.Uuidv4, "UserToken">;

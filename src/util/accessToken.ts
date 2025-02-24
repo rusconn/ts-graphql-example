@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { JWTExpired, JWTInvalid } from "jose/errors";
 
-import { signingKey } from "../config.ts";
+import { signingKey } from "../config/jwt.ts";
 import type { User } from "../models/user.ts";
 
 type Payload = Pick<User, "id" | "role">;
