@@ -23,7 +23,13 @@ export const logging = useLogger({
 const mask = ({ query, variables }: GraphQLParams<Record<string, unknown>>) => {
   if (query == null) return undefined;
 
-  const sensitiveOperations = ["accountUpdate", "login", "signup"];
+  const sensitiveOperations = [
+    "accountUpdate",
+    "login",
+    "loginPasswordChange",
+    "signup",
+    "userEmailChange",
+  ];
 
   return sensitiveOperations.some((sop) => query.includes(sop))
     ? { query: "***", variables: "***" }
