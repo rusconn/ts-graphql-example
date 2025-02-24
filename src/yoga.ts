@@ -7,7 +7,6 @@ import { UserAPI } from "./datasources/user.ts";
 import { client } from "./db/client.ts";
 import { authenticationErr } from "./graphql/_errors/authenticationError.ts";
 import { badUserInputErr } from "./graphql/_errors/badUserInput.ts";
-import { internalServerError } from "./graphql/_errors/internalServerError.ts";
 import { tokenExpiredErr } from "./graphql/_errors/tokenExpired.ts";
 import { renderApolloStudio } from "./lib/graphql-yoga/renderApolloStudio.ts";
 import { logger } from "./logger.ts";
@@ -29,18 +28,12 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
     const start = Date.now();
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
-    const api = {
-      todo: new TodoAPI(client),
-      user: new UserAPI(client),
-    };
-
-    let user: Context["user"] | undefined = null;
+    let user: Context["user"] = null;
     if (token != null) {
       const result = await verifyJwt(token);
       switch (result.type) {
         case "Success":
-          user = await api.user.getById(result.payload.id);
-          if (user === undefined) throw internalServerError();
+          user = result.payload;
           break;
         case "JWTInvalid":
           throw authenticationErr();
@@ -58,7 +51,10 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
       logger: logger.child({ requestId }),
       user,
       db: client,
-      api,
+      api: {
+        todo: new TodoAPI(client),
+        user: new UserAPI(client),
+      },
     };
   },
   // 自分でログする

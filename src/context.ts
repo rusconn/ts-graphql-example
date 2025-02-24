@@ -29,6 +29,6 @@ export type UserContext = {
   };
 };
 
-type Admin = UserModel & { role: "ADMIN" };
-type User = UserModel & { role: "USER" };
+type Admin = Pick<UserModel, "id"> & { role: "ADMIN" };
+type User = Pick<UserModel, "id"> & { role: "USER" };
 type Guest = null;

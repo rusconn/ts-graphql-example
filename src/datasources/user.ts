@@ -41,6 +41,18 @@ export class UserAPI {
     return user as User | undefined;
   };
 
+  getWithCredencialById = async (id: User["id"]) => {
+    const user = await this.#db
+      .selectFrom("UserCredential")
+      .innerJoin("User", "UserCredential.userId", "User.id")
+      .where("id", "=", id)
+      .selectAll("User")
+      .select("UserCredential.password")
+      .executeTakeFirst();
+
+    return user as UserWithCredential | undefined;
+  };
+
   getWithCredencialByEmail = async (email: User["email"]) => {
     const user = await this.#db
       .selectFrom("UserCredential")

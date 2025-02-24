@@ -62,7 +62,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     return invalidInputErrors(parsed);
   }
 
-  const userWithCredencial = await context.api.user.getWithCredencialByEmail(authed.email);
+  const userWithCredencial = await context.api.user.getWithCredencialById(authed.id);
 
   if (!userWithCredencial) {
     throw internalServerError();

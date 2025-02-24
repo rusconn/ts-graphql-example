@@ -1,6 +1,7 @@
 import type { UserResolvers } from "../../schema.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
+import { internalServerError } from "../_errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -8,12 +9,22 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: UserResolvers["name"] = (parent, _args, context) => {
+export const resolver: UserResolvers["name"] = async (parent, _args, context) => {
   const authed = authAdminOrUserOwner(context, parent);
 
   if (authed instanceof Error) {
     throw forbiddenErr(authed);
   }
 
-  return parent.name;
+  if ("name" in parent) {
+    return parent.name;
+  }
+
+  const user = await context.api.user.load(parent.id);
+
+  if (!user) {
+    throw internalServerError();
+  }
+
+  return user.name;
 };

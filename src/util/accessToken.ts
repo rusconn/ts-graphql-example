@@ -4,7 +4,7 @@ import { JWTExpired, JWTInvalid } from "jose/errors";
 import { signingKey } from "../config.ts";
 import type { User } from "../models/user.ts";
 
-type Payload = Pick<User, "id">;
+type Payload = Pick<User, "id" | "role">;
 
 export const verifyJwt = async (token: string) => {
   try {
