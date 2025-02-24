@@ -24,8 +24,9 @@ node --run dev
 ```
 
 クエリの実行は [Web コンソール](http://localhost:4000/graphql) で。\
-token を Authorization ヘッダへ Bearer でセットしておくこと。\
-token は [seed スクリプト](./prisma/seed.ts) から取得する。
+アクセストークンを Authorization ヘッダへ Bearer でセットしておくこと。\
+アクセストークンは Web コンソールで login ミューテーションを実行して手に入れる。\
+ログインに必要な情報は [seed スクリプト](./prisma/seed.ts) から取得する。
 
 ## 設計記録
 

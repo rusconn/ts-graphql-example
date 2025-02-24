@@ -11,7 +11,8 @@ export const db = {
     /** raw: adminadmin */
     password: "$2b$04$aIswdZ6eFo8qQTheMa8x1.s2sd7I9uZr.vUkGwl9OylshNLCMqH8i",
     role: UserRole.ADMIN,
-    token: "0193cb69-740b-7589-9e85-34d9cece28fe",
+    /** raw: 33e9adb5-d716-4388-86a1-6885e6499eec */
+    token: "$2b$04$UJnbSNtlTFcLZkRtPqx2SOfFKP/ZA3jQO0o5tRZAaeK0emOmNmfX.",
   } as UserFull,
   alice: {
     /** Date: 2024-12-15T17:41:58.590Z */
@@ -22,6 +23,7 @@ export const db = {
     /** raw: alicealice */
     password: "$2b$04$vox810wl680PtUOq1CPTL.lMhjWYsjFqVIMOmzrMIXKvqTh/XZ5Gy",
     role: UserRole.USER,
-    token: "0193cb69-c86c-747c-82b4-85506f4a592f",
+    /** raw: a5ef8ce5-82cd-418c-9a72-4c43cfa30c9c */
+    token: "$2b$04$UJnbSNtlTFcLZkRtPqx2SOswuES4NFkKjP1rV9pb.SP037OP0ru/u",
   } as UserFull,
 };

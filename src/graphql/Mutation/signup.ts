@@ -1,5 +1,7 @@
 import { UserRole } from "../../db/types.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../schema.ts";
+import { signedJwt } from "../../util/accessToken.ts";
+import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { authGuest } from "../_authorizers/guest.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
@@ -58,11 +60,14 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   });
 
   switch (result.type) {
-    case "Success":
+    case "Success": {
+      const token = await signedJwt(result);
+      await setRefreshTokenCookie(context.request, result.token);
       return {
         __typename: "SignupSuccess",
-        token: result.token,
+        token,
       };
+    }
     case "EmailAlreadyExists":
       return {
         __typename: "EmailAlreadyTakenError",

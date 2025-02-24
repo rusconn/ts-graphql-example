@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "UserToken" ALTER COLUMN "token" SET DATA TYPE TEXT;

@@ -1,13 +1,18 @@
+import bcrypt from "bcrypt";
 import type { Tagged } from "type-fest";
 
-import * as Uuidv7 from "../../lib/uuid/v7.ts";
+import { tokenHashSalt } from "../../config.ts";
+import * as Uuidv4 from "../../lib/uuid/v4.ts";
 
-export type UserToken = Tagged<Uuidv7.Uuidv7, "UserToken">;
+export type UserToken = Tagged<Uuidv4.Uuidv4, "UserToken">;
+
+export const gen = () => Uuidv4.gen() as UserToken;
 
 export const is = (input: unknown): input is UserToken => {
-  return Uuidv7.is(input);
+  return Uuidv4.is(input);
 };
 
-export const gen = () => {
-  return Uuidv7.gen() as UserToken;
+export const hash = async (gened: UserToken) => {
+  const hashed = await bcrypt.hash(gened, tokenHashSalt);
+  return hashed;
 };

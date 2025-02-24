@@ -81,6 +81,7 @@ type Mutation {
     """
     status: TodoStatus
   ): TodoUpdateResult @semanticNonNull
+  tokenRefresh: TokenRefreshResult @semanticNonNull
   userEmailChange(
     """
     100文字まで、既に存在する場合はエラー
@@ -164,6 +165,16 @@ union TodoUpdateResult = TodoUpdateSuccess | InvalidInputErrors | ResourceNotFou
 
 type TodoUpdateSuccess {
   todo: Todo!
+}
+
+union TokenRefreshResult = TokenRefreshSuccess | InvalidRefreshTokenError
+
+type TokenRefreshSuccess {
+  token: String!
+}
+
+type InvalidRefreshTokenError implements Error {
+  message: String!
 }
 
 union UserEmailChangeResult = UserEmailChangeSuccess | InvalidInputErrors | EmailAlreadyTakenError
@@ -295,6 +306,7 @@ enum ErrorCode {
   BAD_USER_INPUT
   AUTHENTICATION_ERROR
   FORBIDDEN
+  TOKEN_EXPIRED
   INTERNAL_SERVER_ERROR
 }
 

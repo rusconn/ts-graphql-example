@@ -18,13 +18,9 @@ export type UserWithCredential = User & {
   password: UserPassword;
 };
 
-export type UserWithToken = User & {
-  token: UserToken;
-};
-
 export type UserFull = User & {
   password: UserWithCredential["password"];
-  token: UserWithToken["token"];
+  token: UserToken;
 };
 
 export type UserNew = OverrideProperties<

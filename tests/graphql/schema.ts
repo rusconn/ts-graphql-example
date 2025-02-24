@@ -22,7 +22,8 @@ export const ErrorCode = {
   AuthenticationError: 'AUTHENTICATION_ERROR',
   BadUserInput: 'BAD_USER_INPUT',
   Forbidden: 'FORBIDDEN',
-  InternalServerError: 'INTERNAL_SERVER_ERROR'
+  InternalServerError: 'INTERNAL_SERVER_ERROR',
+  TokenExpired: 'TOKEN_EXPIRED'
 } as const;
 
 export type ErrorCode = typeof ErrorCode[keyof typeof ErrorCode];
@@ -118,6 +119,11 @@ export type TodoUpdateMutationVariables = Exact<{
 
 
 export type TodoUpdateMutation = { todoUpdate?: { __typename: 'InvalidInputErrors' } | { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoUpdateSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+
+export type TokenRefreshMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TokenRefreshMutation = { tokenRefresh?: { __typename: 'InvalidRefreshTokenError' } | { __typename: 'TokenRefreshSuccess', token: string } | null };
 
 export type UserEmailChangeMutationVariables = Exact<{
   email: Scalars['String']['input'];

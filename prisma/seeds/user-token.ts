@@ -3,24 +3,26 @@ import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
 import type { DB, User } from "../../src/db/types.ts";
-import * as userToken from "../../src/models/user/token.ts";
 
 export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
   const handUserTokens = [
     {
       userId: "0193cb3e-4379-750f-880f-77afae342259",
       updatedAt: new Date("2024-12-15T16:54:41.152Z"),
-      token: "0193cb3e-4b23-75ba-a4d8-802869ed8951",
+      /** raw: ddfe9c8c-6a73-435d-aa91-7ead331aab0c */
+      token: "$2b$10$nOpVuJk/aqONHB/jIDq9BOIu5LcRAjr0/rGsYNui3Ep8h.2X3glee",
     },
     {
       userId: "0193cb3e-504f-72e9-897c-2c71f389f3ad",
       updatedAt: new Date("2024-12-15T16:54:38.927Z"),
-      token: "0193cb3e-5576-752c-b9e1-404be1fb777e",
+      /** raw: e9b7e901-5fe4-4088-a8c5-96f934707c56 */
+      token: "$2b$10$j7tyBjZUd.J3c2dMNiNLXOMhZyxYzMYo46A0CFoajklUE9B4NFCpm",
     },
     {
       userId: "0193cb3e-58fe-772b-8306-412afa147cdd",
       updatedAt: new Date("2024-12-15T16:54:41.151Z"),
-      token: "0193cb3e-5c56-76ff-a5a4-c692182e3749",
+      /** raw: c91fcf2d-5b15-451b-885b-a93b88094961 */
+      token: "$2b$10$odhfjMJlp9z97D9g7mzVd..2sPvEYBTNssSmY0vHSuP2v7Okh/CJ.",
     },
   ];
 
@@ -45,6 +47,6 @@ const fakeDataOne = (userId: User["id"]) => {
   return {
     userId,
     updatedAt: faker.date.past(),
-    token: userToken.gen(),
+    token: `dummy-${userId}`,
   };
 };

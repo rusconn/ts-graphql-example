@@ -1,7 +1,7 @@
 model UserToken {
   userId    String   @id @pg.Uuid
   updatedAt DateTime
-  token     String   @unique @pg.Uuid
+  token     String   @unique
 
   user User @relation(fields: userId, references: id, onDelete: Cascade)
 }

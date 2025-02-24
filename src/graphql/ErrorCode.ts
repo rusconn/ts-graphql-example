@@ -3,6 +3,7 @@ export const typeDef = /* GraphQL */ `
     BAD_USER_INPUT
     AUTHENTICATION_ERROR
     FORBIDDEN
+    TOKEN_EXPIRED
     INTERNAL_SERVER_ERROR
   }
 `;

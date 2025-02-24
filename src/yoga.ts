@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import { createSchema, createYoga } from "graphql-yoga";
 
 import { endpoint } from "./config.ts";
@@ -6,23 +5,22 @@ import type { Context, PluginContext, ServerContext, UserContext } from "./conte
 import { TodoAPI } from "./datasources/todo.ts";
 import { UserAPI } from "./datasources/user.ts";
 import { client } from "./db/client.ts";
+import { authenticationErr } from "./graphql/_errors/authenticationError.ts";
+import { badUserInputErr } from "./graphql/_errors/badUserInput.ts";
+import { internalServerError } from "./graphql/_errors/internalServerError.ts";
+import { tokenExpiredErr } from "./graphql/_errors/tokenExpired.ts";
 import { renderApolloStudio } from "./lib/graphql-yoga/renderApolloStudio.ts";
 import { logger } from "./logger.ts";
-import * as UserToken from "./models/user/token.ts";
 import { armor } from "./plugins/armor.ts";
+import { cookies } from "./plugins/cookies.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
 import { introspection } from "./plugins/introspection.ts";
 import { logging } from "./plugins/logging.ts";
 import { readinessCheck } from "./plugins/readinessCheck.ts";
 import { requestId } from "./plugins/requestId.ts";
 import { resolvers } from "./resolvers.ts";
-import { ErrorCode } from "./schema.ts";
 import { typeDefs } from "./typeDefs.ts";
-
-const authenErr = () =>
-  new GraphQLError("Authentication error", {
-    extensions: { code: ErrorCode.AuthenticationError },
-  });
+import { verifyJwt } from "./util/accessToken.ts";
 
 export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
   renderGraphiQL: () => renderApolloStudio(endpoint),
@@ -38,14 +36,20 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
 
     let user: Context["user"] | undefined = null;
     if (token != null) {
-      if (!UserToken.is(token)) {
-        throw authenErr();
-      }
-
-      user = await api.user.getByToken(token);
-
-      if (user === undefined) {
-        throw authenErr();
+      const result = await verifyJwt(token);
+      switch (result.type) {
+        case "Success":
+          user = await api.user.getById(result.payload.id);
+          if (user === undefined) throw internalServerError();
+          break;
+        case "JWTInvalid":
+          throw authenticationErr();
+        case "JWTExpired":
+          throw tokenExpiredErr();
+        case "Unknown":
+          throw badUserInputErr("Bad token");
+        default:
+          throw new Error(result satisfies never);
       }
     }
 
@@ -59,5 +63,5 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
   },
   // 自分でログする
   logging: false,
-  plugins: [readinessCheck, introspection, requestId, armor, logging, errorHandling],
+  plugins: [readinessCheck, introspection, requestId, armor, logging, cookies, errorHandling],
 });

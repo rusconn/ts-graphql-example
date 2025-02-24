@@ -3,6 +3,7 @@ import * as user from "./data/user.ts";
 
 export const Data = {
   token: user.token,
+  refreshToken: user.refreshToken,
   db: {
     ...todo.db,
     ...user.db,

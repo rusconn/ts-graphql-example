@@ -55,7 +55,8 @@ export const ErrorCode = {
   AuthenticationError: 'AUTHENTICATION_ERROR',
   BadUserInput: 'BAD_USER_INPUT',
   Forbidden: 'FORBIDDEN',
-  InternalServerError: 'INTERNAL_SERVER_ERROR'
+  InternalServerError: 'INTERNAL_SERVER_ERROR',
+  TokenExpired: 'TOKEN_EXPIRED'
 } as const;
 
 export type ErrorCode = typeof ErrorCode[keyof typeof ErrorCode];
@@ -73,6 +74,11 @@ export type InvalidInputError = Error & {
 export type InvalidInputErrors = {
   __typename?: 'InvalidInputErrors';
   errors: Array<InvalidInputError>;
+};
+
+export type InvalidRefreshTokenError = Error & {
+  __typename?: 'InvalidRefreshTokenError';
+  message: Scalars['String']['output'];
 };
 
 export type LoginFailedError = Error & {
@@ -115,6 +121,7 @@ export type Mutation = {
   todoDelete?: Maybe<TodoDeleteResult>;
   todoStatusChange?: Maybe<TodoStatusChangeResult>;
   todoUpdate?: Maybe<TodoUpdateResult>;
+  tokenRefresh?: Maybe<TokenRefreshResult>;
   userEmailChange?: Maybe<UserEmailChangeResult>;
 };
 
@@ -300,6 +307,13 @@ export type TodoUpdateSuccess = {
   todo: Todo;
 };
 
+export type TokenRefreshResult = InvalidRefreshTokenError | TokenRefreshSuccess;
+
+export type TokenRefreshSuccess = {
+  __typename?: 'TokenRefreshSuccess';
+  token: Scalars['String']['output'];
+};
+
 export type User = Node & {
   __typename?: 'User';
   createdAt?: Maybe<Scalars['DateTime']['output']>;
@@ -434,12 +448,13 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = Reso
   TodoDeleteResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( TodoDeleteSuccess & { __typename: 'TodoDeleteSuccess' } );
   TodoStatusChangeResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoStatusChangeSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoStatusChangeSuccess' } );
   TodoUpdateResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoUpdateSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoUpdateSuccess' } );
+  TokenRefreshResult: ( InvalidRefreshTokenError & { __typename: 'InvalidRefreshTokenError' } ) | ( TokenRefreshSuccess & { __typename: 'TokenRefreshSuccess' } );
   UserEmailChangeResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( Omit<UserEmailChangeSuccess, 'user'> & { user: _RefType['User'] } & { __typename: 'UserEmailChangeSuccess' } );
 }>;
 
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
-  Error: ( EmailAlreadyTakenError ) | ( IncorrectOldPasswordError ) | ( InvalidInputError ) | ( LoginFailedError ) | ( ResourceLimitExceededError ) | ( ResourceNotFoundError ) | ( SamePasswordsError );
+  Error: ( EmailAlreadyTakenError ) | ( IncorrectOldPasswordError ) | ( InvalidInputError ) | ( InvalidRefreshTokenError ) | ( LoginFailedError ) | ( ResourceLimitExceededError ) | ( ResourceNotFoundError ) | ( SamePasswordsError );
   Node: ( TodoMapper ) | ( UserMapper );
 }>;
 
@@ -460,6 +475,7 @@ export type ResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   InvalidInputError: ResolverTypeWrapper<InvalidInputError>;
   InvalidInputErrors: ResolverTypeWrapper<InvalidInputErrors>;
+  InvalidRefreshTokenError: ResolverTypeWrapper<InvalidRefreshTokenError>;
   LoginFailedError: ResolverTypeWrapper<LoginFailedError>;
   LoginPasswordChangeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LoginPasswordChangeResult']>;
   LoginPasswordChangeSuccess: ResolverTypeWrapper<LoginPasswordChangeSuccess>;
@@ -490,6 +506,8 @@ export type ResolversTypes = ResolversObject<{
   TodoStatusChangeSuccess: ResolverTypeWrapper<Omit<TodoStatusChangeSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
   TodoUpdateResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TodoUpdateResult']>;
   TodoUpdateSuccess: ResolverTypeWrapper<Omit<TodoUpdateSuccess, 'todo'> & { todo: ResolversTypes['Todo'] }>;
+  TokenRefreshResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TokenRefreshResult']>;
+  TokenRefreshSuccess: ResolverTypeWrapper<TokenRefreshSuccess>;
   User: ResolverTypeWrapper<UserMapper>;
   UserConnection: ResolverTypeWrapper<Omit<UserConnection, 'edges' | 'nodes'> & { edges?: Maybe<Array<Maybe<ResolversTypes['UserEdge']>>>, nodes?: Maybe<Array<Maybe<ResolversTypes['User']>>> }>;
   UserEdge: ResolverTypeWrapper<Omit<UserEdge, 'node'> & { node?: Maybe<ResolversTypes['User']> }>;
@@ -514,6 +532,7 @@ export type ResolversParentTypes = ResolversObject<{
   Int: Scalars['Int']['output'];
   InvalidInputError: InvalidInputError;
   InvalidInputErrors: InvalidInputErrors;
+  InvalidRefreshTokenError: InvalidRefreshTokenError;
   LoginFailedError: LoginFailedError;
   LoginPasswordChangeResult: ResolversUnionTypes<ResolversParentTypes>['LoginPasswordChangeResult'];
   LoginPasswordChangeSuccess: LoginPasswordChangeSuccess;
@@ -542,6 +561,8 @@ export type ResolversParentTypes = ResolversObject<{
   TodoStatusChangeSuccess: Omit<TodoStatusChangeSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
   TodoUpdateResult: ResolversUnionTypes<ResolversParentTypes>['TodoUpdateResult'];
   TodoUpdateSuccess: Omit<TodoUpdateSuccess, 'todo'> & { todo: ResolversParentTypes['Todo'] };
+  TokenRefreshResult: ResolversUnionTypes<ResolversParentTypes>['TokenRefreshResult'];
+  TokenRefreshSuccess: TokenRefreshSuccess;
   User: UserMapper;
   UserConnection: Omit<UserConnection, 'edges' | 'nodes'> & { edges?: Maybe<Array<Maybe<ResolversParentTypes['UserEdge']>>>, nodes?: Maybe<Array<Maybe<ResolversParentTypes['User']>>> };
   UserEdge: Omit<UserEdge, 'node'> & { node?: Maybe<ResolversParentTypes['User']> };
@@ -587,7 +608,7 @@ export type EmailAlreadyTakenErrorResolvers<ContextType = Context, ParentType ex
 }>;
 
 export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'IncorrectOldPasswordError' | 'InvalidInputError' | 'LoginFailedError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError' | 'SamePasswordsError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'IncorrectOldPasswordError' | 'InvalidInputError' | 'InvalidRefreshTokenError' | 'LoginFailedError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError' | 'SamePasswordsError', ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
@@ -604,6 +625,11 @@ export type InvalidInputErrorResolvers<ContextType = Context, ParentType extends
 
 export type InvalidInputErrorsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['InvalidInputErrors'] = ResolversParentTypes['InvalidInputErrors']> = ResolversObject<{
   errors?: Resolver<Array<ResolversTypes['InvalidInputError']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type InvalidRefreshTokenErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['InvalidRefreshTokenError'] = ResolversParentTypes['InvalidRefreshTokenError']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -650,6 +676,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   todoDelete: Resolver<Maybe<ResolversTypes['TodoDeleteResult']>, ParentType, ContextType, RequireFields<MutationTodoDeleteArgs, 'id'>>;
   todoStatusChange: Resolver<Maybe<ResolversTypes['TodoStatusChangeResult']>, ParentType, ContextType, RequireFields<MutationTodoStatusChangeArgs, 'id' | 'status'>>;
   todoUpdate: Resolver<Maybe<ResolversTypes['TodoUpdateResult']>, ParentType, ContextType, RequireFields<MutationTodoUpdateArgs, 'id'>>;
+  tokenRefresh: Resolver<Maybe<ResolversTypes['TokenRefreshResult']>, ParentType, ContextType>;
   userEmailChange: Resolver<Maybe<ResolversTypes['UserEmailChangeResult']>, ParentType, ContextType, RequireFields<MutationUserEmailChangeArgs, 'email'>>;
 }>;
 
@@ -759,6 +786,15 @@ export type TodoUpdateSuccessResolvers<ContextType = Context, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TokenRefreshResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TokenRefreshResult'] = ResolversParentTypes['TokenRefreshResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'InvalidRefreshTokenError' | 'TokenRefreshSuccess', ParentType, ContextType>;
+}>;
+
+export type TokenRefreshSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TokenRefreshSuccess'] = ResolversParentTypes['TokenRefreshSuccess']> = ResolversObject<{
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['EmailAddress']>, ParentType, ContextType>;
@@ -805,6 +841,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   IncorrectOldPasswordError?: IncorrectOldPasswordErrorResolvers<ContextType>;
   InvalidInputError?: InvalidInputErrorResolvers<ContextType>;
   InvalidInputErrors?: InvalidInputErrorsResolvers<ContextType>;
+  InvalidRefreshTokenError?: InvalidRefreshTokenErrorResolvers<ContextType>;
   LoginFailedError?: LoginFailedErrorResolvers<ContextType>;
   LoginPasswordChangeResult?: LoginPasswordChangeResultResolvers<ContextType>;
   LoginPasswordChangeSuccess?: LoginPasswordChangeSuccessResolvers<ContextType>;
@@ -832,6 +869,8 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   TodoStatusChangeSuccess?: TodoStatusChangeSuccessResolvers<ContextType>;
   TodoUpdateResult?: TodoUpdateResultResolvers<ContextType>;
   TodoUpdateSuccess?: TodoUpdateSuccessResolvers<ContextType>;
+  TokenRefreshResult?: TokenRefreshResultResolvers<ContextType>;
+  TokenRefreshSuccess?: TokenRefreshSuccessResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserConnection?: UserConnectionResolvers<ContextType>;
   UserEdge?: UserEdgeResolvers<ContextType>;

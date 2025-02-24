@@ -2,9 +2,10 @@ import type { Kysely } from "kysely";
 
 import type { DB } from "../db/types.ts";
 import { PgErrorCode, isPgError } from "../lib/pg/error.ts";
-import type { User, UserNew, UserUpd, UserWithCredential, UserWithToken } from "../models/user.ts";
+import type { User, UserNew, UserUpd, UserWithCredential } from "../models/user.ts";
 import * as UserId from "../models/user/id.ts";
 import * as UserPassword from "../models/user/password.ts";
+import type { UserToken } from "../models/user/token.ts";
 import * as UserTokens from "../models/user/token.ts";
 import * as userLoader from "./loaders/user.ts";
 
@@ -29,11 +30,11 @@ export class UserAPI {
     return user as User | undefined;
   };
 
-  getByToken = async (token: UserWithToken["token"]) => {
+  getByToken = async (token: UserToken) => {
     const user = await this.#db
       .selectFrom("User")
       .innerJoin("UserToken", "User.id", "UserToken.userId")
-      .where("token", "=", token)
+      .where("token", "=", await UserTokens.hash(token))
       .selectAll("User")
       .executeTakeFirst();
 
@@ -106,6 +107,7 @@ export class UserAPI {
     const { id, date } = UserId.genWithDate();
     const password = await UserPassword.gen(source);
     const token = UserTokens.gen();
+    const hashed = await UserTokens.hash(token);
 
     try {
       return await this.#db.transaction().execute(async (trx) => {
@@ -119,13 +121,13 @@ export class UserAPI {
           .values({ userId: user.id, updatedAt: date, password })
           .returning("userId")
           .executeTakeFirstOrThrow();
-        const userToken = await trx
+        const _userToken = await trx
           .insertInto("UserToken")
-          .values({ userId: user.id, updatedAt: date, token })
+          .values({ userId: user.id, updatedAt: new Date(), token: hashed })
           .returning("token")
           .executeTakeFirstOrThrow();
 
-        const userWithToken = { ...user, token: userToken.token } as UserWithToken;
+        const userWithToken = { ...(user as User), token };
 
         return { type: "Success", ...userWithToken } as const;
       });
@@ -185,14 +187,29 @@ export class UserAPI {
   };
 
   updateTokenById = async (id: User["id"]) => {
+    const token = UserTokens.gen();
+
     const userToken = await this.#db
       .updateTable("UserToken")
       .where("userId", "=", id)
-      .set({ updatedAt: new Date(), token: UserTokens.gen() })
+      .set({ updatedAt: new Date(), token: await UserTokens.hash(token) })
       .returning("token")
       .executeTakeFirst();
 
-    return userToken?.token as UserWithToken["token"] | undefined;
+    return userToken && token;
+  };
+
+  updateTokenByToken = async (oldToken: UserToken) => {
+    const newToken = UserTokens.gen();
+
+    const userToken = await this.#db
+      .updateTable("UserToken")
+      .where("token", "=", await UserTokens.hash(oldToken))
+      .set({ updatedAt: new Date(), token: await UserTokens.hash(newToken) })
+      .returning("token")
+      .executeTakeFirst();
+
+    return userToken && newToken;
   };
 
   deleteById = async (id: User["id"]) => {

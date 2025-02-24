@@ -70,13 +70,10 @@ it("should create user using input", async () => {
     fail();
   }
 
-  const { token } = data.signup;
-
   const user = await client
     .selectFrom("User")
-    .innerJoin("UserToken", "User.id", "UserToken.userId")
-    .where("token", "=", token)
-    .selectAll("User")
+    .where("email", "=", email)
+    .selectAll()
     .executeTakeFirstOrThrow();
 
   expect(user.name).toBe(name);
@@ -96,13 +93,10 @@ test("role should be USER by default", async () => {
     fail();
   }
 
-  const { token } = data.signup;
-
   const user = await client
     .selectFrom("User")
-    .innerJoin("UserToken", "User.id", "UserToken.userId")
-    .where("token", "=", token)
-    .selectAll("User")
+    .where("email", "=", email)
+    .selectAll()
     .executeTakeFirstOrThrow();
 
   expect(user.role).toBe(UserRole.USER);

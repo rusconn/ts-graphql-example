@@ -8,12 +8,13 @@ import type { Data } from "./data.ts";
 
 type ExecuteOperationParams<TVariables> = {
   token?: typeof Data.token.admin;
+  refreshToken?: typeof Data.refreshToken.admin;
   variables?: TVariables;
 };
 
 export const executeSingleResultOperation =
   <TData, TVariables extends object>(query: string) =>
-  async ({ variables, token }: ExecuteOperationParams<TVariables>) => {
+  async ({ token, refreshToken, variables }: ExecuteOperationParams<TVariables>) => {
     const result = await executor<TData, TVariables>(
       pickDefined({
         document: parse(query),
@@ -22,6 +23,9 @@ export const executeSingleResultOperation =
           headers: {
             ...(token != null && {
               authorization: `Bearer ${token}`,
+            }),
+            ...(refreshToken != null && {
+              cookie: `refresh_token=${refreshToken}`,
             }),
           },
         },

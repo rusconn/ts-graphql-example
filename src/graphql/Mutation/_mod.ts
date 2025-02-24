@@ -9,6 +9,7 @@ import * as todoCreate from "./todoCreate.ts";
 import * as todoDelete from "./todoDelete.ts";
 import * as todoStatusChange from "./todoStatusChange.ts";
 import * as todoUpdate from "./todoUpdate.ts";
+import * as tokenRefresh from "./tokenRefresh.ts";
 import * as userEmailChange from "./userEmailChange.ts";
 
 const typeDef = /* GraphQL */ `
@@ -27,6 +28,7 @@ export const typeDefs = [
   todoDelete.typeDef,
   todoStatusChange.typeDef,
   todoUpdate.typeDef,
+  tokenRefresh.typeDef,
   userEmailChange.typeDef,
 ];
 
@@ -41,5 +43,6 @@ export const resolvers: Resolvers["Mutation"] = {
   todoDelete: todoDelete.resolver,
   todoStatusChange: todoStatusChange.resolver,
   todoUpdate: todoUpdate.resolver,
+  tokenRefresh: tokenRefresh.resolver,
   userEmailChange: userEmailChange.resolver,
 };

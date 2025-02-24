@@ -1,5 +1,7 @@
 import * as UserPassword from "../../models/user/password.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../schema.ts";
+import { signedJwt } from "../../util/accessToken.ts";
+import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { USER_EMAIL_MAX, parseUserEmail } from "../_parsers/user/email.ts";
 import {
@@ -62,15 +64,18 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const updated = await context.api.user.updateTokenById(found.id);
+  const refreshToken = await context.api.user.updateTokenById(found.id);
 
-  if (!updated) {
+  if (!refreshToken) {
     throw internalServerError();
   }
 
+  const token = await signedJwt(found);
+  await setRefreshTokenCookie(context.request, refreshToken);
+
   return {
     __typename: "LoginSuccess",
-    token: updated,
+    token,
   };
 };
 
