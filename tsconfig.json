@@ -15,6 +15,7 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
-    "exactOptionalPropertyTypes": true
+    "exactOptionalPropertyTypes": true,
+    "erasableSyntaxOnly": true
   }
 }
