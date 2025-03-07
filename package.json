@@ -7,10 +7,10 @@
     "node": "^23.9.0"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node prisma/seed.ts"
   },
   "scripts": {
-    "dev": "dotenvx run -- tsx watch src/main.ts",
+    "dev": "dotenvx run -- node --watch src/main.ts",
     "build": "vite build",
     "preview": "dotenvx run -f .env -f .env.preview --overload -- node --enable-source-maps dist/main.js",
     "test": "dotenvx run -f .env -f .env.test --overload -- pnpm run --sequential /test:/",
@@ -19,7 +19,7 @@
     "check": "tsc && biome check && biome format && prettier --cache --check './**/*.{yml,yaml,md}'",
     "studio": "prisma studio",
     "migrate": "prisma migrate",
-    "codegen": "dotenvx run -- tsx schemagen.ts && biome format --write schema.graphql && graphql-codegen-esm"
+    "codegen": "dotenvx run -- node schemagen.ts && biome format --write schema.graphql && graphql-codegen-esm"
   },
   "dependencies": {
     "@envelop/core": "^5.0.0",
@@ -57,7 +57,6 @@
     "prettier": "2.7.1",
     "prisma": "6.3.1",
     "prisma-kysely": "^1.8.0",
-    "tsx": "^4.19.2",
     "type-fest": "^4.27.0",
     "typescript": "^5.8.2",
     "vite": "^6.1.0",
