@@ -31,7 +31,7 @@ export const typeDef = /* GraphQL */ `
       ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
       """
       password: String!
-    ): SignupResult @semanticNonNull
+    ): SignupResult @semanticNonNull @complexity(value: 100)
   }
 
   union SignupResult = SignupSuccess | InvalidInputErrors | EmailAlreadyTakenError

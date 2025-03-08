@@ -3,19 +3,21 @@ schema {
   mutation: Mutation
 }
 
+directive @complexity(value: Int!, multipliers: [String!]) on FIELD_DEFINITION
+
 directive @semanticNonNull(levels: [Int] = [0]) on FIELD_DEFINITION
 
 type Mutation {
   """
   紐づくリソースは全て削除される
   """
-  accountDelete: AccountDeleteResult @semanticNonNull
+  accountDelete: AccountDeleteResult @semanticNonNull @complexity(value: 5)
   accountUpdate(
     """
     1文字以上、100文字まで、null は入力エラー
     """
     name: String
-  ): AccountUpdateResult @semanticNonNull
+  ): AccountUpdateResult @semanticNonNull @complexity(value: 5)
   login(
     """
     100文字まで
@@ -25,7 +27,7 @@ type Mutation {
     8文字以上、50文字まで
     """
     password: String!
-  ): LoginResult @semanticNonNull
+  ): LoginResult @semanticNonNull @complexity(value: 100)
   loginPasswordChange(
     """
     8文字以上、50文字まで
@@ -35,8 +37,8 @@ type Mutation {
     8文字以上、50文字まで
     """
     newPassword: String!
-  ): LoginPasswordChangeResult @semanticNonNull
-  logout: LogoutResult @semanticNonNull
+  ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100)
+  logout: LogoutResult @semanticNonNull @complexity(value: 5)
   signup(
     """
     1文字以上、100文字まで
@@ -50,7 +52,7 @@ type Mutation {
     8文字以上、50文字まで
     """
     password: String!
-  ): SignupResult @semanticNonNull
+  ): SignupResult @semanticNonNull @complexity(value: 100)
   """
   10000件まで
   """
@@ -63,9 +65,11 @@ type Mutation {
     5000文字まで
     """
     description: String! = ""
-  ): TodoCreateResult @semanticNonNull
-  todoDelete(id: ID!): TodoDeleteResult @semanticNonNull
-  todoStatusChange(id: ID!, status: TodoStatus!): TodoStatusChangeResult @semanticNonNull
+  ): TodoCreateResult @semanticNonNull @complexity(value: 5)
+  todoDelete(id: ID!): TodoDeleteResult @semanticNonNull @complexity(value: 5)
+  todoStatusChange(id: ID!, status: TodoStatus!): TodoStatusChangeResult
+    @semanticNonNull
+    @complexity(value: 5)
   todoUpdate(
     id: ID!
     """
@@ -80,14 +84,14 @@ type Mutation {
     null は入力エラー
     """
     status: TodoStatus
-  ): TodoUpdateResult @semanticNonNull
-  tokenRefresh: TokenRefreshResult @semanticNonNull
+  ): TodoUpdateResult @semanticNonNull @complexity(value: 5)
+  tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 100)
   userEmailChange(
     """
     100文字まで、既に存在する場合はエラー
     """
     email: String!
-  ): UserEmailChangeResult @semanticNonNull
+  ): UserEmailChangeResult @semanticNonNull @complexity(value: 5)
 }
 
 union AccountDeleteResult = AccountDeleteSuccess
@@ -188,8 +192,8 @@ interface Node {
 }
 
 type Query {
-  node(id: ID!): Node
-  user(id: ID!): User
+  node(id: ID!): Node @complexity(value: 3)
+  user(id: ID!): User @complexity(value: 3)
   users(
     """
     max: 30
@@ -203,7 +207,7 @@ type Query {
     before: String
     reverse: Boolean! = true
     sortKey: UserSortKeys! = CREATED_AT
-  ): UserConnection @semanticNonNull
+  ): UserConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
   viewer: User
 }
 
@@ -216,7 +220,7 @@ type UserConnection {
   pageInfo: PageInfo!
   edges: [UserEdge] @semanticNonNull(levels: [0, 1])
   nodes: [User] @semanticNonNull(levels: [0, 1])
-  totalCount: Int @semanticNonNull
+  totalCount: Int @semanticNonNull @complexity(value: 5)
 }
 
 type UserEdge {
@@ -231,7 +235,7 @@ type Todo implements Node {
   status: TodoStatus @semanticNonNull
   title: String @semanticNonNull
   updatedAt: DateTime @semanticNonNull
-  user: User @semanticNonNull
+  user: User @semanticNonNull @complexity(value: 3)
 }
 
 enum TodoStatus {
@@ -241,10 +245,10 @@ enum TodoStatus {
 
 type User implements Node {
   createdAt: DateTime @semanticNonNull
-  email: EmailAddress @semanticNonNull
+  email: EmailAddress @semanticNonNull @complexity(value: 2)
   id: ID!
-  name: String @semanticNonNull
-  todo(id: ID!): Todo
+  name: String @semanticNonNull @complexity(value: 2)
+  todo(id: ID!): Todo @complexity(value: 3)
   todos(
     """
     max: 50
@@ -262,8 +266,8 @@ type User implements Node {
     指定すると絞り込む、null は入力エラー
     """
     status: TodoStatus
-  ): TodoConnection @semanticNonNull
-  updatedAt: DateTime @semanticNonNull
+  ): TodoConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
+  updatedAt: DateTime @semanticNonNull @complexity(value: 2)
 }
 
 enum TodoSortKeys {
@@ -275,7 +279,7 @@ type TodoConnection {
   pageInfo: PageInfo!
   edges: [TodoEdge] @semanticNonNull(levels: [0, 1])
   nodes: [Todo] @semanticNonNull(levels: [0, 1])
-  totalCount: Int @semanticNonNull
+  totalCount: Int @semanticNonNull @complexity(value: 5)
 }
 
 type TodoEdge {
@@ -303,6 +307,7 @@ interface Error {
 }
 
 enum ErrorCode {
+  QUERY_TOO_COMPLEX
   BAD_USER_INPUT
   AUTHENTICATION_ERROR
   FORBIDDEN

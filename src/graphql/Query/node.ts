@@ -10,7 +10,7 @@ import { parseId } from "../_parsers/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
-    node(id: ID!): Node
+    node(id: ID!): Node @complexity(value: 3)
   }
 `;
 

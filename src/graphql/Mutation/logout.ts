@@ -6,7 +6,7 @@ import { internalServerError } from "../_errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    logout: LogoutResult @semanticNonNull
+    logout: LogoutResult @semanticNonNull @complexity(value: 5)
   }
 
   union LogoutResult = LogoutSuccess

@@ -56,6 +56,7 @@ export const ErrorCode = {
   BadUserInput: 'BAD_USER_INPUT',
   Forbidden: 'FORBIDDEN',
   InternalServerError: 'INTERNAL_SERVER_ERROR',
+  QueryTooComplex: 'QUERY_TOO_COMPLEX',
   TokenExpired: 'TOKEN_EXPIRED'
 } as const;
 
@@ -570,6 +571,13 @@ export type ResolversParentTypes = ResolversObject<{
   UserEmailChangeSuccess: Omit<UserEmailChangeSuccess, 'user'> & { user: ResolversParentTypes['User'] };
 }>;
 
+export type ComplexityDirectiveArgs = {
+  multipliers?: Maybe<Array<Scalars['String']['input']>>;
+  value: Scalars['Int']['input'];
+};
+
+export type ComplexityDirectiveResolver<Result, Parent, ContextType = Context, Args = ComplexityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
 export type SemanticNonNullDirectiveArgs = {
   levels?: Maybe<Array<Maybe<Scalars['Int']['input']>>>;
 };
@@ -879,5 +887,6 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
 }>;
 
 export type DirectiveResolvers<ContextType = Context> = ResolversObject<{
+  complexity?: ComplexityDirectiveResolver<any, any, ContextType>;
   semanticNonNull?: SemanticNonNullDirectiveResolver<any, any, ContextType>;
 }>;

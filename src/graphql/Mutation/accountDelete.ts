@@ -9,7 +9,7 @@ export const typeDef = /* GraphQL */ `
     """
     紐づくリソースは全て削除される
     """
-    accountDelete: AccountDeleteResult @semanticNonNull
+    accountDelete: AccountDeleteResult @semanticNonNull @complexity(value: 5)
   }
 
   union AccountDeleteResult = AccountDeleteSuccess

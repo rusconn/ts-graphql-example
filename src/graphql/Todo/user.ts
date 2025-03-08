@@ -5,7 +5,7 @@ import { internalServerError } from "../_errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
-    user: User @semanticNonNull
+    user: User @semanticNonNull @complexity(value: 3)
   }
 `;
 

@@ -7,7 +7,7 @@ import { parseTodoId } from "../_parsers/todo/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    todoDelete(id: ID!): TodoDeleteResult @semanticNonNull
+    todoDelete(id: ID!): TodoDeleteResult @semanticNonNull @complexity(value: 5)
   }
 
   union TodoDeleteResult = TodoDeleteSuccess | ResourceNotFoundError

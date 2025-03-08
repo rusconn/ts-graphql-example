@@ -5,7 +5,7 @@ import { internalServerError } from "../_errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
-    updatedAt: DateTime @semanticNonNull
+    updatedAt: DateTime @semanticNonNull @complexity(value: 2)
   }
 `;
 

@@ -11,6 +11,7 @@ import { tokenExpiredErr } from "./graphql/_errors/tokenExpired.ts";
 import { renderApolloStudio } from "./lib/graphql-yoga/renderApolloStudio.ts";
 import { logger } from "./logger.ts";
 import { armor } from "./plugins/armor.ts";
+import { complexity } from "./plugins/complexity.ts";
 import { cookies } from "./plugins/cookies.ts";
 import { errorHandling } from "./plugins/errorHandling.ts";
 import { introspection } from "./plugins/introspection.ts";
@@ -59,5 +60,14 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
   },
   // 自分でログする
   logging: false,
-  plugins: [readinessCheck, introspection, requestId, armor, logging, cookies, errorHandling],
+  plugins: [
+    readinessCheck,
+    introspection,
+    requestId,
+    armor,
+    complexity,
+    logging,
+    cookies,
+    errorHandling,
+  ],
 });

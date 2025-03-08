@@ -6,7 +6,7 @@ import { parseTodoId } from "../_parsers/todo/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
-    todo(id: ID!): Todo
+    todo(id: ID!): Todo @complexity(value: 3)
   }
 `;
 

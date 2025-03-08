@@ -23,7 +23,7 @@ export const typeDef = /* GraphQL */ `
       ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
       """
       newPassword: String!
-    ): LoginPasswordChangeResult @semanticNonNull
+    ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100)
   }
 
   union LoginPasswordChangeResult =

@@ -23,6 +23,7 @@ export const ErrorCode = {
   BadUserInput: 'BAD_USER_INPUT',
   Forbidden: 'FORBIDDEN',
   InternalServerError: 'INTERNAL_SERVER_ERROR',
+  QueryTooComplex: 'QUERY_TOO_COMPLEX',
   TokenExpired: 'TOKEN_EXPIRED'
 } as const;
 

@@ -5,7 +5,7 @@ import { internalServerError } from "../_errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
-    email: EmailAddress @semanticNonNull
+    email: EmailAddress @semanticNonNull @complexity(value: 2)
   }
 `;
 

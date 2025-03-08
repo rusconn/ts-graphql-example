@@ -13,7 +13,7 @@ export const typeDef = /* GraphQL */ `
       ${USER_NAME_MIN}文字以上、${USER_NAME_MAX}文字まで、null は入力エラー
       """
       name: String
-    ): AccountUpdateResult @semanticNonNull
+    ): AccountUpdateResult @semanticNonNull @complexity(value: 5)
   }
 
   union AccountUpdateResult = AccountUpdateSuccess | InvalidInputErrors

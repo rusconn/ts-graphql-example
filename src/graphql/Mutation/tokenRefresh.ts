@@ -7,7 +7,7 @@ import { internalServerError } from "../_errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    tokenRefresh: TokenRefreshResult @semanticNonNull
+    tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 100)
   }
 
   union TokenRefreshResult = TokenRefreshSuccess | InvalidRefreshTokenError
