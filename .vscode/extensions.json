@@ -7,5 +7,7 @@
     "esbenp.prettier-vscode",
     "graphql.vscode-graphql",
     "prisma.prisma"
+    // しばしばクラッシュするためまだ利用しない
+    // "typescriptteam.native-preview"
   ]
 }

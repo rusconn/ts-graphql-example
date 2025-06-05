@@ -16,6 +16,7 @@
     "test:ut": "vitest --dir src",
     "test:it": "prisma migrate reset --force --skip-seed --skip-generate && vitest --dir tests",
     "check": "tsc && biome check && biome format && prettier --cache --check './**/*.{yml,yaml,md}'",
+    "checkgo": "tsgo && biome check && biome format && prettier --cache --check './**/*.{yml,yaml,md}'",
     "studio": "prisma studio",
     "migrate": "prisma migrate",
     "codegen": "dotenvx run -- node schemagen.ts && biome format --write schema.graphql && graphql-codegen-esm"
@@ -52,6 +53,7 @@
     "@types/bcrypt": "^5.0.0",
     "@types/graphql-fields": "^1.3.9",
     "@types/pg": "^8.11.2",
+    "@typescript/native-preview": "7.0.0-dev.20250605.1",
     "es-toolkit": "^1.29.0",
     "pino-pretty": "^13.0.0",
     "prettier": "2.7.1",
