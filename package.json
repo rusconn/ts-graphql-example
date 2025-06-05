@@ -6,6 +6,7 @@
     "node": "^23.9.0"
   },
   "prisma": {
+    "schema": "prisma/schema",
     "seed": "node prisma/seed.ts"
   },
   "scripts": {
@@ -57,7 +58,7 @@
     "es-toolkit": "^1.29.0",
     "pino-pretty": "^13.0.0",
     "prettier": "2.7.1",
-    "prisma": "6.3.1",
+    "prisma": "6.9.0",
     "prisma-kysely": "^1.8.0",
     "type-fest": "^4.27.0",
     "typescript": "^5.8.2",
