@@ -16,8 +16,8 @@
     "test": "dotenvx run -f .env -f .env.test --overload -- pnpm run --sequential /test:/",
     "test:ut": "vitest --dir src",
     "test:it": "prisma migrate reset --force --skip-seed --skip-generate && vitest --dir tests",
-    "check": "tsc && biome check && biome format && prettier --cache --check './**/*.{yml,yaml,md}'",
-    "checkgo": "tsgo && biome check && biome format && prettier --cache --check './**/*.{yml,yaml,md}'",
+    "check": "tsc && biome check && prettier --cache --check './**/*.{yml,yaml,md}'",
+    "checkgo": "tsgo && biome check && prettier --cache --check './**/*.{yml,yaml,md}'",
     "studio": "prisma studio",
     "migrate": "prisma migrate",
     "codegen": "dotenvx run -- node schemagen.ts && biome format --write schema.graphql && graphql-codegen-esm"
@@ -42,7 +42,7 @@
     "uuid": "^11.0.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "2.0.6",
     "@dotenvx/dotenvx": "^1.14.1",
     "@faker-js/faker": "^8.4.1",
     "@graphql-codegen/cli": "^5.0.4",
@@ -75,6 +75,12 @@
       "dset@<3.1.4": ">=3.1.4",
       "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5"
     },
-    "onlyBuiltDependencies": ["bcrypt", "@biomejs/biome", "@prisma/engines", "esbuild", "prisma"]
+    "onlyBuiltDependencies": [
+      "bcrypt",
+      "@biomejs/biome",
+      "@prisma/engines",
+      "esbuild",
+      "prisma"
+    ]
   }
 }

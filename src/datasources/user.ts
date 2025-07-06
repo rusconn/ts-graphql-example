@@ -1,12 +1,12 @@
 import type { Kysely } from "kysely";
 
 import type { DB } from "../db/types.ts";
-import { PgErrorCode, isPgError } from "../lib/pg/error.ts";
-import type { User, UserNew, UserUpd, UserWithCredential } from "../models/user.ts";
+import { isPgError, PgErrorCode } from "../lib/pg/error.ts";
 import * as UserId from "../models/user/id.ts";
 import * as UserPassword from "../models/user/password.ts";
 import type { UserToken } from "../models/user/token.ts";
 import * as UserTokens from "../models/user/token.ts";
+import type { User, UserNew, UserUpd, UserWithCredential } from "../models/user.ts";
 import * as userLoader from "./loaders/user.ts";
 
 export class UserAPI {

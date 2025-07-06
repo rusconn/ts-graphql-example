@@ -3,11 +3,11 @@ import type { MutationResolvers, MutationTodoUpdateArgs } from "../../schema.ts"
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
-import { TODO_DESCRIPTION_MAX, parseTodoDescription } from "../_parsers/todo/description.ts";
+import { parseTodoDescription, TODO_DESCRIPTION_MAX } from "../_parsers/todo/description.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import { parseTodoStatus } from "../_parsers/todo/status.ts";
-import { TODO_TITLE_MAX, parseTodoTitle } from "../_parsers/todo/title.ts";
-import { ParseErr, invalidInputErrors } from "../_parsers/util.ts";
+import { parseTodoTitle, TODO_TITLE_MAX } from "../_parsers/todo/title.ts";
+import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

@@ -2,8 +2,8 @@ import type { MutationResolvers, MutationUserEmailChangeArgs } from "../../schem
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { USER_EMAIL_MAX, parseUserEmail } from "../_parsers/user/email.ts";
-import { ParseErr, invalidInputErrors } from "../_parsers/util.ts";
+import { parseUserEmail, USER_EMAIL_MAX } from "../_parsers/user/email.ts";
+import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

@@ -1,13 +1,14 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
   "files": {
-    "ignore": [
-      "**/node_modules/**",
-      ".vscode",
-      "dist",
-      "src/db/types.ts",
-      "src/schema.ts",
-      "tests/graphql/schema.ts"
+    "includes": [
+      "**",
+      "!**/node_modules/**",
+      "!**/.vscode",
+      "!**/dist",
+      "!**/src/db/types.ts",
+      "!**/src/schema.ts",
+      "!**/tests/graphql/schema.ts"
     ]
   },
   "linter": {
@@ -24,15 +25,45 @@
       },
       "style": {
         "noNonNullAssertion": "off",
-        "noUselessElse": "off"
+        "noUselessElse": "off",
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error"
       },
       "suspicious": {
         "noImplicitAnyLet": "off"
+      },
+      "nursery": {
+        "noFloatingPromises": "error"
       }
     }
   },
-  "organizeImports": {
-    "enabled": true
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              ":NODE:",
+              ":BLANK_LINE:",
+              ":PACKAGE:",
+              "uWebSockets.js",
+              ":BLANK_LINE:",
+              ["**/src/**"],
+              ":BLANK_LINE:",
+              ":PATH:"
+            ]
+          }
+        }
+      }
+    }
   },
   "formatter": {
     "enabled": true,

@@ -3,13 +3,13 @@ import type { MutationLoginArgs, MutationResolvers } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { USER_EMAIL_MAX, parseUserEmail } from "../_parsers/user/email.ts";
+import { parseUserEmail, USER_EMAIL_MAX } from "../_parsers/user/email.ts";
 import {
+  parseUserPassword,
   USER_PASSWORD_MAX,
   USER_PASSWORD_MIN,
-  parseUserPassword,
 } from "../_parsers/user/password.ts";
-import { ParseErr, invalidInputErrors } from "../_parsers/util.ts";
+import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

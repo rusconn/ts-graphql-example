@@ -1,4 +1,4 @@
-import { type LoggerOptions, destination, pino, stdTimeFunctions } from "pino";
+import { destination, type LoggerOptions, pino, stdTimeFunctions } from "pino";
 
 import { isDev, isTest } from "./config/env.ts";
 import { Ki } from "./lib/number/prefix.ts";

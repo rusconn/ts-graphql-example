@@ -1,8 +1,8 @@
 import type { Kysely, Transaction } from "kysely";
 
 import type { DB } from "../db/types.ts";
-import type { Todo, TodoKey, TodoNew, TodoUpd } from "../models/todo.ts";
 import * as TodoId from "../models/todo/id.ts";
+import type { Todo, TodoKey, TodoNew, TodoUpd } from "../models/todo.ts";
 import * as userTodoLoader from "./loaders/userTodo.ts";
 import * as userTodoCountLoader from "./loaders/userTodoCount.ts";
 import * as userTodosLoader from "./loaders/userTodos.ts";

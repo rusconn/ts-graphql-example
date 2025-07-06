@@ -1,12 +1,12 @@
 import * as TodoId from "../../models/todo/id.ts";
 import * as UserId from "../../models/user/id.ts";
 import type { QueryResolvers } from "../../schema.ts";
-import * as Todo from "../Todo/_node.ts";
-import * as User from "../User/_node.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { parseId } from "../_parsers/id.ts";
+import * as Todo from "../Todo/_node.ts";
+import * as User from "../User/_node.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {

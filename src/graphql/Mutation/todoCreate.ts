@@ -4,9 +4,9 @@ import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import type { AuthContext } from "../_authorizers/types.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { TODO_DESCRIPTION_MAX, parseTodoDescription } from "../_parsers/todo/description.ts";
-import { TODO_TITLE_MAX, parseTodoTitle } from "../_parsers/todo/title.ts";
-import { ParseErr, invalidInputErrors } from "../_parsers/util.ts";
+import { parseTodoDescription, TODO_DESCRIPTION_MAX } from "../_parsers/todo/description.ts";
+import { parseTodoTitle, TODO_TITLE_MAX } from "../_parsers/todo/title.ts";
+import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
 
 const TODOS_MAX = 10_000;
 

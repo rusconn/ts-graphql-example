@@ -5,14 +5,14 @@ import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { authGuest } from "../_authorizers/guest.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { USER_EMAIL_MAX, parseUserEmail } from "../_parsers/user/email.ts";
-import { USER_NAME_MAX, USER_NAME_MIN, parseUserName } from "../_parsers/user/name.ts";
+import { parseUserEmail, USER_EMAIL_MAX } from "../_parsers/user/email.ts";
+import { parseUserName, USER_NAME_MAX, USER_NAME_MIN } from "../_parsers/user/name.ts";
 import {
+  parseUserPassword,
   USER_PASSWORD_MAX,
   USER_PASSWORD_MIN,
-  parseUserPassword,
 } from "../_parsers/user/password.ts";
-import { ParseErr, invalidInputErrors } from "../_parsers/util.ts";
+import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
