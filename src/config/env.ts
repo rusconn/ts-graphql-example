@@ -1,13 +1,11 @@
-import process from "node:process";
+import * as env from "../lib/env/env.ts";
 
-const { NODE_ENV } = process.env;
+const nodeEnv = env.get("NODE_ENV");
 
-const isDev = NODE_ENV === "development";
-const isTest = NODE_ENV === "test";
-const isProd = NODE_ENV === "production";
+export const isDev = nodeEnv === "development";
+export const isTest = nodeEnv === "test";
+export const isProd = nodeEnv === "production";
 
 if (!isDev && !isTest && !isProd) {
   throw new Error("Invalid NODE_ENV");
 }
-
-export { isDev, isProd, isTest };

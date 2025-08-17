@@ -1,11 +1,3 @@
-import process from "node:process";
+import * as env from "../lib/env/env.ts";
 
-const { DATABASE_URL } = process.env;
-
-if (DATABASE_URL == null) {
-  throw new Error("Invalid DATABASE_URL");
-}
-
-const connectionString = DATABASE_URL;
-
-export { connectionString };
+export const connectionString = env.get("DATABASE_URL");

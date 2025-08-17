@@ -1,11 +1,3 @@
-import process from "node:process";
+import * as env from "../lib/env/env.ts";
 
-const { SIGNING_KEY } = process.env;
-
-if (SIGNING_KEY == null) {
-  throw new Error("Invalid SIGNING_KEY");
-}
-
-const signingKey = new TextEncoder().encode(SIGNING_KEY);
-
-export { signingKey };
+export const signingKey = new TextEncoder().encode(env.get("SIGNING_KEY"));
