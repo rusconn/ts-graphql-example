@@ -1,6 +1,6 @@
 import type { Except, OverrideProperties } from "type-fest";
 
-import type { TodoInsert, TodoSelect } from "../db/types-extension.ts";
+import type { NewTodo, Todo as TodoSelect } from "../db/types.ts";
 import type { TodoId } from "./todo/id.ts";
 import type { UserId } from "./user/id.ts";
 
@@ -18,7 +18,7 @@ export type Todo = OverrideProperties<
 >;
 
 export type TodoNew = OverrideProperties<
-  Except<TodoInsert, "id" | "updatedAt">,
+  Except<NewTodo, "id" | "updatedAt">,
   {
     userId: UserId;
   }

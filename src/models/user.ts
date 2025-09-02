@@ -1,6 +1,6 @@
 import type { Except, OverrideProperties } from "type-fest";
 
-import type { UserCredentialInsert, UserInsert, UserSelect } from "../db/types-extension.ts";
+import type { NewUser, NewUserCredential, User as UserSelect } from "../db/types.ts";
 import type { UserEmail } from "./user/email.ts";
 import type { UserId } from "./user/id.ts";
 import type { UserPasswordHashed } from "./user/password.ts";
@@ -24,7 +24,7 @@ export type UserFull = User & {
 };
 
 export type UserNew = OverrideProperties<
-  Except<UserInsert, "id" | "updatedAt"> & Pick<UserCredentialInsert, "password">,
+  Except<NewUser, "id" | "updatedAt"> & Pick<NewUserCredential, "password">,
   {
     email: UserEmail;
   }

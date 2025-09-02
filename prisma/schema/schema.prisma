@@ -1,6 +1,7 @@
 generator kysely {
-  provider = "prisma-kysely"
-  output   = "../../src/db"
+  provider           = "prisma-kysely"
+  output             = "../../src/db"
+  exportWrappedTypes = true
 }
 
 datasource pg {

@@ -1,4 +1,4 @@
-import type { ColumnType } from "kysely";
+import type { ColumnType, Insertable, Selectable, Updateable } from "kysely";
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
@@ -14,7 +14,7 @@ export const UserRole = {
   USER: "USER",
 } as const;
 export type UserRole = typeof UserRole[keyof typeof UserRole];
-export type Todo = {
+export type TodoTable = {
   id: string;
   updatedAt: Timestamp;
   title: string;
@@ -22,26 +22,38 @@ export type Todo = {
   status: Generated<TodoStatus>;
   userId: string;
 };
-export type User = {
+export type Todo = Selectable<TodoTable>;
+export type NewTodo = Insertable<TodoTable>;
+export type TodoUpdate = Updateable<TodoTable>;
+export type UserTable = {
   id: string;
   updatedAt: Timestamp;
   name: string;
   email: string;
   role: Generated<UserRole>;
 };
-export type UserCredential = {
+export type User = Selectable<UserTable>;
+export type NewUser = Insertable<UserTable>;
+export type UserUpdate = Updateable<UserTable>;
+export type UserCredentialTable = {
   userId: string;
   updatedAt: Timestamp;
   password: string;
 };
-export type UserToken = {
+export type UserCredential = Selectable<UserCredentialTable>;
+export type NewUserCredential = Insertable<UserCredentialTable>;
+export type UserCredentialUpdate = Updateable<UserCredentialTable>;
+export type UserTokenTable = {
   userId: string;
   updatedAt: Timestamp;
   token: string;
 };
+export type UserToken = Selectable<UserTokenTable>;
+export type NewUserToken = Insertable<UserTokenTable>;
+export type UserTokenUpdate = Updateable<UserTokenTable>;
 export type DB = {
-  Todo: Todo;
-  User: User;
-  UserCredential: UserCredential;
-  UserToken: UserToken;
+  Todo: TodoTable;
+  User: UserTable;
+  UserCredential: UserCredentialTable;
+  UserToken: UserTokenTable;
 };
