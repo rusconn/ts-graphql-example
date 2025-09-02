@@ -5,10 +5,6 @@
   "engines": {
     "node": "^23.9.0"
   },
-  "prisma": {
-    "schema": "prisma/schema",
-    "seed": "node prisma/seed.ts"
-  },
   "scripts": {
     "dev": "dotenvx run -- node --watch src/main.ts",
     "build": "vite build",
@@ -19,7 +15,7 @@
     "check": "tsc && biome check && prettier --cache --check './**/*.{yml,yaml,md}'",
     "checkgo": "tsgo && biome check && prettier --cache --check './**/*.{yml,yaml,md}'",
     "studio": "prisma studio",
-    "migrate": "prisma migrate",
+    "migrate": "dotenvx run -- prisma migrate",
     "codegen": "dotenvx run -- node schemagen.ts && biome format --write schema.graphql && graphql-codegen-esm"
   },
   "dependencies": {
@@ -58,7 +54,7 @@
     "es-toolkit": "^1.29.0",
     "pino-pretty": "^13.0.0",
     "prettier": "2.7.1",
-    "prisma": "6.9.0",
+    "prisma": "6.15.0",
     "prisma-kysely": "^1.8.0",
     "type-fest": "^4.27.0",
     "typescript": "^5.8.2",
