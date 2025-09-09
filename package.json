@@ -53,7 +53,7 @@
     "@typescript/native-preview": "7.0.0-dev.20250605.1",
     "es-toolkit": "^1.29.0",
     "pino-pretty": "^13.0.0",
-    "prettier": "2.7.1",
+    "prettier": "3.6.2",
     "prisma": "6.15.0",
     "prisma-kysely": "^2.2.0",
     "type-fest": "^4.27.0",

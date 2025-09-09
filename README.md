@@ -1,8 +1,8 @@
 # ts-graphql-example
 
-TypeScript を使って GraphQL API を作る。
+TypeScriptを使ってGraphQL APIを作る。
 
-とりあえず簡単な Todo アプリのバックエンドを想定して作る。\
+とりあえず簡単なTodoアプリのバックエンドを想定して作る。\
 アプリのシップではなく、設計や実装のノウハウを手に入れることが目的。
 
 ## 事前準備
@@ -14,8 +14,8 @@ pnpm install                        # requires global pnpm >= 10
 node --run migrate -- reset --force # requires global Node.js
 ```
 
-Node.js は [package.json](./package.json) の engines を満たすバージョンを自前で用意する。\
-pnpm は v10 以上を自前で用意し、[package.json](./package.json) の packageManager を自動参照させる。
+Node.jsは[package.json](./package.json)のenginesを満たすバージョンを自前で用意する。\
+pnpmはv10以上を自前で用意し、[package.json](./package.json)のpackageManagerを自動参照させる。
 
 ## 起動方法
 
@@ -23,34 +23,34 @@ pnpm は v10 以上を自前で用意し、[package.json](./package.json) の pa
 node --run dev
 ```
 
-クエリの実行は [Web コンソール](http://localhost:4000/graphql) で。\
-アクセストークンを Authorization ヘッダへ Bearer でセットしておくこと。\
-アクセストークンは Web コンソールで login ミューテーションを実行して手に入れる。\
-ログインに必要な情報は [seed スクリプト](./prisma/seed.ts) から取得する。
+クエリの実行は [Webコンソール](http://localhost:4000/graphql)で。\
+アクセストークンをAuthorizationヘッダへBearerでセットしておくこと。\
+アクセストークンはWebコンソールでloginミューテーションを実行して手に入れる。\
+ログインに必要な情報は [seedスクリプト](./prisma/seed.ts)から取得する。
 
 ## 設計記録
 
-### フィールドの nullability
+### フィールドのnullability
 
-データの部分的な取得をサポートする為、基本的に nullable とした。\
+データの部分的な取得をサポートする為、基本的にnullableとした。\
 取得できなかったフィールドに対するフォールバックはクライアントが決める。
 
 - クライアントが部分取得を求めていないことがわかっている
 - フィールドの欠けたデータが意味を成さない
 
-等の場合は non-nullable としてもよい。
+等の場合はnon-nullableとしてもよい。
 
-### API サーバー ⇄ DB 間におけるオーバーフェッチ
+### APIサーバー ⇄ DB間におけるオーバーフェッチ
 
-resolveInfo の解析により DB からの取得列を絞れそうだが、コードの複雑化に対する恩恵が小さいと判断し、許容することにした。
+resolveInfoの解析によりDBからの取得列を絞れそうだが、コードの複雑化に対する恩恵が小さいと判断し、許容することにした。
 
-### node interface と ID フォーマット
+### node interfaceとIDフォーマット
 
-[Relay の GraphQL Server Specification](https://relay.dev/docs/guides/graphql-server-specification/) を満たすため、node interface を用意した。
+[RelayのGraphQL Server Specification](https://relay.dev/docs/guides/graphql-server-specification/)を満たすため、node interfaceを用意した。
 
-node リゾルバで後続のリゾルバを決定する必要があるため、ID へタイプを表すプレフィックスを付加することにした。
+nodeリゾルバで後続のリゾルバを決定する必要があるため、IDへタイプを表すプレフィックスを付加することにした。
 
-### DB の ID フォーマット
+### DBのIDフォーマット
 
 UUIDv4, UUIDv7, ULID, Cuid2, Nano ID, 連番が候補に挙がったが、
 
@@ -59,15 +59,15 @@ UUIDv4, UUIDv7, ULID, Cuid2, Nano ID, 連番が候補に挙がったが、
 - 安定運用の実績があること
 - 標準的であること
 
-を重視し、UUIDv7 を採用した。
+を重視し、UUIDv7を採用した。
 
-時系列の値を求める理由は B+Tree インデックスのキャッシュヒット率を上げるため。\
-参考: [MySQL でプライマリキーを UUID にする前に知っておいて欲しいこと](https://techblog.raccoon.ne.jp/archives/1627262796.html)\
-PostgreSQL のインデックスはクラスター化されていないが、B+Tree を扱う以上同じような問題は避けられないと考えた。
+時系列の値を求める理由はB+Treeインデックスのキャッシュヒット率を上げるため。\
+参考: [MySQLでプライマリキーをUUIDにする前に知っておいて欲しいこと](https://techblog.raccoon.ne.jp/archives/1627262796.html)\
+PostgreSQLのインデックスはクラスター化されていないが、B+Treeを扱う以上同じような問題は避けられないと考えた。
 
-### createdAt の代用としての ID
+### createdAtの代用としてのID
 
-DB には createdAt を用意していない。代わりに ID に含まれるタイムスタンプを利用する。\
+DBにはcreatedAtを用意していない。代わりにIDに含まれるタイムスタンプを利用する。\
 データサイズ、インデックスサイズ、データ転送量の削減が目的。
 
 ### クエリの複雑さ制限
@@ -77,37 +77,37 @@ DB には createdAt を用意していない。代わりに ID に含まれる�
 
 #### 複雑さの目安
 
-| フィールドの種類                          |     複雑さ |
-| :---------------------------------------- | ---------: |
-| DB アクセスを伴わないもの                 |          1 |
-| DB アクセスを伴うもの                     |          3 |
-| 通常のミューテーション                    |          5 |
-| bcrypt 等の重い計算を伴うミューテーション |        100 |
-| connection                                | 3 \* count |
+| フィールドの種類                         |     複雑さ |
+| :--------------------------------------- | ---------: |
+| DBアクセスを伴わないもの                 |          1 |
+| DBアクセスを伴うもの                     |          3 |
+| 通常のミューテーション                   |          5 |
+| bcrypt等の重い計算を伴うミューテーション |        100 |
+| connection                               | 3 \* count |
 
 ## 各技術への理解と所感
 
 ### GraphQL
 
-API へ柔軟性をもたらす技術。\
+APIへ柔軟性をもたらす技術。\
 柔軟性と引き換えにクエリのバッチ化やセキュリティ対策、新しい観点での設計能力が要求される。\
-Public API でこそ真価を発揮すると思うのだが、[あるエキスパートは Public API には使わないと言っている](https://magiroux.com/eight-years-of-graphql)。\
-Private API の場合は Persisted Queries オンリーにすることでいくらか実装の負担を軽減できる。\
-ただ、ユースケースが判明しているのなら RPC スタイルで十分な気もする。当然柔軟性は失われるのだが…。
+Public APIでこそ真価を発揮すると思うのだが、[あるエキスパートはPublic APIには使わないと言っている](https://magiroux.com/eight-years-of-graphql)。\
+Private APIの場合はPersisted Queriesオンリーにすることでいくらか実装の負担を軽減できる。\
+ただ、ユースケースが判明しているのならRPCスタイルで十分な気もする。当然柔軟性は失われるのだが…。
 
 ### Prisma
 
 データソースを扱うツール。\
-Language-agnostic にスキーマを定義し、宣言的にマイグレーション出来る。\
-TS であればスキーマ定義をもとに型付きのクライアントを生成出来る。\
+Language-agnosticにスキーマを定義し、宣言的にマイグレーション出来る。\
+TSであればスキーマ定義をもとに型付きのクライアントを生成出来る。\
 別の言語向けに生成するサードパーティーライブラリもあるよう。
 
 今回は下記理由によりクライアントの使用を避けた。
 
-- SQL が汚い
+- SQLが汚い
 - バッチ化の効率が悪い
 - ライブラリのサイズが大きいのでデプロイ環境を選ぶ
-- マルチに使える分 API がややわかりにくい
+- マルチに使える分APIがややわかりにくい
 
 特にバッチ化の効率が悪いのは致命的で、
 
@@ -125,4 +125,4 @@ TS であればスキーマ定義をもとに型付きのクライアントを�
 }
 ```
 
-上記クエリを N+1 を回避しつつ解決する場合は `prisma.foo.findUnique({ where: { id: fooId } }).bars({ limit: 20 })` のように FluentAPI を利用することになるが、その場合各 foo の **すべての** bar を読み込んでオンメモリで件数を絞り込むよう。bar の件数が多い場合、著しいオーバーヘッドが発生する。バージョン `5.4.2` 時点での話で、今でも同様かどうかは不明。
+上記クエリをN+1を回避しつつ解決する場合は `prisma.foo.findUnique({ where: { id: fooId } }).bars({ limit: 20 })` のようにFluentAPIを利用することになるが、その場合各fooの **すべての** barを読み込んでオンメモリで件数を絞り込むよう。barの件数が多い場合、著しいオーバーヘッドが発生する。バージョン `5.4.2` 時点での話で、今でも同様かどうかは不明。

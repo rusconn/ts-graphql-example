@@ -115,8 +115,8 @@ importers:
         specifier: ^13.0.0
         version: 13.0.0
       prettier:
-        specifier: 2.7.1
-        version: 2.7.1
+        specifier: 3.6.2
+        version: 3.6.2
       prisma:
         specifier: 6.15.0
         version: 6.15.0(typescript@5.8.2)
@@ -2353,9 +2353,9 @@ packages:
   postgres-range@1.1.4:
     resolution: {integrity: sha512-i/hbxIE9803Alj/6ytL7UHQxRvZkI9O4Sy+J3HGc4F4oo/2eQAjTSNJ0bfxyse3bH0nuVesCk+3IRLaMtG3H6w==}
 
-  prettier@2.7.1:
-    resolution: {integrity: sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==}
-    engines: {node: '>=10.13.0'}
+  prettier@3.6.2:
+    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
+    engines: {node: '>=14'}
     hasBin: true
 
   prisma-kysely@2.2.0:
@@ -5238,7 +5238,7 @@ snapshots:
 
   postgres-range@1.1.4: {}
 
-  prettier@2.7.1: {}
+  prettier@3.6.2: {}
 
   prisma-kysely@2.2.0(prisma@6.15.0(typescript@5.8.2)):
     dependencies:
