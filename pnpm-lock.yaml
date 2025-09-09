@@ -91,8 +91,8 @@ importers:
         specifier: 5.0.0
         version: 5.0.0(graphql@16.8.1)
       '@graphql-tools/executor-http':
-        specifier: ^1.1.7
-        version: 1.1.7(@types/node@24.3.1)(graphql@16.8.1)
+        specifier: ^3.0.1
+        version: 3.0.1(@types/node@24.3.1)(graphql@16.8.1)
       '@graphql-tools/utils':
         specifier: ^10.8.1
         version: 10.8.1(graphql@16.8.1)
@@ -767,6 +767,10 @@ packages:
     resolution: {integrity: sha512-RiwLMc89lTjvyLEivZ/qxAC5nBHoS2CtsWFSOsN35sxG9zoo5Z+JsFHM8MlvmO9yt+MJNIyC5MLE1rsbOphlag==}
     engines: {node: '>=18.0.0'}
 
+  '@graphql-hive/signal@2.0.0':
+    resolution: {integrity: sha512-Pz8wB3K0iU6ae9S1fWfsmJX24CcGeTo6hE7T44ucmV/ALKRj+bxClmqrYcDT7v3f0d12Rh4FAXBb6gon+WkDpQ==}
+    engines: {node: '>=20.0.0'}
+
   '@graphql-tools/apollo-engine-loader@8.0.22':
     resolution: {integrity: sha512-ssD2wNxeOTRcUEkuGcp0KfZAGstL9YLTe/y3erTDZtOs2wL1TJESw8NVAp+3oUHPeHKBZQB4Z6RFEbPgMdT2wA==}
     engines: {node: '>=16.0.0'}
@@ -809,6 +813,12 @@ packages:
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
+  '@graphql-tools/executor-common@1.0.1':
+    resolution: {integrity: sha512-YzDOoPaijIL2aEUR58DPTIZEJ/es0IV0nRCnoQcIyc1l2lTNo+k1L1rsFMBUOsyI6Y/pMxZ8ssJlQXwdGT78YA==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+
   '@graphql-tools/executor-graphql-ws@2.0.7':
     resolution: {integrity: sha512-J27za7sKF6RjhmvSOwOQFeNhNHyP4f4niqPnerJmq73OtLx9Y2PGOhkXOEB0PjhvPJceuttkD2O1yMgEkTGs3Q==}
     version: 2.0.7
@@ -816,15 +826,15 @@ packages:
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@graphql-tools/executor-http@1.1.7':
-    resolution: {integrity: sha512-iWTE1MtCW26jxs5DeXsUNPkIFmVWEhioJx0wcDSacJ0onXjyMalfae5SgsuwHMQCVuvvUtQUgb8a9hmPhQ0y+g==}
-    engines: {node: '>=16.0.0'}
-    peerDependencies:
-      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-
   '@graphql-tools/executor-http@1.3.3':
     resolution: {integrity: sha512-LIy+l08/Ivl8f8sMiHW2ebyck59JzyzO/yF9SFS4NH6MJZUezA1xThUXCDIKhHiD56h/gPojbkpcFvM2CbNE7A==}
     engines: {node: '>=18.0.0'}
+    peerDependencies:
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+
+  '@graphql-tools/executor-http@3.0.1':
+    resolution: {integrity: sha512-csGOlDnht6EcCN88xO2O5SYhD36bN2wNMkdhmPT44+wDVS6HcDea/rwq2vX1xMxfe4RU5L3vAK2GL/vrHJxd4Q==}
+    engines: {node: '>=20.0.0'}
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
@@ -1818,10 +1828,6 @@ packages:
   exsolve@1.0.7:
     resolution: {integrity: sha512-VO5fQUzZtI6C+vx4w/4BWJpg3s/5l+6pRQEHzFRM8WFi4XffSP1Z+4qi7GbjWbvRQEbdIco5mIMq+zX4rPuLrw==}
 
-  extract-files@11.0.0:
-    resolution: {integrity: sha512-FuoE1qtbJ4bBVvv94CC7s0oTnKUGvQs+Rjf1L2SJFfS+HTVVjhPFtehPdQ0JiGPqVNfSSZvL5yzHHQq2Z4WNhQ==}
-    engines: {node: ^12.20 || >= 14.13}
-
   fast-check@3.23.2:
     resolution: {integrity: sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A==}
     engines: {node: '>=8.0.0'}
@@ -2195,15 +2201,6 @@ packages:
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
-
-  meros@1.3.0:
-    resolution: {integrity: sha512-2BNGOimxEz5hmjUG2FwoxCt5HN7BXdaWyFqEwxPTrJzVdABtrL4TiHTcsWSFAxPQ/tOnEaQEJh3qWq71QRMY+w==}
-    engines: {node: '>=13'}
-    peerDependencies:
-      '@types/node': '>=13'
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
 
   meros@1.3.1:
     resolution: {integrity: sha512-eV7dRObfTrckdmAz4/n7pT1njIsIJXRIZkgCiX43xEsPNy4gjXQzOYYxmGcolAMtF7HyfqRuDBh3Lgs4hmhVEw==}
@@ -3621,6 +3618,8 @@ snapshots:
 
   '@graphql-hive/signal@1.0.0': {}
 
+  '@graphql-hive/signal@2.0.0': {}
+
   '@graphql-tools/apollo-engine-loader@8.0.22(graphql@16.8.1)':
     dependencies:
       '@graphql-tools/utils': 10.9.1(graphql@16.8.1)
@@ -3679,6 +3678,12 @@ snapshots:
       '@graphql-tools/utils': 10.9.1(graphql@16.8.1)
       graphql: 16.8.1
 
+  '@graphql-tools/executor-common@1.0.1(graphql@16.8.1)':
+    dependencies:
+      '@envelop/core': 5.3.1
+      '@graphql-tools/utils': 10.9.1(graphql@16.8.1)
+      graphql: 16.8.1
+
   '@graphql-tools/executor-graphql-ws@2.0.7(graphql@16.8.1)(uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/6609a88ffa9a16ac5158046761356ce03250a0df)':
     dependencies:
       '@graphql-tools/executor-common': 0.0.6(graphql@16.8.1)
@@ -3696,24 +3701,26 @@ snapshots:
       - uWebSockets.js
       - utf-8-validate
 
-  '@graphql-tools/executor-http@1.1.7(@types/node@24.3.1)(graphql@16.8.1)':
-    dependencies:
-      '@graphql-tools/utils': 10.8.1(graphql@16.8.1)
-      '@repeaterjs/repeater': 3.0.6
-      '@whatwg-node/fetch': 0.9.22
-      extract-files: 11.0.0
-      graphql: 16.8.1
-      meros: 1.3.0(@types/node@24.3.1)
-      tslib: 2.6.2
-      value-or-promise: 1.0.12
-    transitivePeerDependencies:
-      - '@types/node'
-
   '@graphql-tools/executor-http@1.3.3(@types/node@24.3.1)(graphql@16.8.1)':
     dependencies:
       '@graphql-hive/signal': 1.0.0
       '@graphql-tools/executor-common': 0.0.4(graphql@16.8.1)
       '@graphql-tools/utils': 10.8.1(graphql@16.8.1)
+      '@repeaterjs/repeater': 3.0.6
+      '@whatwg-node/disposablestack': 0.0.6
+      '@whatwg-node/fetch': 0.10.10
+      '@whatwg-node/promise-helpers': 1.3.2
+      graphql: 16.8.1
+      meros: 1.3.1(@types/node@24.3.1)
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - '@types/node'
+
+  '@graphql-tools/executor-http@3.0.1(@types/node@24.3.1)(graphql@16.8.1)':
+    dependencies:
+      '@graphql-hive/signal': 2.0.0
+      '@graphql-tools/executor-common': 1.0.1(graphql@16.8.1)
+      '@graphql-tools/utils': 10.9.1(graphql@16.8.1)
       '@repeaterjs/repeater': 3.0.6
       '@whatwg-node/disposablestack': 0.0.6
       '@whatwg-node/fetch': 0.10.10
@@ -4827,8 +4834,6 @@ snapshots:
 
   exsolve@1.0.7: {}
 
-  extract-files@11.0.0: {}
-
   fast-check@3.23.2:
     dependencies:
       pure-rand: 6.1.0
@@ -5180,10 +5185,6 @@ snapshots:
   merge-stream@2.0.0: {}
 
   merge2@1.4.1: {}
-
-  meros@1.3.0(@types/node@24.3.1):
-    optionalDependencies:
-      '@types/node': 24.3.1
 
   meros@1.3.1(@types/node@24.3.1):
     optionalDependencies:
