@@ -58,8 +58,8 @@
     "prisma-kysely": "^2.2.0",
     "type-fest": "^4.27.0",
     "typescript": "^5.8.2",
-    "vite": "^6.1.0",
-    "vitest": "^3.0.5"
+    "vite": "^7.1.5",
+    "vitest": "^3.2.4"
   },
   "pnpm": {
     "overrides": {
