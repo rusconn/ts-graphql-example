@@ -56,7 +56,10 @@ export type AccountUpdateMutationVariables = Exact<{
 }>;
 
 
-export type AccountUpdateMutation = { accountUpdate?: { __typename: 'AccountUpdateSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } } | { __typename: 'InvalidInputErrors' } | null };
+export type AccountUpdateMutation = { accountUpdate?:
+    | { __typename: 'AccountUpdateSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } }
+    | { __typename: 'InvalidInputErrors' }
+   | null };
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -64,7 +67,11 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { login?: { __typename: 'InvalidInputErrors' } | { __typename: 'LoginFailedError' } | { __typename: 'LoginSuccess', token: string } | null };
+export type LoginMutation = { login?:
+    | { __typename: 'InvalidInputErrors' }
+    | { __typename: 'LoginFailedError' }
+    | { __typename: 'LoginSuccess', token: string }
+   | null };
 
 export type LoginPasswordChangeMutationVariables = Exact<{
   oldPassword: Scalars['String']['input'];
@@ -72,7 +79,12 @@ export type LoginPasswordChangeMutationVariables = Exact<{
 }>;
 
 
-export type LoginPasswordChangeMutation = { loginPasswordChange?: { __typename: 'IncorrectOldPasswordError' } | { __typename: 'InvalidInputErrors' } | { __typename: 'LoginPasswordChangeSuccess', id: string } | { __typename: 'SamePasswordsError' } | null };
+export type LoginPasswordChangeMutation = { loginPasswordChange?:
+    | { __typename: 'IncorrectOldPasswordError' }
+    | { __typename: 'InvalidInputErrors' }
+    | { __typename: 'LoginPasswordChangeSuccess', id: string }
+    | { __typename: 'SamePasswordsError' }
+   | null };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -86,7 +98,11 @@ export type SignupMutationVariables = Exact<{
 }>;
 
 
-export type SignupMutation = { signup?: { __typename: 'EmailAlreadyTakenError' } | { __typename: 'InvalidInputErrors' } | { __typename: 'SignupSuccess', token: string } | null };
+export type SignupMutation = { signup?:
+    | { __typename: 'EmailAlreadyTakenError' }
+    | { __typename: 'InvalidInputErrors' }
+    | { __typename: 'SignupSuccess', token: string }
+   | null };
 
 export type TodoCreateMutationVariables = Exact<{
   title: Scalars['String']['input'];
@@ -94,14 +110,21 @@ export type TodoCreateMutationVariables = Exact<{
 }>;
 
 
-export type TodoCreateMutation = { todoCreate?: { __typename: 'InvalidInputErrors' } | { __typename: 'ResourceLimitExceededError' } | { __typename: 'TodoCreateSuccess', todo: { id: string, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+export type TodoCreateMutation = { todoCreate?:
+    | { __typename: 'InvalidInputErrors' }
+    | { __typename: 'ResourceLimitExceededError' }
+    | { __typename: 'TodoCreateSuccess', todo: { id: string, title?: string | null, description?: string | null, status?: TodoStatus | null } }
+   | null };
 
 export type TodoDeleteMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type TodoDeleteMutation = { todoDelete?: { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoDeleteSuccess', id: string } | null };
+export type TodoDeleteMutation = { todoDelete?:
+    | { __typename: 'ResourceNotFoundError' }
+    | { __typename: 'TodoDeleteSuccess', id: string }
+   | null };
 
 export type TodoStatusChangeMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -109,7 +132,10 @@ export type TodoStatusChangeMutationVariables = Exact<{
 }>;
 
 
-export type TodoStatusChangeMutation = { todoStatusChange?: { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoStatusChangeSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+export type TodoStatusChangeMutation = { todoStatusChange?:
+    | { __typename: 'ResourceNotFoundError' }
+    | { __typename: 'TodoStatusChangeSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } }
+   | null };
 
 export type TodoUpdateMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -119,26 +145,40 @@ export type TodoUpdateMutationVariables = Exact<{
 }>;
 
 
-export type TodoUpdateMutation = { todoUpdate?: { __typename: 'InvalidInputErrors' } | { __typename: 'ResourceNotFoundError' } | { __typename: 'TodoUpdateSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } } | null };
+export type TodoUpdateMutation = { todoUpdate?:
+    | { __typename: 'InvalidInputErrors' }
+    | { __typename: 'ResourceNotFoundError' }
+    | { __typename: 'TodoUpdateSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } }
+   | null };
 
 export type TokenRefreshMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TokenRefreshMutation = { tokenRefresh?: { __typename: 'InvalidRefreshTokenError' } | { __typename: 'TokenRefreshSuccess', token: string } | null };
+export type TokenRefreshMutation = { tokenRefresh?:
+    | { __typename: 'InvalidRefreshTokenError' }
+    | { __typename: 'TokenRefreshSuccess', token: string }
+   | null };
 
 export type UserEmailChangeMutationVariables = Exact<{
   email: Scalars['String']['input'];
 }>;
 
 
-export type UserEmailChangeMutation = { userEmailChange?: { __typename: 'EmailAlreadyTakenError' } | { __typename: 'InvalidInputErrors' } | { __typename: 'UserEmailChangeSuccess', user: { id: string } } | null };
+export type UserEmailChangeMutation = { userEmailChange?:
+    | { __typename: 'EmailAlreadyTakenError' }
+    | { __typename: 'InvalidInputErrors' }
+    | { __typename: 'UserEmailChangeSuccess', user: { id: string } }
+   | null };
 
 export type NodeQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type NodeQuery = { node?: { id: string } | { id: string } | null };
+export type NodeQuery = { node?:
+    | { id: string }
+    | { id: string }
+   | null };
 
 export type UserQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -164,77 +204,110 @@ export type TodoCreatedAtQueryVariables = Exact<{
 }>;
 
 
-export type TodoCreatedAtQuery = { node?: { __typename: 'Todo', createdAt?: Date | null } | { __typename: 'User' } | null };
+export type TodoCreatedAtQuery = { node?:
+    | { __typename: 'Todo', createdAt?: Date | null }
+    | { __typename: 'User' }
+   | null };
 
 export type TodoDescriptionQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type TodoDescriptionQuery = { node?: { __typename: 'Todo', description?: string | null } | { __typename: 'User' } | null };
+export type TodoDescriptionQuery = { node?:
+    | { __typename: 'Todo', description?: string | null }
+    | { __typename: 'User' }
+   | null };
 
 export type TodoIdQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type TodoIdQuery = { node?: { __typename: 'Todo', id: string } | { __typename: 'User', id: string } | null };
+export type TodoIdQuery = { node?:
+    | { __typename: 'Todo', id: string }
+    | { __typename: 'User', id: string }
+   | null };
 
 export type TodoStatusQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type TodoStatusQuery = { node?: { __typename: 'Todo', status?: TodoStatus | null } | { __typename: 'User' } | null };
+export type TodoStatusQuery = { node?:
+    | { __typename: 'Todo', status?: TodoStatus | null }
+    | { __typename: 'User' }
+   | null };
 
 export type TodoTitleQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type TodoTitleQuery = { node?: { __typename: 'Todo', title?: string | null } | { __typename: 'User' } | null };
+export type TodoTitleQuery = { node?:
+    | { __typename: 'Todo', title?: string | null }
+    | { __typename: 'User' }
+   | null };
 
 export type TodoUpdatedAtQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type TodoUpdatedAtQuery = { node?: { __typename: 'Todo', updatedAt?: Date | null } | { __typename: 'User' } | null };
+export type TodoUpdatedAtQuery = { node?:
+    | { __typename: 'Todo', updatedAt?: Date | null }
+    | { __typename: 'User' }
+   | null };
 
 export type TodoUserQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type TodoUserQuery = { node?: { __typename: 'Todo', user?: { id: string } | null } | { __typename: 'User' } | null };
+export type TodoUserQuery = { node?:
+    | { __typename: 'Todo', user?: { id: string } | null }
+    | { __typename: 'User' }
+   | null };
 
 export type UserCreatedAtQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type UserCreatedAtQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', createdAt?: Date | null } | null };
+export type UserCreatedAtQuery = { node?:
+    | { __typename: 'Todo' }
+    | { __typename: 'User', createdAt?: Date | null }
+   | null };
 
 export type UserEmailQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type UserEmailQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', email?: string | null } | null };
+export type UserEmailQuery = { node?:
+    | { __typename: 'Todo' }
+    | { __typename: 'User', email?: string | null }
+   | null };
 
 export type UserIdQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type UserIdQuery = { node?: { __typename: 'Todo', id: string } | { __typename: 'User', id: string } | null };
+export type UserIdQuery = { node?:
+    | { __typename: 'Todo', id: string }
+    | { __typename: 'User', id: string }
+   | null };
 
 export type UserNameQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type UserNameQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', name?: string | null } | null };
+export type UserNameQuery = { node?:
+    | { __typename: 'Todo' }
+    | { __typename: 'User', name?: string | null }
+   | null };
 
 export type UserTodoQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -242,7 +315,10 @@ export type UserTodoQueryVariables = Exact<{
 }>;
 
 
-export type UserTodoQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todo?: { id: string } | null } | null };
+export type UserTodoQuery = { node?:
+    | { __typename: 'Todo' }
+    | { __typename: 'User', todo?: { id: string } | null }
+   | null };
 
 export type UserTodosQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -256,11 +332,17 @@ export type UserTodosQueryVariables = Exact<{
 }>;
 
 
-export type UserTodosQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', todos?: { totalCount?: number | null, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges?: Array<{ cursor: string, node?: { id: string } | null } | null> | null } | null } | null };
+export type UserTodosQuery = { node?:
+    | { __typename: 'Todo' }
+    | { __typename: 'User', todos?: { totalCount?: number | null, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges?: Array<{ cursor: string, node?: { id: string } | null } | null> | null } | null }
+   | null };
 
 export type UserUpdatedAtQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type UserUpdatedAtQuery = { node?: { __typename: 'Todo' } | { __typename: 'User', updatedAt?: Date | null } | null };
+export type UserUpdatedAtQuery = { node?:
+    | { __typename: 'Todo' }
+    | { __typename: 'User', updatedAt?: Date | null }
+   | null };

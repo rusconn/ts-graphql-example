@@ -378,7 +378,7 @@ export type ResolverTypeWrapper<T> = Promise<T> | T;
 export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
 };
-export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
+export type Resolver<TResult, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
 
 export type ResolverFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
@@ -415,21 +415,21 @@ export type SubscriptionObject<TResult, TKey extends string, TParent, TContext, 
   | SubscriptionSubscriberObject<TResult, TKey, TParent, TContext, TArgs>
   | SubscriptionResolverObject<TResult, TParent, TContext, TArgs>;
 
-export type SubscriptionResolver<TResult, TKey extends string, TParent = {}, TContext = {}, TArgs = {}> =
+export type SubscriptionResolver<TResult, TKey extends string, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> =
   | ((...args: any[]) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
   | SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>;
 
-export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
+export type TypeResolveFn<TTypes, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>> = (
   parent: TParent,
   context: TContext,
   info: GraphQLResolveInfo
 ) => Maybe<TTypes> | Promise<Maybe<TTypes>>;
 
-export type IsTypeOfResolverFn<T = {}, TContext = {}> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
+export type IsTypeOfResolverFn<T = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
 
 export type NextResolverFn<T> = () => Promise<T>;
 
-export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs = {}> = (
+export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> = (
   next: NextResolverFn<TResult>,
   parent: TParent,
   args: TArgs,
@@ -437,26 +437,77 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+
+
 /** Mapping of union types */
 export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
   AccountDeleteResult: ( AccountDeleteSuccess & { __typename: 'AccountDeleteSuccess' } );
-  AccountUpdateResult: ( Omit<AccountUpdateSuccess, 'user'> & { user: _RefType['User'] } & { __typename: 'AccountUpdateSuccess' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } );
-  LoginPasswordChangeResult: ( IncorrectOldPasswordError & { __typename: 'IncorrectOldPasswordError' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( LoginPasswordChangeSuccess & { __typename: 'LoginPasswordChangeSuccess' } ) | ( SamePasswordsError & { __typename: 'SamePasswordsError' } );
-  LoginResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( LoginFailedError & { __typename: 'LoginFailedError' } ) | ( LoginSuccess & { __typename: 'LoginSuccess' } );
+  AccountUpdateResult:
+    | ( Omit<AccountUpdateSuccess, 'user'> & { user: _RefType['User'] } & { __typename: 'AccountUpdateSuccess' } )
+    | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } )
+  ;
+  LoginPasswordChangeResult:
+    | ( IncorrectOldPasswordError & { __typename: 'IncorrectOldPasswordError' } )
+    | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } )
+    | ( LoginPasswordChangeSuccess & { __typename: 'LoginPasswordChangeSuccess' } )
+    | ( SamePasswordsError & { __typename: 'SamePasswordsError' } )
+  ;
+  LoginResult:
+    | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } )
+    | ( LoginFailedError & { __typename: 'LoginFailedError' } )
+    | ( LoginSuccess & { __typename: 'LoginSuccess' } )
+  ;
   LogoutResult: ( LogoutSuccess & { __typename: 'LogoutSuccess' } );
-  SignupResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( SignupSuccess & { __typename: 'SignupSuccess' } );
-  TodoCreateResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceLimitExceededError & { __typename: 'ResourceLimitExceededError' } ) | ( Omit<TodoCreateSuccess, 'todo' | 'todoEdge'> & { todo: _RefType['Todo'], todoEdge: _RefType['TodoEdge'] } & { __typename: 'TodoCreateSuccess' } );
-  TodoDeleteResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( TodoDeleteSuccess & { __typename: 'TodoDeleteSuccess' } );
-  TodoStatusChangeResult: ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoStatusChangeSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoStatusChangeSuccess' } );
-  TodoUpdateResult: ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } ) | ( Omit<TodoUpdateSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoUpdateSuccess' } );
-  TokenRefreshResult: ( InvalidRefreshTokenError & { __typename: 'InvalidRefreshTokenError' } ) | ( TokenRefreshSuccess & { __typename: 'TokenRefreshSuccess' } );
-  UserEmailChangeResult: ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } ) | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } ) | ( Omit<UserEmailChangeSuccess, 'user'> & { user: _RefType['User'] } & { __typename: 'UserEmailChangeSuccess' } );
+  SignupResult:
+    | ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } )
+    | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } )
+    | ( SignupSuccess & { __typename: 'SignupSuccess' } )
+  ;
+  TodoCreateResult:
+    | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } )
+    | ( ResourceLimitExceededError & { __typename: 'ResourceLimitExceededError' } )
+    | ( Omit<TodoCreateSuccess, 'todo' | 'todoEdge'> & { todo: _RefType['Todo'], todoEdge: _RefType['TodoEdge'] } & { __typename: 'TodoCreateSuccess' } )
+  ;
+  TodoDeleteResult:
+    | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } )
+    | ( TodoDeleteSuccess & { __typename: 'TodoDeleteSuccess' } )
+  ;
+  TodoStatusChangeResult:
+    | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } )
+    | ( Omit<TodoStatusChangeSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoStatusChangeSuccess' } )
+  ;
+  TodoUpdateResult:
+    | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } )
+    | ( ResourceNotFoundError & { __typename: 'ResourceNotFoundError' } )
+    | ( Omit<TodoUpdateSuccess, 'todo'> & { todo: _RefType['Todo'] } & { __typename: 'TodoUpdateSuccess' } )
+  ;
+  TokenRefreshResult:
+    | ( InvalidRefreshTokenError & { __typename: 'InvalidRefreshTokenError' } )
+    | ( TokenRefreshSuccess & { __typename: 'TokenRefreshSuccess' } )
+  ;
+  UserEmailChangeResult:
+    | ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } )
+    | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } )
+    | ( Omit<UserEmailChangeSuccess, 'user'> & { user: _RefType['User'] } & { __typename: 'UserEmailChangeSuccess' } )
+  ;
 }>;
 
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
-  Error: ( EmailAlreadyTakenError ) | ( IncorrectOldPasswordError ) | ( InvalidInputError ) | ( InvalidRefreshTokenError ) | ( LoginFailedError ) | ( ResourceLimitExceededError ) | ( ResourceNotFoundError ) | ( SamePasswordsError );
-  Node: ( TodoMapper ) | ( UserMapper );
+  Error:
+    | ( EmailAlreadyTakenError )
+    | ( IncorrectOldPasswordError )
+    | ( InvalidInputError )
+    | ( InvalidRefreshTokenError )
+    | ( LoginFailedError )
+    | ( ResourceLimitExceededError )
+    | ( ResourceNotFoundError )
+    | ( SamePasswordsError )
+  ;
+  Node:
+    | ( TodoMapper )
+    | ( UserMapper )
+  ;
 }>;
 
 /** Mapping between all available schema types and the resolvers types */
@@ -484,10 +535,10 @@ export type ResolversTypes = ResolversObject<{
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
   LogoutResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LogoutResult']>;
   LogoutSuccess: ResolverTypeWrapper<LogoutSuccess>;
-  Mutation: ResolverTypeWrapper<{}>;
+  Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   Node: ResolverTypeWrapper<NodeMapper>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
-  Query: ResolverTypeWrapper<{}>;
+  Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   ResourceLimitExceededError: ResolverTypeWrapper<ResourceLimitExceededError>;
   ResourceNotFoundError: ResolverTypeWrapper<ResourceNotFoundError>;
   SamePasswordsError: ResolverTypeWrapper<SamePasswordsError>;
@@ -541,10 +592,10 @@ export type ResolversParentTypes = ResolversObject<{
   LoginSuccess: LoginSuccess;
   LogoutResult: ResolversUnionTypes<ResolversParentTypes>['LogoutResult'];
   LogoutSuccess: LogoutSuccess;
-  Mutation: {};
+  Mutation: Record<PropertyKey, never>;
   Node: NodeMapper;
   PageInfo: PageInfo;
-  Query: {};
+  Query: Record<PropertyKey, never>;
   ResourceLimitExceededError: ResourceLimitExceededError;
   ResourceNotFoundError: ResourceNotFoundError;
   SamePasswordsError: SamePasswordsError;
@@ -617,7 +668,6 @@ export type EmailAlreadyTakenErrorResolvers<ContextType = Context, ParentType ex
 
 export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
   __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'IncorrectOldPasswordError' | 'InvalidInputError' | 'InvalidRefreshTokenError' | 'LoginFailedError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError' | 'SamePasswordsError', ParentType, ContextType>;
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
 export type IncorrectOldPasswordErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['IncorrectOldPasswordError'] = ResolversParentTypes['IncorrectOldPasswordError']> = ResolversObject<{
@@ -690,7 +740,6 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
 
 export type NodeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = ResolversObject<{
   __resolveType: TypeResolveFn<'Todo' | 'User', ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
 }>;
 
 export type PageInfoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
@@ -698,7 +747,6 @@ export type PageInfoResolvers<ContextType = Context, ParentType extends Resolver
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hasPreviousPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   startCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
@@ -748,7 +796,6 @@ export type TodoConnectionResolvers<ContextType = Context, ParentType extends Re
   nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['Todo']>>>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type TodoCreateResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoCreateResult'] = ResolversParentTypes['TodoCreateResult']> = ResolversObject<{
@@ -773,7 +820,6 @@ export type TodoDeleteSuccessResolvers<ContextType = Context, ParentType extends
 export type TodoEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoEdge'] = ResolversParentTypes['TodoEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type TodoStatusChangeResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoStatusChangeResult'] = ResolversParentTypes['TodoStatusChangeResult']> = ResolversObject<{
@@ -819,13 +865,11 @@ export type UserConnectionResolvers<ContextType = Context, ParentType extends Re
   nodes?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type UserEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserEdge'] = ResolversParentTypes['UserEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type UserEmailChangeResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserEmailChangeResult'] = ResolversParentTypes['UserEmailChangeResult']> = ResolversObject<{
