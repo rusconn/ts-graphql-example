@@ -66,8 +66,8 @@ importers:
         specifier: github:uNetworking/uWebSockets.js#v20.51.0
         version: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/6609a88ffa9a16ac5158046761356ce03250a0df
       uuid:
-        specifier: ^11.0.3
-        version: 11.0.3
+        specifier: ^13.0.0
+        version: 13.0.0
     devDependencies:
       '@biomejs/biome':
         specifier: 2.0.6
@@ -2839,8 +2839,8 @@ packages:
   urlpattern-polyfill@10.1.0:
     resolution: {integrity: sha512-IGjKp/o0NL3Bso1PymYURCJxMPNAf/ILOpendP9f5B6e1rTJgdgiOvgfoT8VxCAdY+Wisb9uhGaJJf3yZ2V9nw==}
 
-  uuid@11.0.3:
-    resolution: {integrity: sha512-d0z310fCWv5dJwnX1Y/MncBAqGMKEzlBb1AOf7z9K8ALnd0utBX/msg/fA0+sbyN1ihbMsLhrBlnl1ak7Wa0rg==}
+  uuid@13.0.0:
+    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
     hasBin: true
 
   value-or-promise@1.0.12:
@@ -5769,7 +5769,7 @@ snapshots:
 
   urlpattern-polyfill@10.1.0: {}
 
-  uuid@11.0.3: {}
+  uuid@13.0.0: {}
 
   value-or-promise@1.0.12: {}
 
