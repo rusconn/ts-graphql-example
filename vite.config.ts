@@ -20,15 +20,4 @@ export default defineConfig({
   define: {
     "import.meta.vitest": "undefined",
   },
-  test: {
-    globals: true,
-    silent: true,
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
-    watch: false,
-    includeSource: ["**/*.ts"],
-  },
 });
