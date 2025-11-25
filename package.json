@@ -11,7 +11,7 @@
     "preview": "dotenvx run -f .env -f .env.preview --overload -- node --enable-source-maps dist/main.js",
     "test": "dotenvx run -f .env -f .env.test --overload -- pnpm run --sequential /test:/",
     "test:ut": "vitest --dir src",
-    "test:it": "prisma migrate reset --force --skip-seed --skip-generate && vitest --dir tests",
+    "test:it": "prisma migrate reset --force --skip-seed --skip-generate && vitest --dir tests --maxWorkers 1",
     "check": "tsc && biome check && prettier --cache --check './**/*.{yml,yaml,md}'",
     "checkgo": "tsgo && biome check && prettier --cache --check './**/*.{yml,yaml,md}'",
     "studio": "prisma studio",
@@ -59,6 +59,6 @@
     "type-fest": "^4.27.0",
     "typescript": "^5.8.2",
     "vite": "^7.1.5",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.13"
   }
 }

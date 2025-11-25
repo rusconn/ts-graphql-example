@@ -6,10 +6,6 @@ export default defineConfig({
     watch: false,
     globals: true,
     silent: true,
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
+    isolate: false,
   },
 });
