@@ -12,8 +12,7 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  // しばしばクラッシュするためまだ利用しない
-  // "typescript.experimental.useTsgo": true,
+  "typescript.experimental.useTsgo": true,
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
