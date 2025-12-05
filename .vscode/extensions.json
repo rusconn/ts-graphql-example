@@ -6,8 +6,7 @@
     "biomejs.biome",
     "esbenp.prettier-vscode",
     "graphql.vscode-graphql",
-    "prisma.prisma"
-    // しばしばクラッシュするためまだ利用しない
-    // "typescriptteam.native-preview"
+    "prisma.prisma",
+    "typescriptteam.native-preview"
   ]
 }
