@@ -1,4 +1,3 @@
-import { pickDefined } from "../../../src/lib/object/pickDefined.ts";
 import { type PageInfo, type User, UserSortKeys } from "../../../src/schema.ts";
 
 import { Data } from "../../data.ts";
@@ -139,7 +138,9 @@ describe("pagination", () => {
             endCursor: Data.db.admin.id,
           },
         },
-        (pageInfo: PageInfo) => pickDefined({ after: pageInfo.endCursor }),
+        (pageInfo: PageInfo) => ({
+          ...(pageInfo.endCursor != null && { after: pageInfo.endCursor }),
+        }),
         {
           length: 1,
           ids: [Data.graph.alice.id],
@@ -163,7 +164,9 @@ describe("pagination", () => {
             endCursor: Data.db.alice.id,
           },
         },
-        (pageInfo: PageInfo) => pickDefined({ after: pageInfo.endCursor }),
+        (pageInfo: PageInfo) => ({
+          ...(pageInfo.endCursor != null && { after: pageInfo.endCursor }),
+        }),
         {
           length: 1,
           ids: [Data.graph.admin.id],
@@ -187,7 +190,9 @@ describe("pagination", () => {
             endCursor: Data.db.alice.id,
           },
         },
-        (pageInfo: PageInfo) => pickDefined({ before: pageInfo.startCursor }),
+        (pageInfo: PageInfo) => ({
+          ...(pageInfo.startCursor != null && { before: pageInfo.startCursor }),
+        }),
         {
           length: 1,
           ids: [Data.graph.admin.id],
@@ -211,7 +216,9 @@ describe("pagination", () => {
             endCursor: Data.db.admin.id,
           },
         },
-        (pageInfo: PageInfo) => pickDefined({ before: pageInfo.startCursor }),
+        (pageInfo: PageInfo) => ({
+          ...(pageInfo.startCursor != null && { before: pageInfo.startCursor }),
+        }),
         {
           length: 1,
           ids: [Data.graph.alice.id],

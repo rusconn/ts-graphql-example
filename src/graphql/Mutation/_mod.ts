@@ -1,4 +1,4 @@
-import type { Resolvers } from "../../schema.ts";
+import type { MutationResolvers } from "../../schema.ts";
 import * as accountDelete from "./accountDelete.ts";
 import * as accountUpdate from "./accountUpdate.ts";
 import * as login from "./login.ts";
@@ -32,7 +32,7 @@ export const typeDefs = [
   userEmailChange.typeDef,
 ];
 
-export const resolvers: Resolvers["Mutation"] = {
+export const resolvers: MutationResolvers = {
   accountDelete: accountDelete.resolver,
   accountUpdate: accountUpdate.resolver,
   login: login.resolver,

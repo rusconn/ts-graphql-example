@@ -5,10 +5,9 @@ import * as Node from "./graphql/Node/_mod.ts";
 import * as Query from "./graphql/Query/_mod.ts";
 import * as Todo from "./graphql/Todo/_mod.ts";
 import * as User from "./graphql/User/_mod.ts";
-import { pickDefined } from "./lib/object/pickDefined.ts";
 import type { Resolvers } from "./schema.ts";
 
-export const resolvers: Resolvers = pickDefined({
+export const resolvers: Resolvers = {
   Mutation: Mutation.resolvers,
   Node: Node.resolvers,
   Query: Query.resolvers,
@@ -16,4 +15,4 @@ export const resolvers: Resolvers = pickDefined({
   User: User.resolvers,
   DateTime: DateTime.resolver,
   EmailAddress: EmailAddress.resolver,
-});
+};

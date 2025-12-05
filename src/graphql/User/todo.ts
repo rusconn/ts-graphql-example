@@ -10,7 +10,7 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: UserResolvers["todo"] = async (parent, args, context) => {
+export const resolver: NonNullable<UserResolvers["todo"]> = async (parent, args, context) => {
   const authed = authAdminOrUserOwner(context, parent);
 
   if (authed instanceof Error) {

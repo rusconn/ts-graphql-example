@@ -1,4 +1,4 @@
-import type { Resolvers } from "../../schema.ts";
+import type { QueryResolvers } from "../../schema.ts";
 import * as node from "./node.ts";
 import * as user from "./user.ts";
 import * as users from "./users.ts";
@@ -16,7 +16,7 @@ export const typeDefs = [
   viewer.typeDef,
 ];
 
-export const resolvers: Resolvers["Query"] = {
+export const resolvers: QueryResolvers = {
   node: node.resolver,
   user: user.resolver,
   users: users.resolver,
