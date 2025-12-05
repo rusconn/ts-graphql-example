@@ -9,7 +9,7 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: UserResolvers["name"] = async (parent, _args, context) => {
+export const resolver: NonNullable<UserResolvers["name"]> = async (parent, _args, context) => {
   const authed = authAdminOrUserOwner(context, parent);
 
   if (authed instanceof Error) {

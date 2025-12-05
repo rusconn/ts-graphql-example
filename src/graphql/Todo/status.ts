@@ -13,7 +13,7 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: TodoResolvers["status"] = (parent, _args, context) => {
+export const resolver: NonNullable<TodoResolvers["status"]> = (parent, _args, context) => {
   const authed = authTodoOwner(context, parent);
 
   if (authed instanceof Error) {

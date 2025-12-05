@@ -1,5 +1,4 @@
 import { getCursorConnection } from "../../lib/graphql/cursorConnections/get.ts";
-import { pickDefined } from "../../lib/object/pickDefined.ts";
 import type { Todo } from "../../models/todo.ts";
 import type { UserResolvers, UserTodosArgs } from "../../schema.ts";
 import { TodoSortKeys } from "../../schema.ts";
@@ -59,7 +58,12 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: UserResolvers["todos"] = async (parent, args, context, info) => {
+export const resolver: NonNullable<UserResolvers["todos"]> = async (
+  parent,
+  args,
+  context,
+  info,
+) => {
   const authed = authAdminOrUserOwner(context, parent);
 
   if (authed instanceof Error) {
@@ -120,6 +124,8 @@ const parseArgs = (args: UserTodosArgs) => {
     connectionArgs,
     reverse: args.reverse,
     sortKey: args.sortKey,
-    filter: pickDefined({ status }),
+    filter: {
+      ...(status != null && { status }),
+    },
   };
 };

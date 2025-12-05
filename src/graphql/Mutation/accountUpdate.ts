@@ -1,4 +1,3 @@
-import { pickDefined } from "../../lib/object/pickDefined.ts";
 import type { MutationAccountUpdateArgs, MutationResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -70,7 +69,9 @@ const parseArgs = (args: MutationAccountUpdateArgs) => {
 
     return errors;
   } else {
-    return pickDefined({ name });
+    return {
+      ...(name != null && { name }),
+    };
   }
 };
 

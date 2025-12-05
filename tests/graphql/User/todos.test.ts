@@ -1,4 +1,3 @@
-import { pickDefined } from "../../../src/lib/object/pickDefined.ts";
 import {
   type PageInfo,
   type Todo,
@@ -191,7 +190,9 @@ describe("pagination", () => {
             endCursor: Data.db.adminTodo3.id,
           },
         },
-        (pageInfo: PageInfo) => pickDefined({ after: pageInfo.endCursor }),
+        (pageInfo: PageInfo) => ({
+          ...(pageInfo.endCursor != null && { after: pageInfo.endCursor }),
+        }),
         {
           length: 1,
           ids: [Data.graph.adminTodo.id],
@@ -215,7 +216,9 @@ describe("pagination", () => {
             endCursor: Data.db.adminTodo3.id,
           },
         },
-        (pageInfo: PageInfo) => pickDefined({ after: pageInfo.endCursor }),
+        (pageInfo: PageInfo) => ({
+          ...(pageInfo.endCursor != null && { after: pageInfo.endCursor }),
+        }),
         {
           length: 1,
           ids: [Data.graph.adminTodo2.id],
@@ -239,7 +242,9 @@ describe("pagination", () => {
             endCursor: Data.db.adminTodo.id,
           },
         },
-        (pageInfo: PageInfo) => pickDefined({ before: pageInfo.startCursor }),
+        (pageInfo: PageInfo) => ({
+          ...(pageInfo.startCursor != null && { before: pageInfo.startCursor }),
+        }),
         {
           length: 1,
           ids: [Data.graph.adminTodo2.id],
@@ -263,7 +268,9 @@ describe("pagination", () => {
             endCursor: Data.db.adminTodo2.id,
           },
         },
-        (pageInfo: PageInfo) => pickDefined({ before: pageInfo.startCursor }),
+        (pageInfo: PageInfo) => ({
+          ...(pageInfo.startCursor != null && { before: pageInfo.startCursor }),
+        }),
         {
           length: 1,
           ids: [Data.graph.adminTodo.id],

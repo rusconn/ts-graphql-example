@@ -1,4 +1,3 @@
-import { pickDefined } from "../../lib/object/pickDefined.ts";
 import type { UserResolvers } from "../../schema.ts";
 import * as createdAt from "./createdAt.ts";
 import * as email from "./email.ts";
@@ -23,7 +22,7 @@ export const typeDefs = [
   updatedAt.typeDef,
 ];
 
-export const resolvers: UserResolvers = pickDefined({
+export const resolvers: UserResolvers = {
   createdAt: createdAt.resolver,
   email: email.resolver,
   id: id.resolver,
@@ -31,4 +30,4 @@ export const resolvers: UserResolvers = pickDefined({
   todo: todo.resolver,
   todos: todos.resolver,
   updatedAt: updatedAt.resolver,
-});
+};
