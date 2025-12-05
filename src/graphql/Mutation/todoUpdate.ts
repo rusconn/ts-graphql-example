@@ -73,15 +73,15 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
 };
 
 const parseArgs = (args: Omit<MutationTodoUpdateArgs, "id">) => {
-  const title = parseTodoTitle(args.title, "title", {
+  const title = parseTodoTitle(args, "title", {
     optional: true,
     nullable: false,
   });
-  const description = parseTodoDescription(args.description, "description", {
+  const description = parseTodoDescription(args, "description", {
     optional: true,
     nullable: false,
   });
-  const status = parseTodoStatus(args.status, "status", {
+  const status = parseTodoStatus(args, "status", {
     optional: true,
     nullable: false,
   });
