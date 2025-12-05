@@ -99,11 +99,11 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
 };
 
 const parseArgs = (args: MutationLoginPasswordChangeArgs) => {
-  const oldPassword = parseUserPassword(args.oldPassword, "oldPassword", {
+  const oldPassword = parseUserPassword(args, "oldPassword", {
     optional: false,
     nullable: false,
   });
-  const newPassword = parseUserPassword(args.newPassword, "newPassword", {
+  const newPassword = parseUserPassword(args, "newPassword", {
     optional: false,
     nullable: false,
   });

@@ -57,11 +57,11 @@ const authorize = (context: AuthContext) => {
 };
 
 const parseArgs = (args: MutationTodoCreateArgs) => {
-  const title = parseTodoTitle(args.title, "title", {
+  const title = parseTodoTitle(args, "title", {
     optional: false,
     nullable: false,
   });
-  const description = parseTodoDescription(args.description, "description", {
+  const description = parseTodoDescription(args, "description", {
     optional: false,
     nullable: false,
   });

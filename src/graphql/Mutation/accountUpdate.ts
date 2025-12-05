@@ -53,7 +53,7 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
 };
 
 const parseArgs = (args: MutationAccountUpdateArgs) => {
-  const name = parseUserName(args.name, "name", {
+  const name = parseUserName(args, "name", {
     optional: true,
     nullable: false,
   });

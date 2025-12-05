@@ -81,15 +81,15 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 };
 
 const parseArgs = (args: MutationSignupArgs) => {
-  const name = parseUserName(args.name, "name", {
+  const name = parseUserName(args, "name", {
     optional: false,
     nullable: false,
   });
-  const email = parseUserEmail(args.email, "email", {
+  const email = parseUserEmail(args, "email", {
     optional: false,
     nullable: false,
   });
-  const password = parseUserPassword(args.password, "password", {
+  const password = parseUserPassword(args, "password", {
     optional: false,
     nullable: false,
   });

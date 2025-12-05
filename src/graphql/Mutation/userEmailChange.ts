@@ -56,7 +56,7 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
 };
 
 const parseArgs = (args: MutationUserEmailChangeArgs) => {
-  const email = parseUserEmail(args.email, "email", {
+  const email = parseUserEmail(args, "email", {
     optional: false,
     nullable: false,
   });
