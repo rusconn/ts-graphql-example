@@ -92,7 +92,7 @@ const logic = async (
 ): Promise<ResolversTypes["TodoCreateResult"]> => {
   const { title, description } = parsed;
 
-  const count = await context.api.todo.count(authed.id);
+  const count = await context.repos.todo.count(authed.id);
 
   if (count >= TODOS_MAX) {
     return {
@@ -101,7 +101,7 @@ const logic = async (
     };
   }
 
-  const todo = await context.api.todo.create({
+  const todo = await context.repos.todo.create({
     title,
     description,
     userId: authed.id,
@@ -162,26 +162,26 @@ if (import.meta.vitest) {
   });
 
   describe("Maximum num todos", () => {
-    const createAPIs = (num: number) =>
+    const createRepos = (num: number) =>
       ({
         todo: {
           count: async () => num,
           create: async () => ({ id: "dummy" }),
         },
-      }) as unknown as Context["api"];
+      }) as unknown as Context["repos"];
 
     const notExceededs = [0, 1, TODOS_MAX - 1];
     const exceededs = [TODOS_MAX, TODOS_MAX + 1];
 
     test.each(notExceededs)("notExceededs %#", async (num) => {
-      const api = createAPIs(num);
-      const result = await logic(valid.user, valid.args, { api } as Context);
+      const repos = createRepos(num);
+      const result = await logic(valid.user, valid.args, { repos } as Context);
       expect(result?.__typename === "ResourceLimitExceededError").toBe(false);
     });
 
     test.each(exceededs)("exceededs %#", async (num) => {
-      const api = createAPIs(num);
-      const result = await logic(valid.user, valid.args, { api } as Context);
+      const repos = createRepos(num);
+      const result = await logic(valid.user, valid.args, { repos } as Context);
       expect(result?.__typename === "ResourceLimitExceededError").toBe(true);
     });
   });

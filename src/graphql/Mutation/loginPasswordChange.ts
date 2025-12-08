@@ -62,7 +62,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     return invalidInputErrors(parsed);
   }
 
-  const userWithCredencial = await context.api.user.getWithCredencialById(authed.id);
+  const userWithCredencial = await context.repos.user.getWithCredencialById(authed.id);
 
   if (!userWithCredencial) {
     throw internalServerError();
@@ -86,7 +86,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     };
   }
 
-  const id = await context.api.user.updatePasswordById(authed.id, newPassword);
+  const id = await context.repos.user.updatePasswordById(authed.id, newPassword);
 
   if (!id) {
     throw internalServerError();

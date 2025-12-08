@@ -2,8 +2,6 @@ import { createSchema, createYoga } from "graphql-yoga";
 
 import { endpoint } from "./config/url.ts";
 import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
-import { TodoAPI } from "./datasources/todo.ts";
-import { UserAPI } from "./datasources/user.ts";
 import { client } from "./db/client.ts";
 import { authenticationErr } from "./graphql/_errors/authenticationError.ts";
 import { badUserInputErr } from "./graphql/_errors/badUserInput.ts";
@@ -18,6 +16,8 @@ import { introspection } from "./plugins/introspection.ts";
 import { logging } from "./plugins/logging.ts";
 import { readinessCheck } from "./plugins/readinessCheck.ts";
 import { requestId } from "./plugins/requestId.ts";
+import { TodoRepo } from "./repositories/todo.ts";
+import { UserRepo } from "./repositories/user.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
 import { verifyJwt } from "./util/accessToken.ts";
@@ -52,9 +52,9 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
       logger: logger.child({ requestId }),
       user,
       db: client,
-      api: {
-        todo: new TodoAPI(client),
-        user: new UserAPI(client),
+      repos: {
+        todo: new TodoRepo(client),
+        user: new UserRepo(client),
       },
     };
   },

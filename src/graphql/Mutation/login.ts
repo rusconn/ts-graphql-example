@@ -46,7 +46,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   const { email, password } = parsed;
 
-  const found = await context.api.user.getWithCredencialByEmail(email);
+  const found = await context.repos.user.getWithCredencialByEmail(email);
 
   if (!found) {
     return {
@@ -64,7 +64,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const refreshToken = await context.api.user.updateTokenById(found.id);
+  const refreshToken = await context.repos.user.updateTokenById(found.id);
 
   if (!refreshToken) {
     throw internalServerError();

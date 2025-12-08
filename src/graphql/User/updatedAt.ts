@@ -20,7 +20,7 @@ export const resolver: NonNullable<UserResolvers["updatedAt"]> = async (parent, 
     return parent.updatedAt;
   }
 
-  const user = await context.api.user.load(parent.id);
+  const user = await context.repos.user.load(parent.id);
 
   if (!user) {
     throw internalServerError();

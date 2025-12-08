@@ -54,7 +54,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     return invalidInputErrors(parsed);
   }
 
-  const result = await context.api.user.create({
+  const result = await context.repos.user.create({
     ...parsed,
     role: UserRole.USER,
   });

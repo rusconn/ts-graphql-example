@@ -31,7 +31,7 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
     throw badUserInputErr(id.message, id);
   }
 
-  const todo = await context.api.todo.update(
+  const todo = await context.repos.todo.update(
     { id, userId: authed.id }, //
     { status: args.status },
   );

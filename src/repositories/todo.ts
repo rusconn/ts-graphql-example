@@ -7,7 +7,7 @@ import * as userTodoLoader from "./loaders/userTodo.ts";
 import * as userTodoCountLoader from "./loaders/userTodoCount.ts";
 import * as userTodosLoader from "./loaders/userTodos.ts";
 
-export class TodoAPI {
+export class TodoRepo {
   #db;
   #loaders;
 

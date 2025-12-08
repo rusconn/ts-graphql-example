@@ -69,7 +69,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 
   return await getCursorConnection<User, User["id"]>(
     ({ backward, ...exceptBackward }) =>
-      context.api.user.getPage({
+      context.repos.user.getPage({
         sortKey: {
           [UserSortKeys.CreatedAt]: "createdAt" as const,
           [UserSortKeys.UpdatedAt]: "updatedAt" as const,
@@ -77,7 +77,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
         reverse: reverse !== backward,
         ...exceptBackward,
       }),
-    context.api.user.count,
+    context.repos.user.count,
     connectionArgs,
     { resolveInfo: info },
   );

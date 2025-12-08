@@ -35,7 +35,7 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
     };
   }
 
-  const refreshToken = await context.api.user.updateTokenByToken(cookie.value);
+  const refreshToken = await context.repos.user.updateTokenByToken(cookie.value);
 
   if (!refreshToken) {
     return {
@@ -44,7 +44,7 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
     };
   }
 
-  const user = await context.api.user.getByToken(refreshToken);
+  const user = await context.repos.user.getByToken(refreshToken);
 
   if (!user) {
     throw internalServerError();

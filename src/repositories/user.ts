@@ -9,7 +9,7 @@ import * as UserTokens from "../models/user/token.ts";
 import type { User, UserNew, UserUpd, UserWithCredential } from "../models/user.ts";
 import * as userLoader from "./loaders/user.ts";
 
-export class UserAPI {
+export class UserRepo {
   #db;
   #loaders;
 

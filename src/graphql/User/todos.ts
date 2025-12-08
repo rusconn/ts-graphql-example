@@ -80,7 +80,7 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (
 
   return await getCursorConnection<Todo, Todo["id"]>(
     ({ backward, ...exceptBackward }) =>
-      context.api.todo.loadTheirPage({
+      context.repos.todo.loadTheirPage({
         userId: parent.id,
         sortKey: {
           [TodoSortKeys.CreatedAt]: "createdAt" as const,
@@ -91,7 +91,7 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (
         ...filter,
       }),
     () =>
-      context.api.todo.loadTheirCount({
+      context.repos.todo.loadTheirCount({
         userId: parent.id,
         ...filter,
       }),

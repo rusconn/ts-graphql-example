@@ -35,7 +35,7 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
     return invalidInputErrors(parsed);
   }
 
-  const result = await context.api.user.updateById(authed.id, parsed);
+  const result = await context.repos.user.updateById(authed.id, parsed);
 
   switch (result.type) {
     case "Success":
