@@ -3,7 +3,7 @@ model User {
   updatedAt DateTime
   name      String   @pg.VarChar(100)
   email     String   @unique @pg.VarChar(100)
-  role      UserRole @default(USER)
+  role      UserRole
 
   todos      Todo[]
   token      UserToken?

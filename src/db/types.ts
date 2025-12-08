@@ -18,8 +18,8 @@ export type TodoTable = {
     id: string;
     updatedAt: Timestamp;
     title: string;
-    description: Generated<string>;
-    status: Generated<TodoStatus>;
+    description: string;
+    status: TodoStatus;
     userId: string;
 };
 export type Todo = Selectable<TodoTable>;
@@ -30,7 +30,7 @@ export type UserTable = {
     updatedAt: Timestamp;
     name: string;
     email: string;
-    role: Generated<UserRole>;
+    role: UserRole;
 };
 export type User = Selectable<UserTable>;
 export type NewUser = Insertable<UserTable>;

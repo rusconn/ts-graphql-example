@@ -1,4 +1,5 @@
 import type { Context } from "../../context.ts";
+import { TodoStatus } from "../../db/types.ts";
 import type { MutationResolvers, MutationTodoCreateArgs, ResolversTypes } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import type { AuthContext } from "../_authorizers/types.ts";
@@ -104,6 +105,7 @@ const logic = async (
   const todo = await context.repos.todo.create({
     title,
     description,
+    status: TodoStatus.PENDING,
     userId: authed.id,
   });
 

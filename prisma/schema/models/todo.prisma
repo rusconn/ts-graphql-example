@@ -2,8 +2,8 @@ model Todo {
   id          String     @id @pg.Uuid
   updatedAt   DateTime
   title       String     @pg.VarChar(255)
-  description String     @default("")
-  status      TodoStatus @default(PENDING)
+  description String
+  status      TodoStatus
   userId      String     @pg.Uuid
 
   user User @relation(fields: userId, references: id, onDelete: Cascade)

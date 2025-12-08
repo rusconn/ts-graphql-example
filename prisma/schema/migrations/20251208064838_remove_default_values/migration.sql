@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "Todo" ALTER COLUMN "description" DROP DEFAULT,
+ALTER COLUMN "status" DROP DEFAULT;
+
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "role" DROP DEFAULT;
