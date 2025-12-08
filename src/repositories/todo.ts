@@ -1,11 +1,26 @@
 import type { Kysely, Transaction } from "kysely";
+import type { Except, OverrideProperties } from "type-fest";
 
-import type { DB } from "../db/types.ts";
+import type { DB, NewTodo } from "../db/types.ts";
 import * as TodoId from "../models/todo/id.ts";
-import type { Todo, TodoKey, TodoNew, TodoUpd } from "../models/todo.ts";
+import type { Todo } from "../models/todo.ts";
 import * as userTodoLoader from "./loaders/userTodo.ts";
 import * as userTodoCountLoader from "./loaders/userTodoCount.ts";
 import * as userTodosLoader from "./loaders/userTodos.ts";
+
+export type TodoKey = {
+  id: Todo["id"];
+  userId?: Todo["userId"];
+};
+
+export type TodoNew = OverrideProperties<
+  Except<NewTodo, "id" | "updatedAt">,
+  {
+    userId: Todo["userId"];
+  }
+>;
+
+export type TodoUpd = Partial<TodoNew>;
 
 export class TodoRepo {
   #db;

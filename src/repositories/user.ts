@@ -1,13 +1,24 @@
 import type { Kysely } from "kysely";
+import type { Except, OverrideProperties } from "type-fest";
 
-import type { DB } from "../db/types.ts";
+import type { DB, NewUser, NewUserCredential } from "../db/types.ts";
 import { isPgError, PgErrorCode } from "../lib/pg/error.ts";
+import type { UserEmail } from "../models/user/email.ts";
 import * as UserId from "../models/user/id.ts";
 import * as UserPassword from "../models/user/password.ts";
 import type { UserToken } from "../models/user/token.ts";
 import * as UserTokens from "../models/user/token.ts";
-import type { User, UserNew, UserUpd, UserWithCredential } from "../models/user.ts";
+import type { User, UserWithCredential } from "../models/user.ts";
 import * as userLoader from "./loaders/user.ts";
+
+export type UserNew = OverrideProperties<
+  Except<NewUser, "id" | "updatedAt"> & Pick<NewUserCredential, "password">,
+  {
+    email: UserEmail;
+  }
+>;
+
+export type UserUpd = Partial<Except<UserNew, "password">>;
 
 export class UserRepo {
   #db;

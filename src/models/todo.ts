@@ -1,27 +1,11 @@
-import type { Except, OverrideProperties } from "type-fest";
-
-import type { NewTodo, Todo as TodoSelect } from "../db/types.ts";
 import type { TodoId } from "./todo/id.ts";
-import type { UserId } from "./user/id.ts";
+import type { User } from "./user.ts";
 
-export type TodoKey = {
+export type Todo = {
   id: TodoId;
-  userId?: UserId;
+  title: string;
+  description: string;
+  status: "DONE" | "PENDING";
+  updatedAt: Date;
+  userId: User["id"];
 };
-
-export type Todo = OverrideProperties<
-  TodoSelect,
-  {
-    id: TodoId;
-    userId: UserId;
-  }
->;
-
-export type TodoNew = OverrideProperties<
-  Except<NewTodo, "id" | "updatedAt">,
-  {
-    userId: UserId;
-  }
->;
-
-export type TodoUpd = Partial<TodoNew>;
