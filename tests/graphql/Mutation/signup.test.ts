@@ -1,5 +1,5 @@
 import { client } from "../../../src/db/client.ts";
-import { UserRole } from "../../../src/db/types.ts";
+import { UserRole } from "../../../src/models/user.ts";
 
 import { db } from "../../data.ts";
 import { clearUsers, fail, seed } from "../../helpers.ts";

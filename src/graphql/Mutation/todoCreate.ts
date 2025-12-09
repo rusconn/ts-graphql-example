@@ -1,5 +1,5 @@
 import type { Context } from "../../context.ts";
-import { TodoStatus } from "../../db/types.ts";
+import { TodoStatus } from "../../models/todo.ts";
 import type { MutationResolvers, MutationTodoCreateArgs, ResolversTypes } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import type { AuthContext } from "../_authorizers/types.ts";

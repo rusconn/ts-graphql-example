@@ -1,4 +1,3 @@
-import type { UserRole } from "../db/types.ts";
 import * as UserEmail from "./user/email.ts";
 import * as UserId from "./user/id.ts";
 import * as UserPassword from "./user/password.ts";
@@ -29,3 +28,10 @@ export type UserToken = {
 export type UserFull = User & //
   Pick<UserCredential, "password"> &
   Pick<UserToken, "token">;
+
+export const UserRole = {
+  ADMIN: "ADMIN",
+  USER: "USER",
+} as const;
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];

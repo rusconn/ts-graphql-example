@@ -1,5 +1,4 @@
-import { TodoStatus } from "../../../db/types.ts";
-import type { Todo } from "../../../models/todo.ts";
+import { type Todo, TodoStatus } from "../../../models/todo.ts";
 import { db as users } from "./user.ts";
 
 export const db = {

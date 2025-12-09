@@ -1,7 +1,7 @@
 import { omit } from "es-toolkit";
 
 import { client } from "../../../src/db/client.ts";
-import { TodoStatus } from "../../../src/db/types.ts";
+import { TodoStatus } from "../../../src/models/todo.ts";
 import * as Graph from "../../../src/schema.ts";
 
 import { db, dummyId, graph, tokens } from "../../data.ts";

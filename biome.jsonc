@@ -5,7 +5,7 @@
       "**",
       "!**/node_modules/**",
       "!**/dist/**",
-      "!**/src/db/types.ts",
+      "!**/src/db/generated.ts",
       "!**/src/schema.ts",
       "!**/tests/graphql/schema.ts"
     ]

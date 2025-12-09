@@ -1,6 +1,6 @@
 import { client } from "../../../src/db/client.ts";
-import { TodoStatus } from "../../../src/db/types.ts";
 import { parseTodoId } from "../../../src/graphql/_parsers/todo/id.ts";
+import { TodoStatus } from "../../../src/models/todo.ts";
 
 import { db, tokens } from "../../data.ts";
 import { clearTables, fail, seed } from "../../helpers.ts";

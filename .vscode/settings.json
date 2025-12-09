@@ -30,5 +30,11 @@
   },
   "[graphql]": {
     "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[sql]": {
+    "editor.defaultFormatter": "ReneSaarsoo.sql-formatter-vsc"
+  },
+  "[hcl]": {
+    "editor.defaultFormatter": "Ariga.atlas-hcl"
   }
 }

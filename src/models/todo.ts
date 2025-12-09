@@ -1,4 +1,3 @@
-import type { TodoStatus } from "../db/types.ts";
 import * as TodoId from "./todo/id.ts";
 import type { User } from "./user.ts";
 
@@ -12,3 +11,10 @@ export type Todo = {
   updatedAt: Date;
   userId: User["id"];
 };
+
+export const TodoStatus = {
+  DONE: "DONE",
+  PENDING: "PENDING",
+} as const;
+
+export type TodoStatus = (typeof TodoStatus)[keyof typeof TodoStatus];

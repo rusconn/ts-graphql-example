@@ -4,9 +4,7 @@ packages:
 onlyBuiltDependencies:
   - bcrypt
   - "@biomejs/biome"
-  - "@prisma/engines"
   - esbuild
-  - prisma
 
 overrides:
   "@babel/traverse@<7.23.2": ">=7.23.2"

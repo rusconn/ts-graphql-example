@@ -1,9 +1,0 @@
-generator kysely {
-  provider           = "prisma-kysely"
-  output             = "../../src/db"
-  exportWrappedTypes = true
-}
-
-datasource pg {
-  provider = "postgresql"
-}

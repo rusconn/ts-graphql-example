@@ -1,7 +1,6 @@
 import { userId } from "../../src/graphql/_adapters/user/id.ts";
 import { db } from "../../src/graphql/_testData/db/user.ts";
-import * as UserId from "../../src/models/user/id.ts";
-import type { User } from "../../src/models/user.ts";
+import { type User, UserId } from "../../src/models/user.ts";
 import type * as Graph from "../../src/schema.ts";
 import { signedJwt } from "../../src/util/accessToken.ts";
 

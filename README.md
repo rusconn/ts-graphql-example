@@ -10,8 +10,9 @@ TypeScriptを使ってGraphQL APIを作る。
 ```shell
 cp .env.example .env
 docker compose up -d
-pnpm install                        # requires global pnpm >= 10
-node --run migrate -- reset --force # requires global Node.js
+pnpm install             # requires global pnpm >= 10
+node --run migrate:apply # requires global Node.js and Atlas(https://atlasgo.io/)
+node --run seed
 ```
 
 Node.jsは[package.json](./package.json)のenginesを満たすバージョンを自前で用意する。\
@@ -26,7 +27,7 @@ node --run dev
 クエリの実行は [Webコンソール](http://localhost:4000/graphql)で。\
 アクセストークンをAuthorizationヘッダへBearerでセットしておくこと。\
 アクセストークンはWebコンソールでloginミューテーションを実行して手に入れる。\
-ログインに必要な情報は [seedスクリプト](./prisma/seed.ts)から取得する。
+ログインに必要な情報は [seedスクリプト](./db/seed.ts)から取得する。
 
 ## 設計記録
 
@@ -94,35 +95,3 @@ APIへ柔軟性をもたらす技術。\
 Public APIでこそ真価を発揮すると思うのだが、[あるエキスパートはPublic APIには使わないと言っている](https://magiroux.com/eight-years-of-graphql)。\
 Private APIの場合はPersisted Queriesオンリーにすることでいくらか実装の負担を軽減できる。\
 ただ、ユースケースが判明しているのならRPCスタイルで十分な気もする。当然柔軟性は失われるのだが…。
-
-### Prisma
-
-データソースを扱うツール。\
-Language-agnosticにスキーマを定義し、宣言的にマイグレーション出来る。\
-TSであればスキーマ定義をもとに型付きのクライアントを生成出来る。\
-別の言語向けに生成するサードパーティーライブラリもあるよう。
-
-今回は下記理由によりクライアントの使用を避けた。
-
-- SQLが汚い
-- バッチ化の効率が悪い
-- ライブラリのサイズが大きいのでデプロイ環境を選ぶ
-- マルチに使える分APIがややわかりにくい
-
-特にバッチ化の効率が悪いのは致命的で、
-
-```graphql
-{
-  foos(first: 10) {
-    nodes {
-      bars(first: 20) {
-        nodes {
-          id
-        }
-      }
-    }
-  }
-}
-```
-
-上記クエリをN+1を回避しつつ解決する場合は `prisma.foo.findUnique({ where: { id: fooId } }).bars({ limit: 20 })` のようにFluentAPIを利用することになるが、その場合各fooの **すべての** barを読み込んでオンメモリで件数を絞り込むよう。barの件数が多い場合、著しいオーバーヘッドが発生する。バージョン `5.4.2` 時点での話で、今でも同様かどうかは不明。

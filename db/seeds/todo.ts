@@ -2,8 +2,9 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import { type DB, TodoStatus, type User } from "../../src/db/types.ts";
-import { TodoId } from "../../src/models/todo.ts";
+import type { DB } from "../../src/db/types.ts";
+import { TodoId, TodoStatus } from "../../src/models/todo.ts";
+import type { User } from "../../src/models/user.ts";
 
 import { randInt } from "./common.ts";
 
