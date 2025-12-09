@@ -1,4 +1,4 @@
-import { Data } from "../../data.ts";
+import { db, graph, tokens } from "../../data.ts";
 import { clearTables, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoIdQuery, TodoIdQueryVariables } from "../schema.ts";
@@ -13,8 +13,8 @@ const executeQuery = executeSingleResultOperation<TodoIdQuery, TodoIdQueryVariab
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
-  todos: [Data.db.adminTodo, Data.db.aliceTodo],
+  users: [db.users.admin, db.users.alice],
+  todos: [db.todos.admin1, db.todos.alice1],
 };
 
 const seedData = {
@@ -30,21 +30,21 @@ beforeAll(async () => {
 
 test("owned", async () => {
   const { data } = await executeQuery({
-    token: Data.token.admin,
-    variables: { id: Data.graph.adminTodo.id },
+    token: tokens.admin,
+    variables: { id: graph.todos.admin1.id },
   });
 
   if (data?.node?.__typename !== "Todo") {
     fail();
   }
 
-  expect(data.node.id).toBe(Data.graph.adminTodo.id);
+  expect(data.node.id).toBe(graph.todos.admin1.id);
 });
 
 test("not owned", async () => {
   const { data } = await executeQuery({
-    token: Data.token.alice,
-    variables: { id: Data.graph.adminTodo.id },
+    token: tokens.alice,
+    variables: { id: graph.todos.admin1.id },
   });
 
   expect(data?.node).toBeNull();

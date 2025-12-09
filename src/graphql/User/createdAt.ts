@@ -1,4 +1,4 @@
-import * as UserId from "../../models/user/id.ts";
+import { UserId } from "../../models/user.ts";
 import type { UserResolvers } from "../../schema.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";

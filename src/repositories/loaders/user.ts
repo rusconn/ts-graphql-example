@@ -7,7 +7,7 @@ import type { User } from "../../models/user.ts";
 
 export type Key = User["id"];
 
-export const init = (db: Kysely<DB>) => {
+export const create = (db: Kysely<DB>) => {
   return new DataLoader(batchGet(db));
 };
 

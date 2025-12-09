@@ -14,7 +14,7 @@ export type Key = {
   status?: TodoStatus;
 };
 
-export const init = (db: Kysely<DB>) => {
+export const create = (db: Kysely<DB>) => {
   return new DataLoader(batchGet(db), { cacheKeyFn: JSON.stringify });
 };
 

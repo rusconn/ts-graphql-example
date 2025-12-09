@@ -62,9 +62,9 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     return invalidInputErrors(parsed);
   }
 
-  const userWithCredencial = await context.repos.user.getWithCredencialById(authed.id);
+  const userWithCredential = await context.repos.user.getWithCredentialById(authed.id);
 
-  if (!userWithCredencial) {
+  if (!userWithCredential) {
     throw internalServerError();
   }
 
@@ -77,7 +77,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     };
   }
 
-  const match = await UserPassword.match(oldPassword, userWithCredencial.password);
+  const match = await UserPassword.match(oldPassword, userWithCredential.password);
 
   if (!match) {
     return {

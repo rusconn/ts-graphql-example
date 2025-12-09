@@ -2,22 +2,20 @@ import type { Kysely, Transaction } from "kysely";
 import type { Except, OverrideProperties } from "type-fest";
 
 import type { DB, NewTodo } from "../db/types.ts";
-import * as TodoId from "../models/todo/id.ts";
 import type { Todo } from "../models/todo.ts";
-import * as userTodoLoader from "./loaders/userTodo.ts";
-import * as userTodoCountLoader from "./loaders/userTodoCount.ts";
-import * as userTodosLoader from "./loaders/userTodos.ts";
+import { TodoId } from "../models/todo.ts";
+import * as UserTodoLoader from "./loaders/userTodo.ts";
+import * as UserTodoCountLoader from "./loaders/userTodoCount.ts";
+import * as UserTodosLoader from "./loaders/userTodos.ts";
 
-export type TodoKey = {
+type TodoKey = {
   id: Todo["id"];
   userId?: Todo["userId"];
 };
 
 export type TodoNew = OverrideProperties<
   Except<NewTodo, "id" | "updatedAt">,
-  {
-    userId: Todo["userId"];
-  }
+  { userId: Todo["userId"] }
 >;
 
 export type TodoUpd = Partial<TodoNew>;
@@ -29,21 +27,21 @@ export class TodoRepo {
   constructor(db: Kysely<DB>) {
     this.#db = db;
     this.#loaders = {
-      userTodo: userTodoLoader.init(db),
-      userTodos: userTodosLoader.init(db),
-      userTodoCount: userTodoCountLoader.init(db),
+      userTodo: UserTodoLoader.create(db),
+      userTodos: UserTodosLoader.create(db),
+      userTodoCount: UserTodoCountLoader.create(db),
     };
   }
 
   getById = async (id: Todo["id"], trx?: Transaction<DB>) => {
-    const user = await (trx ?? this.#db)
+    const todo = await (trx ?? this.#db)
       .selectFrom("Todo")
       .where("id", "=", id)
       .selectAll()
       .$if(trx != null, (qb) => qb.forUpdate())
       .executeTakeFirst();
 
-    return user as Todo | undefined;
+    return todo as Todo | undefined;
   };
 
   count = async (userId?: Todo["userId"]) => {
@@ -98,15 +96,15 @@ export class TodoRepo {
     return todo as Todo | undefined;
   };
 
-  loadTheir = async (key: userTodoLoader.Key) => {
+  loadTheir = async (key: UserTodoLoader.Key) => {
     return await this.#loaders.userTodo.load(key);
   };
 
-  loadTheirPage = async (key: userTodosLoader.Key) => {
+  loadTheirPage = async (key: UserTodosLoader.Key) => {
     return await this.#loaders.userTodos.load(key);
   };
 
-  loadTheirCount = async (key: userTodoCountLoader.Key) => {
+  loadTheirCount = async (key: UserTodoCountLoader.Key) => {
     return await this.#loaders.userTodoCount.load(key);
   };
 }

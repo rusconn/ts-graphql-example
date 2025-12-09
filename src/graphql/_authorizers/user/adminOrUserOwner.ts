@@ -29,15 +29,15 @@ if (import.meta.vitest) {
 
   describe("authAdminOrUserOwner", () => {
     const allows = [
-      [context.admin, db.admin],
-      [context.admin, db.alice],
-      [context.alice, db.alice],
+      [context.user.admin, db.users.admin],
+      [context.user.admin, db.users.alice],
+      [context.user.alice, db.users.alice],
     ] as const;
 
     const denies = [
-      [context.alice, db.admin],
-      [context.guest, db.admin],
-      [context.guest, db.alice],
+      [context.user.alice, db.users.admin],
+      [context.user.guest, db.users.admin],
+      [context.user.guest, db.users.alice],
     ] as const;
 
     test.each(allows)("allows %#", (contextUser, user) => {
@@ -53,15 +53,15 @@ if (import.meta.vitest) {
 
   describe("authUserOwner", () => {
     const allows = [
-      [context.admin, db.admin],
-      [context.alice, db.alice],
+      [context.user.admin, db.users.admin],
+      [context.user.alice, db.users.alice],
     ] as const;
 
     const denies = [
-      [context.admin, db.alice],
-      [context.alice, db.admin],
-      [context.guest, db.admin],
-      [context.guest, db.alice],
+      [context.user.admin, db.users.alice],
+      [context.user.alice, db.users.admin],
+      [context.user.guest, db.users.admin],
+      [context.user.guest, db.users.alice],
     ] as const;
 
     test.each(allows)("allows %#", (contextUser, user) => {

@@ -1,6 +1,6 @@
 import { client } from "../../../src/db/client.ts";
 
-import { Data } from "../../data.ts";
+import { db, tokens } from "../../data.ts";
 import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { LogoutMutation, LogoutMutationVariables } from "../schema.ts";
@@ -20,7 +20,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
+  users: [db.users.admin, db.users.alice],
 };
 
 const seedData = {
@@ -35,19 +35,19 @@ beforeEach(async () => {
 test("logout deletes token", async () => {
   const before = await client
     .selectFrom("UserToken")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirst();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
   });
 
   expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
 
   const after = await client
     .selectFrom("UserToken")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirst();
 
@@ -58,19 +58,19 @@ test("logout deletes token", async () => {
 test("logout does not changes other attrs", async () => {
   const before = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
   });
 
   expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
 
   const after = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 

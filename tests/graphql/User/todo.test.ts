@@ -1,4 +1,4 @@
-import { Data, dummyId } from "../../data.ts";
+import { db, dummyId, graph, tokens } from "../../data.ts";
 import { clearTables, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UserTodoQuery, UserTodoQueryVariables } from "../schema.ts";
@@ -20,8 +20,8 @@ const executeQuery = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
-  todos: [Data.db.adminTodo, Data.db.aliceTodo],
+  users: [db.users.admin, db.users.alice],
+  todos: [db.todos.admin1, db.todos.alice1],
 };
 
 const seedData = {
@@ -37,9 +37,9 @@ beforeAll(async () => {
 
 test("not exists", async () => {
   const { data } = await executeQuery({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: {
-      id: Data.graph.admin.id,
+      id: graph.users.admin.id,
       todoId: dummyId.todo(),
     },
   });
@@ -53,10 +53,10 @@ test("not exists", async () => {
 
 test("exists, owned", async () => {
   const { data } = await executeQuery({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: {
-      id: Data.graph.admin.id,
-      todoId: Data.graph.adminTodo.id,
+      id: graph.users.admin.id,
+      todoId: graph.todos.admin1.id,
     },
   });
 
@@ -69,8 +69,8 @@ test("exists, owned", async () => {
 
 describe("exists, but not owned", () => {
   const patterns = [
-    [Data.token.admin, Data.graph.admin.id, Data.graph.aliceTodo.id],
-    [Data.token.alice, Data.graph.alice.id, Data.graph.adminTodo.id],
+    [tokens.admin, graph.users.admin.id, graph.todos.alice1.id],
+    [tokens.alice, graph.users.alice.id, graph.todos.admin1.id],
   ] as const;
 
   test.each(patterns)("%o %s %s", async (token, id, todoId) => {

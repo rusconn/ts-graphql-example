@@ -2,7 +2,7 @@ import { omit } from "es-toolkit";
 
 import { client } from "../../../src/db/client.ts";
 
-import { Data } from "../../data.ts";
+import { db, tokens } from "../../data.ts";
 import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { AccountUpdateMutation, AccountUpdateMutationVariables } from "../schema.ts";
@@ -27,7 +27,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
+  users: [db.users.admin, db.users.alice],
 };
 
 const seedData = {
@@ -41,7 +41,7 @@ beforeEach(async () => {
 
 test("invalid input", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { name: "" },
   });
 
@@ -52,7 +52,7 @@ it("should update using input", async () => {
   const name = "foo";
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { name },
   });
 
@@ -60,7 +60,7 @@ it("should update using input", async () => {
 
   const user = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -70,12 +70,12 @@ it("should update using input", async () => {
 it("should not update fields if the field is absent", async () => {
   const before = await client
     .selectFrom("User")
-    .where("User.id", "=", Data.db.admin.id)
+    .where("User.id", "=", db.users.admin.id)
     .select(["name"])
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: {},
   });
 
@@ -83,7 +83,7 @@ it("should not update fields if the field is absent", async () => {
 
   const after = await client
     .selectFrom("User")
-    .where("User.id", "=", Data.db.admin.id)
+    .where("User.id", "=", db.users.admin.id)
     .select(["name"])
     .executeTakeFirstOrThrow();
 
@@ -93,12 +93,12 @@ it("should not update fields if the field is absent", async () => {
 it("should update updatedAt", async () => {
   const before = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { name: "bar" },
   });
 
@@ -106,7 +106,7 @@ it("should update updatedAt", async () => {
 
   const after = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -119,12 +119,12 @@ it("should update updatedAt", async () => {
 it("should not update other attrs", async () => {
   const before = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { name: "baz" },
   });
 
@@ -132,7 +132,7 @@ it("should not update other attrs", async () => {
 
   const after = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 

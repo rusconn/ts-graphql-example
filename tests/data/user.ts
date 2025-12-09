@@ -8,11 +8,10 @@ import { signedJwt } from "../../src/util/accessToken.ts";
 import { dateTime } from "./common.ts";
 
 const node = (user: User): Graph.User => ({
+  ...user,
   id: userId(user.id),
   createdAt: dateTime(UserId.date(user.id)),
   updatedAt: dateTime(user.updatedAt),
-  name: user.name,
-  email: user.email,
 });
 
 export const token = {
@@ -32,4 +31,6 @@ export const graph = {
 
 export { db };
 
-export const dummyId = () => userId(UserId.gen());
+export const dummyId = () => {
+  return userId(UserId.gen());
+};

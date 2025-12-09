@@ -15,15 +15,15 @@ if (import.meta.vitest) {
   const { context } = await import("../../_testData/context.ts");
 
   const allows = [
-    [context.admin, db.adminTodo],
-    [context.alice, db.aliceTodo],
+    [context.user.admin, db.todos.admin1],
+    [context.user.alice, db.todos.alice1],
   ] as const;
 
   const denies = [
-    [context.admin, db.aliceTodo],
-    [context.alice, db.adminTodo],
-    [context.guest, db.adminTodo],
-    [context.guest, db.aliceTodo],
+    [context.user.admin, db.todos.alice1],
+    [context.user.alice, db.todos.admin1],
+    [context.user.guest, db.todos.admin1],
+    [context.user.guest, db.todos.alice1],
   ] as const;
 
   test.each(allows)("allows %#", (contextUser, todo) => {

@@ -1,3 +1,5 @@
 import type { Context } from "../../context.ts";
 
-export const getNode = (context: Pick<Context, "repos">) => context.repos.todo.getById;
+export const getNode = (context: Pick<Context, "repos">) => {
+  return context.repos.todo.getById;
+};

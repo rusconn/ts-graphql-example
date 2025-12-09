@@ -128,7 +128,7 @@ if (import.meta.vitest) {
 
   const valid = {
     args: { title: "title", description: "description" },
-    user: context.admin,
+    user: context.user.admin,
   };
 
   const invalid = {

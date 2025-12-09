@@ -12,8 +12,8 @@ export const authAuthenticated = (context: AuthContext) => {
 if (import.meta.vitest) {
   const { context } = await import("../_testData/context.ts");
 
-  const allows = [context.admin, context.alice];
-  const denies = [context.guest];
+  const allows = [context.user.admin, context.user.alice];
+  const denies = [context.user.guest];
 
   test.each(allows)("allows %#", (user) => {
     const authed = authAuthenticated({ user });

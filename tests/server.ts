@@ -3,11 +3,11 @@ import { parse } from "graphql";
 
 import { yoga } from "../src/yoga.ts";
 
-import type { Data } from "./data.ts";
+import type { refreshTokens, tokens } from "./data.ts";
 
 type ExecuteOperationParams<TVariables> = {
-  token?: typeof Data.token.admin;
-  refreshToken?: typeof Data.refreshToken.admin;
+  token?: typeof tokens.admin;
+  refreshToken?: typeof refreshTokens.admin;
   variables?: TVariables;
 };
 

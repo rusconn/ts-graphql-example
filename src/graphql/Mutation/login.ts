@@ -46,7 +46,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   const { email, password } = parsed;
 
-  const found = await context.repos.user.getWithCredencialByEmail(email);
+  const found = await context.repos.user.getWithCredentialByEmail(email);
 
   if (!found) {
     return {

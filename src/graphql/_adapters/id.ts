@@ -6,7 +6,6 @@ export const nodeTypes = ["Todo", "User"] as const;
 
 export const typeIdSep = ":";
 
-export const nodeId =
-  <T extends NodeType>(type: T) =>
-  (id: string) =>
-    `${type}${typeIdSep}${id}` as ID;
+export const nodeId = <T extends NodeType>(type: T) => {
+  return (id: string) => `${type}${typeIdSep}${id}` as ID;
+};

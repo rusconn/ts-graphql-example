@@ -2,7 +2,7 @@ import { client } from "../../../src/db/client.ts";
 import { TodoStatus } from "../../../src/db/types.ts";
 import { parseTodoId } from "../../../src/graphql/_parsers/todo/id.ts";
 
-import { Data } from "../../data.ts";
+import { db, tokens } from "../../data.ts";
 import { clearTables, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoCreateMutation, TodoCreateMutationVariables } from "../schema.ts";
@@ -27,7 +27,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin],
+  users: [db.users.admin],
 };
 
 const seedData = {
@@ -48,7 +48,7 @@ test("invalid input", async () => {
   const invalidTitle = "A".repeat(100 + 1);
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { ...variables, title: invalidTitle },
   });
 
@@ -57,7 +57,7 @@ test("invalid input", async () => {
 
 it("should create todo using input", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables,
   });
 
@@ -83,7 +83,7 @@ it("should create todo using input", async () => {
 
 test('description should be "" by default', async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { title: variables.title },
   });
 
@@ -108,7 +108,7 @@ test('description should be "" by default', async () => {
 
 test("status should be PENDING by default", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables,
   });
 

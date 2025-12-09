@@ -1,4 +1,4 @@
-import { Data, dummyId } from "../../data.ts";
+import { db, dummyId, graph, tokens } from "../../data.ts";
 import { clearTables, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UserQuery, UserQueryVariables } from "../schema.ts";
@@ -12,7 +12,7 @@ const executeQuery = executeSingleResultOperation<UserQuery, UserQueryVariables>
 `);
 
 const testData = {
-  users: [Data.db.admin],
+  users: [db.users.admin],
 };
 
 const seedData = {
@@ -26,20 +26,20 @@ beforeAll(async () => {
 
 it("should return item correctly", async () => {
   const { data } = await executeQuery({
-    token: Data.token.admin,
-    variables: { id: Data.graph.admin.id },
+    token: tokens.admin,
+    variables: { id: graph.users.admin.id },
   });
 
   if (!data || !data.user) {
     fail();
   }
 
-  expect(data.user.id).toEqual(Data.graph.admin.id);
+  expect(data.user.id).toEqual(graph.users.admin.id);
 });
 
 it("should return null if not found", async () => {
   const { data } = await executeQuery({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { id: dummyId.user() },
   });
 

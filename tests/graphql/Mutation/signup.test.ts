@@ -1,7 +1,7 @@
 import { client } from "../../../src/db/client.ts";
 import { UserRole } from "../../../src/db/types.ts";
 
-import { Data } from "../../data.ts";
+import { db } from "../../data.ts";
 import { clearUsers, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { SignupMutation, SignupMutationVariables } from "../schema.ts";
@@ -21,7 +21,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin],
+  users: [db.users.admin],
 };
 
 const seedData = {
@@ -47,7 +47,7 @@ test("invalid input", async () => {
 
 test("email already exists", async () => {
   const name = "foo";
-  const { email } = Data.db.admin;
+  const { email } = db.users.admin;
   const password = "password";
 
   const { data } = await executeMutation({

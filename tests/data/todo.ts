@@ -1,27 +1,27 @@
 import { todoId } from "../../src/graphql/_adapters/todo/id.ts";
 import { db } from "../../src/graphql/_testData/db/todo.ts";
-import * as TodoId from "../../src/models/todo/id.ts";
 import type { Todo } from "../../src/models/todo.ts";
+import { TodoId } from "../../src/models/todo.ts";
 import type * as Graph from "../../src/schema.ts";
 
 import { dateTime } from "./common.ts";
 
 const node = (todo: Todo): Graph.Todo => ({
+  ...todo,
   id: todoId(todo.id),
   createdAt: dateTime(TodoId.date(todo.id)),
   updatedAt: dateTime(todo.updatedAt),
-  title: todo.title,
-  description: todo.description,
-  status: todo.status,
 });
 
 export const graph = {
-  adminTodo: node(db.adminTodo),
-  adminTodo2: node(db.adminTodo2),
-  adminTodo3: node(db.adminTodo3),
-  aliceTodo: node(db.aliceTodo),
+  admin1: node(db.admin1),
+  admin2: node(db.admin2),
+  admin3: node(db.admin3),
+  alice1: node(db.alice1),
 };
 
 export { db };
 
-export const dummyId = () => todoId(TodoId.gen());
+export const dummyId = () => {
+  return todoId(TodoId.gen());
+};

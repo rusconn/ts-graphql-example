@@ -7,7 +7,7 @@ import type { Todo } from "../../models/todo.ts";
 
 export type Key = Pick<Todo, "id" | "userId">;
 
-export const init = (db: Kysely<DB>) => {
+export const create = (db: Kysely<DB>) => {
   return new DataLoader(batchGet(db), { cacheKeyFn: combine });
 };
 

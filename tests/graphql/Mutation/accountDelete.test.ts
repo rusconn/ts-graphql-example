@@ -1,7 +1,7 @@
 import { client } from "../../../src/db/client.ts";
 import { parseUserId } from "../../../src/graphql/_parsers/user/id.ts";
 
-import { Data } from "../../data.ts";
+import { db, tokens } from "../../data.ts";
 import { clearUsers, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { AccountDeleteMutation, AccountDeleteMutationVariables } from "../schema.ts";
@@ -21,8 +21,8 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
-  todos: [Data.db.adminTodo],
+  users: [db.users.admin, db.users.alice],
+  todos: [db.todos.admin1],
 };
 
 const seedData = {
@@ -37,7 +37,7 @@ beforeEach(async () => {
 
 it("should delete user and user-*", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
   });
 
   if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
@@ -80,7 +80,7 @@ it("should not delete others", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
   });
 
   if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
@@ -113,19 +113,19 @@ it("should delete his resources", async () => {
 
   const before = await client
     .selectFrom("Todo")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
   });
 
   expect(data?.accountDelete?.__typename === "AccountDeleteSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 

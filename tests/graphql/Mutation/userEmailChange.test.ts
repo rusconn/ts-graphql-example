@@ -1,6 +1,6 @@
 import { client } from "../../../src/db/client.ts";
 
-import { Data } from "../../data.ts";
+import { db, tokens } from "../../data.ts";
 import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UserEmailChangeMutation, UserEmailChangeMutationVariables } from "../schema.ts";
@@ -22,7 +22,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
+  users: [db.users.admin, db.users.alice],
 };
 
 const seedData = {
@@ -36,7 +36,7 @@ beforeEach(async () => {
 
 test("invalid input", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { email: "example.com" },
   });
 
@@ -45,8 +45,8 @@ test("invalid input", async () => {
 
 test("email already exists", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
-    variables: { email: Data.db.alice.email },
+    token: tokens.admin,
+    variables: { email: db.users.alice.email },
   });
 
   expect(data?.userEmailChange?.__typename === "EmailAlreadyTakenError").toBe(true);
@@ -54,7 +54,7 @@ test("email already exists", async () => {
 
 it("should change email", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { email: "admin2@admin.com" },
   });
 
@@ -62,7 +62,7 @@ it("should change email", async () => {
 
   const user = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -72,12 +72,12 @@ it("should change email", async () => {
 it("should update updatedAt", async () => {
   const before = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { email: "admin2@admin.com" },
   });
 
@@ -85,7 +85,7 @@ it("should update updatedAt", async () => {
 
   const after = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 

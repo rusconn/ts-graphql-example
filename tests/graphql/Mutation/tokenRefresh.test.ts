@@ -1,7 +1,7 @@
 import { client } from "../../../src/db/client.ts";
 import { ErrorCode } from "../../../src/schema.ts";
 
-import { Data } from "../../data.ts";
+import { db, refreshTokens } from "../../data.ts";
 import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TokenRefreshMutation, TokenRefreshMutationVariables } from "../schema.ts";
@@ -21,7 +21,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
+  users: [db.users.admin, db.users.alice],
 };
 
 const seedData = {
@@ -42,7 +42,7 @@ test("no refresh token", async () => {
 
 test("invalid refresh token", async () => {
   const { data } = await executeMutation({
-    refreshToken: Data.refreshToken.admin.slice(0, -1),
+    refreshToken: refreshTokens.admin.slice(0, -1),
   });
 
   expect(data?.tokenRefresh?.__typename === "InvalidRefreshTokenError").toBe(true);
@@ -50,7 +50,7 @@ test("invalid refresh token", async () => {
 
 test("correct input", async () => {
   const { data } = await executeMutation({
-    refreshToken: Data.refreshToken.admin,
+    refreshToken: refreshTokens.admin,
   });
 
   expect(data?.tokenRefresh?.__typename === "TokenRefreshSuccess").toBe(true);
@@ -59,19 +59,19 @@ test("correct input", async () => {
 test("changes refresh token", async () => {
   const before = await client
     .selectFrom("UserToken")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    refreshToken: Data.refreshToken.admin,
+    refreshToken: refreshTokens.admin,
   });
 
   expect(data?.tokenRefresh?.__typename === "TokenRefreshSuccess").toBe(true);
 
   const after = await client
     .selectFrom("UserToken")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 

@@ -3,33 +3,33 @@ import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
 import { type DB, UserRole } from "../../src/db/types.ts";
-import * as UserId from "../../src/models/user/id.ts";
+import { UserId } from "../../src/models/user.ts";
 
 export const seed = async (trx: Transaction<DB>) => {
   const handUsers = [
     {
       /** Date: 2024-12-15T16:54:35.641Z */
       id: "0193cb3e-4379-750f-880f-77afae342259",
-      updatedAt: new Date("2024-12-15T16:54:41.152Z"),
       name: "admin",
       email: "admin@admin.com",
       role: UserRole.ADMIN,
+      updatedAt: new Date("2024-12-15T16:54:41.152Z"),
     },
     {
       /** Date: 2024-12-15T16:54:38.927Z */
       id: "0193cb3e-504f-72e9-897c-2c71f389f3ad",
-      updatedAt: new Date("2024-12-15T16:54:38.927Z"),
       name: "hoge",
       email: "hoge@hoge.com",
       role: UserRole.USER,
+      updatedAt: new Date("2024-12-15T16:54:38.927Z"),
     },
     {
       /** Date: 2024-12-15T16:54:41.150Z */
       id: "0193cb3e-58fe-772b-8306-412afa147cdd",
-      updatedAt: new Date("2024-12-15T16:54:41.151Z"),
       name: "piyo",
       email: "piyo@piyo.com",
       role: UserRole.USER,
+      updatedAt: new Date("2024-12-15T16:54:41.151Z"),
     },
   ];
 

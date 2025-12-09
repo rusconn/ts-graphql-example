@@ -3,7 +3,7 @@ import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
 import { type DB, TodoStatus, type User } from "../../src/db/types.ts";
-import * as TodoId from "../../src/models/todo/id.ts";
+import { TodoId } from "../../src/models/todo.ts";
 
 import { randInt } from "./common.ts";
 
@@ -12,29 +12,29 @@ export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
     {
       /** Date: 2024-12-15T16:54:42.909Z */
       id: "0193cb3e-5fdd-7264-9f70-1df63d84b251",
-      updatedAt: new Date("2024-12-15T16:54:44.697Z"),
       title: "hoge todo 1",
       description: "hoge desc 1",
       status: TodoStatus.PENDING,
       userId: "0193cb3e-504f-72e9-897c-2c71f389f3ad",
+      updatedAt: new Date("2024-12-15T16:54:44.697Z"),
     },
     {
       /** Date: 2024-12-15T16:54:43.821Z */
       id: "0193cb3e-636d-742e-8cc9-02a6a85dbf00",
-      updatedAt: new Date("2024-12-15T16:54:43.821Z"),
       title: "piyo todo 1",
       description: "piyo desc 1",
       status: TodoStatus.DONE,
       userId: "0193cb3e-58fe-772b-8306-412afa147cdd",
+      updatedAt: new Date("2024-12-15T16:54:43.821Z"),
     },
     {
       /** Date: 2024-12-15T16:54:44.695Z */
       id: "0193cb3e-66d7-7295-bbba-8fe8ec408177",
-      updatedAt: new Date("2024-12-15T16:54:44.696Z"),
       title: "piyo todo 2",
       description: "piyo desc 2",
       status: TodoStatus.PENDING,
       userId: "0193cb3e-58fe-772b-8306-412afa147cdd",
+      updatedAt: new Date("2024-12-15T16:54:44.696Z"),
     },
   ];
 

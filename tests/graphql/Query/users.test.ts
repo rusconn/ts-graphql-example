@@ -1,6 +1,6 @@
 import { type PageInfo, type User, UserSortKeys } from "../../../src/schema.ts";
 
-import { Data } from "../../data.ts";
+import { db, graph, tokens } from "../../data.ts";
 import { clearUsers, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UsersQuery, UsersQueryVariables } from "../schema.ts";
@@ -40,7 +40,7 @@ const executeQuery = executeSingleResultOperation<UsersQuery, UsersQueryVariable
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
+  users: [db.users.admin, db.users.alice],
 };
 
 const seedData = {
@@ -57,7 +57,7 @@ describe("number of items", () => {
     const first = testData.users.length - 1;
 
     const { data } = await executeQuery({
-      token: Data.token.admin,
+      token: tokens.admin,
       variables: { first },
     });
 
@@ -68,7 +68,7 @@ describe("number of items", () => {
     const last = testData.users.length - 1;
 
     const { data } = await executeQuery({
-      token: Data.token.admin,
+      token: tokens.admin,
       variables: { last },
     });
 
@@ -78,16 +78,16 @@ describe("number of items", () => {
 
 describe("order of items", () => {
   const patterns: [UsersQueryVariables, [User, User]][] = [
-    [{}, [Data.graph.alice, Data.graph.admin]], // defaults to createdAt desc
-    [{ reverse: false, sortKey: UserSortKeys.CreatedAt }, [Data.graph.admin, Data.graph.alice]],
-    [{ reverse: true, sortKey: UserSortKeys.CreatedAt }, [Data.graph.alice, Data.graph.admin]],
-    [{ reverse: false, sortKey: UserSortKeys.UpdatedAt }, [Data.graph.alice, Data.graph.admin]],
-    [{ reverse: true, sortKey: UserSortKeys.UpdatedAt }, [Data.graph.admin, Data.graph.alice]],
+    [{}, [graph.users.alice, graph.users.admin]], // defaults to createdAt desc
+    [{ reverse: false, sortKey: UserSortKeys.CreatedAt }, [graph.users.admin, graph.users.alice]],
+    [{ reverse: true, sortKey: UserSortKeys.CreatedAt }, [graph.users.alice, graph.users.admin]],
+    [{ reverse: false, sortKey: UserSortKeys.UpdatedAt }, [graph.users.alice, graph.users.admin]],
+    [{ reverse: true, sortKey: UserSortKeys.UpdatedAt }, [graph.users.admin, graph.users.alice]],
   ];
 
   test.each(patterns)("%o, %o", async (variables, expectedUsers) => {
     const { data } = await executeQuery({
-      token: Data.token.admin,
+      token: tokens.admin,
       variables: { ...variables, first: 10 },
     });
 
@@ -104,7 +104,7 @@ describe("pagination", () => {
 
     const execute = () =>
       executeQuery({
-        token: Data.token.admin,
+        token: tokens.admin,
         variables: { first },
       });
 
@@ -130,12 +130,12 @@ describe("pagination", () => {
         { first: 1, reverse: false, sortKey: UserSortKeys.CreatedAt },
         {
           length: 1,
-          ids: [Data.graph.admin.id],
+          ids: [graph.users.admin.id],
           pageInfo: {
             hasNextPage: true,
             hasPreviousPage: false,
-            startCursor: Data.db.admin.id,
-            endCursor: Data.db.admin.id,
+            startCursor: db.users.admin.id,
+            endCursor: db.users.admin.id,
           },
         },
         (pageInfo: PageInfo) => ({
@@ -143,12 +143,12 @@ describe("pagination", () => {
         }),
         {
           length: 1,
-          ids: [Data.graph.alice.id],
+          ids: [graph.users.alice.id],
           pageInfo: {
             hasNextPage: false,
             hasPreviousPage: true,
-            startCursor: Data.db.alice.id,
-            endCursor: Data.db.alice.id,
+            startCursor: db.users.alice.id,
+            endCursor: db.users.alice.id,
           },
         },
       ],
@@ -156,12 +156,12 @@ describe("pagination", () => {
         { first: 1, reverse: true, sortKey: UserSortKeys.CreatedAt },
         {
           length: 1,
-          ids: [Data.graph.alice.id],
+          ids: [graph.users.alice.id],
           pageInfo: {
             hasNextPage: true,
             hasPreviousPage: false,
-            startCursor: Data.db.alice.id,
-            endCursor: Data.db.alice.id,
+            startCursor: db.users.alice.id,
+            endCursor: db.users.alice.id,
           },
         },
         (pageInfo: PageInfo) => ({
@@ -169,12 +169,12 @@ describe("pagination", () => {
         }),
         {
           length: 1,
-          ids: [Data.graph.admin.id],
+          ids: [graph.users.admin.id],
           pageInfo: {
             hasNextPage: false,
             hasPreviousPage: true,
-            startCursor: Data.db.admin.id,
-            endCursor: Data.db.admin.id,
+            startCursor: db.users.admin.id,
+            endCursor: db.users.admin.id,
           },
         },
       ],
@@ -182,12 +182,12 @@ describe("pagination", () => {
         { last: 1, reverse: false, sortKey: UserSortKeys.CreatedAt },
         {
           length: 1,
-          ids: [Data.graph.alice.id],
+          ids: [graph.users.alice.id],
           pageInfo: {
             hasNextPage: false,
             hasPreviousPage: true,
-            startCursor: Data.db.alice.id,
-            endCursor: Data.db.alice.id,
+            startCursor: db.users.alice.id,
+            endCursor: db.users.alice.id,
           },
         },
         (pageInfo: PageInfo) => ({
@@ -195,12 +195,12 @@ describe("pagination", () => {
         }),
         {
           length: 1,
-          ids: [Data.graph.admin.id],
+          ids: [graph.users.admin.id],
           pageInfo: {
             hasNextPage: true,
             hasPreviousPage: false,
-            startCursor: Data.db.admin.id,
-            endCursor: Data.db.admin.id,
+            startCursor: db.users.admin.id,
+            endCursor: db.users.admin.id,
           },
         },
       ],
@@ -208,12 +208,12 @@ describe("pagination", () => {
         { last: 1, reverse: true, sortKey: UserSortKeys.CreatedAt },
         {
           length: 1,
-          ids: [Data.graph.admin.id],
+          ids: [graph.users.admin.id],
           pageInfo: {
             hasNextPage: false,
             hasPreviousPage: true,
-            startCursor: Data.db.admin.id,
-            endCursor: Data.db.admin.id,
+            startCursor: db.users.admin.id,
+            endCursor: db.users.admin.id,
           },
         },
         (pageInfo: PageInfo) => ({
@@ -221,12 +221,12 @@ describe("pagination", () => {
         }),
         {
           length: 1,
-          ids: [Data.graph.alice.id],
+          ids: [graph.users.alice.id],
           pageInfo: {
             hasNextPage: true,
             hasPreviousPage: false,
-            startCursor: Data.db.alice.id,
-            endCursor: Data.db.alice.id,
+            startCursor: db.users.alice.id,
+            endCursor: db.users.alice.id,
           },
         },
       ],
@@ -234,7 +234,7 @@ describe("pagination", () => {
 
     test.each(patterns)("patterns %#", async (variables, firstExpect, makeCursor, secondExpect) => {
       const { data: data1 } = await executeQuery({
-        token: Data.token.admin,
+        token: tokens.admin,
         variables,
       });
 
@@ -247,7 +247,7 @@ describe("pagination", () => {
       expect(data1.users.edges?.map((edge) => edge?.node?.id)).toStrictEqual(firstExpect.ids);
 
       const { data: data2 } = await executeQuery({
-        token: Data.token.admin,
+        token: tokens.admin,
         variables: {
           ...variables,
           ...makeCursor(data1.users.pageInfo),

@@ -4,7 +4,7 @@ import { client } from "../../../src/db/client.ts";
 import { TodoStatus } from "../../../src/db/types.ts";
 import * as Graph from "../../../src/schema.ts";
 
-import { Data, dummyId } from "../../data.ts";
+import { db, dummyId, graph, tokens } from "../../data.ts";
 import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoStatusChangeMutation, TodoStatusChangeMutationVariables } from "../schema.ts";
@@ -30,8 +30,8 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
-  todos: [Data.db.adminTodo, Data.db.aliceTodo],
+  users: [db.users.admin, db.users.alice],
+  todos: [db.todos.admin1, db.todos.alice1],
 };
 
 const seedData = {
@@ -48,14 +48,14 @@ beforeAll(async () => {
 beforeEach(async () => {
   await client
     .updateTable("Todo")
-    .where("id", "=", Data.db.adminTodo.id)
+    .where("id", "=", db.todos.admin1.id)
     .set({ status: TodoStatus.PENDING })
     .executeTakeFirstOrThrow();
 });
 
 test("invalid input", async () => {
   const { data, errors } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { id: dummyId.todo().slice(0, -1), status: Graph.TodoStatus.Done },
   });
 
@@ -65,7 +65,7 @@ test("invalid input", async () => {
 
 test("not exists", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { id: dummyId.todo(), status: Graph.TodoStatus.Done },
   });
 
@@ -74,8 +74,8 @@ test("not exists", async () => {
 
 test("exists, but not owned", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
-    variables: { id: Data.graph.aliceTodo.id, status: Graph.TodoStatus.Done },
+    token: tokens.admin,
+    variables: { id: graph.todos.alice1.id, status: Graph.TodoStatus.Done },
   });
 
   expect(data?.todoStatusChange?.__typename === "ResourceNotFoundError").toBe(true);
@@ -84,20 +84,20 @@ test("exists, but not owned", async () => {
 it("should update status", async () => {
   const before = await client
     .selectFrom("Todo")
-    .where("id", "=", Data.db.adminTodo.id)
+    .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
-    variables: { id: Data.graph.adminTodo.id, status: Graph.TodoStatus.Done },
+    token: tokens.admin,
+    variables: { id: graph.todos.admin1.id, status: Graph.TodoStatus.Done },
   });
 
   expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")
-    .where("id", "=", Data.db.adminTodo.id)
+    .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -108,20 +108,20 @@ it("should update status", async () => {
 it("should update updatedAt", async () => {
   const before = await client
     .selectFrom("Todo")
-    .where("id", "=", Data.db.adminTodo.id)
+    .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
-    variables: { id: Data.graph.adminTodo.id, status: Graph.TodoStatus.Done },
+    token: tokens.admin,
+    variables: { id: graph.todos.admin1.id, status: Graph.TodoStatus.Done },
   });
 
   expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")
-    .where("id", "=", Data.db.adminTodo.id)
+    .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -134,20 +134,20 @@ it("should update updatedAt", async () => {
 it("should not update other attrs", async () => {
   const before = await client
     .selectFrom("Todo")
-    .where("id", "=", Data.db.adminTodo.id)
+    .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
-    variables: { id: Data.graph.adminTodo.id, status: Graph.TodoStatus.Done },
+    token: tokens.admin,
+    variables: { id: graph.todos.admin1.id, status: Graph.TodoStatus.Done },
   });
 
   expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
 
   const after = await client
     .selectFrom("Todo")
-    .where("id", "=", Data.db.adminTodo.id)
+    .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 

@@ -1,7 +1,7 @@
 import { client } from "../../../src/db/client.ts";
 import { ErrorCode } from "../../../src/schema.ts";
 
-import { Data, dummyId } from "../../data.ts";
+import { db, dummyId, graph, tokens } from "../../data.ts";
 import { clearTables, clearTodos, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoDeleteMutation, TodoDeleteMutationVariables } from "../schema.ts";
@@ -21,8 +21,8 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
-  todos: [Data.db.adminTodo, Data.db.aliceTodo],
+  users: [db.users.admin, db.users.alice],
+  todos: [db.todos.admin1, db.todos.alice1],
 };
 
 const seedData = {
@@ -42,7 +42,7 @@ beforeEach(async () => {
 
 test("invalid input", async () => {
   const { data, errors } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { id: dummyId.todo().slice(0, -1) },
   });
 
@@ -52,7 +52,7 @@ test("invalid input", async () => {
 
 test("not exists", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { id: dummyId.todo() },
   });
 
@@ -61,8 +61,8 @@ test("not exists", async () => {
 
 test("exists, but not owned", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
-    variables: { id: Data.graph.aliceTodo.id },
+    token: tokens.admin,
+    variables: { id: graph.todos.alice1.id },
   });
 
   expect(data?.todoDelete?.__typename === "ResourceNotFoundError").toBe(true);
@@ -70,15 +70,15 @@ test("exists, but not owned", async () => {
 
 it("should delete todo", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
-    variables: { id: Data.graph.adminTodo.id },
+    token: tokens.admin,
+    variables: { id: graph.todos.admin1.id },
   });
 
   expect(data?.todoDelete?.__typename === "TodoDeleteSuccess").toBe(true);
 
   const todo = await client
     .selectFrom("Todo")
-    .where("id", "=", Data.db.adminTodo.id)
+    .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirst();
 
@@ -92,15 +92,15 @@ it("should not delete others", async () => {
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
-    variables: { id: Data.graph.adminTodo.id },
+    token: tokens.admin,
+    variables: { id: graph.todos.admin1.id },
   });
 
   expect(data?.todoDelete?.__typename === "TodoDeleteSuccess").toBe(true);
 
   const todo = await client
     .selectFrom("Todo")
-    .where("id", "=", Data.db.adminTodo.id)
+    .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirst();
 

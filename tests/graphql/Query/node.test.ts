@@ -1,4 +1,4 @@
-import { Data, dummyId } from "../../data.ts";
+import { db, dummyId, graph, tokens } from "../../data.ts";
 import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { NodeQuery, NodeQueryVariables } from "../schema.ts";
@@ -12,8 +12,8 @@ const executeQuery = executeSingleResultOperation<NodeQuery, NodeQueryVariables>
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
-  todos: [Data.db.adminTodo],
+  users: [db.users.admin, db.users.alice],
+  todos: [db.todos.admin1],
 };
 
 const seedData = {
@@ -29,7 +29,7 @@ beforeAll(async () => {
 
 test("not exists", async () => {
   const { data } = await executeQuery({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { id: dummyId.todo() },
   });
 
@@ -38,19 +38,19 @@ test("not exists", async () => {
 
 test("exists, but not owned", async () => {
   const { data } = await executeQuery({
-    token: Data.token.admin,
-    variables: { id: Data.graph.alice.id },
+    token: tokens.admin,
+    variables: { id: graph.users.alice.id },
   });
 
   expect(data?.node).not.toBeNull();
 });
 
 describe("should return item correctly", () => {
-  const ids = [Data.graph.admin.id, Data.graph.adminTodo.id];
+  const ids = [graph.users.admin.id, graph.todos.admin1.id];
 
   test.each(ids)("%s", async (id) => {
     const { data } = await executeQuery({
-      token: Data.token.admin,
+      token: tokens.admin,
       variables: { id },
     });
 

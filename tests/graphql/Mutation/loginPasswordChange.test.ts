@@ -1,6 +1,6 @@
 import { client } from "../../../src/db/client.ts";
 
-import { Data } from "../../data.ts";
+import { db, tokens } from "../../data.ts";
 import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type {
@@ -23,7 +23,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
+  users: [db.users.admin, db.users.alice],
 };
 
 const seedData = {
@@ -37,7 +37,7 @@ beforeEach(async () => {
 
 test("invalid input", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { oldPassword: "adminadmin", newPassword: "pass" },
   });
 
@@ -46,7 +46,7 @@ test("invalid input", async () => {
 
 test("same passwords", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { oldPassword: "adminadmin", newPassword: "adminadmin" },
   });
 
@@ -55,7 +55,7 @@ test("same passwords", async () => {
 
 test("incorrect old password", async () => {
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { oldPassword: "foobar3000", newPassword: "adminadmin2" },
   });
 
@@ -65,12 +65,12 @@ test("incorrect old password", async () => {
 it("should change password", async () => {
   const before = await client
     .selectFrom("UserCredential")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { oldPassword: "adminadmin", newPassword: "adminadmin2" },
   });
 
@@ -78,7 +78,7 @@ it("should change password", async () => {
 
   const after = await client
     .selectFrom("UserCredential")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -88,12 +88,12 @@ it("should change password", async () => {
 it("should update updatedAt", async () => {
   const before = await client
     .selectFrom("UserCredential")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { oldPassword: "adminadmin", newPassword: "adminadmin2" },
   });
 
@@ -101,7 +101,7 @@ it("should update updatedAt", async () => {
 
   const after = await client
     .selectFrom("UserCredential")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 

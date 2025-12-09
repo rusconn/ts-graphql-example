@@ -1,6 +1,6 @@
 import { client } from "../../../src/db/client.ts";
 
-import { Data } from "../../data.ts";
+import { db, tokens } from "../../data.ts";
 import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { LoginMutation, LoginMutationVariables } from "../schema.ts";
@@ -20,7 +20,7 @@ const executeMutation = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
+  users: [db.users.admin, db.users.alice],
 };
 
 const seedData = {
@@ -37,7 +37,7 @@ test("invalid input", async () => {
   const password = "adminadmin";
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { email: invalidEmail, password },
   });
 
@@ -45,11 +45,11 @@ test("invalid input", async () => {
 });
 
 test("wrong email", async () => {
-  const wrongEmail = Data.db.admin.email.slice(1);
+  const wrongEmail = db.users.admin.email.slice(1);
   const password = "adminadmin";
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { email: wrongEmail, password },
   });
 
@@ -57,11 +57,11 @@ test("wrong email", async () => {
 });
 
 test("wrong password", async () => {
-  const { email } = Data.db.admin;
+  const { email } = db.users.admin;
   const wrongPassword = "dminadmin";
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { email, password: wrongPassword },
   });
 
@@ -69,11 +69,11 @@ test("wrong password", async () => {
 });
 
 test("correct input", async () => {
-  const { email } = Data.db.admin;
+  const { email } = db.users.admin;
   const password = "adminadmin";
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { email, password },
   });
 
@@ -83,15 +83,15 @@ test("correct input", async () => {
 test("login changes token", async () => {
   const before = await client
     .selectFrom("UserToken")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  const { email } = Data.db.admin;
+  const { email } = db.users.admin;
   const password = "adminadmin";
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { email, password },
   });
 
@@ -99,7 +99,7 @@ test("login changes token", async () => {
 
   const after = await client
     .selectFrom("UserToken")
-    .where("userId", "=", Data.db.admin.id)
+    .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
@@ -109,15 +109,15 @@ test("login changes token", async () => {
 test("login does not changes other attrs", async () => {
   const before = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  const { email } = Data.db.admin;
+  const { email } = db.users.admin;
   const password = "adminadmin";
 
   const { data } = await executeMutation({
-    token: Data.token.admin,
+    token: tokens.admin,
     variables: { email, password },
   });
 
@@ -125,7 +125,7 @@ test("login does not changes other attrs", async () => {
 
   const after = await client
     .selectFrom("User")
-    .where("id", "=", Data.db.admin.id)
+    .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
 

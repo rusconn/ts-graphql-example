@@ -1,24 +1,26 @@
 import type { Kysely } from "kysely";
-import type { Except, OverrideProperties } from "type-fest";
+import type { Except } from "type-fest";
 
-import type { DB, NewUser, NewUserCredential } from "../db/types.ts";
+import type { DB } from "../db/types.ts";
 import { isPgError, PgErrorCode } from "../lib/pg/error.ts";
-import type { UserEmail } from "../models/user/email.ts";
-import * as UserId from "../models/user/id.ts";
-import * as UserPassword from "../models/user/password.ts";
-import type { UserToken } from "../models/user/token.ts";
-import * as UserTokens from "../models/user/token.ts";
-import type { User, UserWithCredential } from "../models/user.ts";
-import * as userLoader from "./loaders/user.ts";
+import {
+  type User,
+  type UserCredential,
+  type UserEmail,
+  UserId,
+  UserPassword,
+  UserToken,
+} from "../models/user.ts";
+import * as UserLoader from "./loaders/user.ts";
 
-export type UserNew = OverrideProperties<
-  Except<NewUser, "id" | "updatedAt"> & Pick<NewUserCredential, "password">,
-  {
-    email: UserEmail;
-  }
->;
+type UserNew = Except<User, "id" | "updatedAt"> & {
+  email: UserEmail.UserEmail;
+  password: string;
+};
 
-export type UserUpd = Partial<Except<UserNew, "password">>;
+type UserUpd = Partial<Except<UserNew, "password">>;
+
+type UserWithCredential = User & Pick<UserCredential, "password">;
 
 export class UserRepo {
   #db;
@@ -27,7 +29,7 @@ export class UserRepo {
   constructor(db: Kysely<DB>) {
     this.#db = db;
     this.#loaders = {
-      user: userLoader.init(db),
+      user: UserLoader.create(db),
     };
   }
 
@@ -41,18 +43,18 @@ export class UserRepo {
     return user as User | undefined;
   };
 
-  getByToken = async (token: UserToken) => {
+  getByToken = async (token: UserToken["token"]) => {
     const user = await this.#db
       .selectFrom("User")
       .innerJoin("UserToken", "User.id", "UserToken.userId")
-      .where("token", "=", await UserTokens.hash(token))
+      .where("token", "=", await UserToken.hash(token))
       .selectAll("User")
       .executeTakeFirst();
 
     return user as User | undefined;
   };
 
-  getWithCredencialById = async (id: User["id"]) => {
+  getWithCredentialById = async (id: User["id"]) => {
     const user = await this.#db
       .selectFrom("UserCredential")
       .innerJoin("User", "UserCredential.userId", "User.id")
@@ -64,7 +66,7 @@ export class UserRepo {
     return user as UserWithCredential | undefined;
   };
 
-  getWithCredencialByEmail = async (email: User["email"]) => {
+  getWithCredentialByEmail = async (email: User["email"]) => {
     const user = await this.#db
       .selectFrom("UserCredential")
       .innerJoin("User", "UserCredential.userId", "User.id")
@@ -129,8 +131,8 @@ export class UserRepo {
   create = async ({ password: source, ...data }: UserNew) => {
     const { id, date } = UserId.genWithDate();
     const password = await UserPassword.hash(source);
-    const token = UserTokens.gen();
-    const hashed = await UserTokens.hash(token);
+    const token = UserToken.gen();
+    const hashed = await UserToken.hash(token);
 
     try {
       return await this.#db.transaction().execute(async (trx) => {
@@ -146,7 +148,7 @@ export class UserRepo {
           .executeTakeFirstOrThrow();
         const _userToken = await trx
           .insertInto("UserToken")
-          .values({ userId: user.id, updatedAt: new Date(), token: hashed })
+          .values({ userId: user.id, updatedAt: date, token: hashed })
           .returning("token")
           .executeTakeFirstOrThrow();
 
@@ -171,13 +173,11 @@ export class UserRepo {
   };
 
   updateById = async (id: User["id"], data: UserUpd) => {
-    const date = new Date();
-
     try {
       const user = await this.#db
         .updateTable("User")
         .where("id", "=", id)
-        .set({ updatedAt: date, ...data })
+        .set({ updatedAt: new Date(), ...data })
         .returningAll()
         .executeTakeFirstOrThrow();
 
@@ -210,25 +210,25 @@ export class UserRepo {
   };
 
   updateTokenById = async (id: User["id"]) => {
-    const token = UserTokens.gen();
+    const token = UserToken.gen();
 
     const userToken = await this.#db
       .updateTable("UserToken")
       .where("userId", "=", id)
-      .set({ updatedAt: new Date(), token: await UserTokens.hash(token) })
+      .set({ updatedAt: new Date(), token: await UserToken.hash(token) })
       .returning("token")
       .executeTakeFirst();
 
     return userToken && token;
   };
 
-  updateTokenByToken = async (oldToken: UserToken) => {
-    const newToken = UserTokens.gen();
+  updateTokenByToken = async (oldToken: UserToken["token"]) => {
+    const newToken = UserToken.gen();
 
     const userToken = await this.#db
       .updateTable("UserToken")
-      .where("token", "=", await UserTokens.hash(oldToken))
-      .set({ updatedAt: new Date(), token: await UserTokens.hash(newToken) })
+      .where("token", "=", await UserToken.hash(oldToken))
+      .set({ updatedAt: new Date(), token: await UserToken.hash(newToken) })
       .returning("token")
       .executeTakeFirst();
 
@@ -255,7 +255,7 @@ export class UserRepo {
     return userToken != null;
   };
 
-  load = async (key: userLoader.Key) => {
+  load = async (key: UserLoader.Key) => {
     return await this.#loaders.user.load(key);
   };
 }

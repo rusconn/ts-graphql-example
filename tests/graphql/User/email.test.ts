@@ -1,4 +1,4 @@
-import { Data } from "../../data.ts";
+import { db, graph, tokens } from "../../data.ts";
 import { clearTables, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UserEmailQuery, UserEmailQueryVariables } from "../schema.ts";
@@ -18,7 +18,7 @@ const executeQuery = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
+  users: [db.users.admin, db.users.alice],
 };
 
 const seedData = {
@@ -32,21 +32,21 @@ beforeAll(async () => {
 
 test("owned", async () => {
   const { data } = await executeQuery({
-    token: Data.token.admin,
-    variables: { id: Data.graph.admin.id },
+    token: tokens.admin,
+    variables: { id: graph.users.admin.id },
   });
 
   if (data?.node?.__typename !== "User") {
     fail();
   }
 
-  expect(data.node.email).toBe(Data.graph.admin.email);
+  expect(data.node.email).toBe(graph.users.admin.email);
 });
 
 test("not owned", async () => {
   const { data } = await executeQuery({
-    token: Data.token.alice,
-    variables: { id: Data.graph.admin.id },
+    token: tokens.alice,
+    variables: { id: graph.users.admin.id },
   });
 
   if (data?.node?.__typename !== "User") {

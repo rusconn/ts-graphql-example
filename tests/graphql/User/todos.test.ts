@@ -6,7 +6,7 @@ import {
   type UserTodosArgs,
 } from "../../../src/schema.ts";
 
-import { Data } from "../../data.ts";
+import { db, graph, tokens } from "../../data.ts";
 import { clearTables, fail, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UserTodosQuery, UserTodosQueryVariables } from "../schema.ts";
@@ -57,8 +57,8 @@ const executeQuery = executeSingleResultOperation<
 `);
 
 const testData = {
-  users: [Data.db.admin, Data.db.alice],
-  todos: [Data.db.adminTodo, Data.db.adminTodo2, Data.db.adminTodo3],
+  users: [db.users.admin, db.users.alice],
+  todos: [db.todos.admin1, db.todos.admin2, db.todos.admin3],
 };
 
 const seedData = {
@@ -77,8 +77,8 @@ describe("number of items", () => {
     const first = testData.todos.length - 1;
 
     const { data } = await executeQuery({
-      token: Data.token.admin,
-      variables: { id: Data.graph.admin.id, first },
+      token: tokens.admin,
+      variables: { id: graph.users.admin.id, first },
     });
 
     if (data?.node?.__typename !== "User") {
@@ -92,8 +92,8 @@ describe("number of items", () => {
     const last = testData.todos.length - 1;
 
     const { data } = await executeQuery({
-      token: Data.token.admin,
-      variables: { id: Data.graph.admin.id, last },
+      token: tokens.admin,
+      variables: { id: graph.users.admin.id, last },
     });
 
     if (data?.node?.__typename !== "User") {
@@ -106,29 +106,29 @@ describe("number of items", () => {
 
 describe("order of items", () => {
   const patterns: [Partial<UserTodosArgs>, Todo[]][] = [
-    [{}, [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2]], // defaults to updatedAt desc
+    [{}, [graph.todos.admin1, graph.todos.admin3, graph.todos.admin2]], // defaults to updatedAt desc
     [
       { reverse: false, sortKey: TodoSortKeys.CreatedAt },
-      [Data.graph.adminTodo, Data.graph.adminTodo2, Data.graph.adminTodo3],
+      [graph.todos.admin1, graph.todos.admin2, graph.todos.admin3],
     ],
     [
       { reverse: true, sortKey: TodoSortKeys.CreatedAt },
-      [Data.graph.adminTodo3, Data.graph.adminTodo2, Data.graph.adminTodo],
+      [graph.todos.admin3, graph.todos.admin2, graph.todos.admin1],
     ],
     [
       { reverse: false, sortKey: TodoSortKeys.UpdatedAt },
-      [Data.graph.adminTodo2, Data.graph.adminTodo3, Data.graph.adminTodo],
+      [graph.todos.admin2, graph.todos.admin3, graph.todos.admin1],
     ],
     [
       { reverse: true, sortKey: TodoSortKeys.UpdatedAt },
-      [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2],
+      [graph.todos.admin1, graph.todos.admin3, graph.todos.admin2],
     ],
   ];
 
   test.each(patterns)("%o %o", async (variables, expectedTodos) => {
     const { data } = await executeQuery({
-      token: Data.token.admin,
-      variables: { ...variables, id: Data.graph.admin.id, first: 10 },
+      token: tokens.admin,
+      variables: { ...variables, id: graph.users.admin.id, first: 10 },
     });
 
     if (data?.node?.__typename !== "User") {
@@ -148,8 +148,8 @@ describe("pagination", () => {
 
     const execute = () =>
       executeQuery({
-        token: Data.token.admin,
-        variables: { id: Data.graph.admin.id, first },
+        token: tokens.admin,
+        variables: { id: graph.users.admin.id, first },
       });
 
     const { data: data1 } = await execute();
@@ -179,15 +179,15 @@ describe("pagination", () => {
 
     const patterns: [UserTodosQueryVariables, Excpect, MakeCursor, Excpect][] = [
       [
-        { id: Data.graph.admin.id, first: 2, reverse: false, sortKey: TodoSortKeys.UpdatedAt },
+        { id: graph.users.admin.id, first: 2, reverse: false, sortKey: TodoSortKeys.UpdatedAt },
         {
           length: 2,
-          ids: [Data.graph.adminTodo2.id, Data.graph.adminTodo3.id],
+          ids: [graph.todos.admin2.id, graph.todos.admin3.id],
           pageInfo: {
             hasNextPage: true,
             hasPreviousPage: false,
-            startCursor: Data.db.adminTodo2.id,
-            endCursor: Data.db.adminTodo3.id,
+            startCursor: db.todos.admin2.id,
+            endCursor: db.todos.admin3.id,
           },
         },
         (pageInfo: PageInfo) => ({
@@ -195,25 +195,25 @@ describe("pagination", () => {
         }),
         {
           length: 1,
-          ids: [Data.graph.adminTodo.id],
+          ids: [graph.todos.admin1.id],
           pageInfo: {
             hasNextPage: false,
             hasPreviousPage: true,
-            startCursor: Data.db.adminTodo.id,
-            endCursor: Data.db.adminTodo.id,
+            startCursor: db.todos.admin1.id,
+            endCursor: db.todos.admin1.id,
           },
         },
       ],
       [
-        { id: Data.graph.admin.id, first: 2, reverse: true, sortKey: TodoSortKeys.UpdatedAt },
+        { id: graph.users.admin.id, first: 2, reverse: true, sortKey: TodoSortKeys.UpdatedAt },
         {
           length: 2,
-          ids: [Data.graph.adminTodo.id, Data.graph.adminTodo3.id],
+          ids: [graph.todos.admin1.id, graph.todos.admin3.id],
           pageInfo: {
             hasNextPage: true,
             hasPreviousPage: false,
-            startCursor: Data.db.adminTodo.id,
-            endCursor: Data.db.adminTodo3.id,
+            startCursor: db.todos.admin1.id,
+            endCursor: db.todos.admin3.id,
           },
         },
         (pageInfo: PageInfo) => ({
@@ -221,25 +221,25 @@ describe("pagination", () => {
         }),
         {
           length: 1,
-          ids: [Data.graph.adminTodo2.id],
+          ids: [graph.todos.admin2.id],
           pageInfo: {
             hasNextPage: false,
             hasPreviousPage: true,
-            startCursor: Data.db.adminTodo2.id,
-            endCursor: Data.db.adminTodo2.id,
+            startCursor: db.todos.admin2.id,
+            endCursor: db.todos.admin2.id,
           },
         },
       ],
       [
-        { id: Data.graph.admin.id, last: 2, reverse: false, sortKey: TodoSortKeys.UpdatedAt },
+        { id: graph.users.admin.id, last: 2, reverse: false, sortKey: TodoSortKeys.UpdatedAt },
         {
           length: 2,
-          ids: [Data.graph.adminTodo3.id, Data.graph.adminTodo.id],
+          ids: [graph.todos.admin3.id, graph.todos.admin1.id],
           pageInfo: {
             hasNextPage: false,
             hasPreviousPage: true,
-            startCursor: Data.db.adminTodo3.id,
-            endCursor: Data.db.adminTodo.id,
+            startCursor: db.todos.admin3.id,
+            endCursor: db.todos.admin1.id,
           },
         },
         (pageInfo: PageInfo) => ({
@@ -247,25 +247,25 @@ describe("pagination", () => {
         }),
         {
           length: 1,
-          ids: [Data.graph.adminTodo2.id],
+          ids: [graph.todos.admin2.id],
           pageInfo: {
             hasNextPage: true,
             hasPreviousPage: false,
-            startCursor: Data.db.adminTodo2.id,
-            endCursor: Data.db.adminTodo2.id,
+            startCursor: db.todos.admin2.id,
+            endCursor: db.todos.admin2.id,
           },
         },
       ],
       [
-        { id: Data.graph.admin.id, last: 2, reverse: true, sortKey: TodoSortKeys.UpdatedAt },
+        { id: graph.users.admin.id, last: 2, reverse: true, sortKey: TodoSortKeys.UpdatedAt },
         {
           length: 2,
-          ids: [Data.graph.adminTodo3.id, Data.graph.adminTodo2.id],
+          ids: [graph.todos.admin3.id, graph.todos.admin2.id],
           pageInfo: {
             hasNextPage: false,
             hasPreviousPage: true,
-            startCursor: Data.db.adminTodo3.id,
-            endCursor: Data.db.adminTodo2.id,
+            startCursor: db.todos.admin3.id,
+            endCursor: db.todos.admin2.id,
           },
         },
         (pageInfo: PageInfo) => ({
@@ -273,12 +273,12 @@ describe("pagination", () => {
         }),
         {
           length: 1,
-          ids: [Data.graph.adminTodo.id],
+          ids: [graph.todos.admin1.id],
           pageInfo: {
             hasNextPage: true,
             hasPreviousPage: false,
-            startCursor: Data.db.adminTodo.id,
-            endCursor: Data.db.adminTodo.id,
+            startCursor: db.todos.admin1.id,
+            endCursor: db.todos.admin1.id,
           },
         },
       ],
@@ -286,7 +286,7 @@ describe("pagination", () => {
 
     test.each(patterns)("patterns %#", async (variables, firstExpect, makeCursor, secondExpect) => {
       const { data: data1 } = await executeQuery({
-        token: Data.token.admin,
+        token: tokens.admin,
         variables,
       });
 
@@ -299,7 +299,7 @@ describe("pagination", () => {
       expect(data1.node.todos.edges?.map((edge) => edge?.node?.id)).toStrictEqual(firstExpect.ids);
 
       const { data: data2 } = await executeQuery({
-        token: Data.token.admin,
+        token: tokens.admin,
         variables: {
           ...variables,
           ...makeCursor(data1.node.todos.pageInfo),
@@ -319,15 +319,15 @@ describe("pagination", () => {
 
 describe("filter by status", () => {
   const patterns: [Partial<UserTodosArgs>, Todo[]][] = [
-    [{}, [Data.graph.adminTodo, Data.graph.adminTodo3, Data.graph.adminTodo2]],
-    [{ status: TodoStatus.Done }, [Data.graph.adminTodo2]],
-    [{ status: TodoStatus.Pending }, [Data.graph.adminTodo, Data.graph.adminTodo3]],
+    [{}, [graph.todos.admin1, graph.todos.admin3, graph.todos.admin2]],
+    [{ status: TodoStatus.Done }, [graph.todos.admin2]],
+    [{ status: TodoStatus.Pending }, [graph.todos.admin1, graph.todos.admin3]],
   ];
 
   test.each(patterns)("patterns %#", async (variables, expectedTodos) => {
     const { data } = await executeQuery({
-      token: Data.token.admin,
-      variables: { id: Data.graph.admin.id, first: 10, ...variables },
+      token: tokens.admin,
+      variables: { id: graph.users.admin.id, first: 10, ...variables },
     });
 
     if (!data || data.node?.__typename !== "User" || !data.node.todos) {
