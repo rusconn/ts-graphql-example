@@ -211,11 +211,17 @@ export class UserRepo {
 
   updateTokenById = async (id: User["id"]) => {
     const token = UserToken.gen();
+    const hashed = await UserToken.hash(token);
+    const date = new Date();
 
     const userToken = await this.#db
-      .updateTable("UserToken")
-      .where("userId", "=", id)
-      .set({ updatedAt: new Date(), token: await UserToken.hash(token) })
+      .insertInto("UserToken")
+      .values({ userId: id, token: hashed, updatedAt: date })
+      .onConflict((oc) =>
+        oc
+          .column("userId") //
+          .doUpdateSet({ token: hashed, updatedAt: date }),
+      )
       .returning("token")
       .executeTakeFirst();
 
