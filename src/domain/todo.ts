@@ -8,8 +8,9 @@ export type Todo = {
   title: string;
   description: string;
   status: TodoStatus;
-  updatedAt: Date;
   userId: User["id"];
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export const TodoStatus = {

@@ -2,9 +2,8 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import type { DB } from "../../src/db/types.ts";
-import { TodoId, TodoStatus } from "../../src/models/todo.ts";
-import type { User } from "../../src/models/user.ts";
+import { type DB, TodoStatus, type User } from "../../src/db/types.ts";
+import { TodoId } from "../../src/domain/todo.ts";
 
 import { randInt } from "./common.ts";
 
@@ -15,7 +14,7 @@ export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
       id: "0193cb3e-5fdd-7264-9f70-1df63d84b251",
       title: "hoge todo 1",
       description: "hoge desc 1",
-      status: TodoStatus.PENDING,
+      status: TodoStatus.Pending,
       userId: "0193cb3e-504f-72e9-897c-2c71f389f3ad",
       updatedAt: new Date("2024-12-15T16:54:44.697Z"),
     },
@@ -24,7 +23,7 @@ export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
       id: "0193cb3e-636d-742e-8cc9-02a6a85dbf00",
       title: "piyo todo 1",
       description: "piyo desc 1",
-      status: TodoStatus.DONE,
+      status: TodoStatus.Done,
       userId: "0193cb3e-58fe-772b-8306-412afa147cdd",
       updatedAt: new Date("2024-12-15T16:54:43.821Z"),
     },
@@ -33,7 +32,7 @@ export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
       id: "0193cb3e-66d7-7295-bbba-8fe8ec408177",
       title: "piyo todo 2",
       description: "piyo desc 2",
-      status: TodoStatus.PENDING,
+      status: TodoStatus.Pending,
       userId: "0193cb3e-58fe-772b-8306-412afa147cdd",
       updatedAt: new Date("2024-12-15T16:54:44.696Z"),
     },
@@ -61,7 +60,7 @@ const fakeDataOne = (userId: User["id"]) => {
     id: TodoId.gen(),
     title: faker.lorem.words(randInt(1, 3)),
     description: faker.lorem.text(),
-    status: faker.helpers.arrayElement([TodoStatus.DONE, TodoStatus.PENDING]),
+    status: faker.helpers.arrayElement([TodoStatus.Done, TodoStatus.Pending]),
     updatedAt: faker.date.past(),
     userId,
   }));

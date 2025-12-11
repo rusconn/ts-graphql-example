@@ -1,6 +1,7 @@
 import { omit } from "es-toolkit";
 
 import { client } from "../../../src/db/client.ts";
+import * as Db from "../../../src/db/types.ts";
 import { ErrorCode, TodoStatus } from "../../../src/schema.ts";
 
 import { db, dummyId, graph, tokens } from "../../data.ts";
@@ -111,9 +112,9 @@ it("should update using input", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(todo.title).toBe(variables.title);
-  expect(todo.description).toBe(variables.description);
-  expect(todo.status).toBe(variables.status);
+  expect(todo.title === variables.title).toBe(true);
+  expect(todo.description === variables.description).toBe(true);
+  expect(todo.status === Db.TodoStatus.Done).toBe(true);
 });
 
 it("should not update fields if the field is absent", async () => {

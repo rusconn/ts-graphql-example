@@ -1,6 +1,7 @@
+import { type User, UserId } from "../../src/domain/user.ts";
 import { userId } from "../../src/graphql/_adapters/user/id.ts";
 import { db } from "../../src/graphql/_testData/db/users.ts";
-import { type User, UserId } from "../../src/models/user.ts";
+import { domain } from "../../src/graphql/_testData/domain/users.ts";
 import type * as Graph from "../../src/schema.ts";
 import { signedJwt } from "../../src/util/accessToken.ts";
 
@@ -14,8 +15,8 @@ const node = (user: User): Graph.User => ({
 });
 
 export const token = {
-  admin: await signedJwt(db.admin),
-  alice: await signedJwt(db.alice),
+  admin: await signedJwt(domain.admin),
+  alice: await signedJwt(domain.alice),
 };
 
 export const refreshToken = {
@@ -24,11 +25,11 @@ export const refreshToken = {
 };
 
 export const graph = {
-  admin: node(db.admin),
-  alice: node(db.alice),
+  admin: node(domain.admin),
+  alice: node(domain.alice),
 };
 
-export { db };
+export { db, domain };
 
 export const dummyId = () => {
   return userId(UserId.gen());

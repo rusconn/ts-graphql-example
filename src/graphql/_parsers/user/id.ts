@@ -1,4 +1,4 @@
-import { UserId } from "../../../models/user.ts";
+import { UserId } from "../../../domain/user.ts";
 import { parseSomeId } from "../someId.ts";
 
 export const parseUserId = parseSomeId("User", UserId.is);

@@ -24,20 +24,20 @@ const authUserOwner = (context: AuthContext, user: ParentUser) => {
 };
 
 if (import.meta.vitest) {
-  const { db } = await import("../../_testData/db.ts");
   const { context } = await import("../../_testData/context.ts");
+  const { domain } = await import("../../_testData/domain.ts");
 
   describe("authAdminOrUserOwner", () => {
     const allows = [
-      [context.user.admin, db.users.admin],
-      [context.user.admin, db.users.alice],
-      [context.user.alice, db.users.alice],
+      [context.user.admin, domain.users.admin],
+      [context.user.admin, domain.users.alice],
+      [context.user.alice, domain.users.alice],
     ] as const;
 
     const denies = [
-      [context.user.alice, db.users.admin],
-      [context.user.guest, db.users.admin],
-      [context.user.guest, db.users.alice],
+      [context.user.alice, domain.users.admin],
+      [context.user.guest, domain.users.admin],
+      [context.user.guest, domain.users.alice],
     ] as const;
 
     test.each(allows)("allows %#", (contextUser, user) => {
@@ -53,15 +53,15 @@ if (import.meta.vitest) {
 
   describe("authUserOwner", () => {
     const allows = [
-      [context.user.admin, db.users.admin],
-      [context.user.alice, db.users.alice],
+      [context.user.admin, domain.users.admin],
+      [context.user.alice, domain.users.alice],
     ] as const;
 
     const denies = [
-      [context.user.admin, db.users.alice],
-      [context.user.alice, db.users.admin],
-      [context.user.guest, db.users.admin],
-      [context.user.guest, db.users.alice],
+      [context.user.admin, domain.users.alice],
+      [context.user.alice, domain.users.admin],
+      [context.user.guest, domain.users.admin],
+      [context.user.guest, domain.users.alice],
     ] as const;
 
     test.each(allows)("allows %#", (contextUser, user) => {

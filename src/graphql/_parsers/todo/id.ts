@@ -1,4 +1,4 @@
-import { TodoId } from "../../../models/todo.ts";
+import { TodoId } from "../../../domain/todo.ts";
 import { parseSomeId } from "../someId.ts";
 
 export const parseTodoId = parseSomeId("Todo", TodoId.is);

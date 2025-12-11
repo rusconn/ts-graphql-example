@@ -1,6 +1,5 @@
 import { client } from "../src/db/client.ts";
-import type { Todo } from "../src/models/todo.ts";
-import type { UserFull } from "../src/models/user.ts";
+import type { Todo, User, UserCredential, UserToken } from "../src/db/types.ts";
 
 export const clearTables = async () => {
   // CASCADE other tables
@@ -18,6 +17,10 @@ export const clearUsers = async () => {
 export function fail(): never {
   throw new Error();
 }
+
+type UserFull = User & //
+  Pick<UserCredential, "password"> &
+  Pick<UserToken, "token">;
 
 export const seed = {
   user: (users: UserFull[]) =>

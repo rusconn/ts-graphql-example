@@ -1,4 +1,4 @@
-import { UserEmail } from "../../../models/user.ts";
+import { UserEmail } from "../../../domain/user.ts";
 import { ParseErr, parseStringArg } from "../util.ts";
 
 export const USER_EMAIL_MAX = 100;

@@ -2,8 +2,8 @@ import type { YogaInitialContext } from "graphql-yoga";
 import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 
 import type { client } from "./db/client.ts";
+import type * as Domain from "./domain/user.ts";
 import type { logger } from "./logger.ts";
-import type { User as UserModel } from "./models/user.ts";
 import type { TodoRepo } from "./repositories/todo.ts";
 import type { UserRepo } from "./repositories/user.ts";
 
@@ -29,6 +29,6 @@ export type UserContext = {
   };
 };
 
-type Admin = Pick<UserModel, "id"> & { role: "ADMIN" };
-type User = Pick<UserModel, "id"> & { role: "USER" };
+type Admin = Pick<Domain.User, "id"> & { role: "ADMIN" };
+type User = Pick<Domain.User, "id"> & { role: "USER" };
 type Guest = null;

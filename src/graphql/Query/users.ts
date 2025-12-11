@@ -1,5 +1,5 @@
+import type { UserBase } from "../../dto/user-base.ts";
 import { getCursorConnection } from "../../lib/graphql/cursorConnections/get.ts";
-import type { User } from "../../models/user.ts";
 import type { QueryResolvers, QueryUsersArgs } from "../../schema.ts";
 import { UserSortKeys } from "../../schema.ts";
 import { authAdmin } from "../_authorizers/admin.ts";
@@ -67,7 +67,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 
   const { connectionArgs, reverse, sortKey } = parsed;
 
-  return await getCursorConnection<User, User["id"]>(
+  return await getCursorConnection<UserBase, UserBase["id"]>(
     ({ backward, ...exceptBackward }) =>
       context.repos.user.getPage({
         sortKey: {

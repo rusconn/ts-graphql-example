@@ -1,4 +1,3 @@
-import { TodoId } from "../../models/todo.ts";
 import type { TodoResolvers } from "../../schema.ts";
 import { authAdminOrTodoOwner } from "../_authorizers/todo/adminOrTodoOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -16,5 +15,5 @@ export const resolver: NonNullable<TodoResolvers["createdAt"]> = (parent, _args,
     throw forbiddenErr(authed);
   }
 
-  return TodoId.date(parent.id);
+  return parent.createdAt;
 };

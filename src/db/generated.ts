@@ -7,9 +7,9 @@ import type { ColumnType } from "kysely";
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-export type TodoStatus = "DONE" | "PENDING";
+export type TodoStatus = "done" | "pending";
 
-export type UserRole = "ADMIN" | "USER";
+export type UserRole = "admin" | "user";
 
 export interface Todos {
   description: string;

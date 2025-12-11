@@ -2,8 +2,8 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import type { DB } from "../../src/db/types.ts";
-import { UserId, UserRole } from "../../src/models/user.ts";
+import { type DB, UserRole } from "../../src/db/types.ts";
+import { UserId } from "../../src/domain/user.ts";
 
 export const seed = async (trx: Transaction<DB>) => {
   const handUsers = [
@@ -12,7 +12,7 @@ export const seed = async (trx: Transaction<DB>) => {
       id: "0193cb3e-4379-750f-880f-77afae342259",
       name: "admin",
       email: "admin@admin.com",
-      role: UserRole.ADMIN,
+      role: UserRole.Admin,
       updatedAt: new Date("2024-12-15T16:54:41.152Z"),
     },
     {
@@ -20,7 +20,7 @@ export const seed = async (trx: Transaction<DB>) => {
       id: "0193cb3e-504f-72e9-897c-2c71f389f3ad",
       name: "hoge",
       email: "hoge@hoge.com",
-      role: UserRole.USER,
+      role: UserRole.User,
       updatedAt: new Date("2024-12-15T16:54:38.927Z"),
     },
     {
@@ -28,7 +28,7 @@ export const seed = async (trx: Transaction<DB>) => {
       id: "0193cb3e-58fe-772b-8306-412afa147cdd",
       name: "piyo",
       email: "piyo@piyo.com",
-      role: UserRole.USER,
+      role: UserRole.User,
       updatedAt: new Date("2024-12-15T16:54:41.151Z"),
     },
   ];
@@ -64,6 +64,6 @@ const fakeDataOne = (nth: number) => {
       lastName: lastName + nth, // make unique
       allowSpecialCharacters: true,
     }),
-    role: UserRole.USER,
+    role: UserRole.User,
   };
 };

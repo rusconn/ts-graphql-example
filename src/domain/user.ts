@@ -9,25 +9,16 @@ export type User = {
   id: UserId.UserId;
   name: string;
   email: UserEmail.UserEmail;
-  role: UserRole;
-  updatedAt: Date;
-};
-
-export type UserCredential = {
-  userId: UserId.UserId;
   password: UserPassword.UserPasswordHashed;
+  role: UserRole;
+  createdAt: Date;
   updatedAt: Date;
 };
 
 export type UserToken = {
-  userId: UserId.UserId;
+  id: UserId.UserId;
   token: UserToken_.UserToken;
-  updatedAt: Date;
 };
-
-export type UserFull = User & //
-  Pick<UserCredential, "password"> &
-  Pick<UserToken, "token">;
 
 export const UserRole = {
   ADMIN: "ADMIN",

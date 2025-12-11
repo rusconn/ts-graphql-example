@@ -1,5 +1,5 @@
 import type { SetRequired } from "type-fest";
 
-import type { User as UserModel } from "../../models/user.ts";
+import type * as Dto from "../../dto/user-base.ts";
 
-export type User = SetRequired<Partial<UserModel>, "id">;
+export type User = SetRequired<Partial<Dto.UserBase>, "id">;

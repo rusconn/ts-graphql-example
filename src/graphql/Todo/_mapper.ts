@@ -1,3 +1,3 @@
-import type { Todo as TodoModel } from "../../models/todo.ts";
+import type * as Domain from "../../domain/todo.ts";
 
-export type Todo = TodoModel;
+export type Todo = Domain.Todo;
