@@ -1,4 +1,4 @@
-import * as UserPassword from "../../models/user/password.ts";
+import { UserPassword } from "../../domain/user.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { setRefreshTokenCookie } from "../../util/refreshToken.ts";

@@ -1,4 +1,4 @@
-import * as UserPassword from "../../models/user/password.ts";
+import { UserPassword } from "../../domain/user.ts";
 import type { MutationLoginPasswordChangeArgs, MutationResolvers } from "../../schema.ts";
 import { userId } from "../_adapters/user/id.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";

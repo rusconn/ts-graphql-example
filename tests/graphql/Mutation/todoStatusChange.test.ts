@@ -1,7 +1,7 @@
 import { omit } from "es-toolkit";
 
 import { client } from "../../../src/db/client.ts";
-import { TodoStatus } from "../../../src/models/todo.ts";
+import * as Db from "../../../src/db/types.ts";
 import * as Graph from "../../../src/schema.ts";
 
 import { db, dummyId, graph, tokens } from "../../data.ts";
@@ -49,7 +49,7 @@ beforeEach(async () => {
   await client
     .updateTable("todos")
     .where("id", "=", db.todos.admin1.id)
-    .set({ status: TodoStatus.PENDING })
+    .set({ status: Db.TodoStatus.Pending })
     .executeTakeFirstOrThrow();
 });
 
@@ -101,8 +101,8 @@ it("should update status", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(before.status).toBe(TodoStatus.PENDING);
-  expect(after.status).toBe(TodoStatus.DONE);
+  expect(before.status === Db.TodoStatus.Pending).toBe(true);
+  expect(after.status === Db.TodoStatus.Done).toBe(true);
 });
 
 it("should update updatedAt", async () => {

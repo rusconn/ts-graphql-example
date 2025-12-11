@@ -2,8 +2,9 @@ import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
 import type { DB } from "../../db/types.ts";
+import type { Todo, TodoStatus } from "../../domain/todo.ts";
 import { sortGroup } from "../../lib/dataloader/sortGroup.ts";
-import type { Todo, TodoStatus } from "../../models/todo.ts";
+import { mappers } from "../../mappers.ts";
 
 export type Key = {
   userId: Todo["userId"];
@@ -51,7 +52,7 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
               ),
             ),
           )
-          .$if(status != null, (qb) => qb.where("status", "=", status!))
+          .$if(status != null, (qb) => qb.where("status", "=", mappers.todo.status.toDb(status!)))
           .selectAll("todos")
           .orderBy(orderColumn, direction)
           .orderBy("id", direction)
@@ -64,5 +65,5 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
     // サブクエリの結果順を維持することを想定して order by は指定していない
     .execute();
 
-  return sortGroup(userIds, todos as Todo[], (todo) => todo.userId);
+  return sortGroup(userIds, todos.map(mappers.todo.toDomain), (todo) => todo.userId);
 };

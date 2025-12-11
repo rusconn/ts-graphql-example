@@ -1,5 +1,5 @@
 import type { Context } from "../../context.ts";
-import { db as users } from "./db/users.ts";
+import { domain as users } from "./domain/users.ts";
 
 export const context = {
   user: {

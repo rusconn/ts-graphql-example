@@ -1,4 +1,4 @@
-import { UserRole } from "../../models/user.ts";
+import { UserRole } from "../../domain/user.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { setRefreshTokenCookie } from "../../util/refreshToken.ts";

@@ -4,7 +4,19 @@ import type { Insertable, Selectable, Updateable } from "kysely";
 
 import type * as Genned from "./generated.ts";
 
-export type { DB, TodoStatus, UserRole } from "./generated.ts";
+export type { DB } from "./generated.ts";
+
+export const TodoStatus = {
+  Done: "done",
+  Pending: "pending",
+} satisfies Record<string, Genned.TodoStatus>;
+export type TodoStatus = (typeof TodoStatus)[keyof typeof TodoStatus];
+
+export const UserRole = {
+  Admin: "admin",
+  User: "user",
+} satisfies Record<string, Genned.UserRole>;
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
 export type Todo = Selectable<Genned.Todos>;
 export type NewTodo = Insertable<Genned.Todos>;

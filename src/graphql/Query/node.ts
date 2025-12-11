@@ -1,5 +1,5 @@
-import { TodoId } from "../../models/todo.ts";
-import { UserId } from "../../models/user.ts";
+import { TodoId } from "../../domain/todo.ts";
+import { UserId } from "../../domain/user.ts";
 import type { QueryResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";

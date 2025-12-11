@@ -1,5 +1,5 @@
 import { client } from "../../../src/db/client.ts";
-import { UserRole } from "../../../src/models/user.ts";
+import { UserRole } from "../../../src/db/types.ts";
 
 import { db } from "../../data.ts";
 import { clearUsers, fail, seed } from "../../helpers.ts";
@@ -99,5 +99,5 @@ test("role should be USER by default", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(user.role).toBe(UserRole.USER);
+  expect(user.role === UserRole.User).toBe(true);
 });

@@ -2,8 +2,7 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import type { DB } from "../../src/db/types.ts";
-import type { User } from "../../src/models/user.ts";
+import type { DB, User } from "../../src/db/types.ts";
 
 export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
   const handUserCredentials = [

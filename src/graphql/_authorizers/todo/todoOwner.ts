@@ -11,19 +11,19 @@ export const authTodoOwner = (context: AuthContext, todo: ParentTodo) => {
 };
 
 if (import.meta.vitest) {
-  const { db } = await import("../../_testData/db.ts");
   const { context } = await import("../../_testData/context.ts");
+  const { domain } = await import("../../_testData/domain.ts");
 
   const allows = [
-    [context.user.admin, db.todos.admin1],
-    [context.user.alice, db.todos.alice1],
+    [context.user.admin, domain.todos.admin1],
+    [context.user.alice, domain.todos.alice1],
   ] as const;
 
   const denies = [
-    [context.user.admin, db.todos.alice1],
-    [context.user.alice, db.todos.admin1],
-    [context.user.guest, db.todos.admin1],
-    [context.user.guest, db.todos.alice1],
+    [context.user.admin, domain.todos.alice1],
+    [context.user.alice, domain.todos.admin1],
+    [context.user.guest, domain.todos.admin1],
+    [context.user.guest, domain.todos.alice1],
   ] as const;
 
   test.each(allows)("allows %#", (contextUser, todo) => {

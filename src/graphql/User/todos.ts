@@ -1,5 +1,5 @@
+import type { Todo } from "../../domain/todo.ts";
 import { getCursorConnection } from "../../lib/graphql/cursorConnections/get.ts";
-import type { Todo } from "../../models/todo.ts";
 import type { UserResolvers, UserTodosArgs } from "../../schema.ts";
 import { TodoSortKeys } from "../../schema.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";

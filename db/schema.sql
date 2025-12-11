@@ -1,6 +1,6 @@
-CREATE TYPE todo_status AS ENUM ('DONE', 'PENDING');
+CREATE TYPE todo_status AS ENUM ('done', 'pending');
 
-CREATE TYPE user_role AS ENUM ('ADMIN', 'USER');
+CREATE TYPE user_role AS ENUM ('admin', 'user');
 
 CREATE TABLE users (
   id uuid PRIMARY KEY,
