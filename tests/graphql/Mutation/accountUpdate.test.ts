@@ -59,7 +59,7 @@ it("should update using input", async () => {
   expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
 
   const user = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -69,8 +69,8 @@ it("should update using input", async () => {
 
 it("should not update fields if the field is absent", async () => {
   const before = await client
-    .selectFrom("User")
-    .where("User.id", "=", db.users.admin.id)
+    .selectFrom("users")
+    .where("users.id", "=", db.users.admin.id)
     .select(["name"])
     .executeTakeFirstOrThrow();
 
@@ -82,8 +82,8 @@ it("should not update fields if the field is absent", async () => {
   expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("User")
-    .where("User.id", "=", db.users.admin.id)
+    .selectFrom("users")
+    .where("users.id", "=", db.users.admin.id)
     .select(["name"])
     .executeTakeFirstOrThrow();
 
@@ -92,7 +92,7 @@ it("should not update fields if the field is absent", async () => {
 
 it("should update updatedAt", async () => {
   const before = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -105,7 +105,7 @@ it("should update updatedAt", async () => {
   expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -118,7 +118,7 @@ it("should update updatedAt", async () => {
 
 it("should not update other attrs", async () => {
   const before = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -131,7 +131,7 @@ it("should not update other attrs", async () => {
   expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();

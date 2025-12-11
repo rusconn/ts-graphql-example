@@ -1,38 +1,38 @@
-CREATE TYPE "TodoStatus" AS ENUM ('DONE', 'PENDING');
+CREATE TYPE todo_status AS ENUM ('DONE', 'PENDING');
 
-CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'USER');
+CREATE TYPE user_role AS ENUM ('ADMIN', 'USER');
 
-CREATE TABLE "User" (
+CREATE TABLE users (
   id uuid PRIMARY KEY,
   name varchar(100) NOT NULL,
   email varchar(100) NOT NULL UNIQUE,
-  role "UserRole" NOT NULL,
-  "updatedAt" timestamptz (3) NOT NULL
+  role user_role NOT NULL,
+  updated_at timestamptz (3) NOT NULL
 );
 
-CREATE INDEX ON "User" ("updatedAt", id);
+CREATE INDEX ON users (updated_at, id);
 
-CREATE TABLE "Todo" (
+CREATE TABLE todos (
   id uuid PRIMARY KEY,
   title varchar(255) NOT NULL,
   description text NOT NULL,
-  status "TodoStatus" NOT NULL,
-  "userId" uuid NOT NULL REFERENCES "User" ON UPDATE CASCADE ON DELETE CASCADE,
-  "updatedAt" timestamptz (3) NOT NULL
+  status todo_status NOT NULL,
+  user_id uuid NOT NULL REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
+  updated_at timestamptz (3) NOT NULL
 );
 
-CREATE INDEX ON "Todo" ("userId", id);
+CREATE INDEX ON todos (user_id, id);
 
-CREATE INDEX ON "Todo" ("userId", "updatedAt", id);
+CREATE INDEX ON todos (user_id, updated_at, id);
 
-CREATE TABLE "UserCredential" (
-  "userId" uuid PRIMARY KEY REFERENCES "User" ON UPDATE CASCADE ON DELETE CASCADE,
+CREATE TABLE user_credentials (
+  user_id uuid PRIMARY KEY REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
   password char(60) NOT NULL,
-  "updatedAt" timestamptz (3) NOT NULL
+  updated_at timestamptz (3) NOT NULL
 );
 
-CREATE TABLE "UserToken" (
-  "userId" uuid PRIMARY KEY REFERENCES "User" ON UPDATE CASCADE ON DELETE CASCADE,
+CREATE TABLE user_tokens (
+  user_id uuid PRIMARY KEY REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
   token text UNIQUE NOT NULL,
-  "updatedAt" timestamptz (3) NOT NULL
+  updated_at timestamptz (3) NOT NULL
 );

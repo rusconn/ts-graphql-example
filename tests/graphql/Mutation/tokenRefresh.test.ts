@@ -58,7 +58,7 @@ test("correct input", async () => {
 
 test("changes refresh token", async () => {
   const before = await client
-    .selectFrom("UserToken")
+    .selectFrom("userTokens")
     .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -70,7 +70,7 @@ test("changes refresh token", async () => {
   expect(data?.tokenRefresh?.__typename === "TokenRefreshSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("UserToken")
+    .selectFrom("userTokens")
     .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();

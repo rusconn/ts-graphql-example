@@ -7,42 +7,42 @@ import type { ColumnType } from "kysely";
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-export type Todostatus = "DONE" | "PENDING";
+export type TodoStatus = "DONE" | "PENDING";
 
-export type Userrole = "ADMIN" | "USER";
+export type UserRole = "ADMIN" | "USER";
 
-export interface Todo {
+export interface Todos {
   description: string;
   id: string;
-  status: Todostatus;
+  status: TodoStatus;
   title: string;
   updatedAt: Timestamp;
   userId: string;
 }
 
-export interface User {
-  email: string;
-  id: string;
-  name: string;
-  role: Userrole;
-  updatedAt: Timestamp;
-}
-
-export interface UserCredential {
+export interface UserCredentials {
   password: string;
   updatedAt: Timestamp;
   userId: string;
 }
 
-export interface UserToken {
+export interface Users {
+  email: string;
+  id: string;
+  name: string;
+  role: UserRole;
+  updatedAt: Timestamp;
+}
+
+export interface UserTokens {
   token: string;
   updatedAt: Timestamp;
   userId: string;
 }
 
 export interface DB {
-  Todo: Todo;
-  User: User;
-  UserCredential: UserCredential;
-  UserToken: UserToken;
+  todos: Todos;
+  userCredentials: UserCredentials;
+  users: Users;
+  userTokens: UserTokens;
 }

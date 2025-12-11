@@ -39,7 +39,7 @@ export const seed = async (trx: Transaction<DB>) => {
 
   // 一度に insert する件数が多いとエラーが発生するので小分けにしている
   const chunks = chunk(users, 5_000);
-  const inserts = chunks.map((us) => trx.insertInto("User").values(us).execute());
+  const inserts = chunks.map((us) => trx.insertInto("users").values(us).execute());
 
   await Promise.all(inserts);
 

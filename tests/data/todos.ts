@@ -1,5 +1,5 @@
 import { todoId } from "../../src/graphql/_adapters/todo/id.ts";
-import { db } from "../../src/graphql/_testData/db/todo.ts";
+import { db } from "../../src/graphql/_testData/db/todos.ts";
 import type { Todo } from "../../src/models/todo.ts";
 import { TodoId } from "../../src/models/todo.ts";
 import type * as Graph from "../../src/schema.ts";

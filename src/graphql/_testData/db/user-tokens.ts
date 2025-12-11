@@ -1,5 +1,5 @@
 import type { UserToken } from "../../../models/user.ts";
-import { db as users } from "./user.ts";
+import { db as users } from "./users.ts";
 
 export const db = {
   admin: {

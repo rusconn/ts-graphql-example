@@ -4,20 +4,20 @@ import type { Insertable, Selectable, Updateable } from "kysely";
 
 import type * as Genned from "./generated.ts";
 
-export type { DB, Todostatus as TodoStatus, Userrole as UserRole } from "./generated.ts";
+export type { DB, TodoStatus, UserRole } from "./generated.ts";
 
-export type Todo = Selectable<Genned.Todo>;
-export type NewTodo = Insertable<Genned.Todo>;
-export type TodoUpdate = Updateable<Genned.Todo>;
+export type Todo = Selectable<Genned.Todos>;
+export type NewTodo = Insertable<Genned.Todos>;
+export type TodoUpdate = Updateable<Genned.Todos>;
 
-export type User = Selectable<Genned.User>;
-export type NewUser = Insertable<Genned.User>;
-export type UserUpdate = Updateable<Genned.User>;
+export type User = Selectable<Genned.Users>;
+export type NewUser = Insertable<Genned.Users>;
+export type UserUpdate = Updateable<Genned.Users>;
 
-export type UserCredential = Selectable<Genned.UserCredential>;
-export type NewUserCredential = Insertable<Genned.UserCredential>;
-export type UserCredentialUpdate = Updateable<Genned.UserCredential>;
+export type UserCredential = Selectable<Genned.UserCredentials>;
+export type NewUserCredential = Insertable<Genned.UserCredentials>;
+export type UserCredentialUpdate = Updateable<Genned.UserCredentials>;
 
-export type UserToken = Selectable<Genned.UserToken>;
-export type NewUserToken = Insertable<Genned.UserToken>;
-export type UserTokenUpdate = Updateable<Genned.UserToken>;
+export type UserToken = Selectable<Genned.UserTokens>;
+export type NewUserToken = Insertable<Genned.UserTokens>;
+export type UserTokenUpdate = Updateable<Genned.UserTokens>;

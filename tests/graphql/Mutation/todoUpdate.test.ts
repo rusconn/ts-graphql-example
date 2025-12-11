@@ -46,7 +46,7 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await client
-    .insertInto("Todo")
+    .insertInto("todos")
     .values(db.todos.admin1)
     .onConflict((oc) => oc.column("id").doUpdateSet(db.todos.admin1))
     .executeTakeFirstOrThrow();
@@ -106,7 +106,7 @@ it("should update using input", async () => {
   expect(data?.todoUpdate?.__typename === "TodoUpdateSuccess").toBe(true);
 
   const todo = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -118,7 +118,7 @@ it("should update using input", async () => {
 
 it("should not update fields if the field is absent", async () => {
   const before = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -131,7 +131,7 @@ it("should not update fields if the field is absent", async () => {
   expect(data?.todoUpdate?.__typename === "TodoUpdateSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -143,7 +143,7 @@ it("should not update fields if the field is absent", async () => {
 
 it("should update updatedAt", async () => {
   const before = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -156,7 +156,7 @@ it("should update updatedAt", async () => {
   expect(data?.todoUpdate?.__typename === "TodoUpdateSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -169,7 +169,7 @@ it("should update updatedAt", async () => {
 
 it("should not update other attrs", async () => {
   const before = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -182,7 +182,7 @@ it("should not update other attrs", async () => {
   expect(data?.todoUpdate?.__typename === "TodoUpdateSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();

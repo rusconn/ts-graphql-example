@@ -1,7 +1,7 @@
-import * as todos from "./data/todo.ts";
-import * as users from "./data/user.ts";
-import * as userCredentials from "./data/user-credential.ts";
-import * as userTokens from "./data/user-token.ts";
+import * as todos from "./data/todos.ts";
+import * as userCredentials from "./data/user-credentials.ts";
+import * as userTokens from "./data/user-tokens.ts";
+import * as users from "./data/users.ts";
 
 export const tokens = users.token;
 export const refreshTokens = users.refreshToken;

@@ -13,7 +13,7 @@ export const create = (db: Kysely<DB>) => {
 
 const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
   const users = await db //
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "in", keys)
     .selectAll()
     .execute();

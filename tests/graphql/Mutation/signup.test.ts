@@ -71,7 +71,7 @@ it("should create user using input", async () => {
   }
 
   const user = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("email", "=", email)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -94,7 +94,7 @@ test("role should be USER by default", async () => {
   }
 
   const user = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("email", "=", email)
     .selectAll()
     .executeTakeFirstOrThrow();

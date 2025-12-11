@@ -1,5 +1,5 @@
 import { type Todo, TodoStatus } from "../../../models/todo.ts";
-import { db as users } from "./user.ts";
+import { db as users } from "./users.ts";
 
 export const db = {
   admin1: {

@@ -82,7 +82,7 @@ test("correct input", async () => {
 
 test("login changes token", async () => {
   const before = await client
-    .selectFrom("UserToken")
+    .selectFrom("userTokens")
     .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -98,7 +98,7 @@ test("login changes token", async () => {
   expect(data?.login?.__typename === "LoginSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("UserToken")
+    .selectFrom("userTokens")
     .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -108,7 +108,7 @@ test("login changes token", async () => {
 
 test("login does not changes other attrs", async () => {
   const before = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -124,7 +124,7 @@ test("login does not changes other attrs", async () => {
   expect(data?.login?.__typename === "LoginSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();

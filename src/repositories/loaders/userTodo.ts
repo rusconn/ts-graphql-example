@@ -13,7 +13,7 @@ export const create = (db: Kysely<DB>) => {
 
 const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
   const todos = await db
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where(({ eb, refTuple, tuple }) =>
       eb(
         refTuple("id", "userId"),

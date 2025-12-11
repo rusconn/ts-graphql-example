@@ -1,4 +1,4 @@
-import { Kysely, type LogEvent, PostgresDialect } from "kysely";
+import { CamelCasePlugin, Kysely, type LogEvent, PostgresDialect } from "kysely";
 import pg, { type DatabaseError } from "pg";
 
 import { connectionString } from "../config/db.ts";
@@ -26,6 +26,7 @@ export const client = new Kysely<DB>({
       connectionString,
     }),
   }),
+  plugins: [new CamelCasePlugin()],
   log(event) {
     switch (event.level) {
       case "query":

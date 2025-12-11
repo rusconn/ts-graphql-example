@@ -52,17 +52,17 @@ it("should delete user and user-*", async () => {
 
   const [user, userCredential, userToken] = await Promise.all([
     client //
-      .selectFrom("User")
+      .selectFrom("users")
       .where("id", "=", id)
       .selectAll()
       .executeTakeFirst(),
     client //
-      .selectFrom("UserCredential")
+      .selectFrom("userCredentials")
       .where("userId", "=", id)
       .selectAll()
       .executeTakeFirst(),
     client //
-      .selectFrom("UserToken")
+      .selectFrom("userTokens")
       .where("userId", "=", id)
       .selectAll()
       .executeTakeFirst(),
@@ -75,7 +75,7 @@ it("should delete user and user-*", async () => {
 
 it("should not delete others", async () => {
   const before = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
@@ -94,13 +94,13 @@ it("should not delete others", async () => {
   }
 
   const user = await client
-    .selectFrom("User") //
+    .selectFrom("users") //
     .where("id", "=", id)
     .selectAll()
     .executeTakeFirst();
 
   const after = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
@@ -112,7 +112,7 @@ it("should delete his resources", async () => {
   await seedData.todos();
 
   const before = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("userId", "=", db.users.admin.id)
     .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
@@ -124,7 +124,7 @@ it("should delete his resources", async () => {
   expect(data?.accountDelete?.__typename === "AccountDeleteSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("userId", "=", db.users.admin.id)
     .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();

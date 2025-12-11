@@ -35,7 +35,7 @@ export class UserRepo {
 
   getById = async (id: User["id"]) => {
     const user = await this.#db
-      .selectFrom("User")
+      .selectFrom("users")
       .where("id", "=", id)
       .selectAll()
       .executeTakeFirst();
@@ -45,10 +45,10 @@ export class UserRepo {
 
   getByToken = async (token: UserToken["token"]) => {
     const user = await this.#db
-      .selectFrom("User")
-      .innerJoin("UserToken", "User.id", "UserToken.userId")
+      .selectFrom("users")
+      .innerJoin("userTokens", "users.id", "userTokens.userId")
       .where("token", "=", await UserToken.hash(token))
-      .selectAll("User")
+      .selectAll("users")
       .executeTakeFirst();
 
     return user as User | undefined;
@@ -56,11 +56,11 @@ export class UserRepo {
 
   getWithCredentialById = async (id: User["id"]) => {
     const user = await this.#db
-      .selectFrom("UserCredential")
-      .innerJoin("User", "UserCredential.userId", "User.id")
+      .selectFrom("userCredentials")
+      .innerJoin("users", "userCredentials.userId", "users.id")
       .where("id", "=", id)
-      .selectAll("User")
-      .select("UserCredential.password")
+      .selectAll("users")
+      .select("userCredentials.password")
       .executeTakeFirst();
 
     return user as UserWithCredential | undefined;
@@ -68,11 +68,11 @@ export class UserRepo {
 
   getWithCredentialByEmail = async (email: User["email"]) => {
     const user = await this.#db
-      .selectFrom("UserCredential")
-      .innerJoin("User", "UserCredential.userId", "User.id")
+      .selectFrom("userCredentials")
+      .innerJoin("users", "userCredentials.userId", "users.id")
       .where("email", "=", email)
-      .selectAll("User")
-      .select("UserCredential.password")
+      .selectAll("users")
+      .select("userCredentials.password")
       .executeTakeFirst();
 
     return user as UserWithCredential | undefined;
@@ -95,12 +95,12 @@ export class UserRepo {
     const cursorOrderColumn =
       cursor &&
       this.#db //
-        .selectFrom("User")
+        .selectFrom("users")
         .where("id", "=", cursor)
         .select(orderColumn);
 
     const page = await this.#db
-      .selectFrom("User")
+      .selectFrom("users")
       .$if(cursor != null, (qb) =>
         qb.where(({ eb, refTuple, tuple }) =>
           eb(
@@ -121,7 +121,7 @@ export class UserRepo {
 
   count = async () => {
     const result = await this.#db
-      .selectFrom("User")
+      .selectFrom("users")
       .select(({ fn }) => fn.countAll<number>().as("count"))
       .executeTakeFirstOrThrow();
 
@@ -137,17 +137,17 @@ export class UserRepo {
     try {
       return await this.#db.transaction().execute(async (trx) => {
         const user = await trx
-          .insertInto("User")
+          .insertInto("users")
           .values({ id, updatedAt: date, ...data })
           .returningAll()
           .executeTakeFirstOrThrow();
         const _userCredential = await trx
-          .insertInto("UserCredential")
+          .insertInto("userCredentials")
           .values({ userId: user.id, updatedAt: date, password })
           .returning("userId")
           .executeTakeFirstOrThrow();
         const _userToken = await trx
-          .insertInto("UserToken")
+          .insertInto("userTokens")
           .values({ userId: user.id, updatedAt: date, token: hashed })
           .returning("token")
           .executeTakeFirstOrThrow();
@@ -175,7 +175,7 @@ export class UserRepo {
   updateById = async (id: User["id"], data: UserUpd) => {
     try {
       const user = await this.#db
-        .updateTable("User")
+        .updateTable("users")
         .where("id", "=", id)
         .set({ updatedAt: new Date(), ...data })
         .returningAll()
@@ -200,7 +200,7 @@ export class UserRepo {
 
   updatePasswordById = async (id: User["id"], source: string) => {
     const userPassword = await this.#db
-      .updateTable("UserCredential")
+      .updateTable("userCredentials")
       .where("userId", "=", id)
       .set({ updatedAt: new Date(), password: await UserPassword.hash(source) })
       .returning("userId")
@@ -215,7 +215,7 @@ export class UserRepo {
     const date = new Date();
 
     const userToken = await this.#db
-      .insertInto("UserToken")
+      .insertInto("userTokens")
       .values({ userId: id, token: hashed, updatedAt: date })
       .onConflict((oc) =>
         oc
@@ -232,7 +232,7 @@ export class UserRepo {
     const newToken = UserToken.gen();
 
     const userToken = await this.#db
-      .updateTable("UserToken")
+      .updateTable("userTokens")
       .where("token", "=", await UserToken.hash(oldToken))
       .set({ updatedAt: new Date(), token: await UserToken.hash(newToken) })
       .returning("token")
@@ -243,7 +243,7 @@ export class UserRepo {
 
   deleteById = async (id: User["id"]) => {
     const user = await this.#db
-      .deleteFrom("User")
+      .deleteFrom("users")
       .where("id", "=", id)
       .returning("id")
       .executeTakeFirst();
@@ -253,7 +253,7 @@ export class UserRepo {
 
   deleteTokenById = async (id: User["id"]) => {
     const userToken = await this.#db
-      .deleteFrom("UserToken")
+      .deleteFrom("userTokens")
       .where("userId", "=", id)
       .returning("userId")
       .executeTakeFirst();

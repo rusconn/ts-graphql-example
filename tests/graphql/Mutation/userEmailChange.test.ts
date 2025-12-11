@@ -61,7 +61,7 @@ it("should change email", async () => {
   expect(data?.userEmailChange?.__typename === "UserEmailChangeSuccess").toBe(true);
 
   const user = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -71,7 +71,7 @@ it("should change email", async () => {
 
 it("should update updatedAt", async () => {
   const before = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -84,7 +84,7 @@ it("should update updatedAt", async () => {
   expect(data?.userEmailChange?.__typename === "UserEmailChangeSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();

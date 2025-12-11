@@ -34,7 +34,7 @@ export class TodoRepo {
 
   getById = async (id: Todo["id"], trx?: Transaction<DB>) => {
     const todo = await (trx ?? this.#db)
-      .selectFrom("Todo")
+      .selectFrom("todos")
       .where("id", "=", id)
       .selectAll()
       .$if(trx != null, (qb) => qb.forUpdate())
@@ -45,7 +45,7 @@ export class TodoRepo {
 
   count = async (userId?: Todo["userId"]) => {
     const result = await this.#db
-      .selectFrom("Todo")
+      .selectFrom("todos")
       .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
       .select(({ fn }) => fn.countAll<number>().as("count"))
       .executeTakeFirstOrThrow();
@@ -57,7 +57,7 @@ export class TodoRepo {
     const { id, date } = TodoId.genWithDate();
 
     const todo = await (trx ?? this.#db)
-      .insertInto("Todo")
+      .insertInto("todos")
       .values({
         id,
         updatedAt: date,
@@ -71,7 +71,7 @@ export class TodoRepo {
 
   update = async ({ id, userId }: TodoKey, data: TodoUpd, trx?: Transaction<DB>) => {
     const todo = await (trx ?? this.#db)
-      .updateTable("Todo")
+      .updateTable("todos")
       .where("id", "=", id)
       .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
       .set({
@@ -86,7 +86,7 @@ export class TodoRepo {
 
   delete = async ({ id, userId }: TodoKey, trx?: Transaction<DB>) => {
     const todo = await (trx ?? this.#db)
-      .deleteFrom("Todo")
+      .deleteFrom("todos")
       .where("id", "=", id)
       .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
       .returningAll()

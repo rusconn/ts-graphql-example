@@ -8,11 +8,11 @@ export const clearTables = async () => {
 };
 
 export const clearTodos = async () => {
-  await client.deleteFrom("Todo").executeTakeFirstOrThrow();
+  await client.deleteFrom("todos").executeTakeFirstOrThrow();
 };
 
 export const clearUsers = async () => {
-  await client.deleteFrom("User").executeTakeFirstOrThrow();
+  await client.deleteFrom("users").executeTakeFirstOrThrow();
 };
 
 export function fail(): never {
@@ -24,17 +24,17 @@ export const seed = {
     client.transaction().execute(async (trx) => {
       const seeds = users.map(async ({ password, token, ...data }) => {
         await trx
-          .insertInto("User") //
+          .insertInto("users") //
           .values(data)
           .executeTakeFirstOrThrow();
 
         return await Promise.all([
           trx
-            .insertInto("UserCredential")
+            .insertInto("userCredentials")
             .values({ userId: data.id, updatedAt: data.updatedAt, password })
             .executeTakeFirstOrThrow(),
           trx
-            .insertInto("UserToken")
+            .insertInto("userTokens")
             .values({ userId: data.id, updatedAt: data.updatedAt, token })
             .executeTakeFirstOrThrow(),
         ]);
@@ -44,7 +44,7 @@ export const seed = {
     }),
   todo: (todos: Todo[]) =>
     client
-      .insertInto("Todo") //
+      .insertInto("todos") //
       .values(todos)
       .executeTakeFirstOrThrow(),
 };

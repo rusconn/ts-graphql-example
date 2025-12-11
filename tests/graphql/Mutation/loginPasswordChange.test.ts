@@ -64,7 +64,7 @@ test("incorrect old password", async () => {
 
 it("should change password", async () => {
   const before = await client
-    .selectFrom("UserCredential")
+    .selectFrom("userCredentials")
     .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -77,7 +77,7 @@ it("should change password", async () => {
   expect(data?.loginPasswordChange?.__typename === "LoginPasswordChangeSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("UserCredential")
+    .selectFrom("userCredentials")
     .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -87,7 +87,7 @@ it("should change password", async () => {
 
 it("should update updatedAt", async () => {
   const before = await client
-    .selectFrom("UserCredential")
+    .selectFrom("userCredentials")
     .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -100,7 +100,7 @@ it("should update updatedAt", async () => {
   expect(data?.loginPasswordChange?.__typename === "LoginPasswordChangeSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("UserCredential")
+    .selectFrom("userCredentials")
     .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();

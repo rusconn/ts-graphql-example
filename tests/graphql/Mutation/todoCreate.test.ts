@@ -72,7 +72,7 @@ it("should create todo using input", async () => {
   }
 
   const todo = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -98,7 +98,7 @@ test('description should be "" by default', async () => {
   }
 
   const todo = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -123,7 +123,7 @@ test("status should be PENDING by default", async () => {
   }
 
   const todo = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", id)
     .selectAll()
     .executeTakeFirstOrThrow();

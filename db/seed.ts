@@ -2,17 +2,17 @@ import process from "node:process";
 
 import { client } from "../src/db/client.ts";
 
-import * as todo from "./seeds/todo.ts";
-import * as user from "./seeds/user.ts";
-import * as userCredential from "./seeds/user-credential.ts";
-import * as userToken from "./seeds/user-token.ts";
+import * as todos from "./seeds/todos.ts";
+import * as userCredentials from "./seeds/user-credentials.ts";
+import * as userTokens from "./seeds/user-tokens.ts";
+import * as users from "./seeds/users.ts";
 
 const seed = async () => {
   await client.transaction().execute(async (trx) => {
-    const userIds = await user.seed(trx);
-    await userCredential.seed(trx, userIds);
-    await userToken.seed(trx, userIds);
-    await todo.seed(trx, userIds);
+    const userIds = await users.seed(trx);
+    await userCredentials.seed(trx, userIds);
+    await userTokens.seed(trx, userIds);
+    await todos.seed(trx, userIds);
   });
 };
 

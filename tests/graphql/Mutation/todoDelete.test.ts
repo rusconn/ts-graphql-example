@@ -77,7 +77,7 @@ it("should delete todo", async () => {
   expect(data?.todoDelete?.__typename === "TodoDeleteSuccess").toBe(true);
 
   const todo = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirst();
@@ -87,7 +87,7 @@ it("should delete todo", async () => {
 
 it("should not delete others", async () => {
   const before = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
@@ -99,13 +99,13 @@ it("should not delete others", async () => {
   expect(data?.todoDelete?.__typename === "TodoDeleteSuccess").toBe(true);
 
   const todo = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirst();
 
   const after = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .select(({ fn }) => fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 

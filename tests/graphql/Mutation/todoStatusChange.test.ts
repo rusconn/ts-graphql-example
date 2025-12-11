@@ -47,7 +47,7 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await client
-    .updateTable("Todo")
+    .updateTable("todos")
     .where("id", "=", db.todos.admin1.id)
     .set({ status: TodoStatus.PENDING })
     .executeTakeFirstOrThrow();
@@ -83,7 +83,7 @@ test("exists, but not owned", async () => {
 
 it("should update status", async () => {
   const before = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -96,7 +96,7 @@ it("should update status", async () => {
   expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -107,7 +107,7 @@ it("should update status", async () => {
 
 it("should update updatedAt", async () => {
   const before = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -120,7 +120,7 @@ it("should update updatedAt", async () => {
   expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -133,7 +133,7 @@ it("should update updatedAt", async () => {
 
 it("should not update other attrs", async () => {
   const before = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -146,7 +146,7 @@ it("should not update other attrs", async () => {
   expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("id", "=", db.todos.admin1.id)
     .selectAll()
     .executeTakeFirstOrThrow();

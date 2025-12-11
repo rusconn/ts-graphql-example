@@ -34,7 +34,7 @@ beforeEach(async () => {
 
 test("logout deletes token", async () => {
   const before = await client
-    .selectFrom("UserToken")
+    .selectFrom("userTokens")
     .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirst();
@@ -46,7 +46,7 @@ test("logout deletes token", async () => {
   expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("UserToken")
+    .selectFrom("userTokens")
     .where("userId", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirst();
@@ -57,7 +57,7 @@ test("logout deletes token", async () => {
 
 test("logout does not changes other attrs", async () => {
   const before = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();
@@ -69,7 +69,7 @@ test("logout does not changes other attrs", async () => {
   expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
 
   const after = await client
-    .selectFrom("User")
+    .selectFrom("users")
     .where("id", "=", db.users.admin.id)
     .selectAll()
     .executeTakeFirstOrThrow();

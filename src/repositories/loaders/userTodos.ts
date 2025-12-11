@@ -31,17 +31,17 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
   const cursorOrderColumn =
     cursor &&
     db //
-      .selectFrom("Todo")
+      .selectFrom("todos")
       .where("id", "=", cursor)
       .select(orderColumn);
 
   const todos = await db
-    .selectFrom("User")
+    .selectFrom("users")
     .innerJoinLateral(
       (eb) =>
         eb
-          .selectFrom("Todo")
-          .whereRef("User.id", "=", "Todo.userId")
+          .selectFrom("todos")
+          .whereRef("users.id", "=", "todos.userId")
           .$if(cursor != null, (qb) =>
             qb.where(({ eb, refTuple, tuple }) =>
               eb(
@@ -52,14 +52,14 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
             ),
           )
           .$if(status != null, (qb) => qb.where("status", "=", status!))
-          .selectAll("Todo")
+          .selectAll("todos")
           .orderBy(orderColumn, direction)
           .orderBy("id", direction)
           .limit(limit)
           .as("todos"),
       (join) => join.onTrue(),
     )
-    .where("User.id", "in", userIds)
+    .where("users.id", "in", userIds)
     .selectAll("todos")
     // サブクエリの結果順を維持することを想定して order by は指定していない
     .execute();

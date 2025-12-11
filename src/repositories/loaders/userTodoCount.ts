@@ -19,7 +19,7 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
   const { status } = keys.at(0)!;
 
   const counts = await db
-    .selectFrom("Todo")
+    .selectFrom("todos")
     .where("userId", "in", userIds)
     .$if(status != null, (qb) => qb.where("status", "=", status!))
     .groupBy("userId")
