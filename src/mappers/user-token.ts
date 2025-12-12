@@ -5,7 +5,7 @@ export const mappers = {
   toDb: (userToken: Domain.UserToken): Db.UserToken => {
     return userToken as Db.UserToken;
   },
-  toDomain: (userToken: Pick<Db.UserToken, "userId" | "token">): Domain.UserToken => {
+  toDomain: (userToken: Db.UserToken): Domain.UserToken => {
     return userToken as Domain.UserToken;
   },
 };
