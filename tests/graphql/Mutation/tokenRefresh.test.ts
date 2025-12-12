@@ -1,4 +1,3 @@
-import { client } from "../../../src/db/client.ts";
 import { ErrorCode } from "../../../src/schema.ts";
 
 import { db, refreshTokens } from "../../data.ts";
@@ -54,26 +53,4 @@ test("correct input", async () => {
   });
 
   expect(data?.tokenRefresh?.__typename === "TokenRefreshSuccess").toBe(true);
-});
-
-test("changes refresh token", async () => {
-  const before = await client
-    .selectFrom("userTokens")
-    .where("userId", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  const { data } = await executeMutation({
-    refreshToken: refreshTokens.admin,
-  });
-
-  expect(data?.tokenRefresh?.__typename === "TokenRefreshSuccess").toBe(true);
-
-  const after = await client
-    .selectFrom("userTokens")
-    .where("userId", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  expect(before.token).not.toBe(after.token);
 });

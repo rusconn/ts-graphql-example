@@ -23,7 +23,7 @@ export const resolver: QueryResolvers["user"] = async (_parent, args, context) =
     throw badUserInputErr(id.message, id);
   }
 
-  const user = await context.repos.user.getById(id);
+  const user = await context.repos.user.findBaseById(id);
 
   return user ?? null;
 };

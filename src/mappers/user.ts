@@ -3,9 +3,15 @@ import * as Domain from "../domain/user.ts";
 import { mappers as role } from "./user/role.ts";
 
 export const mappers = {
-  toDb: ({ role: role_, createdAt: _, ...rest }: Domain.User): Db.User => ({
-    ...rest,
-    role: role.toDb(role_),
+  toDb: ({
+    id,
+    role: role_,
+    password,
+    createdAt: _,
+    ...rest
+  }: Domain.User): { user: Db.User; userCredential: Db.UserCredential } => ({
+    user: { ...rest, id, role: role.toDb(role_) },
+    userCredential: { userId: id, password },
   }),
   toDomain: ({
     id,

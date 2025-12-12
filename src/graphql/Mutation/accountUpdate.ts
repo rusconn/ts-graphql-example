@@ -35,16 +35,27 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
     return invalidInputErrors(parsed);
   }
 
-  const result = await context.repos.user.updateById(authed.id, parsed);
+  const user = await context.repos.user.findById(authed.id);
+  if (!user) {
+    throw internalServerError();
+  }
+
+  const updatedUser: typeof user = {
+    ...user,
+    ...parsed,
+    updatedAt: new Date(),
+  };
+
+  const result = await context.repos.user.save(updatedUser);
 
   switch (result.type) {
     case "Success":
       return {
         __typename: "AccountUpdateSuccess",
-        user: result,
+        user: updatedUser,
       };
     case "EmailAlreadyExists":
-      throw new Error("unreachable");
+      throw internalServerError();
     case "Unknown":
       throw internalServerError(result.e);
     default:

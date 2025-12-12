@@ -23,7 +23,7 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
     throw forbiddenErr(authed);
   }
 
-  const success = await context.repos.user.deleteTokenById(authed.id);
+  const success = await context.repos.userToken.delete(authed.id);
 
   if (!success) {
     throw internalServerError();

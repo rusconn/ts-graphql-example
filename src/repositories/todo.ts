@@ -1,8 +1,7 @@
 import type { Kysely, Transaction } from "kysely";
-import type { Except, OverrideProperties } from "type-fest";
 
 import type { DB } from "../db/types.ts";
-import * as Domain from "../domain/todo.ts";
+import type * as Domain from "../domain/todo.ts";
 import { mappers } from "../mappers.ts";
 import * as UserTodoLoader from "./loaders/userTodo.ts";
 import * as UserTodoCountLoader from "./loaders/userTodoCount.ts";
@@ -12,13 +11,6 @@ type TodoKey = {
   id: Domain.Todo["id"];
   userId?: Domain.Todo["userId"];
 };
-
-type TodoNew = OverrideProperties<
-  Except<Domain.Todo, "id" | "createdAt" | "updatedAt">, //
-  { userId: Domain.Todo["userId"] }
->;
-
-type TodoUpd = Partial<TodoNew>;
 
 export class TodoRepo {
   #db;
@@ -33,7 +25,7 @@ export class TodoRepo {
     };
   }
 
-  getById = async (id: Domain.Todo["id"], trx?: Transaction<DB>) => {
+  find = async (id: Domain.Todo["id"], trx?: Transaction<DB>) => {
     const todo = await (trx ?? this.#db)
       .selectFrom("todos")
       .where("id", "=", id)
@@ -49,55 +41,31 @@ export class TodoRepo {
       .selectFrom("todos")
       .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
       .select(({ fn }) => fn.countAll<number>().as("count"))
-      .executeTakeFirstOrThrow();
+      .executeTakeFirst();
 
-    return result.count;
+    return result?.count ?? 0;
   };
 
-  create = async ({ status, ...rest }: TodoNew, trx?: Transaction<DB>) => {
-    const { id, date } = Domain.TodoId.genWithDate();
+  save = async (todo: Domain.Todo, trx?: Transaction<DB>) => {
+    const dbTodo = mappers.todo.toDb(todo);
 
-    const todo = await (trx ?? this.#db)
+    const result = await (trx ?? this.#db)
       .insertInto("todos")
-      .values({
-        ...rest,
-        id,
-        status: mappers.todo.status.toDb(status),
-        updatedAt: date,
-      })
-      .returningAll()
+      .values(dbTodo)
+      .onConflict((oc) => oc.column("id").doUpdateSet(dbTodo))
       .executeTakeFirst();
 
-    return todo && mappers.todo.toDomain(todo);
-  };
-
-  update = async ({ id, userId }: TodoKey, { status, ...rest }: TodoUpd, trx?: Transaction<DB>) => {
-    const todo = await (trx ?? this.#db)
-      .updateTable("todos")
-      .where("id", "=", id)
-      .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
-      .set({
-        ...rest,
-        ...(status && {
-          status: mappers.todo.status.toDb(status),
-        }),
-        updatedAt: new Date(),
-      })
-      .returningAll()
-      .executeTakeFirst();
-
-    return todo && mappers.todo.toDomain(todo);
+    return result.numInsertedOrUpdatedRows! > 0n;
   };
 
   delete = async ({ id, userId }: TodoKey, trx?: Transaction<DB>) => {
-    const todo = await (trx ?? this.#db)
+    const result = await (trx ?? this.#db)
       .deleteFrom("todos")
       .where("id", "=", id)
       .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
-      .returningAll()
       .executeTakeFirst();
 
-    return todo && mappers.todo.toDomain(todo);
+    return result.numDeletedRows > 0n;
   };
 
   loadTheir = async (key: UserTodoLoader.Key) => {

@@ -1,5 +1,5 @@
 import type { Context } from "../../context.ts";
 
 export const getNode = (context: Pick<Context, "repos">) => {
-  return context.repos.user.getById;
+  return context.repos.user.findBaseById;
 };

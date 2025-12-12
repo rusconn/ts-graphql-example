@@ -1,5 +1,5 @@
 import type { Context } from "../../context.ts";
-import { TodoStatus } from "../../domain/todo.ts";
+import * as Todo from "../../domain/todo.ts";
 import type { MutationResolvers, MutationTodoCreateArgs, ResolversTypes } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import type { AuthContext } from "../_authorizers/types.ts";
@@ -91,8 +91,6 @@ const logic = async (
   parsed: Exclude<ReturnType<typeof parseArgs>, Error[]>,
   context: Context,
 ): Promise<ResolversTypes["TodoCreateResult"]> => {
-  const { title, description } = parsed;
-
   const count = await context.repos.todo.count(authed.id);
 
   if (count >= TODOS_MAX) {
@@ -102,14 +100,10 @@ const logic = async (
     };
   }
 
-  const todo = await context.repos.todo.create({
-    title,
-    description,
-    status: TodoStatus.PENDING,
-    userId: authed.id,
-  });
+  const todo = Todo.create({ ...parsed, userId: authed.id });
+  const saved = await context.repos.todo.save(todo);
 
-  if (!todo) {
+  if (!saved) {
     throw internalServerError();
   }
 
@@ -168,7 +162,7 @@ if (import.meta.vitest) {
       ({
         todo: {
           count: async () => num,
-          create: async () => ({ id: "dummy" }),
+          save: async () => true,
         },
       }) as unknown as Context["repos"];
 

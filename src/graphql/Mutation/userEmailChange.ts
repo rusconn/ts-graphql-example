@@ -35,13 +35,25 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
     return invalidInputErrors(parsed);
   }
 
-  const result = await context.repos.user.updateById(authed.id, parsed);
+  const user = await context.repos.user.findById(authed.id);
+
+  if (!user) {
+    throw internalServerError();
+  }
+
+  const changedUser: typeof user = {
+    ...user,
+    ...parsed,
+    updatedAt: new Date(),
+  };
+
+  const result = await context.repos.user.save(changedUser);
 
   switch (result.type) {
     case "Success":
       return {
         __typename: "UserEmailChangeSuccess",
-        user: result,
+        user: changedUser,
       };
     case "EmailAlreadyExists":
       return {

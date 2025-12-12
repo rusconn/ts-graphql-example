@@ -6,6 +6,7 @@ import type * as Domain from "./domain/user.ts";
 import type { logger } from "./logger.ts";
 import type { TodoRepo } from "./repositories/todo.ts";
 import type { UserRepo } from "./repositories/user.ts";
+import type { UserTokenRepo } from "./repositories/user-token.ts";
 
 export type Context = ServerContext & PluginContext & YogaInitialContext & UserContext;
 
@@ -26,6 +27,7 @@ export type UserContext = {
   repos: {
     todo: TodoRepo;
     user: UserRepo;
+    userToken: UserTokenRepo;
   };
 };
 

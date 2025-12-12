@@ -18,6 +18,7 @@ import { readinessCheck } from "./plugins/readinessCheck.ts";
 import { requestId } from "./plugins/requestId.ts";
 import { TodoRepo } from "./repositories/todo.ts";
 import { UserRepo } from "./repositories/user.ts";
+import { UserTokenRepo } from "./repositories/user-token.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
 import { verifyJwt } from "./util/accessToken.ts";
@@ -55,6 +56,7 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
       repos: {
         todo: new TodoRepo(client),
         user: new UserRepo(client),
+        userToken: new UserTokenRepo(client),
       },
     };
   },

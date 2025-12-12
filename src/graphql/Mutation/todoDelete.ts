@@ -30,15 +30,15 @@ export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, c
     throw badUserInputErr(id.message, id);
   }
 
-  const todo = await context.repos.todo.delete({
+  const deleted = await context.repos.todo.delete({
     id,
     userId: authed.id,
   });
 
-  return todo
+  return deleted
     ? {
         __typename: "TodoDeleteSuccess",
-        id: todoId(todo.id),
+        id: todoId(id),
       }
     : {
         __typename: "ResourceNotFoundError",
