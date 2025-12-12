@@ -27,12 +27,10 @@ CREATE INDEX ON todos (user_id, updated_at, id);
 
 CREATE TABLE user_credentials (
   user_id uuid PRIMARY KEY REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
-  password char(60) NOT NULL,
-  updated_at timestamptz (3) NOT NULL
+  password char(60) NOT NULL
 );
 
 CREATE TABLE user_tokens (
   user_id uuid PRIMARY KEY REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
-  token text UNIQUE NOT NULL,
-  updated_at timestamptz (3) NOT NULL
+  token text UNIQUE NOT NULL
 );

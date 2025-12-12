@@ -25,20 +25,20 @@ type UserFull = User & //
 export const seed = {
   user: (users: UserFull[]) =>
     client.transaction().execute(async (trx) => {
-      const seeds = users.map(async ({ password, token, ...data }) => {
+      const seeds = users.map(async ({ password, token, ...rest }) => {
         await trx
           .insertInto("users") //
-          .values(data)
+          .values(rest)
           .executeTakeFirstOrThrow();
 
         return await Promise.all([
           trx
             .insertInto("userCredentials")
-            .values({ userId: data.id, updatedAt: data.updatedAt, password })
+            .values({ userId: rest.id, password })
             .executeTakeFirstOrThrow(),
           trx
-            .insertInto("userTokens")
-            .values({ userId: data.id, updatedAt: data.updatedAt, token })
+            .insertInto("userTokens") //
+            .values({ userId: rest.id, token })
             .executeTakeFirstOrThrow(),
         ]);
       });
