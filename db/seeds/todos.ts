@@ -5,7 +5,7 @@ import type { Transaction } from "kysely";
 import { type DB, TodoStatus, type User } from "../../src/db/types.ts";
 import { TodoId } from "../../src/domain/todo.ts";
 
-import { randInt } from "./common.ts";
+import { randInt } from "./_utils.ts";
 
 export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
   const handTodos = [
