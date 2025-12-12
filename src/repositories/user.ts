@@ -20,7 +20,7 @@ export class UserRepo {
     };
   }
 
-  findById = async (id: Domain.User["id"], trx?: Transaction<DB>) => {
+  async findById(id: Domain.User["id"], trx?: Transaction<DB>) {
     const user = await (trx ?? this.#db)
       .selectFrom("userCredentials")
       .innerJoin("users", "userCredentials.userId", "users.id")
@@ -31,9 +31,9 @@ export class UserRepo {
       .executeTakeFirst();
 
     return user && mappers.user.toDomain(user);
-  };
+  }
 
-  findByEmail = async (email: Domain.User["email"], trx?: Transaction<DB>) => {
+  async findByEmail(email: Domain.User["email"], trx?: Transaction<DB>) {
     const user = await (trx ?? this.#db)
       .selectFrom("userCredentials")
       .innerJoin("users", "userCredentials.userId", "users.id")
@@ -44,9 +44,9 @@ export class UserRepo {
       .executeTakeFirst();
 
     return user && mappers.user.toDomain(user);
-  };
+  }
 
-  findBaseById = async (id: Domain.User["id"], trx?: Transaction<DB>) => {
+  async findBaseById(id: Domain.User["id"], trx?: Transaction<DB>) {
     const user = await this.#db
       .selectFrom("users")
       .where("id", "=", id)
@@ -55,9 +55,9 @@ export class UserRepo {
       .executeTakeFirst();
 
     return user && dto.userBase.from(user);
-  };
+  }
 
-  findBaseByToken = async (token: UserToken["token"], trx?: Transaction<DB>) => {
+  async findBaseByToken(token: UserToken["token"], trx?: Transaction<DB>) {
     const user = await this.#db
       .selectFrom("users")
       .innerJoin("userTokens", "users.id", "userTokens.userId")
@@ -67,14 +67,14 @@ export class UserRepo {
       .executeTakeFirst();
 
     return user && dto.userBase.from(user);
-  };
+  }
 
-  findMany = async (params: {
+  async findMany(params: {
     sortKey: "createdAt" | "updatedAt";
     reverse: boolean;
     cursor?: Domain.User["id"];
     limit: number;
-  }) => {
+  }) {
     const { sortKey, reverse, cursor, limit } = params;
 
     const orderColumn = sortKey === "createdAt" ? "id" : sortKey;
@@ -108,18 +108,18 @@ export class UserRepo {
       .execute();
 
     return users.map(dto.userBase.from);
-  };
+  }
 
-  count = async () => {
+  async count() {
     const result = await this.#db
       .selectFrom("users")
       .select(({ fn }) => fn.countAll<number>().as("count"))
       .executeTakeFirst();
 
     return result?.count ?? 0;
-  };
+  }
 
-  save = async (user: Domain.User, trx?: Transaction<DB>) => {
+  async save(user: Domain.User, trx?: Transaction<DB>) {
     const db = mappers.user.toDb(user);
 
     try {
@@ -146,7 +146,7 @@ export class UserRepo {
         e: e instanceof Error ? e : new Error("unknown", { cause: e }),
       } as const;
     }
-  };
+  }
 
   async #saveCore(trx: Transaction<DB>, user: Db.User, userCredential: Db.UserCredential) {
     await trx
@@ -161,16 +161,16 @@ export class UserRepo {
       .executeTakeFirstOrThrow();
   }
 
-  delete = async (id: Domain.User["id"], trx?: Transaction<DB>) => {
+  async delete(id: Domain.User["id"], trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
       .deleteFrom("users")
       .where("id", "=", id)
       .executeTakeFirst();
 
     return result.numDeletedRows > 0n;
-  };
+  }
 
-  load = async (key: UserLoader.Key) => {
+  async load(key: UserLoader.Key) {
     return await this.#loaders.user.load(key);
-  };
+  }
 }

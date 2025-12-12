@@ -11,7 +11,7 @@ export class UserTokenRepo {
     this.#db = db;
   }
 
-  find = async (userId: UserToken["userId"], trx?: Transaction<DB>) => {
+  async find(userId: UserToken["userId"], trx?: Transaction<DB>) {
     const userToken = await (trx ?? this.#db)
       .selectFrom("userTokens")
       .where("userId", "=", userId)
@@ -20,9 +20,9 @@ export class UserTokenRepo {
       .executeTakeFirst();
 
     return userToken && mappers.userToken.toDomain(userToken);
-  };
+  }
 
-  save = async (userToken: UserToken, trx?: Transaction<DB>) => {
+  async save(userToken: UserToken, trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
       .insertInto("userTokens")
       .values(userToken)
@@ -30,14 +30,14 @@ export class UserTokenRepo {
       .executeTakeFirst();
 
     return result.numInsertedOrUpdatedRows! > 0n;
-  };
+  }
 
-  delete = async (userId: UserToken["userId"], trx?: Transaction<DB>) => {
+  async delete(userId: UserToken["userId"], trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
       .deleteFrom("userTokens")
       .where("userId", "=", userId)
       .executeTakeFirst();
 
     return result.numDeletedRows > 0n;
-  };
+  }
 }

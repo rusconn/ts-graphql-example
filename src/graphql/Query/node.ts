@@ -41,7 +41,7 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
   }
 
   // @ts-expect-error: 分岐を書くのが面倒だったので…
-  const node = await getNode(context)(internalId);
+  const node = await getNode(context, internalId);
 
   return node == null ? null : { type, ...node };
 };
