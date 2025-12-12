@@ -62,9 +62,9 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     return invalidInputErrors(parsed);
   }
 
-  const userWithCredential = await context.repos.user.getWithCredentialById(authed.id);
+  const user = await context.repos.user.findById(authed.id);
 
-  if (!userWithCredential) {
+  if (!user) {
     throw internalServerError();
   }
 
@@ -77,7 +77,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     };
   }
 
-  const match = await UserPassword.match(oldPassword, userWithCredential.password);
+  const match = await UserPassword.match(oldPassword, user.password);
 
   if (!match) {
     return {
@@ -86,16 +86,28 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     };
   }
 
-  const id = await context.repos.user.updatePasswordById(authed.id, newPassword);
-
-  if (!id) {
-    throw internalServerError();
-  }
-
-  return {
-    __typename: "LoginPasswordChangeSuccess",
-    id: userId(id),
+  const hashedPassword = await UserPassword.hash(newPassword);
+  const updatedUser: typeof user = {
+    ...user,
+    password: hashedPassword,
+    updatedAt: new Date(),
   };
+
+  const result = await context.repos.user.save(updatedUser);
+
+  switch (result.type) {
+    case "Success":
+      return {
+        __typename: "LoginPasswordChangeSuccess",
+        id: userId(user.id),
+      };
+    case "EmailAlreadyExists":
+      throw internalServerError();
+    case "Unknown":
+      throw internalServerError(result.e);
+    default:
+      throw new Error(result satisfies never);
+  }
 };
 
 const parseArgs = (args: MutationLoginPasswordChangeArgs) => {

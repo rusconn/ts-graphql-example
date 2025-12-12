@@ -69,7 +69,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 
   return await getCursorConnection<UserBase, UserBase["id"]>(
     ({ backward, ...exceptBackward }) =>
-      context.repos.user.getPage({
+      context.repos.user.findMany({
         sortKey: {
           [UserSortKeys.CreatedAt]: "createdAt" as const,
           [UserSortKeys.UpdatedAt]: "updatedAt" as const,

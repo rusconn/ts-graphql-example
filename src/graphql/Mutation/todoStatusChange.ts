@@ -2,6 +2,7 @@ import type { MutationResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
+import { internalServerError } from "../_errors/internalServerError.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -31,18 +32,29 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
     throw badUserInputErr(id.message, id);
   }
 
-  const todo = await context.repos.todo.update(
-    { id, userId: authed.id }, //
-    { status: args.status },
-  );
+  const todo = await context.repos.todo.find(id);
 
-  return todo
-    ? {
-        __typename: "TodoStatusChangeSuccess",
-        todo,
-      }
-    : {
-        __typename: "ResourceNotFoundError",
-        message: "The specified todo does not exist.",
-      };
+  if (!todo || todo.userId !== authed.id) {
+    return {
+      __typename: "ResourceNotFoundError",
+      message: "The specified todo does not exist.",
+    };
+  }
+
+  const changedTodo: typeof todo = {
+    ...todo,
+    status: args.status,
+    updatedAt: new Date(),
+  };
+
+  const saved = await context.repos.todo.save(changedTodo);
+
+  if (saved) {
+    return {
+      __typename: "TodoStatusChangeSuccess",
+      todo: changedTodo,
+    };
+  } else {
+    throw internalServerError();
+  }
 };

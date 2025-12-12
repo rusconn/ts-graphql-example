@@ -1,4 +1,5 @@
 import { UserPassword } from "../../domain/user.ts";
+import * as UserToken from "../../domain/user-token.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
@@ -46,7 +47,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   const { email, password } = parsed;
 
-  const found = await context.repos.user.getWithCredentialByEmail(email);
+  const found = await context.repos.user.findByEmail(email);
 
   if (!found) {
     return {
@@ -64,14 +65,15 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const refreshToken = await context.repos.user.updateTokenById(found.id);
+  const { rawToken, userToken } = await UserToken.create(found.id);
+  const saved = await context.repos.userToken.save(userToken);
 
-  if (!refreshToken) {
+  if (!saved) {
     throw internalServerError();
   }
 
   const token = await signedJwt(found);
-  await setRefreshTokenCookie(context.request, refreshToken);
+  await setRefreshTokenCookie(context.request, rawToken);
 
   return {
     __typename: "LoginSuccess",

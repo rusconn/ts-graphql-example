@@ -1,4 +1,5 @@
-import { UserRole } from "../../domain/user.ts";
+import * as User from "../../domain/user.ts";
+import * as UserToken from "../../domain/user-token.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
@@ -54,30 +55,44 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     return invalidInputErrors(parsed);
   }
 
-  const result = await context.repos.user.create({
-    ...parsed,
-    role: UserRole.USER,
-  });
+  const user = await User.create(parsed);
+  const { rawToken, userToken } = await UserToken.create(user.id);
 
-  switch (result.type) {
-    case "Success": {
-      const token = await signedJwt(result);
-      await setRefreshTokenCookie(context.request, result.token);
-      return {
-        __typename: "SignupSuccess",
-        token,
-      };
+  {
+    const trx = await context.db.startTransaction().execute();
+
+    const result = await context.repos.user.save(user, trx);
+    switch (result.type) {
+      case "Success":
+        break;
+      case "EmailAlreadyExists":
+        await trx.rollback().execute();
+        return {
+          __typename: "EmailAlreadyTakenError",
+          message: "The email already taken.",
+        };
+      case "Unknown":
+        await trx.rollback().execute();
+        throw internalServerError(result.e);
+      default:
+        throw new Error(result satisfies never);
     }
-    case "EmailAlreadyExists":
-      return {
-        __typename: "EmailAlreadyTakenError",
-        message: "The email already taken.",
-      };
-    case "Unknown":
+
+    const saved = await context.repos.userToken.save(userToken, trx);
+    if (!saved) {
+      await trx.rollback().execute();
       throw internalServerError(result.e);
-    default:
-      throw new Error(result satisfies never);
+    }
+
+    await trx.commit().execute();
   }
+
+  const token = await signedJwt(user);
+  await setRefreshTokenCookie(context.request, rawToken);
+  return {
+    __typename: "SignupSuccess",
+    token,
+  };
 };
 
 const parseArgs = (args: MutationSignupArgs) => {

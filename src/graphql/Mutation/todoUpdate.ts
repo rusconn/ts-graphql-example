@@ -56,15 +56,27 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
     return invalidInputErrors(parsed);
   }
 
-  const todo = await context.repos.todo.update(
-    { id, userId: authed.id }, //
-    parsed,
-  );
+  const todo = await context.repos.todo.find(id);
 
-  return todo
+  if (!todo || todo.userId !== authed.id) {
+    return {
+      __typename: "ResourceNotFoundError",
+      message: "The specified todo does not exist.",
+    };
+  }
+
+  const updatedTodo: typeof todo = {
+    ...todo,
+    ...parsed,
+    updatedAt: new Date(),
+  };
+
+  const updated = await context.repos.todo.save(updatedTodo);
+
+  return updated
     ? {
         __typename: "TodoUpdateSuccess",
-        todo,
+        todo: updatedTodo,
       }
     : {
         __typename: "ResourceNotFoundError",

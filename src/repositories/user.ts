@@ -1,19 +1,13 @@
-import type { Kysely } from "kysely";
-import type { Except, OverrideProperties } from "type-fest";
+import type { Kysely, Transaction } from "kysely";
 
+import type * as Db from "../db/types.ts";
 import type { DB } from "../db/types.ts";
-import * as Domain from "../domain/user.ts";
+import type * as Domain from "../domain/user.ts";
+import type { UserToken } from "../domain/user-token.ts";
 import { dto } from "../dto.ts";
 import { isPgError, PgErrorCode } from "../lib/pg/error.ts";
 import { mappers } from "../mappers.ts";
 import * as UserLoader from "./loaders/user.ts";
-
-type UserNew = OverrideProperties<
-  Except<Domain.User, "id" | "createdAt" | "updatedAt">, //
-  { password: string }
->;
-
-type UserUpd = Partial<Except<UserNew, "password">>;
 
 export class UserRepo {
   #db;
@@ -26,52 +20,56 @@ export class UserRepo {
     };
   }
 
-  getById = async (id: Domain.User["id"]) => {
-    const user = await this.#db
-      .selectFrom("users")
-      .where("id", "=", id)
-      .selectAll()
-      .executeTakeFirst();
-
-    return user && dto.userBase.from(user);
-  };
-
-  getByToken = async (token: Domain.UserToken["token"]) => {
-    const user = await this.#db
-      .selectFrom("users")
-      .innerJoin("userTokens", "users.id", "userTokens.userId")
-      .where("token", "=", await Domain.UserToken.hash(token))
-      .selectAll("users")
-      .executeTakeFirst();
-
-    return user && dto.userBase.from(user);
-  };
-
-  getWithCredentialById = async (id: Domain.User["id"]) => {
-    const user = await this.#db
+  findById = async (id: Domain.User["id"], trx?: Transaction<DB>) => {
+    const user = await (trx ?? this.#db)
       .selectFrom("userCredentials")
       .innerJoin("users", "userCredentials.userId", "users.id")
       .where("id", "=", id)
       .selectAll("users")
       .select("userCredentials.password")
+      .$if(trx != null, (qb) => qb.forUpdate())
       .executeTakeFirst();
 
     return user && mappers.user.toDomain(user);
   };
 
-  getWithCredentialByEmail = async (email: Domain.User["email"]) => {
-    const user = await this.#db
+  findByEmail = async (email: Domain.User["email"], trx?: Transaction<DB>) => {
+    const user = await (trx ?? this.#db)
       .selectFrom("userCredentials")
       .innerJoin("users", "userCredentials.userId", "users.id")
       .where("email", "=", email)
       .selectAll("users")
       .select("userCredentials.password")
+      .$if(trx != null, (qb) => qb.forUpdate())
       .executeTakeFirst();
 
     return user && mappers.user.toDomain(user);
   };
 
-  getPage = async (params: {
+  findBaseById = async (id: Domain.User["id"], trx?: Transaction<DB>) => {
+    const user = await this.#db
+      .selectFrom("users")
+      .where("id", "=", id)
+      .selectAll()
+      .$if(trx != null, (qb) => qb.forUpdate())
+      .executeTakeFirst();
+
+    return user && dto.userBase.from(user);
+  };
+
+  findBaseByToken = async (token: UserToken["token"], trx?: Transaction<DB>) => {
+    const user = await this.#db
+      .selectFrom("users")
+      .innerJoin("userTokens", "users.id", "userTokens.userId")
+      .where("token", "=", token)
+      .selectAll("users")
+      .$if(trx != null, (qb) => qb.forUpdate())
+      .executeTakeFirst();
+
+    return user && dto.userBase.from(user);
+  };
+
+  findMany = async (params: {
     sortKey: "createdAt" | "updatedAt";
     reverse: boolean;
     cursor?: Domain.User["id"];
@@ -116,148 +114,60 @@ export class UserRepo {
     const result = await this.#db
       .selectFrom("users")
       .select(({ fn }) => fn.countAll<number>().as("count"))
+      .executeTakeFirst();
+
+    return result?.count ?? 0;
+  };
+
+  save = async (user: Domain.User, trx?: Transaction<DB>) => {
+    const db = mappers.user.toDb(user);
+
+    try {
+      if (trx) {
+        await this.#saveCore(trx, db.user, db.userCredential);
+      } else {
+        await this.#db.transaction().execute(async (trx) => {
+          await this.#saveCore(trx, db.user, db.userCredential);
+        });
+      }
+
+      return { type: "Success" } as const;
+    } catch (e) {
+      if (isPgError(e)) {
+        if (e.code === PgErrorCode.UniqueViolation) {
+          if (e.constraint?.includes("email")) {
+            return { type: "EmailAlreadyExists" } as const;
+          }
+        }
+      }
+
+      return {
+        type: "Unknown",
+        e: e instanceof Error ? e : new Error("unknown", { cause: e }),
+      } as const;
+    }
+  };
+
+  async #saveCore(trx: Transaction<DB>, user: Db.User, userCredential: Db.UserCredential) {
+    await trx
+      .insertInto("users")
+      .values(user)
+      .onConflict((oc) => oc.column("id").doUpdateSet(user))
       .executeTakeFirstOrThrow();
+    await trx
+      .insertInto("userCredentials")
+      .values(userCredential)
+      .onConflict((oc) => oc.column("userId").doUpdateSet(userCredential))
+      .executeTakeFirstOrThrow();
+  }
 
-    return result.count;
-  };
-
-  create = async ({ password: source, role, ...rest }: UserNew) => {
-    const { id, date } = Domain.UserId.genWithDate();
-    const password = await Domain.UserPassword.hash(source);
-    const token = Domain.UserToken.gen();
-    const hashed = await Domain.UserToken.hash(token);
-
-    try {
-      return await this.#db.transaction().execute(async (trx) => {
-        const user = await trx
-          .insertInto("users")
-          .values({
-            ...rest,
-            id,
-            updatedAt: date,
-            role: mappers.user.role.toDb(role),
-          })
-          .returningAll()
-          .executeTakeFirstOrThrow();
-        const _userCredential = await trx
-          .insertInto("userCredentials")
-          .values({ userId: user.id, password })
-          .returning("userId")
-          .executeTakeFirstOrThrow();
-        const _userToken = await trx
-          .insertInto("userTokens")
-          .values({ userId: user.id, token: hashed })
-          .returning("token")
-          .executeTakeFirstOrThrow();
-
-        const userWithToken = dto.userWithToken.from({ ...user, token });
-
-        return { type: "Success", ...userWithToken } as const;
-      });
-    } catch (e) {
-      if (isPgError(e)) {
-        if (e.code === PgErrorCode.UniqueViolation) {
-          if (e.constraint?.includes("email")) {
-            return { type: "EmailAlreadyExists" } as const;
-          }
-        }
-      }
-
-      return {
-        type: "Unknown",
-        e: e instanceof Error ? e : new Error("unknown", { cause: e }),
-      } as const;
-    }
-  };
-
-  updateById = async (id: Domain.User["id"], { role, ...rest }: UserUpd) => {
-    try {
-      const user = await this.#db
-        .updateTable("users")
-        .where("id", "=", id)
-        .set({
-          ...rest,
-          ...(role && {
-            role: mappers.user.role.toDb(role),
-          }),
-          updatedAt: new Date(),
-        })
-        .returningAll()
-        .executeTakeFirstOrThrow();
-
-      return { type: "Success", ...dto.userBase.from(user) } as const;
-    } catch (e) {
-      if (isPgError(e)) {
-        if (e.code === PgErrorCode.UniqueViolation) {
-          if (e.constraint?.includes("email")) {
-            return { type: "EmailAlreadyExists" } as const;
-          }
-        }
-      }
-
-      return {
-        type: "Unknown",
-        e: e instanceof Error ? e : new Error("unknown", { cause: e }),
-      } as const;
-    }
-  };
-
-  updatePasswordById = async (id: Domain.User["id"], source: string) => {
-    const userPassword = await this.#db
-      .updateTable("userCredentials")
-      .where("userId", "=", id)
-      .set({ password: await Domain.UserPassword.hash(source) })
-      .returning("userId")
-      .executeTakeFirst();
-
-    return userPassword?.userId as Domain.User["id"] | undefined;
-  };
-
-  updateTokenById = async (id: Domain.User["id"]) => {
-    const token = Domain.UserToken.gen();
-    const hashed = await Domain.UserToken.hash(token);
-
-    const userToken = await this.#db
-      .insertInto("userTokens")
-      .values({ userId: id, token: hashed })
-      .onConflict((oc) => oc.column("userId").doUpdateSet({ token: hashed }))
-      .returning("token")
-      .executeTakeFirst();
-
-    return userToken && token;
-  };
-
-  updateTokenByToken = async (oldToken: Domain.UserToken["token"]) => {
-    const newToken = Domain.UserToken.gen();
-
-    const userToken = await this.#db
-      .updateTable("userTokens")
-      .where("token", "=", await Domain.UserToken.hash(oldToken))
-      .set({ token: await Domain.UserToken.hash(newToken) })
-      .returning("token")
-      .executeTakeFirst();
-
-    return userToken && newToken;
-  };
-
-  deleteById = async (id: Domain.User["id"]) => {
-    const user = await this.#db
+  delete = async (id: Domain.User["id"], trx?: Transaction<DB>) => {
+    const result = await (trx ?? this.#db)
       .deleteFrom("users")
       .where("id", "=", id)
-      .returning("id")
       .executeTakeFirst();
 
-    return user != null;
-  };
-
-  deleteTokenById = async (id: Domain.User["id"]) => {
-    const userToken = await this.#db
-      .deleteFrom("userTokens")
-      .where("userId", "=", id)
-      .returning("userId")
-      .executeTakeFirst();
-
-    return userToken != null;
+    return result.numDeletedRows > 0n;
   };
 
   load = async (key: UserLoader.Key) => {

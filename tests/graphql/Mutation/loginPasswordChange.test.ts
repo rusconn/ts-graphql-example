@@ -84,3 +84,29 @@ it("should change password", async () => {
 
   expect(before.password).not.toBe(after.password);
 });
+
+it("should update user.updatedAt", async () => {
+  const before = await client
+    .selectFrom("users")
+    .where("id", "=", db.users.admin.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
+
+  const { data } = await executeMutation({
+    token: tokens.admin,
+    variables: { oldPassword: "adminadmin", newPassword: "adminadmin2" },
+  });
+
+  expect(data?.loginPasswordChange?.__typename === "LoginPasswordChangeSuccess").toBe(true);
+
+  const after = await client
+    .selectFrom("users")
+    .where("id", "=", db.users.admin.id)
+    .selectAll()
+    .executeTakeFirstOrThrow();
+
+  const beforeUpdatedAt = before.updatedAt.getTime();
+  const afterUpdatedAt = after.updatedAt.getTime();
+
+  expect(afterUpdatedAt).toBeGreaterThan(beforeUpdatedAt);
+});

@@ -1,9 +1,10 @@
+import type { Except } from "type-fest";
+
 import * as UserEmail from "./user/email.ts";
 import * as UserId from "./user/id.ts";
 import * as UserPassword from "./user/password.ts";
-import * as UserToken_ from "./user/token.ts";
 
-export { UserEmail, UserId, UserPassword, UserToken_ as UserToken };
+export { UserEmail, UserId, UserPassword };
 
 export type User = {
   id: UserId.UserId;
@@ -15,14 +16,26 @@ export type User = {
   updatedAt: Date;
 };
 
-export type UserToken = {
-  id: UserId.UserId;
-  token: UserToken_.UserToken;
-};
-
 export const UserRole = {
   ADMIN: "ADMIN",
   USER: "USER",
 } as const;
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
+
+type Input = Except<User, "id" | "password" | "role" | "createdAt" | "updatedAt"> & {
+  password: string;
+};
+
+export const create = async ({ password, ...rest }: Input): Promise<User> => {
+  const { id, date } = UserId.genWithDate();
+  const hashedPassword = await UserPassword.hash(password);
+  return {
+    ...rest,
+    id,
+    password: hashedPassword,
+    role: UserRole.USER,
+    createdAt: date,
+    updatedAt: date,
+  };
+};

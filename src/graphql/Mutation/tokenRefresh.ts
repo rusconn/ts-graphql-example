@@ -1,9 +1,8 @@
-import { UserToken } from "../../domain/user.ts";
+import { Token } from "../../domain/user-token.ts";
 import type { MutationResolvers } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
-import { getRefreshTokenCookie, setRefreshTokenCookie } from "../../util/refreshToken.ts";
+import { getRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -28,30 +27,24 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
     throw badUserInputErr("Specify refresh token.");
   }
 
-  if (!UserToken.is(cookie.value)) {
+  if (!Token.is(cookie.value)) {
     return {
       __typename: "InvalidRefreshTokenError",
       message: "The refresh token is invalid.",
     };
   }
 
-  const refreshToken = await context.repos.user.updateTokenByToken(cookie.value);
-
-  if (!refreshToken) {
-    return {
-      __typename: "InvalidRefreshTokenError",
-      message: "The refresh token is invalid.",
-    };
-  }
-
-  const user = await context.repos.user.getByToken(refreshToken);
+  const hashed = await Token.hash(cookie.value);
+  const user = await context.repos.user.findBaseByToken(hashed);
 
   if (!user) {
-    throw internalServerError();
+    return {
+      __typename: "InvalidRefreshTokenError",
+      message: "The refresh token is invalid.",
+    };
   }
 
   const token = await signedJwt(user);
-  await setRefreshTokenCookie(context.request, refreshToken);
 
   return {
     __typename: "TokenRefreshSuccess",
