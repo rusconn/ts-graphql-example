@@ -141,12 +141,12 @@ export class UserRepo {
           .executeTakeFirstOrThrow();
         const _userCredential = await trx
           .insertInto("userCredentials")
-          .values({ userId: user.id, updatedAt: date, password })
+          .values({ userId: user.id, password })
           .returning("userId")
           .executeTakeFirstOrThrow();
         const _userToken = await trx
           .insertInto("userTokens")
-          .values({ userId: user.id, updatedAt: date, token: hashed })
+          .values({ userId: user.id, token: hashed })
           .returning("token")
           .executeTakeFirstOrThrow();
 
@@ -206,7 +206,7 @@ export class UserRepo {
     const userPassword = await this.#db
       .updateTable("userCredentials")
       .where("userId", "=", id)
-      .set({ updatedAt: new Date(), password: await Domain.UserPassword.hash(source) })
+      .set({ password: await Domain.UserPassword.hash(source) })
       .returning("userId")
       .executeTakeFirst();
 
@@ -216,16 +216,11 @@ export class UserRepo {
   updateTokenById = async (id: Domain.User["id"]) => {
     const token = Domain.UserToken.gen();
     const hashed = await Domain.UserToken.hash(token);
-    const date = new Date();
 
     const userToken = await this.#db
       .insertInto("userTokens")
-      .values({ userId: id, token: hashed, updatedAt: date })
-      .onConflict((oc) =>
-        oc
-          .column("userId") //
-          .doUpdateSet({ token: hashed, updatedAt: date }),
-      )
+      .values({ userId: id, token: hashed })
+      .onConflict((oc) => oc.column("userId").doUpdateSet({ token: hashed }))
       .returning("token")
       .executeTakeFirst();
 
@@ -238,7 +233,7 @@ export class UserRepo {
     const userToken = await this.#db
       .updateTable("userTokens")
       .where("token", "=", await Domain.UserToken.hash(oldToken))
-      .set({ updatedAt: new Date(), token: await Domain.UserToken.hash(newToken) })
+      .set({ token: await Domain.UserToken.hash(newToken) })
       .returning("token")
       .executeTakeFirst();
 

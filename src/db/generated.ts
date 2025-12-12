@@ -22,7 +22,6 @@ export interface Todos {
 
 export interface UserCredentials {
   password: string;
-  updatedAt: Timestamp;
   userId: string;
 }
 
@@ -36,7 +35,6 @@ export interface Users {
 
 export interface UserTokens {
   token: string;
-  updatedAt: Timestamp;
   userId: string;
 }
 
