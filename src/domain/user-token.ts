@@ -1,22 +1,22 @@
 import type { User } from "./user.ts";
-import * as Token from "./user-token/token.ts";
+import * as RefreshToken from "./user-token/refresh-token.ts";
 
-export { Token };
+export { RefreshToken };
 
 export type UserToken = {
   userId: User["id"];
-  token: Token.TokenHashed;
+  refreshToken: RefreshToken.RefreshTokenHashed;
 };
 
 export const create = async (
   id: User["id"],
-): Promise<{ rawToken: Token.Token; userToken: UserToken }> => {
-  const rawToken = Token.gen();
+): Promise<{ rawToken: RefreshToken.RefreshToken; userToken: UserToken }> => {
+  const rawToken = RefreshToken.gen();
   return {
     rawToken,
     userToken: {
       userId: id,
-      token: await Token.hash(rawToken),
+      refreshToken: await RefreshToken.hash(rawToken),
     },
   };
 };

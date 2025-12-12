@@ -12,12 +12,12 @@ export const db = {
     admin: {
       ...users.db.admin,
       password: userCredentials.db.admin.password,
-      token: userTokens.db.admin.token,
+      refreshToken: userTokens.db.admin.refreshToken,
     },
     alice: {
       ...users.db.alice,
       password: userCredentials.db.alice.password,
-      token: userTokens.db.alice.token,
+      refreshToken: userTokens.db.alice.refreshToken,
     },
   },
 };
