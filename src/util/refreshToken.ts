@@ -1,11 +1,11 @@
 import { domain } from "../config/url.ts";
-import type { Token } from "../domain/user-token/token.ts";
+import type { RefreshToken } from "../domain/user-token/refresh-token.ts";
 
 export const getRefreshTokenCookie = async (request: Request) => {
   return await request.cookieStore!.get("refresh_token");
 };
 
-export const setRefreshTokenCookie = async (request: Request, refreshToken: Token) => {
+export const setRefreshTokenCookie = async (request: Request, refreshToken: RefreshToken) => {
   await request.cookieStore!.set({
     name: "refresh_token",
     value: refreshToken,

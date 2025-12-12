@@ -103,7 +103,7 @@ test("login changes token", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(before.token).not.toBe(after.token);
+  expect(before.refreshToken).not.toBe(after.refreshToken);
 });
 
 test("login does not changes other attrs", async () => {

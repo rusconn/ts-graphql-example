@@ -32,5 +32,5 @@ CREATE TABLE user_credentials (
 
 CREATE TABLE user_tokens (
   user_id uuid PRIMARY KEY REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
-  token varchar(60) UNIQUE NOT NULL
+  refresh_token varchar(60) UNIQUE NOT NULL
 );

@@ -57,11 +57,11 @@ export class UserRepo {
     return user && dto.userBase.from(user);
   }
 
-  async findBaseByToken(token: UserToken["token"], trx?: Transaction<DB>) {
+  async findBaseByRefreshToken(refreshToken: UserToken["refreshToken"], trx?: Transaction<DB>) {
     const user = await this.#db
       .selectFrom("users")
       .innerJoin("userTokens", "users.id", "userTokens.userId")
-      .where("token", "=", token)
+      .where("refreshToken", "=", refreshToken)
       .selectAll("users")
       .$if(trx != null, (qb) => qb.forUpdate())
       .executeTakeFirst();
