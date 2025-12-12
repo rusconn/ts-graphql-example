@@ -25,7 +25,7 @@ export class TodoRepo {
     };
   }
 
-  find = async (id: Domain.Todo["id"], trx?: Transaction<DB>) => {
+  async find(id: Domain.Todo["id"], trx?: Transaction<DB>) {
     const todo = await (trx ?? this.#db)
       .selectFrom("todos")
       .where("id", "=", id)
@@ -34,9 +34,9 @@ export class TodoRepo {
       .executeTakeFirst();
 
     return todo && mappers.todo.toDomain(todo);
-  };
+  }
 
-  count = async (userId?: Domain.Todo["userId"]) => {
+  async count(userId?: Domain.Todo["userId"]) {
     const result = await this.#db
       .selectFrom("todos")
       .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
@@ -44,9 +44,9 @@ export class TodoRepo {
       .executeTakeFirst();
 
     return result?.count ?? 0;
-  };
+  }
 
-  save = async (todo: Domain.Todo, trx?: Transaction<DB>) => {
+  async save(todo: Domain.Todo, trx?: Transaction<DB>) {
     const dbTodo = mappers.todo.toDb(todo);
 
     const result = await (trx ?? this.#db)
@@ -56,9 +56,9 @@ export class TodoRepo {
       .executeTakeFirst();
 
     return result.numInsertedOrUpdatedRows! > 0n;
-  };
+  }
 
-  delete = async ({ id, userId }: TodoKey, trx?: Transaction<DB>) => {
+  async delete({ id, userId }: TodoKey, trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
       .deleteFrom("todos")
       .where("id", "=", id)
@@ -66,17 +66,17 @@ export class TodoRepo {
       .executeTakeFirst();
 
     return result.numDeletedRows > 0n;
-  };
+  }
 
-  loadTheir = async (key: UserTodoLoader.Key) => {
+  async loadTheir(key: UserTodoLoader.Key) {
     return await this.#loaders.userTodo.load(key);
-  };
+  }
 
-  loadTheirPage = async (key: UserTodosLoader.Key) => {
+  async loadTheirPage(key: UserTodosLoader.Key) {
     return await this.#loaders.userTodos.load(key);
-  };
+  }
 
-  loadTheirCount = async (key: UserTodoCountLoader.Key) => {
+  async loadTheirCount(key: UserTodoCountLoader.Key) {
     return await this.#loaders.userTodoCount.load(key);
-  };
+  }
 }

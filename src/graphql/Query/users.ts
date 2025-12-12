@@ -77,7 +77,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
         reverse: reverse !== backward,
         ...exceptBackward,
       }),
-    context.repos.user.count,
+    () => context.repos.user.count(),
     connectionArgs,
     { resolveInfo: info },
   );
