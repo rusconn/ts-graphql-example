@@ -31,6 +31,9 @@ CREATE TABLE user_credentials (
 );
 
 CREATE TABLE user_tokens (
-  user_id uuid PRIMARY KEY REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
-  refresh_token varchar(60) UNIQUE NOT NULL
+  refresh_token varchar(60) PRIMARY KEY,
+  user_id uuid NOT NULL REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
+  last_used_at timestamptz (3) NOT NULL
 );
+
+CREATE INDEX ON user_tokens (user_id, last_used_at);

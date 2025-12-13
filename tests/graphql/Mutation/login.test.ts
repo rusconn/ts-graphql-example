@@ -1,3 +1,4 @@
+import { maxRefreshTokens } from "../../../src/config/token.ts";
 import { client } from "../../../src/db/client.ts";
 
 import { db, tokens } from "../../data.ts";
@@ -80,12 +81,12 @@ test("correct input", async () => {
   expect(data?.login?.__typename === "LoginSuccess").toBe(true);
 });
 
-test("login changes token", async () => {
+test("login adds a token", async () => {
   const before = await client
     .selectFrom("userTokens")
     .where("userId", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
+    .select("refreshToken")
+    .execute();
 
   const { email } = db.users.admin;
   const password = "adminadmin";
@@ -100,10 +101,84 @@ test("login changes token", async () => {
   const after = await client
     .selectFrom("userTokens")
     .where("userId", "=", db.users.admin.id)
-    .selectAll()
+    .select("refreshToken")
+    .execute();
+
+  expect(after.length).toBe(before.length + 1);
+});
+
+test("num tokens is limit by config", async () => {
+  const { id, email } = db.users.admin;
+  const password = "adminadmin";
+
+  const rows = Array.from({ length: maxRefreshTokens - 1 }).map((_, i) => ({
+    refreshToken: `dummy-${i}`,
+    userId: id,
+    lastUsedAt: new Date(),
+  }));
+
+  await client
+    .insertInto("userTokens") //
+    .values(rows)
     .executeTakeFirstOrThrow();
 
-  expect(before.refreshToken).not.toBe(after.refreshToken);
+  const before = await client
+    .selectFrom("userTokens")
+    .where("userId", "=", id)
+    .select("refreshToken")
+    .execute();
+
+  expect(before.length).toBe(maxRefreshTokens);
+
+  await executeMutation({
+    token: tokens.admin,
+    variables: { email, password },
+  });
+
+  const after = await client
+    .selectFrom("userTokens")
+    .where("userId", "=", db.users.admin.id)
+    .select("refreshToken")
+    .execute();
+
+  expect(after.length).toBe(maxRefreshTokens);
+});
+
+test("oldest token will be removed when num tokens exceeds the limit", async () => {
+  const { id, email, refreshToken } = db.users.admin;
+  const password = "adminadmin";
+
+  const before = await client
+    .selectFrom("userTokens")
+    .where("refreshToken", "=", refreshToken)
+    .select("refreshToken")
+    .executeTakeFirst();
+
+  expect(before != null).toBe(true);
+
+  const rows = Array.from({ length: maxRefreshTokens - 1 }).map((_, i) => ({
+    refreshToken: `dummy-${i}`,
+    userId: id,
+    lastUsedAt: new Date(),
+  }));
+
+  await client
+    .insertInto("userTokens") //
+    .values(rows)
+    .executeTakeFirstOrThrow();
+
+  await executeMutation({
+    token: tokens.admin,
+    variables: { email, password },
+  });
+
+  const after = await client
+    .selectFrom("userTokens")
+    .where("refreshToken", "=", refreshToken)
+    .select("refreshToken")
+    .executeTakeFirst();
+
+  expect(after == null).toBe(true);
 });
 
 test("login does not changes other attrs", async () => {

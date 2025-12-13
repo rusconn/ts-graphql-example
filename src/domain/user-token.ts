@@ -6,6 +6,7 @@ export { RefreshToken };
 export type UserToken = {
   userId: User["id"];
   refreshToken: RefreshToken.RefreshTokenHashed;
+  lastUsedAt: Date;
 };
 
 export const create = async (
@@ -17,6 +18,7 @@ export const create = async (
     userToken: {
       userId: id,
       refreshToken: await RefreshToken.hash(rawToken),
+      lastUsedAt: new Date(),
     },
   };
 };

@@ -20,12 +20,12 @@ export function fail(): never {
 
 type UserFull = User & //
   Pick<UserCredential, "password"> &
-  Pick<UserToken, "refreshToken">;
+  Pick<UserToken, "refreshToken" | "lastUsedAt">;
 
 export const seed = {
   user: (users: UserFull[]) =>
     client.transaction().execute(async (trx) => {
-      const seeds = users.map(async ({ password, refreshToken, ...rest }) => {
+      const seeds = users.map(async ({ password, refreshToken, lastUsedAt, ...rest }) => {
         await trx
           .insertInto("users") //
           .values(rest)
@@ -38,7 +38,7 @@ export const seed = {
             .executeTakeFirstOrThrow(),
           trx
             .insertInto("userTokens") //
-            .values({ userId: rest.id, refreshToken })
+            .values({ userId: rest.id, refreshToken, lastUsedAt })
             .executeTakeFirstOrThrow(),
         ]);
       });

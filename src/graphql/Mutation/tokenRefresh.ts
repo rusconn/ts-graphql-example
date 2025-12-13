@@ -3,6 +3,7 @@ import type { MutationResolvers } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { getRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
+import { internalServerError } from "../_errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -42,6 +43,12 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
       __typename: "InvalidRefreshTokenError",
       message: "The refresh token is invalid.",
     };
+  }
+
+  const touched = await context.repos.userToken.touch(hashed, new Date());
+
+  if (!touched) {
+    throw internalServerError();
   }
 
   const token = await signedJwt(user);

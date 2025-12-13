@@ -3,12 +3,15 @@ import { db as users } from "./users.ts";
 
 export const db = {
   admin: {
-    userId: users.admin.id,
+    /** raw: 33e9adb5-d716-4388-86a1-6885e6499eec */
     refreshToken: "$2b$04$UJnbSNtlTFcLZkRtPqx2SOfFKP/ZA3jQO0o5tRZAaeK0emOmNmfX.",
+    userId: users.admin.id,
+    lastUsedAt: new Date(),
   },
   alice: {
-    userId: users.alice.id,
     /** raw: a5ef8ce5-82cd-418c-9a72-4c43cfa30c9c */
     refreshToken: "$2b$04$UJnbSNtlTFcLZkRtPqx2SOswuES4NFkKjP1rV9pb.SP037OP0ru/u",
+    userId: users.alice.id,
+    lastUsedAt: new Date(),
   },
 } satisfies Record<string, Db.UserToken>;

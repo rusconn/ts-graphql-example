@@ -1,3 +1,4 @@
+import * as TokenRetensionPolicy from "../../domain/token-retension-policy.ts";
 import { UserPassword } from "../../domain/user.ts";
 import * as UserToken from "../../domain/user-token.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../schema.ts";
@@ -66,10 +67,24 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
   }
 
   const { rawToken, userToken } = await UserToken.create(found.id);
-  const saved = await context.repos.userToken.save(userToken);
 
-  if (!saved) {
-    throw internalServerError();
+  {
+    const trx = await context.db.startTransaction().execute();
+
+    const saved = await context.repos.userToken.save(userToken, trx);
+
+    if (!saved) {
+      await trx.rollback().execute();
+      throw internalServerError();
+    }
+
+    await context.repos.userToken.retainLatest(
+      found.id, //
+      TokenRetensionPolicy.limit,
+      trx,
+    );
+
+    await trx.commit().execute();
   }
 
   const token = await signedJwt(found);
