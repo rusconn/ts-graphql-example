@@ -34,6 +34,7 @@ export interface Users {
 }
 
 export interface UserTokens {
+  lastUsedAt: Timestamp;
   refreshToken: string;
   userId: string;
 }

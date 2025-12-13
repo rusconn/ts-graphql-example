@@ -26,10 +26,40 @@ export class UserTokenRepo {
     const result = await (trx ?? this.#db)
       .insertInto("userTokens")
       .values(userToken)
-      .onConflict((oc) => oc.column("userId").doUpdateSet(userToken))
+      .onConflict((oc) => oc.column("refreshToken").doUpdateSet(userToken))
       .executeTakeFirst();
 
     return result.numInsertedOrUpdatedRows! > 0n;
+  }
+
+  async touch(refreshToken: UserToken["refreshToken"], now: Date, trx?: Transaction<DB>) {
+    const result = await (trx ?? this.#db)
+      .updateTable("userTokens")
+      .where("refreshToken", "=", refreshToken)
+      .set("lastUsedAt", now)
+      .executeTakeFirst();
+
+    return result.numUpdatedRows > 0n;
+  }
+
+  async retainLatest(userId: UserToken["userId"], limit: number, trx?: Transaction<DB>) {
+    const result = await (trx ?? this.#db)
+      .deleteFrom("userTokens")
+      .where(({ eb }) =>
+        eb(
+          "refreshToken",
+          "not in",
+          eb
+            .selectFrom("userTokens")
+            .where("userId", "=", userId)
+            .select("refreshToken")
+            .orderBy("lastUsedAt", "desc")
+            .limit(limit),
+        ),
+      )
+      .executeTakeFirst();
+
+    return result.numDeletedRows;
   }
 
   async delete(userId: UserToken["userId"], trx?: Transaction<DB>) {

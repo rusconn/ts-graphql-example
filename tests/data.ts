@@ -13,11 +13,13 @@ export const db = {
       ...users.db.admin,
       password: userCredentials.db.admin.password,
       refreshToken: userTokens.db.admin.refreshToken,
+      lastUsedAt: userTokens.db.admin.lastUsedAt,
     },
     alice: {
       ...users.db.alice,
       password: userCredentials.db.alice.password,
       refreshToken: userTokens.db.alice.refreshToken,
+      lastUsedAt: userTokens.db.alice.lastUsedAt,
     },
   },
 };
