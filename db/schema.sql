@@ -7,8 +7,11 @@ CREATE TABLE users (
   name varchar(100) NOT NULL,
   email varchar(100) NOT NULL UNIQUE,
   role user_role NOT NULL,
+  created_at timestamptz (3) NOT NULL,
   updated_at timestamptz (3) NOT NULL
 );
+
+CREATE INDEX ON users (created_at, id);
 
 CREATE INDEX ON users (updated_at, id);
 
@@ -18,10 +21,11 @@ CREATE TABLE todos (
   description text NOT NULL,
   status todo_status NOT NULL,
   user_id uuid NOT NULL REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
+  created_at timestamptz (3) NOT NULL,
   updated_at timestamptz (3) NOT NULL
 );
 
-CREATE INDEX ON todos (user_id, id);
+CREATE INDEX ON todos (user_id, created_at, id);
 
 CREATE INDEX ON todos (user_id, updated_at, id);
 

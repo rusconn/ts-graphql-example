@@ -1,5 +1,5 @@
 import type * as Db from "../db/types.ts";
-import * as Domain from "../domain/user.ts";
+import type * as Domain from "../domain/user.ts";
 import type { UserToken } from "../domain/user-token.ts";
 import { mappers } from "../mappers.ts";
 import type { UserBase } from "./user-base.ts";
@@ -14,5 +14,4 @@ export const from = ({ id, email, role, refreshToken, ...rest }: Input): UserWit
   email: email as Domain.User["email"],
   role: mappers.user.role.toDomain(role),
   refreshToken: refreshToken as UserToken["refreshToken"],
-  createdAt: Domain.UserId.date(id as Domain.User["id"]),
 });

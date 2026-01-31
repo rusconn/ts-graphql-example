@@ -1,9 +1,9 @@
 import type * as Db from "../db/types.ts";
-import * as Domain from "../domain/todo.ts";
+import type * as Domain from "../domain/todo.ts";
 import { mappers as status } from "./todo/status.ts";
 
 export const mappers = {
-  toDb: ({ status: status_, createdAt: _, ...rest }: Domain.Todo): Db.Todo => ({
+  toDb: ({ status: status_, ...rest }: Domain.Todo): Db.Todo => ({
     ...rest,
     status: status.toDb(status_),
   }),
@@ -12,7 +12,6 @@ export const mappers = {
     id: id as Domain.Todo["id"],
     status: status.toDomain(status_),
     userId: userId as Domain.Todo["userId"],
-    createdAt: Domain.TodoId.date(id as Domain.Todo["id"]),
   }),
   status,
 };

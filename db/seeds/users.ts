@@ -8,27 +8,27 @@ import { UserId } from "../../src/domain/user.ts";
 export const seed = async (trx: Transaction<DB>) => {
   const handUsers = [
     {
-      /** Date: 2024-12-15T16:54:35.641Z */
       id: "0193cb3e-4379-750f-880f-77afae342259",
       name: "admin",
       email: "admin@admin.com",
       role: UserRole.Admin,
+      createdAt: new Date("2024-12-15T16:54:35.641Z"),
       updatedAt: new Date("2024-12-15T16:54:41.152Z"),
     },
     {
-      /** Date: 2024-12-15T16:54:38.927Z */
       id: "0193cb3e-504f-72e9-897c-2c71f389f3ad",
       name: "hoge",
       email: "hoge@hoge.com",
       role: UserRole.User,
+      createdAt: new Date("2024-12-15T16:54:38.927Z"),
       updatedAt: new Date("2024-12-15T16:54:38.927Z"),
     },
     {
-      /** Date: 2024-12-15T16:54:41.150Z */
       id: "0193cb3e-58fe-772b-8306-412afa147cdd",
       name: "piyo",
       email: "piyo@piyo.com",
       role: UserRole.User,
+      createdAt: new Date("2024-12-15T16:54:41.150Z"),
       updatedAt: new Date("2024-12-15T16:54:41.151Z"),
     },
   ];
@@ -57,7 +57,6 @@ const fakeDataOne = (nth: number) => {
 
   return {
     id,
-    updatedAt: faker.date.past(),
     name: firstName + lastName,
     email: faker.internet.email({
       firstName,
@@ -65,5 +64,7 @@ const fakeDataOne = (nth: number) => {
       allowSpecialCharacters: true,
     }),
     role: UserRole.User,
+    createdAt: UserId.date(id),
+    updatedAt: faker.date.past(),
   };
 };

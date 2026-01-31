@@ -10,7 +10,7 @@ import { dateTime } from "./common.ts";
 const node = (todo: Domain.Todo): Graph.Todo => ({
   ...todo,
   id: todoId(todo.id),
-  createdAt: dateTime(TodoId.date(todo.id)),
+  createdAt: dateTime(todo.createdAt),
   updatedAt: dateTime(todo.updatedAt),
 });
 

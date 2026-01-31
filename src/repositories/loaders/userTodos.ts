@@ -23,18 +23,16 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
   const userIds = keys.map((key) => key.userId);
   const { sortKey, reverse, cursor, limit, status } = keys.at(0)!;
 
-  const orderColumn = sortKey === "createdAt" ? "id" : sortKey;
-
   const [direction, comp] = reverse //
     ? (["desc", "<"] as const)
     : (["asc", ">"] as const);
 
-  const cursorOrderColumn =
+  const cursorSortKey =
     cursor &&
     db //
       .selectFrom("todos")
       .where("id", "=", cursor)
-      .select(orderColumn);
+      .select(sortKey);
 
   const todos = await db
     .selectFrom("users")
@@ -46,15 +44,15 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
           .$if(cursor != null, (qb) =>
             qb.where(({ eb, refTuple, tuple }) =>
               eb(
-                refTuple(orderColumn, "id"), //
+                refTuple(sortKey, "id"), //
                 comp,
-                tuple(cursorOrderColumn!, cursor!),
+                tuple(cursorSortKey!, cursor!),
               ),
             ),
           )
           .$if(status != null, (qb) => qb.where("status", "=", mappers.todo.status.toDb(status!)))
           .selectAll("todos")
-          .orderBy(orderColumn, direction)
+          .orderBy(sortKey, direction)
           .orderBy("id", direction)
           .limit(limit)
           .as("todos"),

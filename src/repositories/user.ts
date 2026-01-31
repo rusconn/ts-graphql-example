@@ -77,32 +77,30 @@ export class UserRepo {
   }) {
     const { sortKey, reverse, cursor, limit } = params;
 
-    const orderColumn = sortKey === "createdAt" ? "id" : sortKey;
-
     const [direction, comp] = reverse //
       ? (["desc", "<"] as const)
       : (["asc", ">"] as const);
 
-    const cursorOrderColumn =
+    const cursorSortKey =
       cursor &&
       this.#db //
         .selectFrom("users")
         .where("id", "=", cursor)
-        .select(orderColumn);
+        .select(sortKey);
 
     const users = await this.#db
       .selectFrom("users")
       .$if(cursor != null, (qb) =>
         qb.where(({ eb, refTuple, tuple }) =>
           eb(
-            refTuple(orderColumn, "id"), //
+            refTuple(sortKey, "id"), //
             comp,
-            tuple(cursorOrderColumn!, cursor!),
+            tuple(cursorSortKey!, cursor!),
           ),
         ),
       )
       .selectAll()
-      .orderBy(orderColumn, direction)
+      .orderBy(sortKey, direction)
       .orderBy("id", direction)
       .limit(limit)
       .execute();

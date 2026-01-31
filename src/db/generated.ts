@@ -12,6 +12,7 @@ export type TodoStatus = "done" | "pending";
 export type UserRole = "admin" | "user";
 
 export interface Todos {
+  createdAt: Timestamp;
   description: string;
   id: string;
   status: TodoStatus;
@@ -26,6 +27,7 @@ export interface UserCredentials {
 }
 
 export interface Users {
+  createdAt: Timestamp;
   email: string;
   id: string;
   name: string;

@@ -10,7 +10,7 @@ import { dateTime } from "./common.ts";
 const node = (user: User): Graph.User => ({
   ...user,
   id: userId(user.id),
-  createdAt: dateTime(UserId.date(user.id)),
+  createdAt: dateTime(user.createdAt),
   updatedAt: dateTime(user.updatedAt),
 });
 
