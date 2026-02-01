@@ -1,8 +1,9 @@
 import * as Db from "../../../db/types.ts";
+import type { Uuidv7 } from "../../../lib/uuid/v7.ts";
 
 export const db = {
   admin: {
-    id: "0193cb69-5412-759b-a780-8de48a4c054d",
+    id: "0193cb69-5412-759b-a780-8de48a4c054d" as Uuidv7,
     name: "Admin",
     email: "admin@admin.com",
     role: Db.UserRole.Admin,
@@ -10,7 +11,7 @@ export const db = {
     updatedAt: new Date("2024-12-15T17:41:58.591Z"),
   },
   alice: {
-    id: "0193cb69-a4be-754e-a5a0-462df1202f5e",
+    id: "0193cb69-a4be-754e-a5a0-462df1202f5e" as Uuidv7,
     name: "Alice",
     email: "alice@alice.com",
     role: Db.UserRole.User,

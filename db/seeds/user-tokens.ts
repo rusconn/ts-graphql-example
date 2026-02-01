@@ -3,25 +3,26 @@ import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
 import type { DB, User } from "../../src/db/types.ts";
+import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
 
 export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
   const handUserTokens = [
     {
       /** raw: ddfe9c8c-6a73-435d-aa91-7ead331aab0c */
       refreshToken: "$2b$10$nOpVuJk/aqONHB/jIDq9BOIu5LcRAjr0/rGsYNui3Ep8h.2X3glee",
-      userId: "0193cb3e-4379-750f-880f-77afae342259",
+      userId: "0193cb3e-4379-750f-880f-77afae342259" as Uuidv7,
       lastUsedAt: new Date(),
     },
     {
       /** raw: e9b7e901-5fe4-4088-a8c5-96f934707c56 */
       refreshToken: "$2b$10$j7tyBjZUd.J3c2dMNiNLXOMhZyxYzMYo46A0CFoajklUE9B4NFCpm",
-      userId: "0193cb3e-504f-72e9-897c-2c71f389f3ad",
+      userId: "0193cb3e-504f-72e9-897c-2c71f389f3ad" as Uuidv7,
       lastUsedAt: new Date(),
     },
     {
       /** raw: c91fcf2d-5b15-451b-885b-a93b88094961 */
       refreshToken: "$2b$10$odhfjMJlp9z97D9g7mzVd..2sPvEYBTNssSmY0vHSuP2v7Okh/CJ.",
-      userId: "0193cb3e-58fe-772b-8306-412afa147cdd",
+      userId: "0193cb3e-58fe-772b-8306-412afa147cdd" as Uuidv7,
       lastUsedAt: new Date(),
     },
   ];

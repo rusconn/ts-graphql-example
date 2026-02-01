@@ -3,6 +3,7 @@
  * Please do not edit it manually.
  */
 
+import type { Uuidv7 } from "../lib/uuid/v7";
 import type { ColumnType } from "kysely";
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
@@ -14,22 +15,22 @@ export type UserRole = "admin" | "user";
 export interface Todos {
   createdAt: Timestamp;
   description: string;
-  id: string;
+  id: Uuidv7;
   status: TodoStatus;
   title: string;
   updatedAt: Timestamp;
-  userId: string;
+  userId: Uuidv7;
 }
 
 export interface UserCredentials {
   password: string;
-  userId: string;
+  userId: Uuidv7;
 }
 
 export interface Users {
   createdAt: Timestamp;
   email: string;
-  id: string;
+  id: Uuidv7;
   name: string;
   role: UserRole;
   updatedAt: Timestamp;
@@ -38,7 +39,7 @@ export interface Users {
 export interface UserTokens {
   lastUsedAt: Timestamp;
   refreshToken: string;
-  userId: string;
+  userId: Uuidv7;
 }
 
 export interface DB {

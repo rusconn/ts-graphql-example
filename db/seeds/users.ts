@@ -4,11 +4,12 @@ import type { Transaction } from "kysely";
 
 import { type DB, UserRole } from "../../src/db/types.ts";
 import { UserId } from "../../src/domain/user.ts";
+import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
 
 export const seed = async (trx: Transaction<DB>) => {
   const handUsers = [
     {
-      id: "0193cb3e-4379-750f-880f-77afae342259",
+      id: "0193cb3e-4379-750f-880f-77afae342259" as Uuidv7,
       name: "admin",
       email: "admin@admin.com",
       role: UserRole.Admin,
@@ -16,7 +17,7 @@ export const seed = async (trx: Transaction<DB>) => {
       updatedAt: new Date("2024-12-15T16:54:41.152Z"),
     },
     {
-      id: "0193cb3e-504f-72e9-897c-2c71f389f3ad",
+      id: "0193cb3e-504f-72e9-897c-2c71f389f3ad" as Uuidv7,
       name: "hoge",
       email: "hoge@hoge.com",
       role: UserRole.User,
@@ -24,7 +25,7 @@ export const seed = async (trx: Transaction<DB>) => {
       updatedAt: new Date("2024-12-15T16:54:38.927Z"),
     },
     {
-      id: "0193cb3e-58fe-772b-8306-412afa147cdd",
+      id: "0193cb3e-58fe-772b-8306-412afa147cdd" as Uuidv7,
       name: "piyo",
       email: "piyo@piyo.com",
       role: UserRole.User,
