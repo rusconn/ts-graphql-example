@@ -2,7 +2,7 @@ import type { AuthContext } from "./types.ts";
 import { authErr } from "./util.ts";
 
 export const authAdmin = (context: AuthContext) => {
-  if (context.user?.role !== "ADMIN") {
+  if (context.user?.role !== "admin") {
     return authErr();
   }
 

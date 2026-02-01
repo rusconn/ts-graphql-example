@@ -23,7 +23,7 @@ export const resolver: NonNullable<UserResolvers["todo"]> = async (parent, args,
     throw badUserInputErr(id.message, id);
   }
 
-  const todo = await context.repos.todo.loadTheir({
+  const todo = await context.queries.todo.loadTheir({
     id,
     userId: parent.id,
   });

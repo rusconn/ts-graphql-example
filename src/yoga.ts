@@ -1,7 +1,7 @@
 import { createSchema, createYoga } from "graphql-yoga";
 
 import { endpoint } from "./config/url.ts";
-import type { Context, PluginContext, ServerContext, UserContext } from "./context.ts";
+import type { PluginContext, ServerContext, UserContext } from "./context.ts";
 import { client } from "./db/client.ts";
 import { authenticationErr } from "./graphql/_errors/authenticationError.ts";
 import { badUserInputErr } from "./graphql/_errors/badUserInput.ts";
@@ -16,12 +16,14 @@ import { introspection } from "./plugins/introspection.ts";
 import { logging } from "./plugins/logging.ts";
 import { readinessCheck } from "./plugins/readinessCheck.ts";
 import { requestId } from "./plugins/requestId.ts";
+import { TodoQuery } from "./query-services/todo.ts";
+import { UserQuery } from "./query-services/user.ts";
 import { TodoRepo } from "./repositories/todo.ts";
 import { UserRepo } from "./repositories/user.ts";
 import { UserTokenRepo } from "./repositories/user-token.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
-import { verifyJwt } from "./util/accessToken.ts";
+import { type Payload, verifyJwt } from "./util/accessToken.ts";
 
 export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
   renderGraphiQL: () => renderApolloStudio(endpoint),
@@ -30,12 +32,12 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
     const start = Date.now();
     const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
-    let user: Context["user"] = null;
+    let payload: Payload | null = null;
     if (token != null) {
       const result = await verifyJwt(token);
       switch (result.type) {
         case "Success":
-          user = result.payload;
+          payload = result.payload;
           break;
         case "JWTInvalid":
           throw authenticationErr();
@@ -48,11 +50,24 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
       }
     }
 
+    let user: UserContext["user"] = null;
+    if (payload) {
+      const found = await UserQuery.findById(payload.id, client);
+      if (found == null) {
+        throw authenticationErr();
+      }
+      user = found;
+    }
+
     return {
       start,
       logger: logger.child({ requestId }),
       user,
       db: client,
+      queries: {
+        todo: new TodoQuery(client),
+        user: new UserQuery(client),
+      },
       repos: {
         todo: new TodoRepo(client),
         user: new UserRepo(client),

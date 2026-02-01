@@ -16,7 +16,7 @@ export const resolver: NonNullable<TodoResolvers["user"]> = async (parent, _args
     throw forbiddenErr(authed);
   }
 
-  const user = await context.repos.user.load(parent.userId);
+  const user = await context.queries.user.load(parent.userId);
 
   if (!user) {
     throw internalServerError();

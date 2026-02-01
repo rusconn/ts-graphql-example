@@ -1,10 +1,8 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { DB } from "../../db/types.ts";
-import type { Todo, TodoStatus } from "../../domain/todo.ts";
+import type { DB, Todo, TodoStatus } from "../../db/types.ts";
 import { sort } from "../../lib/dataloader/sort.ts";
-import { mappers } from "../../mappers.ts";
 
 export type Key = {
   userId: Todo["userId"];
@@ -22,7 +20,7 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
   const counts = await db
     .selectFrom("todos")
     .where("userId", "in", userIds)
-    .$if(status != null, (qb) => qb.where("status", "=", mappers.todo.status.toDb(status!)))
+    .$if(status != null, (qb) => qb.where("status", "=", status!))
     .groupBy("userId")
     .select("userId")
     .select(({ fn }) => fn.count<number>("userId").as("count"))

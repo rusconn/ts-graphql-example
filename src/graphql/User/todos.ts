@@ -1,5 +1,5 @@
-import type { Todo } from "../../domain/todo.ts";
 import { getCursorConnection } from "../../lib/graphql/cursorConnections/get.ts";
+import { mappers } from "../../mappers.ts";
 import type { UserResolvers, UserTodosArgs } from "../../schema.ts";
 import { TodoSortKeys } from "../../schema.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
@@ -78,20 +78,17 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (
 
   const { connectionArgs, reverse, sortKey, filter } = parsed;
 
-  return await getCursorConnection<Todo, Todo["id"]>(
+  return await getCursorConnection(
     ({ backward, ...exceptBackward }) =>
-      context.repos.todo.loadTheirPage({
+      context.queries.todo.loadTheirPage({
         userId: parent.id,
-        sortKey: {
-          [TodoSortKeys.CreatedAt]: "createdAt" as const,
-          [TodoSortKeys.UpdatedAt]: "updatedAt" as const,
-        }[sortKey],
+        sortKey,
         reverse: reverse !== backward,
         ...exceptBackward,
         ...filter,
       }),
     () =>
-      context.repos.todo.loadTheirCount({
+      context.queries.todo.loadTheirCount({
         userId: parent.id,
         ...filter,
       }),
@@ -123,9 +120,14 @@ const parseArgs = (args: UserTodosArgs) => {
   return {
     connectionArgs,
     reverse: args.reverse,
-    sortKey: args.sortKey,
+    sortKey: {
+      [TodoSortKeys.CreatedAt]: "createdAt" as const,
+      [TodoSortKeys.UpdatedAt]: "updatedAt" as const,
+    }[args.sortKey],
     filter: {
-      ...(status != null && { status }),
+      ...(status != null && {
+        status: mappers.todo.status.toDb(status),
+      }),
     },
   };
 };

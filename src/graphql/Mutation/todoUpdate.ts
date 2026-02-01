@@ -2,6 +2,7 @@ import type { MutationResolvers, MutationTodoUpdateArgs } from "../../schema.ts"
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
+import { internalServerError } from "../_errors/internalServerError.ts";
 import { parseTodoDescription, TODO_DESCRIPTION_MAX } from "../_parsers/todo/description.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import { parseTodoStatus } from "../_parsers/todo/status.ts";
@@ -71,17 +72,24 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
     updatedAt: new Date(),
   };
 
-  const updated = await context.repos.todo.save(updatedTodo);
+  const success = await context.repos.todo.save(updatedTodo);
 
-  return updated
-    ? {
-        __typename: "TodoUpdateSuccess",
-        todo: updatedTodo,
-      }
-    : {
-        __typename: "ResourceNotFoundError",
-        message: "The specified todo does not exist.",
-      };
+  if (success) {
+    const updated = await context.queries.todo.find(todo.id);
+    if (!updated) {
+      throw internalServerError();
+    }
+
+    return {
+      __typename: "TodoUpdateSuccess",
+      todo: updated,
+    };
+  } else {
+    return {
+      __typename: "ResourceNotFoundError",
+      message: "The specified todo does not exist.",
+    };
+  }
 };
 
 const parseArgs = (args: Omit<MutationTodoUpdateArgs, "id">) => {

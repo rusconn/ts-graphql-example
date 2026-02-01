@@ -1,7 +1,6 @@
 import type { UserResolvers } from "../../schema.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -16,15 +15,5 @@ export const resolver: NonNullable<UserResolvers["updatedAt"]> = async (parent, 
     throw forbiddenErr(authed);
   }
 
-  if ("updatedAt" in parent) {
-    return parent.updatedAt;
-  }
-
-  const user = await context.repos.user.load(parent.id);
-
-  if (!user) {
-    throw internalServerError();
-  }
-
-  return user.updatedAt;
+  return parent.updatedAt;
 };

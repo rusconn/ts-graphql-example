@@ -1,4 +1,3 @@
-import type { UserBase } from "../../dto/user-base.ts";
 import { getCursorConnection } from "../../lib/graphql/cursorConnections/get.ts";
 import type { QueryResolvers, QueryUsersArgs } from "../../schema.ts";
 import { UserSortKeys } from "../../schema.ts";
@@ -67,17 +66,14 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
 
   const { connectionArgs, reverse, sortKey } = parsed;
 
-  return await getCursorConnection<UserBase, UserBase["id"]>(
+  return await getCursorConnection(
     ({ backward, ...exceptBackward }) =>
-      context.repos.user.findMany({
-        sortKey: {
-          [UserSortKeys.CreatedAt]: "createdAt" as const,
-          [UserSortKeys.UpdatedAt]: "updatedAt" as const,
-        }[sortKey],
+      context.queries.user.findMany({
+        sortKey,
         reverse: reverse !== backward,
         ...exceptBackward,
       }),
-    () => context.repos.user.count(),
+    () => context.queries.user.count(),
     connectionArgs,
     { resolveInfo: info },
   );
@@ -97,6 +93,9 @@ const parseArgs = (args: QueryUsersArgs) => {
   return {
     connectionArgs,
     reverse: args.reverse,
-    sortKey: args.sortKey,
+    sortKey: {
+      [UserSortKeys.CreatedAt]: "createdAt" as const,
+      [UserSortKeys.UpdatedAt]: "updatedAt" as const,
+    }[args.sortKey],
   };
 };

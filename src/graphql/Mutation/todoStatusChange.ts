@@ -50,9 +50,14 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
   const saved = await context.repos.todo.save(changedTodo);
 
   if (saved) {
+    const todo = await context.queries.todo.find(id);
+    if (!todo) {
+      throw internalServerError();
+    }
+
     return {
       __typename: "TodoStatusChangeSuccess",
-      todo: changedTodo,
+      todo,
     };
   } else {
     throw internalServerError();

@@ -3,6 +3,7 @@ import { todoId } from "../_adapters/todo/id.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
+import { internalServerError } from "../_errors/internalServerError.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -25,17 +26,21 @@ export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, c
   }
 
   const id = parseTodoId(args.id);
-
   if (id instanceof Error) {
     throw badUserInputErr(id.message, id);
   }
 
-  const deleted = await context.repos.todo.delete({
+  const user = await context.repos.user.findByDbId(authed.id);
+  if (!user) {
+    throw internalServerError();
+  }
+
+  const success = await context.repos.todo.delete({
     id,
-    userId: authed.id,
+    userId: user.id,
   });
 
-  return deleted
+  return success
     ? {
         __typename: "TodoDeleteSuccess",
         id: todoId(id),

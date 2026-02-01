@@ -35,7 +35,7 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
     return invalidInputErrors(parsed);
   }
 
-  const user = await context.repos.user.findById(authed.id);
+  const user = await context.repos.user.findByDbId(authed.id);
   if (!user) {
     throw internalServerError();
   }
@@ -49,11 +49,17 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
   const result = await context.repos.user.save(updatedUser);
 
   switch (result.type) {
-    case "Success":
+    case "Success": {
+      const updated = await context.queries.user.findById(user.id);
+      if (!updated) {
+        throw internalServerError();
+      }
+
       return {
         __typename: "AccountUpdateSuccess",
-        user: updatedUser,
+        user: updated,
       };
+    }
     case "EmailAlreadyExists":
       throw internalServerError();
     case "Unknown":

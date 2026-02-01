@@ -62,8 +62,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     return invalidInputErrors(parsed);
   }
 
-  const user = await context.repos.user.findById(authed.id);
-
+  const user = await context.repos.user.findByDbId(authed.id);
   if (!user) {
     throw internalServerError();
   }

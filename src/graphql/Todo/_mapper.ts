@@ -1,3 +1,3 @@
-import type * as Domain from "../../domain/todo.ts";
+import type * as Db from "../../db/types.ts";
 
-export type Todo = Domain.Todo;
+export type Todo = Db.Todo;

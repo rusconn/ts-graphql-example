@@ -91,7 +91,7 @@ const logic = async (
   parsed: Exclude<ReturnType<typeof parseArgs>, Error[]>,
   context: Context,
 ): Promise<ResolversTypes["TodoCreateResult"]> => {
-  const count = await context.repos.todo.count(authed.id);
+  const count = await context.queries.todo.count(authed.id);
 
   if (count >= TODOS_MAX) {
     return {
@@ -100,19 +100,29 @@ const logic = async (
     };
   }
 
-  const todo = Todo.create({ ...parsed, userId: authed.id });
+  const user = await context.repos.user.findByDbId(authed.id);
+  if (!user) {
+    throw internalServerError();
+  }
+
+  const todo = Todo.create({ ...parsed, userId: user.id });
   const saved = await context.repos.todo.save(todo);
 
   if (!saved) {
     throw internalServerError();
   }
 
+  const created = await context.queries.todo.find(todo.id);
+  if (!created) {
+    throw internalServerError();
+  }
+
   return {
     __typename: "TodoCreateSuccess",
-    todo,
+    todo: created,
     todoEdge: {
       cursor: todo.id,
-      node: todo,
+      node: created,
     },
   };
 };
@@ -158,11 +168,20 @@ if (import.meta.vitest) {
   });
 
   describe("Maximum num todos", () => {
-    const createRepos = (num: number) =>
+    const createQueries = (num: number) => ({
+      todo: {
+        count: async () => num,
+        find: async () => ({}),
+      },
+    });
+
+    const createRepos = () =>
       ({
         todo: {
-          count: async () => num,
           save: async () => true,
+        },
+        user: {
+          findByDbId: async () => ({ id: "dummy" }),
         },
       }) as unknown as Context["repos"];
 
@@ -170,14 +189,16 @@ if (import.meta.vitest) {
     const exceededs = [TODOS_MAX, TODOS_MAX + 1];
 
     test.each(notExceededs)("notExceededs %#", async (num) => {
-      const repos = createRepos(num);
-      const result = await logic(valid.user, valid.args, { repos } as Context);
+      const queries = createQueries(num);
+      const repos = createRepos();
+      const result = await logic(valid.user, valid.args, { queries, repos } as unknown as Context);
       expect(result?.__typename === "ResourceLimitExceededError").toBe(false);
     });
 
     test.each(exceededs)("exceededs %#", async (num) => {
-      const repos = createRepos(num);
-      const result = await logic(valid.user, valid.args, { repos } as Context);
+      const queries = createQueries(num);
+      const repos = createRepos();
+      const result = await logic(valid.user, valid.args, { queries, repos } as unknown as Context);
       expect(result?.__typename === "ResourceLimitExceededError").toBe(true);
     });
   });

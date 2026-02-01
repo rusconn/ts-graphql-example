@@ -1,10 +1,8 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { DB } from "../../db/types.ts";
-import type { Todo } from "../../domain/todo.ts";
+import type { DB, Todo } from "../../db/types.ts";
 import { sort } from "../../lib/dataloader/sort.ts";
-import { mappers } from "../../mappers.ts";
 
 export type Key = Pick<Todo, "id" | "userId">;
 
@@ -25,7 +23,7 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
     .selectAll()
     .execute();
 
-  return sort(keys.map(combine), todos.map(mappers.todo.toDomain), combine);
+  return sort(keys.map(combine), todos, combine);
 };
 
 const combine = (key: Key) => {

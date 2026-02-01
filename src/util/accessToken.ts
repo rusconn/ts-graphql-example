@@ -2,9 +2,9 @@ import { jwtVerify, SignJWT } from "jose";
 import { JWTExpired, JWTInvalid } from "jose/errors";
 
 import { signingKey } from "../config/jwt.ts";
-import type { User } from "../domain/user.ts";
+import type { User } from "../db/types.ts";
 
-type Payload = Pick<User, "id" | "role">;
+export type Payload = Pick<User, "id">;
 
 export const verifyJwt = async (token: string) => {
   try {
@@ -20,8 +20,8 @@ export const verifyJwt = async (token: string) => {
   }
 };
 
-export const signedJwt = async ({ id, role }: Payload) => {
-  return await new SignJWT({ id, role })
+export const signedJwt = async ({ id }: Payload) => {
+  return await new SignJWT({ id })
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("30min")
     .sign(signingKey);

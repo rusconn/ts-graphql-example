@@ -36,7 +36,7 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
   }
 
   const hashed = await RefreshToken.hash(cookie.value);
-  const user = await context.repos.user.findBaseByRefreshToken(hashed);
+  const user = await context.queries.user.findByRefreshToken(hashed);
 
   if (!user) {
     return {
