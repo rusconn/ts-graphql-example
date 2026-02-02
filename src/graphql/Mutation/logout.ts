@@ -1,6 +1,6 @@
 import { RefreshToken } from "../../domain/user-token.ts";
 import type { MutationResolvers } from "../../schema.ts";
-import { getRefreshTokenCookie } from "../../util/refreshToken.ts";
+import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refreshToken.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -13,6 +13,9 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["logout"] = async (_parent, _args, ctx) => {
+  const cookie = await getRefreshTokenCookie(ctx.request);
+  await deleteRefreshTokenCookie(ctx.request);
+
   if (ctx.user == null) {
     return {
       __typename: "LogoutResult",
@@ -20,7 +23,6 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, ctx)
     };
   }
 
-  const cookie = await getRefreshTokenCookie(ctx.request);
   if (!cookie || !RefreshToken.is(cookie.value)) {
     return {
       __typename: "LogoutResult",

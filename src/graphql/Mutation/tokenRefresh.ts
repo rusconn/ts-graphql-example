@@ -1,7 +1,7 @@
 import { RefreshToken } from "../../domain/user-token.ts";
 import type { MutationResolvers } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
-import { getRefreshTokenCookie } from "../../util/refreshToken.ts";
+import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 
@@ -27,6 +27,7 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
     throw badUserInputErr("Specify refresh token.");
   }
   if (!RefreshToken.is(cookie.value)) {
+    await deleteRefreshTokenCookie(ctx.request);
     return {
       __typename: "InvalidRefreshTokenError",
       message: "The refresh token is invalid.",
@@ -37,6 +38,7 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
 
   const user = await ctx.queries.user.findByRefreshToken(hashed);
   if (!user) {
+    await deleteRefreshTokenCookie(ctx.request);
     return {
       __typename: "InvalidRefreshTokenError",
       message: "The refresh token is invalid.",

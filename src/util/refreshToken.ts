@@ -9,12 +9,24 @@ export const getRefreshTokenCookie = async (request: Request) => {
 
 export const setRefreshTokenCookie = async (request: Request, refreshToken: RefreshToken) => {
   await request.cookieStore!.set({
-    name: cookieName,
+    ...cookieBase,
     value: refreshToken,
-    domain,
     expires: new Date("2037-12-31T23:59:59.999Z"),
-    secure: true,
-    sameSite: "lax",
-    httpOnly: true,
   });
 };
+
+export const deleteRefreshTokenCookie = async (request: Request) => {
+  await request.cookieStore!.set({
+    ...cookieBase,
+    value: "",
+    expires: 0,
+  });
+};
+
+const cookieBase = {
+  name: cookieName,
+  domain,
+  secure: true,
+  sameSite: "lax",
+  httpOnly: true,
+} as const;
