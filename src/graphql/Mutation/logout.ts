@@ -1,8 +1,9 @@
+import { RefreshToken } from "../../domain/user-token.ts";
 import type { MutationResolvers } from "../../schema.ts";
+import { getRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { userId } from "../_adapters/user/id.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -22,15 +23,16 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, ctx)
     throw forbiddenErr(authed);
   }
 
-  const user = await ctx.repos.user.findByDbId(authed.id);
-  if (!user) {
-    throw internalServerError();
+  const cookie = await getRefreshTokenCookie(ctx.request);
+  if (!cookie || !RefreshToken.is(cookie.value)) {
+    return {
+      __typename: "LogoutSuccess",
+      id: userId(authed.id),
+    };
   }
 
-  const success = await ctx.repos.userToken.delete(user.id);
-  if (!success) {
-    throw internalServerError();
-  }
+  const hashed = await RefreshToken.hash(cookie.value);
+  const _success = await ctx.repos.userToken.delete(hashed);
 
   return {
     __typename: "LogoutSuccess",

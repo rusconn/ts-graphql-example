@@ -62,10 +62,10 @@ export class UserTokenRepo {
     return result.numDeletedRows;
   }
 
-  async delete(userId: UserToken["userId"], trx?: Transaction<DB>) {
+  async delete(refreshToken: UserToken["refreshToken"], trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
       .deleteFrom("userTokens")
-      .where("userId", "=", userId)
+      .where("refreshToken", "=", refreshToken)
       .executeTakeFirst();
 
     return result.numDeletedRows > 0n;

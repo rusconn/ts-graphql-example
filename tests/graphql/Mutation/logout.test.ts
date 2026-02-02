@@ -32,7 +32,7 @@ beforeEach(async () => {
   await seedData.users();
 });
 
-test("logout deletes token", async () => {
+test("logout deletes specified token", async () => {
   const before = await client
     .selectFrom("userTokens")
     .where("userId", "=", db.users.admin.id)
@@ -41,6 +41,7 @@ test("logout deletes token", async () => {
 
   const { data } = await executeMutation({
     token: tokens.admin,
+    refreshToken: "33e9adb5-d716-4388-86a1-6885e6499eec",
   });
 
   expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
@@ -53,6 +54,30 @@ test("logout deletes token", async () => {
 
   expect(before == null).not.toBe(true);
   expect(after == null).toBe(true);
+});
+
+test("allows invalid token", async () => {
+  const before = await client
+    .selectFrom("userTokens")
+    .where("userId", "=", db.users.admin.id)
+    .selectAll()
+    .executeTakeFirst();
+
+  const { data } = await executeMutation({
+    token: tokens.admin,
+    refreshToken: "33e9adb5-d716-4388-86a1-6885e6499eec".slice(0, -1),
+  });
+
+  expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
+
+  const after = await client
+    .selectFrom("userTokens")
+    .where("userId", "=", db.users.admin.id)
+    .selectAll()
+    .executeTakeFirst();
+
+  expect(before == null).not.toBe(true);
+  expect(after == null).not.toBe(true);
 });
 
 test("logout does not changes other attrs", async () => {
