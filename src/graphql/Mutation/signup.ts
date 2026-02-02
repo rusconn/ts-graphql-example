@@ -42,8 +42,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["signup"] = async (_parent, args, context) => {
-  const authed = authGuest(context);
+export const resolver: MutationResolvers["signup"] = async (_parent, args, ctx) => {
+  const authed = authGuest(ctx);
   if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
@@ -57,8 +57,8 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   const { rawToken, userToken } = await UserToken.create(user.id);
 
   {
-    const trx = await context.db.startTransaction().execute();
-    const result = await context.repos.user.save(user, trx);
+    const trx = await ctx.db.startTransaction().execute();
+    const result = await ctx.repos.user.save(user, trx);
     switch (result.type) {
       case "Success":
         break;
@@ -75,7 +75,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
         throw new Error(result satisfies never);
     }
 
-    const success = await context.repos.userToken.save(userToken, trx);
+    const success = await ctx.repos.userToken.save(userToken, trx);
     if (!success) {
       await trx.rollback().execute();
       throw internalServerError(result.e);
@@ -84,7 +84,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   }
 
   const token = await signedJwt(user);
-  await setRefreshTokenCookie(context.request, rawToken);
+  await setRefreshTokenCookie(ctx.request, rawToken);
 
   return {
     __typename: "SignupSuccess",

@@ -18,8 +18,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, context) => {
-  const authed = authAuthenticated(context);
+export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, ctx) => {
+  const authed = authAuthenticated(ctx);
   if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
@@ -29,12 +29,12 @@ export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, c
     throw badUserInputErr(id.message, id);
   }
 
-  const user = await context.repos.user.findByDbId(authed.id);
+  const user = await ctx.repos.user.findByDbId(authed.id);
   if (!user) {
     throw internalServerError();
   }
 
-  const success = await context.repos.todo.delete({
+  const success = await ctx.repos.todo.delete({
     id,
     userId: user.id,
   });

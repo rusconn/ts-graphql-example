@@ -1,19 +1,19 @@
 import type { AuthContext } from "./types.ts";
 import { authErr } from "./util.ts";
 
-export const authGuest = (context: AuthContext) => {
-  if (context.user != null) {
+export const authGuest = (ctx: AuthContext) => {
+  if (ctx.user != null) {
     return authErr();
   }
 
-  return context.user;
+  return ctx.user;
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../_testData/context.ts");
+  const { ctx } = await import("../_testData/context.ts");
 
-  const allows = [context.user.guest];
-  const denies = [context.user.admin, context.user.alice];
+  const allows = [ctx.user.guest];
+  const denies = [ctx.user.admin, ctx.user.alice];
 
   test.each(allows)("allows %#", (user) => {
     const authed = authGuest({ user });

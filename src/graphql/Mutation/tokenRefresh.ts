@@ -21,8 +21,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args, context) => {
-  const cookie = await getRefreshTokenCookie(context.request);
+export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args, ctx) => {
+  const cookie = await getRefreshTokenCookie(ctx.request);
   if (!cookie) {
     throw badUserInputErr("Specify refresh token.");
   }
@@ -35,7 +35,7 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
 
   const hashed = await RefreshToken.hash(cookie.value);
 
-  const user = await context.queries.user.findByRefreshToken(hashed);
+  const user = await ctx.queries.user.findByRefreshToken(hashed);
   if (!user) {
     return {
       __typename: "InvalidRefreshTokenError",
@@ -43,7 +43,7 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
     };
   }
 
-  const touched = await context.repos.userToken.touch(hashed, new Date());
+  const touched = await ctx.repos.userToken.touch(hashed, new Date());
   if (!touched) {
     throw internalServerError();
   }

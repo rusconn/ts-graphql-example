@@ -22,8 +22,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["userEmailChange"] = async (_parent, args, context) => {
-  const authed = authAuthenticated(context);
+export const resolver: MutationResolvers["userEmailChange"] = async (_parent, args, ctx) => {
+  const authed = authAuthenticated(ctx);
   if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
@@ -33,7 +33,7 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
     return invalidInputErrors(parsed);
   }
 
-  const user = await context.repos.user.findByDbId(authed.id);
+  const user = await ctx.repos.user.findByDbId(authed.id);
   if (!user) {
     throw internalServerError();
   }
@@ -44,10 +44,10 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
     updatedAt: new Date(),
   };
 
-  const result = await context.repos.user.save(changedUser);
+  const result = await ctx.repos.user.save(changedUser);
   switch (result.type) {
     case "Success": {
-      const changed = await context.queries.user.findById(user.id);
+      const changed = await ctx.queries.user.findById(user.id);
       if (!changed) {
         throw internalServerError();
       }

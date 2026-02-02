@@ -10,8 +10,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: QueryResolvers["user"] = async (_parent, args, context) => {
-  const authed = authAdmin(context);
+export const resolver: QueryResolvers["user"] = async (_parent, args, ctx) => {
+  const authed = authAdmin(ctx);
   if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
@@ -21,7 +21,7 @@ export const resolver: QueryResolvers["user"] = async (_parent, args, context) =
     throw badUserInputErr(id.message, id);
   }
 
-  const user = await context.queries.user.findById(id);
+  const user = await ctx.queries.user.findById(id);
 
   return user ?? null;
 };

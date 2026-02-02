@@ -1,19 +1,19 @@
 import type { AuthContext } from "./types.ts";
 import { authErr } from "./util.ts";
 
-export const authAdmin = (context: AuthContext) => {
-  if (context.user?.role !== "admin") {
+export const authAdmin = (ctx: AuthContext) => {
+  if (ctx.user?.role !== "admin") {
     return authErr();
   }
 
-  return context.user;
+  return ctx.user;
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../_testData/context.ts");
+  const { ctx } = await import("../_testData/context.ts");
 
-  const allows = [context.user.admin];
-  const denies = [context.user.alice, context.user.guest];
+  const allows = [ctx.user.admin];
+  const denies = [ctx.user.alice, ctx.user.guest];
 
   test.each(allows)("allows %#", (user) => {
     const authed = authAdmin({ user });

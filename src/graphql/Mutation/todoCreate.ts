@@ -37,8 +37,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, context) => {
-  const authed = authorize(context);
+export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, ctx) => {
+  const authed = authorize(ctx);
   if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
@@ -48,11 +48,11 @@ export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, c
     return invalidInputErrors(parsed);
   }
 
-  return await logic(authed, parsed, context);
+  return await logic(authed, parsed, ctx);
 };
 
-const authorize = (context: AuthContext) => {
-  return authAuthenticated(context);
+const authorize = (ctx: AuthContext) => {
+  return authAuthenticated(ctx);
 };
 
 const parseArgs = (args: MutationTodoCreateArgs) => {
@@ -87,9 +87,9 @@ const parseArgs = (args: MutationTodoCreateArgs) => {
 const logic = async (
   authed: Exclude<ReturnType<typeof authorize>, Error>,
   parsed: Exclude<ReturnType<typeof parseArgs>, Error[]>,
-  context: Context,
+  ctx: Context,
 ): Promise<ResolversTypes["TodoCreateResult"]> => {
-  const count = await context.queries.todo.count(authed.id);
+  const count = await ctx.queries.todo.count(authed.id);
   if (count >= TODOS_MAX) {
     return {
       __typename: "ResourceLimitExceededError",
@@ -97,18 +97,18 @@ const logic = async (
     };
   }
 
-  const user = await context.repos.user.findByDbId(authed.id);
+  const user = await ctx.repos.user.findByDbId(authed.id);
   if (!user) {
     throw internalServerError();
   }
 
   const todo = Todo.create({ ...parsed, userId: user.id });
-  const success = await context.repos.todo.save(todo);
+  const success = await ctx.repos.todo.save(todo);
   if (!success) {
     throw internalServerError();
   }
 
-  const created = await context.queries.todo.find(todo.id);
+  const created = await ctx.queries.todo.find(todo.id);
   if (!created) {
     throw internalServerError();
   }
@@ -124,11 +124,11 @@ const logic = async (
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../_testData/context.ts");
+  const { ctx } = await import("../_testData/context.ts");
 
   const valid = {
     args: { title: "title", description: "description" },
-    user: context.user.admin,
+    user: ctx.user.admin,
   };
 
   const invalid = {

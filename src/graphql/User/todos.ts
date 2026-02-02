@@ -58,13 +58,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: NonNullable<UserResolvers["todos"]> = async (
-  parent,
-  args,
-  context,
-  info,
-) => {
-  const authed = authAdminOrUserOwner(context, parent);
+export const resolver: NonNullable<UserResolvers["todos"]> = async (parent, args, ctx, info) => {
+  const authed = authAdminOrUserOwner(ctx, parent);
   if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
@@ -78,7 +73,7 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (
 
   return await getCursorConnection(
     ({ backward, ...exceptBackward }) =>
-      context.queries.todo.loadTheirPage({
+      ctx.queries.todo.loadTheirPage({
         userId: parent.id,
         sortKey,
         reverse: reverse !== backward,
@@ -86,7 +81,7 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (
         ...filter,
       }),
     () =>
-      context.queries.todo.loadTheirCount({
+      ctx.queries.todo.loadTheirCount({
         userId: parent.id,
         ...filter,
       }),

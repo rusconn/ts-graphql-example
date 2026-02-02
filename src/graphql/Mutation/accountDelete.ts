@@ -19,18 +19,18 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["accountDelete"] = async (_parent, _args, context) => {
-  const authed = authAuthenticated(context);
+export const resolver: MutationResolvers["accountDelete"] = async (_parent, _args, ctx) => {
+  const authed = authAuthenticated(ctx);
   if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
 
-  const user = await context.repos.user.findByDbId(authed.id);
+  const user = await ctx.repos.user.findByDbId(authed.id);
   if (!user) {
     throw internalServerError();
   }
 
-  const success = await context.repos.user.delete(user.id);
+  const success = await ctx.repos.user.delete(user.id);
   if (!success) {
     throw internalServerError();
   }

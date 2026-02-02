@@ -14,8 +14,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: QueryResolvers["node"] = async (_parent, args, context) => {
-  const authed = authAuthenticated(context);
+export const resolver: QueryResolvers["node"] = async (_parent, args, ctx) => {
+  const authed = authAuthenticated(ctx);
   if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
@@ -38,7 +38,7 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
   }
 
   // @ts-expect-error: 分岐を書くのが面倒だったので…
-  const node = await getNode(context, internalId);
+  const node = await getNode(ctx, internalId);
 
   return node == null ? null : { type, ...node };
 };

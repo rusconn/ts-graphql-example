@@ -9,8 +9,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: NonNullable<UserResolvers["id"]> = (parent, _args, context) => {
-  const authed = authAdminOrUserOwner(context, parent);
+export const resolver: NonNullable<UserResolvers["id"]> = (parent, _args, ctx) => {
+  const authed = authAdminOrUserOwner(ctx, parent);
   if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }

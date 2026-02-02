@@ -39,7 +39,7 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["login"] = async (_parent, args, context) => {
+export const resolver: MutationResolvers["login"] = async (_parent, args, ctx) => {
   const parsed = parseArgs(args);
   if (Array.isArray(parsed)) {
     return invalidInputErrors(parsed);
@@ -47,7 +47,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   const { email, password } = parsed;
 
-  const found = await context.repos.user.findByEmail(email);
+  const found = await ctx.repos.user.findByEmail(email);
   if (!found) {
     return {
       __typename: "LoginFailedError",
@@ -66,18 +66,18 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
   const { rawToken, userToken } = await UserToken.create(found.id);
 
   {
-    const trx = await context.db.startTransaction().execute();
-    const success = await context.repos.userToken.save(userToken, trx);
+    const trx = await ctx.db.startTransaction().execute();
+    const success = await ctx.repos.userToken.save(userToken, trx);
     if (!success) {
       await trx.rollback().execute();
       throw internalServerError();
     }
-    await context.repos.userToken.retainLatest(found.id, TokenRetensionPolicy.limit, trx);
+    await ctx.repos.userToken.retainLatest(found.id, TokenRetensionPolicy.limit, trx);
     await trx.commit().execute();
   }
 
   const token = await signedJwt(found);
-  await setRefreshTokenCookie(context.request, rawToken);
+  await setRefreshTokenCookie(ctx.request, rawToken);
 
   return {
     __typename: "LoginSuccess",

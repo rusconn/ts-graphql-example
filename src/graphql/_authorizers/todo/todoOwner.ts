@@ -2,28 +2,28 @@ import type { AuthContext } from "../types.ts";
 import { authErr } from "../util.ts";
 import type { ParentTodo } from "./types.ts";
 
-export const authTodoOwner = (context: AuthContext, todo: ParentTodo) => {
-  if (context.user?.id !== todo.userId) {
+export const authTodoOwner = (ctx: AuthContext, todo: ParentTodo) => {
+  if (ctx.user?.id !== todo.userId) {
     return authErr();
   }
 
-  return context.user;
+  return ctx.user;
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../../_testData/context.ts");
+  const { ctx } = await import("../../_testData/context.ts");
   const { domain } = await import("../../_testData/domain.ts");
 
   const allows = [
-    [context.user.admin, domain.todos.admin1],
-    [context.user.alice, domain.todos.alice1],
+    [ctx.user.admin, domain.todos.admin1],
+    [ctx.user.alice, domain.todos.alice1],
   ] as const;
 
   const denies = [
-    [context.user.admin, domain.todos.alice1],
-    [context.user.alice, domain.todos.admin1],
-    [context.user.guest, domain.todos.admin1],
-    [context.user.guest, domain.todos.alice1],
+    [ctx.user.admin, domain.todos.alice1],
+    [ctx.user.alice, domain.todos.admin1],
+    [ctx.user.guest, domain.todos.admin1],
+    [ctx.user.guest, domain.todos.alice1],
   ] as const;
 
   test.each(allows)("allows %#", (contextUser, todo) => {
