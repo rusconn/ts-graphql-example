@@ -2,11 +2,11 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import type { DB, User } from "../../src/db/types.ts";
+import type { DB, User, UserToken } from "../../src/db/types.ts";
 import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
 
 export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
-  const handUserTokens = [
+  const handUserTokens: UserToken[] = [
     {
       /** raw: ddfe9c8c-6a73-435d-aa91-7ead331aab0c */
       refreshToken: "$2b$10$nOpVuJk/aqONHB/jIDq9BOIu5LcRAjr0/rGsYNui3Ep8h.2X3glee",
@@ -44,7 +44,7 @@ const fakeData = (userIds: User["id"][]) => {
   return userIds.map(fakeDataOne);
 };
 
-const fakeDataOne = (userId: User["id"]) => {
+const fakeDataOne = (userId: User["id"]): UserToken => {
   return {
     refreshToken: `dummy-${userId}`,
     userId,

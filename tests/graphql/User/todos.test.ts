@@ -191,7 +191,9 @@ describe("pagination", () => {
           },
         },
         (pageInfo: PageInfo) => ({
-          ...(pageInfo.endCursor != null && { after: pageInfo.endCursor }),
+          ...(pageInfo.endCursor != null && {
+            after: pageInfo.endCursor,
+          }),
         }),
         {
           length: 1,
@@ -217,7 +219,9 @@ describe("pagination", () => {
           },
         },
         (pageInfo: PageInfo) => ({
-          ...(pageInfo.endCursor != null && { after: pageInfo.endCursor }),
+          ...(pageInfo.endCursor != null && {
+            after: pageInfo.endCursor,
+          }),
         }),
         {
           length: 1,
@@ -243,7 +247,9 @@ describe("pagination", () => {
           },
         },
         (pageInfo: PageInfo) => ({
-          ...(pageInfo.startCursor != null && { before: pageInfo.startCursor }),
+          ...(pageInfo.startCursor != null && {
+            before: pageInfo.startCursor,
+          }),
         }),
         {
           length: 1,
@@ -269,7 +275,9 @@ describe("pagination", () => {
           },
         },
         (pageInfo: PageInfo) => ({
-          ...(pageInfo.startCursor != null && { before: pageInfo.startCursor }),
+          ...(pageInfo.startCursor != null && {
+            before: pageInfo.startCursor,
+          }),
         }),
         {
           length: 1,

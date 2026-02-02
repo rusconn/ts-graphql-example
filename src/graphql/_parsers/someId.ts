@@ -8,13 +8,11 @@ export const parseSomeId = <T extends NodeType, U extends string>(
 ) => {
   return (id: Scalars["ID"]["input"]) => {
     const parsed = parseId(id);
-
     if (parsed instanceof Error) {
       return parsed;
     }
 
     const { type, internalId } = parsed;
-
     if (type !== nodeType || !isInternalId(internalId)) {
       return new Error(`Invalid global id '${id}'`);
     }

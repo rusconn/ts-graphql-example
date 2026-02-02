@@ -12,13 +12,11 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: NonNullable<UserResolvers["todo"]> = async (parent, args, context) => {
   const authed = authAdminOrUserOwner(context, parent);
-
   if (authed instanceof Error) {
     throw forbiddenErr(authed);
   }
 
   const id = parseTodoId(args.id);
-
   if (id instanceof Error) {
     throw badUserInputErr(id.message, id);
   }

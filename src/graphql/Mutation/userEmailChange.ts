@@ -24,13 +24,11 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: MutationResolvers["userEmailChange"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
-
   if (authed instanceof Error) {
     throw forbiddenErr(authed);
   }
 
   const parsed = parseArgs(args);
-
   if (Array.isArray(parsed)) {
     return invalidInputErrors(parsed);
   }
@@ -47,7 +45,6 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
   };
 
   const result = await context.repos.user.save(changedUser);
-
   switch (result.type) {
     case "Success": {
       const changed = await context.queries.user.findById(user.id);

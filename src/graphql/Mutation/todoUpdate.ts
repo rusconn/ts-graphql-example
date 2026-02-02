@@ -40,25 +40,21 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
-
   if (authed instanceof Error) {
     throw forbiddenErr(authed);
   }
 
   const id = parseTodoId(args.id);
-
   if (id instanceof Error) {
     throw badUserInputErr(id.message, id);
   }
 
   const parsed = parseArgs(args);
-
   if (Array.isArray(parsed)) {
     return invalidInputErrors(parsed);
   }
 
   const todo = await context.repos.todo.find(id);
-
   if (!todo || todo.userId !== authed.id) {
     return {
       __typename: "ResourceNotFoundError",
@@ -73,23 +69,19 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
   };
 
   const success = await context.repos.todo.save(updatedTodo);
-
-  if (success) {
-    const updated = await context.queries.todo.find(todo.id);
-    if (!updated) {
-      throw internalServerError();
-    }
-
-    return {
-      __typename: "TodoUpdateSuccess",
-      todo: updated,
-    };
-  } else {
-    return {
-      __typename: "ResourceNotFoundError",
-      message: "The specified todo does not exist.",
-    };
+  if (!success) {
+    throw internalServerError();
   }
+
+  const found = await context.queries.todo.find(todo.id);
+  if (!found) {
+    throw internalServerError();
+  }
+
+  return {
+    __typename: "TodoUpdateSuccess",
+    todo: found,
+  };
 };
 
 const parseArgs = (args: Omit<MutationTodoUpdateArgs, "id">) => {
@@ -126,9 +118,15 @@ const parseArgs = (args: Omit<MutationTodoUpdateArgs, "id">) => {
     return errors;
   } else {
     return {
-      ...(title != null && { title }),
-      ...(description != null && { description }),
-      ...(status != null && { status }),
+      ...(title != null && {
+        title,
+      }),
+      ...(description != null && {
+        description,
+      }),
+      ...(status != null && {
+        status,
+      }),
     };
   }
 };

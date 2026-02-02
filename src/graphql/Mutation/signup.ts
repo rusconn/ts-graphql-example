@@ -44,13 +44,11 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: MutationResolvers["signup"] = async (_parent, args, context) => {
   const authed = authGuest(context);
-
   if (authed instanceof Error) {
     throw forbiddenErr(authed);
   }
 
   const parsed = parseArgs(args);
-
   if (Array.isArray(parsed)) {
     return invalidInputErrors(parsed);
   }
@@ -60,7 +58,6 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 
   {
     const trx = await context.db.startTransaction().execute();
-
     const result = await context.repos.user.save(user, trx);
     switch (result.type) {
       case "Success":
@@ -78,17 +75,17 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
         throw new Error(result satisfies never);
     }
 
-    const saved = await context.repos.userToken.save(userToken, trx);
-    if (!saved) {
+    const success = await context.repos.userToken.save(userToken, trx);
+    if (!success) {
       await trx.rollback().execute();
       throw internalServerError(result.e);
     }
-
     await trx.commit().execute();
   }
 
   const token = await signedJwt(user);
   await setRefreshTokenCookie(context.request, rawToken);
+
   return {
     __typename: "SignupSuccess",
     token,

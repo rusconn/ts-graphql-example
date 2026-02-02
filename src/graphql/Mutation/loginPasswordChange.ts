@@ -51,13 +51,11 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
   context,
 ) => {
   const authed = authAuthenticated(context);
-
   if (authed instanceof Error) {
     throw forbiddenErr(authed);
   }
 
   const parsed = parseArgs(args);
-
   if (Array.isArray(parsed)) {
     return invalidInputErrors(parsed);
   }
@@ -68,7 +66,6 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
   }
 
   const { oldPassword, newPassword } = parsed;
-
   if (oldPassword === newPassword) {
     return {
       __typename: "SamePasswordsError",
@@ -77,7 +74,6 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
   }
 
   const match = await UserPassword.match(oldPassword, user.password);
-
   if (!match) {
     return {
       __typename: "IncorrectOldPasswordError",
@@ -93,7 +89,6 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
   };
 
   const result = await context.repos.user.save(updatedUser);
-
   switch (result.type) {
     case "Success":
       return {

@@ -5,7 +5,9 @@ import * as Uuid from "./vn.ts";
 
 export type Uuidv7 = Tagged<Uuid.Uuid, "Uuidv7">;
 
-export const gen = () => v7() as Uuidv7;
+export const gen = () => {
+  return v7() as Uuidv7;
+};
 
 export const is = (input: unknown): input is Uuidv7 => {
   return Uuid.is(input) && input.charAt(14) === "7";

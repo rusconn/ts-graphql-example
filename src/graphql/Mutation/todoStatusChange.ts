@@ -21,19 +21,16 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
-
   if (authed instanceof Error) {
     throw forbiddenErr(authed);
   }
 
   const id = parseTodoId(args.id);
-
   if (id instanceof Error) {
     throw badUserInputErr(id.message, id);
   }
 
   const todo = await context.repos.todo.find(id);
-
   if (!todo || todo.userId !== authed.id) {
     return {
       __typename: "ResourceNotFoundError",
@@ -47,19 +44,18 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
     updatedAt: new Date(),
   };
 
-  const saved = await context.repos.todo.save(changedTodo);
-
-  if (saved) {
-    const todo = await context.queries.todo.find(id);
-    if (!todo) {
-      throw internalServerError();
-    }
-
-    return {
-      __typename: "TodoStatusChangeSuccess",
-      todo,
-    };
-  } else {
+  const success = await context.repos.todo.save(changedTodo);
+  if (!success) {
     throw internalServerError();
   }
+
+  const found = await context.queries.todo.find(id);
+  if (!found) {
+    throw internalServerError();
+  }
+
+  return {
+    __typename: "TodoStatusChangeSuccess",
+    todo: found,
+  };
 };

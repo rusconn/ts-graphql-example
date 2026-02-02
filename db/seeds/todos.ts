@@ -2,14 +2,14 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import { type DB, TodoStatus, type User } from "../../src/db/types.ts";
+import { type DB, type Todo, TodoStatus, type User } from "../../src/db/types.ts";
 import { TodoId } from "../../src/domain/todo.ts";
 import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
 
 import { randInt } from "./_utils.ts";
 
 export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
-  const handTodos = [
+  const handTodos: Todo[] = [
     {
       id: "0193cb3e-5fdd-7264-9f70-1df63d84b251" as Uuidv7,
       title: "hoge todo 1",
@@ -54,7 +54,7 @@ const fakeData = (userIds: User["id"][]) => {
   return userIds.flatMap(fakeDataOne);
 };
 
-const fakeDataOne = (userId: User["id"]) => {
+const fakeDataOne = (userId: User["id"]): Todo[] => {
   const numTodos = randInt(0, 10);
 
   return [...Array(numTodos)].map((_) => {

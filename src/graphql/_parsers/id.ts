@@ -3,7 +3,6 @@ import { type NodeType, nodeTypes, typeIdSep } from "../_adapters/id.ts";
 
 export const parseId = (id: Scalars["ID"]["input"]) => {
   const [type, internalId, ...rest] = id.split(typeIdSep);
-
   if (!isValidNodeType(type) || internalId == null || rest.length !== 0) {
     return new Error(`Invalid global id '${id}'`);
   }

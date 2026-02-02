@@ -18,7 +18,7 @@ export function fail(): never {
   throw new Error();
 }
 
-type UserFull = User & //
+type UserFull = User &
   Pick<UserCredential, "password"> &
   Pick<UserToken, "refreshToken" | "lastUsedAt">;
 
@@ -37,7 +37,7 @@ export const seed = {
             .values({ userId: rest.id, password })
             .executeTakeFirstOrThrow(),
           trx
-            .insertInto("userTokens") //
+            .insertInto("userTokens")
             .values({ userId: rest.id, refreshToken, lastUsedAt })
             .executeTakeFirstOrThrow(),
         ]);

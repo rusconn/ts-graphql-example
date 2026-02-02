@@ -16,7 +16,9 @@ export const executeSingleResultOperation =
   async ({ token, refreshToken, variables }: ExecuteOperationParams<TVariables>) => {
     const result = await executor<TData, TVariables>({
       document: parse(query),
-      ...(variables != null && { variables }),
+      ...(variables != null && {
+        variables,
+      }),
       extensions: {
         headers: {
           ...(token != null && {

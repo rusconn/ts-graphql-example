@@ -15,8 +15,12 @@ export const complexity: Plugin<PluginContext> = {
 
     const rule = createComplexityRule({
       maximumComplexity: maxComplexity,
-      ...(variables && { variables }),
-      ...(operationName && { operationName }),
+      ...(variables && {
+        variables,
+      }),
+      ...(operationName && {
+        operationName,
+      }),
       createError: queryTooComplexErr,
       estimators: [directiveEstimator(), simpleEstimator()],
       context,

@@ -1,11 +1,11 @@
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import type { DB, User } from "../../src/db/types.ts";
+import type { DB, User, UserCredential } from "../../src/db/types.ts";
 import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
 
 export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
-  const handUserCredentials = [
+  const handUserCredentials: UserCredential[] = [
     {
       userId: "0193cb3e-4379-750f-880f-77afae342259" as Uuidv7,
       /** raw: adminadmin */
@@ -38,7 +38,7 @@ const fakeData = (userIds: User["id"][]) => {
   return userIds.map(fakeDataOne);
 };
 
-const fakeDataOne = (userId: User["id"]) => {
+const fakeDataOne = (userId: User["id"]): UserCredential => {
   return {
     userId,
     password: "dummy",

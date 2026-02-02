@@ -16,13 +16,11 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: QueryResolvers["node"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
-
   if (authed instanceof Error) {
     throw forbiddenErr(authed);
   }
 
   const id = parseId(args.id);
-
   if (id instanceof Error) {
     throw badUserInputErr(id.message, id);
   }
@@ -35,7 +33,6 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
   } as const;
 
   const [isInternalId, getNode] = pairs[type];
-
   if (!isInternalId(internalId)) {
     throw badUserInputErr(`Invalid global id '${args.id}'`);
   }

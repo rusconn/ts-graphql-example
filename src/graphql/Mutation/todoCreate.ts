@@ -39,13 +39,11 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, context) => {
   const authed = authorize(context);
-
   if (authed instanceof Error) {
     throw forbiddenErr(authed);
   }
 
   const parsed = parseArgs(args);
-
   if (Array.isArray(parsed)) {
     return invalidInputErrors(parsed);
   }
@@ -92,7 +90,6 @@ const logic = async (
   context: Context,
 ): Promise<ResolversTypes["TodoCreateResult"]> => {
   const count = await context.queries.todo.count(authed.id);
-
   if (count >= TODOS_MAX) {
     return {
       __typename: "ResourceLimitExceededError",
@@ -106,9 +103,8 @@ const logic = async (
   }
 
   const todo = Todo.create({ ...parsed, userId: user.id });
-  const saved = await context.repos.todo.save(todo);
-
-  if (!saved) {
+  const success = await context.repos.todo.save(todo);
+  if (!success) {
     throw internalServerError();
   }
 

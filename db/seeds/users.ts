@@ -2,12 +2,12 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import { type DB, UserRole } from "../../src/db/types.ts";
+import { type DB, type User, UserRole } from "../../src/db/types.ts";
 import { UserId } from "../../src/domain/user.ts";
 import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
 
 export const seed = async (trx: Transaction<DB>) => {
-  const handUsers = [
+  const handUsers: User[] = [
     {
       id: "0193cb3e-4379-750f-880f-77afae342259" as Uuidv7,
       name: "admin",
@@ -51,7 +51,7 @@ const fakeData = (numFakes: number) => {
   return [...Array(numFakes)].map((_, i) => fakeDataOne(i));
 };
 
-const fakeDataOne = (nth: number) => {
+const fakeDataOne = (nth: number): User => {
   const id = UserId.gen();
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();

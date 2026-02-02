@@ -24,13 +24,11 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
-
   if (authed instanceof Error) {
     throw forbiddenErr(authed);
   }
 
   const parsed = parseArgs(args);
-
   if (Array.isArray(parsed)) {
     return invalidInputErrors(parsed);
   }
@@ -47,7 +45,6 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
   };
 
   const result = await context.repos.user.save(updatedUser);
-
   switch (result.type) {
     case "Success": {
       const updated = await context.queries.user.findById(user.id);
@@ -87,7 +84,9 @@ const parseArgs = (args: MutationAccountUpdateArgs) => {
     return errors;
   } else {
     return {
-      ...(name != null && { name }),
+      ...(name != null && {
+        name,
+      }),
     };
   }
 };

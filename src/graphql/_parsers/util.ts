@@ -35,7 +35,6 @@ export const parseArgNullability = <
   { optional, nullable }: { optional: Optional; nullable: Nullable },
 ) => {
   const arg = args[argName];
-
   if (!optional && arg === undefined) {
     return new ParseErr(argName, `${argName} is required.`);
   }
@@ -61,7 +60,6 @@ export const parseArgNumChars = <Arg extends string>(
   } = {},
 ) => {
   const { minChars, maxChars } = options;
-
   if (minChars != null && numChars(arg) < minChars) {
     return new ParseErr(
       argName,
@@ -78,15 +76,14 @@ export const parseArgNumChars = <Arg extends string>(
   return arg;
 };
 
-export const parseStringArg =
-  <Arg extends string, Output extends Arg = Arg>(
-    options: {
-      minChars?: number;
-      maxChars?: number;
-      additionalParse?: (arg: Arg, argName: string) => Output | ParseErr;
-    } = {},
-  ) =>
-  <
+export const parseStringArg = <Arg extends string, Output extends Arg = Arg>(
+  options: {
+    minChars?: number;
+    maxChars?: number;
+    additionalParse?: (arg: Arg, argName: string) => Output | ParseErr;
+  } = {},
+) => {
+  return <
     Args extends Partial<Record<ArgName, Arg | null>>,
     ArgName extends keyof Args & string,
     Optional extends boolean,
@@ -130,3 +127,4 @@ export const parseStringArg =
 
     return additionalParse(string2, argName);
   };
+};

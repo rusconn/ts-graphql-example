@@ -11,13 +11,11 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: NonNullable<TodoResolvers["user"]> = async (parent, _args, context) => {
   const authed = authAdminOrTodoOwner(context, parent);
-
   if (authed instanceof Error) {
     throw forbiddenErr(authed);
   }
 
   const user = await context.queries.user.load(parent.userId);
-
   if (!user) {
     throw internalServerError();
   }

@@ -12,7 +12,6 @@ type Config<Cursor> = {
 
 export const parseConnectionArgs = <Cursor>(args: ConnectionArguments, config: Config<Cursor>) => {
   const result = parseConnectionArgsCommon(args);
-
   if (result instanceof Error) {
     return result;
   }
@@ -38,7 +37,12 @@ const parseConnectionArgsCommon = (args: ConnectionArguments) => {
       return new Error("first cannot be negative");
     }
 
-    return { first, ...(after != null && { after }) };
+    return {
+      first,
+      ...(after != null && {
+        after,
+      }),
+    };
   }
   if (last != null) {
     if (after != null) {
@@ -48,7 +52,12 @@ const parseConnectionArgsCommon = (args: ConnectionArguments) => {
       return new Error("last cannot be negative");
     }
 
-    return { last, ...(before != null && { before }) };
+    return {
+      last,
+      ...(before != null && {
+        before,
+      }),
+    };
   }
 
   throw new Error("unreachable");
@@ -62,32 +71,38 @@ const parseConnectionArgsAdditional = <Cursor>(
 
   if (isForwardPagination(args)) {
     const { first, after } = args;
-
     if (first > firstMax) {
       return new Error(`first cannot exceed ${firstMax}`);
     }
 
     const parsedAfter = after != null ? parseCursor(after) : after;
-
     if (parsedAfter instanceof Error) {
       return parsedAfter;
     }
 
-    return { first, ...(after != null && { after: parsedAfter }) };
+    return {
+      first,
+      ...(after != null && {
+        after: parsedAfter,
+      }),
+    };
   } else {
     const { last, before } = args;
-
     if (last > lastMax) {
       return new Error(`last cannot exceed ${lastMax}`);
     }
 
     const parsedBefore = before != null ? parseCursor(before) : before;
-
     if (parsedBefore instanceof Error) {
       return parsedBefore;
     }
 
-    return { last, ...(before != null && { before: parsedBefore }) };
+    return {
+      last,
+      ...(before != null && {
+        before: parsedBefore,
+      }),
+    };
   }
 };
 

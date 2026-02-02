@@ -41,7 +41,6 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: MutationResolvers["login"] = async (_parent, args, context) => {
   const parsed = parseArgs(args);
-
   if (Array.isArray(parsed)) {
     return invalidInputErrors(parsed);
   }
@@ -49,7 +48,6 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
   const { email, password } = parsed;
 
   const found = await context.repos.user.findByEmail(email);
-
   if (!found) {
     return {
       __typename: "LoginFailedError",
@@ -58,7 +56,6 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
   }
 
   const match = await UserPassword.match(password, found.password);
-
   if (!match) {
     return {
       __typename: "LoginFailedError",
@@ -70,20 +67,12 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   {
     const trx = await context.db.startTransaction().execute();
-
-    const saved = await context.repos.userToken.save(userToken, trx);
-
-    if (!saved) {
+    const success = await context.repos.userToken.save(userToken, trx);
+    if (!success) {
       await trx.rollback().execute();
       throw internalServerError();
     }
-
-    await context.repos.userToken.retainLatest(
-      found.id, //
-      TokenRetensionPolicy.limit,
-      trx,
-    );
-
+    await context.repos.userToken.retainLatest(found.id, TokenRetensionPolicy.limit, trx);
     await trx.commit().execute();
   }
 

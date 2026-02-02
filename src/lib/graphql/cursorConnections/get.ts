@@ -35,7 +35,9 @@ export async function getCursorConnection<
     [items, totalCount] = await Promise.all([
       getPage({
         backward: false,
-        ...(args.after != null && { cursor: args.after }),
+        ...(args.after != null && {
+          cursor: args.after,
+        }),
         limit: args.first + 1,
       }),
       hasRequestedField("totalCount") ? count() : -1,
@@ -51,7 +53,9 @@ export async function getCursorConnection<
     [items, totalCount] = await Promise.all([
       getPage({
         backward: true,
-        ...(args.before != null && { cursor: args.before }),
+        ...(args.before != null && {
+          cursor: args.before,
+        }),
         limit: args.last + 1,
       }),
       hasRequestedField("totalCount") ? count() : -1,
