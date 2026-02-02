@@ -1,3 +1,3 @@
-import { PageInfoTypeDefinition } from "../lib/graphql/cursorConnections/sdl.ts";
+import { PageInfoTypeDefinition } from "../lib/graphql/cursorConnections/mod.ts";
 
 export const typeDef = PageInfoTypeDefinition;

@@ -1,8 +1,10 @@
-import type {
-  ConnectionArguments,
-  ConnectionArgumentsUnion,
-} from "../../lib/graphql/cursorConnections/interfaces.ts";
-import { isForwardPagination } from "../../lib/graphql/cursorConnections/util.ts";
+import {
+  type ConnectionArguments,
+  type ConnectionArgumentsUnion,
+  isForwardPagination,
+  parseArgs,
+  parseErrorMessage,
+} from "../../lib/graphql/cursorConnections/mod.ts";
 
 type Config<Cursor> = {
   firstMax: number;
@@ -11,62 +13,15 @@ type Config<Cursor> = {
 };
 
 export const parseConnectionArgs = <Cursor>(args: ConnectionArguments, config: Config<Cursor>) => {
-  const result = parseConnectionArgsCommon(args);
-  if (Error.isError(result)) {
-    return result;
+  const result = parseArgs(args);
+  if (!result.ok) {
+    return new Error(parseErrorMessage[result.err]);
   }
 
-  return parseConnectionArgsAdditional(result, config);
+  return parseArgsAdditional(result.val, config);
 };
 
-const parseConnectionArgsCommon = (args: ConnectionArguments) => {
-  const { first, after, last, before } = args;
-
-  if (first == null && last == null) {
-    return new Error("you must provide one of first or last");
-  }
-  if (first != null && last != null) {
-    return new Error("providing both first and last is not supported");
-  }
-
-  if (first != null) {
-    if (before != null) {
-      return new Error("using first with before is not supported");
-    }
-    if (first < 0) {
-      return new Error("first cannot be negative");
-    }
-
-    return {
-      first,
-      ...(after != null && {
-        after,
-      }),
-    };
-  }
-  if (last != null) {
-    if (after != null) {
-      return new Error("using last with after is not supported");
-    }
-    if (last < 0) {
-      return new Error("last cannot be negative");
-    }
-
-    return {
-      last,
-      ...(before != null && {
-        before,
-      }),
-    };
-  }
-
-  throw new Error("unreachable");
-};
-
-const parseConnectionArgsAdditional = <Cursor>(
-  args: ConnectionArgumentsUnion,
-  config: Config<Cursor>,
-) => {
+const parseArgsAdditional = <Cursor>(args: ConnectionArgumentsUnion, config: Config<Cursor>) => {
   const { firstMax, lastMax, parseCursor } = config;
 
   if (isForwardPagination(args)) {
@@ -107,73 +62,34 @@ const parseConnectionArgsAdditional = <Cursor>(
 };
 
 if (import.meta.vitest) {
-  describe("parseConnectionArgsCommon", () => {
-    const valids = [
-      { first: 0 },
-      { first: 10 },
-      { first: 10, after: "" },
-      { first: 10, after: "", last: null, before: null },
-      { last: 0 },
-      { last: 10 },
-      { last: 10, before: "" },
-      { last: 10, before: "" },
-      { last: 10, before: "", first: null, after: null },
-    ];
+  const firstMax = 30;
+  const lastMax = 30;
 
-    const invalids = [
-      {},
-      { before: "" },
-      { after: "" },
-      { first: null },
-      { first: -1 },
-      { first: 10, before: "" },
-      { first: 10, after: "", before: "" },
-      { last: null },
-      { last: -1 },
-      { last: 10, after: "" },
-      { last: 10, before: "", after: "" },
-      { first: null, last: null },
-      { first: 10, last: 10 },
-    ];
+  const valids = [
+    { first: firstMax }, //
+    { last: lastMax },
+  ];
 
-    test.each(valids)("valids %#", async (args) => {
-      const result = parseConnectionArgsCommon(args);
-      expect(Error.isError(result)).toBe(false);
+  const invalids = [
+    { first: firstMax + 1 }, //
+    { last: lastMax + 1 },
+  ];
+
+  test.each(valids)("valids %#", async (args) => {
+    const result = parseArgsAdditional(args, {
+      firstMax,
+      lastMax,
+      parseCursor: (cursor) => cursor,
     });
-
-    test.each(invalids)("invalids %#", async (args) => {
-      const result = parseConnectionArgsCommon(args);
-      expect(Error.isError(result)).toBe(true);
-    });
+    expect(Error.isError(result)).toBe(false);
   });
 
-  describe("parseConnectionArgsAdditional", () => {
-    const valids = [
-      { first: 30 }, //
-      { last: 30 },
-    ];
-
-    const invalids = [
-      { first: 31 }, //
-      { last: 31 },
-    ];
-
-    test.each(valids)("valids %#", async (args) => {
-      const result = parseConnectionArgsAdditional(args, {
-        firstMax: 30,
-        lastMax: 30,
-        parseCursor: (cursor) => cursor,
-      });
-      expect(Error.isError(result)).toBe(false);
+  test.each(invalids)("invalids %#", async (args) => {
+    const result = parseArgsAdditional(args, {
+      firstMax,
+      lastMax,
+      parseCursor: (cursor) => cursor,
     });
-
-    test.each(invalids)("invalids %#", async (args) => {
-      const result = parseConnectionArgsAdditional(args, {
-        firstMax: 30,
-        lastMax: 30,
-        parseCursor: (cursor) => cursor,
-      });
-      expect(Error.isError(result)).toBe(true);
-    });
+    expect(Error.isError(result)).toBe(true);
   });
 }

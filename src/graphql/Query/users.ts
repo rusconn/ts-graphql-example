@@ -1,4 +1,4 @@
-import { getCursorConnection } from "../../lib/graphql/cursorConnections/get.ts";
+import { getCursorConnection } from "../../lib/graphql/cursorConnections/mod.ts";
 import type { QueryResolvers, QueryUsersArgs } from "../../schema.ts";
 import { UserSortKeys } from "../../schema.ts";
 import { authAdmin } from "../_authorizers/admin.ts";

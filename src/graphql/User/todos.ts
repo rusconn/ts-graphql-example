@@ -1,4 +1,4 @@
-import { getCursorConnection } from "../../lib/graphql/cursorConnections/get.ts";
+import { getCursorConnection } from "../../lib/graphql/cursorConnections/mod.ts";
 import { mappers } from "../../mappers.ts";
 import type { UserResolvers, UserTodosArgs } from "../../schema.ts";
 import { TodoSortKeys } from "../../schema.ts";
