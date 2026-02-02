@@ -134,10 +134,8 @@ type IncorrectOldPasswordError implements Error {
   message: String!
 }
 
-union LogoutResult = LogoutSuccess
-
-type LogoutSuccess {
-  id: ID!
+type LogoutResult {
+  success: Boolean!
 }
 
 union SignupResult = SignupSuccess | InvalidInputErrors | EmailAlreadyTakenError

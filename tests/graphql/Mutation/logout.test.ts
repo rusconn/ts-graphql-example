@@ -12,9 +12,7 @@ const executeMutation = executeSingleResultOperation<
   mutation Logout {
     logout {
       __typename
-      ... on LogoutSuccess {
-        id
-      }
+      success
     }
   }
 `);
@@ -44,7 +42,7 @@ test("logout deletes specified token", async () => {
     refreshToken: "33e9adb5-d716-4388-86a1-6885e6499eec",
   });
 
-  expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
+  expect(data?.logout?.success).toBe(true);
 
   const after = await client
     .selectFrom("userTokens")
@@ -68,7 +66,7 @@ test("allows invalid token", async () => {
     refreshToken: "33e9adb5-d716-4388-86a1-6885e6499eec".slice(0, -1),
   });
 
-  expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
+  expect(data?.logout?.success).toBe(true);
 
   const after = await client
     .selectFrom("userTokens")
@@ -91,7 +89,7 @@ test("logout does not changes other attrs", async () => {
     token: tokens.admin,
   });
 
-  expect(data?.logout?.__typename === "LogoutSuccess").toBe(true);
+  expect(data?.logout?.success).toBe(true);
 
   const after = await client
     .selectFrom("users")

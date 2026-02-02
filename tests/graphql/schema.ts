@@ -89,7 +89,7 @@ export type LoginPasswordChangeMutation = { loginPasswordChange?:
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type LogoutMutation = { logout?: { __typename: 'LogoutSuccess', id: string } | null };
+export type LogoutMutation = { logout?: { __typename: 'LogoutResult', success: boolean } | null };
 
 export type SignupMutationVariables = Exact<{
   name: Scalars['String']['input'];

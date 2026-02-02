@@ -101,11 +101,9 @@ export type LoginSuccess = {
   token: Scalars['String']['output'];
 };
 
-export type LogoutResult = LogoutSuccess;
-
-export type LogoutSuccess = {
-  __typename?: 'LogoutSuccess';
-  id: Scalars['ID']['output'];
+export type LogoutResult = {
+  __typename?: 'LogoutResult';
+  success: Scalars['Boolean']['output'];
 };
 
 export type Mutation = {
@@ -457,7 +455,6 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = Reso
     | ( LoginFailedError & { __typename: 'LoginFailedError' } )
     | ( LoginSuccess & { __typename: 'LoginSuccess' } )
   ;
-  LogoutResult: ( LogoutSuccess & { __typename: 'LogoutSuccess' } );
   SignupResult:
     | ( EmailAlreadyTakenError & { __typename: 'EmailAlreadyTakenError' } )
     | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } )
@@ -533,8 +530,7 @@ export type ResolversTypes = ResolversObject<{
   LoginPasswordChangeSuccess: ResolverTypeWrapper<LoginPasswordChangeSuccess>;
   LoginResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LoginResult']>;
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
-  LogoutResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LogoutResult']>;
-  LogoutSuccess: ResolverTypeWrapper<LogoutSuccess>;
+  LogoutResult: ResolverTypeWrapper<LogoutResult>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   Node: ResolverTypeWrapper<NodeMapper>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
@@ -590,8 +586,7 @@ export type ResolversParentTypes = ResolversObject<{
   LoginPasswordChangeSuccess: LoginPasswordChangeSuccess;
   LoginResult: ResolversUnionTypes<ResolversParentTypes>['LoginResult'];
   LoginSuccess: LoginSuccess;
-  LogoutResult: ResolversUnionTypes<ResolversParentTypes>['LogoutResult'];
-  LogoutSuccess: LogoutSuccess;
+  LogoutResult: LogoutResult;
   Mutation: Record<PropertyKey, never>;
   Node: NodeMapper;
   PageInfo: PageInfo;
@@ -715,12 +710,7 @@ export type LoginSuccessResolvers<ContextType = Context, ParentType extends Reso
 }>;
 
 export type LogoutResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LogoutResult'] = ResolversParentTypes['LogoutResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'LogoutSuccess', ParentType, ContextType>;
-}>;
-
-export type LogoutSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LogoutSuccess'] = ResolversParentTypes['LogoutSuccess']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
 }>;
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
@@ -900,7 +890,6 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   LoginResult?: LoginResultResolvers<ContextType>;
   LoginSuccess?: LoginSuccessResolvers<ContextType>;
   LogoutResult?: LogoutResultResolvers<ContextType>;
-  LogoutSuccess?: LogoutSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
