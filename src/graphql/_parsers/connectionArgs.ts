@@ -12,7 +12,7 @@ type Config<Cursor> = {
 
 export const parseConnectionArgs = <Cursor>(args: ConnectionArguments, config: Config<Cursor>) => {
   const result = parseConnectionArgsCommon(args);
-  if (result instanceof Error) {
+  if (Error.isError(result)) {
     return result;
   }
 
@@ -76,7 +76,7 @@ const parseConnectionArgsAdditional = <Cursor>(
     }
 
     const parsedAfter = after != null ? parseCursor(after) : after;
-    if (parsedAfter instanceof Error) {
+    if (Error.isError(parsedAfter)) {
       return parsedAfter;
     }
 
@@ -93,7 +93,7 @@ const parseConnectionArgsAdditional = <Cursor>(
     }
 
     const parsedBefore = before != null ? parseCursor(before) : before;
-    if (parsedBefore instanceof Error) {
+    if (Error.isError(parsedBefore)) {
       return parsedBefore;
     }
 
@@ -138,12 +138,12 @@ if (import.meta.vitest) {
 
     test.each(valids)("valids %#", async (args) => {
       const result = parseConnectionArgsCommon(args);
-      expect(result instanceof Error).toBe(false);
+      expect(Error.isError(result)).toBe(false);
     });
 
     test.each(invalids)("invalids %#", async (args) => {
       const result = parseConnectionArgsCommon(args);
-      expect(result instanceof Error).toBe(true);
+      expect(Error.isError(result)).toBe(true);
     });
   });
 
@@ -164,7 +164,7 @@ if (import.meta.vitest) {
         lastMax: 30,
         parseCursor: (cursor) => cursor,
       });
-      expect(result instanceof Error).toBe(false);
+      expect(Error.isError(result)).toBe(false);
     });
 
     test.each(invalids)("invalids %#", async (args) => {
@@ -173,7 +173,7 @@ if (import.meta.vitest) {
         lastMax: 30,
         parseCursor: (cursor) => cursor,
       });
-      expect(result instanceof Error).toBe(true);
+      expect(Error.isError(result)).toBe(true);
     });
   });
 }

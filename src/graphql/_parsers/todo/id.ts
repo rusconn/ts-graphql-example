@@ -10,11 +10,11 @@ if (import.meta.vitest) {
 
   test("valid", () => {
     const parsed = parseTodoId(nodeId("Todo")(id));
-    expect(parsed instanceof Error).toBe(false);
+    expect(Error.isError(parsed)).toBe(false);
   });
 
   test("invalid", () => {
     const parsed = parseTodoId(nodeId("User")(id));
-    expect(parsed instanceof Error).toBe(true);
+    expect(Error.isError(parsed)).toBe(true);
   });
 }

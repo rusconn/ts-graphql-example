@@ -44,7 +44,7 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: MutationResolvers["signup"] = async (_parent, args, context) => {
   const authed = authGuest(context);
-  if (authed instanceof Error) {
+  if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
 

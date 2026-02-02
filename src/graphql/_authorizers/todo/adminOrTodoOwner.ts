@@ -6,7 +6,7 @@ import type { ParentTodo } from "./types.ts";
 export const authAdminOrTodoOwner = (context: AuthContext, todo: ParentTodo) => {
   const authed = authAdmin(context);
 
-  if (authed instanceof Error) {
+  if (Error.isError(authed)) {
     return authTodoOwner(context, todo);
   }
 
@@ -31,11 +31,11 @@ if (import.meta.vitest) {
 
   test.each(allows)("allows %#", (contextUser, todo) => {
     const authed = authAdminOrTodoOwner({ user: contextUser }, todo);
-    expect(authed instanceof Error).toBe(false);
+    expect(Error.isError(authed)).toBe(false);
   });
 
   test.each(denies)("denies %#", (contextUser, todo) => {
     const authed = authAdminOrTodoOwner({ user: contextUser }, todo);
-    expect(authed instanceof Error).toBe(true);
+    expect(Error.isError(authed)).toBe(true);
   });
 }

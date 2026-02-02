@@ -51,7 +51,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
   context,
 ) => {
   const authed = authAuthenticated(context);
-  if (authed instanceof Error) {
+  if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
 

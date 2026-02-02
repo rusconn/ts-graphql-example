@@ -53,12 +53,12 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
   const authed = authAdmin(context);
-  if (authed instanceof Error) {
+  if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
 
   const parsed = parseArgs(args);
-  if (parsed instanceof Error) {
+  if (Error.isError(parsed)) {
     throw badUserInputErr(parsed.message, parsed);
   }
 
@@ -83,7 +83,7 @@ const parseArgs = (args: QueryUsersArgs) => {
     lastMax: LAST_MAX,
     parseCursor: parseUserCursor,
   });
-  if (connectionArgs instanceof Error) {
+  if (Error.isError(connectionArgs)) {
     return connectionArgs;
   }
 

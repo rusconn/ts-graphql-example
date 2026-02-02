@@ -65,12 +65,12 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (
   info,
 ) => {
   const authed = authAdminOrUserOwner(context, parent);
-  if (authed instanceof Error) {
+  if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
 
   const parsed = parseArgs(args);
-  if (parsed instanceof Error) {
+  if (Error.isError(parsed)) {
     throw badUserInputErr(parsed.message, parsed);
   }
 
@@ -101,7 +101,7 @@ const parseArgs = (args: UserTodosArgs) => {
     lastMax: LAST_MAX,
     parseCursor: parseTodoCursor,
   });
-  if (connectionArgs instanceof Error) {
+  if (Error.isError(connectionArgs)) {
     return connectionArgs;
   }
 
@@ -109,7 +109,7 @@ const parseArgs = (args: UserTodosArgs) => {
     optional: true,
     nullable: false,
   });
-  if (status instanceof Error) {
+  if (Error.isError(status)) {
     return status;
   }
 

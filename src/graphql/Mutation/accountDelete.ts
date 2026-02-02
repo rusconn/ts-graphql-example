@@ -21,7 +21,7 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: MutationResolvers["accountDelete"] = async (_parent, _args, context) => {
   const authed = authAuthenticated(context);
-  if (authed instanceof Error) {
+  if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
 

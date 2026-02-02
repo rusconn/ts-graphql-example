@@ -8,7 +8,7 @@ type ParentUser = Pick<ResolversParentTypes["User"], "id">;
 export const authAdminOrUserOwner = (context: AuthContext, user: ParentUser) => {
   const authed = authAdmin(context);
 
-  if (authed instanceof Error) {
+  if (Error.isError(authed)) {
     return authUserOwner(context, user);
   }
 
@@ -42,12 +42,12 @@ if (import.meta.vitest) {
 
     test.each(allows)("allows %#", (contextUser, user) => {
       const authed = authAdminOrUserOwner({ user: contextUser }, user);
-      expect(authed instanceof Error).toBe(false);
+      expect(Error.isError(authed)).toBe(false);
     });
 
     test.each(denies)("denies %#", (contextUser, user) => {
       const authed = authAdminOrUserOwner({ user: contextUser }, user);
-      expect(authed instanceof Error).toBe(true);
+      expect(Error.isError(authed)).toBe(true);
     });
   });
 
@@ -66,12 +66,12 @@ if (import.meta.vitest) {
 
     test.each(allows)("allows %#", (contextUser, user) => {
       const authed = authUserOwner({ user: contextUser }, user);
-      expect(authed instanceof Error).toBe(false);
+      expect(Error.isError(authed)).toBe(false);
     });
 
     test.each(denies)("denies %#", (contextUser, user) => {
       const authed = authUserOwner({ user: contextUser }, user);
-      expect(authed instanceof Error).toBe(true);
+      expect(Error.isError(authed)).toBe(true);
     });
   });
 }

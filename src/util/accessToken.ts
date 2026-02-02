@@ -15,7 +15,7 @@ export const verifyJwt = async (token: string) => {
     if (e instanceof JWTExpired) return { type: "JWTExpired" } as const;
     return {
       type: "Unknown",
-      error: e instanceof Error ? e : new Error("Unknown", { cause: e }),
+      error: Error.isError(e) ? e : new Error("Unknown", { cause: e }),
     } as const;
   }
 };

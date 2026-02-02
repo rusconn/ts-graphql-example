@@ -28,11 +28,11 @@ if (import.meta.vitest) {
 
   test.each(allows)("allows %#", (contextUser, todo) => {
     const authed = authTodoOwner({ user: contextUser }, todo);
-    expect(authed instanceof Error).toBe(false);
+    expect(Error.isError(authed)).toBe(false);
   });
 
   test.each(denies)("denies %#", (contextUser, todo) => {
     const authed = authTodoOwner({ user: contextUser }, todo);
-    expect(authed instanceof Error).toBe(true);
+    expect(Error.isError(authed)).toBe(true);
   });
 }

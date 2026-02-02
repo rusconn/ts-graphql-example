@@ -17,11 +17,11 @@ if (import.meta.vitest) {
 
   test.each(allows)("allows %#", (user) => {
     const authed = authAuthenticated({ user });
-    expect(authed instanceof Error).toBe(false);
+    expect(Error.isError(authed)).toBe(false);
   });
 
   test.each(denies)("denies %#", (user) => {
     const authed = authAuthenticated({ user });
-    expect(authed instanceof Error).toBe(true);
+    expect(Error.isError(authed)).toBe(true);
   });
 }

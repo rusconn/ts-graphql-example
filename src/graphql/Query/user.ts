@@ -12,12 +12,12 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: QueryResolvers["user"] = async (_parent, args, context) => {
   const authed = authAdmin(context);
-  if (authed instanceof Error) {
+  if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
 
   const id = parseUserId(args.id);
-  if (id instanceof Error) {
+  if (Error.isError(id)) {
     throw badUserInputErr(id.message, id);
   }
 

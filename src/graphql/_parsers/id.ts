@@ -34,11 +34,11 @@ if (import.meta.vitest) {
 
   test.each(valids)("valids %#", (id) => {
     const parsed = parseId(id);
-    expect(parsed instanceof Error).toBe(false);
+    expect(Error.isError(parsed)).toBe(false);
   });
 
   test.each(invalids)("invalids %#", (id) => {
     const parsed = parseId(id);
-    expect(parsed instanceof Error).toBe(true);
+    expect(Error.isError(parsed)).toBe(true);
   });
 }

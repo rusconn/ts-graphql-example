@@ -8,7 +8,7 @@ export const parseSomeId = <T extends NodeType, U extends string>(
 ) => {
   return (id: Scalars["ID"]["input"]) => {
     const parsed = parseId(id);
-    if (parsed instanceof Error) {
+    if (Error.isError(parsed)) {
       return parsed;
     }
 

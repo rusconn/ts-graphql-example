@@ -46,7 +46,7 @@ it("should delete user and user-*", async () => {
 
   const id = parseUserId(data.accountDelete.id);
 
-  if (id instanceof Error) {
+  if (Error.isError(id)) {
     fail();
   }
 
@@ -89,7 +89,7 @@ it("should not delete others", async () => {
 
   const id = parseUserId(data.accountDelete.id);
 
-  if (id instanceof Error) {
+  if (Error.isError(id)) {
     fail();
   }
 

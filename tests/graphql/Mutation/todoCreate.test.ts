@@ -67,7 +67,7 @@ it("should create todo using input", async () => {
 
   const id = parseTodoId(data.todoCreate.todo.id);
 
-  if (id instanceof Error) {
+  if (Error.isError(id)) {
     fail();
   }
 
@@ -93,7 +93,7 @@ test('description should be "" by default', async () => {
 
   const id = parseTodoId(data.todoCreate.todo.id);
 
-  if (id instanceof Error) {
+  if (Error.isError(id)) {
     fail();
   }
 
@@ -118,7 +118,7 @@ test("status should be PENDING by default", async () => {
 
   const id = parseTodoId(data.todoCreate.todo.id);
 
-  if (id instanceof Error) {
+  if (Error.isError(id)) {
     fail();
   }
 

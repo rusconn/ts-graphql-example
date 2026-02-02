@@ -16,12 +16,12 @@ export const typeDef = /* GraphQL */ `
 
 export const resolver: QueryResolvers["node"] = async (_parent, args, context) => {
   const authed = authAuthenticated(context);
-  if (authed instanceof Error) {
+  if (Error.isError(authed)) {
     throw forbiddenErr(authed);
   }
 
   const id = parseId(args.id);
-  if (id instanceof Error) {
+  if (Error.isError(id)) {
     throw badUserInputErr(id.message, id);
   }
 

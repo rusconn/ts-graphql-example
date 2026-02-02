@@ -67,7 +67,7 @@ export class UserRepo {
 
       return {
         type: "Unknown",
-        e: e instanceof Error ? e : new Error("unknown", { cause: e }),
+        e: Error.isError(e) ? e : new Error("unknown", { cause: e }),
       } as const;
     }
   }
