@@ -1,6 +1,6 @@
-import type { Context } from "../../context.ts";
+import type { ContextForAuthed } from "../../context.ts";
 import type { Todo } from "../../domain/todo.ts";
 
-export const getNode = async (ctx: Pick<Context, "queries">, id: Todo["id"]) => {
+export const getNode = async (ctx: ContextForAuthed, id: Todo["id"]) => {
   return await ctx.queries.todo.find(id);
 };

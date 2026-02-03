@@ -58,10 +58,15 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: NonNullable<UserResolvers["todos"]> = async (parent, args, ctx, info) => {
-  const authed = authAdminOrUserOwner(ctx, parent);
-  if (Error.isError(authed)) {
-    throw forbiddenErr(authed);
+export const resolver: NonNullable<UserResolvers["todos"]> = async (
+  parent,
+  args,
+  context,
+  info,
+) => {
+  const ctx = authAdminOrUserOwner(context, parent);
+  if (Error.isError(ctx)) {
+    throw forbiddenErr(ctx);
   }
 
   const parsed = parseArgs(args);

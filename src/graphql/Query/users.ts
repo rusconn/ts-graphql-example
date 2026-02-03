@@ -51,10 +51,10 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: QueryResolvers["users"] = async (_parent, args, ctx, info) => {
-  const authed = authAdmin(ctx);
-  if (Error.isError(authed)) {
-    throw forbiddenErr(authed);
+export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
+  const ctx = authAdmin(context);
+  if (Error.isError(ctx)) {
+    throw forbiddenErr(ctx);
   }
 
   const parsed = parseArgs(args);

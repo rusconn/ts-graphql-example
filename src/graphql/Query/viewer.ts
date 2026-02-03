@@ -6,6 +6,6 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: QueryResolvers["viewer"] = (_parent, _args, ctx) => {
-  return ctx.user;
+export const resolver: QueryResolvers["viewer"] = (_parent, _args, context) => {
+  return context.user;
 };

@@ -42,10 +42,10 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["signup"] = async (_parent, args, ctx) => {
-  const authed = authGuest(ctx);
-  if (Error.isError(authed)) {
-    throw forbiddenErr(authed);
+export const resolver: MutationResolvers["signup"] = async (_parent, args, context) => {
+  const ctx = authGuest(context);
+  if (Error.isError(ctx)) {
+    throw forbiddenErr(ctx);
   }
 
   const parsed = parseArgs(args);

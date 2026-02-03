@@ -1,8 +1,8 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { DB, User } from "../../db/types.ts";
-import { sort } from "../../lib/dataloader/sort.ts";
+import type { DB, User } from "../../../db/types.ts";
+import { sort } from "../../../lib/dataloader/sort.ts";
 
 export type Key = User["id"];
 

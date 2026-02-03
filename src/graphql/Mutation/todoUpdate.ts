@@ -38,10 +38,10 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, ctx) => {
-  const authed = authAuthenticated(ctx);
-  if (Error.isError(authed)) {
-    throw forbiddenErr(authed);
+export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, context) => {
+  const ctx = authAuthenticated(context);
+  if (Error.isError(ctx)) {
+    throw forbiddenErr(ctx);
   }
 
   const id = parseTodoId(args.id);
@@ -55,7 +55,7 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
   }
 
   const todo = await ctx.repos.todo.find(id);
-  if (!todo || todo.userId !== authed.id) {
+  if (!todo || todo.userId !== ctx.user.id) {
     return {
       __typename: "ResourceNotFoundError",
       message: "The specified todo does not exist.",

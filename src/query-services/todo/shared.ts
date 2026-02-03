@@ -1,11 +1,11 @@
 import type { Kysely } from "kysely";
 
-import type { DB, Todo } from "../db/types.ts";
+import type { DB, Todo } from "../../db/types.ts";
 import * as UserTodoLoader from "./loaders/userTodo.ts";
 import * as UserTodoCountLoader from "./loaders/userTodoCount.ts";
 import * as UserTodosLoader from "./loaders/userTodos.ts";
 
-export class TodoQuery {
+export class TodoQueryShared {
   #db;
   #loaders;
 

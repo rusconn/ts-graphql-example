@@ -2,7 +2,6 @@ import type { Context } from "../../context.ts";
 import * as Todo from "../../domain/todo.ts";
 import type { MutationResolvers, MutationTodoCreateArgs, ResolversTypes } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
-import type { AuthContext } from "../_authorizers/types.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { parseTodoDescription, TODO_DESCRIPTION_MAX } from "../_parsers/todo/description.ts";
@@ -37,10 +36,10 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, ctx) => {
-  const authed = authorize(ctx);
-  if (Error.isError(authed)) {
-    throw forbiddenErr(authed);
+export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, context) => {
+  const ctx = authorize(context);
+  if (Error.isError(ctx)) {
+    throw forbiddenErr(ctx);
   }
 
   const parsed = parseArgs(args);
@@ -48,11 +47,11 @@ export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, c
     return invalidInputErrors(parsed);
   }
 
-  return await logic(authed, parsed, ctx);
+  return await logic(ctx, parsed);
 };
 
-const authorize = (ctx: AuthContext) => {
-  return authAuthenticated(ctx);
+const authorize = (context: Context) => {
+  return authAuthenticated(context);
 };
 
 const parseArgs = (args: MutationTodoCreateArgs) => {
@@ -85,11 +84,10 @@ const parseArgs = (args: MutationTodoCreateArgs) => {
 };
 
 const logic = async (
-  authed: Exclude<ReturnType<typeof authorize>, Error>,
+  ctx: Exclude<ReturnType<typeof authorize>, Error>,
   parsed: Exclude<ReturnType<typeof parseArgs>, Error[]>,
-  ctx: Context,
 ): Promise<ResolversTypes["TodoCreateResult"]> => {
-  const count = await ctx.queries.todo.count(authed.id);
+  const count = await ctx.queries.todo.count(ctx.user.id);
   if (count >= TODOS_MAX) {
     return {
       __typename: "ResourceLimitExceededError",
@@ -97,7 +95,7 @@ const logic = async (
     };
   }
 
-  const user = await ctx.repos.user.findByDbId(authed.id);
+  const user = await ctx.repos.user.findByDbId(ctx.user.id);
   if (!user) {
     throw internalServerError();
   }
@@ -124,11 +122,11 @@ const logic = async (
 };
 
 if (import.meta.vitest) {
-  const { ctx } = await import("../_testData/context.ts");
+  const { context } = await import("../_testData/context.ts");
 
   const valid = {
     args: { title: "title", description: "description" },
-    user: ctx.user.admin,
+    user: context.admin.user,
   };
 
   const invalid = {
@@ -184,17 +182,25 @@ if (import.meta.vitest) {
     const notExceededs = [0, 1, TODOS_MAX - 1];
     const exceededs = [TODOS_MAX, TODOS_MAX + 1];
 
+    type Ctx = Exclude<ReturnType<typeof authorize>, Error>;
+
     test.each(notExceededs)("notExceededs %#", async (num) => {
       const queries = createQueries(num);
       const repos = createRepos();
-      const result = await logic(valid.user, valid.args, { queries, repos } as unknown as Context);
+      const result = await logic(
+        { user: valid.user, queries, repos } as unknown as Ctx,
+        valid.args,
+      );
       expect(result?.__typename === "ResourceLimitExceededError").toBe(false);
     });
 
     test.each(exceededs)("exceededs %#", async (num) => {
       const queries = createQueries(num);
       const repos = createRepos();
-      const result = await logic(valid.user, valid.args, { queries, repos } as unknown as Context);
+      const result = await logic(
+        { user: valid.user, queries, repos } as unknown as Ctx,
+        valid.args,
+      );
       expect(result?.__typename === "ResourceLimitExceededError").toBe(true);
     });
   });

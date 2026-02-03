@@ -1,48 +1,24 @@
 import type { Kysely } from "kysely";
 
-import type { DB, User, UserToken } from "../db/types.ts";
-import * as UserLoader from "./loaders/user.ts";
+import type { DB, User, UserToken } from "../../db/types.ts";
+import type * as UserLoader from "./loaders/user.ts";
+import { UserQueryShared } from "./shared.ts";
 
-export class UserQuery {
+export class UserQueryForAdmin {
   #db;
-  #loaders;
+  #shared;
 
   constructor(db: Kysely<DB>) {
     this.#db = db;
-    this.#loaders = {
-      user: UserLoader.create(db),
-    };
-  }
-
-  static async findById(id: User["id"], db: Kysely<DB>) {
-    const user = await db
-      .selectFrom("users") //
-      .where("id", "=", id)
-      .selectAll()
-      .executeTakeFirst();
-
-    return user;
+    this.#shared = new UserQueryShared(db);
   }
 
   async findById(id: User["id"]) {
-    const user = await this.#db
-      .selectFrom("users")
-      .where("id", "=", id)
-      .selectAll()
-      .executeTakeFirst();
-
-    return user;
+    return await this.#shared.findById(id);
   }
 
   async findByRefreshToken(refreshToken: UserToken["refreshToken"]) {
-    const user = await this.#db
-      .selectFrom("users")
-      .innerJoin("userTokens", "users.id", "userTokens.userId")
-      .where("refreshToken", "=", refreshToken)
-      .selectAll("users")
-      .executeTakeFirst();
-
-    return user;
+    return await this.#shared.findByRefreshToken(refreshToken);
   }
 
   async findMany(params: {
@@ -91,6 +67,6 @@ export class UserQuery {
   }
 
   async load(key: UserLoader.Key) {
-    return await this.#loaders.user.load(key);
+    return await this.#shared.load(key);
   }
 }

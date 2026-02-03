@@ -10,10 +10,10 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: QueryResolvers["user"] = async (_parent, args, ctx) => {
-  const authed = authAdmin(ctx);
-  if (Error.isError(authed)) {
-    throw forbiddenErr(authed);
+export const resolver: QueryResolvers["user"] = async (_parent, args, context) => {
+  const ctx = authAdmin(context);
+  if (Error.isError(ctx)) {
+    throw forbiddenErr(ctx);
   }
 
   const id = parseUserId(args.id);

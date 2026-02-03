@@ -14,10 +14,10 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: QueryResolvers["node"] = async (_parent, args, ctx) => {
-  const authed = authAuthenticated(ctx);
-  if (Error.isError(authed)) {
-    throw forbiddenErr(authed);
+export const resolver: QueryResolvers["node"] = async (_parent, args, context) => {
+  const ctx = authAuthenticated(context);
+  if (Error.isError(ctx)) {
+    throw forbiddenErr(ctx);
   }
 
   const id = parseId(args.id);

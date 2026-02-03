@@ -1,7 +1,7 @@
 import { createSchema, createYoga } from "graphql-yoga";
 
 import { endpoint } from "./config/url.ts";
-import type { PluginContext, ServerContext, UserContext } from "./context.ts";
+import type { ContextBase, PluginContext, ServerContext, UserContext } from "./context.ts";
 import { client } from "./db/client.ts";
 import { authenticationErr } from "./graphql/_errors/authenticationError.ts";
 import { badUserInputErr } from "./graphql/_errors/badUserInput.ts";
@@ -16,11 +16,19 @@ import { introspection } from "./plugins/introspection.ts";
 import { logging } from "./plugins/logging.ts";
 import { readinessCheck } from "./plugins/readinessCheck.ts";
 import { requestId } from "./plugins/requestId.ts";
-import { TodoQuery } from "./query-services/todo.ts";
-import { UserQuery } from "./query-services/user.ts";
-import { TodoRepo } from "./repositories/todo.ts";
-import { UserRepo } from "./repositories/user.ts";
-import { UserTokenRepo } from "./repositories/user-token.ts";
+import { TodoQueryForAdmin } from "./query-services/todo/for-admin.ts";
+import { TodoQueryForUser } from "./query-services/todo/for-user.ts";
+import { UserQueryForAdmin } from "./query-services/user/for-admin.ts";
+import { UserQueryForGuest } from "./query-services/user/for-guest.ts";
+import { UserQueryForUser } from "./query-services/user/for-user.ts";
+import { TodoRepoForAdmin } from "./repositories/todo/for-admin.ts";
+import { TodoRepoForUser } from "./repositories/todo/for-user.ts";
+import { UserRepoForAdmin } from "./repositories/user/for-admin.ts";
+import { UserRepoForGuest } from "./repositories/user/for-guest.ts";
+import { UserRepoForUser } from "./repositories/user/for-user.ts";
+import { UserTokenRepoForAdmin } from "./repositories/user-token/for-admin.ts";
+import { UserTokenRepoForGuest } from "./repositories/user-token/for-guest.ts";
+import { UserTokenRepoForUser } from "./repositories/user-token/for-user.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
 import { type Payload, verifyJwt } from "./util/accessToken.ts";
@@ -52,28 +60,66 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
 
     let user: UserContext["user"] = null;
     if (payload) {
-      const found = await UserQuery.findById(payload.id, client);
+      const found = await UserQueryForGuest.findById(payload.id, client);
       if (found == null) {
         throw authenticationErr();
       }
       user = found;
     }
 
-    return {
+    const contextBase: ContextBase = {
       start,
       logger: logger.child({ requestId }),
-      user,
       db: client,
-      queries: {
-        todo: new TodoQuery(client),
-        user: new UserQuery(client),
-      },
-      repos: {
-        todo: new TodoRepo(client),
-        user: new UserRepo(client),
-        userToken: new UserTokenRepo(client),
-      },
     };
+
+    switch (user?.role) {
+      case "admin":
+        return {
+          ...contextBase,
+          role: user.role,
+          user,
+          queries: {
+            todo: new TodoQueryForAdmin(client),
+            user: new UserQueryForAdmin(client),
+          },
+          repos: {
+            todo: new TodoRepoForAdmin(client),
+            user: new UserRepoForAdmin(client),
+            userToken: new UserTokenRepoForAdmin(client),
+          },
+        };
+      case "user":
+        return {
+          ...contextBase,
+          role: user.role,
+          user,
+          queries: {
+            todo: new TodoQueryForUser(client),
+            user: new UserQueryForUser(client),
+          },
+          repos: {
+            todo: new TodoRepoForUser(client),
+            user: new UserRepoForUser(client),
+            userToken: new UserTokenRepoForUser(client),
+          },
+        };
+      case undefined:
+        return {
+          ...contextBase,
+          role: "guest",
+          user,
+          queries: {
+            user: new UserQueryForGuest(client),
+          },
+          repos: {
+            user: new UserRepoForGuest(client),
+            userToken: new UserTokenRepoForGuest(client),
+          },
+        };
+      default:
+        throw new Error(user satisfies never);
+    }
   },
   // 自分でログする
   logging: false,

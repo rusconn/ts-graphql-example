@@ -1,19 +1,19 @@
 import type { Kysely, Transaction } from "kysely";
 
-import type * as Db from "../db/types.ts";
-import type { DB, User } from "../db/types.ts";
-import type * as Domain from "../domain/user.ts";
-import { isPgError, PgErrorCode } from "../lib/pg/error.ts";
-import { mappers } from "../mappers.ts";
+import type * as Db from "../../db/types.ts";
+import type { DB } from "../../db/types.ts";
+import type * as Domain from "../../domain/user.ts";
+import { isPgError, PgErrorCode } from "../../lib/pg/error.ts";
+import { mappers } from "../../mappers.ts";
 
-export class UserRepo {
+export class UserRepoShared {
   #db;
 
   constructor(db: Kysely<DB>) {
     this.#db = db;
   }
 
-  async findByDbId(id: User["id"], trx?: Transaction<DB>) {
+  async findByDbId(id: Db.User["id"], trx?: Transaction<DB>) {
     return await this.findById(id as Domain.User["id"], trx);
   }
 

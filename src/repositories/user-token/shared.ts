@@ -1,25 +1,13 @@
 import type { Kysely, Transaction } from "kysely";
 
-import type { DB } from "../db/types.ts";
-import type { UserToken } from "../domain/user-token.ts";
-import { mappers } from "../mappers.ts";
+import type { DB } from "../../db/types.ts";
+import type { UserToken } from "../../domain/user-token.ts";
 
-export class UserTokenRepo {
+export class UserTokenRepoShared {
   #db;
 
   constructor(db: Kysely<DB>) {
     this.#db = db;
-  }
-
-  async find(userId: UserToken["userId"], trx?: Transaction<DB>) {
-    const userToken = await (trx ?? this.#db)
-      .selectFrom("userTokens")
-      .where("userId", "=", userId)
-      .selectAll()
-      .$if(trx != null, (qb) => qb.forUpdate())
-      .executeTakeFirst();
-
-    return userToken && mappers.userToken.toDomain(userToken);
   }
 
   async save(userToken: UserToken, trx?: Transaction<DB>) {

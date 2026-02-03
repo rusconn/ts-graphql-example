@@ -1,15 +1,15 @@
 import type { Kysely, Transaction } from "kysely";
 
-import type { DB } from "../db/types.ts";
-import type * as Domain from "../domain/todo.ts";
-import { mappers } from "../mappers.ts";
+import type { DB } from "../../db/types.ts";
+import type * as Domain from "../../domain/todo.ts";
+import { mappers } from "../../mappers.ts";
 
 type TodoKey = {
   id: Domain.Todo["id"];
   userId?: Domain.Todo["userId"];
 };
 
-export class TodoRepo {
+export class TodoRepoShared {
   #db;
 
   constructor(db: Kysely<DB>) {

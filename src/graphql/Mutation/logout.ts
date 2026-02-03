@@ -12,11 +12,11 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["logout"] = async (_parent, _args, ctx) => {
-  const cookie = await getRefreshTokenCookie(ctx.request);
-  await deleteRefreshTokenCookie(ctx.request);
+export const resolver: MutationResolvers["logout"] = async (_parent, _args, context) => {
+  const cookie = await getRefreshTokenCookie(context.request);
+  await deleteRefreshTokenCookie(context.request);
 
-  if (ctx.user == null) {
+  if (context.role === "guest") {
     return {
       __typename: "LogoutResult",
       success: true,
@@ -31,7 +31,7 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, ctx)
   }
 
   const hashed = await RefreshToken.hash(cookie.value);
-  const _success = await ctx.repos.userToken.delete(hashed);
+  const _success = await context.repos.userToken.delete(hashed);
 
   return {
     __typename: "LogoutResult",

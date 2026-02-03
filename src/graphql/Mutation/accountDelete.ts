@@ -19,13 +19,13 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["accountDelete"] = async (_parent, _args, ctx) => {
-  const authed = authAuthenticated(ctx);
-  if (Error.isError(authed)) {
-    throw forbiddenErr(authed);
+export const resolver: MutationResolvers["accountDelete"] = async (_parent, _args, context) => {
+  const ctx = authAuthenticated(context);
+  if (Error.isError(ctx)) {
+    throw forbiddenErr(ctx);
   }
 
-  const user = await ctx.repos.user.findByDbId(authed.id);
+  const user = await ctx.repos.user.findByDbId(ctx.user.id);
   if (!user) {
     throw internalServerError();
   }
@@ -37,6 +37,6 @@ export const resolver: MutationResolvers["accountDelete"] = async (_parent, _arg
 
   return {
     __typename: "AccountDeleteSuccess",
-    id: userId(authed.id),
+    id: userId(ctx.user.id),
   };
 };

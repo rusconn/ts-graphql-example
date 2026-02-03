@@ -10,10 +10,10 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: NonNullable<UserResolvers["email"]> = async (parent, _args, ctx) => {
-  const authed = authAdminOrUserOwner(ctx, parent);
-  if (Error.isError(authed)) {
-    throw forbiddenErr(authed);
+export const resolver: NonNullable<UserResolvers["email"]> = async (parent, _args, context) => {
+  const ctx = authAdminOrUserOwner(context, parent);
+  if (Error.isError(ctx)) {
+    throw forbiddenErr(ctx);
   }
 
   if (!EmailAddress.is(parent.email)) {

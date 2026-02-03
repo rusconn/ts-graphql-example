@@ -1,41 +1,41 @@
+import type { Context } from "../../../context.ts";
 import { authAdmin } from "../admin.ts";
-import type { AuthContext } from "../types.ts";
 import { authTodoOwner } from "./todoOwner.ts";
 import type { ParentTodo } from "./types.ts";
 
-export const authAdminOrTodoOwner = (ctx: AuthContext, todo: ParentTodo) => {
-  const authed = authAdmin(ctx);
+export const authAdminOrTodoOwner = (context: Context, todo: ParentTodo) => {
+  const ctx = authAdmin(context);
 
-  if (Error.isError(authed)) {
-    return authTodoOwner(ctx, todo);
+  if (Error.isError(ctx)) {
+    return authTodoOwner(context, todo);
   }
 
-  return authed;
+  return ctx;
 };
 
 if (import.meta.vitest) {
-  const { ctx } = await import("../../_testData/context.ts");
+  const { context } = await import("../../_testData/context.ts");
   const { domain } = await import("../../_testData/domain.ts");
 
   const allows = [
-    [ctx.user.admin, domain.todos.admin1],
-    [ctx.user.admin, domain.todos.alice1],
-    [ctx.user.alice, domain.todos.alice1],
+    [context.admin, domain.todos.admin1],
+    [context.admin, domain.todos.alice1],
+    [context.alice, domain.todos.alice1],
   ] as const;
 
   const denies = [
-    [ctx.user.alice, domain.todos.admin1],
-    [ctx.user.guest, domain.todos.admin1],
-    [ctx.user.guest, domain.todos.alice1],
+    [context.alice, domain.todos.admin1],
+    [context.guest, domain.todos.admin1],
+    [context.guest, domain.todos.alice1],
   ] as const;
 
-  test.each(allows)("allows %#", (contextUser, todo) => {
-    const authed = authAdminOrTodoOwner({ user: contextUser }, todo);
+  test.each(allows)("allows %#", (context, todo) => {
+    const authed = authAdminOrTodoOwner(context as Context, todo);
     expect(Error.isError(authed)).toBe(false);
   });
 
-  test.each(denies)("denies %#", (contextUser, todo) => {
-    const authed = authAdminOrTodoOwner({ user: contextUser }, todo);
+  test.each(denies)("denies %#", (context, todo) => {
+    const authed = authAdminOrTodoOwner(context as Context, todo);
     expect(Error.isError(authed)).toBe(true);
   });
 }
