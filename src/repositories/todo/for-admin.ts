@@ -1,19 +1,14 @@
 import type { Kysely, Transaction } from "kysely";
 
-import type { DB } from "../../db/types.ts";
+import type { DB, User } from "../../db/types.ts";
 import type * as Domain from "../../domain/todo.ts";
 import { TodoRepoShared } from "./shared.ts";
-
-type TodoKey = {
-  id: Domain.Todo["id"];
-  userId?: Domain.Todo["userId"];
-};
 
 export class TodoRepoForAdmin {
   #shared;
 
-  constructor(db: Kysely<DB>) {
-    this.#shared = new TodoRepoShared(db);
+  constructor(db: Kysely<DB>, tenantId: User["id"]) {
+    this.#shared = new TodoRepoShared(db, tenantId);
   }
 
   async find(id: Domain.Todo["id"], trx?: Transaction<DB>) {
@@ -24,7 +19,7 @@ export class TodoRepoForAdmin {
     return await this.#shared.save(todo, trx);
   }
 
-  async delete(key: TodoKey, trx?: Transaction<DB>) {
-    return await this.#shared.delete(key, trx);
+  async delete(id: Domain.Todo["id"], trx?: Transaction<DB>) {
+    return await this.#shared.delete(id, trx);
   }
 }

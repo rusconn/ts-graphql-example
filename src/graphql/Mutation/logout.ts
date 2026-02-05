@@ -1,6 +1,7 @@
 import { RefreshToken } from "../../domain/user-token.ts";
 import type { MutationResolvers } from "../../schema.ts";
 import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refreshToken.ts";
+import { badUserInputErr } from "../_errors/badUserInput.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -31,7 +32,15 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
   }
 
   const hashed = await RefreshToken.hash(cookie.value);
-  const _success = await context.repos.userToken.delete(hashed);
+  const result = await context.repos.userToken.delete(hashed);
+  switch (result) {
+    case "Ok":
+      break;
+    case "NotFound":
+      throw badUserInputErr("The refresh token is invalid.");
+    default:
+      throw new Error(result satisfies never);
+  }
 
   return {
     __typename: "LogoutResult",

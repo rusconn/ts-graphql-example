@@ -1,6 +1,6 @@
 import type { Kysely } from "kysely";
 
-import type { DB, Todo } from "../../db/types.ts";
+import type { DB, Todo, User } from "../../db/types.ts";
 import * as UserTodoLoader from "./loaders/userTodo.ts";
 import * as UserTodoCountLoader from "./loaders/userTodoCount.ts";
 import * as UserTodosLoader from "./loaders/userTodos.ts";
@@ -8,30 +8,33 @@ import * as UserTodosLoader from "./loaders/userTodos.ts";
 export class TodoQueryShared {
   #db;
   #loaders;
+  #tenantId;
 
-  constructor(db: Kysely<DB>) {
+  constructor(db: Kysely<DB>, tenantId?: User["id"]) {
     this.#db = db;
     this.#loaders = {
-      userTodo: UserTodoLoader.create(db),
-      userTodos: UserTodosLoader.create(db),
-      userTodoCount: UserTodoCountLoader.create(db),
+      userTodo: UserTodoLoader.create(db, tenantId),
+      userTodos: UserTodosLoader.create(db, tenantId),
+      userTodoCount: UserTodoCountLoader.create(db, tenantId),
     };
+    this.#tenantId = tenantId;
   }
 
   async find(id: Todo["id"]) {
     const todo = await this.#db
       .selectFrom("todos")
       .where("id", "=", id)
+      .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
       .selectAll()
       .executeTakeFirst();
 
     return todo;
   }
 
-  async count(userId?: Todo["userId"]) {
+  async count() {
     const result = await this.#db
       .selectFrom("todos")
-      .$if(userId != null, (qb) => qb.where("userId", "=", userId!))
+      .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
       .select(({ fn }) => fn.countAll<number>().as("count"))
       .executeTakeFirst();
 

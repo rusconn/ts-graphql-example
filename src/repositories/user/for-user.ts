@@ -1,5 +1,6 @@
 import type { Kysely, Transaction } from "kysely";
 
+import type * as Db from "../../db/types.ts";
 import type { DB, User } from "../../db/types.ts";
 import type * as Domain from "../../domain/user.ts";
 import { UserRepoShared } from "./shared.ts";
@@ -7,8 +8,8 @@ import { UserRepoShared } from "./shared.ts";
 export class UserRepoForUser {
   #shared;
 
-  constructor(db: Kysely<DB>) {
-    this.#shared = new UserRepoShared(db);
+  constructor(db: Kysely<DB>, tenantId: Db.User["id"]) {
+    this.#shared = new UserRepoShared(db, tenantId);
   }
 
   async findByDbId(id: User["id"], trx?: Transaction<DB>) {

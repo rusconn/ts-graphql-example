@@ -58,9 +58,10 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 
   {
     const trx = await ctx.db.startTransaction().execute();
+
     const result = await ctx.repos.user.save(user, trx);
     switch (result.type) {
-      case "Success":
+      case "Ok":
         break;
       case "EmailAlreadyExists":
         await trx.rollback().execute();
@@ -68,6 +69,8 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
           __typename: "EmailAlreadyTakenError",
           message: "The email already taken.",
         };
+      case "Forbidden":
+      case "NotFound":
       case "Unknown":
         await trx.rollback().execute();
         throw internalServerError(result.e);
@@ -75,20 +78,27 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
         throw new Error(result satisfies never);
     }
 
-    const success = await ctx.repos.userToken.save(userToken, trx);
-    if (!success) {
-      await trx.rollback().execute();
-      throw internalServerError(result.e);
+    const result2 = await ctx.repos.userToken.save(userToken, trx);
+    switch (result2) {
+      case "Ok":
+        break;
+      case "Forbidden":
+      case "NotFound":
+      case "Failed":
+        await trx.rollback().execute();
+        throw internalServerError(result.e);
+      default:
+        throw new Error(result2 satisfies never);
     }
+
     await trx.commit().execute();
   }
 
-  const token = await signedJwt(user);
   await setRefreshTokenCookie(ctx.request, rawToken);
 
   return {
     __typename: "SignupSuccess",
-    token,
+    token: await signedJwt(user),
   };
 };
 

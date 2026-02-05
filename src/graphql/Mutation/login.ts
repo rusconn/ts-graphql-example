@@ -67,12 +67,22 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   {
     const trx = await context.db.startTransaction().execute();
-    const success = await context.repos.userToken.save(userToken, trx);
-    if (!success) {
-      await trx.rollback().execute();
-      throw internalServerError();
+
+    const result = await context.repos.userToken.save(userToken, trx);
+    switch (result) {
+      case "Ok":
+        break;
+      case "Forbidden":
+      case "NotFound":
+      case "Failed":
+        await trx.rollback().execute();
+        throw internalServerError();
+      default:
+        throw new Error(result satisfies never);
     }
+
     await context.repos.userToken.retainLatest(found.id, TokenRetensionPolicy.limit, trx);
+
     await trx.commit().execute();
   }
 

@@ -1,14 +1,14 @@
 import type { Kysely, Transaction } from "kysely";
 
-import type { DB } from "../../db/types.ts";
+import type { DB, User } from "../../db/types.ts";
 import type { UserToken } from "../../domain/user-token.ts";
 import { UserTokenRepoShared } from "./shared.ts";
 
 export class UserTokenRepoForUser {
   #shared;
 
-  constructor(db: Kysely<DB>) {
-    this.#shared = new UserTokenRepoShared(db);
+  constructor(db: Kysely<DB>, tenantId: User["id"]) {
+    this.#shared = new UserTokenRepoShared(db, tenantId);
   }
 
   async save(userToken: UserToken, trx?: Transaction<DB>) {

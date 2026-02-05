@@ -7,8 +7,8 @@ import { UserQueryShared } from "./shared.ts";
 export class UserQueryForUser {
   #shared;
 
-  constructor(db: Kysely<DB>) {
-    this.#shared = new UserQueryShared(db);
+  constructor(db: Kysely<DB>, tenantId?: User["id"]) {
+    this.#shared = new UserQueryShared(db, tenantId);
   }
 
   async findById(id: User["id"]) {

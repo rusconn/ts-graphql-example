@@ -17,8 +17,8 @@ export class TodoQueryForAdmin {
     return await this.#shared.find(id);
   }
 
-  async count(userId?: Todo["userId"]) {
-    return await this.#shared.count(userId);
+  async count() {
+    return await this.#shared.count();
   }
 
   async loadTheir(key: UserTodoLoader.Key) {

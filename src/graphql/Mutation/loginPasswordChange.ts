@@ -90,18 +90,21 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
 
   const result = await ctx.repos.user.save(updatedUser);
   switch (result.type) {
-    case "Success":
-      return {
-        __typename: "LoginPasswordChangeSuccess",
-        id: userId(user.id),
-      };
+    case "Ok":
+      break;
+    case "Forbidden":
+    case "NotFound":
     case "EmailAlreadyExists":
-      throw internalServerError();
     case "Unknown":
       throw internalServerError(result.e);
     default:
       throw new Error(result satisfies never);
   }
+
+  return {
+    __typename: "LoginPasswordChangeSuccess",
+    id: userId(user.id),
+  };
 };
 
 const parseArgs = (args: MutationLoginPasswordChangeArgs) => {

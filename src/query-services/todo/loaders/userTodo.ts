@@ -1,16 +1,16 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { DB, Todo } from "../../../db/types.ts";
+import type { DB, Todo, User } from "../../../db/types.ts";
 import { sort } from "../../../lib/dataloader/sort.ts";
 
 export type Key = Pick<Todo, "id" | "userId">;
 
-export const create = (db: Kysely<DB>) => {
-  return new DataLoader(batchGet(db), { cacheKeyFn: combine });
+export const create = (db: Kysely<DB>, tenantId?: User["id"]) => {
+  return new DataLoader(batchGet(db, tenantId), { cacheKeyFn: combine });
 };
 
-const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
+const batchGet = (db: Kysely<DB>, tenantId?: User["id"]) => async (keys: readonly Key[]) => {
   const todos = await db
     .selectFrom("todos")
     .where(({ eb, refTuple, tuple }) =>
@@ -20,6 +20,7 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
         keys.map((key) => tuple(key.id, key.userId)),
       ),
     )
+    .$if(tenantId != null, (qb) => qb.where("userId", "=", tenantId!))
     .selectAll()
     .execute();
 

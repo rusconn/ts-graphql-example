@@ -6,18 +6,21 @@ import * as UserLoader from "./loaders/user.ts";
 export class UserQueryShared {
   #db;
   #loaders;
+  #tenantId;
 
-  constructor(db: Kysely<DB>) {
+  constructor(db: Kysely<DB>, tenantId?: User["id"]) {
     this.#db = db;
     this.#loaders = {
-      user: UserLoader.create(db),
+      user: UserLoader.create(db, tenantId),
     };
+    this.#tenantId = tenantId;
   }
 
   async findById(id: User["id"]) {
     const user = await this.#db
       .selectFrom("users")
       .where("id", "=", id)
+      .$if(this.#tenantId != null, (qb) => qb.where("id", "=", this.#tenantId!))
       .selectAll()
       .executeTakeFirst();
 
@@ -29,6 +32,7 @@ export class UserQueryShared {
       .selectFrom("users")
       .innerJoin("userTokens", "users.id", "userTokens.userId")
       .where("refreshToken", "=", refreshToken)
+      .$if(this.#tenantId != null, (qb) => qb.where("users.id", "=", this.#tenantId!))
       .selectAll("users")
       .executeTakeFirst();
 

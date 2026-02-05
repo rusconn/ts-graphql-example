@@ -45,15 +45,18 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
     };
   }
 
-  const touched = await context.repos.userToken.touch(hashed, new Date());
-  if (!touched) {
-    throw internalServerError();
+  const result = await context.repos.userToken.touch(hashed, new Date());
+  switch (result) {
+    case "Ok":
+      break;
+    case "NotFound":
+      throw internalServerError();
+    default:
+      throw new Error(result satisfies never);
   }
-
-  const token = await signedJwt(user);
 
   return {
     __typename: "TokenRefreshSuccess",
-    token,
+    token: await signedJwt(user),
   };
 };

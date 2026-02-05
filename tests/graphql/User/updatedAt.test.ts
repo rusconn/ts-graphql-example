@@ -43,15 +43,24 @@ test("owned", async () => {
   expect(data.node.updatedAt).toBe(graph.users.admin.updatedAt);
 });
 
-test("not owned", async () => {
+test("not owned, but admin", async () => {
   const { data } = await executeQuery({
-    token: tokens.alice,
-    variables: { id: graph.users.admin.id },
+    token: tokens.admin,
+    variables: { id: graph.users.alice.id },
   });
 
   if (data?.node?.__typename !== "User") {
     fail();
   }
 
-  expect(data.node.updatedAt).toBeNull();
+  expect(data.node.updatedAt).toBe(graph.users.alice.updatedAt);
+});
+
+test("not owned", async () => {
+  const { data } = await executeQuery({
+    token: tokens.alice,
+    variables: { id: graph.users.admin.id },
+  });
+
+  expect(data?.node).toBeNull();
 });

@@ -87,7 +87,7 @@ const logic = async (
   ctx: Exclude<ReturnType<typeof authorize>, Error>,
   parsed: Exclude<ReturnType<typeof parseArgs>, Error[]>,
 ): Promise<ResolversTypes["TodoCreateResult"]> => {
-  const count = await ctx.queries.todo.count(ctx.user.id);
+  const count = await ctx.queries.todo.count();
   if (count >= TODOS_MAX) {
     return {
       __typename: "ResourceLimitExceededError",
@@ -101,9 +101,16 @@ const logic = async (
   }
 
   const todo = Todo.create({ ...parsed, userId: user.id });
-  const success = await ctx.repos.todo.save(todo);
-  if (!success) {
-    throw internalServerError();
+  const result = await ctx.repos.todo.save(todo);
+  switch (result) {
+    case "Ok":
+      break;
+    case "Failed":
+    case "Forbidden":
+    case "NotFound":
+      throw internalServerError();
+    default:
+      throw new Error(result satisfies never);
   }
 
   const created = await ctx.queries.todo.find(todo.id);
@@ -172,7 +179,7 @@ if (import.meta.vitest) {
     const createRepos = () =>
       ({
         todo: {
-          save: async () => true,
+          save: async () => "Ok",
         },
         user: {
           findByDbId: async () => ({ id: "dummy" }),

@@ -1,7 +1,7 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { DB, Todo, TodoStatus } from "../../../db/types.ts";
+import type { DB, Todo, TodoStatus, User } from "../../../db/types.ts";
 import { sortGroup } from "../../../lib/dataloader/sortGroup.ts";
 
 export type Key = {
@@ -13,11 +13,11 @@ export type Key = {
   status?: TodoStatus;
 };
 
-export const create = (db: Kysely<DB>) => {
-  return new DataLoader(batchGet(db), { cacheKeyFn: JSON.stringify });
+export const create = (db: Kysely<DB>, tenantId?: User["id"]) => {
+  return new DataLoader(batchGet(db, tenantId), { cacheKeyFn: JSON.stringify });
 };
 
-const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
+const batchGet = (db: Kysely<DB>, tenantId?: User["id"]) => async (keys: readonly Key[]) => {
   const userIds = keys.map((key) => key.userId);
   const { sortKey, reverse, cursor, limit, status } = keys.at(0)!;
 
@@ -54,6 +54,7 @@ const batchGet = (db: Kysely<DB>) => async (keys: readonly Key[]) => {
       (join) => join.onTrue(),
     )
     .where("users.id", "in", userIds)
+    .$if(tenantId != null, (qb) => qb.where("users.id", "=", tenantId!))
     .selectAll("todos")
     // サブクエリの結果順を維持することを想定して order by は指定していない
     .execute();

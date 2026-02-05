@@ -55,7 +55,7 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
   }
 
   const todo = await ctx.repos.todo.find(id);
-  if (!todo || todo.userId !== ctx.user.id) {
+  if (!todo) {
     return {
       __typename: "ResourceNotFoundError",
       message: "The specified todo does not exist.",
@@ -68,9 +68,16 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
     updatedAt: new Date(),
   };
 
-  const success = await ctx.repos.todo.save(updatedTodo);
-  if (!success) {
-    throw internalServerError();
+  const result = await ctx.repos.todo.save(updatedTodo);
+  switch (result) {
+    case "Ok":
+      break;
+    case "Forbidden":
+    case "NotFound":
+    case "Failed":
+      throw internalServerError();
+    default:
+      throw new Error(result satisfies never);
   }
 
   const found = await ctx.queries.todo.find(todo.id);

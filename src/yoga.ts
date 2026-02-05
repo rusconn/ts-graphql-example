@@ -84,9 +84,9 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
             user: new UserQueryForAdmin(client),
           },
           repos: {
-            todo: new TodoRepoForAdmin(client),
-            user: new UserRepoForAdmin(client),
-            userToken: new UserTokenRepoForAdmin(client),
+            todo: new TodoRepoForAdmin(client, user.id),
+            user: new UserRepoForAdmin(client, user.id),
+            userToken: new UserTokenRepoForAdmin(client, user.id),
           },
         };
       case "user":
@@ -95,13 +95,13 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
           role: user.role,
           user,
           queries: {
-            todo: new TodoQueryForUser(client),
-            user: new UserQueryForUser(client),
+            todo: new TodoQueryForUser(client, user.id),
+            user: new UserQueryForUser(client, user.id),
           },
           repos: {
-            todo: new TodoRepoForUser(client),
-            user: new UserRepoForUser(client),
-            userToken: new UserTokenRepoForUser(client),
+            todo: new TodoRepoForUser(client, user.id),
+            user: new UserRepoForUser(client, user.id),
+            userToken: new UserTokenRepoForUser(client, user.id),
           },
         };
       case undefined:

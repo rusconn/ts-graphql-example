@@ -34,15 +34,17 @@ export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, c
     throw internalServerError();
   }
 
-  const success = await ctx.repos.todo.delete({
-    id,
-    userId: user.id,
-  });
-  if (!success) {
-    return {
-      __typename: "ResourceNotFoundError",
-      message: "The specified todo does not exist.",
-    };
+  const result = await ctx.repos.todo.delete(id);
+  switch (result) {
+    case "Ok":
+      break;
+    case "NotFound":
+      return {
+        __typename: "ResourceNotFoundError",
+        message: "The specified todo does not exist.",
+      };
+    default:
+      throw new Error(result satisfies never);
   }
 
   return {
