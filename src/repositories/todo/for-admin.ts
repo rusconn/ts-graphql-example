@@ -15,8 +15,12 @@ export class TodoRepoForAdmin {
     return await this.#shared.find(id, trx);
   }
 
-  async save(todo: Domain.Todo, trx?: Transaction<DB>) {
-    return await this.#shared.save(todo, trx);
+  async create(todo: Domain.Todo, trx?: Transaction<DB>) {
+    return await this.#shared.create(todo, trx);
+  }
+
+  async update(todo: Domain.Todo, trx?: Transaction<DB>) {
+    return await this.#shared.update(todo, trx);
   }
 
   async delete(id: Domain.Todo["id"], trx?: Transaction<DB>) {

@@ -11,8 +11,8 @@ export class UserTokenRepoForAdmin {
     this.#shared = new UserTokenRepoShared(db, tenantId);
   }
 
-  async save(userToken: UserToken, trx?: Transaction<DB>) {
-    return await this.#shared.save(userToken, trx);
+  async create(userToken: UserToken, trx?: Transaction<DB>) {
+    return await this.#shared.create(userToken, trx);
   }
 
   async touch(refreshToken: UserToken["refreshToken"], now: Date, trx?: Transaction<DB>) {

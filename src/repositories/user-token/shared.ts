@@ -12,22 +12,7 @@ export class UserTokenRepoShared {
     this.#tenantId = tenantId;
   }
 
-  // TODO: split save into (create, update)
-  async save(userToken: UserToken, trx?: Transaction<DB>) {
-    // FIXME: use transaction
-    const found = await (trx ?? this.#db)
-      .selectFrom("userTokens")
-      .where("refreshToken", "=", userToken.refreshToken)
-      .select("refreshToken")
-      .$if(trx != null, (qb) => qb.forUpdate())
-      .executeTakeFirst();
-
-    return found
-      ? await this.#update(userToken, trx) //
-      : await this.#create(userToken, trx);
-  }
-
-  async #create(userToken: UserToken, trx?: Transaction<DB>) {
+  async create(userToken: UserToken, trx?: Transaction<DB>) {
     if (this.#tenantId != null && userToken.userId !== this.#tenantId) {
       return "Forbidden";
     }
@@ -38,16 +23,6 @@ export class UserTokenRepoShared {
       .executeTakeFirst();
 
     return result.numInsertedOrUpdatedRows! > 0n ? "Ok" : "Failed";
-  }
-
-  async #update(userToken: UserToken, trx?: Transaction<DB>) {
-    const result = await (trx ?? this.#db)
-      .updateTable("userTokens")
-      .set(userToken)
-      .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
-      .executeTakeFirst();
-
-    return result.numUpdatedRows > 0n ? "Ok" : "NotFound";
   }
 
   async touch(refreshToken: UserToken["refreshToken"], now: Date, trx?: Transaction<DB>) {

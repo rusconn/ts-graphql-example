@@ -87,14 +87,12 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     password: hashedPassword,
   };
 
-  const result = await ctx.repos.userCredential.save(updatedUser);
-  switch (result.type) {
+  const result = await ctx.repos.userCredential.update(updatedUser);
+  switch (result) {
     case "Ok":
       break;
-    case "Forbidden":
     case "NotFound":
-    case "Unknown":
-      throw internalServerError(result.e);
+      throw internalServerError();
     default:
       throw new Error(result satisfies never);
   }

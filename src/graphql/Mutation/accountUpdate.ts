@@ -44,15 +44,13 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
     updatedAt: new Date(),
   };
 
-  const result = await ctx.repos.user.save(updatedUser);
-  switch (result.type) {
+  const result = await ctx.repos.user.update(updatedUser);
+  switch (result) {
     case "Ok":
       break;
-    case "Forbidden":
     case "NotFound":
     case "EmailAlreadyExists":
-    case "Unknown":
-      throw internalServerError(result.e);
+      throw internalServerError();
     default:
       throw new Error(result satisfies never);
   }

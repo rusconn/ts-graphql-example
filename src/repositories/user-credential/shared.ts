@@ -38,43 +38,22 @@ export class UserCredentialRepoShared {
     return credential && mappers.userCredential.toDomain(credential);
   }
 
-  // TODO: split save into (create, update)
-  async save(credential: Domain.UserCredential, trx?: Transaction<DB>) {
-    try {
-      const result = await this.#saveCore(credential, trx);
-      return { type: result } as const;
-    } catch (e) {
-      return {
-        type: "Unknown",
-        e: Error.isError(e) ? e : new Error("unknown", { cause: e }),
-      } as const;
-    }
-  }
-
-  async #saveCore(credential: Domain.UserCredential, trx?: Transaction<DB>) {
-    const found = await this.findByDbId(credential.id, trx);
-
-    return found
-      ? await this.#update(credential, trx) //
-      : await this.#create(credential, trx);
-  }
-
-  async #create(credential: Domain.UserCredential, trx?: Transaction<DB>) {
+  async create(credential: Domain.UserCredential, trx?: Transaction<DB>) {
     if (this.#tenantId != null && credential.id !== this.#tenantId) {
       return "Forbidden";
     }
 
     const dbCredential = mappers.userCredential.toDb(credential);
 
-    await (trx ?? this.#db)
+    const result = await (trx ?? this.#db)
       .insertInto("userCredentials") //
       .values(dbCredential)
-      .executeTakeFirstOrThrow();
+      .executeTakeFirst();
 
-    return "Ok";
+    return result.numInsertedOrUpdatedRows! > 0n ? "Ok" : "Failed";
   }
 
-  async #update(credential: Domain.UserCredential, trx?: Transaction<DB>) {
+  async update(credential: Domain.UserCredential, trx?: Transaction<DB>) {
     const dbCredential = mappers.userCredential.toDb(credential);
 
     const result = await (trx ?? this.#db)

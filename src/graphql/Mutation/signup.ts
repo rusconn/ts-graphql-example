@@ -61,8 +61,8 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   {
     const trx = await ctx.db.startTransaction().execute();
 
-    const result1 = await ctx.repos.user.save(user, trx);
-    switch (result1.type) {
+    const result1 = await ctx.repos.user.create(user, trx);
+    switch (result1) {
       case "Ok":
         break;
       case "EmailAlreadyExists":
@@ -72,33 +72,30 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
           message: "The email already taken.",
         };
       case "Forbidden":
-      case "NotFound":
-      case "Unknown":
+      case "Failed":
         await trx.rollback().execute();
-        throw internalServerError(result1.e);
+        throw internalServerError();
       default:
         throw new Error(result1 satisfies never);
     }
 
-    const result2 = await ctx.repos.userCredential.save(credential, trx);
-    switch (result2.type) {
+    const result2 = await ctx.repos.userCredential.create(credential, trx);
+    switch (result2) {
       case "Ok":
         break;
       case "Forbidden":
-      case "NotFound":
-      case "Unknown":
+      case "Failed":
         await trx.rollback().execute();
-        throw internalServerError(result2.e);
+        throw internalServerError();
       default:
         throw new Error(result2 satisfies never);
     }
 
-    const result3 = await ctx.repos.userToken.save(userToken, trx);
+    const result3 = await ctx.repos.userToken.create(userToken, trx);
     switch (result3) {
       case "Ok":
         break;
       case "Forbidden":
-      case "NotFound":
       case "Failed":
         await trx.rollback().execute();
         throw internalServerError();

@@ -68,12 +68,11 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
   {
     const trx = await context.db.startTransaction().execute();
 
-    const result = await context.repos.userToken.save(userToken, trx);
+    const result = await context.repos.userToken.create(userToken, trx);
     switch (result) {
       case "Ok":
         break;
       case "Forbidden":
-      case "NotFound":
       case "Failed":
         await trx.rollback().execute();
         throw internalServerError();

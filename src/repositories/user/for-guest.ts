@@ -11,7 +11,11 @@ export class UserRepoForGuest {
     this.#shared = new UserRepoShared(db);
   }
 
-  async save(user: Domain.User, trx?: Transaction<DB>) {
-    return await this.#shared.save(user, trx);
+  async create(user: Domain.User, trx?: Transaction<DB>) {
+    return await this.#shared.create(user, trx);
+  }
+
+  async update(user: Domain.User, trx?: Transaction<DB>) {
+    return await this.#shared.update(user, trx);
   }
 }

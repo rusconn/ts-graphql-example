@@ -68,13 +68,11 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
     updatedAt: new Date(),
   };
 
-  const result = await ctx.repos.todo.save(updatedTodo);
+  const result = await ctx.repos.todo.update(updatedTodo);
   switch (result) {
     case "Ok":
       break;
-    case "Forbidden":
     case "NotFound":
-    case "Failed":
       throw internalServerError();
     default:
       throw new Error(result satisfies never);

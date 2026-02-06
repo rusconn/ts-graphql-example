@@ -20,8 +20,12 @@ export class UserCredentialRepoForUser {
     return await this.#shared.findByDbEmail(email, trx);
   }
 
-  async save(user: Domain.UserCredential, trx?: Transaction<DB>) {
-    return await this.#shared.save(user, trx);
+  async create(user: Domain.UserCredential, trx?: Transaction<DB>) {
+    return await this.#shared.create(user, trx);
+  }
+
+  async update(user: Domain.UserCredential, trx?: Transaction<DB>) {
+    return await this.#shared.update(user, trx);
   }
 
   async delete(id: Domain.UserCredential["id"], trx?: Transaction<DB>) {

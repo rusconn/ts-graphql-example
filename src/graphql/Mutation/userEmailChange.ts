@@ -44,8 +44,8 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
     updatedAt: new Date(),
   };
 
-  const result = await ctx.repos.user.save(changedUser);
-  switch (result.type) {
+  const result = await ctx.repos.user.update(changedUser);
+  switch (result) {
     case "Ok":
       break;
     case "EmailAlreadyExists":
@@ -53,10 +53,8 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
         __typename: "EmailAlreadyTakenError",
         message: "The email already taken.",
       };
-    case "Forbidden":
     case "NotFound":
-    case "Unknown":
-      throw internalServerError(result.e);
+      throw internalServerError();
     default:
       throw new Error(result satisfies never);
   }

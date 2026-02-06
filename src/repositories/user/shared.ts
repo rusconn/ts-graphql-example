@@ -30,61 +30,56 @@ export class UserRepoShared {
     return user && mappers.user.toDomain(user);
   }
 
-  // TODO: split save into (create, update)
-  async save(user: Domain.User, trx?: Transaction<DB>) {
-    try {
-      const result = await this.#saveCore(user, trx);
-      return { type: result } as const;
-    } catch (e) {
-      if (isPgError(e)) {
-        if (e.code === PgErrorCode.UniqueViolation) {
-          if (e.constraint?.includes("email")) {
-            return { type: "EmailAlreadyExists" } as const;
-          }
-        }
-      }
-
-      return {
-        type: "Unknown",
-        e: Error.isError(e) ? e : new Error("unknown", { cause: e }),
-      } as const;
-    }
-  }
-
-  async #saveCore(user: Domain.User, trx?: Transaction<DB>) {
-    const found = await this.findById(user.id, trx);
-
-    return found
-      ? await this.#update(user, trx) //
-      : await this.#create(user, trx);
-  }
-
-  async #create(user: Domain.User, trx?: Transaction<DB>) {
+  async create(user: Domain.User, trx?: Transaction<DB>) {
     if (this.#tenantId != null && user.id !== this.#tenantId) {
       return "Forbidden";
     }
 
     const dbUser = mappers.user.toDb(user);
 
-    await (trx ?? this.#db)
-      .insertInto("users") //
-      .values(dbUser)
-      .executeTakeFirstOrThrow();
+    try {
+      const result = await (trx ?? this.#db)
+        .insertInto("users") //
+        .values(dbUser)
+        .executeTakeFirst();
 
-    return "Ok";
+      return result.numInsertedOrUpdatedRows! > 0n ? "Ok" : "Failed";
+    } catch (e) {
+      if (isPgError(e)) {
+        if (e.code === PgErrorCode.UniqueViolation) {
+          if (e.constraint?.includes("email")) {
+            return "EmailAlreadyExists";
+          }
+        }
+      }
+
+      throw e;
+    }
   }
 
-  async #update(user: Domain.User, trx?: Transaction<DB>) {
+  async update(user: Domain.User, trx?: Transaction<DB>) {
     const dbUser = mappers.user.toDb(user);
 
-    const result = await (trx ?? this.#db)
-      .updateTable("users")
-      .set(dbUser)
-      .where("id", "=", user.id)
-      .$if(this.#tenantId != null, (qb) => qb.where("id", "=", this.#tenantId!))
-      .executeTakeFirst();
+    try {
+      const result = await (trx ?? this.#db)
+        .updateTable("users")
+        .set(dbUser)
+        .where("id", "=", user.id)
+        .$if(this.#tenantId != null, (qb) => qb.where("id", "=", this.#tenantId!))
+        .executeTakeFirst();
 
-    return result.numUpdatedRows > 0n ? "Ok" : "NotFound";
+      return result.numUpdatedRows > 0n ? "Ok" : "NotFound";
+    } catch (e) {
+      if (isPgError(e)) {
+        if (e.code === PgErrorCode.UniqueViolation) {
+          if (e.constraint?.includes("email")) {
+            return "EmailAlreadyExists";
+          }
+        }
+      }
+
+      throw e;
+    }
   }
 
   async delete(id: Domain.User["id"], trx?: Transaction<DB>) {

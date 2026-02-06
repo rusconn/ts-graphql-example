@@ -25,16 +25,7 @@ export class TodoRepoShared {
     return todo && mappers.todo.toDomain(todo);
   }
 
-  // TODO: split save into (create, update)
-  async save(todo: Domain.Todo, trx?: Transaction<DB>) {
-    const found = await this.find(todo.id, trx);
-
-    return found
-      ? await this.#update(todo, trx) //
-      : await this.#create(todo, trx);
-  }
-
-  async #create(todo: Domain.Todo, trx?: Transaction<DB>) {
+  async create(todo: Domain.Todo, trx?: Transaction<DB>) {
     if (this.#tenantId != null && todo.userId !== this.#tenantId) {
       return "Forbidden";
     }
@@ -49,7 +40,7 @@ export class TodoRepoShared {
     return result.numInsertedOrUpdatedRows! > 0n ? "Ok" : "Failed";
   }
 
-  async #update(todo: Domain.Todo, trx?: Transaction<DB>) {
+  async update(todo: Domain.Todo, trx?: Transaction<DB>) {
     const dbTodo = mappers.todo.toDb(todo);
 
     const result = await (trx ?? this.#db)
