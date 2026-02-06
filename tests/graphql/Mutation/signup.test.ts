@@ -2,7 +2,7 @@ import { client } from "../../../src/db/client.ts";
 import { UserRole } from "../../../src/db/types.ts";
 
 import { db } from "../../data.ts";
-import { clearUsers, fail, seed } from "../../helpers.ts";
+import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { SignupMutation, SignupMutationVariables } from "../schema.ts";
 
@@ -42,7 +42,7 @@ test("invalid input", async () => {
     variables: { name, email: invalidEmail, password },
   });
 
-  expect(data?.signup?.__typename === "InvalidInputErrors").toBe(true);
+  expect(data?.signup?.__typename).toBe("InvalidInputErrors");
 });
 
 test("email already exists", async () => {
@@ -54,7 +54,7 @@ test("email already exists", async () => {
     variables: { name, email, password },
   });
 
-  expect(data?.signup?.__typename === "EmailAlreadyTakenError").toBe(true);
+  expect(data?.signup?.__typename).toBe("EmailAlreadyTakenError");
 });
 
 it("should create user using input", async () => {
@@ -67,7 +67,7 @@ it("should create user using input", async () => {
   });
 
   if (data?.signup?.__typename !== "SignupSuccess") {
-    fail();
+    assert.fail();
   }
 
   const user = await client
@@ -90,7 +90,7 @@ test("role should be USER by default", async () => {
   });
 
   if (data?.signup?.__typename !== "SignupSuccess") {
-    fail();
+    assert.fail();
   }
 
   const user = await client
@@ -99,5 +99,5 @@ test("role should be USER by default", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(user.role === UserRole.User).toBe(true);
+  expect(user.role).toBe(UserRole.User);
 });

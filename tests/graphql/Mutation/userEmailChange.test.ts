@@ -40,7 +40,7 @@ test("invalid input", async () => {
     variables: { email: "example.com" },
   });
 
-  expect(data?.userEmailChange?.__typename === "InvalidInputErrors").toBe(true);
+  expect(data?.userEmailChange?.__typename).toBe("InvalidInputErrors");
 });
 
 test("email already exists", async () => {
@@ -49,7 +49,7 @@ test("email already exists", async () => {
     variables: { email: db.users.alice.email },
   });
 
-  expect(data?.userEmailChange?.__typename === "EmailAlreadyTakenError").toBe(true);
+  expect(data?.userEmailChange?.__typename).toBe("EmailAlreadyTakenError");
 });
 
 it("should change email", async () => {
@@ -58,7 +58,7 @@ it("should change email", async () => {
     variables: { email: "admin2@admin.com" },
   });
 
-  expect(data?.userEmailChange?.__typename === "UserEmailChangeSuccess").toBe(true);
+  expect(data?.userEmailChange?.__typename).toBe("UserEmailChangeSuccess");
 
   const user = await client
     .selectFrom("users")
@@ -81,7 +81,7 @@ it("should update updatedAt", async () => {
     variables: { email: "admin2@admin.com" },
   });
 
-  expect(data?.userEmailChange?.__typename === "UserEmailChangeSuccess").toBe(true);
+  expect(data?.userEmailChange?.__typename).toBe("UserEmailChangeSuccess");
 
   const after = await client
     .selectFrom("users")

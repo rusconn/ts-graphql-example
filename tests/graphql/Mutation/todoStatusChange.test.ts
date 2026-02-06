@@ -59,7 +59,7 @@ test("invalid input", async () => {
     variables: { id: dummyId.todo().slice(0, -1), status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoStatusChange === null).toBe(true);
+  expect(data?.todoStatusChange).toBeNull();
   expect(errors?.map((e) => e.extensions.code)).toStrictEqual([Graph.ErrorCode.BadUserInput]);
 });
 
@@ -69,7 +69,7 @@ test("not exists", async () => {
     variables: { id: dummyId.todo(), status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoStatusChange?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoStatusChange?.__typename).toBe("ResourceNotFoundError");
 });
 
 test("exists, but not owned", async () => {
@@ -78,7 +78,7 @@ test("exists, but not owned", async () => {
     variables: { id: graph.todos.alice1.id, status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoStatusChange?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoStatusChange?.__typename).toBe("ResourceNotFoundError");
 });
 
 it("should update status", async () => {
@@ -93,7 +93,7 @@ it("should update status", async () => {
     variables: { id: graph.todos.admin1.id, status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
+  expect(data?.todoStatusChange?.__typename).toBe("TodoStatusChangeSuccess");
 
   const after = await client
     .selectFrom("todos")
@@ -101,8 +101,8 @@ it("should update status", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(before.status === Db.TodoStatus.Pending).toBe(true);
-  expect(after.status === Db.TodoStatus.Done).toBe(true);
+  expect(before.status).toBe(Db.TodoStatus.Pending);
+  expect(after.status).toBe(Db.TodoStatus.Done);
 });
 
 it("should update updatedAt", async () => {
@@ -117,7 +117,7 @@ it("should update updatedAt", async () => {
     variables: { id: graph.todos.admin1.id, status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
+  expect(data?.todoStatusChange?.__typename).toBe("TodoStatusChangeSuccess");
 
   const after = await client
     .selectFrom("todos")
@@ -143,7 +143,7 @@ it("should not update other attrs", async () => {
     variables: { id: graph.todos.admin1.id, status: Graph.TodoStatus.Done },
   });
 
-  expect(data?.todoStatusChange?.__typename === "TodoStatusChangeSuccess").toBe(true);
+  expect(data?.todoStatusChange?.__typename).toBe("TodoStatusChangeSuccess");
 
   const after = await client
     .selectFrom("todos")

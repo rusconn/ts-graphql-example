@@ -14,10 +14,6 @@ export const clearUsers = async () => {
   await client.deleteFrom("users").executeTakeFirstOrThrow();
 };
 
-export function fail(): never {
-  throw new Error();
-}
-
 type UserFull = User &
   Pick<UserCredential, "password"> &
   Pick<UserToken, "refreshToken" | "lastUsedAt">;

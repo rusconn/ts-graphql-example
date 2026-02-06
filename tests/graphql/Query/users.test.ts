@@ -1,7 +1,7 @@
 import { type PageInfo, type User, UserSortKeys } from "../../../src/schema.ts";
 
 import { db, graph, tokens } from "../../data.ts";
-import { clearUsers, fail, seed } from "../../helpers.ts";
+import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UsersQuery, UsersQueryVariables } from "../schema.ts";
 
@@ -247,7 +247,7 @@ describe("pagination", () => {
       });
 
       if (!data1 || !data1.users) {
-        fail();
+        assert.fail();
       }
 
       expect(data1.users.edges?.length).toBe(firstExpect.length);
@@ -263,7 +263,7 @@ describe("pagination", () => {
       });
 
       if (!data2 || !data2.users) {
-        fail();
+        assert.fail();
       }
 
       expect(data2.users.edges?.length).toBe(secondExpect.length);

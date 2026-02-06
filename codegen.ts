@@ -18,7 +18,7 @@ const typescript: TypeScriptPluginConfig = {
     },
     DateTime: {
       input: "./graphql/DateTime.ts#DateTime",
-      output: "Date | DateTime", // DateTime リゾルバーが Date -> DateTime する
+      output: "Date",
     },
     EmailAddress: {
       input: "./graphql/EmailAddress.ts#EmailAddress",
@@ -48,7 +48,7 @@ const typescriptOperations: TypeScriptDocumentsPluginConfig = {
     ID: "string",
     DateTime: {
       input: "string",
-      output: "Date",
+      output: "string",
     },
     EmailAddress: "string",
   },

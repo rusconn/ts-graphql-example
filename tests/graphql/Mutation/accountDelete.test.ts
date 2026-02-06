@@ -2,7 +2,7 @@ import { client } from "../../../src/db/client.ts";
 import { parseUserId } from "../../../src/graphql/_parsers/user/id.ts";
 
 import { db, tokens } from "../../data.ts";
-import { clearUsers, fail, seed } from "../../helpers.ts";
+import { clearUsers, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { AccountDeleteMutation, AccountDeleteMutationVariables } from "../schema.ts";
 
@@ -41,13 +41,13 @@ it("should delete user and user-*", async () => {
   });
 
   if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
-    fail();
+    assert.fail();
   }
 
   const id = parseUserId(data.accountDelete.id);
 
   if (Error.isError(id)) {
-    fail();
+    assert.fail();
   }
 
   const [user, userCredential, userToken] = await Promise.all([
@@ -84,13 +84,13 @@ it("should not delete others", async () => {
   });
 
   if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
-    fail();
+    assert.fail();
   }
 
   const id = parseUserId(data.accountDelete.id);
 
   if (Error.isError(id)) {
-    fail();
+    assert.fail();
   }
 
   const user = await client
@@ -121,7 +121,7 @@ it("should delete his resources", async () => {
     token: tokens.admin,
   });
 
-  expect(data?.accountDelete?.__typename === "AccountDeleteSuccess").toBe(true);
+  expect(data?.accountDelete?.__typename).toBe("AccountDeleteSuccess");
 
   const after = await client
     .selectFrom("todos")

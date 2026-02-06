@@ -3,7 +3,7 @@ import { TodoStatus } from "../../../src/db/types.ts";
 import { parseTodoId } from "../../../src/graphql/_parsers/todo/id.ts";
 
 import { db, tokens } from "../../data.ts";
-import { clearTables, fail, seed } from "../../helpers.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoCreateMutation, TodoCreateMutationVariables } from "../schema.ts";
 
@@ -52,7 +52,7 @@ test("invalid input", async () => {
     variables: { ...variables, title: invalidTitle },
   });
 
-  expect(data?.todoCreate?.__typename === "InvalidInputErrors").toBe(true);
+  expect(data?.todoCreate?.__typename).toBe("InvalidInputErrors");
 });
 
 it("should create todo using input", async () => {
@@ -62,13 +62,13 @@ it("should create todo using input", async () => {
   });
 
   if (data?.todoCreate?.__typename !== "TodoCreateSuccess") {
-    fail();
+    assert.fail();
   }
 
   const id = parseTodoId(data.todoCreate.todo.id);
 
   if (Error.isError(id)) {
-    fail();
+    assert.fail();
   }
 
   const todo = await client
@@ -88,13 +88,13 @@ test('description should be "" by default', async () => {
   });
 
   if (data?.todoCreate?.__typename !== "TodoCreateSuccess") {
-    fail();
+    assert.fail();
   }
 
   const id = parseTodoId(data.todoCreate.todo.id);
 
   if (Error.isError(id)) {
-    fail();
+    assert.fail();
   }
 
   const todo = await client
@@ -113,13 +113,13 @@ test("status should be PENDING by default", async () => {
   });
 
   if (data?.todoCreate?.__typename !== "TodoCreateSuccess") {
-    fail();
+    assert.fail();
   }
 
   const id = parseTodoId(data.todoCreate.todo.id);
 
   if (Error.isError(id)) {
-    fail();
+    assert.fail();
   }
 
   const todo = await client
@@ -128,5 +128,5 @@ test("status should be PENDING by default", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(todo.status === TodoStatus.Pending).toBe(true);
+  expect(todo.status).toBe(TodoStatus.Pending);
 });

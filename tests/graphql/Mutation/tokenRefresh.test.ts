@@ -36,7 +36,7 @@ beforeEach(async () => {
 test("no refresh token", async () => {
   const { data, errors } = await executeMutation({});
 
-  expect(data?.tokenRefresh === null).toBe(true);
+  expect(data?.tokenRefresh).toBeNull();
   expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
 });
 
@@ -45,7 +45,7 @@ test("invalid refresh token", async () => {
     refreshToken: refreshTokens.admin.slice(0, -1),
   });
 
-  expect(data?.tokenRefresh?.__typename === "InvalidRefreshTokenError").toBe(true);
+  expect(data?.tokenRefresh?.__typename).toBe("InvalidRefreshTokenError");
 });
 
 test("correct input", async () => {
@@ -53,7 +53,7 @@ test("correct input", async () => {
     refreshToken: refreshTokens.admin,
   });
 
-  expect(data?.tokenRefresh?.__typename === "TokenRefreshSuccess").toBe(true);
+  expect(data?.tokenRefresh?.__typename).toBe("TokenRefreshSuccess");
 });
 
 test("update last_used_at", async () => {
@@ -67,7 +67,7 @@ test("update last_used_at", async () => {
     refreshToken: refreshTokens.admin,
   });
 
-  expect(data?.tokenRefresh?.__typename === "TokenRefreshSuccess").toBe(true);
+  expect(data?.tokenRefresh?.__typename).toBe("TokenRefreshSuccess");
 
   const after = await client
     .selectFrom("userTokens")
@@ -75,5 +75,8 @@ test("update last_used_at", async () => {
     .select("lastUsedAt")
     .executeTakeFirstOrThrow();
 
-  expect(after.lastUsedAt > before.lastUsedAt).toBe(true);
+  const beforeLastUsedAt = before.lastUsedAt.getTime();
+  const afterLastUsedAt = after.lastUsedAt.getTime();
+
+  expect(afterLastUsedAt).toBeGreaterThan(beforeLastUsedAt);
 });

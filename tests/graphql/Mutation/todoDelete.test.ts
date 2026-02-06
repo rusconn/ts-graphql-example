@@ -46,7 +46,7 @@ test("invalid input", async () => {
     variables: { id: dummyId.todo().slice(0, -1) },
   });
 
-  expect(data?.todoDelete === null).toBe(true);
+  expect(data?.todoDelete).toBeNull();
   expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
 });
 
@@ -56,7 +56,7 @@ test("not exists", async () => {
     variables: { id: dummyId.todo() },
   });
 
-  expect(data?.todoDelete?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoDelete?.__typename).toBe("ResourceNotFoundError");
 });
 
 test("exists, but not owned", async () => {
@@ -65,7 +65,7 @@ test("exists, but not owned", async () => {
     variables: { id: graph.todos.alice1.id },
   });
 
-  expect(data?.todoDelete?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoDelete?.__typename).toBe("ResourceNotFoundError");
 });
 
 it("should delete todo", async () => {
@@ -74,7 +74,7 @@ it("should delete todo", async () => {
     variables: { id: graph.todos.admin1.id },
   });
 
-  expect(data?.todoDelete?.__typename === "TodoDeleteSuccess").toBe(true);
+  expect(data?.todoDelete?.__typename).toBe("TodoDeleteSuccess");
 
   const todo = await client
     .selectFrom("todos")
@@ -96,7 +96,7 @@ it("should not delete others", async () => {
     variables: { id: graph.todos.admin1.id },
   });
 
-  expect(data?.todoDelete?.__typename === "TodoDeleteSuccess").toBe(true);
+  expect(data?.todoDelete?.__typename).toBe("TodoDeleteSuccess");
 
   const todo = await client
     .selectFrom("todos")

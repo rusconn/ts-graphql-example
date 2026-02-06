@@ -54,6 +54,6 @@ describe("should return item correctly", () => {
       variables: { id },
     });
 
-    expect(data?.node?.id).toEqual(id);
+    expect(data?.node?.id).toBe(id);
   });
 });

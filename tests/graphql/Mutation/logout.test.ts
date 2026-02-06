@@ -50,8 +50,8 @@ test("logout deletes specified token", async () => {
     .selectAll()
     .executeTakeFirst();
 
-  expect(before == null).not.toBe(true);
-  expect(after == null).toBe(true);
+  expect(before).not.toBeUndefined();
+  expect(after).toBeUndefined();
 });
 
 test("allows invalid token", async () => {
@@ -74,8 +74,8 @@ test("allows invalid token", async () => {
     .selectAll()
     .executeTakeFirst();
 
-  expect(before == null).not.toBe(true);
-  expect(after == null).not.toBe(true);
+  expect(before).not.toBeUndefined();
+  expect(after).not.toBeUndefined();
 });
 
 test("logout does not changes other attrs", async () => {

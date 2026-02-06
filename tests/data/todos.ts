@@ -5,13 +5,9 @@ import { db } from "../../src/graphql/_testData/db/todos.ts";
 import { domain } from "../../src/graphql/_testData/domain/todos.ts";
 import type * as Graph from "../../src/schema.ts";
 
-import { dateTime } from "./common.ts";
-
 const node = (todo: Domain.Todo): Graph.Todo => ({
   ...todo,
   id: todoId(todo.id),
-  createdAt: dateTime(todo.createdAt),
-  updatedAt: dateTime(todo.updatedAt),
 });
 
 export const graph = {

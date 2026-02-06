@@ -1,5 +1,5 @@
 import { db, graph, tokens } from "../../data.ts";
-import { clearTables, fail, seed } from "../../helpers.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoTitleQuery, TodoTitleQueryVariables } from "../schema.ts";
 
@@ -40,7 +40,7 @@ test("owned", async () => {
   });
 
   if (data?.node?.__typename !== "Todo") {
-    fail();
+    assert.fail();
   }
 
   expect(data.node.title).toBe(graph.todos.admin1.title);
@@ -53,7 +53,7 @@ test("not owned, but admin", async () => {
   });
 
   if (data?.node?.__typename !== "Todo") {
-    fail();
+    assert.fail();
   }
 
   expect(data.node.title).toBeNull();

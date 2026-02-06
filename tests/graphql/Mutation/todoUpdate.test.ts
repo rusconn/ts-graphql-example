@@ -65,7 +65,7 @@ test("invalid input id", async () => {
     variables: { id: dummyId.todo().slice(0, -1), ...variables },
   });
 
-  expect(data?.todoUpdate === null).toBe(true);
+  expect(data?.todoUpdate).toBeNull();
   expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
 });
 
@@ -77,7 +77,7 @@ test("invalid input args", async () => {
     variables: { id: dummyId.todo(), ...variables, title: invalidTitle },
   });
 
-  expect(data?.todoUpdate?.__typename === "InvalidInputErrors").toBe(true);
+  expect(data?.todoUpdate?.__typename).toBe("InvalidInputErrors");
 });
 
 test("not exists", async () => {
@@ -86,7 +86,7 @@ test("not exists", async () => {
     variables: { id: dummyId.todo() },
   });
 
-  expect(data?.todoUpdate?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoUpdate?.__typename).toBe("ResourceNotFoundError");
 });
 
 test("exists, but not owned", async () => {
@@ -95,7 +95,7 @@ test("exists, but not owned", async () => {
     variables: { id: graph.todos.alice1.id },
   });
 
-  expect(data?.todoUpdate?.__typename === "ResourceNotFoundError").toBe(true);
+  expect(data?.todoUpdate?.__typename).toBe("ResourceNotFoundError");
 });
 
 it("should update using input", async () => {
@@ -104,7 +104,7 @@ it("should update using input", async () => {
     variables: { id: graph.todos.admin1.id, ...variables },
   });
 
-  expect(data?.todoUpdate?.__typename === "TodoUpdateSuccess").toBe(true);
+  expect(data?.todoUpdate?.__typename).toBe("TodoUpdateSuccess");
 
   const todo = await client
     .selectFrom("todos")
@@ -112,9 +112,9 @@ it("should update using input", async () => {
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  expect(todo.title === variables.title).toBe(true);
-  expect(todo.description === variables.description).toBe(true);
-  expect(todo.status === Db.TodoStatus.Done).toBe(true);
+  expect(todo.title).toBe(variables.title);
+  expect(todo.description).toBe(variables.description);
+  expect(todo.status).toBe(Db.TodoStatus.Done);
 });
 
 it("should not update fields if the field is absent", async () => {
@@ -129,7 +129,7 @@ it("should not update fields if the field is absent", async () => {
     variables: { id: graph.todos.admin1.id },
   });
 
-  expect(data?.todoUpdate?.__typename === "TodoUpdateSuccess").toBe(true);
+  expect(data?.todoUpdate?.__typename).toBe("TodoUpdateSuccess");
 
   const after = await client
     .selectFrom("todos")
@@ -154,7 +154,7 @@ it("should update updatedAt", async () => {
     variables: { id: graph.todos.admin1.id, ...variables },
   });
 
-  expect(data?.todoUpdate?.__typename === "TodoUpdateSuccess").toBe(true);
+  expect(data?.todoUpdate?.__typename).toBe("TodoUpdateSuccess");
 
   const after = await client
     .selectFrom("todos")
@@ -180,7 +180,7 @@ it("should not update other attrs", async () => {
     variables: { id: graph.todos.admin1.id, ...variables },
   });
 
-  expect(data?.todoUpdate?.__typename === "TodoUpdateSuccess").toBe(true);
+  expect(data?.todoUpdate?.__typename).toBe("TodoUpdateSuccess");
 
   const after = await client
     .selectFrom("todos")

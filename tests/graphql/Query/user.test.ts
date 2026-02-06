@@ -1,5 +1,5 @@
 import { db, dummyId, graph, tokens } from "../../data.ts";
-import { clearTables, fail, seed } from "../../helpers.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UserQuery, UserQueryVariables } from "../schema.ts";
 
@@ -31,10 +31,10 @@ it("should return item correctly", async () => {
   });
 
   if (!data || !data.user) {
-    fail();
+    assert.fail();
   }
 
-  expect(data.user.id).toEqual(graph.users.admin.id);
+  expect(data.user.id).toBe(graph.users.admin.id);
 });
 
 it("should return null if not found", async () => {

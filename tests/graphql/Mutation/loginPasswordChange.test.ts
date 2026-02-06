@@ -41,7 +41,7 @@ test("invalid input", async () => {
     variables: { oldPassword: "adminadmin", newPassword: "pass" },
   });
 
-  expect(data?.loginPasswordChange?.__typename === "InvalidInputErrors").toBe(true);
+  expect(data?.loginPasswordChange?.__typename).toBe("InvalidInputErrors");
 });
 
 test("same passwords", async () => {
@@ -50,7 +50,7 @@ test("same passwords", async () => {
     variables: { oldPassword: "adminadmin", newPassword: "adminadmin" },
   });
 
-  expect(data?.loginPasswordChange?.__typename === "SamePasswordsError").toBe(true);
+  expect(data?.loginPasswordChange?.__typename).toBe("SamePasswordsError");
 });
 
 test("incorrect old password", async () => {
@@ -59,7 +59,7 @@ test("incorrect old password", async () => {
     variables: { oldPassword: "foobar3000", newPassword: "adminadmin2" },
   });
 
-  expect(data?.loginPasswordChange?.__typename === "IncorrectOldPasswordError").toBe(true);
+  expect(data?.loginPasswordChange?.__typename).toBe("IncorrectOldPasswordError");
 });
 
 it("should change password", async () => {
@@ -74,7 +74,7 @@ it("should change password", async () => {
     variables: { oldPassword: "adminadmin", newPassword: "adminadmin2" },
   });
 
-  expect(data?.loginPasswordChange?.__typename === "LoginPasswordChangeSuccess").toBe(true);
+  expect(data?.loginPasswordChange?.__typename).toBe("LoginPasswordChangeSuccess");
 
   const after = await client
     .selectFrom("userCredentials")

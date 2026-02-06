@@ -42,7 +42,7 @@ test("invalid input", async () => {
     variables: { email: invalidEmail, password },
   });
 
-  expect(data?.login?.__typename === "InvalidInputErrors").toBe(true);
+  expect(data?.login?.__typename).toBe("InvalidInputErrors");
 });
 
 test("wrong email", async () => {
@@ -54,7 +54,7 @@ test("wrong email", async () => {
     variables: { email: wrongEmail, password },
   });
 
-  expect(data?.login?.__typename === "LoginFailedError").toBe(true);
+  expect(data?.login?.__typename).toBe("LoginFailedError");
 });
 
 test("wrong password", async () => {
@@ -66,7 +66,7 @@ test("wrong password", async () => {
     variables: { email, password: wrongPassword },
   });
 
-  expect(data?.login?.__typename === "LoginFailedError").toBe(true);
+  expect(data?.login?.__typename).toBe("LoginFailedError");
 });
 
 test("correct input", async () => {
@@ -78,7 +78,7 @@ test("correct input", async () => {
     variables: { email, password },
   });
 
-  expect(data?.login?.__typename === "LoginSuccess").toBe(true);
+  expect(data?.login?.__typename).toBe("LoginSuccess");
 });
 
 test("login adds a token", async () => {
@@ -96,7 +96,7 @@ test("login adds a token", async () => {
     variables: { email, password },
   });
 
-  expect(data?.login?.__typename === "LoginSuccess").toBe(true);
+  expect(data?.login?.__typename).toBe("LoginSuccess");
 
   const after = await client
     .selectFrom("userTokens")
@@ -154,7 +154,7 @@ test("oldest token will be removed when num tokens exceeds the limit", async () 
     .select("refreshToken")
     .executeTakeFirst();
 
-  expect(before != null).toBe(true);
+  expect(before).not.toBeUndefined();
 
   const rows = Array.from({ length: maxRefreshTokens - 1 }).map((_, i) => ({
     refreshToken: `dummy-${i}`,
@@ -178,7 +178,7 @@ test("oldest token will be removed when num tokens exceeds the limit", async () 
     .select("refreshToken")
     .executeTakeFirst();
 
-  expect(after == null).toBe(true);
+  expect(after).toBeUndefined();
 });
 
 test("login does not changes other attrs", async () => {
@@ -196,7 +196,7 @@ test("login does not changes other attrs", async () => {
     variables: { email, password },
   });
 
-  expect(data?.login?.__typename === "LoginSuccess").toBe(true);
+  expect(data?.login?.__typename).toBe("LoginSuccess");
 
   const after = await client
     .selectFrom("users")

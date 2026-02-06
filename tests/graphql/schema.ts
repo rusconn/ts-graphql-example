@@ -13,7 +13,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
-  DateTime: { input: string; output: Date; }
+  DateTime: { input: string; output: string; }
   /** A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address. */
   EmailAddress: { input: string; output: string; }
 };
@@ -57,7 +57,7 @@ export type AccountUpdateMutationVariables = Exact<{
 
 
 export type AccountUpdateMutation = { accountUpdate?:
-    | { __typename: 'AccountUpdateSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: Date | null } }
+    | { __typename: 'AccountUpdateSuccess', user: { id: string, name?: string | null, email?: string | null, updatedAt?: string | null } }
     | { __typename: 'InvalidInputErrors' }
    | null };
 
@@ -134,7 +134,7 @@ export type TodoStatusChangeMutationVariables = Exact<{
 
 export type TodoStatusChangeMutation = { todoStatusChange?:
     | { __typename: 'ResourceNotFoundError' }
-    | { __typename: 'TodoStatusChangeSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } }
+    | { __typename: 'TodoStatusChangeSuccess', todo: { id: string, updatedAt?: string | null, title?: string | null, description?: string | null, status?: TodoStatus | null } }
    | null };
 
 export type TodoUpdateMutationVariables = Exact<{
@@ -148,7 +148,7 @@ export type TodoUpdateMutationVariables = Exact<{
 export type TodoUpdateMutation = { todoUpdate?:
     | { __typename: 'InvalidInputErrors' }
     | { __typename: 'ResourceNotFoundError' }
-    | { __typename: 'TodoUpdateSuccess', todo: { id: string, updatedAt?: Date | null, title?: string | null, description?: string | null, status?: TodoStatus | null } }
+    | { __typename: 'TodoUpdateSuccess', todo: { id: string, updatedAt?: string | null, title?: string | null, description?: string | null, status?: TodoStatus | null } }
    | null };
 
 export type TokenRefreshMutationVariables = Exact<{ [key: string]: never; }>;
@@ -205,7 +205,7 @@ export type TodoCreatedAtQueryVariables = Exact<{
 
 
 export type TodoCreatedAtQuery = { node?:
-    | { __typename: 'Todo', createdAt?: Date | null }
+    | { __typename: 'Todo', createdAt?: string | null }
     | { __typename: 'User' }
    | null };
 
@@ -255,7 +255,7 @@ export type TodoUpdatedAtQueryVariables = Exact<{
 
 
 export type TodoUpdatedAtQuery = { node?:
-    | { __typename: 'Todo', updatedAt?: Date | null }
+    | { __typename: 'Todo', updatedAt?: string | null }
     | { __typename: 'User' }
    | null };
 
@@ -276,7 +276,7 @@ export type UserCreatedAtQueryVariables = Exact<{
 
 export type UserCreatedAtQuery = { node?:
     | { __typename: 'Todo' }
-    | { __typename: 'User', createdAt?: Date | null }
+    | { __typename: 'User', createdAt?: string | null }
    | null };
 
 export type UserEmailQueryVariables = Exact<{
@@ -344,5 +344,5 @@ export type UserUpdatedAtQueryVariables = Exact<{
 
 export type UserUpdatedAtQuery = { node?:
     | { __typename: 'Todo' }
-    | { __typename: 'User', updatedAt?: Date | null }
+    | { __typename: 'User', updatedAt?: string | null }
    | null };

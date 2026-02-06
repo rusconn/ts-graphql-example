@@ -1,5 +1,5 @@
 import { db, graph, tokens } from "../../data.ts";
-import { clearTables, fail, seed } from "../../helpers.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UserIdQuery, UserIdQueryVariables } from "../schema.ts";
 
@@ -32,7 +32,7 @@ test("owned", async () => {
   });
 
   if (data?.node?.__typename !== "User") {
-    fail();
+    assert.fail();
   }
 
   expect(data.node.id).toBe(graph.users.admin.id);
@@ -45,7 +45,7 @@ test("not owned, but admin", async () => {
   });
 
   if (data?.node?.__typename !== "User") {
-    fail();
+    assert.fail();
   }
 
   expect(data.node.id).toBe(graph.users.alice.id);

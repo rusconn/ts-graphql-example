@@ -5,13 +5,9 @@ import { domain } from "../../src/graphql/_testData/domain/users.ts";
 import type * as Graph from "../../src/schema.ts";
 import { signedJwt } from "../../src/util/accessToken.ts";
 
-import { dateTime } from "./common.ts";
-
 const node = (user: User): Graph.User => ({
   ...user,
   id: userId(user.id),
-  createdAt: dateTime(user.createdAt),
-  updatedAt: dateTime(user.updatedAt),
 });
 
 export const token = {

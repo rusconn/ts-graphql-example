@@ -45,7 +45,7 @@ test("invalid input", async () => {
     variables: { name: "" },
   });
 
-  expect(data?.accountUpdate?.__typename === "InvalidInputErrors").toBe(true);
+  expect(data?.accountUpdate?.__typename).toBe("InvalidInputErrors");
 });
 
 it("should update using input", async () => {
@@ -56,7 +56,7 @@ it("should update using input", async () => {
     variables: { name },
   });
 
-  expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
+  expect(data?.accountUpdate?.__typename).toBe("AccountUpdateSuccess");
 
   const user = await client
     .selectFrom("users")
@@ -79,7 +79,7 @@ it("should not update fields if the field is absent", async () => {
     variables: {},
   });
 
-  expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
+  expect(data?.accountUpdate?.__typename).toBe("AccountUpdateSuccess");
 
   const after = await client
     .selectFrom("users")
@@ -102,7 +102,7 @@ it("should update updatedAt", async () => {
     variables: { name: "bar" },
   });
 
-  expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
+  expect(data?.accountUpdate?.__typename).toBe("AccountUpdateSuccess");
 
   const after = await client
     .selectFrom("users")
@@ -128,7 +128,7 @@ it("should not update other attrs", async () => {
     variables: { name: "baz" },
   });
 
-  expect(data?.accountUpdate?.__typename === "AccountUpdateSuccess").toBe(true);
+  expect(data?.accountUpdate?.__typename).toBe("AccountUpdateSuccess");
 
   const after = await client
     .selectFrom("users")

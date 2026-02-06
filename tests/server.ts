@@ -11,9 +11,8 @@ type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;
 };
 
-export const executeSingleResultOperation =
-  <TData, TVariables extends object>(query: string) =>
-  async ({ token, refreshToken, variables }: ExecuteOperationParams<TVariables>) => {
+export const executeSingleResultOperation = <TData, TVariables extends object>(query: string) => {
+  return async ({ token, refreshToken, variables }: ExecuteOperationParams<TVariables>) => {
     const result = await executor<TData, TVariables>({
       document: parse(query),
       ...(variables != null && {
@@ -31,19 +30,20 @@ export const executeSingleResultOperation =
       },
     });
 
-    assertSingleResult(result);
+    if (!isSingleResult(result)) {
+      throw new Error("Expected single result");
+    }
 
     return result;
   };
+};
 
 const executor = buildHTTPExecutor({
   fetch: yoga.fetch,
 });
 
-function assertSingleResult<TResult extends object>(
+const isSingleResult = <TResult extends object>(
   result: TResult | AsyncIterable<TResult>,
-): asserts result is TResult {
-  if (Symbol.asyncIterator in result) {
-    throw new Error("Expected single result");
-  }
-}
+): result is TResult => {
+  return !(Symbol.asyncIterator in result);
+};

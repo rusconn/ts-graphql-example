@@ -1,5 +1,5 @@
 import { db, dummyId, graph, tokens } from "../../data.ts";
-import { clearTables, fail, seed } from "../../helpers.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UserTodoQuery, UserTodoQueryVariables } from "../schema.ts";
 
@@ -45,7 +45,7 @@ test("not exists", async () => {
   });
 
   if (data?.node?.__typename !== "User") {
-    fail();
+    assert.fail();
   }
 
   expect(data.node.todo).toBeNull();
@@ -61,7 +61,7 @@ test("exists, owned", async () => {
   });
 
   if (data?.node?.__typename !== "User") {
-    fail();
+    assert.fail();
   }
 
   expect(data.node.todo).not.toBeNull();
@@ -80,7 +80,7 @@ describe("exists, but not owned", () => {
     });
 
     if (data?.node?.__typename !== "User") {
-      fail();
+      assert.fail();
     }
 
     expect(data.node.todo).toBeNull();

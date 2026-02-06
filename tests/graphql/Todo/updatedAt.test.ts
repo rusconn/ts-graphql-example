@@ -1,5 +1,5 @@
 import { db, graph, tokens } from "../../data.ts";
-import { clearTables, fail, seed } from "../../helpers.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { TodoUpdatedAtQuery, TodoUpdatedAtQueryVariables } from "../schema.ts";
 
@@ -40,10 +40,10 @@ test("owned", async () => {
   });
 
   if (data?.node?.__typename !== "Todo") {
-    fail();
+    assert.fail();
   }
 
-  expect(data.node.updatedAt).toBe(graph.todos.admin1.updatedAt);
+  expect(data.node.updatedAt).toBe(graph.todos.admin1.updatedAt?.toISOString());
 });
 
 test("not owned, but admin", async () => {
@@ -53,10 +53,10 @@ test("not owned, but admin", async () => {
   });
 
   if (data?.node?.__typename !== "Todo") {
-    fail();
+    assert.fail();
   }
 
-  expect(data.node.updatedAt).toBe(graph.todos.alice1.updatedAt);
+  expect(data.node.updatedAt).toBe(graph.todos.alice1.updatedAt?.toISOString());
 });
 
 test("not owned", async () => {

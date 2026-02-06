@@ -7,7 +7,7 @@ import {
 } from "../../../src/schema.ts";
 
 import { db, graph, tokens } from "../../data.ts";
-import { clearTables, fail, seed } from "../../helpers.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
 import type { UserTodosQuery, UserTodosQueryVariables } from "../schema.ts";
 
@@ -82,7 +82,7 @@ describe("number of items", () => {
     });
 
     if (data?.node?.__typename !== "User") {
-      fail();
+      assert.fail();
     }
 
     expect(data.node.todos?.edges).toHaveLength(first);
@@ -97,7 +97,7 @@ describe("number of items", () => {
     });
 
     if (data?.node?.__typename !== "User") {
-      fail();
+      assert.fail();
     }
 
     expect(data.node.todos?.edges).toHaveLength(last);
@@ -132,7 +132,7 @@ describe("order of items", () => {
     });
 
     if (data?.node?.__typename !== "User") {
-      fail();
+      assert.fail();
     }
 
     const ids = data.node.todos?.edges?.map((edge) => edge?.node?.id);
@@ -156,11 +156,11 @@ describe("pagination", () => {
     const { data: data2 } = await execute();
 
     if (data1?.node?.__typename !== "User") {
-      fail();
+      assert.fail();
     }
 
     if (data2?.node?.__typename !== "User") {
-      fail();
+      assert.fail();
     }
 
     expect(data1.node.todos?.edges).toHaveLength(first);
@@ -299,7 +299,7 @@ describe("pagination", () => {
       });
 
       if (!data1 || data1.node?.__typename !== "User" || !data1.node.todos) {
-        fail();
+        assert.fail();
       }
 
       expect(data1.node.todos.edges?.length).toBe(firstExpect.length);
@@ -315,7 +315,7 @@ describe("pagination", () => {
       });
 
       if (!data2 || data2.node?.__typename !== "User" || !data2.node.todos) {
-        fail();
+        assert.fail();
       }
 
       expect(data2.node.todos.edges?.length).toBe(secondExpect.length);
@@ -339,7 +339,7 @@ describe("filter by status", () => {
     });
 
     if (!data || data.node?.__typename !== "User" || !data.node.todos) {
-      fail();
+      assert.fail();
     }
 
     const expectedIds = expectedTodos.map(({ id }) => id);
