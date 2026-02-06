@@ -16,10 +16,6 @@ export class UserRepoForAdmin {
     return await this.#shared.findByDbId(id, trx);
   }
 
-  async findByEmail(email: Domain.User["email"], trx?: Transaction<DB>) {
-    return await this.#shared.findByEmail(email, trx);
-  }
-
   async save(user: Domain.User, trx?: Transaction<DB>) {
     return await this.#shared.save(user, trx);
   }

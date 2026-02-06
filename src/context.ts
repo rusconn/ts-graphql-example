@@ -15,6 +15,9 @@ import type { TodoRepoForUser } from "./repositories/todo/for-user.ts";
 import type { UserRepoForAdmin } from "./repositories/user/for-admin.ts";
 import type { UserRepoForGuest } from "./repositories/user/for-guest.ts";
 import type { UserRepoForUser } from "./repositories/user/for-user.ts";
+import type { UserCredentialRepoForAdmin } from "./repositories/user-credential/for-admin.ts";
+import type { UserCredentialRepoForGuest } from "./repositories/user-credential/for-guest.ts";
+import type { UserCredentialRepoForUser } from "./repositories/user-credential/for-user.ts";
 import type { UserTokenRepoForAdmin } from "./repositories/user-token/for-admin.ts";
 import type { UserTokenRepoForGuest } from "./repositories/user-token/for-guest.ts";
 import type { UserTokenRepoForUser } from "./repositories/user-token/for-user.ts";
@@ -44,6 +47,7 @@ type ContextForAdmin = ContextBase & {
   repos: {
     todo: TodoRepoForAdmin;
     user: UserRepoForAdmin;
+    userCredential: UserCredentialRepoForAdmin;
     userToken: UserTokenRepoForAdmin;
   };
 };
@@ -58,6 +62,7 @@ type ContextForUser = ContextBase & {
   repos: {
     todo: TodoRepoForUser;
     user: UserRepoForUser;
+    userCredential: UserCredentialRepoForUser;
     userToken: UserTokenRepoForUser;
   };
 };
@@ -70,6 +75,7 @@ type ContextForGuest = ContextBase & {
   };
   repos: {
     user: UserRepoForGuest;
+    userCredential: UserCredentialRepoForGuest;
     userToken: UserTokenRepoForGuest;
   };
 };

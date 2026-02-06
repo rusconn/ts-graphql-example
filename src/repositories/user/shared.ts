@@ -21,25 +21,9 @@ export class UserRepoShared {
   async findById(id: Domain.User["id"], trx?: Transaction<DB>) {
     const user = await (trx ?? this.#db)
       .selectFrom("users")
-      .innerJoin("userCredentials", "users.id", "userCredentials.userId")
       .where("users.id", "=", id)
       .$if(this.#tenantId != null, (qb) => qb.where("users.id", "=", this.#tenantId!))
       .selectAll("users")
-      .select("userCredentials.password")
-      .$if(trx != null, (qb) => qb.forUpdate())
-      .executeTakeFirst();
-
-    return user && mappers.user.toDomain(user);
-  }
-
-  async findByEmail(email: Domain.User["email"], trx?: Transaction<DB>) {
-    const user = await (trx ?? this.#db)
-      .selectFrom("users")
-      .innerJoin("userCredentials", "users.id", "userCredentials.userId")
-      .where("email", "=", email)
-      .$if(this.#tenantId != null, (qb) => qb.where("users.id", "=", this.#tenantId!))
-      .selectAll("users")
-      .select("userCredentials.password")
       .$if(trx != null, (qb) => qb.forUpdate())
       .executeTakeFirst();
 
@@ -49,15 +33,8 @@ export class UserRepoShared {
   // TODO: split save into (create, update)
   async save(user: Domain.User, trx?: Transaction<DB>) {
     try {
-      if (trx) {
-        const result = await this.#saveCore(trx, user);
-        return { type: result } as const;
-      } else {
-        const result = await this.#db.transaction().execute(async (trx) => {
-          return await this.#saveCore(trx, user);
-        });
-        return { type: result } as const;
-      }
+      const result = await this.#saveCore(user, trx);
+      return { type: result } as const;
     } catch (e) {
       if (isPgError(e)) {
         if (e.code === PgErrorCode.UniqueViolation) {
@@ -74,61 +51,40 @@ export class UserRepoShared {
     }
   }
 
-  async #saveCore(trx: Transaction<DB>, user: Domain.User) {
-    const found = await this.findByDbId(user.id, trx);
+  async #saveCore(user: Domain.User, trx?: Transaction<DB>) {
+    const found = await this.findById(user.id, trx);
 
     return found
-      ? await this.#update(trx, user) //
-      : await this.#create(trx, user);
+      ? await this.#update(user, trx) //
+      : await this.#create(user, trx);
   }
 
-  async #create(trx: Transaction<DB>, user: Domain.User) {
+  async #create(user: Domain.User, trx?: Transaction<DB>) {
     if (this.#tenantId != null && user.id !== this.#tenantId) {
       return "Forbidden";
     }
 
-    const db = mappers.user.toDb(user);
+    const dbUser = mappers.user.toDb(user);
 
-    await trx
+    await (trx ?? this.#db)
       .insertInto("users") //
-      .values(db.user)
-      .executeTakeFirstOrThrow();
-    await trx
-      .insertInto("userCredentials") //
-      .values(db.userCredential)
+      .values(dbUser)
       .executeTakeFirstOrThrow();
 
     return "Ok";
   }
 
-  async #update(trx: Transaction<DB>, user: Domain.User) {
-    const db = mappers.user.toDb(user);
+  async #update(user: Domain.User, trx?: Transaction<DB>) {
+    const dbUser = mappers.user.toDb(user);
 
-    const result1 = await trx
+    const result = await (trx ?? this.#db)
       .updateTable("users")
-      .set(db.user)
+      .set(dbUser)
       .where("id", "=", user.id)
       .$if(this.#tenantId != null, (qb) => qb.where("id", "=", this.#tenantId!))
       .executeTakeFirst();
-    const result2 = await trx
-      .updateTable("userCredentials")
-      .set(db.userCredential)
-      .where("userId", "=", user.id)
-      .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
-      .executeTakeFirst();
 
-    const updated = (result1.numUpdatedRows + result2.numUpdatedRows) as 0n | 1n | 2n;
-
-    switch (updated) {
-      case 0n:
-        return "NotFound";
-      case 1n:
-        throw new Error("to rollback");
-      case 2n:
-        return "Ok";
-      default:
-        throw new Error(updated satisfies never);
-    }
+    return result.numUpdatedRows > 0n ? "Ok" : "NotFound";
   }
 
   async delete(id: Domain.User["id"], trx?: Transaction<DB>) {

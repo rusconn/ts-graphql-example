@@ -11,10 +11,6 @@ export class UserRepoForGuest {
     this.#shared = new UserRepoShared(db);
   }
 
-  async findByEmail(email: Domain.User["email"], trx?: Transaction<DB>) {
-    return await this.#shared.findByEmail(email, trx);
-  }
-
   async save(user: Domain.User, trx?: Transaction<DB>) {
     return await this.#shared.save(user, trx);
   }

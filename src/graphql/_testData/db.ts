@@ -5,7 +5,7 @@ import { db as users } from "./db/users.ts";
 
 export const db = {
   todos,
-  users,
   userCredentials,
   userTokens,
+  users,
 };

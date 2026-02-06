@@ -1,5 +1,5 @@
 import * as TokenRetensionPolicy from "../../domain/token-retension-policy.ts";
-import { UserPassword } from "../../domain/user.ts";
+import { UserPassword } from "../../domain/user-credential.ts";
 import * as UserToken from "../../domain/user-token.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
@@ -47,15 +47,15 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   const { email, password } = parsed;
 
-  const found = await context.repos.user.findByEmail(email);
-  if (!found) {
+  const credential = await context.repos.userCredential.findByDbEmail(email);
+  if (!credential) {
     return {
       __typename: "LoginFailedError",
       message: "Incorrect email or password.",
     };
   }
 
-  const match = await UserPassword.match(password, found.password);
+  const match = await UserPassword.match(password, credential.password);
   if (!match) {
     return {
       __typename: "LoginFailedError",
@@ -63,7 +63,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const { rawToken, userToken } = await UserToken.create(found.id);
+  const { rawToken, userToken } = await UserToken.create(credential.id);
 
   {
     const trx = await context.db.startTransaction().execute();
@@ -81,12 +81,12 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
         throw new Error(result satisfies never);
     }
 
-    await context.repos.userToken.retainLatest(found.id, TokenRetensionPolicy.limit, trx);
+    await context.repos.userToken.retainLatest(credential.id, TokenRetensionPolicy.limit, trx);
 
     await trx.commit().execute();
   }
 
-  const token = await signedJwt(found);
+  const token = await signedJwt(credential);
   await setRefreshTokenCookie(context.request, rawToken);
 
   return {

@@ -1,4 +1,4 @@
-import { UserPassword } from "../../domain/user.ts";
+import { UserPassword } from "../../domain/user-credential.ts";
 import type { MutationLoginPasswordChangeArgs, MutationResolvers } from "../../schema.ts";
 import { userId } from "../_adapters/user/id.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
@@ -60,8 +60,8 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     return invalidInputErrors(parsed);
   }
 
-  const user = await ctx.repos.user.findByDbId(ctx.user.id);
-  if (!user) {
+  const credential = await ctx.repos.userCredential.findByDbId(ctx.user.id);
+  if (!credential) {
     throw internalServerError();
   }
 
@@ -73,7 +73,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     };
   }
 
-  const match = await UserPassword.match(oldPassword, user.password);
+  const match = await UserPassword.match(oldPassword, credential.password);
   if (!match) {
     return {
       __typename: "IncorrectOldPasswordError",
@@ -82,19 +82,17 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
   }
 
   const hashedPassword = await UserPassword.hash(newPassword);
-  const updatedUser: typeof user = {
-    ...user,
+  const updatedUser: typeof credential = {
+    ...credential,
     password: hashedPassword,
-    updatedAt: new Date(),
   };
 
-  const result = await ctx.repos.user.save(updatedUser);
+  const result = await ctx.repos.userCredential.save(updatedUser);
   switch (result.type) {
     case "Ok":
       break;
     case "Forbidden":
     case "NotFound":
-    case "EmailAlreadyExists":
     case "Unknown":
       throw internalServerError(result.e);
     default:
@@ -103,7 +101,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
 
   return {
     __typename: "LoginPasswordChangeSuccess",
-    id: userId(user.id),
+    id: userId(credential.id),
   };
 };
 

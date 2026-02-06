@@ -1,4 +1,5 @@
 import * as User from "../../domain/user.ts";
+import * as Credential from "../../domain/user-credential.ts";
 import * as UserToken from "../../domain/user-token.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
@@ -54,13 +55,14 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   }
 
   const user = await User.create(parsed);
+  const credential = await Credential.create({ userId: user.id, password: parsed.password });
   const { rawToken, userToken } = await UserToken.create(user.id);
 
   {
     const trx = await ctx.db.startTransaction().execute();
 
-    const result = await ctx.repos.user.save(user, trx);
-    switch (result.type) {
+    const result1 = await ctx.repos.user.save(user, trx);
+    switch (result1.type) {
       case "Ok":
         break;
       case "EmailAlreadyExists":
@@ -73,22 +75,35 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
       case "NotFound":
       case "Unknown":
         await trx.rollback().execute();
-        throw internalServerError(result.e);
+        throw internalServerError(result1.e);
       default:
-        throw new Error(result satisfies never);
+        throw new Error(result1 satisfies never);
     }
 
-    const result2 = await ctx.repos.userToken.save(userToken, trx);
-    switch (result2) {
+    const result2 = await ctx.repos.userCredential.save(credential, trx);
+    switch (result2.type) {
+      case "Ok":
+        break;
+      case "Forbidden":
+      case "NotFound":
+      case "Unknown":
+        await trx.rollback().execute();
+        throw internalServerError(result2.e);
+      default:
+        throw new Error(result2 satisfies never);
+    }
+
+    const result3 = await ctx.repos.userToken.save(userToken, trx);
+    switch (result3) {
       case "Ok":
         break;
       case "Forbidden":
       case "NotFound":
       case "Failed":
         await trx.rollback().execute();
-        throw internalServerError(result.e);
+        throw internalServerError();
       default:
-        throw new Error(result2 satisfies never);
+        throw new Error(result3 satisfies never);
     }
 
     await trx.commit().execute();
