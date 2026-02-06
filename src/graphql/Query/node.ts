@@ -27,11 +27,6 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
 
   const { type, internalId } = id;
 
-  const pairs = {
-    Todo: [TodoId.is, Todo.getNode],
-    User: [UserId.is, User.getNode],
-  } as const;
-
   const [isInternalId, getNode] = pairs[type];
   if (!isInternalId(internalId)) {
     throw badUserInputErr(`Invalid global id '${args.id}'`);
@@ -42,3 +37,8 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
 
   return node == null ? null : { type, ...node };
 };
+
+const pairs = {
+  Todo: [TodoId.is, Todo.getNode],
+  User: [UserId.is, User.getNode],
+} as const;
