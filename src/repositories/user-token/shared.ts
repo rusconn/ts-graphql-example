@@ -12,9 +12,9 @@ export class UserTokenRepoShared {
     this.#tenantId = tenantId;
   }
 
-  async create(userToken: UserToken, trx?: Transaction<DB>) {
+  async add(userToken: UserToken, trx?: Transaction<DB>) {
     if (this.#tenantId != null && userToken.userId !== this.#tenantId) {
-      return "Forbidden";
+      throw new Error("Forbidden");
     }
 
     const result = await (trx ?? this.#db)
@@ -55,7 +55,7 @@ export class UserTokenRepoShared {
     return result.numDeletedRows;
   }
 
-  async delete(refreshToken: UserToken["refreshToken"], trx?: Transaction<DB>) {
+  async remove(refreshToken: UserToken["refreshToken"], trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
       .deleteFrom("userTokens")
       .where("refreshToken", "=", refreshToken)

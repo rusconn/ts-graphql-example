@@ -30,9 +30,9 @@ export class UserRepoShared {
     return user && mappers.user.toDomain(user);
   }
 
-  async create(user: Domain.User, trx?: Transaction<DB>) {
+  async add(user: Domain.User, trx?: Transaction<DB>) {
     if (this.#tenantId != null && user.id !== this.#tenantId) {
-      return "Forbidden";
+      throw new Error("Forbidden");
     }
 
     const dbUser = mappers.user.toDb(user);
@@ -82,7 +82,7 @@ export class UserRepoShared {
     }
   }
 
-  async delete(id: Domain.User["id"], trx?: Transaction<DB>) {
+  async remove(id: Domain.User["id"], trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
       .deleteFrom("users")
       .where("id", "=", id)

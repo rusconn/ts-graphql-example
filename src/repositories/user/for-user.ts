@@ -16,15 +16,15 @@ export class UserRepoForUser {
     return await this.#shared.findByDbId(id, trx);
   }
 
-  async create(user: Domain.User, trx?: Transaction<DB>) {
-    return await this.#shared.create(user, trx);
+  async add(user: Domain.User, trx?: Transaction<DB>) {
+    return await this.#shared.add(user, trx);
   }
 
   async update(user: Domain.User, trx?: Transaction<DB>) {
     return await this.#shared.update(user, trx);
   }
 
-  async delete(id: Domain.User["id"], trx?: Transaction<DB>) {
-    return await this.#shared.delete(id, trx);
+  async remove(id: Domain.User["id"], trx?: Transaction<DB>) {
+    return await this.#shared.remove(id, trx);
   }
 }

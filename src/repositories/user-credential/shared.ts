@@ -38,9 +38,9 @@ export class UserCredentialRepoShared {
     return credential && mappers.userCredential.toDomain(credential);
   }
 
-  async create(credential: Domain.UserCredential, trx?: Transaction<DB>) {
+  async add(credential: Domain.UserCredential, trx?: Transaction<DB>) {
     if (this.#tenantId != null && credential.id !== this.#tenantId) {
-      return "Forbidden";
+      throw new Error("Forbidden");
     }
 
     const dbCredential = mappers.userCredential.toDb(credential);
@@ -66,7 +66,7 @@ export class UserCredentialRepoShared {
     return result.numUpdatedRows > 0n ? "Ok" : "NotFound";
   }
 
-  async delete(id: Domain.UserCredential["id"], trx?: Transaction<DB>) {
+  async remove(id: Domain.UserCredential["id"], trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
       .deleteFrom("userCredentials")
       .where("userId", "=", id)

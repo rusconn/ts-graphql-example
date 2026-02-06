@@ -101,11 +101,10 @@ const logic = async (
   }
 
   const todo = Todo.create({ ...parsed, userId: user.id });
-  const result = await ctx.repos.todo.create(todo);
+  const result = await ctx.repos.todo.add(todo);
   switch (result) {
     case "Ok":
       break;
-    case "Forbidden":
     case "Failed":
       throw internalServerError();
     default:
@@ -178,7 +177,7 @@ if (import.meta.vitest) {
     const createRepos = () =>
       ({
         todo: {
-          create: async () => "Ok",
+          add: async () => "Ok",
         },
         user: {
           findByDbId: async () => ({ id: "dummy" }),

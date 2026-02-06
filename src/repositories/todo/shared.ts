@@ -25,9 +25,9 @@ export class TodoRepoShared {
     return todo && mappers.todo.toDomain(todo);
   }
 
-  async create(todo: Domain.Todo, trx?: Transaction<DB>) {
+  async add(todo: Domain.Todo, trx?: Transaction<DB>) {
     if (this.#tenantId != null && todo.userId !== this.#tenantId) {
-      return "Forbidden";
+      throw new Error("Forbidden");
     }
 
     const dbTodo = mappers.todo.toDb(todo);
@@ -53,7 +53,7 @@ export class TodoRepoShared {
     return result.numUpdatedRows > 0n ? "Ok" : "NotFound";
   }
 
-  async delete(id: Domain.Todo["id"], trx?: Transaction<DB>) {
+  async remove(id: Domain.Todo["id"], trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
       .deleteFrom("todos")
       .where("id", "=", id)

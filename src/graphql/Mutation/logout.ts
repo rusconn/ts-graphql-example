@@ -32,7 +32,7 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
   }
 
   const hashed = await RefreshToken.hash(cookie.value);
-  const result = await context.repos.userToken.delete(hashed);
+  const result = await context.repos.userToken.remove(hashed);
   switch (result) {
     case "Ok":
       break;

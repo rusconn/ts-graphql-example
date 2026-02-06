@@ -11,8 +11,8 @@ export class UserTokenRepoForUser {
     this.#shared = new UserTokenRepoShared(db, tenantId);
   }
 
-  async create(userToken: UserToken, trx?: Transaction<DB>) {
-    return await this.#shared.create(userToken, trx);
+  async add(userToken: UserToken, trx?: Transaction<DB>) {
+    return await this.#shared.add(userToken, trx);
   }
 
   async touch(refreshToken: UserToken["refreshToken"], now: Date, trx?: Transaction<DB>) {
@@ -23,7 +23,7 @@ export class UserTokenRepoForUser {
     return await this.#shared.retainLatest(userId, limit, trx);
   }
 
-  async delete(refreshToken: UserToken["refreshToken"], trx?: Transaction<DB>) {
-    return await this.#shared.delete(refreshToken, trx);
+  async remove(refreshToken: UserToken["refreshToken"], trx?: Transaction<DB>) {
+    return await this.#shared.remove(refreshToken, trx);
   }
 }

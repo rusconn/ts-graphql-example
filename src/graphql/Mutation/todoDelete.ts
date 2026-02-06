@@ -34,7 +34,7 @@ export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, c
     throw internalServerError();
   }
 
-  const result = await ctx.repos.todo.delete(id);
+  const result = await ctx.repos.todo.remove(id);
   switch (result) {
     case "Ok":
       break;

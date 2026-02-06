@@ -30,7 +30,7 @@ export const resolver: MutationResolvers["accountDelete"] = async (_parent, _arg
     throw internalServerError();
   }
 
-  const result = await ctx.repos.user.delete(user.id);
+  const result = await ctx.repos.user.remove(user.id);
   switch (result) {
     case "Ok":
       break;
