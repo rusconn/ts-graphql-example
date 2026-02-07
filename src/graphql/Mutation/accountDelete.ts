@@ -1,8 +1,8 @@
 import type { MutationResolvers } from "../../schema.ts";
-import { userId } from "../_adapters/user/id.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
+import { userId } from "../User/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

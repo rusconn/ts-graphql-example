@@ -1,5 +1,6 @@
+import * as Db from "../../db/types.ts";
 import type { TodoResolvers } from "../../schema.ts";
-import { todoStatus } from "../_adapters/todo/status.ts";
+import * as Graph from "../../schema.ts";
 import { authTodoOwner } from "../_authorizers/todo/todoOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 
@@ -21,4 +22,13 @@ export const resolver: NonNullable<TodoResolvers["status"]> = (parent, _args, co
   }
 
   return todoStatus(parent.status);
+};
+
+export const todoStatus = (status: Db.Todo["status"]): NonNullable<Graph.Todo["status"]> => {
+  return map[status];
+};
+
+const map: Record<Db.TodoStatus, NonNullable<Graph.Todo["status"]>> = {
+  [Db.TodoStatus.Done]: Graph.TodoStatus.Done,
+  [Db.TodoStatus.Pending]: Graph.TodoStatus.Pending,
 };

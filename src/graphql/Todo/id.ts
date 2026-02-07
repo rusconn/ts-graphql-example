@@ -1,7 +1,7 @@
 import type { TodoResolvers } from "../../schema.ts";
-import { todoId } from "../_adapters/todo/id.ts";
 import { authAdminOrTodoOwner } from "../_authorizers/todo/adminOrTodoOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
+import { nodeId } from "../Node/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo implements Node {
@@ -17,3 +17,5 @@ export const resolver: NonNullable<TodoResolvers["id"]> = (parent, _args, contex
 
   return todoId(parent.id);
 };
+
+export const todoId = nodeId("Todo");

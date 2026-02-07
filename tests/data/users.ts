@@ -1,8 +1,8 @@
 import type * as Db from "../../src/db/types.ts";
 import { UserId } from "../../src/domain/user.ts";
-import { userEmail } from "../../src/graphql/_adapters/user/email.ts";
-import { userId } from "../../src/graphql/_adapters/user/id.ts";
 import { db } from "../../src/graphql/_testData/db/users.ts";
+import { userEmail } from "../../src/graphql/User/email.ts";
+import { userId } from "../../src/graphql/User/id.ts";
 import type * as Graph from "../../src/schema.ts";
 import { signedJwt } from "../../src/util/accessToken.ts";
 

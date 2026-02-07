@@ -1,5 +1,5 @@
 import type { Scalars } from "../../schema.ts";
-import { type NodeType, nodeTypes, typeIdSep } from "../_adapters/id.ts";
+import { type NodeType, nodeTypes, typeIdSep } from "../Node/id.ts";
 
 export const parseId = (id: Scalars["ID"]["input"]) => {
   const [type, internalId, ...rest] = id.split(typeIdSep);
@@ -15,7 +15,7 @@ const isValidNodeType = (val: string | undefined): val is NodeType => {
 };
 
 if (import.meta.vitest) {
-  const { nodeId } = await import("../_adapters/id.ts");
+  const { nodeId } = await import("../Node/id.ts");
 
   const internalId = "0193cb3e-4379-750f-880f-77afae342259";
 

@@ -1,5 +1,5 @@
 import type { Scalars } from "../../schema.ts";
-import type { NodeType } from "../_adapters/id.ts";
+import type { NodeType } from "../Node/id.ts";
 import { parseId } from "./id.ts";
 
 export const parseSomeId = <T extends NodeType, U extends string>(

@@ -1,6 +1,5 @@
 import { UserPassword } from "../../domain/user-credential.ts";
 import type { MutationLoginPasswordChangeArgs, MutationResolvers } from "../../schema.ts";
-import { userId } from "../_adapters/user/id.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
@@ -10,6 +9,7 @@ import {
   USER_PASSWORD_MIN,
 } from "../_parsers/user/password.ts";
 import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
+import { userId } from "../User/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

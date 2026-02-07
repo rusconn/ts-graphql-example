@@ -1,10 +1,10 @@
 import type { MutationResolvers } from "../../schema.ts";
-import { todoId } from "../_adapters/todo/id.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
+import { todoId } from "../Todo/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
