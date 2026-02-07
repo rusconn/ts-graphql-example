@@ -1,5 +1,5 @@
-import * as EmailAddress from "../../lib/string/emailAddress.ts";
 import type { UserResolvers } from "../../schema.ts";
+import { userEmail } from "../_adapters/user/email.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
@@ -16,9 +16,11 @@ export const resolver: NonNullable<UserResolvers["email"]> = async (parent, _arg
     throw forbiddenErr(ctx);
   }
 
-  if (!EmailAddress.is(parent.email)) {
-    throw internalServerError();
+  const email = userEmail(parent.email);
+
+  if (Error.isError(email)) {
+    throw internalServerError(email);
   }
 
-  return parent.email;
+  return email;
 };

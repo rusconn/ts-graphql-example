@@ -1,8 +1,7 @@
 import type { Kysely, Transaction } from "kysely";
 
-import type { DB, User } from "../../db/types.ts";
-import type * as Domain from "../../domain/todo.ts";
-import { mappers } from "../../mappers.ts";
+import { type DB, type Todo, TodoStatus, type User } from "../../db/types.ts";
+import * as Domain from "../../domain/todo.ts";
 
 export class TodoRepoShared {
   #db;
@@ -22,7 +21,7 @@ export class TodoRepoShared {
       .$if(trx != null, (qb) => qb.forUpdate())
       .executeTakeFirst();
 
-    return todo && mappers.todo.toDomain(todo);
+    return todo && toDomain(todo);
   }
 
   async add(todo: Domain.Todo, trx?: Transaction<DB>) {
@@ -30,7 +29,7 @@ export class TodoRepoShared {
       throw new Error("Forbidden");
     }
 
-    const dbTodo = mappers.todo.toDb(todo);
+    const dbTodo = toDb(todo);
 
     const result = await (trx ?? this.#db)
       .insertInto("todos") //
@@ -41,7 +40,7 @@ export class TodoRepoShared {
   }
 
   async update(todo: Domain.Todo, trx?: Transaction<DB>) {
-    const dbTodo = mappers.todo.toDb(todo);
+    const dbTodo = toDb(todo);
 
     const result = await (trx ?? this.#db)
       .updateTable("todos")
@@ -63,3 +62,21 @@ export class TodoRepoShared {
     return result.numDeletedRows > 0n ? "Ok" : "NotFound";
   }
 }
+
+const toDb = ({ status, ...rest }: Domain.Todo): Todo => ({
+  ...rest,
+  status: {
+    [Domain.TodoStatus.DONE]: TodoStatus.Done,
+    [Domain.TodoStatus.PENDING]: TodoStatus.Pending,
+  }[status],
+});
+
+const toDomain = ({ id, status, userId, ...rest }: Todo): Domain.Todo => ({
+  ...rest,
+  id: id as Domain.Todo["id"],
+  status: {
+    [TodoStatus.Done]: Domain.TodoStatus.DONE,
+    [TodoStatus.Pending]: Domain.TodoStatus.PENDING,
+  }[status],
+  userId: userId as Domain.Todo["userId"],
+});

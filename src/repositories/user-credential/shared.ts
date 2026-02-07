@@ -2,7 +2,6 @@ import type { Kysely, Transaction } from "kysely";
 
 import type { DB, User, UserCredential } from "../../db/types.ts";
 import type * as Domain from "../../domain/user-credential.ts";
-import { mappers } from "../../mappers.ts";
 
 export class UserCredentialRepoShared {
   #db;
@@ -22,7 +21,7 @@ export class UserCredentialRepoShared {
       .$if(trx != null, (qb) => qb.forUpdate())
       .executeTakeFirst();
 
-    return credential && mappers.userCredential.toDomain(credential);
+    return credential && toDomain(credential);
   }
 
   async findByDbEmail(email: User["email"], trx?: Transaction<DB>) {
@@ -35,7 +34,7 @@ export class UserCredentialRepoShared {
       .$if(trx != null, (qb) => qb.forUpdate())
       .executeTakeFirst();
 
-    return credential && mappers.userCredential.toDomain(credential);
+    return credential && toDomain(credential);
   }
 
   async add(credential: Domain.UserCredential, trx?: Transaction<DB>) {
@@ -43,7 +42,7 @@ export class UserCredentialRepoShared {
       throw new Error("Forbidden");
     }
 
-    const dbCredential = mappers.userCredential.toDb(credential);
+    const dbCredential = toDb(credential);
 
     const result = await (trx ?? this.#db)
       .insertInto("userCredentials") //
@@ -54,7 +53,7 @@ export class UserCredentialRepoShared {
   }
 
   async update(credential: Domain.UserCredential, trx?: Transaction<DB>) {
-    const dbCredential = mappers.userCredential.toDb(credential);
+    const dbCredential = toDb(credential);
 
     const result = await (trx ?? this.#db)
       .updateTable("userCredentials")
@@ -76,3 +75,13 @@ export class UserCredentialRepoShared {
     return result.numDeletedRows > 0n ? "Ok" : "NotFound";
   }
 }
+
+const toDb = ({ id, ...rest }: Domain.UserCredential): UserCredential => ({
+  ...rest,
+  userId: id,
+});
+
+const toDomain = ({ userId, password }: UserCredential): Domain.UserCredential => ({
+  id: userId as Domain.UserCredential["id"],
+  password: password as Domain.UserCredential["password"],
+});

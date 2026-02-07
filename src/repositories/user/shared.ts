@@ -1,9 +1,8 @@
 import type { Kysely, Transaction } from "kysely";
 
-import type { DB, User } from "../../db/types.ts";
-import type * as Domain from "../../domain/user.ts";
+import { type DB, type User, UserRole } from "../../db/types.ts";
+import * as Domain from "../../domain/user.ts";
 import { isPgError, PgErrorCode } from "../../lib/pg/error.ts";
-import { mappers } from "../../mappers.ts";
 
 export class UserRepoShared {
   #db;
@@ -27,7 +26,7 @@ export class UserRepoShared {
       .$if(trx != null, (qb) => qb.forUpdate())
       .executeTakeFirst();
 
-    return user && mappers.user.toDomain(user);
+    return user && toDomain(user);
   }
 
   async add(user: Domain.User, trx?: Transaction<DB>) {
@@ -35,7 +34,7 @@ export class UserRepoShared {
       throw new Error("Forbidden");
     }
 
-    const dbUser = mappers.user.toDb(user);
+    const dbUser = toDb(user);
 
     try {
       const result = await (trx ?? this.#db)
@@ -58,7 +57,7 @@ export class UserRepoShared {
   }
 
   async update(user: Domain.User, trx?: Transaction<DB>) {
-    const dbUser = mappers.user.toDb(user);
+    const dbUser = toDb(user);
 
     try {
       const result = await (trx ?? this.#db)
@@ -92,3 +91,22 @@ export class UserRepoShared {
     return result.numDeletedRows > 0n ? "Ok" : "NotFound";
   }
 }
+
+const toDb = ({ id, role, ...rest }: Domain.User): User => ({
+  ...rest,
+  id,
+  role: {
+    [Domain.UserRole.ADMIN]: UserRole.Admin,
+    [Domain.UserRole.USER]: UserRole.User,
+  }[role],
+});
+
+const toDomain = ({ id, email, role, ...rest }: User): Domain.User => ({
+  ...rest,
+  id: id as Domain.User["id"],
+  email: email as Domain.User["email"],
+  role: {
+    [UserRole.Admin]: Domain.UserRole.ADMIN,
+    [UserRole.User]: Domain.UserRole.USER,
+  }[role],
+});

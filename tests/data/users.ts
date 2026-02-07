@@ -1,18 +1,27 @@
-import { type User, UserId } from "../../src/domain/user.ts";
+import type * as Db from "../../src/db/types.ts";
+import { UserId } from "../../src/domain/user.ts";
+import { userEmail } from "../../src/graphql/_adapters/user/email.ts";
 import { userId } from "../../src/graphql/_adapters/user/id.ts";
 import { db } from "../../src/graphql/_testData/db/users.ts";
-import { domain } from "../../src/graphql/_testData/domain/users.ts";
 import type * as Graph from "../../src/schema.ts";
 import { signedJwt } from "../../src/util/accessToken.ts";
 
-const node = (user: User): Graph.User => ({
-  ...user,
-  id: userId(user.id),
-});
+const node = (user: Db.User): Graph.User => {
+  const email = userEmail(user.email);
+  if (Error.isError(email)) {
+    throw email;
+  }
+
+  return {
+    ...user,
+    id: userId(user.id),
+    email,
+  };
+};
 
 export const token = {
-  admin: await signedJwt(domain.admin),
-  alice: await signedJwt(domain.alice),
+  admin: await signedJwt(db.admin),
+  alice: await signedJwt(db.alice),
 };
 
 export const refreshToken = {
@@ -21,11 +30,11 @@ export const refreshToken = {
 };
 
 export const graph = {
-  admin: node(domain.admin),
-  alice: node(domain.alice),
+  admin: node(db.admin),
+  alice: node(db.alice),
 };
 
-export { db, domain };
+export { db };
 
 export const dummyId = () => {
   return userId(UserId.gen());

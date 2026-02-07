@@ -1,7 +1,5 @@
 import { getCursorConnection } from "../../lib/graphql/cursorConnections/mod.ts";
-import { mappers } from "../../mappers.ts";
-import type { UserResolvers, UserTodosArgs } from "../../schema.ts";
-import { TodoSortKeys } from "../../schema.ts";
+import { TodoSortKeys, TodoStatus, type UserResolvers, type UserTodosArgs } from "../../schema.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
@@ -122,7 +120,10 @@ const parseArgs = (args: UserTodosArgs) => {
     }[args.sortKey],
     filter: {
       ...(status != null && {
-        status: mappers.todo.status.toDb(status),
+        status: {
+          [TodoStatus.Done]: "done" as const,
+          [TodoStatus.Pending]: "pending" as const,
+        }[status],
       }),
     },
   };

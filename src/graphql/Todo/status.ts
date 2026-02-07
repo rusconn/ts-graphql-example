@@ -1,5 +1,5 @@
-import { mappers } from "../../mappers.ts";
 import type { TodoResolvers } from "../../schema.ts";
+import { todoStatus } from "../_adapters/todo/status.ts";
 import { authTodoOwner } from "../_authorizers/todo/todoOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 
@@ -20,5 +20,5 @@ export const resolver: NonNullable<TodoResolvers["status"]> = (parent, _args, co
     throw forbiddenErr(ctx);
   }
 
-  return mappers.todo.status.toDomain(parent.status);
+  return todoStatus(parent.status);
 };
