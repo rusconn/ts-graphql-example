@@ -1,28 +1,27 @@
 import { db, graph, tokens } from "../../data.ts";
 import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { UserCreatedAtQuery, UserCreatedAtQueryVariables } from "../schema.ts";
+import type { UserCreatedAtQuery, UserCreatedAtQueryVariables } from "../_schema.ts";
 
-const executeQuery = executeSingleResultOperation<
-  UserCreatedAtQuery,
-  UserCreatedAtQueryVariables
->(/* GraphQL */ `
-  query UserCreatedAt($id: ID!) {
-    node(id: $id) {
-      __typename
-      ... on User {
-        createdAt
+const executeQuery = executeSingleResultOperation<UserCreatedAtQuery, UserCreatedAtQueryVariables>(
+  /* GraphQL */ `
+    query UserCreatedAt($id: ID!) {
+      node(id: $id) {
+        __typename
+        ... on User {
+          createdAt
+        }
       }
     }
-  }
-`);
+  `,
+);
 
 const testData = {
   users: [db.users.admin, db.users.alice],
 };
 
 const seedData = {
-  users: () => seed.user(testData.users),
+  users: () => seed.users(testData.users),
 };
 
 beforeAll(async () => {

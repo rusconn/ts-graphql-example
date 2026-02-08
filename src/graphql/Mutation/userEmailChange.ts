@@ -1,15 +1,19 @@
-import type { MutationResolvers, MutationUserEmailChangeArgs } from "../../schema.ts";
+import { Result } from "neverthrow";
+
+import { User } from "../../domain/models.ts";
+import type { MutationResolvers, MutationUserEmailChangeArgs } from "../_schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { parseUserEmail, USER_EMAIL_MAX } from "../_parsers/user/email.ts";
-import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
+import { invalidInputErrors } from "../_parsers/shared/errors.ts";
+import { parseUserEmail } from "../_parsers/user/email.ts";
+import { EmailAlreadyExistsError } from "../../domain/repos/user/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     userEmailChange(
       """
-      ${USER_EMAIL_MAX}文字まで、既に存在する場合はエラー
+      ${User.Email.MAX}文字まで、既に存在する場合はエラー
       """
       email: String!
     ): UserEmailChangeResult @semanticNonNull @complexity(value: 5)
@@ -29,89 +33,68 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
   }
 
   const parsed = parseArgs(args);
-  if (Array.isArray(parsed)) {
-    return invalidInputErrors(parsed);
+  if (parsed.isErr()) {
+    return invalidInputErrors(parsed.error);
   }
 
-  const user = await ctx.repos.user.findByDbId(ctx.user.id);
+  const user = await ctx.repos.user.find(ctx.user.id);
   if (!user) {
     throw internalServerError();
   }
 
-  const changedUser: typeof user = {
-    ...user,
-    ...parsed,
-    updatedAt: new Date(),
-  };
-
-  const result = await ctx.repos.user.update(changedUser);
-  switch (result) {
-    case "Ok":
-      break;
-    case "EmailAlreadyExists":
+  const changedUser = User.changeEmail(user, parsed.value.email);
+  try {
+    await ctx.kysely.transaction().execute(async (trx) => {
+      await ctx.repos.user.update(changedUser, trx);
+    });
+  } catch (e) {
+    if (e instanceof EmailAlreadyExistsError) {
       return {
         __typename: "EmailAlreadyTakenError",
         message: "The email already taken.",
       };
-    case "NotFound":
-      throw internalServerError();
-    default:
-      throw new Error(result satisfies never);
-  }
-
-  const changed = await ctx.queries.user.findById(user.id);
-  if (!changed) {
-    throw internalServerError();
+    }
+    throw internalServerError(e);
   }
 
   return {
     __typename: "UserEmailChangeSuccess",
-    user: changed,
+    user: changedUser,
   };
 };
 
 const parseArgs = (args: MutationUserEmailChangeArgs) => {
-  const email = parseUserEmail(args, "email", {
-    optional: false,
-    nullable: false,
-  });
-
-  if (
-    email instanceof ParseErr //
-  ) {
-    const errors = [];
-
-    if (email instanceof ParseErr) {
-      errors.push(email);
-    }
-
-    return errors;
-  } else {
-    return { email };
-  }
+  return Result.combineWithAllErrors([
+    parseUserEmail(args, "email", {
+      optional: false,
+      nullable: false,
+    }),
+  ]).map(([email]) => ({
+    email,
+  }));
 };
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
     const valids: MutationUserEmailChangeArgs[] = [
-      { email: "email@email.com" },
-      { email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
+      { email: "email@example.com" },
+      { email: `${"A".repeat(User.Email.MAX - 12)}@example.com` },
     ];
 
     const invalids: [MutationUserEmailChangeArgs, (keyof MutationUserEmailChangeArgs)[]][] = [
-      [{ email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` }, ["email"]],
-      [{ email: "emailemail.com" }, ["email"]],
+      [{ email: `${"A".repeat(User.Email.MAX - 12 + 1)}@example.com` }, ["email"]],
+      [{ email: "emailexample.com" }, ["email"]],
     ];
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);
-      expect(Array.isArray(parsed)).toBe(false);
+      expect(parsed.isOk()).toBe(true);
     });
 
     test.each(invalids)("invalids %#", (args, fields) => {
       const parsed = parseArgs(args);
-      expect(Array.isArray(parsed)).toBe(true);
-      expect((parsed as ParseErr[]).map((e) => e.field)).toStrictEqual(fields);
+      expect(parsed.isErr()).toBe(true);
+      expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);
     });
   });
 }

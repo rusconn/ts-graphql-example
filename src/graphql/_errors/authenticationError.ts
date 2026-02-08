@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 
-import { ErrorCode } from "../../schema.ts";
+import { ErrorCode } from "../_schema.ts";
 
 export const authenticationErr = () =>
   new GraphQLError("Authentication error", {

@@ -9,6 +9,8 @@ services:
       - ./docker/db:/docker-entrypoint-initdb.d
     ports:
       - ${DB_PORT:?}:5432
+    command: >
+      postgres -c lock_timeout=1s -c statement_timeout=3s
 
 volumes:
   postgres:

@@ -7,11 +7,11 @@ TypeScriptを使ってGraphQL APIを作る。
 
 ## 事前準備
 
-```shell
+```sh
 cp .env.example .env
 docker compose up -d
-pnpm install             # requires global pnpm >= 10
-node --run migrate:apply # requires global Node.js and Atlas(https://atlasgo.io/)
+pnpm install                # requires global pnpm >= 10
+node --run migrate -- apply # requires global Node.js and Atlas(https://atlasgo.io/)
 node --run seed
 ```
 
@@ -20,7 +20,7 @@ pnpmはv10以上を自前で用意し、[package.json](./package.json)のpackage
 
 ## 起動方法
 
-```shell
+```sh
 node --run dev
 ```
 

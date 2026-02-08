@@ -1,16 +1,17 @@
-import { omit } from "es-toolkit";
+import { ErrorCode, TodoStatus } from "../../../src/graphql/_schema.ts";
 
-import { client } from "../../../src/db/client.ts";
-import * as Db from "../../../src/db/types.ts";
-import { ErrorCode, TodoStatus } from "../../../src/schema.ts";
-
-import { db, dummyId, graph, tokens } from "../../data.ts";
-import { clearTables, seed } from "../../helpers.ts";
+import { graph, client, domain } from "../../data.ts";
+import { clearTables, clearTodos, dummyId, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { TodoUpdateMutation, TodoUpdateMutationVariables } from "../schema.ts";
-
-const executeMutation = executeSingleResultOperation<
+import type {
   TodoUpdateMutation,
+  TodoUpdateMutationVariables,
+  TodoUpdateNodeQuery,
+  TodoUpdateNodeQueryVariables,
+} from "../_schema.ts";
+
+const todoUpdate = executeSingleResultOperation<
+  TodoUpdateMutation, //
   TodoUpdateMutationVariables
 >(/* GraphQL */ `
   mutation TodoUpdate($id: ID!, $title: String, $description: String, $status: TodoStatus) {
@@ -19,178 +20,277 @@ const executeMutation = executeSingleResultOperation<
       ... on TodoUpdateSuccess {
         todo {
           id
-          updatedAt
           title
           description
           status
+          createdAt
+          updatedAt
+        }
+      }
+      ... on InvalidInputErrors {
+        errors {
+          field
+          message
         }
       }
     }
   }
 `);
 
-const testData = {
-  users: [db.users.admin, db.users.alice],
-  todos: [db.todos.admin1, db.todos.alice1],
-};
-
-const seedData = {
-  users: () => seed.user(testData.users),
-  todos: () => seed.todo(testData.todos),
-};
+const node = executeSingleResultOperation<
+  TodoUpdateNodeQuery, //
+  TodoUpdateNodeQueryVariables
+>(/* GraphQL */ `
+  query TodoUpdateNode($id: ID!) {
+    node(id: $id) {
+      __typename
+      id
+      ... on Todo {
+        title
+        description
+        status
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`);
 
 beforeAll(async () => {
   await clearTables();
-  await seedData.users();
-  await seedData.todos();
+  await seed.users(domain.users.alice, domain.users.admin);
 });
 
 beforeEach(async () => {
-  await client
-    .insertInto("todos")
-    .values(db.todos.admin1)
-    .onConflict((oc) => oc.column("id").doUpdateSet(db.todos.admin1))
-    .executeTakeFirstOrThrow();
+  await clearTodos();
+  await seed.todos(domain.todos.alice1);
 });
 
-const variables = {
-  title: "bar",
-  description: "baz",
-  status: TodoStatus.Done,
-};
+it("returns an error when id is invalid", async () => {
+  // precondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.alice1);
+  }
 
-test("invalid input id", async () => {
-  const { data, errors } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: dummyId.todo().slice(0, -1), ...variables },
-  });
+  // act
+  {
+    const { data, errors } = await todoUpdate({
+      token: client.tokens.alice,
+      variables: {
+        id: "abracadabra", // invalid
+      },
+    });
+    expect(data?.todoUpdate).toBeNull();
+    expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
+  }
 
-  expect(data?.todoUpdate).toBeNull();
-  expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
+  // postcondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.alice1);
+  }
 });
 
-test("invalid input args", async () => {
-  const invalidTitle = "A".repeat(100 + 1);
+it("returns validation errors when input is invalid", async () => {
+  // precondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.alice1);
+  }
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: dummyId.todo(), ...variables, title: invalidTitle },
-  });
+  // act
+  {
+    const { data } = await todoUpdate({
+      token: client.tokens.alice,
+      variables: {
+        id: graph.todos.alice1.id,
+        title: null, // invalid
+        description: null, // invalid
+        status: null, // invalid
+      },
+    });
+    assert(data?.todoUpdate?.__typename === "InvalidInputErrors", data?.todoUpdate?.__typename);
+    expect(data.todoUpdate.errors.map((e) => e.field).sort()).toStrictEqual([
+      "description",
+      "status",
+      "title",
+    ]);
+  }
 
-  expect(data?.todoUpdate?.__typename).toBe("InvalidInputErrors");
+  // postcondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.alice1);
+  }
 });
 
-test("not exists", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: dummyId.todo() },
-  });
+it("returns not found when id not exists on graph", async () => {
+  const dummyTodoId = dummyId.todo();
 
-  expect(data?.todoUpdate?.__typename).toBe("ResourceNotFoundError");
+  // precondition
+  {
+    const todo = await node({
+      token: client.tokens.admin,
+      variables: { id: dummyTodoId },
+    });
+    expect(todo.data?.node).toBeNull();
+  }
+
+  // act
+  {
+    const { data } = await todoUpdate({
+      token: client.tokens.alice,
+      variables: { id: dummyTodoId },
+    });
+    expect(data?.todoUpdate?.__typename).toBe("ResourceNotFoundError");
+  }
+
+  // postcondition
+  {
+    const todo = await node({
+      token: client.tokens.admin,
+      variables: { id: dummyTodoId },
+    });
+    expect(todo.data?.node).toBeNull();
+  }
 });
 
-test("exists, but not owned", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: graph.todos.alice1.id },
-  });
+it("returns not found when client does not own todo", async () => {
+  // seed
+  await seed.todos(domain.todos.admin1);
 
-  expect(data?.todoUpdate?.__typename).toBe("ResourceNotFoundError");
+  // precondition
+  {
+    const todo = await node({
+      token: client.tokens.admin,
+      variables: { id: graph.todos.admin1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.admin1);
+  }
+
+  // act
+  {
+    const { data } = await todoUpdate({
+      token: client.tokens.alice,
+      variables: {
+        id: graph.todos.admin1.id,
+      },
+    });
+    expect(data?.todoUpdate?.__typename).toBe("ResourceNotFoundError");
+  }
+
+  // postcondition
+  {
+    const todo = await node({
+      token: client.tokens.admin,
+      variables: { id: graph.todos.admin1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.admin1);
+  }
 });
 
-it("should update using input", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: graph.todos.admin1.id, ...variables },
-  });
+it("updates todo", async () => {
+  // precondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.alice1);
+  }
 
-  expect(data?.todoUpdate?.__typename).toBe("TodoUpdateSuccess");
+  // act
+  {
+    const { data } = await todoUpdate({
+      token: client.tokens.alice,
+      variables: {
+        id: graph.todos.alice1.id,
+        title: "foo",
+        description: "bar",
+        status: TodoStatus.Done,
+      },
+    });
+    assert(data?.todoUpdate?.__typename === "TodoUpdateSuccess", data?.todoUpdate?.__typename);
+    expect(data.todoUpdate.todo.id).toBe(graph.todos.alice1.id);
+    expect(data.todoUpdate.todo.title).toBe("foo");
+    expect(data.todoUpdate.todo.description).toBe("bar");
+    expect(data.todoUpdate.todo.status).toBe(TodoStatus.Done);
+    expect(Date.parse(data.todoUpdate.todo.updatedAt!)).toBeGreaterThan(
+      Date.parse(graph.todos.alice1.updatedAt),
+    );
+  }
 
-  const todo = await client
-    .selectFrom("todos")
-    .where("id", "=", db.todos.admin1.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  expect(todo.title).toBe(variables.title);
-  expect(todo.description).toBe(variables.description);
-  expect(todo.status).toBe(Db.TodoStatus.Done);
+  // postcondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    assert(todo.data?.node?.__typename === "Todo", todo.data?.node?.__typename);
+    expect(todo.data.node.id).toBe(graph.todos.alice1.id);
+    expect(todo.data.node.title).toBe("foo");
+    expect(todo.data.node.description).toBe("bar");
+    expect(todo.data.node.status).toBe(TodoStatus.Done);
+    expect(Date.parse(todo.data.node.updatedAt!)).toBeGreaterThan(
+      Date.parse(graph.todos.alice1.updatedAt),
+    );
+  }
 });
 
-it("should not update fields if the field is absent", async () => {
-  const before = await client
-    .selectFrom("todos")
-    .where("id", "=", db.todos.admin1.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
+it("updates only updatedAt when input is empty", async () => {
+  // precondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.alice1);
+  }
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: graph.todos.admin1.id },
-  });
+  // act
+  {
+    const { data } = await todoUpdate({
+      token: client.tokens.alice,
+      variables: {
+        id: graph.todos.alice1.id,
+      },
+    });
+    assert(data?.todoUpdate?.__typename === "TodoUpdateSuccess", data?.todoUpdate?.__typename);
+    expect(data.todoUpdate.todo.id).toBe(graph.todos.alice1.id);
+    expect(data.todoUpdate.todo.title).toBe(graph.todos.alice1.title);
+    expect(data.todoUpdate.todo.description).toBe(graph.todos.alice1.description);
+    expect(data.todoUpdate.todo.status).toBe(graph.todos.alice1.status);
+    expect(Date.parse(data.todoUpdate.todo.updatedAt!)).toBeGreaterThan(
+      Date.parse(graph.todos.alice1.updatedAt),
+    );
+  }
 
-  expect(data?.todoUpdate?.__typename).toBe("TodoUpdateSuccess");
-
-  const after = await client
-    .selectFrom("todos")
-    .where("id", "=", db.todos.admin1.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  expect(before.title).toBe(after.title);
-  expect(before.description).toBe(after.description);
-  expect(before.status).toBe(after.status);
-});
-
-it("should update updatedAt", async () => {
-  const before = await client
-    .selectFrom("todos")
-    .where("id", "=", db.todos.admin1.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: graph.todos.admin1.id, ...variables },
-  });
-
-  expect(data?.todoUpdate?.__typename).toBe("TodoUpdateSuccess");
-
-  const after = await client
-    .selectFrom("todos")
-    .where("id", "=", db.todos.admin1.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  const beforeUpdatedAt = before.updatedAt.getTime();
-  const afterUpdatedAt = after.updatedAt.getTime();
-
-  expect(afterUpdatedAt).toBeGreaterThan(beforeUpdatedAt);
-});
-
-it("should not update other attrs", async () => {
-  const before = await client
-    .selectFrom("todos")
-    .where("id", "=", db.todos.admin1.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: graph.todos.admin1.id, ...variables },
-  });
-
-  expect(data?.todoUpdate?.__typename).toBe("TodoUpdateSuccess");
-
-  const after = await client
-    .selectFrom("todos")
-    .where("id", "=", db.todos.admin1.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  // これらのフィールドは変化する想定
-  const beforeToCompare = omit(before, ["title", "description", "status", "updatedAt"]);
-  const afterToCompare = omit(after, ["title", "description", "status", "updatedAt"]);
-
-  expect(afterToCompare).toStrictEqual(beforeToCompare);
+  // postcondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    assert(todo.data?.node?.__typename === "Todo", todo.data?.node?.__typename);
+    expect(todo.data.node.id).toBe(graph.todos.alice1.id);
+    expect(todo.data.node.title).toBe(graph.todos.alice1.title);
+    expect(todo.data.node.description).toBe(graph.todos.alice1.description);
+    expect(todo.data.node.status).toBe(graph.todos.alice1.status);
+    expect(Date.parse(todo.data.node.updatedAt!)).toBeGreaterThan(
+      Date.parse(graph.todos.alice1.updatedAt),
+    );
+  }
 });

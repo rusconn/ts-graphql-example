@@ -14,15 +14,15 @@ const typescript: TypeScriptPluginConfig = {
   scalars: {
     ID: {
       input: "string",
-      output: "./graphql/ID.ts#ID",
+      output: "./ID.ts#ID",
     },
     DateTime: {
-      input: "./graphql/DateTime.ts#DateTime",
-      output: "Date",
+      input: "./DateTime.ts#DateTime",
+      output: "Date | DateTime", // レスポンス時にJSON.stringifyされるのでDateを許容可能
     },
     EmailAddress: {
-      input: "./graphql/EmailAddress.ts#EmailAddress",
-      output: "./graphql/EmailAddress.ts#EmailAddress",
+      input: "./EmailAddress.ts#EmailAddress",
+      output: "./EmailAddress.ts#EmailAddress",
     },
   },
   useTypeImports: true,
@@ -30,12 +30,12 @@ const typescript: TypeScriptPluginConfig = {
 
 const typescriptResolvers: TypeScriptResolversPluginConfig = {
   useIndexSignature: true,
-  contextType: "./context.ts#Context",
+  contextType: "../server/context.ts#Context",
   mapperTypeSuffix: "Mapper",
   mappers: {
-    Node: "./graphql/Node/_mapper.ts#Node",
-    Todo: "./graphql/Todo/_mapper.ts#Todo",
-    User: "./graphql/User/_mapper.ts#User",
+    Node: "./Node/_mapper.ts#Node",
+    Todo: "./Todo/_mapper.ts#Todo",
+    User: "./User/_mapper.ts#User",
   },
   resolversNonOptionalTypename: {
     unionMember: true,
@@ -58,14 +58,14 @@ const typescriptOperations: TypeScriptDocumentsPluginConfig = {
 const config: CodegenConfig = {
   schema: "schema.graphql",
   generates: {
-    "src/schema.ts": {
+    "src/graphql/_schema.ts": {
       plugins: ["typescript", "typescript-resolvers"],
       config: {
         ...typescript,
         ...typescriptResolvers,
       },
     },
-    "tests/graphql/schema.ts": {
+    "tests/graphql/_schema.ts": {
       documents: "tests/graphql/**/*.ts",
       plugins: ["typescript", "typescript-operations"],
       config: {

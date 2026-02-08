@@ -4,57 +4,56 @@ import {
   TodoSortKeys,
   TodoStatus,
   type UserTodosArgs,
-} from "../../../src/schema.ts";
+} from "../../../src/graphql/_schema.ts";
 
 import { db, graph, tokens } from "../../data.ts";
 import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { UserTodosQuery, UserTodosQueryVariables } from "../schema.ts";
+import type { UserTodosQuery, UserTodosQueryVariables } from "../_schema.ts";
 
-const executeQuery = executeSingleResultOperation<
-  UserTodosQuery,
-  UserTodosQueryVariables
->(/* GraphQL */ `
-  query UserTodos(
-    $id: ID!
-    $first: Int
-    $after: String
-    $last: Int
-    $before: String
-    $reverse: Boolean
-    $sortKey: TodoSortKeys
-    $status: TodoStatus
-  ) {
-    node(id: $id) {
-      __typename
-      ... on User {
-        todos(
-          first: $first
-          after: $after
-          last: $last
-          before: $before
-          reverse: $reverse
-          sortKey: $sortKey
-          status: $status
-        ) {
-          totalCount
-          pageInfo {
-            startCursor
-            endCursor
-            hasNextPage
-            hasPreviousPage
-          }
-          edges {
-            cursor
-            node {
-              id
+const executeQuery = executeSingleResultOperation<UserTodosQuery, UserTodosQueryVariables>(
+  /* GraphQL */ `
+    query UserTodos(
+      $id: ID!
+      $first: Int
+      $after: String
+      $last: Int
+      $before: String
+      $reverse: Boolean
+      $sortKey: TodoSortKeys
+      $status: TodoStatus
+    ) {
+      node(id: $id) {
+        __typename
+        ... on User {
+          todos(
+            first: $first
+            after: $after
+            last: $last
+            before: $before
+            reverse: $reverse
+            sortKey: $sortKey
+            status: $status
+          ) {
+            totalCount
+            pageInfo {
+              startCursor
+              endCursor
+              hasNextPage
+              hasPreviousPage
+            }
+            edges {
+              cursor
+              node {
+                id
+              }
             }
           }
         }
       }
     }
-  }
-`);
+  `,
+);
 
 const testData = {
   users: [db.users.admin, db.users.alice],
@@ -62,8 +61,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => seed.user(testData.users),
-  todos: () => seed.todo(testData.todos),
+  users: () => seed.users(testData.users),
+  todos: () => seed.todos(testData.todos),
 };
 
 beforeAll(async () => {

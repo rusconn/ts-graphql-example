@@ -1,4 +1,4 @@
-import type { UserResolvers } from "../../schema.ts";
+import type { UserResolvers } from "../_schema.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { nodeId } from "../Node/id.ts";

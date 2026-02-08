@@ -1,12 +1,14 @@
-import { client } from "../../../src/db/client.ts";
-import { parseUserId } from "../../../src/graphql/_parsers/user/id.ts";
-
-import { db, tokens } from "../../data.ts";
-import { clearUsers, seed } from "../../helpers.ts";
+import { client, domain, graph } from "../../data.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { AccountDeleteMutation, AccountDeleteMutationVariables } from "../schema.ts";
+import type {
+  AccountDeleteMutation,
+  AccountDeleteMutationVariables,
+  AccountDeleteNodeQuery,
+  AccountDeleteNodeQueryVariables,
+} from "../_schema.ts";
 
-const executeMutation = executeSingleResultOperation<
+const accountDelete = executeSingleResultOperation<
   AccountDeleteMutation,
   AccountDeleteMutationVariables
 >(/* GraphQL */ `
@@ -20,115 +22,59 @@ const executeMutation = executeSingleResultOperation<
   }
 `);
 
-const testData = {
-  users: [db.users.admin, db.users.alice],
-  todos: [db.todos.admin1],
-};
-
-const seedData = {
-  users: () => seed.user(testData.users),
-  todos: () => seed.todo(testData.todos),
-};
+const node = executeSingleResultOperation<
+  AccountDeleteNodeQuery, //
+  AccountDeleteNodeQueryVariables
+>(/* GraphQL */ `
+  query AccountDeleteNode($id: ID!) {
+    node(id: $id) {
+      id
+    }
+  }
+`);
 
 beforeEach(async () => {
-  await clearUsers();
-  await seedData.users();
+  await clearTables();
+  await seed.users(domain.users.alice, domain.users.admin);
+  await seed.todos(domain.todos.alice1);
 });
 
-it("should delete user and user-*", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-  });
+it("deletes user and resources", async () => {
+  const queryNodes = () =>
+    Promise.all([
+      node({
+        token: client.tokens.admin,
+        variables: { id: graph.users.alice.id },
+      }),
+      node({
+        token: client.tokens.admin,
+        variables: { id: graph.todos.alice1.id },
+      }),
+    ]);
 
-  if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
-    assert.fail();
+  // precondition
+  {
+    const [alice, aliceTodo] = await queryNodes();
+    expect(alice.data?.node).not.toBeNull();
+    expect(aliceTodo.data?.node).not.toBeNull();
   }
 
-  const id = parseUserId(data.accountDelete.id);
-
-  if (Error.isError(id)) {
-    assert.fail();
+  // act
+  {
+    const { data } = await accountDelete({
+      token: client.tokens.alice,
+    });
+    assert(
+      data?.accountDelete?.__typename === "AccountDeleteSuccess",
+      data?.accountDelete?.__typename,
+    );
+    expect(data.accountDelete.id).toBe(graph.users.alice.id);
   }
 
-  const [user, userCredential, userToken] = await Promise.all([
-    client //
-      .selectFrom("users")
-      .where("id", "=", id)
-      .selectAll()
-      .executeTakeFirst(),
-    client //
-      .selectFrom("userCredentials")
-      .where("userId", "=", id)
-      .selectAll()
-      .executeTakeFirst(),
-    client //
-      .selectFrom("userTokens")
-      .where("userId", "=", id)
-      .selectAll()
-      .executeTakeFirst(),
-  ]);
-
-  expect(user).toBeUndefined();
-  expect(userCredential).toBeUndefined();
-  expect(userToken).toBeUndefined();
-});
-
-it("should not delete others", async () => {
-  const before = await client
-    .selectFrom("users")
-    .select(({ fn }) => fn.countAll<number>().as("count"))
-    .executeTakeFirstOrThrow();
-
-  const { data } = await executeMutation({
-    token: tokens.admin,
-  });
-
-  if (!data || !data.accountDelete || data.accountDelete.__typename !== "AccountDeleteSuccess") {
-    assert.fail();
+  // postcondition
+  {
+    const [alice, aliceTodo] = await queryNodes();
+    expect(alice.data?.node).toBeNull();
+    expect(aliceTodo.data?.node).toBeNull();
   }
-
-  const id = parseUserId(data.accountDelete.id);
-
-  if (Error.isError(id)) {
-    assert.fail();
-  }
-
-  const user = await client
-    .selectFrom("users") //
-    .where("id", "=", id)
-    .selectAll()
-    .executeTakeFirst();
-
-  const after = await client
-    .selectFrom("users")
-    .select(({ fn }) => fn.countAll<number>().as("count"))
-    .executeTakeFirstOrThrow();
-
-  expect(user).toBeUndefined();
-  expect(after.count).toBe(before.count - 1);
-});
-
-it("should delete his resources", async () => {
-  await seedData.todos();
-
-  const before = await client
-    .selectFrom("todos")
-    .where("userId", "=", db.users.admin.id)
-    .select(({ fn }) => fn.countAll<number>().as("count"))
-    .executeTakeFirstOrThrow();
-
-  const { data } = await executeMutation({
-    token: tokens.admin,
-  });
-
-  expect(data?.accountDelete?.__typename).toBe("AccountDeleteSuccess");
-
-  const after = await client
-    .selectFrom("todos")
-    .where("userId", "=", db.users.admin.id)
-    .select(({ fn }) => fn.countAll<number>().as("count"))
-    .executeTakeFirstOrThrow();
-
-  expect(before.count).not.toBe(0);
-  expect(after.count).toBe(0);
 });

@@ -1,17 +1,20 @@
-import { client } from "../../../src/db/client.ts";
-import { TodoStatus } from "../../../src/db/types.ts";
-import { parseTodoId } from "../../../src/graphql/_parsers/todo/id.ts";
+import { TodoStatus } from "../../../src/graphql/_schema.ts";
 
-import { db, tokens } from "../../data.ts";
-import { clearTables, seed } from "../../helpers.ts";
+import { domain, client, graph } from "../../data.ts";
+import { clearTables, clearTodos, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { TodoCreateMutation, TodoCreateMutationVariables } from "../schema.ts";
-
-const executeMutation = executeSingleResultOperation<
+import type {
   TodoCreateMutation,
+  TodoCreateMutationVariables,
+  TodoCreateNodeQuery,
+  TodoCreateNodeQueryVariables,
+} from "../_schema.ts";
+
+const todoCreate = executeSingleResultOperation<
+  TodoCreateMutation, //
   TodoCreateMutationVariables
 >(/* GraphQL */ `
-  mutation TodoCreate($title: String!, $description: String) {
+  mutation TodoCreate($title: String, $description: String) {
     todoCreate(title: $title, description: $description) {
       __typename
       ... on TodoCreateSuccess {
@@ -22,111 +25,173 @@ const executeMutation = executeSingleResultOperation<
           status
         }
       }
+      ... on InvalidInputErrors {
+        errors {
+          field
+        }
+      }
     }
   }
 `);
 
-const testData = {
-  users: [db.users.admin],
-};
+const node = executeSingleResultOperation<
+  TodoCreateNodeQuery, //
+  TodoCreateNodeQueryVariables
+>(/* GraphQL */ `
+  query TodoCreateNode($id: ID!) {
+    node(id: $id) {
+      __typename
+      id
+      ... on Todo {
+        title
+        description
+        status
+        createdAt
+        updatedAt
+      }
+      ... on User {
+        todos(first: 30) {
+          totalCount
+        }
+      }
+    }
+  }
+`);
 
-const seedData = {
-  users: () => seed.user(testData.users),
-};
+beforeAll(async () => {
+  await clearTables();
+  await seed.users(domain.users.alice);
+});
 
 beforeEach(async () => {
-  await clearTables();
-  await seedData.users();
+  await clearTodos();
 });
 
-const variables = {
-  title: "foo",
-  description: "bar",
-};
+it("returns validation errors when input is invalid", async () => {
+  // precondition
+  {
+    const todos = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    assert(todos.data?.node?.__typename === "User", todos.data?.node?.__typename);
+    expect(todos.data?.node.todos?.totalCount).toBe(0);
+  }
 
-test("invalid input", async () => {
-  const invalidTitle = "A".repeat(100 + 1);
+  // act
+  {
+    const { data } = await todoCreate({
+      token: client.tokens.alice,
+      variables: {
+        title: "a".repeat(100 + 1),
+        description: "a".repeat(5_000 + 1),
+      },
+    });
+    assert(data?.todoCreate?.__typename === "InvalidInputErrors", data?.todoCreate?.__typename);
+    expect(data.todoCreate.errors.map((e) => e.field).sort()).toStrictEqual([
+      "description",
+      "title",
+    ]);
+  }
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { ...variables, title: invalidTitle },
-  });
-
-  expect(data?.todoCreate?.__typename).toBe("InvalidInputErrors");
+  // postcondition
+  {
+    const todos = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    assert(todos.data?.node?.__typename === "User", todos.data?.node?.__typename);
+    expect(todos.data?.node.todos?.totalCount).toBe(0);
+  }
 });
 
-it("should create todo using input", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables,
-  });
-
-  if (data?.todoCreate?.__typename !== "TodoCreateSuccess") {
-    assert.fail();
+it("creates a todo using input", async () => {
+  // precondition
+  {
+    const todos = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    assert(todos.data?.node?.__typename === "User", todos.data?.node?.__typename);
+    expect(todos.data?.node.todos?.totalCount).toBe(0);
   }
 
-  const id = parseTodoId(data.todoCreate.todo.id);
-
-  if (Error.isError(id)) {
-    assert.fail();
+  // act
+  let todoId: string;
+  {
+    const { data } = await todoCreate({
+      token: client.tokens.alice,
+      variables: {
+        title: "foo",
+        description: "bar",
+      },
+    });
+    assert(data?.todoCreate?.__typename === "TodoCreateSuccess", data?.todoCreate?.__typename);
+    expect(data.todoCreate.todo.title).toBe("foo");
+    expect(data.todoCreate.todo.description).toBe("bar");
+    todoId = data.todoCreate.todo.id;
   }
 
-  const todo = await client
-    .selectFrom("todos")
-    .where("id", "=", id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
+  // postcondition
+  {
+    const todos = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    assert(todos.data?.node?.__typename === "User", todos.data?.node?.__typename);
+    expect(todos.data?.node.todos?.totalCount).toBe(1);
 
-  expect(todo.title).toBe(variables.title);
-  expect(todo.description).toBe(variables.description);
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: todoId },
+    });
+    assert(todo.data?.node?.__typename === "Todo", todo.data?.node?.__typename);
+    expect(todo.data.node.title).toBe("foo");
+    expect(todo.data.node.description).toBe("bar");
+  }
 });
 
-test('description should be "" by default', async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { title: variables.title },
-  });
-
-  if (data?.todoCreate?.__typename !== "TodoCreateSuccess") {
-    assert.fail();
+it("creates a todo with default values", async () => {
+  // precondition
+  {
+    const todos = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    assert(todos.data?.node?.__typename === "User", todos.data?.node?.__typename);
+    expect(todos.data?.node.todos?.totalCount).toBe(0);
   }
 
-  const id = parseTodoId(data.todoCreate.todo.id);
-
-  if (Error.isError(id)) {
-    assert.fail();
+  // act
+  let todoId: string;
+  {
+    const { data } = await todoCreate({
+      token: client.tokens.alice,
+      variables: {},
+    });
+    assert(data?.todoCreate?.__typename === "TodoCreateSuccess", data?.todoCreate?.__typename);
+    expect(data.todoCreate.todo.title).toBe("");
+    expect(data.todoCreate.todo.description).toBe("");
+    expect(data.todoCreate.todo.status).toBe(TodoStatus.Pending);
+    todoId = data.todoCreate.todo.id;
   }
 
-  const todo = await client
-    .selectFrom("todos")
-    .where("id", "=", id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
+  // postcondition
+  {
+    const todos = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    assert(todos.data?.node?.__typename === "User", todos.data?.node?.__typename);
+    expect(todos.data?.node.todos?.totalCount).toBe(1);
 
-  expect(todo.description).toBe("");
-});
-
-test("status should be PENDING by default", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables,
-  });
-
-  if (data?.todoCreate?.__typename !== "TodoCreateSuccess") {
-    assert.fail();
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: todoId },
+    });
+    assert(todo.data?.node?.__typename === "Todo", todo.data?.node?.__typename);
+    expect(todo.data.node.title).toBe("");
+    expect(todo.data.node.description).toBe("");
+    expect(todo.data.node.status).toBe(TodoStatus.Pending);
   }
-
-  const id = parseTodoId(data.todoCreate.todo.id);
-
-  if (Error.isError(id)) {
-    assert.fail();
-  }
-
-  const todo = await client
-    .selectFrom("todos")
-    .where("id", "=", id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  expect(todo.status).toBe(TodoStatus.Pending);
 });

@@ -1,3 +1,3 @@
-import type * as Db from "../../db/types.ts";
+import type * as Dto from "../_dto.ts";
 
-export type Todo = Db.Todo;
+export type Todo = Dto.Todo.Type;

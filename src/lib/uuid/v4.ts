@@ -2,7 +2,7 @@ import type { Tagged } from "type-fest";
 
 import * as Uuid from "./vn.ts";
 
-export type Uuidv4 = Tagged<Uuid.Uuid, "Uuidv4">;
+export type Uuidv4 = Tagged<Uuid.Uuid, "v4">;
 
 export const gen = () => {
   return crypto.randomUUID() as Uuidv4;

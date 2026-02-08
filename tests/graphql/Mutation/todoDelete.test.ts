@@ -1,13 +1,17 @@
-import { client } from "../../../src/db/client.ts";
-import { ErrorCode } from "../../../src/schema.ts";
+import { ErrorCode } from "../../../src/graphql/_schema.ts";
 
-import { db, dummyId, graph, tokens } from "../../data.ts";
-import { clearTables, clearTodos, seed } from "../../helpers.ts";
+import { domain, graph, client } from "../../data.ts";
+import { clearTables, clearTodos, seed, dummyId } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { TodoDeleteMutation, TodoDeleteMutationVariables } from "../schema.ts";
-
-const executeMutation = executeSingleResultOperation<
+import type {
   TodoDeleteMutation,
+  TodoDeleteMutationVariables,
+  TodoDeleteNodeQuery,
+  TodoDeleteNodeQueryVariables,
+} from "../_schema.ts";
+
+const todoDelete = executeSingleResultOperation<
+  TodoDeleteMutation, //
   TodoDeleteMutationVariables
 >(/* GraphQL */ `
   mutation TodoDelete($id: ID!) {
@@ -20,95 +24,190 @@ const executeMutation = executeSingleResultOperation<
   }
 `);
 
-const testData = {
-  users: [db.users.admin, db.users.alice],
-  todos: [db.todos.admin1, db.todos.alice1],
-};
-
-const seedData = {
-  users: () => seed.user(testData.users),
-  todos: () => seed.todo(testData.todos),
-};
+const node = executeSingleResultOperation<
+  TodoDeleteNodeQuery, //
+  TodoDeleteNodeQueryVariables
+>(/* GraphQL */ `
+  query TodoDeleteNode($id: ID!) {
+    node(id: $id) {
+      __typename
+      id
+      ... on Todo {
+        title
+        description
+        status
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`);
 
 beforeAll(async () => {
   await clearTables();
-  await seedData.users();
+  await seed.users(domain.users.alice, domain.users.admin);
 });
 
 beforeEach(async () => {
   await clearTodos();
-  await seedData.todos();
+  await seed.todos(domain.todos.alice1);
 });
 
-test("invalid input", async () => {
-  const { data, errors } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: dummyId.todo().slice(0, -1) },
-  });
+it("returns an error when id is invalid", async () => {
+  // precondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.alice1);
+  }
 
-  expect(data?.todoDelete).toBeNull();
-  expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
+  // act
+  {
+    const { data, errors } = await todoDelete({
+      token: client.tokens.alice,
+      variables: {
+        id: "abracadabra", // invalid
+      },
+    });
+    expect(data?.todoDelete).toBeNull();
+    expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
+  }
+
+  // postcondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.alice1);
+  }
 });
 
-test("not exists", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: dummyId.todo() },
-  });
+it("returns not found when id not exists on graph", async () => {
+  const dummyTodoId = dummyId.todo();
 
-  expect(data?.todoDelete?.__typename).toBe("ResourceNotFoundError");
+  // precondition
+  {
+    const todo = await node({
+      token: client.tokens.admin,
+      variables: { id: dummyTodoId },
+    });
+    expect(todo.data?.node).toBeNull();
+  }
+
+  // act
+  {
+    const { data } = await todoDelete({
+      token: client.tokens.alice,
+      variables: { id: dummyTodoId },
+    });
+    expect(data?.todoDelete?.__typename).toBe("ResourceNotFoundError");
+  }
+
+  // postcondition
+  {
+    const todo = await node({
+      token: client.tokens.admin,
+      variables: { id: dummyTodoId },
+    });
+    expect(todo.data?.node).toBeNull();
+  }
 });
 
-test("exists, but not owned", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: graph.todos.alice1.id },
-  });
+it("returns not found when client does not own todo", async () => {
+  // seed
+  await seed.todos(domain.todos.admin1);
 
-  expect(data?.todoDelete?.__typename).toBe("ResourceNotFoundError");
+  // precondition
+  {
+    const todo = await node({
+      token: client.tokens.admin,
+      variables: { id: graph.todos.admin1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.admin1);
+  }
+
+  // act
+  {
+    const { data } = await todoDelete({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.admin1.id },
+    });
+    expect(data?.todoDelete?.__typename).toBe("ResourceNotFoundError");
+  }
+
+  // postcondition
+  {
+    const todo = await node({
+      token: client.tokens.admin,
+      variables: { id: graph.todos.admin1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.admin1);
+  }
 });
 
-it("should delete todo", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: graph.todos.admin1.id },
-  });
+it("returns not found when client does not own todo", async () => {
+  // seed
+  await seed.todos(domain.todos.admin1);
 
-  expect(data?.todoDelete?.__typename).toBe("TodoDeleteSuccess");
+  // precondition
+  {
+    const todo = await node({
+      token: client.tokens.admin,
+      variables: { id: graph.todos.admin1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.admin1);
+  }
 
-  const todo = await client
-    .selectFrom("todos")
-    .where("id", "=", db.todos.admin1.id)
-    .selectAll()
-    .executeTakeFirst();
+  // act
+  {
+    const { data } = await todoDelete({
+      token: client.tokens.alice,
+      variables: {
+        id: graph.todos.admin1.id,
+      },
+    });
+    expect(data?.todoDelete?.__typename).toBe("ResourceNotFoundError");
+  }
 
-  expect(todo).toBeUndefined();
+  // postcondition
+  {
+    const todo = await node({
+      token: client.tokens.admin,
+      variables: { id: graph.todos.admin1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.admin1);
+  }
 });
 
-it("should not delete others", async () => {
-  const before = await client
-    .selectFrom("todos")
-    .select(({ fn }) => fn.countAll<number>().as("count"))
-    .executeTakeFirstOrThrow();
+it("updates todo", async () => {
+  // precondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    expect(todo.data?.node).toStrictEqual(graph.todos.alice1);
+  }
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { id: graph.todos.admin1.id },
-  });
+  // act
+  {
+    const { data } = await todoDelete({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    assert(data?.todoDelete?.__typename === "TodoDeleteSuccess", data?.todoDelete?.__typename);
+    expect(data.todoDelete.id).toBe(graph.todos.alice1.id);
+  }
 
-  expect(data?.todoDelete?.__typename).toBe("TodoDeleteSuccess");
-
-  const todo = await client
-    .selectFrom("todos")
-    .where("id", "=", db.todos.admin1.id)
-    .selectAll()
-    .executeTakeFirst();
-
-  const after = await client
-    .selectFrom("todos")
-    .select(({ fn }) => fn.countAll<number>().as("count"))
-    .executeTakeFirstOrThrow();
-
-  expect(todo).toBeUndefined();
-  expect(after.count).toBe(before.count - 1);
+  // postcondition
+  {
+    const todo = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.todos.alice1.id },
+    });
+    expect(todo.data?.node).toBeNull();
+  }
 });

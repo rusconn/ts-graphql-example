@@ -1,13 +1,20 @@
-import type { Scalars } from "../../schema.ts";
+import { err, ok, type Result } from "neverthrow";
+
+import type { Scalars } from "../_schema.ts";
 import { type NodeType, nodeTypes, typeIdSep } from "../Node/id.ts";
 
-export const parseId = (id: Scalars["ID"]["input"]) => {
+export type Id = {
+  type: NodeType;
+  internalId: string;
+};
+
+export const parseId = (id: Scalars["ID"]["input"]): Result<Id, Error> => {
   const [type, internalId, ...rest] = id.split(typeIdSep);
   if (!isValidNodeType(type) || internalId == null || rest.length !== 0) {
-    return new Error(`Invalid global id '${id}'`);
+    return err(new Error(`Invalid global id '${id}'`));
   }
 
-  return { type, internalId };
+  return ok({ type, internalId });
 };
 
 const isValidNodeType = (val: string | undefined): val is NodeType => {
@@ -34,11 +41,11 @@ if (import.meta.vitest) {
 
   test.each(valids)("valids %#", (id) => {
     const parsed = parseId(id);
-    expect(Error.isError(parsed)).toBe(false);
+    expect(parsed.isOk()).toBe(true);
   });
 
   test.each(invalids)("invalids %#", (id) => {
     const parsed = parseId(id);
-    expect(Error.isError(parsed)).toBe(true);
+    expect(parsed.isErr()).toBe(true);
   });
 }

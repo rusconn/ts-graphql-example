@@ -1,9 +1,14 @@
-import type { MutationResolvers } from "../../schema.ts";
+import { Result } from "neverthrow";
+
+import { Todo } from "../../domain/models.ts";
+import type { MutationResolvers, MutationTodoStatusChangeArgs } from "../_schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
+import { parseTodoStatus } from "../_parsers/todo/status.ts";
+import { unwrapOrElse } from "../../util/neverthrow.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -25,10 +30,9 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
     throw forbiddenErr(ctx);
   }
 
-  const id = parseTodoId(args.id);
-  if (Error.isError(id)) {
-    throw badUserInputErr(id.message, id);
-  }
+  const id = unwrapOrElse(parseTodoId(args.id), (e) => {
+    throw badUserInputErr(e.message, e);
+  });
 
   const todo = await ctx.repos.todo.find(id);
   if (!todo) {
@@ -38,29 +42,33 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
     };
   }
 
-  const changedTodo: typeof todo = {
-    ...todo,
-    status: args.status,
-    updatedAt: new Date(),
-  };
-
-  const result = await ctx.repos.todo.update(changedTodo);
-  switch (result) {
-    case "Ok":
-      break;
-    case "NotFound":
-      throw internalServerError();
-    default:
-      throw new Error(result satisfies never);
+  const parsed = parseArgs(args);
+  if (parsed.isErr()) {
+    throw internalServerError(parsed.error);
   }
 
-  const found = await ctx.queries.todo.find(id);
-  if (!found) {
-    throw internalServerError();
+  const changedTodo = Todo.changeStatus(todo, parsed.value);
+  try {
+    await ctx.kysely.transaction().execute(async (trx) => {
+      await ctx.repos.todo.update(changedTodo, trx);
+    });
+  } catch (e) {
+    throw internalServerError(e);
   }
 
   return {
     __typename: "TodoStatusChangeSuccess",
-    todo: found,
+    todo: changedTodo,
   };
+};
+
+const parseArgs = (args: MutationTodoStatusChangeArgs) => {
+  return Result.combineWithAllErrors([
+    parseTodoStatus(args, "status", {
+      optional: false,
+      nullable: false,
+    }),
+  ]).map(([status]) => ({
+    status,
+  }));
 };

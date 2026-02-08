@@ -1,13 +1,18 @@
-import { client } from "../../../src/db/client.ts";
-import { UserRole } from "../../../src/db/types.ts";
-
-import { db } from "../../data.ts";
-import { clearUsers, seed } from "../../helpers.ts";
+import { ErrorCode } from "../../../src/graphql/_schema.ts";
+import { client, domain } from "../../data.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { SignupMutation, SignupMutationVariables } from "../schema.ts";
-
-const executeMutation = executeSingleResultOperation<
+import type {
+  SignupLoginMutation,
+  SignupLoginMutationVariables,
   SignupMutation,
+  SignupMutationVariables,
+  SignupUsersQuery,
+  SignupUsersQueryVariables,
+} from "../_schema.ts";
+
+const signup = executeSingleResultOperation<
+  SignupMutation, //
   SignupMutationVariables
 >(/* GraphQL */ `
   mutation Signup($name: String!, $email: String!, $password: String!) {
@@ -16,88 +21,168 @@ const executeMutation = executeSingleResultOperation<
       ... on SignupSuccess {
         token
       }
+      ... on InvalidInputErrors {
+        errors {
+          field
+        }
+      }
     }
   }
 `);
 
-const testData = {
-  users: [db.users.admin],
-};
+const login = executeSingleResultOperation<
+  SignupLoginMutation, //
+  SignupLoginMutationVariables
+>(/* GraphQL */ `
+  mutation SignupLogin($email: String!, $password: String!) {
+    login(email: $email, password: $password) {
+      __typename
+      ... on LoginSuccess {
+        token
+      }
+      ... on InvalidInputErrors {
+        errors {
+          field
+        }
+      }
+      ... on LoginFailedError {
+        message
+      }
+    }
+  }
+`);
 
-const seedData = {
-  users: () => seed.user(testData.users),
-};
+const users = executeSingleResultOperation<
+  SignupUsersQuery, //
+  SignupUsersQueryVariables
+>(/* GraphQL */ `
+  query SignupUsers {
+    users(first: 30) {
+      totalCount
+    }
+  }
+`);
 
 beforeEach(async () => {
-  await clearUsers();
-  await seedData.users();
+  await clearTables();
+  await seed.users(domain.users.admin);
 });
 
-test("invalid input", async () => {
-  const name = "foo";
-  const invalidEmail = "emailemail.com";
-  const password = "password";
-
-  const { data } = await executeMutation({
-    variables: { name, email: invalidEmail, password },
-  });
-
-  expect(data?.signup?.__typename).toBe("InvalidInputErrors");
-});
-
-test("email already exists", async () => {
-  const name = "foo";
-  const { email } = db.users.admin;
-  const password = "password";
-
-  const { data } = await executeMutation({
-    variables: { name, email, password },
-  });
-
-  expect(data?.signup?.__typename).toBe("EmailAlreadyTakenError");
-});
-
-it("should create user using input", async () => {
-  const name = "foo";
-  const email = "foo@foo.com";
-  const password = "password";
-
-  const { data } = await executeMutation({
-    variables: { name, email, password },
-  });
-
-  if (data?.signup?.__typename !== "SignupSuccess") {
-    assert.fail();
+it("returns validation errors when input is invalid", async () => {
+  // precondition
+  {
+    const users_ = await users({
+      token: client.tokens.admin,
+    });
+    expect(users_.data?.users?.totalCount).toBe(1);
   }
 
-  const user = await client
-    .selectFrom("users")
-    .where("email", "=", email)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  expect(user.name).toBe(name);
-  expect(user.email).toBe(email);
-});
-
-test("role should be USER by default", async () => {
-  const name = "bar";
-  const email = "bar@bar.com";
-  const password = "password";
-
-  const { data } = await executeMutation({
-    variables: { name, email, password },
-  });
-
-  if (data?.signup?.__typename !== "SignupSuccess") {
-    assert.fail();
+  // act
+  {
+    const { data } = await signup({
+      variables: {
+        name: "", // invalid
+        email: "example.com", // invalid
+        password: "pass", // invalid,
+      },
+    });
+    assert(data?.signup?.__typename === "InvalidInputErrors", data?.signup?.__typename);
+    expect(data.signup.errors.map((e) => e.field).sort()).toStrictEqual([
+      "email",
+      "name",
+      "password",
+    ]);
   }
 
-  const user = await client
-    .selectFrom("users")
-    .where("email", "=", email)
-    .selectAll()
-    .executeTakeFirstOrThrow();
+  // postcondition
+  {
+    const users_ = await users({
+      token: client.tokens.admin,
+    });
+    expect(users_.data?.users?.totalCount).toBe(1);
+  }
+});
 
-  expect(user.role).toBe(UserRole.User);
+it("returns an error when email is already taken", async () => {
+  // precondition
+  {
+    const users_ = await users({
+      token: client.tokens.admin,
+    });
+    expect(users_.data?.users?.totalCount).toBe(1);
+  }
+
+  // act
+  {
+    const { data } = await signup({
+      variables: {
+        name: "foobar",
+        email: domain.users.admin.email, // taken
+        password: "password",
+      },
+    });
+    assert(data?.signup?.__typename === "EmailAlreadyTakenError", data?.signup?.__typename);
+  }
+
+  // postcondition
+  {
+    const users_ = await users({
+      token: client.tokens.admin,
+    });
+    expect(users_.data?.users?.totalCount).toBe(1);
+  }
+});
+
+it("creates a user and returns a new token", async () => {
+  // precondition
+  {
+    const users_ = await users({
+      token: client.tokens.admin,
+    });
+    expect(users_.data?.users?.totalCount).toBe(1);
+
+    const login_ = await login({
+      variables: {
+        email: "foo@example.com",
+        password: "password",
+      },
+    });
+    assert(login_.data?.login?.__typename === "LoginFailedError", login_.data?.login?.__typename);
+  }
+
+  // act
+  {
+    const { data } = await signup({
+      variables: {
+        name: "foo",
+        email: "foo@example.com",
+        password: "password",
+      },
+    });
+    assert(data?.signup?.__typename === "SignupSuccess", data?.signup?.__typename);
+  }
+
+  // postcondition
+  {
+    const usersByAdmin = await users({
+      token: client.tokens.admin,
+    });
+    expect(usersByAdmin.data?.users?.totalCount).toBe(2);
+
+    const login_ = await login({
+      variables: {
+        email: "foo@example.com",
+        password: "password",
+      },
+    });
+    assert(login_.data?.login?.__typename === "LoginSuccess", login_.data?.login?.__typename);
+
+    const usersByNewUser = await users({
+      token: login_.data.login.token,
+    });
+    expect(usersByNewUser.data?.users).toBeNull();
+    expect(usersByNewUser.errors?.map((e) => e.extensions.code)).toStrictEqual([
+      ErrorCode.Forbidden,
+    ]);
+  }
 });

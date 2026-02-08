@@ -1,17 +1,17 @@
-import type { Context } from "../../context.ts";
-import { db as users } from "./db/users.ts";
+import type { Context } from "../../server/context.ts";
+import { dto } from "./dto.ts";
 
 export const context = {
   admin: {
-    role: "admin",
-    user: users.admin,
+    role: "ADMIN",
+    user: dto.users.admin,
   },
   alice: {
-    role: "user",
-    user: users.alice,
+    role: "USER",
+    user: dto.users.alice,
   },
   guest: {
-    role: "guest",
+    role: "GUEST",
     user: null,
   },
 } as const satisfies Record<string, Pick<Context, "role" | "user">>;

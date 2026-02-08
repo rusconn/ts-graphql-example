@@ -5,9 +5,9 @@
       "**",
       "!**/node_modules/**",
       "!**/dist/**",
-      "!**/src/db/generated.ts",
-      "!**/src/schema.ts",
-      "!**/tests/graphql/schema.ts"
+      "!**/src/infra/datasources/_shared/generated.ts",
+      "!**/src/graphql/_schema.ts",
+      "!**/tests/graphql/_schema.ts"
     ]
   },
   "linter": {

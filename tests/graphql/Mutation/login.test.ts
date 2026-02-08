@@ -1,13 +1,18 @@
-import { maxRefreshTokens } from "../../../src/config/token.ts";
-import { client } from "../../../src/db/client.ts";
+import * as Domain from "../../../src/domain/models.ts";
+import type * as Db from "../../../src/infra/datasources/_shared/types.ts";
 
-import { db, tokens } from "../../data.ts";
-import { clearUsers, seed } from "../../helpers.ts";
+import { db, client, domain, graph } from "../../data.ts";
+import { clearTables, queries, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { LoginMutation, LoginMutationVariables } from "../schema.ts";
-
-const executeMutation = executeSingleResultOperation<
+import type {
   LoginMutation,
+  LoginMutationVariables,
+  LoginNodeQuery,
+  LoginNodeQueryVariables,
+} from "../_schema.ts";
+
+const login = executeSingleResultOperation<
+  LoginMutation, //
   LoginMutationVariables
 >(/* GraphQL */ `
   mutation Login($email: String!, $password: String!) {
@@ -16,195 +21,207 @@ const executeMutation = executeSingleResultOperation<
       ... on LoginSuccess {
         token
       }
+      ... on InvalidInputErrors {
+        errors {
+          field
+        }
+      }
+      ... on LoginFailedError {
+        message
+      }
     }
   }
 `);
 
-const testData = {
-  users: [db.users.admin, db.users.alice],
-};
-
-const seedData = {
-  users: () => seed.user(testData.users),
-};
+const node = executeSingleResultOperation<
+  LoginNodeQuery, //
+  LoginNodeQueryVariables
+>(/* GraphQL */ `
+  query LoginNode($id: ID!) {
+    node(id: $id) {
+      __typename
+      id
+      ... on User {
+        name
+        email
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`);
 
 beforeEach(async () => {
-  await clearUsers();
-  await seedData.users();
+  await clearTables();
+  await seed.users(domain.users.alice);
 });
 
-test("invalid input", async () => {
-  const invalidEmail = "emailemail.com";
-  const password = "adminadmin";
+it("returns validation errors when input is invalid", async () => {
+  // precondition
+  {
+    const aliceTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(aliceTokens.length).toBe(0);
+  }
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { email: invalidEmail, password },
-  });
+  // act
+  {
+    const { data } = await login({
+      variables: {
+        email: "emailexample.com", // invalid
+        password: "alice", // invalid
+      },
+    });
+    assert(data?.login?.__typename === "InvalidInputErrors", data?.login?.__typename);
+    expect(data.login.errors.map((error) => error.field).sort()).toStrictEqual([
+      "email",
+      "password",
+    ]);
+  }
 
-  expect(data?.login?.__typename).toBe("InvalidInputErrors");
+  // postcondition
+  {
+    const aliceTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(aliceTokens.length).toBe(0);
+  }
 });
 
-test("wrong email", async () => {
-  const wrongEmail = db.users.admin.email.slice(1);
-  const password = "adminadmin";
+it("returns an error when email is incorrect", async () => {
+  // precondition
+  {
+    const aliceTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(aliceTokens.length).toBe(0);
+  }
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { email: wrongEmail, password },
-  });
+  // act
+  {
+    const { data } = await login({
+      variables: {
+        email: "incorrect@example.com",
+        password: "alicealice",
+      },
+    });
+    assert(data?.login?.__typename === "LoginFailedError", data?.login?.__typename);
+    expect(data.login.message).toBe("Incorrect email or password."); // don't tell which one is incorrect
+  }
 
-  expect(data?.login?.__typename).toBe("LoginFailedError");
+  // postcondition
+  {
+    const aliceTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(aliceTokens.length).toBe(0);
+  }
 });
 
-test("wrong password", async () => {
-  const { email } = db.users.admin;
-  const wrongPassword = "dminadmin";
+it("returns an error when password is incorrect", async () => {
+  // precondition
+  {
+    const aliceTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(aliceTokens.length).toBe(0);
+  }
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { email, password: wrongPassword },
-  });
+  // act
+  {
+    const { data } = await login({
+      variables: {
+        email: domain.users.alice.email,
+        password: "incorrect",
+      },
+    });
+    assert(data?.login?.__typename === "LoginFailedError", data?.login?.__typename);
+    expect(data.login.message).toBe("Incorrect email or password."); // don't tell which one is incorrect
+  }
 
-  expect(data?.login?.__typename).toBe("LoginFailedError");
+  // postcondition
+  {
+    const aliceTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(aliceTokens.length).toBe(0);
+  }
 });
 
-test("correct input", async () => {
-  const { email } = db.users.admin;
-  const password = "adminadmin";
+it("returns a new token and adds a refresh token", async () => {
+  // precondition
+  {
+    const aliceTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(aliceTokens.length).toBe(0);
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { email, password },
-  });
+    const oldToken = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    expect(oldToken.data?.node).toStrictEqual(graph.users.alice);
 
-  expect(data?.login?.__typename).toBe("LoginSuccess");
+    const noToken = await node({
+      variables: { id: graph.users.alice.id },
+    });
+    expect(noToken.data?.node).toBeNull();
+  }
+
+  // act
+  let aliceToken: string;
+  {
+    const { data } = await login({
+      variables: {
+        email: domain.users.alice.email,
+        password: "alicealice",
+      },
+    });
+    assert(data?.login?.__typename === "LoginSuccess", data?.login?.__typename);
+    aliceToken = data.login.token;
+  }
+
+  // postcondition
+  {
+    const aliceTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(aliceTokens.length).toBe(1);
+
+    const oldToken = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    expect(oldToken.data?.node).toStrictEqual(graph.users.alice);
+
+    const newToken = await node({
+      token: aliceToken,
+      variables: { id: graph.users.alice.id },
+    });
+    expect(newToken.data?.node).toStrictEqual(graph.users.alice);
+  }
 });
 
-test("login adds a token", async () => {
-  const before = await client
-    .selectFrom("userTokens")
-    .where("userId", "=", db.users.admin.id)
-    .select("refreshToken")
-    .execute();
+it("retains latest 5 refresh tokens", async () => {
+  // seed
+  {
+    const dbRefreshTokens = Array.from({ length: 5 }).map((_, i) => ({
+      token: `$2b$04$UJnbSNtlTFcLZkRtPqx2SOswuES4NFkKjP1rV9pb.SP037OP0ru/${i}`,
+      userId: db.users.alice.id,
+      lastUsedAt: new Date(`2026-01-01T00:00:00.00${i}Z`),
+    })) satisfies Db.NewRefreshToken[];
+    const refreshTokens = dbRefreshTokens.map(Domain.RefreshToken.parseOrThrow);
+    await seed.refreshTokens(...refreshTokens);
+  }
 
-  const { email } = db.users.admin;
-  const password = "adminadmin";
+  // precondition
+  {
+    const aliceTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(aliceTokens.length).toBe(5);
+  }
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { email, password },
-  });
+  // act
+  {
+    const { data } = await login({
+      variables: {
+        email: domain.users.alice.email,
+        password: "alicealice",
+      },
+    });
+    assert(data?.login?.__typename === "LoginSuccess", data?.login?.__typename);
+  }
 
-  expect(data?.login?.__typename).toBe("LoginSuccess");
-
-  const after = await client
-    .selectFrom("userTokens")
-    .where("userId", "=", db.users.admin.id)
-    .select("refreshToken")
-    .execute();
-
-  expect(after.length).toBe(before.length + 1);
-});
-
-test("num tokens is limit by config", async () => {
-  const { id, email } = db.users.admin;
-  const password = "adminadmin";
-
-  const rows = Array.from({ length: maxRefreshTokens - 1 }).map((_, i) => ({
-    refreshToken: `dummy-${i}`,
-    userId: id,
-    lastUsedAt: new Date(),
-  }));
-
-  await client
-    .insertInto("userTokens") //
-    .values(rows)
-    .executeTakeFirstOrThrow();
-
-  const before = await client
-    .selectFrom("userTokens")
-    .where("userId", "=", id)
-    .select("refreshToken")
-    .execute();
-
-  expect(before.length).toBe(maxRefreshTokens);
-
-  await executeMutation({
-    token: tokens.admin,
-    variables: { email, password },
-  });
-
-  const after = await client
-    .selectFrom("userTokens")
-    .where("userId", "=", db.users.admin.id)
-    .select("refreshToken")
-    .execute();
-
-  expect(after.length).toBe(maxRefreshTokens);
-});
-
-test("oldest token will be removed when num tokens exceeds the limit", async () => {
-  const { id, email, refreshToken } = db.users.admin;
-  const password = "adminadmin";
-
-  const before = await client
-    .selectFrom("userTokens")
-    .where("refreshToken", "=", refreshToken)
-    .select("refreshToken")
-    .executeTakeFirst();
-
-  expect(before).not.toBeUndefined();
-
-  const rows = Array.from({ length: maxRefreshTokens - 1 }).map((_, i) => ({
-    refreshToken: `dummy-${i}`,
-    userId: id,
-    lastUsedAt: new Date(),
-  }));
-
-  await client
-    .insertInto("userTokens") //
-    .values(rows)
-    .executeTakeFirstOrThrow();
-
-  await executeMutation({
-    token: tokens.admin,
-    variables: { email, password },
-  });
-
-  const after = await client
-    .selectFrom("userTokens")
-    .where("refreshToken", "=", refreshToken)
-    .select("refreshToken")
-    .executeTakeFirst();
-
-  expect(after).toBeUndefined();
-});
-
-test("login does not changes other attrs", async () => {
-  const before = await client
-    .selectFrom("users")
-    .where("id", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  const { email } = db.users.admin;
-  const password = "adminadmin";
-
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { email, password },
-  });
-
-  expect(data?.login?.__typename).toBe("LoginSuccess");
-
-  const after = await client
-    .selectFrom("users")
-    .where("id", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  expect(before.id).toBe(after.id);
-  expect(before.name).toBe(after.name);
-  expect(before.email).toBe(after.email);
+  // postcondition
+  {
+    const aliceTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(aliceTokens.length).toBe(5);
+    expect(aliceTokens.sort()[0]!.token).toBe(
+      `$2b$04$UJnbSNtlTFcLZkRtPqx2SOswuES4NFkKjP1rV9pb.SP037OP0ru/${1}`,
+    );
+  }
 });

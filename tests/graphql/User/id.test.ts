@@ -1,7 +1,7 @@
 import { db, graph, tokens } from "../../data.ts";
 import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { UserIdQuery, UserIdQueryVariables } from "../schema.ts";
+import type { UserIdQuery, UserIdQueryVariables } from "../_schema.ts";
 
 const executeQuery = executeSingleResultOperation<UserIdQuery, UserIdQueryVariables>(/* GraphQL */ `
   query UserId($id: ID!) {
@@ -17,7 +17,7 @@ const testData = {
 };
 
 const seedData = {
-  users: () => seed.user(testData.users),
+  users: () => seed.users(testData.users),
 };
 
 beforeAll(async () => {

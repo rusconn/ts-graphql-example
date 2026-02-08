@@ -1,7 +1,7 @@
 import { db, graph, tokens } from "../../data.ts";
 import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { TodoIdQuery, TodoIdQueryVariables } from "../schema.ts";
+import type { TodoIdQuery, TodoIdQueryVariables } from "../_schema.ts";
 
 const executeQuery = executeSingleResultOperation<TodoIdQuery, TodoIdQueryVariables>(/* GraphQL */ `
   query TodoId($id: ID!) {
@@ -18,8 +18,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => seed.user(testData.users),
-  todos: () => seed.todo(testData.todos),
+  users: () => seed.users(testData.users),
+  todos: () => seed.todos(testData.todos),
 };
 
 beforeAll(async () => {

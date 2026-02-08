@@ -6,15 +6,13 @@
     "node": "^24.10.0"
   },
   "scripts": {
-    "dev": "dotenvx run -- node --watch src/main.ts",
+    "dev": "dotenvx run -- node --watch src/server.ts",
     "build": "vite build",
-    "preview": "dotenvx run -f .env -f .env.preview --overload -- node --enable-source-maps dist/main.js",
+    "preview": "dotenvx run -f .env -f .env.preview --overload -- node --enable-source-maps dist/server.js",
     "test": "dotenvx run -f .env -f .env.test --overload -- pnpm run --sequential /test:/",
-    "test:ut": "vitest --dir src",
-    "test:it": "node --run migrate:clean -- --auto-approve && node --run migrate:apply -- --auto-approve && vitest --dir tests --maxWorkers 1",
+    "test:it": "node --run migrate -- apply --auto-approve && vitest --dir tests/graphql/Mutation/ --maxWorkers 1",
     "check": "tsgo && biome check && prettier --cache --check './**/*.{yml,yaml,md}'",
-    "migrate:clean": "dotenvx run -- atlas schema clean --env env",
-    "migrate:apply": "dotenvx run -- atlas schema apply --env env",
+    "migrate": "dotenvx run -- atlas schema --env env",
     "generate": "dotenvx run -- kysely-codegen --config-file kysely-codegen.ts",
     "seed": "dotenvx run -- node db/seed.ts",
     "codegen": "dotenvx run -- node schemagen.ts && biome format --write schema.graphql && graphql-codegen-esm"
@@ -33,6 +31,7 @@
     "graphql-yoga": "^5.7.0",
     "jose": "^6.0.4",
     "kysely": "^0.28.8",
+    "neverthrow": "^8.2.0",
     "pg": "^8.11.3",
     "pino": "^9.6.0",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.56.0",

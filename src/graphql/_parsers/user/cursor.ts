@@ -1,4 +1,4 @@
-import { UserId } from "../../../domain/user.ts";
+import { User } from "../../../domain/models.ts";
 import { parseCursor } from "../cursor.ts";
 
-export const parseUserCursor = parseCursor(UserId.is);
+export const parseUserCursor = parseCursor(User.Id.is);

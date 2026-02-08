@@ -3,7 +3,7 @@ import { v7 } from "uuid";
 
 import * as Uuid from "./vn.ts";
 
-export type Uuidv7 = Tagged<Uuid.Uuid, "Uuidv7">;
+export type Uuidv7 = Tagged<Uuid.Uuid, "v7">;
 
 export const gen = () => {
   return v7() as Uuidv7;

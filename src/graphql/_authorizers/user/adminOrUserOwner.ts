@@ -1,5 +1,5 @@
-import type { Context } from "../../../context.ts";
-import type { ResolversParentTypes } from "../../../schema.ts";
+import type { Context } from "../../../server/context.ts";
+import type { ResolversParentTypes } from "../../_schema.ts";
 import { authAdmin } from "../admin.ts";
 import { authErr } from "../util.ts";
 
@@ -16,7 +16,7 @@ export const authAdminOrUserOwner = (context: Context, user: ParentUser) => {
 };
 
 const authUserOwner = (context: Context, user: ParentUser) => {
-  if (context.role === "guest" || context.user.id !== user.id) {
+  if (context.role === "GUEST" || context.user.id !== user.id) {
     return authErr();
   }
 
@@ -25,52 +25,52 @@ const authUserOwner = (context: Context, user: ParentUser) => {
 
 if (import.meta.vitest) {
   const { context } = await import("../../_testData/context.ts");
-  const { db } = await import("../../_testData/db.ts");
+  const { dto } = await import("../../_testData/dto.ts");
 
   describe("authAdminOrUserOwner", () => {
     const allows = [
-      [context.admin, db.users.admin],
-      [context.admin, db.users.alice],
-      [context.alice, db.users.alice],
+      [context.admin, dto.users.admin],
+      [context.admin, dto.users.alice],
+      [context.alice, dto.users.alice],
     ] as const;
 
     const denies = [
-      [context.alice, db.users.admin],
-      [context.guest, db.users.admin],
-      [context.guest, db.users.alice],
+      [context.alice, dto.users.admin],
+      [context.guest, dto.users.admin],
+      [context.guest, dto.users.alice],
     ] as const;
 
     test.each(allows)("allows %#", (context, user) => {
-      const authed = authAdminOrUserOwner(context as Context, user);
+      const authed = authAdminOrUserOwner(context as unknown as Context, user);
       expect(Error.isError(authed)).toBe(false);
     });
 
     test.each(denies)("denies %#", (context, user) => {
-      const authed = authAdminOrUserOwner(context as Context, user);
+      const authed = authAdminOrUserOwner(context as unknown as Context, user);
       expect(Error.isError(authed)).toBe(true);
     });
   });
 
   describe("authUserOwner", () => {
     const allows = [
-      [context.admin, db.users.admin],
-      [context.alice, db.users.alice],
+      [context.admin, dto.users.admin],
+      [context.alice, dto.users.alice],
     ] as const;
 
     const denies = [
-      [context.admin, db.users.alice],
-      [context.alice, db.users.admin],
-      [context.guest, db.users.admin],
-      [context.guest, db.users.alice],
+      [context.admin, dto.users.alice],
+      [context.alice, dto.users.admin],
+      [context.guest, dto.users.admin],
+      [context.guest, dto.users.alice],
     ] as const;
 
     test.each(allows)("allows %#", (context, user) => {
-      const authed = authUserOwner(context as Context, user);
+      const authed = authUserOwner(context as unknown as Context, user);
       expect(Error.isError(authed)).toBe(false);
     });
 
     test.each(denies)("denies %#", (context, user) => {
-      const authed = authUserOwner(context as Context, user);
+      const authed = authUserOwner(context as unknown as Context, user);
       expect(Error.isError(authed)).toBe(true);
     });
   });

@@ -1,9 +1,7 @@
+import { User } from "../../../domain/models.ts";
 import { parseStringArg } from "../util.ts";
 
-export const USER_NAME_MIN = 1;
-export const USER_NAME_MAX = 100;
-
-export const parseUserName = parseStringArg({
-  minChars: USER_NAME_MIN,
-  maxChars: USER_NAME_MAX,
+export const parseUserName = parseStringArg(User.Name.parse, {
+  minChars: User.Name.MIN,
+  maxChars: User.Name.MAX,
 });

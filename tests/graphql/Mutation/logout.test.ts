@@ -1,12 +1,10 @@
-import { client } from "../../../src/db/client.ts";
-
-import { db, tokens } from "../../data.ts";
-import { clearUsers, seed } from "../../helpers.ts";
+import { client, domain } from "../../data.ts";
+import { clearTables, queries, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { LogoutMutation, LogoutMutationVariables } from "../schema.ts";
+import type { LogoutMutation, LogoutMutationVariables } from "../_schema.ts";
 
-const executeMutation = executeSingleResultOperation<
-  LogoutMutation,
+const logout = executeSingleResultOperation<
+  LogoutMutation, //
   LogoutMutationVariables
 >(/* GraphQL */ `
   mutation Logout {
@@ -17,87 +15,99 @@ const executeMutation = executeSingleResultOperation<
   }
 `);
 
-const testData = {
-  users: [db.users.admin, db.users.alice],
-};
-
-const seedData = {
-  users: () => seed.user(testData.users),
-};
-
 beforeEach(async () => {
-  await clearUsers();
-  await seedData.users();
+  await clearTables();
+  await seed.users(domain.users.alice);
+  await seed.refreshTokens(domain.refreshTokens.alice);
 });
 
-test("logout deletes specified token", async () => {
-  const before = await client
-    .selectFrom("userTokens")
-    .where("userId", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirst();
+it("succeeds when refresh token is invalid", async () => {
+  // precondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+  }
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    refreshToken: "33e9adb5-d716-4388-86a1-6885e6499eec",
-  });
+  // act
+  {
+    const { data } = await logout({
+      token: client.tokens.alice,
+      refreshToken: "abracadabra",
+    });
+    assert(data?.logout?.__typename === "LogoutResult", data?.logout?.__typename);
+  }
 
-  expect(data?.logout?.success).toBe(true);
-
-  const after = await client
-    .selectFrom("userTokens")
-    .where("userId", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirst();
-
-  expect(before).not.toBeUndefined();
-  expect(after).toBeUndefined();
+  // postcondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+  }
 });
 
-test("allows invalid token", async () => {
-  const before = await client
-    .selectFrom("userTokens")
-    .where("userId", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirst();
+it("succeeds when refresh token not specified", async () => {
+  // precondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+  }
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    refreshToken: "33e9adb5-d716-4388-86a1-6885e6499eec".slice(0, -1),
-  });
+  // act
+  {
+    const { data } = await logout({
+      token: client.tokens.alice,
+    });
+    assert(data?.logout?.__typename === "LogoutResult", data?.logout?.__typename);
+  }
 
-  expect(data?.logout?.success).toBe(true);
-
-  const after = await client
-    .selectFrom("userTokens")
-    .where("userId", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirst();
-
-  expect(before).not.toBeUndefined();
-  expect(after).not.toBeUndefined();
+  // postcondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+  }
 });
 
-test("logout does not changes other attrs", async () => {
-  const before = await client
-    .selectFrom("users")
-    .where("id", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
+it("succeeds when refresh token is incorrect", async () => {
+  // precondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+  }
 
-  const { data } = await executeMutation({
-    token: tokens.admin,
-  });
+  // act
+  {
+    const { data } = await logout({
+      token: client.tokens.alice,
+      refreshToken: "00008ce5-82cd-418c-9a72-4c43cfa30000",
+    });
+    assert(data?.logout?.__typename === "LogoutResult", data?.logout?.__typename);
+  }
 
-  expect(data?.logout?.success).toBe(true);
+  // postcondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+  }
+});
 
-  const after = await client
-    .selectFrom("users")
-    .where("id", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
+it("deletes the refresh token", async () => {
+  // precondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+  }
 
-  expect(before.id).toBe(after.id);
-  expect(before.name).toBe(after.name);
-  expect(before.email).toBe(after.email);
+  // act
+  {
+    const { data } = await logout({
+      token: client.tokens.alice,
+      refreshToken: "a5ef8ce5-82cd-418c-9a72-4c43cfa30c9c",
+    });
+    assert(data?.logout?.__typename === "LogoutResult", data?.logout?.__typename);
+  }
+
+  // postcondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(0);
+  }
 });

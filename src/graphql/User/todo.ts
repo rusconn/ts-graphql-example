@@ -1,8 +1,9 @@
-import type { UserResolvers } from "../../schema.ts";
+import type { UserResolvers } from "../_schema.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
+import { unwrapOrElse } from "../../util/neverthrow.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -16,10 +17,9 @@ export const resolver: NonNullable<UserResolvers["todo"]> = async (parent, args,
     throw forbiddenErr(ctx);
   }
 
-  const id = parseTodoId(args.id);
-  if (Error.isError(id)) {
-    throw badUserInputErr(id.message, id);
-  }
+  const id = unwrapOrElse(parseTodoId(args.id), (e) => {
+    throw badUserInputErr(e.message, e);
+  });
 
   const todo = await ctx.queries.todo.loadTheir({
     id,

@@ -1,7 +1,7 @@
-import { TodoId } from "../../../domain/todo.ts";
+import { Todo } from "../../../domain/models.ts";
 import { parseSomeId } from "../someId.ts";
 
-export const parseTodoId = parseSomeId("Todo", TodoId.is);
+export const parseTodoId = parseSomeId("Todo", Todo.Id.is);
 
 if (import.meta.vitest) {
   const { nodeId } = await import("../../Node/id.ts");
@@ -10,11 +10,11 @@ if (import.meta.vitest) {
 
   test("valid", () => {
     const parsed = parseTodoId(nodeId("Todo")(id));
-    expect(Error.isError(parsed)).toBe(false);
+    expect(parsed.isOk()).toBe(true);
   });
 
   test("invalid", () => {
     const parsed = parseTodoId(nodeId("User")(id));
-    expect(Error.isError(parsed)).toBe(true);
+    expect(parsed.isErr()).toBe(true);
   });
 }

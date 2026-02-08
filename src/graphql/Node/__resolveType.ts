@@ -1,4 +1,4 @@
-import type { NodeResolvers } from "../../schema.ts";
+import type { NodeResolvers } from "../_schema.ts";
 
 export const resolver: NodeResolvers["__resolveType"] = (parent, _context) => {
   return parent.type;

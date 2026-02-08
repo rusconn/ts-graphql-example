@@ -1,12 +1,12 @@
-import { TodoId } from "../../domain/todo.ts";
-import { UserId } from "../../domain/user.ts";
-import type { QueryResolvers } from "../../schema.ts";
+import { Todo, User } from "../../domain/models.ts";
+import type { QueryResolvers } from "../_schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { parseId } from "../_parsers/id.ts";
-import * as Todo from "../Todo/_node.ts";
-import * as User from "../User/_node.ts";
+import * as todo from "../Todo/_node.ts";
+import * as user from "../User/_node.ts";
+import { unwrapOrElse } from "../../util/neverthrow.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
@@ -20,10 +20,9 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
     throw forbiddenErr(ctx);
   }
 
-  const id = parseId(args.id);
-  if (Error.isError(id)) {
-    throw badUserInputErr(id.message, id);
-  }
+  const id = unwrapOrElse(parseId(args.id), (e) => {
+    throw badUserInputErr(e.message, e);
+  });
 
   const { type, internalId } = id;
 
@@ -39,6 +38,6 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
 };
 
 const pairs = {
-  Todo: [TodoId.is, Todo.getNode],
-  User: [UserId.is, User.getNode],
+  Todo: [Todo.Id.is, todo.getNode],
+  User: [User.Id.is, user.getNode],
 } as const;

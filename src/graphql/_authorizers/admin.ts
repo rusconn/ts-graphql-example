@@ -1,8 +1,8 @@
-import type { Context } from "../../context.ts";
+import type { Context } from "../../server/context.ts";
 import { authErr } from "./util.ts";
 
 export const authAdmin = (context: Context) => {
-  if (context.role !== "admin") {
+  if (context.role !== "ADMIN") {
     return authErr();
   }
 
@@ -16,12 +16,12 @@ if (import.meta.vitest) {
   const denies = [context.alice, context.guest];
 
   test.each(allows)("allows %#", (context) => {
-    const authed = authAdmin(context as Context);
+    const authed = authAdmin(context as unknown as Context);
     expect(Error.isError(authed)).toBe(false);
   });
 
   test.each(denies)("denies %#", (context) => {
-    const authed = authAdmin(context as Context);
+    const authed = authAdmin(context as unknown as Context);
     expect(Error.isError(authed)).toBe(true);
   });
 }

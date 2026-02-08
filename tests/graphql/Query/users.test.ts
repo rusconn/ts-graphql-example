@@ -1,9 +1,9 @@
-import { type PageInfo, type User, UserSortKeys } from "../../../src/schema.ts";
+import { type PageInfo, type User, UserSortKeys } from "../../../src/graphql/_schema.ts";
 
-import { db, graph, tokens } from "../../data.ts";
-import { clearUsers, seed } from "../../helpers.ts";
+import { client, db, domain, graph } from "../../data.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { UsersQuery, UsersQueryVariables } from "../schema.ts";
+import type { UsersQuery, UsersQueryVariables } from "../_schema.ts";
 
 const executeQuery = executeSingleResultOperation<UsersQuery, UsersQueryVariables>(/* GraphQL */ `
   query Users(
@@ -39,40 +39,28 @@ const executeQuery = executeSingleResultOperation<UsersQuery, UsersQueryVariable
   }
 `);
 
-const testData = {
-  users: [db.users.admin, db.users.alice],
-};
-
-const seedData = {
-  users: () => seed.user(testData.users),
-};
-
 beforeAll(async () => {
-  await clearUsers();
-  await seedData.users();
+  await clearTables();
+  await seed.users(domain.users.admin, domain.users.alice);
 });
 
 describe("number of items", () => {
   it("should affected by first option", async () => {
-    const first = testData.users.length - 1;
-
     const { data } = await executeQuery({
-      token: tokens.admin,
-      variables: { first },
+      token: client.tokens.admin,
+      variables: { first: 1 },
     });
 
-    expect(data?.users?.edges).toHaveLength(first);
+    expect(data?.users?.edges).toHaveLength(1);
   });
 
   it("should affected by last option", async () => {
-    const last = testData.users.length - 1;
-
     const { data } = await executeQuery({
-      token: tokens.admin,
-      variables: { last },
+      token: client.tokens.admin,
+      variables: { last: 1 },
     });
 
-    expect(data?.users?.edges).toHaveLength(last);
+    expect(data?.users?.edges).toHaveLength(1);
   });
 });
 
@@ -87,7 +75,7 @@ describe("order of items", () => {
 
   test.each(patterns)("%o, %o", async (variables, expectedUsers) => {
     const { data } = await executeQuery({
-      token: tokens.admin,
+      token: client.tokens.admin,
       variables: { ...variables, first: 10 },
     });
 
@@ -104,7 +92,7 @@ describe("pagination", () => {
 
     const execute = () =>
       executeQuery({
-        token: tokens.admin,
+        token: client.tokens.admin,
         variables: { first },
       });
 
@@ -242,7 +230,7 @@ describe("pagination", () => {
 
     test.each(patterns)("patterns %#", async (variables, firstExpect, makeCursor, secondExpect) => {
       const { data: data1 } = await executeQuery({
-        token: tokens.admin,
+        token: client.tokens.admin,
         variables,
       });
 
@@ -255,7 +243,7 @@ describe("pagination", () => {
       expect(data1.users.edges?.map((edge) => edge?.node?.id)).toStrictEqual(firstExpect.ids);
 
       const { data: data2 } = await executeQuery({
-        token: tokens.admin,
+        token: client.tokens.admin,
         variables: {
           ...variables,
           ...makeCursor(data1.users.pageInfo),

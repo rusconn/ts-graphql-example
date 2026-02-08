@@ -1,11 +1,10 @@
 import { getCursorConnection } from "../../lib/graphql/cursorConnections/mod.ts";
-import { TodoSortKeys, TodoStatus, type UserResolvers, type UserTodosArgs } from "../../schema.ts";
+import { TodoSortKeys, TodoStatus, type UserResolvers, type UserTodosArgs } from "../_schema.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { parseConnectionArgs } from "../_parsers/connectionArgs.ts";
 import { parseTodoCursor } from "../_parsers/todo/cursor.ts";
-import { parseTodoStatus } from "../_parsers/todo/status.ts";
 
 const FIRST_MAX = 50;
 const LAST_MAX = 50;
@@ -103,14 +102,6 @@ const parseArgs = (args: UserTodosArgs) => {
     return connectionArgs;
   }
 
-  const status = parseTodoStatus(args, "status", {
-    optional: true,
-    nullable: false,
-  });
-  if (Error.isError(status)) {
-    return status;
-  }
-
   return {
     connectionArgs,
     reverse: args.reverse,
@@ -119,11 +110,11 @@ const parseArgs = (args: UserTodosArgs) => {
       [TodoSortKeys.UpdatedAt]: "updatedAt" as const,
     }[args.sortKey],
     filter: {
-      ...(status != null && {
+      ...(args.status != null && {
         status: {
           [TodoStatus.Done]: "done" as const,
           [TodoStatus.Pending]: "pending" as const,
-        }[status],
+        }[args.status],
       }),
     },
   };

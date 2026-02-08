@@ -1,12 +1,16 @@
-import { client } from "../../../src/db/client.ts";
-import { ErrorCode } from "../../../src/schema.ts";
+import { ErrorCode } from "../../../src/graphql/_schema.ts";
 
-import { db, refreshTokens } from "../../data.ts";
-import { clearUsers, seed } from "../../helpers.ts";
+import { client, domain, graph } from "../../data.ts";
+import { clearTables, queries, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { TokenRefreshMutation, TokenRefreshMutationVariables } from "../schema.ts";
+import type {
+  TokenRefreshMutation,
+  TokenRefreshMutationVariables,
+  TokenRefreshNodeQuery,
+  TokenRefreshNodeQueryVariables,
+} from "../_schema.ts";
 
-const executeMutation = executeSingleResultOperation<
+const tokenRefresh = executeSingleResultOperation<
   TokenRefreshMutation,
   TokenRefreshMutationVariables
 >(/* GraphQL */ `
@@ -20,63 +24,111 @@ const executeMutation = executeSingleResultOperation<
   }
 `);
 
-const testData = {
-  users: [db.users.admin, db.users.alice],
-};
-
-const seedData = {
-  users: () => seed.user(testData.users),
-};
+const node = executeSingleResultOperation<
+  TokenRefreshNodeQuery, //
+  TokenRefreshNodeQueryVariables
+>(/* GraphQL */ `
+  query TokenRefreshNode($id: ID!) {
+    node(id: $id) {
+      id
+    }
+  }
+`);
 
 beforeEach(async () => {
-  await clearUsers();
-  await seedData.users();
+  await clearTables();
+  await seed.users(domain.users.alice);
+  await seed.refreshTokens(domain.refreshTokens.alice);
 });
 
-test("no refresh token", async () => {
-  const { data, errors } = await executeMutation({});
+it("returns an error when no refresh token passed", async () => {
+  // precondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+    expect(refreshTokens[0]!.lastUsedAt).toEqual(domain.refreshTokens.alice.lastUsedAt);
+  }
 
-  expect(data?.tokenRefresh).toBeNull();
-  expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
+  // act
+  {
+    const { data, errors } = await tokenRefresh({
+      token: client.tokens.alice,
+    });
+    expect(data?.tokenRefresh).toBeNull();
+    expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
+  }
+
+  // postcondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+    expect(refreshTokens[0]!.lastUsedAt).toEqual(domain.refreshTokens.alice.lastUsedAt);
+  }
 });
 
-test("invalid refresh token", async () => {
-  const { data } = await executeMutation({
-    refreshToken: refreshTokens.admin.slice(0, -1),
-  });
+it("returns a valition error when refresh is invalid", async () => {
+  // precondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+    expect(refreshTokens[0]!.lastUsedAt).toEqual(domain.refreshTokens.alice.lastUsedAt);
+  }
 
-  expect(data?.tokenRefresh?.__typename).toBe("InvalidRefreshTokenError");
+  // act
+  {
+    const { data } = await tokenRefresh({
+      token: client.tokens.alice,
+      refreshToken: "abracadabra",
+    });
+    assert(
+      data?.tokenRefresh?.__typename === "InvalidRefreshTokenError",
+      data?.tokenRefresh?.__typename,
+    );
+  }
+
+  // postcondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+    expect(refreshTokens[0]!.lastUsedAt).toEqual(domain.refreshTokens.alice.lastUsedAt);
+  }
 });
 
-test("correct input", async () => {
-  const { data } = await executeMutation({
-    refreshToken: refreshTokens.admin,
-  });
+it("refreshes token and updates refresh token timestamp", async () => {
+  // precondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+    expect(refreshTokens[0]!.lastUsedAt).toEqual(domain.refreshTokens.alice.lastUsedAt);
+  }
 
-  expect(data?.tokenRefresh?.__typename).toBe("TokenRefreshSuccess");
-});
+  // act
+  let aliceToken: string;
+  {
+    const { data } = await tokenRefresh({
+      token: client.tokens.alice,
+      refreshToken: client.refreshTokens.alice,
+    });
+    assert(
+      data?.tokenRefresh?.__typename === "TokenRefreshSuccess",
+      data?.tokenRefresh?.__typename,
+    );
+    expect(client.tokens.alice).not.toBe(data.tokenRefresh.token);
+    aliceToken = data.tokenRefresh.token;
+  }
 
-test("update last_used_at", async () => {
-  const before = await client
-    .selectFrom("userTokens")
-    .where("refreshToken", "=", db.users.admin.refreshToken)
-    .select("lastUsedAt")
-    .executeTakeFirstOrThrow();
+  // postcondition
+  {
+    const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
+    expect(refreshTokens.length).toBe(1);
+    expect(refreshTokens[0]!.lastUsedAt.getTime()).toBeGreaterThan(
+      domain.refreshTokens.alice.lastUsedAt.getTime(),
+    );
 
-  const { data } = await executeMutation({
-    refreshToken: refreshTokens.admin,
-  });
-
-  expect(data?.tokenRefresh?.__typename).toBe("TokenRefreshSuccess");
-
-  const after = await client
-    .selectFrom("userTokens")
-    .where("refreshToken", "=", db.users.admin.refreshToken)
-    .select("lastUsedAt")
-    .executeTakeFirstOrThrow();
-
-  const beforeLastUsedAt = before.lastUsedAt.getTime();
-  const afterLastUsedAt = after.lastUsedAt.getTime();
-
-  expect(afterLastUsedAt).toBeGreaterThan(beforeLastUsedAt);
+    const alice = await node({
+      token: aliceToken,
+      variables: { id: graph.users.alice.id },
+    });
+    expect(alice.data?.node?.id).toBe(graph.users.alice.id);
+  }
 });

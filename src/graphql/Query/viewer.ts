@@ -1,4 +1,4 @@
-import type { QueryResolvers } from "../../schema.ts";
+import type { QueryResolvers } from "../_schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {

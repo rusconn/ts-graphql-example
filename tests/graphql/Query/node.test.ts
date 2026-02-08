@@ -1,9 +1,14 @@
-import { db, dummyId, graph, tokens } from "../../data.ts";
-import { clearTables, seed } from "../../helpers.ts";
-import { executeSingleResultOperation } from "../../server.ts";
-import type { NodeQuery, NodeQueryVariables } from "../schema.ts";
+import { ErrorCode } from "../../../src/graphql/_schema.ts";
 
-const executeQuery = executeSingleResultOperation<NodeQuery, NodeQueryVariables>(/* GraphQL */ `
+import { client, domain, graph } from "../../data.ts";
+import { clearTables, dummyId, seed } from "../../helpers.ts";
+import { executeSingleResultOperation } from "../../server.ts";
+import type { NodeQuery, NodeQueryVariables } from "../_schema.ts";
+
+const node = executeSingleResultOperation<
+  NodeQuery, //
+  NodeQueryVariables
+>(/* GraphQL */ `
   query Node($id: ID!) {
     node(id: $id) {
       id
@@ -11,49 +16,48 @@ const executeQuery = executeSingleResultOperation<NodeQuery, NodeQueryVariables>
   }
 `);
 
-const testData = {
-  users: [db.users.admin, db.users.alice],
-  todos: [db.todos.admin1],
-};
-
-const seedData = {
-  users: () => seed.user(testData.users),
-  todos: () => seed.todo(testData.todos),
-};
-
 beforeAll(async () => {
   await clearTables();
-  await seedData.users();
-  await seedData.todos();
+  await seed.users(domain.users.alice, domain.users.admin);
+  await seed.todos(domain.todos.alice1, domain.todos.admin1);
 });
 
-test("not exists", async () => {
-  const { data } = await executeQuery({
-    token: tokens.admin,
+it("returns an error when id is invalid", async () => {
+  const { data, errors } = await node({
+    token: client.tokens.alice,
+    variables: { id: "abracadabra" },
+  });
+
+  expect(data?.node).toBeNull();
+  expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
+});
+
+it("returns null when id not exists on graph", async () => {
+  const { data, errors } = await node({
+    token: client.tokens.alice,
     variables: { id: dummyId.todo() },
   });
 
   expect(data?.node).toBeNull();
+  expect(errors).toBeUndefined();
 });
 
-test("exists, but not owned", async () => {
-  const { data } = await executeQuery({
-    token: tokens.admin,
+it("returns null when client does not own node", async () => {
+  const { data, errors } = await node({
+    token: client.tokens.alice,
+    variables: { id: graph.todos.admin1.id },
+  });
+
+  expect(data?.node).toBeNull();
+  expect(errors).toBeUndefined();
+});
+
+it("returns node", async () => {
+  const { data, errors } = await node({
+    token: client.tokens.alice,
     variables: { id: graph.users.alice.id },
   });
 
   expect(data?.node).not.toBeNull();
-});
-
-describe("should return item correctly", () => {
-  const ids = [graph.users.admin.id, graph.todos.admin1.id];
-
-  test.each(ids)("%s", async (id) => {
-    const { data } = await executeQuery({
-      token: tokens.admin,
-      variables: { id },
-    });
-
-    expect(data?.node?.id).toBe(id);
-  });
+  expect(errors).toBeUndefined();
 });

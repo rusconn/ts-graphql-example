@@ -1,28 +1,27 @@
 import { db, graph, tokens } from "../../data.ts";
 import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { UserEmailQuery, UserEmailQueryVariables } from "../schema.ts";
+import type { UserEmailQuery, UserEmailQueryVariables } from "../_schema.ts";
 
-const executeQuery = executeSingleResultOperation<
-  UserEmailQuery,
-  UserEmailQueryVariables
->(/* GraphQL */ `
-  query UserEmail($id: ID!) {
-    node(id: $id) {
-      __typename
-      ... on User {
-        email
+const executeQuery = executeSingleResultOperation<UserEmailQuery, UserEmailQueryVariables>(
+  /* GraphQL */ `
+    query UserEmail($id: ID!) {
+      node(id: $id) {
+        __typename
+        ... on User {
+          email
+        }
       }
     }
-  }
-`);
+  `,
+);
 
 const testData = {
   users: [db.users.admin, db.users.alice],
 };
 
 const seedData = {
-  users: () => seed.user(testData.users),
+  users: () => seed.users(testData.users),
 };
 
 beforeAll(async () => {

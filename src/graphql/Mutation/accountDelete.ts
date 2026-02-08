@@ -1,4 +1,5 @@
-import type { MutationResolvers } from "../../schema.ts";
+import { deleteRefreshTokenCookie } from "../../util/refreshToken.ts";
+import type { MutationResolvers } from "../_schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
@@ -25,20 +26,22 @@ export const resolver: MutationResolvers["accountDelete"] = async (_parent, _arg
     throw forbiddenErr(ctx);
   }
 
-  const user = await ctx.repos.user.findByDbId(ctx.user.id);
+  const user = await ctx.repos.user.find(ctx.user.id);
   if (!user) {
     throw internalServerError();
   }
 
-  const result = await ctx.repos.user.remove(user.id);
-  switch (result) {
-    case "Ok":
-      break;
-    case "NotFound":
-      throw internalServerError();
-    default:
-      throw new Error(result satisfies never);
+  try {
+    await ctx.kysely.transaction().execute(async (trx) => {
+      await ctx.repos.todo.removeByUserId(user.id, trx);
+      await ctx.repos.refreshToken.removeByUserId(user.id, trx);
+      await ctx.repos.user.remove(user.id, trx);
+    });
+  } catch (e) {
+    throw internalServerError(e);
   }
+
+  await deleteRefreshTokenCookie(context.request);
 
   return {
     __typename: "AccountDeleteSuccess",

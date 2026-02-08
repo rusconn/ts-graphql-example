@@ -12,8 +12,8 @@ export default defineConfig({
       external: [/^node:.+/, ...builtinModules, ...Object.keys(dependencies)],
     },
     lib: {
-      entry: "src/main",
-      fileName: "main",
+      entry: "src/server",
+      fileName: "server",
       formats: ["es"],
     },
   },

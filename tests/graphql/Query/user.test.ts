@@ -1,9 +1,14 @@
-import { db, dummyId, graph, tokens } from "../../data.ts";
-import { clearTables, seed } from "../../helpers.ts";
-import { executeSingleResultOperation } from "../../server.ts";
-import type { UserQuery, UserQueryVariables } from "../schema.ts";
+import { ErrorCode } from "../../../src/graphql/_schema.ts";
 
-const executeQuery = executeSingleResultOperation<UserQuery, UserQueryVariables>(/* GraphQL */ `
+import { client, domain, graph } from "../../data.ts";
+import { clearTables, dummyId, seed } from "../../helpers.ts";
+import { executeSingleResultOperation } from "../../server.ts";
+import type { UserQuery, UserQueryVariables } from "../_schema.ts";
+
+const user = executeSingleResultOperation<
+  UserQuery, //
+  UserQueryVariables
+>(/* GraphQL */ `
   query User($id: ID!) {
     user(id: $id) {
       id
@@ -11,37 +16,37 @@ const executeQuery = executeSingleResultOperation<UserQuery, UserQueryVariables>
   }
 `);
 
-const testData = {
-  users: [db.users.admin],
-};
-
-const seedData = {
-  users: () => seed.user(testData.users),
-};
-
 beforeAll(async () => {
   await clearTables();
-  await seedData.users();
+  await seed.users(domain.users.admin, domain.users.alice);
 });
 
-it("should return item correctly", async () => {
-  const { data } = await executeQuery({
-    token: tokens.admin,
-    variables: { id: graph.users.admin.id },
-  });
-
-  if (!data || !data.user) {
-    assert.fail();
-  }
-
-  expect(data.user.id).toBe(graph.users.admin.id);
-});
-
-it("should return null if not found", async () => {
-  const { data } = await executeQuery({
-    token: tokens.admin,
-    variables: { id: dummyId.user() },
+it("returns an error when id is invalid", async () => {
+  const { data, errors } = await user({
+    token: client.tokens.admin,
+    variables: { id: "abracadabra" },
   });
 
   expect(data?.user).toBeNull();
+  expect(errors?.map((e) => e.extensions.code)).toStrictEqual([ErrorCode.BadUserInput]);
+});
+
+it("returns null when id not exists on graph", async () => {
+  const { data, errors } = await user({
+    token: client.tokens.admin,
+    variables: { id: dummyId.todo() },
+  });
+
+  expect(data?.user).toBeNull();
+  expect(errors).toBeUndefined();
+});
+
+it("returns user", async () => {
+  const { data, errors } = await user({
+    token: client.tokens.admin,
+    variables: { id: graph.users.alice.id },
+  });
+
+  expect(data?.user).not.toBeNull();
+  expect(errors).toBeUndefined();
 });

@@ -1,86 +1,51 @@
-import { numChars } from "../../lib/string/numChars.ts";
-import type { InvalidInputErrors } from "../../schema.ts";
+import { err, ok, type Result } from "neverthrow";
 
-export class ParseErr extends Error {
-  field: string;
-
-  static {
-    ParseErr.prototype.name = "ParseErr";
-  }
-
-  constructor(field: string, message: string, options?: ErrorOptions) {
-    super(message, options);
-    this.field = field;
-  }
-}
-
-export const invalidInputErrors = (errors: ParseErr[]): Required<InvalidInputErrors> => {
-  return {
-    __typename: "InvalidInputErrors",
-    errors: errors.map((e) => ({
-      field: e.field,
-      message: e.message,
-    })),
-  };
-};
+import {
+  isStringLengthTooLongError,
+  isStringLengthTooShortError,
+} from "../../domain/models/_shared/parse-errors.ts";
+import { ParseErr } from "./shared/errors.ts";
 
 export const parseArgNullability = <
-  Args,
+  Args extends Partial<Record<string, unknown>>,
   ArgName extends keyof Args & string,
   Optional extends boolean,
   Nullable extends boolean,
 >(
   args: Args,
-  argName: keyof Args & string,
+  argName: ArgName,
   { optional, nullable }: { optional: Optional; nullable: Nullable },
-) => {
-  const arg = args[argName];
-  if (!optional && arg === undefined) {
-    return new ParseErr(argName, `${argName} is required.`);
-  }
-  if (!nullable && arg === null) {
-    return new ParseErr(argName, `The ${argName} must not be null.`);
-  }
-
-  return arg as Optional extends true
+): Result<
+  Optional extends true
     ? Nullable extends true
       ? Args[ArgName]
       : Exclude<Args[ArgName], null>
     : Nullable extends true
       ? Exclude<Args[ArgName], undefined>
-      : NonNullable<Args[ArgName]>;
+      : NonNullable<Args[ArgName]>,
+  ParseErr
+> => {
+  const arg = args[argName];
+  if (!optional && arg === undefined) {
+    return err(new ParseErr(argName, `${argName} is required.`));
+  }
+  if (!nullable && arg === null) {
+    return err(new ParseErr(argName, `The ${argName} must not be null.`));
+  }
+
+  // biome-ignore lint/suspicious/noExplicitAny: i lost the type puzzle
+  return ok(arg) as any;
 };
 
-export const parseArgNumChars = <Arg extends string>(
-  arg: Arg,
-  argName: string,
+export const parseStringArg = <
+  Arg extends string, //
+  Output,
+  ParseError extends { type: string },
+>(
+  domainParser: (arg: Arg, argName: string) => Result<Output, ParseError>,
   options: {
     minChars?: number;
     maxChars?: number;
-  } = {},
-) => {
-  const { minChars, maxChars } = options;
-  if (minChars != null && numChars(arg) < minChars) {
-    return new ParseErr(
-      argName,
-      `The ${argName} is below the minimum number of ${minChars} characters.`,
-    );
-  }
-  if (maxChars != null && maxChars < numChars(arg)) {
-    return new ParseErr(
-      argName,
-      `The ${argName} exceeds the maximum number of ${maxChars} characters.`,
-    );
-  }
-
-  return arg;
-};
-
-export const parseStringArg = <Arg extends string, Output extends Arg = Arg>(
-  options: {
-    minChars?: number;
-    maxChars?: number;
-    additionalParse?: (arg: Arg, argName: string) => Output | ParseErr;
   } = {},
 ) => {
   return <
@@ -91,40 +56,45 @@ export const parseStringArg = <Arg extends string, Output extends Arg = Arg>(
   >(
     args: Args,
     argName: ArgName,
-    {
-      optional,
-      nullable,
-    }: {
+    nullability: {
       optional: Optional;
       nullable: Nullable;
     },
   ) => {
-    const { additionalParse = (s) => s as Output, ...numCharsOptions } = options;
+    const result1 = parseArgNullability(args, argName, nullability);
+    if (result1.isErr()) {
+      return err(result1.error);
+    }
 
-    const string1 = parseArgNullability(args, argName, {
-      optional,
-      nullable,
+    if (result1.value == null) {
+      return ok(result1.value) as unknown as Result<
+        Optional extends true
+          ? Nullable extends true
+            ? null | undefined
+            : undefined
+          : Nullable extends true
+            ? null
+            : never,
+        never
+      >;
+    }
+
+    return domainParser(result1.value, argName).mapErr((e) => {
+      if (isStringLengthTooShortError(e)) {
+        if (options.minChars == null) throw new Error("specify minChars");
+        return new ParseErr(
+          argName,
+          `The ${argName} is below the minimum number of ${options.minChars} characters.`,
+        );
+      }
+      if (isStringLengthTooLongError(e)) {
+        if (options.maxChars == null) throw new Error("specify maxChars");
+        return new ParseErr(
+          argName,
+          `The ${argName} exceeds the maximum number of ${options.maxChars} characters.`,
+        );
+      }
+      return new ParseErr(argName, e.type);
     });
-
-    if (string1 instanceof ParseErr) {
-      return string1;
-    }
-    if (string1 == null) {
-      return string1 as unknown as Optional extends true
-        ? Nullable extends true
-          ? null | undefined
-          : undefined
-        : Nullable extends true
-          ? null
-          : never;
-    }
-
-    const string2 = parseArgNumChars(string1, argName, numCharsOptions);
-
-    if (string2 instanceof ParseErr) {
-      return string2;
-    }
-
-    return additionalParse(string2, argName);
   };
 };

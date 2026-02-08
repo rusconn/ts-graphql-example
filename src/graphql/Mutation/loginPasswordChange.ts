@@ -1,26 +1,24 @@
-import { UserPassword } from "../../domain/user-credential.ts";
-import type { MutationLoginPasswordChangeArgs, MutationResolvers } from "../../schema.ts";
+import { Result } from "neverthrow";
+
+import { User } from "../../domain/models.ts";
+import type { MutationLoginPasswordChangeArgs, MutationResolvers } from "../_schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import {
-  parseUserPassword,
-  USER_PASSWORD_MAX,
-  USER_PASSWORD_MIN,
-} from "../_parsers/user/password.ts";
-import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
+import { invalidInputErrors } from "../_parsers/shared/errors.ts";
+import { parseUserPassword } from "../_parsers/user/password.ts";
 import { userId } from "../User/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     loginPasswordChange(
       """
-      ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
+      ${User.Password.MIN}文字以上、${User.Password.MAX}文字まで
       """
       oldPassword: String!
 
       """
-      ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
+      ${User.Password.MIN}文字以上、${User.Password.MAX}文字まで
       """
       newPassword: String!
     ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100)
@@ -56,16 +54,16 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
   }
 
   const parsed = parseArgs(args);
-  if (Array.isArray(parsed)) {
-    return invalidInputErrors(parsed);
+  if (parsed.isErr()) {
+    return invalidInputErrors(parsed.error);
   }
 
-  const credential = await ctx.repos.userCredential.findByDbId(ctx.user.id);
-  if (!credential) {
+  const user = await ctx.repos.user.find(ctx.user.id);
+  if (!user) {
     throw internalServerError();
   }
 
-  const { oldPassword, newPassword } = parsed;
+  const { oldPassword, newPassword } = parsed.value;
   if (oldPassword === newPassword) {
     return {
       __typename: "SamePasswordsError",
@@ -73,7 +71,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     };
   }
 
-  const match = await UserPassword.match(oldPassword, credential.password);
+  const match = await User.Password.match(oldPassword, user.password);
   if (!match) {
     return {
       __typename: "IncorrectOldPasswordError",
@@ -81,84 +79,70 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     };
   }
 
-  const hashedPassword = await UserPassword.hash(newPassword);
-  const updatedUser: typeof credential = {
-    ...credential,
-    password: hashedPassword,
-  };
-
-  const result = await ctx.repos.userCredential.update(updatedUser);
-  switch (result) {
-    case "Ok":
-      break;
-    case "NotFound":
-      throw internalServerError();
-    default:
-      throw new Error(result satisfies never);
+  const changedUser = await User.changePassword(user, newPassword);
+  try {
+    await ctx.kysely.transaction().execute(async (trx) => {
+      await ctx.repos.user.update(changedUser, trx);
+    });
+  } catch (e) {
+    throw internalServerError(e);
   }
 
   return {
     __typename: "LoginPasswordChangeSuccess",
-    id: userId(credential.id),
+    id: userId(user.id),
   };
 };
 
 const parseArgs = (args: MutationLoginPasswordChangeArgs) => {
-  const oldPassword = parseUserPassword(args, "oldPassword", {
-    optional: false,
-    nullable: false,
-  });
-  const newPassword = parseUserPassword(args, "newPassword", {
-    optional: false,
-    nullable: false,
-  });
-
-  if (
-    oldPassword instanceof ParseErr || //
-    newPassword instanceof ParseErr
-  ) {
-    const errors = [];
-
-    if (oldPassword instanceof ParseErr) {
-      errors.push(oldPassword);
-    }
-    if (newPassword instanceof ParseErr) {
-      errors.push(newPassword);
-    }
-
-    return errors;
-  } else {
-    return { oldPassword, newPassword };
-  }
+  return Result.combineWithAllErrors([
+    parseUserPassword(args, "oldPassword", {
+      optional: false,
+      nullable: false,
+    }),
+    parseUserPassword(args, "newPassword", {
+      optional: false,
+      nullable: false,
+    }),
+  ]).map(([oldPassword, newPassword]) => ({
+    oldPassword,
+    newPassword,
+  }));
 };
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
     const valids: MutationLoginPasswordChangeArgs[] = [
-      { oldPassword: "password", newPassword: "password2" },
-      { oldPassword: "A".repeat(USER_PASSWORD_MIN), newPassword: "B".repeat(USER_PASSWORD_MIN) },
+      {
+        oldPassword: "password",
+        newPassword: "password2",
+      },
+      {
+        oldPassword: "A".repeat(User.Password.MIN),
+        newPassword: "B".repeat(User.Password.MIN),
+      },
     ];
 
     const invalids: [MutationLoginPasswordChangeArgs, (keyof MutationLoginPasswordChangeArgs)[]][] =
       [
         [
           {
-            oldPassword: "A".repeat(USER_PASSWORD_MIN - 1),
-            newPassword: "A".repeat(USER_PASSWORD_MAX),
+            oldPassword: "A".repeat(User.Password.MIN - 1),
+            newPassword: "A".repeat(User.Password.MAX),
           },
           ["oldPassword"],
         ],
         [
           {
-            oldPassword: "A".repeat(USER_PASSWORD_MIN),
-            newPassword: "A".repeat(USER_PASSWORD_MAX + 1),
+            oldPassword: "A".repeat(User.Password.MIN),
+            newPassword: "A".repeat(User.Password.MAX + 1),
           },
           ["newPassword"],
         ],
         [
           {
-            oldPassword: "A".repeat(USER_PASSWORD_MAX + 1),
-            newPassword: "A".repeat(USER_PASSWORD_MIN - 1),
+            oldPassword: "A".repeat(User.Password.MAX + 1),
+            newPassword: "A".repeat(User.Password.MIN - 1),
           },
           ["oldPassword", "newPassword"],
         ],
@@ -166,13 +150,13 @@ if (import.meta.vitest) {
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);
-      expect(Array.isArray(parsed)).toBe(false);
+      expect(parsed.isOk()).toBe(true);
     });
 
     test.each(invalids)("invalids %#", (args, fields) => {
       const parsed = parseArgs(args);
-      expect(Array.isArray(parsed)).toBe(true);
-      expect((parsed as ParseErr[]).map((e) => e.field)).toStrictEqual(fields);
+      expect(parsed.isErr()).toBe(true);
+      expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);
     });
   });
 }

@@ -1,4 +1,4 @@
-import type { TodoResolvers } from "../../schema.ts";
+import type { TodoResolvers } from "../_schema.ts";
 import * as createdAt from "./createdAt.ts";
 import * as description from "./description.ts";
 import * as id from "./id.ts";

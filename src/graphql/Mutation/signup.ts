@@ -1,36 +1,33 @@
-import * as User from "../../domain/user.ts";
-import * as Credential from "../../domain/user-credential.ts";
-import * as UserToken from "../../domain/user-token.ts";
-import type { MutationResolvers, MutationSignupArgs } from "../../schema.ts";
+import { Result } from "neverthrow";
+
+import { EmailAlreadyExistsError } from "../../domain/repos/user/errors.ts";
+import { RefreshToken, User } from "../../domain/models.ts";
+import type { MutationResolvers, MutationSignupArgs } from "../_schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { authGuest } from "../_authorizers/guest.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { parseUserEmail, USER_EMAIL_MAX } from "../_parsers/user/email.ts";
-import { parseUserName, USER_NAME_MAX, USER_NAME_MIN } from "../_parsers/user/name.ts";
-import {
-  parseUserPassword,
-  USER_PASSWORD_MAX,
-  USER_PASSWORD_MIN,
-} from "../_parsers/user/password.ts";
-import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
+import { invalidInputErrors } from "../_parsers/shared/errors.ts";
+import { parseUserName } from "../_parsers/user/name.ts";
+import { parseUserEmail } from "../_parsers/user/email.ts";
+import { parseUserPassword } from "../_parsers/user/password.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     signup(
       """
-      ${USER_NAME_MIN}文字以上、${USER_NAME_MAX}文字まで
+      ${User.Name.MIN}文字以上、${User.Name.MAX}文字まで
       """
       name: String!
 
       """
-      ${USER_EMAIL_MAX}文字まで、既に存在する場合はエラー
+      ${User.Email.MAX}文字まで、既に存在する場合はエラー
       """
       email: String!
 
       """
-      ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
+      ${User.Password.MIN}文字以上、${User.Password.MAX}文字まで
       """
       password: String!
     ): SignupResult @semanticNonNull @complexity(value: 100)
@@ -50,60 +47,28 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   }
 
   const parsed = parseArgs(args);
-  if (Array.isArray(parsed)) {
-    return invalidInputErrors(parsed);
+  if (parsed.isErr()) {
+    return invalidInputErrors(parsed.error);
   }
 
-  const user = await User.create(parsed);
-  const credential = await Credential.create({ userId: user.id, password: parsed.password });
-  const { rawToken, userToken } = await UserToken.create(user.id);
-
-  {
-    const trx = await ctx.db.startTransaction().execute();
-
-    const result1 = await ctx.repos.user.add(user, trx);
-    switch (result1) {
-      case "Ok":
-        break;
-      case "EmailAlreadyExists":
-        await trx.rollback().execute();
-        return {
-          __typename: "EmailAlreadyTakenError",
-          message: "The email already taken.",
-        };
-      case "Failed":
-        await trx.rollback().execute();
-        throw internalServerError();
-      default:
-        throw new Error(result1 satisfies never);
+  const user = await User.create(parsed.value);
+  const { rawRefreshToken, refreshToken } = await RefreshToken.create(user.id);
+  try {
+    await ctx.kysely.transaction().execute(async (trx) => {
+      await ctx.repos.user.add(user, trx);
+      await ctx.repos.refreshToken.add(refreshToken, trx);
+    });
+  } catch (e) {
+    if (e instanceof EmailAlreadyExistsError) {
+      return {
+        __typename: "EmailAlreadyTakenError",
+        message: "The email already taken.",
+      };
     }
-
-    const result2 = await ctx.repos.userCredential.add(credential, trx);
-    switch (result2) {
-      case "Ok":
-        break;
-      case "Failed":
-        await trx.rollback().execute();
-        throw internalServerError();
-      default:
-        throw new Error(result2 satisfies never);
-    }
-
-    const result3 = await ctx.repos.userToken.add(userToken, trx);
-    switch (result3) {
-      case "Ok":
-        break;
-      case "Failed":
-        await trx.rollback().execute();
-        throw internalServerError();
-      default:
-        throw new Error(result3 satisfies never);
-    }
-
-    await trx.commit().execute();
+    throw internalServerError(e);
   }
 
-  await setRefreshTokenCookie(ctx.request, rawToken);
+  await setRefreshTokenCookie(ctx.request, rawRefreshToken);
 
   return {
     __typename: "SignupSuccess",
@@ -112,61 +77,45 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 };
 
 const parseArgs = (args: MutationSignupArgs) => {
-  const name = parseUserName(args, "name", {
-    optional: false,
-    nullable: false,
-  });
-  const email = parseUserEmail(args, "email", {
-    optional: false,
-    nullable: false,
-  });
-  const password = parseUserPassword(args, "password", {
-    optional: false,
-    nullable: false,
-  });
-
-  if (
-    name instanceof ParseErr || //
-    email instanceof ParseErr ||
-    password instanceof ParseErr
-  ) {
-    const errors = [];
-
-    if (name instanceof ParseErr) {
-      errors.push(name);
-    }
-    if (email instanceof ParseErr) {
-      errors.push(email);
-    }
-    if (password instanceof ParseErr) {
-      errors.push(password);
-    }
-
-    return errors;
-  } else {
-    return { name, email, password };
-  }
+  return Result.combineWithAllErrors([
+    parseUserName(args, "name", {
+      optional: false,
+      nullable: false,
+    }),
+    parseUserEmail(args, "email", {
+      optional: false,
+      nullable: false,
+    }),
+    parseUserPassword(args, "password", {
+      optional: false,
+      nullable: false,
+    }),
+  ]).map(([name, email, password]) => ({
+    name,
+    email,
+    password,
+  }));
 };
 
 if (import.meta.vitest) {
   describe("Parsing", () => {
     const validArgs: MutationSignupArgs = {
       name: "name",
-      email: "email@email.com",
+      email: "email@example.com",
       password: "password",
     };
 
     const invalidArgs: MutationSignupArgs = {
-      name: "A".repeat(USER_NAME_MAX + 1),
-      email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com`,
-      password: "A".repeat(USER_PASSWORD_MIN - 1),
+      name: "A".repeat(User.Name.MAX + 1),
+      email: `${"A".repeat(User.Email.MAX - 12 + 1)}@example.com`,
+      password: "A".repeat(User.Password.MIN - 1),
     };
 
     const valids: MutationSignupArgs[] = [
       { ...validArgs },
-      { ...validArgs, name: "A".repeat(USER_NAME_MAX) },
-      { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
-      { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN) },
+      { ...validArgs, name: "A".repeat(User.Name.MAX) },
+      { ...validArgs, email: `${"A".repeat(User.Email.MAX - 12)}@example.com` },
+      { ...validArgs, password: "A".repeat(User.Password.MIN) },
     ];
 
     const invalids: [MutationSignupArgs, (keyof MutationSignupArgs)[]][] = [
@@ -178,13 +127,13 @@ if (import.meta.vitest) {
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);
-      expect(Array.isArray(parsed)).toBe(false);
+      expect(parsed.isOk()).toBe(true);
     });
 
     test.each(invalids)("invalids %#", (args, fields) => {
       const parsed = parseArgs(args);
-      expect(Array.isArray(parsed)).toBe(true);
-      expect((parsed as ParseErr[]).map((e) => e.field)).toStrictEqual(fields);
+      expect(parsed.isErr()).toBe(true);
+      expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);
     });
   });
 }

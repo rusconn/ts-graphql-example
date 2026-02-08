@@ -1,8 +1,8 @@
-import type { Context } from "../../context.ts";
+import type { Context } from "../../server/context.ts";
 import { authErr } from "./util.ts";
 
 export const authAuthenticated = (context: Context) => {
-  if (context.role === "guest") {
+  if (context.role === "GUEST") {
     return authErr();
   }
 
@@ -16,12 +16,12 @@ if (import.meta.vitest) {
   const denies = [context.guest];
 
   test.each(allows)("allows %#", (context) => {
-    const authed = authAuthenticated(context as Context);
+    const authed = authAuthenticated(context as unknown as Context);
     expect(Error.isError(authed)).toBe(false);
   });
 
   test.each(denies)("denies %#", (context) => {
-    const authed = authAuthenticated(context as Context);
+    const authed = authAuthenticated(context as unknown as Context);
     expect(Error.isError(authed)).toBe(true);
   });
 }

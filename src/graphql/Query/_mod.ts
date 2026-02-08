@@ -1,4 +1,4 @@
-import type { QueryResolvers } from "../../schema.ts";
+import type { QueryResolvers } from "../_schema.ts";
 import * as node from "./node.ts";
 import * as user from "./user.ts";
 import * as users from "./users.ts";

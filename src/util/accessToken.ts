@@ -2,9 +2,9 @@ import { jwtVerify, SignJWT } from "jose";
 import { JWTExpired, JWTInvalid } from "jose/errors";
 
 import { signingKey } from "../config/jwt.ts";
-import type { User } from "../db/types.ts";
+import type { User } from "../domain/models.ts";
 
-export type Payload = Pick<User, "id">;
+export type Payload = Pick<User.Type, "id">;
 
 export const verifyJwt = async (token: string) => {
   try {

@@ -1,13 +1,11 @@
 import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 import { parse } from "graphql";
 
-import { yoga } from "../src/yoga.ts";
-
-import type { refreshTokens, tokens } from "./data.ts";
+import { yoga } from "../src/server/yoga.ts";
 
 type ExecuteOperationParams<TVariables> = {
-  token?: typeof tokens.admin;
-  refreshToken?: typeof refreshTokens.admin;
+  token?: string;
+  refreshToken?: string;
   variables?: TVariables;
 };
 

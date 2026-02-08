@@ -1,5 +1,5 @@
 import { domain } from "../config/url.ts";
-import type { RefreshToken } from "../domain/user-token/refresh-token.ts";
+import type { RefreshToken } from "../domain/models.ts";
 
 const cookieName = "refresh_token";
 
@@ -7,7 +7,10 @@ export const getRefreshTokenCookie = async (request: Request) => {
   return await request.cookieStore!.get(cookieName);
 };
 
-export const setRefreshTokenCookie = async (request: Request, refreshToken: RefreshToken) => {
+export const setRefreshTokenCookie = async (
+  request: Request,
+  refreshToken: RefreshToken.Token.Type,
+) => {
   await request.cookieStore!.set({
     ...cookieBase,
     value: refreshToken,

@@ -1,11 +1,14 @@
-import { client } from "../../../src/db/client.ts";
-
-import { db, tokens } from "../../data.ts";
-import { clearUsers, seed } from "../../helpers.ts";
+import { domain, client, graph } from "../../data.ts";
+import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { UserEmailChangeMutation, UserEmailChangeMutationVariables } from "../schema.ts";
+import type {
+  UserEmailChangeMutation,
+  UserEmailChangeMutationVariables,
+  UserEmailChangeNodeQuery,
+  UserEmailChangeNodeQueryVariables,
+} from "../_schema.ts";
 
-const executeMutation = executeSingleResultOperation<
+const userEmailChange = executeSingleResultOperation<
   UserEmailChangeMutation,
   UserEmailChangeMutationVariables
 >(/* GraphQL */ `
@@ -17,80 +20,146 @@ const executeMutation = executeSingleResultOperation<
           id
         }
       }
+      ... on InvalidInputErrors {
+        errors {
+          field
+          message
+        }
+      }
     }
   }
 `);
 
-const testData = {
-  users: [db.users.admin, db.users.alice],
-};
-
-const seedData = {
-  users: () => seed.user(testData.users),
-};
+const node = executeSingleResultOperation<
+  UserEmailChangeNodeQuery,
+  UserEmailChangeNodeQueryVariables
+>(/* GraphQL */ `
+  query UserEmailChangeNode($id: ID!) {
+    node(id: $id) {
+      __typename
+      id
+      ... on User {
+        name
+        email
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`);
 
 beforeEach(async () => {
-  await clearUsers();
-  await seedData.users();
+  await clearTables();
+  await seed.users(domain.users.alice, domain.users.admin);
 });
 
-test("invalid input", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { email: "example.com" },
-  });
+it("returns validation errors when input is invalid", async () => {
+  // precondition
+  {
+    const alice = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    expect(alice.data?.node).toStrictEqual(graph.users.alice);
+  }
 
-  expect(data?.userEmailChange?.__typename).toBe("InvalidInputErrors");
+  // act
+  {
+    const { data } = await userEmailChange({
+      token: client.tokens.alice,
+      variables: {
+        email: "aliceexample.com", // invalid
+      },
+    });
+    assert(
+      data?.userEmailChange?.__typename === "InvalidInputErrors",
+      data?.userEmailChange?.__typename,
+    );
+    expect(data.userEmailChange.errors.map((error) => error.field)).toStrictEqual(["email"]);
+  }
+
+  // postcondition
+  {
+    const alice = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    expect(alice.data?.node).toStrictEqual(graph.users.alice);
+  }
 });
 
-test("email already exists", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { email: db.users.alice.email },
-  });
+it("returns an error when email is already taken", async () => {
+  // precondition
+  {
+    const alice = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    expect(alice.data?.node).toStrictEqual(graph.users.alice);
+  }
 
-  expect(data?.userEmailChange?.__typename).toBe("EmailAlreadyTakenError");
+  // act
+  {
+    const { data } = await userEmailChange({
+      token: client.tokens.alice,
+      variables: {
+        email: domain.users.admin.email, // taken
+      },
+    });
+    assert(
+      data?.userEmailChange?.__typename === "EmailAlreadyTakenError",
+      data?.userEmailChange?.__typename,
+    );
+  }
+
+  // postcondition
+  {
+    const alice = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    expect(alice.data?.node).toStrictEqual(graph.users.alice);
+  }
 });
 
-it("should change email", async () => {
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { email: "admin2@admin.com" },
-  });
+it("changes the user's email", async () => {
+  // precondition
+  {
+    const alice = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    expect(alice.data?.node).toStrictEqual(graph.users.alice);
+  }
 
-  expect(data?.userEmailChange?.__typename).toBe("UserEmailChangeSuccess");
+  // act
+  {
+    const { data } = await userEmailChange({
+      token: client.tokens.alice,
+      variables: {
+        email: "alice2@example.com",
+      },
+    });
+    assert(
+      data?.userEmailChange?.__typename === "UserEmailChangeSuccess",
+      data?.userEmailChange?.__typename,
+    );
+    expect(data.userEmailChange.user.id).toBe(graph.users.alice.id);
+  }
 
-  const user = await client
-    .selectFrom("users")
-    .where("id", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  expect(user.email).toBe("admin2@admin.com");
-});
-
-it("should update updatedAt", async () => {
-  const before = await client
-    .selectFrom("users")
-    .where("id", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  const { data } = await executeMutation({
-    token: tokens.admin,
-    variables: { email: "admin2@admin.com" },
-  });
-
-  expect(data?.userEmailChange?.__typename).toBe("UserEmailChangeSuccess");
-
-  const after = await client
-    .selectFrom("users")
-    .where("id", "=", db.users.admin.id)
-    .selectAll()
-    .executeTakeFirstOrThrow();
-
-  const beforeUpdatedAt = before.updatedAt.getTime();
-  const afterUpdatedAt = after.updatedAt.getTime();
-
-  expect(afterUpdatedAt).toBeGreaterThan(beforeUpdatedAt);
+  // postcondition
+  {
+    const alice = await node({
+      token: client.tokens.alice,
+      variables: { id: graph.users.alice.id },
+    });
+    assert(alice.data?.node?.__typename === "User", alice.data?.node?.__typename);
+    expect(alice.data?.node.id).toBe(graph.users.alice.id);
+    expect(alice.data?.node.name).toBe(graph.users.alice.name);
+    expect(alice.data?.node.email).toBe("alice2@example.com");
+    expect(alice.data?.node.createdAt).toBe(graph.users.alice.createdAt);
+    expect(Date.parse(alice.data.node.updatedAt!)).toBeGreaterThan(
+      Date.parse(graph.users.alice.updatedAt),
+    );
+  }
 });

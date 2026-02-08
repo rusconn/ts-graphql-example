@@ -1,15 +1,18 @@
-import type { MutationAccountUpdateArgs, MutationResolvers } from "../../schema.ts";
+import { Result } from "neverthrow";
+
+import { User } from "../../domain/models.ts";
+import type { MutationAccountUpdateArgs, MutationResolvers } from "../_schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { parseUserName, USER_NAME_MAX, USER_NAME_MIN } from "../_parsers/user/name.ts";
-import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
+import { invalidInputErrors } from "../_parsers/shared/errors.ts";
+import { parseUserName } from "../_parsers/user/name.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     accountUpdate(
       """
-      ${USER_NAME_MIN}文字以上、${USER_NAME_MAX}文字まで、null は入力エラー
+      ${User.Name.MIN}文字以上、${User.Name.MAX}文字まで、null は入力エラー
       """
       name: String
     ): AccountUpdateResult @semanticNonNull @complexity(value: 5)
@@ -29,66 +32,41 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
   }
 
   const parsed = parseArgs(args);
-  if (Array.isArray(parsed)) {
-    return invalidInputErrors(parsed);
+  if (parsed.isErr()) {
+    return invalidInputErrors(parsed.error);
   }
 
-  const user = await ctx.repos.user.findByDbId(ctx.user.id);
+  const user = await ctx.repos.user.find(ctx.user.id);
   if (!user) {
     throw internalServerError();
   }
 
-  const updatedUser: typeof user = {
-    ...user,
-    ...parsed,
-    updatedAt: new Date(),
-  };
-
-  const result = await ctx.repos.user.update(updatedUser);
-  switch (result) {
-    case "Ok":
-      break;
-    case "NotFound":
-    case "EmailAlreadyExists":
-      throw internalServerError();
-    default:
-      throw new Error(result satisfies never);
-  }
-
-  const updated = await ctx.queries.user.findById(user.id);
-  if (!updated) {
-    throw internalServerError();
+  const updatedUser = User.updateAccount(user, parsed.value);
+  try {
+    await ctx.kysely.transaction().execute(async (trx) => {
+      await ctx.repos.user.update(updatedUser, trx);
+    });
+  } catch (e) {
+    throw internalServerError(e);
   }
 
   return {
     __typename: "AccountUpdateSuccess",
-    user: updated,
+    user: updatedUser,
   };
 };
 
 const parseArgs = (args: MutationAccountUpdateArgs) => {
-  const name = parseUserName(args, "name", {
-    optional: true,
-    nullable: false,
-  });
-
-  if (
-    name instanceof ParseErr //
-  ) {
-    const errors = [];
-
-    if (name instanceof ParseErr) {
-      errors.push(name);
-    }
-
-    return errors;
-  } else {
-    return {
-      ...(name != null && {
-        name,
-      }),
-    };
-  }
+  return Result.combineWithAllErrors([
+    parseUserName(args, "name", {
+      optional: true,
+      nullable: false,
+    }),
+  ]).map(([name]) => ({
+    ...(name != null && {
+      name,
+    }),
+  }));
 };
 
 if (import.meta.vitest) {
@@ -96,23 +74,23 @@ if (import.meta.vitest) {
     const valids: MutationAccountUpdateArgs[] = [
       {},
       { name: "name" },
-      { name: "A".repeat(USER_NAME_MAX) },
+      { name: "A".repeat(User.Name.MAX) },
     ];
 
     const invalids: [MutationAccountUpdateArgs, (keyof MutationAccountUpdateArgs)[]][] = [
       [{ name: null }, ["name"]],
-      [{ name: "A".repeat(USER_NAME_MAX + 1) }, ["name"]],
+      [{ name: "A".repeat(User.Name.MAX + 1) }, ["name"]],
     ];
 
     test.each(valids)("valids %#", (args) => {
       const parsed = parseArgs(args);
-      expect(Array.isArray(parsed)).toBe(false);
+      expect(parsed.isOk()).toBe(true);
     });
 
     test.each(invalids)("invalids %#", (args, fields) => {
       const parsed = parseArgs(args);
-      expect(Array.isArray(parsed)).toBe(true);
-      expect((parsed as ParseErr[]).map((e) => e.field)).toStrictEqual(fields);
+      expect(parsed.isErr()).toBe(true);
+      expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);
     });
   });
 }

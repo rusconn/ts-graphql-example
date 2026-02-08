@@ -1,7 +1,6 @@
+import { Todo } from "../../../domain/models.ts";
 import { parseStringArg } from "../util.ts";
 
-export const TODO_DESCRIPTION_MAX = 5_000;
-
-export const parseTodoDescription = parseStringArg({
-  maxChars: TODO_DESCRIPTION_MAX,
+export const parseTodoDescription = parseStringArg(Todo.Description.parse, {
+  maxChars: Todo.Description.MAX,
 });

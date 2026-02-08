@@ -1,21 +1,20 @@
 import { db, graph, tokens } from "../../data.ts";
 import { clearTables, seed } from "../../helpers.ts";
 import { executeSingleResultOperation } from "../../server.ts";
-import type { TodoTitleQuery, TodoTitleQueryVariables } from "../schema.ts";
+import type { TodoTitleQuery, TodoTitleQueryVariables } from "../_schema.ts";
 
-const executeQuery = executeSingleResultOperation<
-  TodoTitleQuery,
-  TodoTitleQueryVariables
->(/* GraphQL */ `
-  query TodoTitle($id: ID!) {
-    node(id: $id) {
-      __typename
-      ... on Todo {
-        title
+const executeQuery = executeSingleResultOperation<TodoTitleQuery, TodoTitleQueryVariables>(
+  /* GraphQL */ `
+    query TodoTitle($id: ID!) {
+      node(id: $id) {
+        __typename
+        ... on Todo {
+          title
+        }
       }
     }
-  }
-`);
+  `,
+);
 
 const testData = {
   users: [db.users.admin, db.users.alice],
@@ -23,8 +22,8 @@ const testData = {
 };
 
 const seedData = {
-  users: () => seed.user(testData.users),
-  todos: () => seed.todo(testData.todos),
+  users: () => seed.users(testData.users),
+  todos: () => seed.todos(testData.todos),
 };
 
 beforeAll(async () => {
