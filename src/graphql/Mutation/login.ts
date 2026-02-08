@@ -1,28 +1,20 @@
-import * as TokenRetensionPolicy from "../../domain/token-retension-policy.ts";
-import { UserPassword } from "../../domain/user-credential.ts";
-import * as UserToken from "../../domain/user-token.ts";
+import { Credential, RefreshToken, User } from "../../domain.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { parseUserEmail, USER_EMAIL_MAX } from "../_parsers/user/email.ts";
-import {
-  parseUserPassword,
-  USER_PASSWORD_MAX,
-  USER_PASSWORD_MIN,
-} from "../_parsers/user/password.ts";
 import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     login(
       """
-      ${USER_EMAIL_MAX}文字まで
+      ${User.Email.MAX}文字まで
       """
       email: String!
 
       """
-      ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
+      ${Credential.Password.MIN}文字以上、${Credential.Password.MAX}文字まで
       """
       password: String!
     ): LoginResult @semanticNonNull @complexity(value: 100)
@@ -47,7 +39,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   const { email, password } = parsed;
 
-  const credential = await context.repos.userCredential.findByDbEmail(email);
+  const credential = await context.repos.credential.findByDbEmail(email);
   if (!credential) {
     return {
       __typename: "LoginFailedError",
@@ -55,7 +47,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const match = await UserPassword.match(password, credential.password);
+  const match = await Credential.Password.match(password, credential.password);
   if (!match) {
     return {
       __typename: "LoginFailedError",
@@ -63,12 +55,12 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     };
   }
 
-  const { rawToken, userToken } = await UserToken.create(credential.id);
+  const { rawRefreshToken, refreshToken } = await RefreshToken.create(credential.id);
 
   {
     const trx = await context.db.startTransaction().execute();
 
-    const result = await context.repos.userToken.add(userToken, trx);
+    const result = await context.repos.refreshToken.add(refreshToken, trx);
     switch (result) {
       case "Ok":
         break;
@@ -79,13 +71,13 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
         throw new Error(result satisfies never);
     }
 
-    await context.repos.userToken.retainLatest(credential.id, TokenRetensionPolicy.limit, trx);
+    await context.repos.refreshToken.retainLatest(credential.id, RefreshToken.MAX_RETENTION, trx);
 
     await trx.commit().execute();
   }
 
   const token = await signedJwt(credential);
-  await setRefreshTokenCookie(context.request, rawToken);
+  await setRefreshTokenCookie(context.request, rawRefreshToken);
 
   return {
     __typename: "LoginSuccess",
@@ -94,32 +86,42 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 };
 
 const parseArgs = (args: MutationLoginArgs) => {
-  const email = parseUserEmail(args, "email", {
-    optional: false,
-    nullable: false,
-  });
-  const password = parseUserPassword(args, "password", {
-    optional: false,
-    nullable: false,
-  });
+  const email = parseEmail(args);
+  const password = parsePassword(args);
 
   if (
-    email instanceof ParseErr || //
-    password instanceof ParseErr
+    Array.isArray(email) || //
+    Array.isArray(password)
   ) {
-    const errors = [];
+    const errors: ParseErr[] = [];
 
-    if (email instanceof ParseErr) {
-      errors.push(email);
+    if (Array.isArray(email)) {
+      errors.push(...email);
     }
-    if (password instanceof ParseErr) {
-      errors.push(password);
+    if (Array.isArray(password)) {
+      errors.push(...password);
     }
 
     return errors;
   } else {
     return { email, password };
   }
+};
+
+const parseEmail = (args: MutationLoginArgs) => {
+  const result = User.Email.parse(args.email);
+
+  return Array.isArray(result)
+    ? result.map((e) => new ParseErr("email", e)) //
+    : result;
+};
+
+const parsePassword = (args: MutationLoginArgs) => {
+  const result = Credential.Password.parse(args.password);
+
+  return Array.isArray(result)
+    ? result.map((e) => new ParseErr("password", e)) //
+    : result;
 };
 
 if (import.meta.vitest) {
@@ -130,14 +132,14 @@ if (import.meta.vitest) {
     };
 
     const invalidArgs: MutationLoginArgs = {
-      email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com`,
-      password: "A".repeat(USER_PASSWORD_MIN - 1),
+      email: `${"A".repeat(User.Email.MAX - 10 + 1)}@email.com`,
+      password: "A".repeat(Credential.Password.MIN - 1),
     };
 
     const valids: MutationLoginArgs[] = [
       { ...validArgs },
-      { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
-      { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN) },
+      { ...validArgs, email: `${"A".repeat(User.Email.MAX - 10)}@email.com` },
+      { ...validArgs, password: "A".repeat(Credential.Password.MIN) },
     ];
 
     const invalids: [MutationLoginArgs, (keyof MutationLoginArgs)[]][] = [

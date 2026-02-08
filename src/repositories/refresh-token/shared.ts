@@ -1,9 +1,9 @@
 import type { Kysely, Transaction } from "kysely";
 
-import type { DB, User } from "../../db/types.ts";
-import type { UserToken } from "../../domain/user-token.ts";
+import type { DB, RefreshToken, User } from "../../db/types.ts";
+import type * as Domain from "../../domain.ts";
 
-export class UserTokenRepoShared {
+export class RefreshTokenRepoShared {
   #db;
   #tenantId;
 
@@ -12,40 +12,42 @@ export class UserTokenRepoShared {
     this.#tenantId = tenantId;
   }
 
-  async add(userToken: UserToken, trx?: Transaction<DB>) {
-    if (this.#tenantId != null && userToken.userId !== this.#tenantId) {
+  async add(refreshToken: Domain.RefreshToken.Type, trx?: Transaction<DB>) {
+    if (this.#tenantId != null && refreshToken.id !== this.#tenantId) {
       throw new Error("Forbidden");
     }
 
+    const dbRefreshToken = toDb(refreshToken);
+
     const result = await (trx ?? this.#db)
-      .insertInto("userTokens")
-      .values(userToken)
+      .insertInto("refreshTokens")
+      .values(dbRefreshToken)
       .executeTakeFirst();
 
     return result.numInsertedOrUpdatedRows! > 0n ? "Ok" : "Failed";
   }
 
-  async touch(refreshToken: UserToken["refreshToken"], now: Date, trx?: Transaction<DB>) {
+  async touch(token: Domain.RefreshToken.Type["token"], now: Date, trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
-      .updateTable("userTokens")
+      .updateTable("refreshTokens")
       .set("lastUsedAt", now)
-      .where("refreshToken", "=", refreshToken)
+      .where("token", "=", token)
       .executeTakeFirst();
 
     return result.numUpdatedRows > 0n ? "Ok" : "NotFound";
   }
 
-  async retainLatest(userId: UserToken["userId"], limit: number, trx?: Transaction<DB>) {
+  async retainLatest(userId: Domain.RefreshToken.Type["id"], limit: number, trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
-      .deleteFrom("userTokens")
+      .deleteFrom("refreshTokens")
       .where(({ eb }) =>
         eb(
-          "refreshToken",
+          "token",
           "not in",
           eb
-            .selectFrom("userTokens")
+            .selectFrom("refreshTokens")
             .where("userId", "=", userId)
-            .select("refreshToken")
+            .select("token")
             .orderBy("lastUsedAt", "desc")
             .limit(limit),
         ),
@@ -55,13 +57,18 @@ export class UserTokenRepoShared {
     return result.numDeletedRows;
   }
 
-  async remove(refreshToken: UserToken["refreshToken"], trx?: Transaction<DB>) {
+  async remove(token: Domain.RefreshToken.Type["token"], trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
-      .deleteFrom("userTokens")
-      .where("refreshToken", "=", refreshToken)
+      .deleteFrom("refreshTokens")
+      .where("token", "=", token)
       .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
       .executeTakeFirst();
 
     return result.numDeletedRows > 0n ? "Ok" : "NotFound";
   }
 }
+
+const toDb = ({ id, ...rest }: Domain.RefreshToken.Type): RefreshToken => ({
+  ...rest,
+  userId: id,
+});

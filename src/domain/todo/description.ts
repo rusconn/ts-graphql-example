@@ -1,18 +1,14 @@
 import type { Tagged } from "type-fest";
 
-import * as EmailAddress from "../../lib/string/emailAddress.ts";
 import { numChars } from "../../lib/string/numChars.ts";
 
-export type Type = Tagged<EmailAddress.EmailAddress, "UserEmail">;
+export type Type = Tagged<string, "TodoDescription">;
 
-export const MAX = 100;
+export const MAX = 5_000;
 
 export const parse = (input: string): Type | ParseError[] => {
   const errors: ParseError[] = [];
 
-  if (!EmailAddress.is(input)) {
-    errors.push("invalid format");
-  }
   if (numChars(input) > MAX) {
     errors.push("too long");
   }
@@ -20,6 +16,4 @@ export const parse = (input: string): Type | ParseError[] => {
   return errors.length ? errors : (input as Type);
 };
 
-export type ParseError =
-  | "invalid format" //
-  | "too long";
+export type ParseError = "too long";

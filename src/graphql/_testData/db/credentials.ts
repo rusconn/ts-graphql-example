@@ -12,4 +12,4 @@ export const db = {
     /** raw: alicealice */
     password: "$2b$04$vox810wl680PtUOq1CPTL.lMhjWYsjFqVIMOmzrMIXKvqTh/XZ5Gy",
   },
-} satisfies Record<string, Db.UserCredential>;
+} satisfies Record<string, Db.Credential>;

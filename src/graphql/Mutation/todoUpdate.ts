@@ -1,13 +1,12 @@
-import type { MutationResolvers, MutationTodoUpdateArgs } from "../../schema.ts";
+import { Todo } from "../../domain.ts";
+import { type MutationResolvers, type MutationTodoUpdateArgs, TodoStatus } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { parseTodoDescription, TODO_DESCRIPTION_MAX } from "../_parsers/todo/description.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
-import { parseTodoStatus } from "../_parsers/todo/status.ts";
-import { parseTodoTitle, TODO_TITLE_MAX } from "../_parsers/todo/title.ts";
-import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
+import { todoStatusMap } from "../_parsers/todo/status.ts";
+import { invalidInputErrors, parseArgNullability, ParseErr } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -15,12 +14,12 @@ export const typeDef = /* GraphQL */ `
       id: ID!
 
       """
-      ${TODO_TITLE_MAX}文字まで、null は入力エラー
+      ${Todo.Title.MAX}文字まで、null は入力エラー
       """
       title: String
 
       """
-      ${TODO_DESCRIPTION_MAX}文字まで、null は入力エラー
+      ${Todo.Description.MAX}文字まで、null は入力エラー
       """
       description: String
 
@@ -62,12 +61,7 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
     };
   }
 
-  const updatedTodo: typeof todo = {
-    ...todo,
-    ...parsed,
-    updatedAt: new Date(),
-  };
-
+  const updatedTodo = Todo.update(todo, parsed);
   const result = await ctx.repos.todo.update(updatedTodo);
   switch (result) {
     case "Ok":
@@ -78,46 +72,37 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
       throw new Error(result satisfies never);
   }
 
-  const found = await ctx.queries.todo.find(todo.id);
-  if (!found) {
+  const updated = await ctx.queries.todo.find(todo.id);
+  if (!updated) {
     throw internalServerError();
   }
 
   return {
     __typename: "TodoUpdateSuccess",
-    todo: found,
+    todo: updated,
   };
 };
 
-const parseArgs = (args: Omit<MutationTodoUpdateArgs, "id">) => {
-  const title = parseTodoTitle(args, "title", {
-    optional: true,
-    nullable: false,
-  });
-  const description = parseTodoDescription(args, "description", {
-    optional: true,
-    nullable: false,
-  });
-  const status = parseTodoStatus(args, "status", {
-    optional: true,
-    nullable: false,
-  });
+const parseArgs = (args: MutationTodoUpdateArgs) => {
+  const title = parseTitle(args);
+  const description = parseDescription(args);
+  const status = parseStatus(args);
 
   if (
-    title instanceof ParseErr || //
-    description instanceof ParseErr ||
-    status instanceof ParseErr
+    Array.isArray(title) || //
+    Array.isArray(description) ||
+    Array.isArray(status)
   ) {
-    const errors = [];
+    const errors: ParseErr[] = [];
 
-    if (title instanceof ParseErr) {
-      errors.push(title);
+    if (Array.isArray(title)) {
+      errors.push(...title);
     }
-    if (description instanceof ParseErr) {
-      errors.push(description);
+    if (Array.isArray(description)) {
+      errors.push(...description);
     }
-    if (status instanceof ParseErr) {
-      errors.push(status);
+    if (Array.isArray(status)) {
+      errors.push(...status);
     }
 
     return errors;
@@ -136,6 +121,59 @@ const parseArgs = (args: Omit<MutationTodoUpdateArgs, "id">) => {
   }
 };
 
+const parseTitle = (args: MutationTodoUpdateArgs) => {
+  const result1 = parseArgNullability(args, "title", {
+    optional: true,
+    nullable: false,
+  });
+  if (result1 instanceof ParseErr) {
+    return [result1];
+  }
+  if (result1 == null) {
+    return;
+  }
+
+  const result2 = Todo.Title.parse(result1);
+
+  return Array.isArray(result2)
+    ? result2.map((e) => new ParseErr("title", e)) //
+    : result2;
+};
+
+const parseDescription = (args: MutationTodoUpdateArgs) => {
+  const result1 = parseArgNullability(args, "description", {
+    optional: true,
+    nullable: false,
+  });
+  if (result1 instanceof ParseErr) {
+    return [result1];
+  }
+  if (result1 == null) {
+    return;
+  }
+
+  const result2 = Todo.Description.parse(result1);
+
+  return Array.isArray(result2)
+    ? result2.map((e) => new ParseErr("description", e)) //
+    : result2;
+};
+
+const parseStatus = (args: MutationTodoUpdateArgs) => {
+  const result1 = parseArgNullability(args, "status", {
+    optional: true,
+    nullable: false,
+  });
+  if (result1 instanceof ParseErr) {
+    return [result1];
+  }
+  if (result1 == null) {
+    return;
+  }
+
+  return todoStatusMap[result1 as TodoStatus];
+};
+
 if (import.meta.vitest) {
   const { TodoStatus } = await import("../../schema.ts");
 
@@ -146,8 +184,8 @@ if (import.meta.vitest) {
       { description: "description" },
       { status: TodoStatus.Done },
       { title: "title", description: "description", status: TodoStatus.Done },
-      { title: "A".repeat(TODO_TITLE_MAX) },
-      { description: "A".repeat(TODO_DESCRIPTION_MAX) },
+      { title: "A".repeat(Todo.Title.MAX) },
+      { description: "A".repeat(Todo.Description.MAX) },
     ];
 
     const invalids: [
@@ -157,8 +195,8 @@ if (import.meta.vitest) {
       [{ title: null }, ["title"]],
       [{ description: null }, ["description"]],
       [{ status: null }, ["status"]],
-      [{ title: "A".repeat(TODO_TITLE_MAX + 1) }, ["title"]],
-      [{ description: "A".repeat(TODO_DESCRIPTION_MAX + 1) }, ["description"]],
+      [{ title: "A".repeat(Todo.Title.MAX + 1) }, ["title"]],
+      [{ description: "A".repeat(Todo.Description.MAX + 1) }, ["description"]],
       [{ title: null, description: null, status: null }, ["title", "description", "status"]],
     ];
 

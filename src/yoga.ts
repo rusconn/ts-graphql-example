@@ -26,12 +26,12 @@ import { TodoRepoForUser } from "./repositories/todo/for-user.ts";
 import { UserRepoForAdmin } from "./repositories/user/for-admin.ts";
 import { UserRepoForGuest } from "./repositories/user/for-guest.ts";
 import { UserRepoForUser } from "./repositories/user/for-user.ts";
-import { UserCredentialRepoForAdmin } from "./repositories/user-credential/for-admin.ts";
-import { UserCredentialRepoForGuest } from "./repositories/user-credential/for-guest.ts";
-import { UserCredentialRepoForUser } from "./repositories/user-credential/for-user.ts";
-import { UserTokenRepoForAdmin } from "./repositories/user-token/for-admin.ts";
-import { UserTokenRepoForGuest } from "./repositories/user-token/for-guest.ts";
-import { UserTokenRepoForUser } from "./repositories/user-token/for-user.ts";
+import { CredentialRepoForAdmin } from "./repositories/credential/for-admin.ts";
+import { CredentialRepoForGuest } from "./repositories/credential/for-guest.ts";
+import { CredentialRepoForUser } from "./repositories/credential/for-user.ts";
+import { RefreshTokenRepoForAdmin } from "./repositories/refresh-token/for-admin.ts";
+import { RefreshTokenRepoForGuest } from "./repositories/refresh-token/for-guest.ts";
+import { RefreshTokenRepoForUser } from "./repositories/refresh-token/for-user.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
 import { type Payload, verifyJwt } from "./util/accessToken.ts";
@@ -89,8 +89,8 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
           repos: {
             todo: new TodoRepoForAdmin(client, user.id),
             user: new UserRepoForAdmin(client, user.id),
-            userCredential: new UserCredentialRepoForAdmin(client, user.id),
-            userToken: new UserTokenRepoForAdmin(client, user.id),
+            credential: new CredentialRepoForAdmin(client, user.id),
+            refreshToken: new RefreshTokenRepoForAdmin(client, user.id),
           },
         };
       case "user":
@@ -105,8 +105,8 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
           repos: {
             todo: new TodoRepoForUser(client, user.id),
             user: new UserRepoForUser(client, user.id),
-            userCredential: new UserCredentialRepoForUser(client, user.id),
-            userToken: new UserTokenRepoForUser(client, user.id),
+            credential: new CredentialRepoForUser(client, user.id),
+            refreshToken: new RefreshTokenRepoForUser(client, user.id),
           },
         };
       case undefined:
@@ -119,8 +119,8 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
           },
           repos: {
             user: new UserRepoForGuest(client),
-            userCredential: new UserCredentialRepoForGuest(client),
-            userToken: new UserTokenRepoForGuest(client),
+            credential: new CredentialRepoForGuest(client),
+            refreshToken: new RefreshTokenRepoForGuest(client),
           },
         };
       default:

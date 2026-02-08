@@ -12,6 +12,17 @@ export type TodoStatus = "done" | "pending";
 
 export type UserRole = "admin" | "user";
 
+export interface Credentials {
+  password: string;
+  userId: Uuidv7;
+}
+
+export interface RefreshTokens {
+  lastUsedAt: Timestamp;
+  token: string;
+  userId: Uuidv7;
+}
+
 export interface Todos {
   createdAt: Timestamp;
   description: string;
@@ -19,11 +30,6 @@ export interface Todos {
   status: TodoStatus;
   title: string;
   updatedAt: Timestamp;
-  userId: Uuidv7;
-}
-
-export interface UserCredentials {
-  password: string;
   userId: Uuidv7;
 }
 
@@ -36,15 +42,9 @@ export interface Users {
   updatedAt: Timestamp;
 }
 
-export interface UserTokens {
-  lastUsedAt: Timestamp;
-  refreshToken: string;
-  userId: Uuidv7;
-}
-
 export interface DB {
+  credentials: Credentials;
+  refreshTokens: RefreshTokens;
   todos: Todos;
-  userCredentials: UserCredentials;
   users: Users;
-  userTokens: UserTokens;
 }

@@ -1,4 +1,4 @@
-import { TodoId } from "../../domain/todo.ts";
+import { Id } from "../../domain/todo.ts";
 import { UserId } from "../../domain/user.ts";
 import type { QueryResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
@@ -39,6 +39,6 @@ export const resolver: QueryResolvers["node"] = async (_parent, args, context) =
 };
 
 const pairs = {
-  Todo: [TodoId.is, Todo.getNode],
+  Todo: [Id.is, Todo.getNode],
   User: [UserId.is, User.getNode],
 } as const;

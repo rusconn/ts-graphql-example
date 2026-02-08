@@ -2,17 +2,17 @@ import type { Kysely, Transaction } from "kysely";
 
 import type * as Db from "../../db/types.ts";
 import type { DB } from "../../db/types.ts";
-import type * as Domain from "../../domain/user-credential.ts";
-import { UserCredentialRepoShared } from "./shared.ts";
+import type * as Domain from "../../domain/credential.ts";
+import { CredentialRepoShared } from "./shared.ts";
 
-export class UserCredentialRepoForGuest {
+export class CredentialRepoForGuest {
   #shared;
 
   constructor(db: Kysely<DB>) {
-    this.#shared = new UserCredentialRepoShared(db);
+    this.#shared = new CredentialRepoShared(db);
   }
 
-  async findByDbId(id: Db.UserCredential["userId"], trx?: Transaction<DB>) {
+  async findByDbId(id: Db.Credential["userId"], trx?: Transaction<DB>) {
     return await this.#shared.findByDbId(id, trx);
   }
 
@@ -20,15 +20,15 @@ export class UserCredentialRepoForGuest {
     return await this.#shared.findByDbEmail(email, trx);
   }
 
-  async add(user: Domain.UserCredential, trx?: Transaction<DB>) {
+  async add(user: Domain.Type, trx?: Transaction<DB>) {
     return await this.#shared.add(user, trx);
   }
 
-  async update(user: Domain.UserCredential, trx?: Transaction<DB>) {
+  async update(user: Domain.Type, trx?: Transaction<DB>) {
     return await this.#shared.update(user, trx);
   }
 
-  async remove(id: Domain.UserCredential["id"], trx?: Transaction<DB>) {
+  async remove(id: Domain.Type["id"], trx?: Transaction<DB>) {
     return await this.#shared.remove(id, trx);
   }
 }

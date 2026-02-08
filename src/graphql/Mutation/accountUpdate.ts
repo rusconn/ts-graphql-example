@@ -1,15 +1,15 @@
+import { User } from "../../domain.ts";
 import type { MutationAccountUpdateArgs, MutationResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { parseUserName, USER_NAME_MAX, USER_NAME_MIN } from "../_parsers/user/name.ts";
-import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
+import { invalidInputErrors, parseArgNullability, ParseErr } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     accountUpdate(
       """
-      ${USER_NAME_MIN}文字以上、${USER_NAME_MAX}文字まで、null は入力エラー
+      ${User.Name.MIN}文字以上、${User.Name.MAX}文字まで、null は入力エラー
       """
       name: String
     ): AccountUpdateResult @semanticNonNull @complexity(value: 5)
@@ -38,12 +38,7 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
     throw internalServerError();
   }
 
-  const updatedUser: typeof user = {
-    ...user,
-    ...parsed,
-    updatedAt: new Date(),
-  };
-
+  const updatedUser = User.update(user, parsed);
   const result = await ctx.repos.user.update(updatedUser);
   switch (result) {
     case "Ok":
@@ -67,18 +62,15 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
 };
 
 const parseArgs = (args: MutationAccountUpdateArgs) => {
-  const name = parseUserName(args, "name", {
-    optional: true,
-    nullable: false,
-  });
+  const name = parseName(args);
 
   if (
-    name instanceof ParseErr //
+    Array.isArray(name) //
   ) {
-    const errors = [];
+    const errors: ParseErr[] = [];
 
-    if (name instanceof ParseErr) {
-      errors.push(name);
+    if (Array.isArray(name)) {
+      errors.push(...name);
     }
 
     return errors;
@@ -91,17 +83,36 @@ const parseArgs = (args: MutationAccountUpdateArgs) => {
   }
 };
 
+const parseName = (args: MutationAccountUpdateArgs) => {
+  const result1 = parseArgNullability(args, "name", {
+    optional: true,
+    nullable: false,
+  });
+  if (result1 instanceof ParseErr) {
+    return [result1];
+  }
+  if (result1 == null) {
+    return;
+  }
+
+  const result2 = User.Name.parse(result1);
+
+  return Array.isArray(result2)
+    ? result2.map((e) => new ParseErr("name", e)) //
+    : result2;
+};
+
 if (import.meta.vitest) {
   describe("Parsing", () => {
     const valids: MutationAccountUpdateArgs[] = [
       {},
       { name: "name" },
-      { name: "A".repeat(USER_NAME_MAX) },
+      { name: "A".repeat(User.Name.MAX) },
     ];
 
     const invalids: [MutationAccountUpdateArgs, (keyof MutationAccountUpdateArgs)[]][] = [
       [{ name: null }, ["name"]],
-      [{ name: "A".repeat(USER_NAME_MAX + 1) }, ["name"]],
+      [{ name: "A".repeat(User.Name.MAX + 1) }, ["name"]],
     ];
 
     test.each(valids)("valids %#", (args) => {

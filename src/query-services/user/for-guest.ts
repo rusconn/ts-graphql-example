@@ -1,6 +1,6 @@
 import type { Kysely } from "kysely";
 
-import type { DB, User, UserToken } from "../../db/types.ts";
+import type { DB, User, RefreshToken } from "../../db/types.ts";
 import { UserQueryShared } from "./shared.ts";
 
 export class UserQueryForGuest {
@@ -20,7 +20,7 @@ export class UserQueryForGuest {
     return user;
   }
 
-  async findByRefreshToken(refreshToken: UserToken["refreshToken"]) {
+  async findByRefreshToken(refreshToken: RefreshToken["token"]) {
     return await this.#shared.findByRefreshToken(refreshToken);
   }
 }

@@ -1,7 +1,7 @@
 import type { Kysely, Transaction } from "kysely";
 
 import { type DB, type Todo, TodoStatus, type User } from "../../db/types.ts";
-import * as Domain from "../../domain/todo.ts";
+import * as Domain from "../../domain.ts";
 
 export class TodoRepoShared {
   #db;
@@ -12,7 +12,7 @@ export class TodoRepoShared {
     this.#tenantId = tenantId;
   }
 
-  async find(id: Domain.Todo["id"], trx?: Transaction<DB>) {
+  async find(id: Domain.Todo.Type["id"], trx?: Transaction<DB>) {
     const todo = await (trx ?? this.#db)
       .selectFrom("todos")
       .where("id", "=", id)
@@ -24,7 +24,7 @@ export class TodoRepoShared {
     return todo && toDomain(todo);
   }
 
-  async add(todo: Domain.Todo, trx?: Transaction<DB>) {
+  async add(todo: Domain.Todo.Type, trx?: Transaction<DB>) {
     if (this.#tenantId != null && todo.userId !== this.#tenantId) {
       throw new Error("Forbidden");
     }
@@ -39,7 +39,7 @@ export class TodoRepoShared {
     return result.numInsertedOrUpdatedRows! > 0n ? "Ok" : "Failed";
   }
 
-  async update(todo: Domain.Todo, trx?: Transaction<DB>) {
+  async update(todo: Domain.Todo.Type, trx?: Transaction<DB>) {
     const dbTodo = toDb(todo);
 
     const result = await (trx ?? this.#db)
@@ -52,7 +52,7 @@ export class TodoRepoShared {
     return result.numUpdatedRows > 0n ? "Ok" : "NotFound";
   }
 
-  async remove(id: Domain.Todo["id"], trx?: Transaction<DB>) {
+  async remove(id: Domain.Todo.Type["id"], trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
       .deleteFrom("todos")
       .where("id", "=", id)
@@ -63,20 +63,20 @@ export class TodoRepoShared {
   }
 }
 
-const toDb = ({ status, ...rest }: Domain.Todo): Todo => ({
+const toDb = ({ status, ...rest }: Domain.Todo.Type): Todo => ({
   ...rest,
   status: {
-    [Domain.TodoStatus.DONE]: TodoStatus.Done,
-    [Domain.TodoStatus.PENDING]: TodoStatus.Pending,
+    [Domain.Todo.Status.DONE]: TodoStatus.Done,
+    [Domain.Todo.Status.PENDING]: TodoStatus.Pending,
   }[status],
 });
 
-const toDomain = ({ id, status, userId, ...rest }: Todo): Domain.Todo => ({
+const toDomain = ({ id, status, userId, ...rest }: Todo): Domain.Todo.Type => ({
   ...rest,
-  id: id as Domain.Todo["id"],
+  id: id as Domain.Todo.Type["id"],
   status: {
-    [TodoStatus.Done]: Domain.TodoStatus.DONE,
-    [TodoStatus.Pending]: Domain.TodoStatus.PENDING,
+    [TodoStatus.Done]: Domain.Todo.Status.DONE,
+    [TodoStatus.Pending]: Domain.Todo.Status.PENDING,
   }[status],
-  userId: userId as Domain.Todo["userId"],
+  userId: userId as Domain.Todo.Type["userId"],
 });

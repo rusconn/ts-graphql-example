@@ -26,10 +26,10 @@ export type User = Selectable<Genned.Users>;
 export type NewUser = Insertable<Genned.Users>;
 export type UserUpdate = Updateable<Genned.Users>;
 
-export type UserCredential = Selectable<Genned.UserCredentials>;
-export type NewUserCredential = Insertable<Genned.UserCredentials>;
-export type UserCredentialUpdate = Updateable<Genned.UserCredentials>;
+export type Credential = Selectable<Genned.Credentials>;
+export type NewCredential = Insertable<Genned.Credentials>;
+export type CredentialUpdate = Updateable<Genned.Credentials>;
 
-export type UserToken = Selectable<Genned.UserTokens>;
-export type NewUserToken = Insertable<Genned.UserTokens>;
-export type UserTokenUpdate = Updateable<Genned.UserTokens>;
+export type RefreshToken = Selectable<Genned.RefreshTokens>;
+export type NewRefreshToken = Insertable<Genned.RefreshTokens>;
+export type RefreshTokenUpdate = Updateable<Genned.RefreshTokens>;

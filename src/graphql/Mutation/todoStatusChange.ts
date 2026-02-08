@@ -1,9 +1,11 @@
-import type { MutationResolvers } from "../../schema.ts";
+import { Todo } from "../../domain.ts";
+import type { MutationResolvers, MutationTodoStatusChangeArgs } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
+import { todoStatusMap } from "../_parsers/todo/status.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -38,12 +40,8 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
     };
   }
 
-  const changedTodo: typeof todo = {
-    ...todo,
-    status: args.status,
-    updatedAt: new Date(),
-  };
-
+  const parsed = parseArgs(args);
+  const changedTodo = Todo.changeStatus(todo, parsed);
   const result = await ctx.repos.todo.update(changedTodo);
   switch (result) {
     case "Ok":
@@ -54,13 +52,25 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
       throw new Error(result satisfies never);
   }
 
-  const found = await ctx.queries.todo.find(id);
-  if (!found) {
+  const changed = await ctx.queries.todo.find(id);
+  if (!changed) {
     throw internalServerError();
   }
 
   return {
     __typename: "TodoStatusChangeSuccess",
-    todo: found,
+    todo: changed,
   };
+};
+
+const parseArgs = (args: MutationTodoStatusChangeArgs) => {
+  const status = parseStatus(args);
+
+  return {
+    status,
+  };
+};
+
+const parseStatus = (args: MutationTodoStatusChangeArgs) => {
+  return todoStatusMap[args.status];
 };

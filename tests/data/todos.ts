@@ -1,5 +1,5 @@
 import type * as Db from "../../src/db/types.ts";
-import { TodoId } from "../../src/domain/todo.ts";
+import { Id } from "../../src/domain/todo.ts";
 import { db } from "../../src/graphql/_testData/db/todos.ts";
 import { todoId } from "../../src/graphql/Todo/id.ts";
 import { todoStatus } from "../../src/graphql/Todo/status.ts";
@@ -21,5 +21,5 @@ export const graph = {
 export { db };
 
 export const dummyId = () => {
-  return todoId(TodoId.gen());
+  return todoId(Id.create());
 };

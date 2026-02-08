@@ -16,15 +16,15 @@ export class UserRepoForAdmin {
     return await this.#shared.findByDbId(id, trx);
   }
 
-  async add(user: Domain.User, trx?: Transaction<DB>) {
+  async add(user: Domain.Type, trx?: Transaction<DB>) {
     return await this.#shared.add(user, trx);
   }
 
-  async update(user: Domain.User, trx?: Transaction<DB>) {
+  async update(user: Domain.Type, trx?: Transaction<DB>) {
     return await this.#shared.update(user, trx);
   }
 
-  async remove(id: Domain.User["id"], trx?: Transaction<DB>) {
+  async remove(id: Domain.Type["id"], trx?: Transaction<DB>) {
     return await this.#shared.remove(id, trx);
   }
 }

@@ -11,19 +11,19 @@ export class TodoRepoForAdmin {
     this.#shared = new TodoRepoShared(db, tenantId);
   }
 
-  async find(id: Domain.Todo["id"], trx?: Transaction<DB>) {
+  async find(id: Domain.Type["id"], trx?: Transaction<DB>) {
     return await this.#shared.find(id, trx);
   }
 
-  async add(todo: Domain.Todo, trx?: Transaction<DB>) {
+  async add(todo: Domain.Type, trx?: Transaction<DB>) {
     return await this.#shared.add(todo, trx);
   }
 
-  async update(todo: Domain.Todo, trx?: Transaction<DB>) {
+  async update(todo: Domain.Type, trx?: Transaction<DB>) {
     return await this.#shared.update(todo, trx);
   }
 
-  async remove(id: Domain.Todo["id"], trx?: Transaction<DB>) {
+  async remove(id: Domain.Type["id"], trx?: Transaction<DB>) {
     return await this.#shared.remove(id, trx);
   }
 }

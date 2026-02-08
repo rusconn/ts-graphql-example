@@ -1,9 +1,9 @@
 import type { Kysely, Transaction } from "kysely";
 
-import type { DB, User, UserCredential } from "../../db/types.ts";
-import type * as Domain from "../../domain/user-credential.ts";
+import type { DB, User, Credential } from "../../db/types.ts";
+import type * as Domain from "../../domain.ts";
 
-export class UserCredentialRepoShared {
+export class CredentialRepoShared {
   #db;
   #tenantId;
 
@@ -12,9 +12,9 @@ export class UserCredentialRepoShared {
     this.#tenantId = tenantId;
   }
 
-  async findByDbId(id: UserCredential["userId"], trx?: Transaction<DB>) {
+  async findByDbId(id: Credential["userId"], trx?: Transaction<DB>) {
     const credential = await (trx ?? this.#db)
-      .selectFrom("userCredentials")
+      .selectFrom("credentials")
       .where("userId", "=", id)
       .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
       .selectAll()
@@ -26,18 +26,18 @@ export class UserCredentialRepoShared {
 
   async findByDbEmail(email: User["email"], trx?: Transaction<DB>) {
     const credential = await (trx ?? this.#db)
-      .selectFrom("userCredentials")
-      .innerJoin("users", "userCredentials.userId", "users.id")
+      .selectFrom("credentials")
+      .innerJoin("users", "credentials.userId", "users.id")
       .where("email", "=", email)
-      .$if(this.#tenantId != null, (qb) => qb.where("userCredentials.userId", "=", this.#tenantId!))
-      .selectAll("userCredentials")
+      .$if(this.#tenantId != null, (qb) => qb.where("credentials.userId", "=", this.#tenantId!))
+      .selectAll("credentials")
       .$if(trx != null, (qb) => qb.forUpdate())
       .executeTakeFirst();
 
     return credential && toDomain(credential);
   }
 
-  async add(credential: Domain.UserCredential, trx?: Transaction<DB>) {
+  async add(credential: Domain.Credential.Type, trx?: Transaction<DB>) {
     if (this.#tenantId != null && credential.id !== this.#tenantId) {
       throw new Error("Forbidden");
     }
@@ -45,18 +45,18 @@ export class UserCredentialRepoShared {
     const dbCredential = toDb(credential);
 
     const result = await (trx ?? this.#db)
-      .insertInto("userCredentials") //
+      .insertInto("credentials") //
       .values(dbCredential)
       .executeTakeFirst();
 
     return result.numInsertedOrUpdatedRows! > 0n ? "Ok" : "Failed";
   }
 
-  async update(credential: Domain.UserCredential, trx?: Transaction<DB>) {
+  async update(credential: Domain.Credential.Type, trx?: Transaction<DB>) {
     const dbCredential = toDb(credential);
 
     const result = await (trx ?? this.#db)
-      .updateTable("userCredentials")
+      .updateTable("credentials")
       .set(dbCredential)
       .where("userId", "=", dbCredential.userId)
       .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
@@ -65,9 +65,9 @@ export class UserCredentialRepoShared {
     return result.numUpdatedRows > 0n ? "Ok" : "NotFound";
   }
 
-  async remove(id: Domain.UserCredential["id"], trx?: Transaction<DB>) {
+  async remove(id: Domain.Credential.Type["id"], trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
-      .deleteFrom("userCredentials")
+      .deleteFrom("credentials")
       .where("userId", "=", id)
       .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
       .executeTakeFirst();
@@ -76,12 +76,12 @@ export class UserCredentialRepoShared {
   }
 }
 
-const toDb = ({ id, ...rest }: Domain.UserCredential): UserCredential => ({
+const toDb = ({ id, ...rest }: Domain.Credential.Type): Credential => ({
   ...rest,
   userId: id,
 });
 
-const toDomain = ({ userId, password }: UserCredential): Domain.UserCredential => ({
-  id: userId as Domain.UserCredential["id"],
-  password: password as Domain.UserCredential["password"],
+const toDomain = ({ userId, password }: Credential): Domain.Credential.Type => ({
+  id: userId as Domain.Credential.Type["id"],
+  password: password as Domain.Credential.Type["password"],
 });

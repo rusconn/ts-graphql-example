@@ -15,12 +15,12 @@ import type { TodoRepoForUser } from "./repositories/todo/for-user.ts";
 import type { UserRepoForAdmin } from "./repositories/user/for-admin.ts";
 import type { UserRepoForGuest } from "./repositories/user/for-guest.ts";
 import type { UserRepoForUser } from "./repositories/user/for-user.ts";
-import type { UserCredentialRepoForAdmin } from "./repositories/user-credential/for-admin.ts";
-import type { UserCredentialRepoForGuest } from "./repositories/user-credential/for-guest.ts";
-import type { UserCredentialRepoForUser } from "./repositories/user-credential/for-user.ts";
-import type { UserTokenRepoForAdmin } from "./repositories/user-token/for-admin.ts";
-import type { UserTokenRepoForGuest } from "./repositories/user-token/for-guest.ts";
-import type { UserTokenRepoForUser } from "./repositories/user-token/for-user.ts";
+import type { CredentialRepoForAdmin } from "./repositories/credential/for-admin.ts";
+import type { CredentialRepoForGuest } from "./repositories/credential/for-guest.ts";
+import type { CredentialRepoForUser } from "./repositories/credential/for-user.ts";
+import type { RefreshTokenRepoForAdmin } from "./repositories/refresh-token/for-admin.ts";
+import type { RefreshTokenRepoForGuest } from "./repositories/refresh-token/for-guest.ts";
+import type { RefreshTokenRepoForUser } from "./repositories/refresh-token/for-user.ts";
 
 export type Context = ServerContext & PluginContext & YogaInitialContext & UserContext;
 
@@ -47,8 +47,8 @@ type ContextForAdmin = ContextBase & {
   repos: {
     todo: TodoRepoForAdmin;
     user: UserRepoForAdmin;
-    userCredential: UserCredentialRepoForAdmin;
-    userToken: UserTokenRepoForAdmin;
+    credential: CredentialRepoForAdmin;
+    refreshToken: RefreshTokenRepoForAdmin;
   };
 };
 
@@ -62,8 +62,8 @@ type ContextForUser = ContextBase & {
   repos: {
     todo: TodoRepoForUser;
     user: UserRepoForUser;
-    userCredential: UserCredentialRepoForUser;
-    userToken: UserTokenRepoForUser;
+    credential: CredentialRepoForUser;
+    refreshToken: RefreshTokenRepoForUser;
   };
 };
 
@@ -75,8 +75,8 @@ type ContextForGuest = ContextBase & {
   };
   repos: {
     user: UserRepoForGuest;
-    userCredential: UserCredentialRepoForGuest;
-    userToken: UserTokenRepoForGuest;
+    credential: CredentialRepoForGuest;
+    refreshToken: RefreshTokenRepoForGuest;
   };
 };
 

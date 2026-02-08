@@ -1,4 +1,7 @@
-import type { TodoStatus } from "../../../schema.ts";
-import { parseStringArg } from "../util.ts";
+import { Todo } from "../../../domain.ts";
+import { TodoStatus } from "../../../schema.ts";
 
-export const parseTodoStatus = parseStringArg<TodoStatus>();
+export const todoStatusMap = {
+  [TodoStatus.Done]: Todo.Status.DONE,
+  [TodoStatus.Pending]: Todo.Status.PENDING,
+} as const;

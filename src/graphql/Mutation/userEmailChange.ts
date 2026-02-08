@@ -1,15 +1,15 @@
+import { User } from "../../domain.ts";
 import type { MutationResolvers, MutationUserEmailChangeArgs } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { parseUserEmail, USER_EMAIL_MAX } from "../_parsers/user/email.ts";
 import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     userEmailChange(
       """
-      ${USER_EMAIL_MAX}文字まで、既に存在する場合はエラー
+      ${User.Email.MAX}文字まで、既に存在する場合はエラー
       """
       email: String!
     ): UserEmailChangeResult @semanticNonNull @complexity(value: 5)
@@ -38,12 +38,7 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
     throw internalServerError();
   }
 
-  const changedUser: typeof user = {
-    ...user,
-    ...parsed,
-    updatedAt: new Date(),
-  };
-
+  const changedUser = User.changeEmail(user, parsed);
   const result = await ctx.repos.user.update(changedUser);
   switch (result) {
     case "Ok":
@@ -71,18 +66,15 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
 };
 
 const parseArgs = (args: MutationUserEmailChangeArgs) => {
-  const email = parseUserEmail(args, "email", {
-    optional: false,
-    nullable: false,
-  });
+  const email = parseEmail(args);
 
   if (
-    email instanceof ParseErr //
+    Array.isArray(email) //
   ) {
-    const errors = [];
+    const errors: ParseErr[] = [];
 
-    if (email instanceof ParseErr) {
-      errors.push(email);
+    if (Array.isArray(email)) {
+      errors.push(...email);
     }
 
     return errors;
@@ -91,15 +83,23 @@ const parseArgs = (args: MutationUserEmailChangeArgs) => {
   }
 };
 
+const parseEmail = (args: MutationUserEmailChangeArgs) => {
+  const email = User.Email.parse(args.email);
+
+  return Array.isArray(email)
+    ? email.map((e) => new ParseErr("email", e)) //
+    : email;
+};
+
 if (import.meta.vitest) {
   describe("Parsing", () => {
     const valids: MutationUserEmailChangeArgs[] = [
       { email: "email@email.com" },
-      { email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
+      { email: `${"A".repeat(User.Email.MAX - 10)}@email.com` },
     ];
 
     const invalids: [MutationUserEmailChangeArgs, (keyof MutationUserEmailChangeArgs)[]][] = [
-      [{ email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com` }, ["email"]],
+      [{ email: `${"A".repeat(User.Email.MAX - 10 + 1)}@email.com` }, ["email"]],
       [{ email: "emailemail.com" }, ["email"]],
     ];
 

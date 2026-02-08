@@ -1,4 +1,4 @@
-import { RefreshToken } from "../../domain/user-token.ts";
+import { RefreshToken } from "../../domain.ts";
 import type { MutationResolvers } from "../../schema.ts";
 import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
@@ -24,15 +24,15 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
     };
   }
 
-  if (!cookie || !RefreshToken.is(cookie.value)) {
+  if (!cookie || !RefreshToken.Token.is(cookie.value)) {
     return {
       __typename: "LogoutResult",
       success: true,
     };
   }
 
-  const hashed = await RefreshToken.hash(cookie.value);
-  const result = await context.repos.userToken.remove(hashed);
+  const hashed = await RefreshToken.Token.hash(cookie.value);
+  const result = await context.repos.refreshToken.remove(hashed);
   switch (result) {
     case "Ok":
       break;

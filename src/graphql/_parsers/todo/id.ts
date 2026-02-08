@@ -1,7 +1,7 @@
-import { TodoId } from "../../../domain/todo.ts";
+import { Todo } from "../../../domain.ts";
 import { parseSomeId } from "../someId.ts";
 
-export const parseTodoId = parseSomeId("Todo", TodoId.is);
+export const parseTodoId = parseSomeId("Todo", Todo.Id.is);
 
 if (import.meta.vitest) {
   const { nodeId } = await import("../../Node/id.ts");

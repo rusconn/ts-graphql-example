@@ -1,4 +1,4 @@
-import { RefreshToken } from "../../domain/user-token.ts";
+import { RefreshToken } from "../../domain.ts";
 import type { MutationResolvers } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refreshToken.ts";
@@ -26,7 +26,7 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
   if (!cookie) {
     throw badUserInputErr("Specify refresh token.");
   }
-  if (!RefreshToken.is(cookie.value)) {
+  if (!RefreshToken.Token.is(cookie.value)) {
     await deleteRefreshTokenCookie(context.request);
     return {
       __typename: "InvalidRefreshTokenError",
@@ -34,7 +34,7 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
     };
   }
 
-  const hashed = await RefreshToken.hash(cookie.value);
+  const hashed = await RefreshToken.Token.hash(cookie.value);
 
   const user = await context.queries.user.findByRefreshToken(hashed);
   if (!user) {
@@ -45,7 +45,7 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
     };
   }
 
-  const result = await context.repos.userToken.touch(hashed, new Date());
+  const result = await context.repos.refreshToken.touch(hashed, new Date());
   switch (result) {
     case "Ok":
       break;

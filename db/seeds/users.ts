@@ -3,7 +3,7 @@ import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
 import { type DB, type User, UserRole } from "../../src/db/types.ts";
-import { UserId } from "../../src/domain/user.ts";
+import * as Domain from "../../src/domain.ts";
 import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
 
 export const seed = async (trx: Transaction<DB>) => {
@@ -52,7 +52,7 @@ const fakeData = (numFakes: number) => {
 };
 
 const fakeDataOne = (nth: number): User => {
-  const id = UserId.gen();
+  const id = Domain.User.Id.create();
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
 
@@ -65,7 +65,7 @@ const fakeDataOne = (nth: number): User => {
       allowSpecialCharacters: true,
     }),
     role: UserRole.User,
-    createdAt: UserId.date(id),
+    createdAt: Domain.User.Id.date(id),
     updatedAt: faker.date.past(),
   };
 };

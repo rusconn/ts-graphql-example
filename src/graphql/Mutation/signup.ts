@@ -1,36 +1,27 @@
-import * as User from "../../domain/user.ts";
-import * as Credential from "../../domain/user-credential.ts";
-import * as UserToken from "../../domain/user-token.ts";
+import { Credential, RefreshToken, User } from "../../domain.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../../schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { authGuest } from "../_authorizers/guest.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { parseUserEmail, USER_EMAIL_MAX } from "../_parsers/user/email.ts";
-import { parseUserName, USER_NAME_MAX, USER_NAME_MIN } from "../_parsers/user/name.ts";
-import {
-  parseUserPassword,
-  USER_PASSWORD_MAX,
-  USER_PASSWORD_MIN,
-} from "../_parsers/user/password.ts";
 import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
     signup(
       """
-      ${USER_NAME_MIN}文字以上、${USER_NAME_MAX}文字まで
+      ${User.Name.MIN}文字以上、${User.Name.MAX}文字まで
       """
       name: String!
 
       """
-      ${USER_EMAIL_MAX}文字まで、既に存在する場合はエラー
+      ${User.Email.MAX}文字まで、既に存在する場合はエラー
       """
       email: String!
 
       """
-      ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
+      ${Credential.Password.MIN}文字以上、${Credential.Password.MAX}文字まで
       """
       password: String!
     ): SignupResult @semanticNonNull @complexity(value: 100)
@@ -54,9 +45,9 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     return invalidInputErrors(parsed);
   }
 
-  const user = await User.create(parsed);
-  const credential = await Credential.create({ userId: user.id, password: parsed.password });
-  const { rawToken, userToken } = await UserToken.create(user.id);
+  const user = User.create(parsed.user);
+  const credential = await Credential.create(user.id, parsed.credential);
+  const { rawRefreshToken, refreshToken } = await RefreshToken.create(user.id);
 
   {
     const trx = await ctx.db.startTransaction().execute();
@@ -78,7 +69,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
         throw new Error(result1 satisfies never);
     }
 
-    const result2 = await ctx.repos.userCredential.add(credential, trx);
+    const result2 = await ctx.repos.credential.add(credential, trx);
     switch (result2) {
       case "Ok":
         break;
@@ -89,7 +80,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
         throw new Error(result2 satisfies never);
     }
 
-    const result3 = await ctx.repos.userToken.add(userToken, trx);
+    const result3 = await ctx.repos.refreshToken.add(refreshToken, trx);
     switch (result3) {
       case "Ok":
         break;
@@ -103,7 +94,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     await trx.commit().execute();
   }
 
-  await setRefreshTokenCookie(ctx.request, rawToken);
+  await setRefreshTokenCookie(ctx.request, rawRefreshToken);
 
   return {
     __typename: "SignupSuccess",
@@ -112,40 +103,30 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
 };
 
 const parseArgs = (args: MutationSignupArgs) => {
-  const name = parseUserName(args, "name", {
-    optional: false,
-    nullable: false,
-  });
-  const email = parseUserEmail(args, "email", {
-    optional: false,
-    nullable: false,
-  });
-  const password = parseUserPassword(args, "password", {
-    optional: false,
-    nullable: false,
-  });
+  const user = User.parse(args);
+  const credential = Credential.parse(args);
 
   if (
-    name instanceof ParseErr || //
-    email instanceof ParseErr ||
-    password instanceof ParseErr
+    Array.isArray(user) || //
+    Array.isArray(credential)
   ) {
-    const errors = [];
+    const errors: ParseErr[] = [];
 
-    if (name instanceof ParseErr) {
-      errors.push(name);
+    if (Array.isArray(user)) {
+      errors.push(...fromParseErrors(user));
     }
-    if (email instanceof ParseErr) {
-      errors.push(email);
-    }
-    if (password instanceof ParseErr) {
-      errors.push(password);
+    if (Array.isArray(credential)) {
+      errors.push(...fromParseErrors(credential));
     }
 
     return errors;
   } else {
-    return { name, email, password };
+    return { user, credential };
   }
+};
+
+const fromParseErrors = (es: (User.ParseError | Credential.ParseError)[]) => {
+  return es.map((e) => new ParseErr(e.prop, e.type));
 };
 
 if (import.meta.vitest) {
@@ -157,16 +138,16 @@ if (import.meta.vitest) {
     };
 
     const invalidArgs: MutationSignupArgs = {
-      name: "A".repeat(USER_NAME_MAX + 1),
-      email: `${"A".repeat(USER_EMAIL_MAX - 10 + 1)}@email.com`,
-      password: "A".repeat(USER_PASSWORD_MIN - 1),
+      name: "A".repeat(User.Name.MAX + 1),
+      email: `${"A".repeat(User.Email.MAX - 10 + 1)}@email.com`,
+      password: "A".repeat(Credential.Password.MIN - 1),
     };
 
     const valids: MutationSignupArgs[] = [
       { ...validArgs },
-      { ...validArgs, name: "A".repeat(USER_NAME_MAX) },
-      { ...validArgs, email: `${"A".repeat(USER_EMAIL_MAX - 10)}@email.com` },
-      { ...validArgs, password: "A".repeat(USER_PASSWORD_MIN) },
+      { ...validArgs, name: "A".repeat(User.Name.MAX) },
+      { ...validArgs, email: `${"A".repeat(User.Email.MAX - 10)}@email.com` },
+      { ...validArgs, password: "A".repeat(Credential.Password.MIN) },
     ];
 
     const invalids: [MutationSignupArgs, (keyof MutationSignupArgs)[]][] = [

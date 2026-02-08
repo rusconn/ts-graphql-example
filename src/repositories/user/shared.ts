@@ -1,7 +1,7 @@
 import type { Kysely, Transaction } from "kysely";
 
 import { type DB, type User, UserRole } from "../../db/types.ts";
-import * as Domain from "../../domain/user.ts";
+import * as Domain from "../../domain.ts";
 import { isPgError, PgErrorCode } from "../../lib/pg/error.ts";
 
 export class UserRepoShared {
@@ -14,10 +14,10 @@ export class UserRepoShared {
   }
 
   async findByDbId(id: User["id"], trx?: Transaction<DB>) {
-    return await this.findById(id as Domain.User["id"], trx);
+    return await this.findById(id as Domain.User.Type["id"], trx);
   }
 
-  async findById(id: Domain.User["id"], trx?: Transaction<DB>) {
+  async findById(id: Domain.User.Type["id"], trx?: Transaction<DB>) {
     const user = await (trx ?? this.#db)
       .selectFrom("users")
       .where("users.id", "=", id)
@@ -29,7 +29,7 @@ export class UserRepoShared {
     return user && toDomain(user);
   }
 
-  async add(user: Domain.User, trx?: Transaction<DB>) {
+  async add(user: Domain.User.Type, trx?: Transaction<DB>) {
     if (this.#tenantId != null && user.id !== this.#tenantId) {
       throw new Error("Forbidden");
     }
@@ -56,7 +56,7 @@ export class UserRepoShared {
     }
   }
 
-  async update(user: Domain.User, trx?: Transaction<DB>) {
+  async update(user: Domain.User.Type, trx?: Transaction<DB>) {
     const dbUser = toDb(user);
 
     try {
@@ -81,7 +81,7 @@ export class UserRepoShared {
     }
   }
 
-  async remove(id: Domain.User["id"], trx?: Transaction<DB>) {
+  async remove(id: Domain.User.Type["id"], trx?: Transaction<DB>) {
     const result = await (trx ?? this.#db)
       .deleteFrom("users")
       .where("id", "=", id)
@@ -92,21 +92,21 @@ export class UserRepoShared {
   }
 }
 
-const toDb = ({ id, role, ...rest }: Domain.User): User => ({
+const toDb = ({ id, role, ...rest }: Domain.User.Type): User => ({
   ...rest,
   id,
   role: {
-    [Domain.UserRole.ADMIN]: UserRole.Admin,
-    [Domain.UserRole.USER]: UserRole.User,
+    [Domain.User.Role.ADMIN]: UserRole.Admin,
+    [Domain.User.Role.USER]: UserRole.User,
   }[role],
 });
 
-const toDomain = ({ id, email, role, ...rest }: User): Domain.User => ({
+const toDomain = ({ id, email, role, ...rest }: User): Domain.User.Type => ({
   ...rest,
-  id: id as Domain.User["id"],
-  email: email as Domain.User["email"],
+  id: id as Domain.User.Type["id"],
+  email: email as Domain.User.Type["email"],
   role: {
-    [UserRole.Admin]: Domain.UserRole.ADMIN,
-    [UserRole.User]: Domain.UserRole.USER,
+    [UserRole.Admin]: Domain.User.Role.ADMIN,
+    [UserRole.User]: Domain.User.Role.USER,
   }[role],
 });

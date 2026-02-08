@@ -37,5 +37,5 @@ export const graph = {
 export { db };
 
 export const dummyId = () => {
-  return userId(UserId.gen());
+  return userId(UserId.create());
 };

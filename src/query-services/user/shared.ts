@@ -1,6 +1,6 @@
 import type { Kysely } from "kysely";
 
-import type { DB, User, UserToken } from "../../db/types.ts";
+import type { DB, User, RefreshToken } from "../../db/types.ts";
 import * as UserLoader from "./loaders/user.ts";
 
 export class UserQueryShared {
@@ -27,11 +27,11 @@ export class UserQueryShared {
     return user;
   }
 
-  async findByRefreshToken(refreshToken: UserToken["refreshToken"]) {
+  async findByRefreshToken(refreshToken: RefreshToken["token"]) {
     const user = await this.#db
       .selectFrom("users")
-      .innerJoin("userTokens", "users.id", "userTokens.userId")
-      .where("refreshToken", "=", refreshToken)
+      .innerJoin("refreshTokens", "users.id", "refreshTokens.userId")
+      .where("token", "=", refreshToken)
       .$if(this.#tenantId != null, (qb) => qb.where("users.id", "=", this.#tenantId!))
       .selectAll("users")
       .executeTakeFirst();

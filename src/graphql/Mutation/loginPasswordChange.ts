@@ -1,13 +1,8 @@
-import { UserPassword } from "../../domain/user-credential.ts";
+import { Credential } from "../../domain.ts";
 import type { MutationLoginPasswordChangeArgs, MutationResolvers } from "../../schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import {
-  parseUserPassword,
-  USER_PASSWORD_MAX,
-  USER_PASSWORD_MIN,
-} from "../_parsers/user/password.ts";
 import { invalidInputErrors, ParseErr } from "../_parsers/util.ts";
 import { userId } from "../User/id.ts";
 
@@ -15,12 +10,12 @@ export const typeDef = /* GraphQL */ `
   extend type Mutation {
     loginPasswordChange(
       """
-      ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
+      ${Credential.Password.MIN}文字以上、${Credential.Password.MAX}文字まで
       """
       oldPassword: String!
 
       """
-      ${USER_PASSWORD_MIN}文字以上、${USER_PASSWORD_MAX}文字まで
+      ${Credential.Password.MIN}文字以上、${Credential.Password.MAX}文字まで
       """
       newPassword: String!
     ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100)
@@ -60,7 +55,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     return invalidInputErrors(parsed);
   }
 
-  const credential = await ctx.repos.userCredential.findByDbId(ctx.user.id);
+  const credential = await ctx.repos.credential.findByDbId(ctx.user.id);
   if (!credential) {
     throw internalServerError();
   }
@@ -73,7 +68,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     };
   }
 
-  const match = await UserPassword.match(oldPassword, credential.password);
+  const match = await Credential.Password.match(oldPassword, credential.password);
   if (!match) {
     return {
       __typename: "IncorrectOldPasswordError",
@@ -81,13 +76,8 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     };
   }
 
-  const hashedPassword = await UserPassword.hash(newPassword);
-  const updatedUser: typeof credential = {
-    ...credential,
-    password: hashedPassword,
-  };
-
-  const result = await ctx.repos.userCredential.update(updatedUser);
+  const changedCredential = await Credential.changePassword(credential, newPassword);
+  const result = await ctx.repos.credential.update(changedCredential);
   switch (result) {
     case "Ok":
       break;
@@ -104,26 +94,20 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
 };
 
 const parseArgs = (args: MutationLoginPasswordChangeArgs) => {
-  const oldPassword = parseUserPassword(args, "oldPassword", {
-    optional: false,
-    nullable: false,
-  });
-  const newPassword = parseUserPassword(args, "newPassword", {
-    optional: false,
-    nullable: false,
-  });
+  const oldPassword = parseOldPassword(args);
+  const newPassword = parseNewPassword(args);
 
   if (
-    oldPassword instanceof ParseErr || //
-    newPassword instanceof ParseErr
+    Array.isArray(oldPassword) || //
+    Array.isArray(newPassword)
   ) {
-    const errors = [];
+    const errors: ParseErr[] = [];
 
-    if (oldPassword instanceof ParseErr) {
-      errors.push(oldPassword);
+    if (Array.isArray(oldPassword)) {
+      errors.push(...oldPassword);
     }
-    if (newPassword instanceof ParseErr) {
-      errors.push(newPassword);
+    if (Array.isArray(newPassword)) {
+      errors.push(...newPassword);
     }
 
     return errors;
@@ -132,33 +116,55 @@ const parseArgs = (args: MutationLoginPasswordChangeArgs) => {
   }
 };
 
+const parseOldPassword = (args: MutationLoginPasswordChangeArgs) => {
+  const result = Credential.Password.parse(args.oldPassword);
+
+  return Array.isArray(result)
+    ? result.map((e) => new ParseErr("oldPassword", e)) //
+    : result;
+};
+
+const parseNewPassword = (args: MutationLoginPasswordChangeArgs) => {
+  const result = Credential.Password.parse(args.newPassword);
+
+  return Array.isArray(result)
+    ? result.map((e) => new ParseErr("newPassword", e)) //
+    : result;
+};
+
 if (import.meta.vitest) {
   describe("Parsing", () => {
     const valids: MutationLoginPasswordChangeArgs[] = [
-      { oldPassword: "password", newPassword: "password2" },
-      { oldPassword: "A".repeat(USER_PASSWORD_MIN), newPassword: "B".repeat(USER_PASSWORD_MIN) },
+      {
+        oldPassword: "password",
+        newPassword: "password2",
+      },
+      {
+        oldPassword: "A".repeat(Credential.Password.MIN),
+        newPassword: "B".repeat(Credential.Password.MIN),
+      },
     ];
 
     const invalids: [MutationLoginPasswordChangeArgs, (keyof MutationLoginPasswordChangeArgs)[]][] =
       [
         [
           {
-            oldPassword: "A".repeat(USER_PASSWORD_MIN - 1),
-            newPassword: "A".repeat(USER_PASSWORD_MAX),
+            oldPassword: "A".repeat(Credential.Password.MIN - 1),
+            newPassword: "A".repeat(Credential.Password.MAX),
           },
           ["oldPassword"],
         ],
         [
           {
-            oldPassword: "A".repeat(USER_PASSWORD_MIN),
-            newPassword: "A".repeat(USER_PASSWORD_MAX + 1),
+            oldPassword: "A".repeat(Credential.Password.MIN),
+            newPassword: "A".repeat(Credential.Password.MAX + 1),
           },
           ["newPassword"],
         ],
         [
           {
-            oldPassword: "A".repeat(USER_PASSWORD_MAX + 1),
-            newPassword: "A".repeat(USER_PASSWORD_MIN - 1),
+            oldPassword: "A".repeat(Credential.Password.MAX + 1),
+            newPassword: "A".repeat(Credential.Password.MIN - 1),
           },
           ["oldPassword", "newPassword"],
         ],

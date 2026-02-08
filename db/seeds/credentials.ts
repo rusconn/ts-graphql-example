@@ -1,11 +1,11 @@
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import type { DB, User, UserCredential } from "../../src/db/types.ts";
+import type { DB, User, Credential } from "../../src/db/types.ts";
 import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
 
 export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
-  const handUserCredentials: UserCredential[] = [
+  const handCredentials: Credential[] = [
     {
       userId: "0193cb3e-4379-750f-880f-77afae342259" as Uuidv7,
       /** raw: adminadmin */
@@ -23,13 +23,13 @@ export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
     },
   ];
 
-  const fakeUserCredentials = fakeData(userIds);
+  const fakeCredentials = fakeData(userIds);
 
-  const userCredentials = [...handUserCredentials, ...fakeUserCredentials];
+  const credentials = [...handCredentials, ...fakeCredentials];
 
   // 一度に insert する件数が多いとエラーが発生するので小分けにしている
-  const chunks = chunk(userCredentials, 5_000);
-  const inserts = chunks.map((ucs) => trx.insertInto("userCredentials").values(ucs).execute());
+  const chunks = chunk(credentials, 5_000);
+  const inserts = chunks.map((cs) => trx.insertInto("credentials").values(cs).execute());
 
   await Promise.all(inserts);
 };
@@ -38,7 +38,7 @@ const fakeData = (userIds: User["id"][]) => {
   return userIds.map(fakeDataOne);
 };
 
-const fakeDataOne = (userId: User["id"]): UserCredential => {
+const fakeDataOne = (userId: User["id"]): Credential => {
   return {
     userId,
     password: "dummy",
