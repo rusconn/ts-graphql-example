@@ -1,11 +1,11 @@
-import { EntityNotFoundError } from "../../domain/repos/_shared/errors.ts";
+import { EntityNotFoundError } from "../../domain/unit-of-works/_shared/errors.ts";
 import { unwrapOrElse } from "../../util/neverthrow.ts";
-import type { MutationResolvers } from "../_schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
+import type { MutationResolvers } from "../_schema.ts";
 import { todoId } from "../Todo/id.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -31,8 +31,8 @@ export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, c
   });
 
   try {
-    await ctx.kysely.transaction().execute(async (trx) => {
-      await ctx.repos.todo.remove(id, trx);
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.todo.remove(id);
     });
   } catch (e) {
     if (e instanceof EntityNotFoundError) {

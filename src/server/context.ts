@@ -2,25 +2,23 @@ import type { YogaInitialContext } from "graphql-yoga";
 import type { OverrideProperties } from "type-fest";
 import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 
-import type { kysely } from "../infra/datasources/db/client.ts";
+import type { ITodoReaderRepoForAdmin } from "../domain/repos-for-read/for-admin/todo.ts";
+import type { IUserReaderRepoForAdmin } from "../domain/repos-for-read/for-admin/user.ts";
+import type { ITodoReaderRepoForUser } from "../domain/repos-for-read/for-user/todo.ts";
+import type { IUserReaderRepoForUser } from "../domain/repos-for-read/for-user/user.ts";
+import type { IUnitOfWorkForAdmin } from "../domain/unit-of-works/for-admin.ts";
+import type { IUnitOfWorkForGuest } from "../domain/unit-of-works/for-guest.ts";
+import type { IUnitOfWorkForUser } from "../domain/unit-of-works/for-user.ts";
 import type * as Dto from "../graphql/_dto.ts";
-import type { logger } from "./logger.ts";
-import type { ITodoRepoForAdmin } from "../domain/repos/todo/for-admin.ts";
-import type { IUserRepoForAdmin } from "../domain/repos/user/for-admin.ts";
-import type { IRefreshTokenRepoForAdmin } from "../domain/repos/refresh-token/for-admin.ts";
-import type { ITodoRepoForUser } from "../domain/repos/todo/for-user.ts";
-import type { IUserRepoForUser } from "../domain/repos/user/for-user.ts";
-import type { IRefreshTokenRepoForUser } from "../domain/repos/refresh-token/for-user.ts";
-import type { IUserRepoForGuest } from "../domain/repos/user/for-guest.ts";
-import type { IRefreshTokenRepoForGuest } from "../domain/repos/refresh-token/for-guest.ts";
-import type { IUserQueryForGuest } from "../graphql/_queries/user/for-guest.ts";
-import type { ICredentialQueryForGuest } from "../graphql/_queries/credential/for-guest.ts";
-import type { ITodoQueryForUser } from "../graphql/_queries/todo/for-user.ts";
-import type { IUserQueryForUser } from "../graphql/_queries/user/for-user.ts";
-import type { ICredentialQueryForUser } from "../graphql/_queries/credential/for-user.ts";
-import type { IUserQueryForAdmin } from "../graphql/_queries/user/for-admin.ts";
-import type { ITodoQueryForAdmin } from "../graphql/_queries/todo/for-admin.ts";
 import type { ICredentialQueryForAdmin } from "../graphql/_queries/credential/for-admin.ts";
+import type { ICredentialQueryForGuest } from "../graphql/_queries/credential/for-guest.ts";
+import type { ICredentialQueryForUser } from "../graphql/_queries/credential/for-user.ts";
+import type { ITodoQueryForAdmin } from "../graphql/_queries/todo/for-admin.ts";
+import type { ITodoQueryForUser } from "../graphql/_queries/todo/for-user.ts";
+import type { IUserQueryForAdmin } from "../graphql/_queries/user/for-admin.ts";
+import type { IUserQueryForGuest } from "../graphql/_queries/user/for-guest.ts";
+import type { IUserQueryForUser } from "../graphql/_queries/user/for-user.ts";
+import type { logger } from "./logger.ts";
 
 export type Context = ServerContext & PluginContext & YogaInitialContext & UserContext;
 
@@ -46,10 +44,10 @@ type ContextForAdmin = ContextBase & {
     user: IUserQueryForAdmin;
   };
   repos: {
-    todo: ITodoRepoForAdmin;
-    user: IUserRepoForAdmin;
-    refreshToken: IRefreshTokenRepoForAdmin;
+    todo: ITodoReaderRepoForAdmin;
+    user: IUserReaderRepoForAdmin;
   };
+  unitOfWork: IUnitOfWorkForAdmin;
 };
 
 type ContextForUser = ContextBase & {
@@ -61,10 +59,10 @@ type ContextForUser = ContextBase & {
     user: IUserQueryForUser;
   };
   repos: {
-    todo: ITodoRepoForUser;
-    user: IUserRepoForUser;
-    refreshToken: IRefreshTokenRepoForUser;
+    todo: ITodoReaderRepoForUser;
+    user: IUserReaderRepoForUser;
   };
+  unitOfWork: IUnitOfWorkForUser;
 };
 
 type ContextForGuest = ContextBase & {
@@ -74,14 +72,10 @@ type ContextForGuest = ContextBase & {
     credential: ICredentialQueryForGuest;
     user: IUserQueryForGuest;
   };
-  repos: {
-    user: IUserRepoForGuest;
-    refreshToken: IRefreshTokenRepoForGuest;
-  };
+  unitOfWork: IUnitOfWorkForGuest;
 };
 
 export type ContextBase = {
   start: ReturnType<typeof Date.now>;
   logger: ReturnType<typeof logger.child>;
-  kysely: typeof kysely;
 };

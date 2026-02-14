@@ -1,4 +1,4 @@
-import * as TodoRepo from "../../../src/infra/repos/db/todo/shared.ts";
+import * as TodoRepo from "../../../src/infra/unit-of-works/db/_shared/todo.ts";
 
 import { db as todos } from "../db/todos.ts";
 

@@ -1,9 +1,9 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { DB, User } from "../../../../datasources/_shared/types.ts";
 import type { Key } from "../../../../../graphql/_queries/todo/loaders/userTodo.ts";
 import { sort } from "../../../../../lib/dataloader/sort.ts";
+import type { DB, User } from "../../../../datasources/_shared/types.ts";
 
 export type { Key };
 

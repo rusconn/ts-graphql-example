@@ -1,9 +1,9 @@
-import type { UserResolvers } from "../_schema.ts";
+import { unwrapOrElse } from "../../util/neverthrow.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
-import { unwrapOrElse } from "../../util/neverthrow.ts";
+import type { UserResolvers } from "../_schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {

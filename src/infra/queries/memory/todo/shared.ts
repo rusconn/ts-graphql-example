@@ -1,7 +1,7 @@
 import type { Kysely } from "kysely";
 
-import type { DB, Todo, User } from "../../../datasources/_shared/types.ts";
 import * as Dto from "../../../../graphql/_dto.ts";
+import type { DB, Todo, User } from "../../../datasources/_shared/types.ts";
 import * as UserTodoLoader from "./loaders/userTodo.ts";
 import * as UserTodoCountLoader from "./loaders/userTodoCount.ts";
 import * as UserTodosLoader from "./loaders/userTodos.ts";

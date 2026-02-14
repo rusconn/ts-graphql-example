@@ -1,12 +1,12 @@
 import { Result } from "neverthrow";
 
 import { User } from "../../domain/models.ts";
-import type { MutationLoginPasswordChangeArgs, MutationResolvers } from "../_schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { invalidInputErrors } from "../_parsers/shared/errors.ts";
 import { parseUserPassword } from "../_parsers/user/password.ts";
+import type { MutationLoginPasswordChangeArgs, MutationResolvers } from "../_schema.ts";
+import { invalidInputErrors } from "../_shared/errors.ts";
 import { userId } from "../User/id.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -81,8 +81,8 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
 
   const changedUser = await User.changePassword(user, newPassword);
   try {
-    await ctx.kysely.transaction().execute(async (trx) => {
-      await ctx.repos.user.update(changedUser, trx);
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.user.update(changedUser);
     });
   } catch (e) {
     throw internalServerError(e);

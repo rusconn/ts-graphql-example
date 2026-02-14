@@ -1,12 +1,28 @@
 import { createSchema, createYoga } from "graphql-yoga";
 
 import { endpoint } from "../config/url.ts";
-import type { ContextBase, PluginContext, ServerContext, UserContext } from "./context.ts";
-import { kysely } from "../infra/datasources/db/client.ts";
 import { authenticationErr } from "../graphql/_errors/authenticationError.ts";
 import { badUserInputErr } from "../graphql/_errors/badUserInput.ts";
 import { tokenExpiredErr } from "../graphql/_errors/tokenExpired.ts";
+import { kysely } from "../infra/datasources/db/client.ts";
+import { CredentialQueryForAdmin } from "../infra/queries/db/credential/for-admin.ts";
+import { CredentialQueryForGuest } from "../infra/queries/db/credential/for-guest.ts";
+import { CredentialQueryForUser } from "../infra/queries/db/credential/for-user.ts";
+import { TodoQueryForAdmin } from "../infra/queries/db/todo/for-admin.ts";
+import { TodoQueryForUser } from "../infra/queries/db/todo/for-user.ts";
+import { UserQueryForAdmin } from "../infra/queries/db/user/for-admin.ts";
+import { UserQueryForGuest } from "../infra/queries/db/user/for-guest.ts";
+import { UserQueryForUser } from "../infra/queries/db/user/for-user.ts";
+import { TodoReaderRepoForAdmin } from "../infra/repos-for-read/db/for-admin/todo.ts";
+import { UserReaderRepoForAdmin } from "../infra/repos-for-read/db/for-admin/user.ts";
+import { TodoReaderRepoForUser } from "../infra/repos-for-read/db/for-user/todo.ts";
+import { UserReaderRepoForUser } from "../infra/repos-for-read/db/for-user/user.ts";
+import { UnitOfWorkForAdmin } from "../infra/unit-of-works/db/for-admin.ts";
+import { UnitOfWorkForGuest } from "../infra/unit-of-works/db/for-guest.ts";
+import { UnitOfWorkForUser } from "../infra/unit-of-works/db/for-user.ts";
 import { renderApolloStudio } from "../lib/graphql-yoga/renderApolloStudio.ts";
+import { type Payload, verifyJwt } from "../util/accessToken.ts";
+import type { ContextBase, PluginContext, ServerContext, UserContext } from "./context.ts";
 import { logger } from "./logger.ts";
 import { armor } from "./plugins/armor.ts";
 import { complexity } from "./plugins/complexity.ts";
@@ -16,25 +32,8 @@ import { introspection } from "./plugins/introspection.ts";
 import { logging } from "./plugins/logging.ts";
 import { readinessCheck } from "./plugins/readinessCheck.ts";
 import { requestId } from "./plugins/requestId.ts";
-import { TodoQueryForAdmin } from "../infra/queries/db/todo/for-admin.ts";
-import { TodoQueryForUser } from "../infra/queries/db/todo/for-user.ts";
-import { UserQueryForAdmin } from "../infra/queries/db/user/for-admin.ts";
-import { UserQueryForGuest } from "../infra/queries/db/user/for-guest.ts";
-import { UserQueryForUser } from "../infra/queries/db/user/for-user.ts";
-import { TodoRepoForAdmin } from "../infra/repos/db/todo/for-admin.ts";
-import { TodoRepoForUser } from "../infra/repos/db/todo/for-user.ts";
-import { UserRepoForAdmin } from "../infra/repos/db/user/for-admin.ts";
-import { UserRepoForGuest } from "../infra/repos/db/user/for-guest.ts";
-import { UserRepoForUser } from "../infra/repos/db/user/for-user.ts";
-import { RefreshTokenRepoForAdmin } from "../infra/repos/db/refresh-token/for-admin.ts";
-import { RefreshTokenRepoForGuest } from "../infra/repos/db/refresh-token/for-guest.ts";
-import { RefreshTokenRepoForUser } from "../infra/repos/db/refresh-token/for-user.ts";
 import { resolvers } from "./resolvers.ts";
 import { typeDefs } from "./typeDefs.ts";
-import { type Payload, verifyJwt } from "../util/accessToken.ts";
-import { CredentialQueryForAdmin } from "../infra/queries/db/credential/for-admin.ts";
-import { CredentialQueryForUser } from "../infra/queries/db/credential/for-user.ts";
-import { CredentialQueryForGuest } from "../infra/queries/db/credential/for-guest.ts";
 
 export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
   renderGraphiQL: () => renderApolloStudio(endpoint),
@@ -73,7 +72,6 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
     const contextBase: ContextBase = {
       start,
       logger: logger.child({ requestId }),
-      kysely,
     };
 
     switch (user?.role) {
@@ -88,10 +86,10 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
             user: new UserQueryForAdmin(kysely),
           },
           repos: {
-            todo: new TodoRepoForAdmin(kysely, user.id),
-            user: new UserRepoForAdmin(kysely, user.id),
-            refreshToken: new RefreshTokenRepoForAdmin(kysely, user.id),
+            todo: new TodoReaderRepoForAdmin(kysely, user.id),
+            user: new UserReaderRepoForAdmin(kysely, user.id),
           },
+          unitOfWork: new UnitOfWorkForAdmin(kysely, user.id),
         };
       case "USER":
         return {
@@ -104,10 +102,10 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
             user: new UserQueryForUser(kysely, user.id),
           },
           repos: {
-            todo: new TodoRepoForUser(kysely, user.id),
-            user: new UserRepoForUser(kysely, user.id),
-            refreshToken: new RefreshTokenRepoForUser(kysely, user.id),
+            todo: new TodoReaderRepoForUser(kysely, user.id),
+            user: new UserReaderRepoForUser(kysely, user.id),
           },
+          unitOfWork: new UnitOfWorkForUser(kysely, user.id),
         };
       case undefined:
         return {
@@ -118,10 +116,7 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
             credential: new CredentialQueryForGuest(kysely),
             user: new UserQueryForGuest(kysely),
           },
-          repos: {
-            user: new UserRepoForGuest(kysely),
-            refreshToken: new RefreshTokenRepoForGuest(kysely),
-          },
+          unitOfWork: new UnitOfWorkForGuest(kysely),
         };
       default:
         throw new Error(user satisfies never);

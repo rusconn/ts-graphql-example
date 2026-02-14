@@ -1,12 +1,12 @@
 import { Result } from "neverthrow";
 
 import { User } from "../../domain/models.ts";
-import type { MutationAccountUpdateArgs, MutationResolvers } from "../_schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { invalidInputErrors } from "../_parsers/shared/errors.ts";
 import { parseUserName } from "../_parsers/user/name.ts";
+import type { MutationAccountUpdateArgs, MutationResolvers } from "../_schema.ts";
+import { invalidInputErrors } from "../_shared/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -43,8 +43,8 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
 
   const updatedUser = User.updateAccount(user, parsed.value);
   try {
-    await ctx.kysely.transaction().execute(async (trx) => {
-      await ctx.repos.user.update(updatedUser, trx);
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.user.update(updatedUser);
     });
   } catch (e) {
     throw internalServerError(e);

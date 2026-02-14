@@ -1,7 +1,7 @@
 import { Result } from "neverthrow";
 
-import * as Db from "../../infra/datasources/_shared/types.ts";
 import * as Domain from "../../domain/models.ts";
+import * as Db from "../../infra/datasources/_shared/types.ts";
 
 export type Type = Pick<
   Domain.Todo.Type,

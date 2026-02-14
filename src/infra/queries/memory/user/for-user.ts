@@ -1,9 +1,9 @@
 import type { Kysely } from "kysely";
 
+import type { IUserQueryForUser } from "../../../../graphql/_queries/user/for-user.ts";
 import type { DB, RefreshToken, User } from "../../../datasources/_shared/types.ts";
 import type * as UserLoader from "./loaders/user.ts";
 import { UserQueryShared } from "./shared.ts";
-import type { IUserQueryForUser } from "../../../../graphql/_queries/user/for-user.ts";
 
 export class UserQueryForUser implements IUserQueryForUser {
   #shared;

@@ -1,6 +1,6 @@
 import { err, ok, type Result } from "neverthrow";
 
-import { invalidFormatError, type InvalidFormatError } from "./parse-errors.ts";
+import { type InvalidFormatError, invalidFormatError } from "./parse-errors.ts";
 
 export const parseHashed = <Hashed>(input: string): Result<Hashed, ParseHashedError> => {
   if (!BCRYPT_REGEX.test(input)) {

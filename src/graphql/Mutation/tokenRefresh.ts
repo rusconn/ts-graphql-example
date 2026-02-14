@@ -1,9 +1,9 @@
 import { RefreshToken } from "../../domain/models.ts";
-import type { MutationResolvers } from "../_schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
+import type { MutationResolvers } from "../_schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -46,8 +46,8 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
   }
 
   try {
-    await context.kysely.transaction().execute(async (trx) => {
-      await context.repos.refreshToken.touch(hashed, new Date(), trx);
+    await context.unitOfWork.run(async (repos) => {
+      await repos.refreshToken.touch(hashed, new Date());
     });
   } catch (e) {
     throw internalServerError(e);

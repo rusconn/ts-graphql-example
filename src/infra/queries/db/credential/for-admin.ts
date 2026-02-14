@@ -1,8 +1,8 @@
 import type { Kysely } from "kysely";
 
-import type { DB } from "../../../datasources/_shared/types.ts";
 import type * as Domain from "../../../../domain/models.ts";
 import type { ICredentialQueryForAdmin } from "../../../../graphql/_queries/credential/for-admin.ts";
+import type { DB } from "../../../datasources/_shared/types.ts";
 import { CredentialQueryShared } from "./shared.ts";
 
 export class CredentialQueryForAdmin implements ICredentialQueryForAdmin {

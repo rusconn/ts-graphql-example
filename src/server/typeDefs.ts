@@ -1,4 +1,3 @@
-import * as Directives from "./directives.ts";
 import * as DateTime from "../graphql/DateTime.ts";
 import * as EmailAddress from "../graphql/EmailAddress.ts";
 import * as EmailAlreadyTakenError from "../graphql/EmailAlreadyTakenError.ts";
@@ -14,6 +13,7 @@ import * as ResourceLimitExceededError from "../graphql/ResourceLimitExceededErr
 import * as ResourceNotFoundError from "../graphql/ResourceNotFoundError.ts";
 import * as Todo from "../graphql/Todo/_mod.ts";
 import * as User from "../graphql/User/_mod.ts";
+import * as Directives from "./directives.ts";
 
 export const typeDefs = [
   Directives.typeDefs,

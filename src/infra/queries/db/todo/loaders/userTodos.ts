@@ -1,10 +1,10 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type { DB } from "../../../../datasources/_shared/types.ts";
+import type * as Domain from "../../../../../domain/models.ts";
 import type { Key } from "../../../../../graphql/_queries/todo/loaders/userTodos.ts";
 import { sortGroup } from "../../../../../lib/dataloader/sortGroup.ts";
-import type * as Domain from "../../../../../domain/models.ts";
+import type { DB } from "../../../../datasources/_shared/types.ts";
 
 export type { Key };
 

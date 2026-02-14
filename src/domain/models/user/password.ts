@@ -7,8 +7,8 @@ import { numChars } from "../../../lib/string/numChars.ts";
 import * as Bcrypt from "../_shared/bcrypt.ts";
 import {
   type StringLengthTooLongError,
-  stringLengthTooLongError,
   type StringLengthTooShortError,
+  stringLengthTooLongError,
   stringLengthTooShortError,
 } from "../_shared/parse-errors.ts";
 

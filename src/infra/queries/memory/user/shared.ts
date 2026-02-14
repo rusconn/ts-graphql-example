@@ -1,7 +1,7 @@
 import type { Kysely } from "kysely";
 
-import type { DB, RefreshToken, User } from "../../../datasources/_shared/types.ts";
 import * as Dto from "../../../../graphql/_dto.ts";
+import type { DB, RefreshToken, User } from "../../../datasources/_shared/types.ts";
 import * as UserLoader from "./loaders/user.ts";
 
 export class UserQueryShared {

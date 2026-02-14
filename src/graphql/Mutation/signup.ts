@@ -1,17 +1,17 @@
 import { Result } from "neverthrow";
 
-import { EmailAlreadyExistsError } from "../../domain/repos/user/errors.ts";
 import { RefreshToken, User } from "../../domain/models.ts";
-import type { MutationResolvers, MutationSignupArgs } from "../_schema.ts";
+import { EmailAlreadyExistsError } from "../../domain/unit-of-works/_shared/errors.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { authGuest } from "../_authorizers/guest.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { invalidInputErrors } from "../_parsers/shared/errors.ts";
-import { parseUserName } from "../_parsers/user/name.ts";
 import { parseUserEmail } from "../_parsers/user/email.ts";
+import { parseUserName } from "../_parsers/user/name.ts";
 import { parseUserPassword } from "../_parsers/user/password.ts";
+import type { MutationResolvers, MutationSignupArgs } from "../_schema.ts";
+import { invalidInputErrors } from "../_shared/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -54,9 +54,9 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   const user = await User.create(parsed.value);
   const { rawRefreshToken, refreshToken } = await RefreshToken.create(user.id);
   try {
-    await ctx.kysely.transaction().execute(async (trx) => {
-      await ctx.repos.user.add(user, trx);
-      await ctx.repos.refreshToken.add(refreshToken, trx);
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.user.add(user);
+      await repos.refreshToken.add(refreshToken);
     });
   } catch (e) {
     if (e instanceof EmailAlreadyExistsError) {

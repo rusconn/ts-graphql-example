@@ -1,10 +1,10 @@
 import type { Kysely } from "kysely";
 
-import type { DB } from "../../../datasources/_shared/types.ts";
+import type * as Domain from "../../../../domain/models.ts";
 import * as Dto from "../../../../graphql/_dto.ts";
 import type { IUserQueryForGuest } from "../../../../graphql/_queries/user/for-guest.ts";
+import type { DB } from "../../../datasources/_shared/types.ts";
 import { UserQueryShared } from "./shared.ts";
-import type * as Domain from "../../../../domain/models.ts";
 
 export class UserQueryForGuest implements IUserQueryForGuest {
   #shared;

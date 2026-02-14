@@ -1,9 +1,9 @@
 import type { Kysely } from "kysely";
 
-import type { DB } from "../../../datasources/_shared/types.ts";
-import * as Dto from "../../../../graphql/_dto.ts";
-import * as UserLoader from "./loaders/user.ts";
 import type * as Domain from "../../../../domain/models.ts";
+import * as Dto from "../../../../graphql/_dto.ts";
+import type { DB } from "../../../datasources/_shared/types.ts";
+import * as UserLoader from "./loaders/user.ts";
 
 export class UserQueryShared {
   #db;

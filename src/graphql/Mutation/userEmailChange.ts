@@ -1,13 +1,13 @@
 import { Result } from "neverthrow";
 
 import { User } from "../../domain/models.ts";
-import type { MutationResolvers, MutationUserEmailChangeArgs } from "../_schema.ts";
+import { EmailAlreadyExistsError } from "../../domain/unit-of-works/_shared/errors.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { invalidInputErrors } from "../_parsers/shared/errors.ts";
 import { parseUserEmail } from "../_parsers/user/email.ts";
-import { EmailAlreadyExistsError } from "../../domain/repos/user/errors.ts";
+import type { MutationResolvers, MutationUserEmailChangeArgs } from "../_schema.ts";
+import { invalidInputErrors } from "../_shared/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -44,8 +44,8 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
 
   const changedUser = User.changeEmail(user, parsed.value.email);
   try {
-    await ctx.kysely.transaction().execute(async (trx) => {
-      await ctx.repos.user.update(changedUser, trx);
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.user.update(changedUser);
     });
   } catch (e) {
     if (e instanceof EmailAlreadyExistsError) {

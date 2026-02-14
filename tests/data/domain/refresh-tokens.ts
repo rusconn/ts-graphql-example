@@ -1,4 +1,4 @@
-import * as RefreshTokenRepo from "../../../src/infra/repos/db/refresh-token/shared.ts";
+import * as RefreshTokenRepo from "../../../src/infra/unit-of-works/db/_shared/refresh-token.ts";
 
 import { db as refreshTokens } from "../db/refresh-tokens.ts";
 

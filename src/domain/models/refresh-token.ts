@@ -1,8 +1,8 @@
 import { Result } from "neverthrow";
+import type { Tagged } from "type-fest";
 
 import * as Token from "./refresh-token/token.ts";
 import * as User from "./user.ts";
-import type { Tagged } from "type-fest";
 
 export { Token };
 

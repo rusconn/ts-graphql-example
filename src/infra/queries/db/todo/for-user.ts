@@ -1,12 +1,12 @@
 import type { Kysely } from "kysely";
 
-import type { DB } from "../../../datasources/_shared/types.ts";
+import type * as Domain from "../../../../domain/models.ts";
 import type { ITodoQueryForUser } from "../../../../graphql/_queries/todo/for-user.ts";
+import type { DB } from "../../../datasources/_shared/types.ts";
 import type * as UserTodoLoader from "./loaders/userTodo.ts";
 import type * as UserTodoCountLoader from "./loaders/userTodoCount.ts";
 import type * as UserTodosLoader from "./loaders/userTodos.ts";
 import { TodoQueryShared } from "./shared.ts";
-import type * as Domain from "../../../../domain/models.ts";
 
 export class TodoQueryForUser implements ITodoQueryForUser {
   #shared;

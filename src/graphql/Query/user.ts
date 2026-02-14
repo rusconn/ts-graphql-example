@@ -1,9 +1,9 @@
-import type { QueryResolvers } from "../_schema.ts";
+import { unwrapOrElse } from "../../util/neverthrow.ts";
 import { authAdmin } from "../_authorizers/admin.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { parseUserId } from "../_parsers/user/id.ts";
-import { unwrapOrElse } from "../../util/neverthrow.ts";
+import type { QueryResolvers } from "../_schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {

@@ -1,8 +1,8 @@
 import type { Kysely } from "kysely";
 
-import type { DB, RefreshToken, User } from "../../../datasources/_shared/types.ts";
 import * as Dto from "../../../../graphql/_dto.ts";
 import type { IUserQueryForAdmin } from "../../../../graphql/_queries/user/for-admin.ts";
+import type { DB, RefreshToken, User } from "../../../datasources/_shared/types.ts";
 import type * as UserLoader from "./loaders/user.ts";
 import { UserQueryShared } from "./shared.ts";
 

@@ -6,8 +6,8 @@ import {
 import type { Plugin } from "graphql-yoga";
 
 import { maxComplexity } from "../../config/security.ts";
-import type { PluginContext } from "../context.ts";
 import { queryTooComplexErr } from "../../graphql/_errors/queryTooComplex.ts";
+import type { PluginContext } from "../context.ts";
 
 export const complexity: Plugin<PluginContext> = {
   onValidate({ context, addValidationRule }) {

@@ -1,5 +1,5 @@
 import { RefreshToken } from "../../domain/models.ts";
-import { EntityNotFoundError } from "../../domain/repos/_shared/errors.ts";
+import { EntityNotFoundError } from "../../domain/unit-of-works/_shared/errors.ts";
 import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import type { MutationResolvers } from "../_schema.ts";
@@ -34,8 +34,8 @@ export const resolver: MutationResolvers["logout"] = async (_parent, _args, cont
 
   const hashed = await RefreshToken.Token.hash(cookie.value);
   try {
-    await context.kysely.transaction().execute(async (trx) => {
-      await context.repos.refreshToken.remove(hashed, trx);
+    await context.unitOfWork.run(async (repos) => {
+      await repos.refreshToken.remove(hashed);
     });
   } catch (e) {
     if (e instanceof EntityNotFoundError) {

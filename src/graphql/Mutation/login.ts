@@ -1,13 +1,13 @@
 import { Result } from "neverthrow";
 
 import { RefreshToken, User } from "../../domain/models.ts";
-import type { MutationLoginArgs, MutationResolvers } from "../_schema.ts";
 import { signedJwt } from "../../util/accessToken.ts";
 import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
-import { invalidInputErrors } from "../_parsers/shared/errors.ts";
 import { parseUserEmail } from "../_parsers/user/email.ts";
 import { parseUserPassword } from "../_parsers/user/password.ts";
+import type { MutationLoginArgs, MutationResolvers } from "../_schema.ts";
+import { invalidInputErrors } from "../_shared/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -61,13 +61,9 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
 
   const { rawRefreshToken, refreshToken } = await RefreshToken.create(credential.userId);
   try {
-    await context.kysely.transaction().execute(async (trx) => {
-      await context.repos.refreshToken.add(refreshToken, trx);
-      await context.repos.refreshToken.retainLatest(
-        credential.userId,
-        RefreshToken.MAX_RETENTION,
-        trx,
-      );
+    await context.unitOfWork.run(async (repos) => {
+      await repos.refreshToken.add(refreshToken);
+      await repos.refreshToken.retainLatest(credential.userId, RefreshToken.MAX_RETENTION);
     });
   } catch (e) {
     throw internalServerError(e);

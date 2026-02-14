@@ -4,11 +4,12 @@ import type * as Domain from "../src/domain/models.ts";
 import { CredentialQueryShared } from "../src/infra/queries/db/credential/shared.ts";
 import { TodoQueryShared } from "../src/infra/queries/db/todo/shared.ts";
 import { UserQueryShared } from "../src/infra/queries/db/user/shared.ts";
-import { RefreshTokenRepoShared } from "../src/infra/repos/db/refresh-token/shared.ts";
-import { TodoRepoShared } from "../src/infra/repos/db/todo/shared.ts";
-import { UserRepoShared } from "../src/infra/repos/db/user/shared.ts";
 import * as todos from "./data/graph/todos.ts";
 import * as users from "./data/graph/users.ts";
+import { RefreshTokenRepoShared } from "../src/infra/unit-of-works/db/_shared/refresh-token.ts";
+import { TodoRepoShared } from "../src/infra/unit-of-works/db/_shared/todo.ts";
+import { UserRepoShared } from "../src/infra/unit-of-works/db/_shared/user.ts";
+import type { Transaction } from "kysely";
 
 export const dummyId = {
   todo: todos.dummyId,
@@ -51,36 +52,31 @@ export const clearUsers = async () => {
 
 export const seed = {
   async refreshTokens(...refreshTokens: Domain.RefreshToken.Type[]) {
-    await kysely.transaction().execute(async (trx) => {
-      await Promise.all(
-        refreshTokens.map(async (refreshToken) => {
-          await repos.refreshToken.add(refreshToken, trx);
-        }),
-      );
-    });
+    await Promise.all(
+      refreshTokens.map(async (refreshToken) => {
+        await repos.refreshToken.add(refreshToken);
+      }),
+    );
   },
   async users(...users: Domain.User.Type[]) {
-    await kysely.transaction().execute(async (trx) => {
-      await Promise.all(
-        users.map(async (user) => {
-          await repos.user.add(user, trx);
-        }),
-      );
-    });
+    await Promise.all(
+      users.map(async (user) => {
+        await repos.user.add(user);
+      }),
+    );
   },
   async todos(...todos: Domain.Todo.Type[]) {
-    await kysely.transaction().execute(async (trx) => {
-      await Promise.all(
-        todos.map(async (todo) => {
-          await repos.todo.add(todo, trx);
-        }),
-      );
-    });
+    await Promise.all(
+      todos.map(async (todo) => {
+        await repos.todo.add(todo);
+      }),
+    );
   },
 };
 
+// テストだしトランザクション扱いしても大丈夫でしょ多分…
 const repos = {
-  refreshToken: new RefreshTokenRepoShared(kysely),
-  todo: new TodoRepoShared(kysely),
-  user: new UserRepoShared(kysely),
+  refreshToken: new RefreshTokenRepoShared(kysely as Transaction<Db.DB>),
+  todo: new TodoRepoShared(kysely as Transaction<Db.DB>),
+  user: new UserRepoShared(kysely as Transaction<Db.DB>),
 };

@@ -1,7 +1,7 @@
 import { Result } from "neverthrow";
 
-import type * as Db from "../../infra/datasources/_shared/types.ts";
 import * as Domain from "../../domain/models.ts";
+import type * as Db from "../../infra/datasources/_shared/types.ts";
 
 export type Type = {
   userId: Domain.User.Type["id"];

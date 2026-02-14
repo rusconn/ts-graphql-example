@@ -1,8 +1,8 @@
 import { deleteRefreshTokenCookie } from "../../util/refreshToken.ts";
-import type { MutationResolvers } from "../_schema.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
+import type { MutationResolvers } from "../_schema.ts";
 import { userId } from "../User/id.ts";
 
 export const typeDef = /* GraphQL */ `
@@ -32,10 +32,10 @@ export const resolver: MutationResolvers["accountDelete"] = async (_parent, _arg
   }
 
   try {
-    await ctx.kysely.transaction().execute(async (trx) => {
-      await ctx.repos.todo.removeByUserId(user.id, trx);
-      await ctx.repos.refreshToken.removeByUserId(user.id, trx);
-      await ctx.repos.user.remove(user.id, trx);
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.todo.removeByUserId(user.id);
+      await repos.refreshToken.removeByUserId(user.id);
+      await repos.user.remove(user.id);
     });
   } catch (e) {
     throw internalServerError(e);

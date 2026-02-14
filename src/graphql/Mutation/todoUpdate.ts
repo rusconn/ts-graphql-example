@@ -1,17 +1,17 @@
 import { Result } from "neverthrow";
 
 import { Todo } from "../../domain/models.ts";
-import type { MutationResolvers, MutationTodoUpdateArgs } from "../_schema.ts";
+import { unwrapOrElse } from "../../util/neverthrow.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
+import { parseTodoDescription } from "../_parsers/todo/description.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import { parseTodoStatus } from "../_parsers/todo/status.ts";
 import { parseTodoTitle } from "../_parsers/todo/title.ts";
-import { parseTodoDescription } from "../_parsers/todo/description.ts";
-import { invalidInputErrors } from "../_parsers/shared/errors.ts";
-import { unwrapOrElse } from "../../util/neverthrow.ts";
+import type { MutationResolvers, MutationTodoUpdateArgs } from "../_schema.ts";
+import { invalidInputErrors } from "../_shared/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -67,8 +67,8 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
 
   const updatedTodo = Todo.update(todo, parsed.value);
   try {
-    await ctx.kysely.transaction().execute(async (trx) => {
-      await ctx.repos.todo.update(updatedTodo, trx);
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.todo.update(updatedTodo);
     });
   } catch (e) {
     throw internalServerError(e);

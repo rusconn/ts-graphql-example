@@ -1,14 +1,14 @@
 import { Result } from "neverthrow";
 
 import { Todo } from "../../domain/models.ts";
-import type { MutationResolvers, MutationTodoStatusChangeArgs } from "../_schema.ts";
+import { unwrapOrElse } from "../../util/neverthrow.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/badUserInput.ts";
 import { forbiddenErr } from "../_errors/forbidden.ts";
 import { internalServerError } from "../_errors/internalServerError.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import { parseTodoStatus } from "../_parsers/todo/status.ts";
-import { unwrapOrElse } from "../../util/neverthrow.ts";
+import type { MutationResolvers, MutationTodoStatusChangeArgs } from "../_schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -49,8 +49,8 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
 
   const changedTodo = Todo.changeStatus(todo, parsed.value);
   try {
-    await ctx.kysely.transaction().execute(async (trx) => {
-      await ctx.repos.todo.update(changedTodo, trx);
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.todo.update(changedTodo);
     });
   } catch (e) {
     throw internalServerError(e);
