@@ -1,7 +1,7 @@
 import { unwrapOrElse } from "../../util/neverthrow.ts";
 import { authAdmin } from "../_authorizers/admin.ts";
-import { badUserInputErr } from "../_errors/badUserInput.ts";
-import { forbiddenErr } from "../_errors/forbidden.ts";
+import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
+import { forbiddenErr } from "../_errors/global/forbidden.ts";
 import { parseUserId } from "../_parsers/user/id.ts";
 import type { QueryResolvers } from "../_schema.ts";
 

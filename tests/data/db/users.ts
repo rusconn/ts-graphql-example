@@ -1,3 +1,3 @@
-import { db } from "../../../src/graphql/_testData/db/users.ts";
+import { db } from "../../../src/graphql/_test-data/db/users.ts";
 
 export { db };

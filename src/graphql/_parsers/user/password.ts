@@ -1,4 +1,4 @@
-import { User } from "../../../domain/models.ts";
+import { User } from "../../../domain/entities.ts";
 import { parseStringArg } from "../_shared/string.ts";
 
 export const parseUserPassword = parseStringArg(User.Password.parse, {

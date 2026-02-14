@@ -1,4 +1,4 @@
-import { signedJwt } from "../../../src/util/accessToken.ts";
+import { signedJwt } from "../../../src/util/access-token.ts";
 
 import { domain } from "../domain/users.ts";
 

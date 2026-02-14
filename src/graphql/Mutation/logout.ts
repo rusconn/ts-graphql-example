@@ -1,7 +1,7 @@
-import { RefreshToken } from "../../domain/models.ts";
-import { EntityNotFoundError } from "../../domain/unit-of-works/_shared/errors.ts";
-import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refreshToken.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
+import { RefreshToken } from "../../domain/entities.ts";
+import { EntityNotFoundError } from "../../domain/unit-of-works/_errors/entity-not-found.ts";
+import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refresh-token.ts";
+import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import type { MutationResolvers } from "../_schema.ts";
 
 export const typeDef = /* GraphQL */ `

@@ -3,8 +3,8 @@ import { err, ok, type Result } from "neverthrow";
 import {
   isStringLengthTooLongError,
   isStringLengthTooShortError,
-} from "../../../domain/models/_shared/parse-errors.ts";
-import { ParseErr } from "../../_shared/errors.ts";
+} from "../../../domain/entities/_shared/parse-errors.ts";
+import { ParseErr } from "./parse-error.ts";
 
 export const parseStringArg = <
   Arg extends string, //

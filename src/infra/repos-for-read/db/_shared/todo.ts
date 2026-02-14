@@ -1,6 +1,6 @@
 import type { Kysely } from "kysely";
 
-import type { Todo as Domain } from "../../../../domain/models.ts";
+import type { Todo as Domain } from "../../../../domain/entities.ts";
 import type { DB } from "../../../datasources/_shared/types.ts";
 import { toDomain } from "../../../unit-of-works/db/_shared/todo.ts";
 

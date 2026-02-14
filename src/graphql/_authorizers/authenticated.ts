@@ -10,7 +10,7 @@ export const authAuthenticated = (context: Context) => {
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../_testData/context.ts");
+  const { context } = await import("../_test-data/context.ts");
 
   const allows = [context.admin, context.alice];
   const denies = [context.guest];

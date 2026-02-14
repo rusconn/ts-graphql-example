@@ -1,8 +1,8 @@
 import type { Kysely } from "kysely";
 
-import type * as Domain from "../../../../domain/models.ts";
-import * as Dto from "../../../../graphql/_dto.ts";
-import type { IUserQueryForAdmin } from "../../../../graphql/_queries/user/for-admin.ts";
+import * as Dto from "../../../../application/queries/dto.ts";
+import type { IUserQueryForAdmin } from "../../../../application/queries/user/for-admin.ts";
+import type * as Domain from "../../../../domain/entities.ts";
 import type { DB } from "../../../datasources/_shared/types.ts";
 import type * as UserLoader from "./loaders/user.ts";
 import { UserQueryShared } from "./shared.ts";

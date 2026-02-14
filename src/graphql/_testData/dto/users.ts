@@ -1,7 +1,0 @@
-import * as Dto from "../../_dto.ts";
-import { db as users } from "../db/users.ts";
-
-export const dto = {
-  admin: Dto.User.parseOrThrow(users.admin),
-  alice: Dto.User.parseOrThrow(users.alice),
-};

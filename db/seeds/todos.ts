@@ -8,7 +8,7 @@ import {
   TodoStatus,
   type User,
 } from "../../src/infra/datasources/_shared/types.ts";
-import * as Domain from "../../src/domain/models.ts";
+import * as Domain from "../../src/domain/entities.ts";
 import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
 
 import { randInt } from "./_utils.ts";

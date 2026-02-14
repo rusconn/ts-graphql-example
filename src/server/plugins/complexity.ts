@@ -6,7 +6,7 @@ import {
 import type { Plugin } from "graphql-yoga";
 
 import { maxComplexity } from "../../config/security.ts";
-import { queryTooComplexErr } from "../../graphql/_errors/queryTooComplex.ts";
+import { queryTooComplexErr } from "../../graphql/_errors/global/query-too-complex.ts";
 import type { PluginContext } from "../context.ts";
 
 export const complexity: Plugin<PluginContext> = {

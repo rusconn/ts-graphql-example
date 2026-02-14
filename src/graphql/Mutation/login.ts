@@ -1,13 +1,13 @@
 import { Result } from "neverthrow";
 
-import { RefreshToken, User } from "../../domain/models.ts";
-import { signedJwt } from "../../util/accessToken.ts";
-import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
+import { RefreshToken, User } from "../../domain/entities.ts";
+import { signedJwt } from "../../util/access-token.ts";
+import { setRefreshTokenCookie } from "../../util/refresh-token.ts";
+import { internalServerError } from "../_errors/global/internal-server-error.ts";
+import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserEmail } from "../_parsers/user/email.ts";
 import { parseUserPassword } from "../_parsers/user/password.ts";
 import type { MutationLoginArgs, MutationResolvers } from "../_schema.ts";
-import { invalidInputErrors } from "../_shared/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

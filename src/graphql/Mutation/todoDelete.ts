@@ -1,9 +1,9 @@
-import { EntityNotFoundError } from "../../domain/unit-of-works/_shared/errors.ts";
+import { EntityNotFoundError } from "../../domain/unit-of-works/_errors/entity-not-found.ts";
 import { unwrapOrElse } from "../../util/neverthrow.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
-import { badUserInputErr } from "../_errors/badUserInput.ts";
-import { forbiddenErr } from "../_errors/forbidden.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
+import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
+import { forbiddenErr } from "../_errors/global/forbidden.ts";
+import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import type { MutationResolvers } from "../_schema.ts";
 import { todoId } from "../Todo/id.ts";

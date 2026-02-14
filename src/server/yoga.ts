@@ -1,9 +1,9 @@
 import { createSchema, createYoga } from "graphql-yoga";
 
 import { endpoint } from "../config/url.ts";
-import { authenticationErr } from "../graphql/_errors/authenticationError.ts";
-import { badUserInputErr } from "../graphql/_errors/badUserInput.ts";
-import { tokenExpiredErr } from "../graphql/_errors/tokenExpired.ts";
+import { authenticationErr } from "../graphql/_errors/global/authentication-error.ts";
+import { badUserInputErr } from "../graphql/_errors/global/bad-user-input.ts";
+import { tokenExpiredErr } from "../graphql/_errors/global/token-expired.ts";
 import { kysely } from "../infra/datasources/db/client.ts";
 import { CredentialQueryForAdmin } from "../infra/queries/db/credential/for-admin.ts";
 import { CredentialQueryForGuest } from "../infra/queries/db/credential/for-guest.ts";
@@ -20,20 +20,20 @@ import { UserReaderRepoForUser } from "../infra/repos-for-read/db/for-user/user.
 import { UnitOfWorkForAdmin } from "../infra/unit-of-works/db/for-admin.ts";
 import { UnitOfWorkForGuest } from "../infra/unit-of-works/db/for-guest.ts";
 import { UnitOfWorkForUser } from "../infra/unit-of-works/db/for-user.ts";
-import { renderApolloStudio } from "../lib/graphql-yoga/renderApolloStudio.ts";
-import { type Payload, verifyJwt } from "../util/accessToken.ts";
+import { renderApolloStudio } from "../lib/graphql-yoga/render-apollo-studio.ts";
+import { type Payload, verifyJwt } from "../util/access-token.ts";
 import type { ContextBase, PluginContext, ServerContext, UserContext } from "./context.ts";
 import { logger } from "./logger.ts";
 import { armor } from "./plugins/armor.ts";
 import { complexity } from "./plugins/complexity.ts";
 import { cookies } from "./plugins/cookies.ts";
-import { errorHandling } from "./plugins/errorHandling.ts";
+import { errorHandling } from "./plugins/error-handling.ts";
 import { introspection } from "./plugins/introspection.ts";
 import { logging } from "./plugins/logging.ts";
-import { readinessCheck } from "./plugins/readinessCheck.ts";
-import { requestId } from "./plugins/requestId.ts";
+import { readinessCheck } from "./plugins/readiness-check.ts";
+import { requestId } from "./plugins/request-id.ts";
 import { resolvers } from "./resolvers.ts";
-import { typeDefs } from "./typeDefs.ts";
+import { typeDefs } from "./type-defs.ts";
 
 export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
   renderGraphiQL: () => renderApolloStudio(endpoint),

@@ -1,12 +1,12 @@
 import { Result } from "neverthrow";
 
-import { User } from "../../domain/models.ts";
+import { User } from "../../domain/entities.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
-import { forbiddenErr } from "../_errors/forbidden.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
+import { forbiddenErr } from "../_errors/global/forbidden.ts";
+import { internalServerError } from "../_errors/global/internal-server-error.ts";
+import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserName } from "../_parsers/user/name.ts";
 import type { MutationAccountUpdateArgs, MutationResolvers } from "../_schema.ts";
-import { invalidInputErrors } from "../_shared/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

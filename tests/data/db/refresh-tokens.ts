@@ -1,3 +1,3 @@
-import { db } from "../../../src/graphql/_testData/db/refresh-tokens.ts";
+import { db } from "../../../src/graphql/_test-data/db/refresh-tokens.ts";
 
 export { db };

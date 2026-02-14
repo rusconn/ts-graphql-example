@@ -1,6 +1,6 @@
 import type { Transaction } from "kysely";
 
-import type * as Domain from "../../../../domain/models.ts";
+import type * as Domain from "../../../../domain/entities.ts";
 import type { IUserRepoForGuest } from "../../../../domain/unit-of-works/for-guest/user.ts";
 import type { DB } from "../../../datasources/_shared/types.ts";
 import { UserRepoShared } from "../_shared/user.ts";

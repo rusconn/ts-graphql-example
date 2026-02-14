@@ -1,9 +1,9 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type * as Domain from "../../../../../domain/models.ts";
-import type { Key } from "../../../../../graphql/_queries/todo/loaders/userTodos.ts";
-import { sortGroup } from "../../../../../lib/dataloader/sortGroup.ts";
+import type { Key } from "../../../../../application/queries/todo/loaders/user-todos.ts";
+import type * as Domain from "../../../../../domain/entities.ts";
+import { sortGroup } from "../../../../../lib/dataloader/sort-group.ts";
 import type { DB } from "../../../../datasources/_shared/types.ts";
 
 export type { Key };

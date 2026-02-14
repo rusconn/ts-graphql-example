@@ -1,7 +1,7 @@
 import type { Kysely } from "kysely";
 
-import type * as Domain from "../../../../domain/models.ts";
-import type { ITodoQueryForAdmin } from "../../../../graphql/_queries/todo/for-admin.ts";
+import type { ITodoQueryForAdmin } from "../../../../application/queries/todo/for-admin.ts";
+import type * as Domain from "../../../../domain/entities.ts";
 import type { DB } from "../../../datasources/_shared/types.ts";
 import type * as UserTodoLoader from "./loaders/userTodo.ts";
 import type * as UserTodoCountLoader from "./loaders/userTodoCount.ts";

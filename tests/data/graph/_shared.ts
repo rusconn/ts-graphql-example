@@ -1,4 +1,4 @@
-import type { DateTime } from "../../../src/lib/string/dateTime.ts";
+import type { DateTime } from "../../../src/lib/string/date-time.ts";
 
 export type { DateTime };
 

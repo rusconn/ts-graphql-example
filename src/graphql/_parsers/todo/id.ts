@@ -1,5 +1,5 @@
-import { Todo } from "../../../domain/models.ts";
-import { parseSomeId } from "../_shared/someId.ts";
+import { Todo } from "../../../domain/entities.ts";
+import { parseSomeId } from "../_shared/some-id.ts";
 
 export const parseTodoId = parseSomeId("Todo", Todo.Id.is);
 

@@ -1,6 +1,6 @@
 import type { Transaction } from "kysely";
 
-import type * as Domain from "../../../../domain/models.ts";
+import type * as Domain from "../../../../domain/entities.ts";
 import type { ITodoRepoForAdmin } from "../../../../domain/unit-of-works/for-admin/todo.ts";
 import type { DB } from "../../../datasources/_shared/types.ts";
 import { TodoRepoShared } from "../_shared/todo.ts";

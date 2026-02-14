@@ -1,15 +1,15 @@
 import { Result } from "neverthrow";
 
-import { Todo } from "../../domain/models.ts";
+import { Todo } from "../../domain/entities.ts";
 import type { Context } from "../../server/context.ts";
 import type { OkOf } from "../../util/neverthrow.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
-import { forbiddenErr } from "../_errors/forbidden.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
+import { forbiddenErr } from "../_errors/global/forbidden.ts";
+import { internalServerError } from "../_errors/global/internal-server-error.ts";
+import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseTodoDescription } from "../_parsers/todo/description.ts";
 import { parseTodoTitle } from "../_parsers/todo/title.ts";
 import type { MutationResolvers, MutationTodoCreateArgs, ResolversTypes } from "../_schema.ts";
-import { invalidInputErrors } from "../_shared/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -108,7 +108,7 @@ const logic = async (
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../_testData/context.ts");
+  const { context } = await import("../_test-data/context.ts");
 
   const valid = {
     args: {

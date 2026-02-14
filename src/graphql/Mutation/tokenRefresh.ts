@@ -1,8 +1,8 @@
-import { RefreshToken } from "../../domain/models.ts";
-import { signedJwt } from "../../util/accessToken.ts";
-import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refreshToken.ts";
-import { badUserInputErr } from "../_errors/badUserInput.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
+import { RefreshToken } from "../../domain/entities.ts";
+import { signedJwt } from "../../util/access-token.ts";
+import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refresh-token.ts";
+import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
+import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import type { MutationResolvers } from "../_schema.ts";
 
 export const typeDef = /* GraphQL */ `

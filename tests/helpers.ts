@@ -1,6 +1,6 @@
 import { kysely } from "../src/infra/datasources/db/client.ts";
 import type * as Db from "../src/infra/datasources/_shared/types.ts";
-import type * as Domain from "../src/domain/models.ts";
+import type * as Domain from "../src/domain/entities.ts";
 import { CredentialQueryShared } from "../src/infra/queries/db/credential/shared.ts";
 import { TodoQueryShared } from "../src/infra/queries/db/todo/shared.ts";
 import { UserQueryShared } from "../src/infra/queries/db/user/shared.ts";

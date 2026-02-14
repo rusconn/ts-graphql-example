@@ -1,6 +1,6 @@
 import type { Kysely } from "kysely";
 
-import type * as Domain from "../../../domain/models.ts";
+import type * as Domain from "../../../domain/entities.ts";
 import type {
   IUnitOfWorkForAdmin,
   IUnitOfWorkReposForAdmin,

@@ -1,4 +1,4 @@
-import type * as Domain from "../../models.ts";
+import type * as Domain from "../../entities.ts";
 
 export interface ITodoRepoForAdmin {
   add(todo: Domain.Todo.Type): Promise<void>;

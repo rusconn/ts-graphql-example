@@ -1,4 +1,4 @@
-import type { User } from "../../domain/models.ts";
+import type { User } from "../../domain/entities.ts";
 import type { ContextForAuthed } from "../../server/context.ts";
 
 export const getNode = async (ctx: ContextForAuthed, id: User.Type["id"]) => {

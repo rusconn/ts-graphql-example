@@ -1,17 +1,17 @@
 import { Result } from "neverthrow";
 
-import { RefreshToken, User } from "../../domain/models.ts";
-import { EmailAlreadyExistsError } from "../../domain/unit-of-works/_shared/errors.ts";
-import { signedJwt } from "../../util/accessToken.ts";
-import { setRefreshTokenCookie } from "../../util/refreshToken.ts";
+import { RefreshToken, User } from "../../domain/entities.ts";
+import { EmailAlreadyExistsError } from "../../domain/unit-of-works/_errors/email-already-exists.ts";
+import { signedJwt } from "../../util/access-token.ts";
+import { setRefreshTokenCookie } from "../../util/refresh-token.ts";
 import { authGuest } from "../_authorizers/guest.ts";
-import { forbiddenErr } from "../_errors/forbidden.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
+import { forbiddenErr } from "../_errors/global/forbidden.ts";
+import { internalServerError } from "../_errors/global/internal-server-error.ts";
+import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserEmail } from "../_parsers/user/email.ts";
 import { parseUserName } from "../_parsers/user/name.ts";
 import { parseUserPassword } from "../_parsers/user/password.ts";
 import type { MutationResolvers, MutationSignupArgs } from "../_schema.ts";
-import { invalidInputErrors } from "../_shared/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

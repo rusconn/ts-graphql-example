@@ -1,7 +1,7 @@
-import { deleteRefreshTokenCookie } from "../../util/refreshToken.ts";
+import { deleteRefreshTokenCookie } from "../../util/refresh-token.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
-import { forbiddenErr } from "../_errors/forbidden.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
+import { forbiddenErr } from "../_errors/global/forbidden.ts";
+import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import type { MutationResolvers } from "../_schema.ts";
 import { userId } from "../User/id.ts";
 

@@ -1,17 +1,17 @@
 import { Result } from "neverthrow";
 
-import { Todo } from "../../domain/models.ts";
+import { Todo } from "../../domain/entities.ts";
 import { unwrapOrElse } from "../../util/neverthrow.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
-import { badUserInputErr } from "../_errors/badUserInput.ts";
-import { forbiddenErr } from "../_errors/forbidden.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
+import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
+import { forbiddenErr } from "../_errors/global/forbidden.ts";
+import { internalServerError } from "../_errors/global/internal-server-error.ts";
+import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseTodoDescription } from "../_parsers/todo/description.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import { parseTodoStatus } from "../_parsers/todo/status.ts";
 import { parseTodoTitle } from "../_parsers/todo/title.ts";
 import type { MutationResolvers, MutationTodoUpdateArgs } from "../_schema.ts";
-import { invalidInputErrors } from "../_shared/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

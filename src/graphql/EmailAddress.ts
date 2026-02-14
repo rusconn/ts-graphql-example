@@ -1,6 +1,6 @@
 import { EmailAddressResolver, EmailAddressTypeDefinition } from "graphql-scalars";
 
-export type { EmailAddress } from "../lib/string/emailAddress.ts";
+export type { EmailAddress } from "../lib/string/email-address.ts";
 
 export const typeDef = EmailAddressTypeDefinition;
 

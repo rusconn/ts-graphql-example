@@ -1,8 +1,8 @@
 import DataLoader from "dataloader";
 import type { Kysely } from "kysely";
 
-import type * as Domain from "../../../../../domain/models.ts";
-import type { Key } from "../../../../../graphql/_queries/todo/loaders/userTodoCount.ts";
+import type { Key } from "../../../../../application/queries/todo/loaders/user-todo-count.ts";
+import type * as Domain from "../../../../../domain/entities.ts";
 import { sort } from "../../../../../lib/dataloader/sort.ts";
 import type { DB, Todo } from "../../../../datasources/_shared/types.ts";
 

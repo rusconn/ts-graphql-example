@@ -1,13 +1,13 @@
 import { Result } from "neverthrow";
 
-import { User } from "../../domain/models.ts";
-import { EmailAlreadyExistsError } from "../../domain/unit-of-works/_shared/errors.ts";
+import { User } from "../../domain/entities.ts";
+import { EmailAlreadyExistsError } from "../../domain/unit-of-works/_errors/email-already-exists.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
-import { forbiddenErr } from "../_errors/forbidden.ts";
-import { internalServerError } from "../_errors/internalServerError.ts";
+import { forbiddenErr } from "../_errors/global/forbidden.ts";
+import { internalServerError } from "../_errors/global/internal-server-error.ts";
+import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserEmail } from "../_parsers/user/email.ts";
 import type { MutationResolvers, MutationUserEmailChangeArgs } from "../_schema.ts";
-import { invalidInputErrors } from "../_shared/errors.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

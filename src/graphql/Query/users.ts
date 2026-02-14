@@ -1,8 +1,8 @@
-import { getCursorConnection } from "../../lib/graphql/cursorConnections/mod.ts";
+import { getCursorConnection } from "../../lib/graphql/cursor-connections/mod.ts";
 import { authAdmin } from "../_authorizers/admin.ts";
-import { badUserInputErr } from "../_errors/badUserInput.ts";
-import { forbiddenErr } from "../_errors/forbidden.ts";
-import { parseConnectionArgs } from "../_parsers/connectionArgs.ts";
+import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
+import { forbiddenErr } from "../_errors/global/forbidden.ts";
+import { parseConnectionArgs } from "../_parsers/connection-args.ts";
 import { parseUserCursor } from "../_parsers/user/cursor.ts";
 import type { QueryResolvers, QueryUsersArgs } from "../_schema.ts";
 import { UserSortKeys } from "../_schema.ts";

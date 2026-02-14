@@ -1,7 +1,7 @@
 import { unwrapOrElse } from "../../util/neverthrow.ts";
-import { authAdminOrUserOwner } from "../_authorizers/user/adminOrUserOwner.ts";
-import { badUserInputErr } from "../_errors/badUserInput.ts";
-import { forbiddenErr } from "../_errors/forbidden.ts";
+import { authAdminOrUserOwner } from "../_authorizers/user/admin-or-user-owner.ts";
+import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
+import { forbiddenErr } from "../_errors/global/forbidden.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import type { UserResolvers } from "../_schema.ts";
 

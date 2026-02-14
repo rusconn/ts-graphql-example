@@ -1,4 +1,4 @@
-import * as Domain from "../../../src/domain/models.ts";
+import * as Domain from "../../../src/domain/entities.ts";
 import type * as Db from "../../../src/infra/datasources/_shared/types.ts";
 
 import { db, client, domain, graph } from "../../data.ts";
