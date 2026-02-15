@@ -1,4 +1,4 @@
-import type * as Db from "../../../infra/datasources/_shared/types.ts";
+import type * as Db from "../../../../infra/datasources/_shared/types.ts";
 import { db as users } from "./users.ts";
 
 export const db = {

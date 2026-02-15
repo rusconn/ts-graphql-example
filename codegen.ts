@@ -29,6 +29,9 @@ const typescript: TypeScriptPluginConfig = {
 };
 
 const typescriptResolvers: TypeScriptResolversPluginConfig = {
+  makeResolverTypeCallable: true,
+  optionalInfoArgument: true,
+  resolverTypeWrapperSignature: "T",
   useIndexSignature: true,
   contextType: "../server/context.ts#Context",
   mapperTypeSuffix: "Mapper",

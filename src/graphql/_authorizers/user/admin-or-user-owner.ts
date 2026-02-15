@@ -24,8 +24,8 @@ const authUserOwner = (context: Context, user: ParentUser) => {
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../../_test-data/context.ts");
-  const { dto } = await import("../../_test-data/dto.ts");
+  const { context } = await import("../../_test/data/context.ts");
+  const { dto } = await import("../../_test/data/dto.ts");
 
   describe("authAdminOrUserOwner", () => {
     const allows = [

@@ -4,17 +4,13 @@ import type * as Domain from "../src/domain/entities.ts";
 import { CredentialQueryShared } from "../src/infra/queries/db/credential/shared.ts";
 import { TodoQueryShared } from "../src/infra/queries/db/todo/shared.ts";
 import { UserQueryShared } from "../src/infra/queries/db/user/shared.ts";
-import * as todos from "./data/graph/todos.ts";
-import * as users from "./data/graph/users.ts";
 import { RefreshTokenRepoShared } from "../src/infra/unit-of-works/db/_shared/refresh-token.ts";
 import { TodoRepoShared } from "../src/infra/unit-of-works/db/_shared/todo.ts";
 import { UserRepoShared } from "../src/infra/unit-of-works/db/_shared/user.ts";
 import type { Transaction } from "kysely";
+import * as UTHelpers from "../src/graphql/_test/helpers.ts";
 
-export const dummyId = {
-  todo: todos.dummyId,
-  user: users.dummyId,
-};
+export const dummyId = UTHelpers.dummyId;
 
 // E2Eで確認しにくいケースで使う
 export const queries = {

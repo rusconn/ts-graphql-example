@@ -4,7 +4,7 @@ import type { User as Domain } from "../../../../domain/entities.ts";
 import type { Credential, DB, User } from "../../../datasources/_shared/types.ts";
 import { toDomain } from "../../../unit-of-works/db/_shared/user.ts";
 
-export class UserRepoShared {
+export class UserReaderRepoShared {
   #db;
   #tenantId;
 

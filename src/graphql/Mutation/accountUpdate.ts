@@ -1,6 +1,8 @@
 import { Result } from "neverthrow";
 
+import * as Dto from "../../application/queries/dto.ts";
 import { User } from "../../domain/entities.ts";
+import type { ContextForAuthed } from "../../server/context.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/global/forbidden.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
@@ -36,24 +38,7 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
     return invalidInputErrors(parsed.error);
   }
 
-  const user = await ctx.repos.user.find(ctx.user.id);
-  if (!user) {
-    throw internalServerError();
-  }
-
-  const updatedUser = User.updateAccount(user, parsed.value);
-  try {
-    await ctx.unitOfWork.run(async (repos) => {
-      await repos.user.update(updatedUser);
-    });
-  } catch (e) {
-    throw internalServerError(e);
-  }
-
-  return {
-    __typename: "AccountUpdateSuccess",
-    user: updatedUser,
-  };
+  return await logic(ctx, parsed.value);
 };
 
 const parseArgs = (args: MutationAccountUpdateArgs) => {
@@ -69,25 +54,50 @@ const parseArgs = (args: MutationAccountUpdateArgs) => {
   }));
 };
 
+const logic = async (
+  ctx: ContextForAuthed,
+  input: Parameters<typeof User.updateAccount>[1],
+): Promise<ReturnType<MutationResolvers["accountUpdate"]>> => {
+  const user = await ctx.repos.user.find(ctx.user.id);
+  if (!user) {
+    throw internalServerError();
+  }
+
+  const updatedUser = User.updateAccount(user, input);
+  try {
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.user.update(updatedUser);
+    });
+  } catch (e) {
+    throw internalServerError(e);
+  }
+
+  return {
+    __typename: "AccountUpdateSuccess",
+    user: Dto.User.fromDomain(updatedUser),
+  };
+};
+
 if (import.meta.vitest) {
-  describe("Parsing", () => {
+  describe("parsing", () => {
     const valids: MutationAccountUpdateArgs[] = [
       {},
-      { name: "name" },
-      { name: "A".repeat(User.Name.MAX) },
+      { name: "a".repeat(User.Name.MIN) },
+      { name: "a".repeat(User.Name.MAX) },
     ];
 
     const invalids: [MutationAccountUpdateArgs, (keyof MutationAccountUpdateArgs)[]][] = [
       [{ name: null }, ["name"]],
-      [{ name: "A".repeat(User.Name.MAX + 1) }, ["name"]],
+      [{ name: "a".repeat(User.Name.MIN - 1) }, ["name"]],
+      [{ name: "a".repeat(User.Name.MAX + 1) }, ["name"]],
     ];
 
-    test.each(valids)("valids %#", (args) => {
+    it.each(valids)("succeeds when args is valid: %#", (args) => {
       const parsed = parseArgs(args);
       expect(parsed.isOk()).toBe(true);
     });
 
-    test.each(invalids)("invalids %#", (args, fields) => {
+    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
       const parsed = parseArgs(args);
       expect(parsed.isErr()).toBe(true);
       expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);

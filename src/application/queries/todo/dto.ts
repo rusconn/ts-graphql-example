@@ -1,9 +1,12 @@
 import { Result } from "neverthrow";
+import type { Tagged } from "type-fest";
 
 import * as Domain from "../../../domain/entities.ts";
 import * as Db from "../../../infra/datasources/_shared/types.ts";
 
-export type Type = Pick<
+export type Type = Tagged<Raw, "TodoDto">;
+
+type Raw = Pick<
   Domain.Todo.Type,
   | "id" //
   | "title"
@@ -31,14 +34,18 @@ export const parse = (
     Domain.Todo.parseTitle(input.title),
     Domain.Todo.parseDescription(input.description),
     Domain.Todo.parseUserId(input.userId),
-  ]).map(([id, title, description, userId]) => ({
-    ...input,
-    id,
-    title,
-    description,
-    status: toDomainStatus[input.status],
-    userId,
-  }));
+  ]).map(
+    ([id, title, description, userId]) =>
+      ({
+        id,
+        title,
+        description,
+        status: toDomainStatus[input.status],
+        userId,
+        createdAt: input.createdAt,
+        updatedAt: input.updatedAt,
+      }) satisfies Raw as Type,
+  );
 };
 
 const toDomainStatus: Record<Db.TodoStatus, Domain.Todo.Type["status"]> = {
@@ -55,3 +62,14 @@ export type ParseError =
 export const parseOrThrow = (input: Parameters<typeof parse>[0]) => {
   return parse(input)._unsafeUnwrap();
 };
+
+export const fromDomain = (domain: Domain.Todo.Type): Type =>
+  ({
+    id: domain.id,
+    title: domain.title,
+    description: domain.description,
+    status: domain.status,
+    userId: domain.userId,
+    createdAt: domain.createdAt,
+    updatedAt: domain.updatedAt,
+  }) satisfies Raw as Type;

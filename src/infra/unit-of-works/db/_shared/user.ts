@@ -105,7 +105,7 @@ export const toDb = ({
   };
 };
 
-const toDbRole: Record<Domain.Type["role"], UserRole> = {
+export const toDbRole: Record<Domain.Type["role"], UserRole> = {
   [Domain.Role.ADMIN]: UserRole.Admin,
   [Domain.Role.USER]: UserRole.User,
 };
@@ -118,7 +118,7 @@ export const toDomain = (user: User, credential: Pick<Credential, "password">): 
   });
 };
 
-const toDomainRole: Record<UserRole, Domain.Type["role"]> = {
+export const toDomainRole: Record<UserRole, Domain.Type["role"]> = {
   [UserRole.Admin]: Domain.Role.ADMIN,
   [UserRole.User]: Domain.Role.USER,
 };

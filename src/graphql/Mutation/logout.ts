@@ -15,8 +15,8 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["logout"] = async (_parent, _args, context) => {
-  const cookie = await getRefreshTokenCookie(context.request);
-  await deleteRefreshTokenCookie(context.request);
+  const cookie = await getRefreshTokenCookie(context);
+  await deleteRefreshTokenCookie(context);
 
   if (context.role === "GUEST") {
     return {

@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import type { Kysely, Transaction } from "kysely";
 
 import type {
   IUnitOfWorkForGuest,
@@ -16,6 +16,13 @@ export class UnitOfWorkForGuest implements IUnitOfWorkForGuest {
   }
 
   async run<T>(work: (repos: IUnitOfWorkReposForGuest) => Promise<T>): Promise<T> {
+    if (this.#db.isTransaction) {
+      return await work({
+        refreshToken: new RefreshTokenRepoForGuest(this.#db as Transaction<DB>),
+        user: new UserRepoForGuest(this.#db as Transaction<DB>),
+      });
+    }
+
     return await this.#db.transaction().execute(async (trx) => {
       return await work({
         refreshToken: new RefreshTokenRepoForGuest(trx),

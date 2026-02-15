@@ -1,9 +1,12 @@
 import { Result } from "neverthrow";
+import type { Tagged } from "type-fest";
 
 import * as Domain from "../../../domain/entities.ts";
 import type * as Db from "../../../infra/datasources/_shared/types.ts";
 
-export type Type = {
+export type Type = Tagged<Raw, "CredentialDto">;
+
+type Raw = {
   userId: Domain.User.Type["id"];
   password: Domain.User.Type["password"];
 };
@@ -15,10 +18,13 @@ export const parse = (input: {
   return Result.combineWithAllErrors([
     Domain.User.parseId(input.userId),
     Domain.User.parsePassword(input.password),
-  ]).map(([userId, password]) => ({
-    userId,
-    password,
-  }));
+  ]).map(
+    ([userId, password]) =>
+      ({
+        userId,
+        password,
+      }) satisfies Raw as Type,
+  );
 };
 
 export type ParseError =

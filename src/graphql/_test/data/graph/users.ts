@@ -1,10 +1,10 @@
 import type { OverrideProperties } from "type-fest";
 
-import * as Domain from "../../../src/domain/entities.ts";
-import type * as Graph from "../../../src/graphql/_schema.ts";
-import { userId } from "../../../src/graphql/User/id.ts";
-import { dateTime, type DateTime } from "./_shared.ts";
+import * as Domain from "../../../../domain/entities.ts";
+import type * as Graph from "../../../../graphql/_schema.ts";
+import { userId } from "../../../../graphql/User/id.ts";
 import { domain } from "../domain/users.ts";
+import { type DateTime, dateTime } from "./_shared.ts";
 
 type GraphUser = OverrideProperties<
   Required<

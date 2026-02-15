@@ -1,6 +1,8 @@
 import { Result } from "neverthrow";
 
+import * as Dto from "../../application/queries/dto.ts";
 import { Todo } from "../../domain/entities.ts";
+import type { ContextForAuthed } from "../../server/context.ts";
 import { unwrapOrElse } from "../../util/neverthrow.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
@@ -57,27 +59,7 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
     return invalidInputErrors(parsed.error);
   }
 
-  const todo = await ctx.repos.todo.find(id);
-  if (!todo) {
-    return {
-      __typename: "ResourceNotFoundError",
-      message: "The specified todo does not exist.",
-    };
-  }
-
-  const updatedTodo = Todo.update(todo, parsed.value);
-  try {
-    await ctx.unitOfWork.run(async (repos) => {
-      await repos.todo.update(updatedTodo);
-    });
-  } catch (e) {
-    throw internalServerError(e);
-  }
-
-  return {
-    __typename: "TodoUpdateSuccess",
-    todo: updatedTodo,
-  };
+  return await logic(ctx, id, parsed.value);
 };
 
 const parseArgs = (args: MutationTodoUpdateArgs) => {
@@ -107,37 +89,65 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
   }));
 };
 
+const logic = async (
+  ctx: ContextForAuthed,
+  id: Todo.Id.Type,
+  input: Parameters<typeof Todo.update>[1],
+): Promise<ReturnType<MutationResolvers["todoUpdate"]>> => {
+  const todo = await ctx.repos.todo.find(id);
+  if (!todo) {
+    return {
+      __typename: "ResourceNotFoundError",
+      message: "The specified todo does not exist.",
+    };
+  }
+
+  const updatedTodo = Todo.update(todo, input);
+  try {
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.todo.update(updatedTodo);
+    });
+  } catch (e) {
+    throw internalServerError(e);
+  }
+
+  return {
+    __typename: "TodoUpdateSuccess",
+    todo: Dto.Todo.fromDomain(updatedTodo),
+  };
+};
+
 if (import.meta.vitest) {
   const { TodoStatus } = await import("../_schema.ts");
 
-  describe("Parsing", () => {
+  describe("parsing", () => {
     const id = Todo.Id.create();
 
     const valids: MutationTodoUpdateArgs[] = [
       { id },
-      { id, title: "title" },
-      { id, description: "description" },
+      { id, title: "foo" },
+      { id, description: "bar" },
       { id, status: TodoStatus.Done },
-      { id, title: "title", description: "description", status: TodoStatus.Done },
-      { id, title: "A".repeat(Todo.Title.MAX) },
-      { id, description: "A".repeat(Todo.Description.MAX) },
+      { id, title: "foo", description: "bar", status: TodoStatus.Done },
+      { id, title: "a".repeat(Todo.Title.MAX) },
+      { id, description: "a".repeat(Todo.Description.MAX) },
     ];
 
     const invalids: [MutationTodoUpdateArgs, (keyof Omit<MutationTodoUpdateArgs, "id">)[]][] = [
       [{ id, title: null }, ["title"]],
       [{ id, description: null }, ["description"]],
       [{ id, status: null }, ["status"]],
-      [{ id, title: "A".repeat(Todo.Title.MAX + 1) }, ["title"]],
-      [{ id, description: "A".repeat(Todo.Description.MAX + 1) }, ["description"]],
+      [{ id, title: "a".repeat(Todo.Title.MAX + 1) }, ["title"]],
+      [{ id, description: "a".repeat(Todo.Description.MAX + 1) }, ["description"]],
       [{ id, title: null, description: null, status: null }, ["title", "description", "status"]],
     ];
 
-    test.each(valids)("valids %#", (args) => {
+    it.each(valids)("succeeds when args is valid: %#", (args) => {
       const parsed = parseArgs(args);
       expect(parsed.isOk()).toBe(true);
     });
 
-    test.each(invalids)("invalids %#", (args, fields) => {
+    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
       const parsed = parseArgs(args);
       expect(parsed.isErr()).toBe(true);
       expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);

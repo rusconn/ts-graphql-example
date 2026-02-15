@@ -1,4 +1,4 @@
-import type { ParseErr } from "../../_parsers/_shared/parse-error.ts";
+import type { ParseErr } from "../../_parsers/_shared/error.ts";
 import type { InvalidInputErrors } from "../../_schema.ts";
 
 export const invalidInputErrors = (errors: ParseErr[]): Required<InvalidInputErrors> => {

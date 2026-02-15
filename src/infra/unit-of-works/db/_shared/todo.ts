@@ -59,7 +59,7 @@ export const toDb = ({ status, ...rest }: Domain.Type): Todo => {
   };
 };
 
-const toDbStatus: Record<Domain.Type["status"], TodoStatus> = {
+export const toDbStatus: Record<Domain.Type["status"], TodoStatus> = {
   [Domain.Status.DONE]: TodoStatus.Done,
   [Domain.Status.PENDING]: TodoStatus.Pending,
 };
@@ -71,7 +71,7 @@ export const toDomain = ({ status, ...rest }: Todo): Domain.Type => {
   });
 };
 
-const toDomainStatus: Record<TodoStatus, Domain.Type["status"]> = {
+export const toDomainStatus: Record<TodoStatus, Domain.Type["status"]> = {
   [TodoStatus.Done]: Domain.Status.DONE,
   [TodoStatus.Pending]: Domain.Status.PENDING,
 };

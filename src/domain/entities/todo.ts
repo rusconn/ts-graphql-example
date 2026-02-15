@@ -11,18 +11,17 @@ export { Description, Id, Status, Title };
 
 export const MAX_COUNT = 10_000;
 
-export type Type = Tagged<
-  {
-    id: Id.Type;
-    title: Title.Type;
-    description: Description.Type;
-    status: Status.Type;
-    userId: User.Type["id"];
-    createdAt: Date;
-    updatedAt: Date;
-  },
-  "DomainTodo"
->;
+export type Type = Tagged<Raw, "TodoEntity">;
+
+type Raw = {
+  id: Id.Type;
+  title: Title.Type;
+  description: Description.Type;
+  status: Status.Type;
+  userId: User.Type["id"];
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export const parse = (
   input: {
@@ -49,7 +48,7 @@ export const parse = (
         userId,
         createdAt: input.createdAt,
         updatedAt: input.updatedAt,
-      }) as Type,
+      }) satisfies Raw as Type,
   );
 };
 
@@ -137,11 +136,11 @@ export const create = (
     userId,
     createdAt: date,
     updatedAt: date,
-  } as Type;
+  } satisfies Raw as Type;
 };
 
-export const changeStatus = (todo: Type, input: Pick<Type, "status">): Type => {
-  return update(todo, input);
+export const changeStatus = (todo: Type, input: Type["status"]): Type => {
+  return update(todo, { status: input });
 };
 
 export const update = (

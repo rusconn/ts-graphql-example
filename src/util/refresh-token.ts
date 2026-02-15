@@ -1,25 +1,26 @@
 import { domain } from "../config/url.ts";
 import type { RefreshToken } from "../domain/entities.ts";
+import type { Context } from "../server/context.ts";
 
 const cookieName = "refresh_token";
 
-export const getRefreshTokenCookie = async (request: Request) => {
-  return await request.cookieStore!.get(cookieName);
+export const getRefreshTokenCookie = async (context: Context) => {
+  return await context.request.cookieStore!.get(cookieName);
 };
 
 export const setRefreshTokenCookie = async (
-  request: Request,
+  context: Context,
   refreshToken: RefreshToken.Token.Type,
 ) => {
-  await request.cookieStore!.set({
+  await context.request.cookieStore!.set({
     ...cookieBase,
     value: refreshToken,
-    expires: new Date("2037-12-31T23:59:59.999Z"),
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 30, // in 30 days
   });
 };
 
-export const deleteRefreshTokenCookie = async (request: Request) => {
-  await request.cookieStore!.set({
+export const deleteRefreshTokenCookie = async (context: Context) => {
+  await context.request.cookieStore!.set({
     ...cookieBase,
     value: "",
     expires: 0,

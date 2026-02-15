@@ -69,7 +69,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     throw internalServerError(e);
   }
 
-  await setRefreshTokenCookie(context.request, rawRefreshToken);
+  await setRefreshTokenCookie(context, rawRefreshToken);
 
   return {
     __typename: "LoginSuccess",
@@ -94,7 +94,7 @@ const parseArgs = (args: MutationLoginArgs) => {
 };
 
 if (import.meta.vitest) {
-  describe("Parsing", () => {
+  describe("parsing", () => {
     const validArgs: MutationLoginArgs = {
       email: "email@example.com",
       password: "password",

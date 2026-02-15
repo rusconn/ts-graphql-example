@@ -1,4 +1,4 @@
-import * as Dto from "../../../application/queries/dto.ts";
+import * as Dto from "../../../../application/queries/dto.ts";
 import { db as users } from "../db/users.ts";
 
 export const dto = {

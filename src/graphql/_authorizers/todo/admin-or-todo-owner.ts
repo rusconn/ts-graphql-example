@@ -14,8 +14,8 @@ export const authAdminOrTodoOwner = (context: Context, todo: ParentTodo) => {
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../../_test-data/context.ts");
-  const { dto } = await import("../../_test-data/dto.ts");
+  const { context } = await import("../../_test/data/context.ts");
+  const { dto } = await import("../../_test/data/dto.ts");
 
   const allows = [
     [context.admin, dto.todos.admin1],

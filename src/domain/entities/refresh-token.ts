@@ -8,14 +8,13 @@ export { Token };
 
 export const MAX_RETENTION = 5;
 
-export type Type = Tagged<
-  {
-    token: Token.TypeHashed;
-    userId: User.Type["id"];
-    lastUsedAt: Date;
-  },
-  "DomainRefreshToken"
->;
+export type Type = Tagged<Raw, "RefreshTokenEntity">;
+
+type Raw = {
+  token: Token.TypeHashed;
+  userId: User.Type["id"];
+  lastUsedAt: Date;
+};
 
 export const parse = (input: {
   token: Parameters<typeof Token.parseHashed>[0];
@@ -31,7 +30,7 @@ export const parse = (input: {
         token,
         userId,
         lastUsedAt: input.lastUsedAt,
-      }) as Type,
+      }) satisfies Raw as Type,
   );
 };
 
@@ -79,6 +78,6 @@ export const create = async (
       userId,
       token: await Token.hash(rawRefreshToken),
       lastUsedAt: new Date(),
-    } as Type,
+    } satisfies Raw as Type,
   };
 };

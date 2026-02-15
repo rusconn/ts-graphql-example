@@ -41,7 +41,7 @@ export const resolver: MutationResolvers["accountDelete"] = async (_parent, _arg
     throw internalServerError(e);
   }
 
-  await deleteRefreshTokenCookie(context.request);
+  await deleteRefreshTokenCookie(context);
 
   return {
     __typename: "AccountDeleteSuccess",

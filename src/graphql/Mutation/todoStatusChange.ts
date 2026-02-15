@@ -1,6 +1,6 @@
-import { Result } from "neverthrow";
-
+import * as Dto from "../../application/queries/dto.ts";
 import { Todo } from "../../domain/entities.ts";
+import type { ContextForAuthed } from "../../server/context.ts";
 import { unwrapOrElse } from "../../util/neverthrow.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
@@ -34,6 +34,25 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
     throw badUserInputErr(e.message, e);
   });
 
+  const parsed = unwrapOrElse(parseArgs(args), (e) => {
+    throw internalServerError(e);
+  });
+
+  return await logic(ctx, id, parsed);
+};
+
+const parseArgs = (args: MutationTodoStatusChangeArgs) => {
+  return parseTodoStatus(args, "status", {
+    optional: false,
+    nullable: false,
+  });
+};
+
+const logic = async (
+  ctx: ContextForAuthed,
+  id: Todo.Id.Type,
+  input: Parameters<typeof Todo.changeStatus>[1],
+): Promise<ReturnType<MutationResolvers["todoStatusChange"]>> => {
   const todo = await ctx.repos.todo.find(id);
   if (!todo) {
     return {
@@ -42,12 +61,7 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
     };
   }
 
-  const parsed = parseArgs(args);
-  if (parsed.isErr()) {
-    throw internalServerError(parsed.error);
-  }
-
-  const changedTodo = Todo.changeStatus(todo, parsed.value);
+  const changedTodo = Todo.changeStatus(todo, input);
   try {
     await ctx.unitOfWork.run(async (repos) => {
       await repos.todo.update(changedTodo);
@@ -58,17 +72,6 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
 
   return {
     __typename: "TodoStatusChangeSuccess",
-    todo: changedTodo,
+    todo: Dto.Todo.fromDomain(changedTodo),
   };
-};
-
-const parseArgs = (args: MutationTodoStatusChangeArgs) => {
-  return Result.combineWithAllErrors([
-    parseTodoStatus(args, "status", {
-      optional: false,
-      nullable: false,
-    }),
-  ]).map(([status]) => ({
-    status,
-  }));
 };

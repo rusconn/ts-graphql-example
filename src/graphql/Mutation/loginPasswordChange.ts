@@ -111,7 +111,7 @@ const parseArgs = (args: MutationLoginPasswordChangeArgs) => {
 };
 
 if (import.meta.vitest) {
-  describe("Parsing", () => {
+  describe("parsing", () => {
     const valids: MutationLoginPasswordChangeArgs[] = [
       {
         oldPassword: "password",

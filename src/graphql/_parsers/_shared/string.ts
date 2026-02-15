@@ -4,7 +4,7 @@ import {
   isStringLengthTooLongError,
   isStringLengthTooShortError,
 } from "../../../domain/entities/_shared/parse-errors.ts";
-import { ParseErr } from "./parse-error.ts";
+import { ParseErr } from "./error.ts";
 
 export const parseStringArg = <
   Arg extends string, //

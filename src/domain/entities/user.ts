@@ -9,18 +9,17 @@ import * as Role from "./user/role.ts";
 
 export { Email, Id, Name, Password, Role };
 
-export type Type = Tagged<
-  {
-    id: Id.Type;
-    name: Name.Type;
-    email: Email.Type;
-    password: Password.TypeHashed;
-    role: Role.Type;
-    createdAt: Date;
-    updatedAt: Date;
-  },
-  "DomainUser"
->;
+export type Type = Tagged<Raw, "UserEntity">;
+
+type Raw = {
+  id: Id.Type;
+  name: Name.Type;
+  email: Email.Type;
+  password: Password.TypeHashed;
+  role: Role.Type;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export const parse = (
   input: {
@@ -45,7 +44,7 @@ export const parse = (
         role: input.role,
         createdAt: input.createdAt,
         updatedAt: input.updatedAt,
-      }) as Type,
+      }) satisfies Raw as Type,
   );
 };
 
@@ -117,7 +116,7 @@ export const create = async (
     role: Role.USER,
     createdAt: date,
     updatedAt: date,
-  } as Type;
+  } satisfies Raw as Type;
 };
 
 export const updateAccount = (user: Type, input: Partial<Pick<Type, "name">>): Type => {

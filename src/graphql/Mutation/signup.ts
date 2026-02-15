@@ -68,7 +68,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     throw internalServerError(e);
   }
 
-  await setRefreshTokenCookie(ctx.request, rawRefreshToken);
+  await setRefreshTokenCookie(ctx, rawRefreshToken);
 
   return {
     __typename: "SignupSuccess",
@@ -98,7 +98,7 @@ const parseArgs = (args: MutationSignupArgs) => {
 };
 
 if (import.meta.vitest) {
-  describe("Parsing", () => {
+  describe("parsing", () => {
     const validArgs: MutationSignupArgs = {
       name: "name",
       email: "email@example.com",

@@ -1,15 +1,15 @@
 import { Result } from "neverthrow";
 
+import * as Dto from "../../application/queries/dto.ts";
 import { Todo } from "../../domain/entities.ts";
-import type { Context } from "../../server/context.ts";
-import type { OkOf } from "../../util/neverthrow.ts";
+import type { ContextForAuthed } from "../../server/context.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/global/forbidden.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseTodoDescription } from "../_parsers/todo/description.ts";
 import { parseTodoTitle } from "../_parsers/todo/title.ts";
-import type { MutationResolvers, MutationTodoCreateArgs, ResolversTypes } from "../_schema.ts";
+import type { MutationResolvers, MutationTodoCreateArgs } from "../_schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -38,7 +38,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, context) => {
-  const ctx = authorize(context);
+  const ctx = authAuthenticated(context);
   if (Error.isError(ctx)) {
     throw forbiddenErr(ctx);
   }
@@ -49,10 +49,6 @@ export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, c
   }
 
   return await logic(ctx, parsed.value);
-};
-
-const authorize = (context: Context) => {
-  return authAuthenticated(context);
 };
 
 const parseArgs = (args: MutationTodoCreateArgs) => {
@@ -72,9 +68,9 @@ const parseArgs = (args: MutationTodoCreateArgs) => {
 };
 
 const logic = async (
-  ctx: Exclude<ReturnType<typeof authorize>, Error>,
-  parsed: OkOf<ReturnType<typeof parseArgs>>,
-): Promise<ResolversTypes["TodoCreateResult"]> => {
+  ctx: ContextForAuthed,
+  input: Parameters<typeof Todo.create>[1],
+): Promise<ReturnType<MutationResolvers["todoCreate"]>> => {
   const count = await ctx.queries.todo.count();
   if (count >= Todo.MAX_COUNT) {
     return {
@@ -88,7 +84,7 @@ const logic = async (
     throw internalServerError();
   }
 
-  const todo = Todo.create(user.id, parsed);
+  const todo = Todo.create(user.id, input);
   try {
     await ctx.unitOfWork.run(async (repos) => {
       await repos.todo.add(todo);
@@ -97,39 +93,41 @@ const logic = async (
     throw internalServerError(e);
   }
 
+  const todoDto = Dto.Todo.fromDomain(todo);
+
   return {
     __typename: "TodoCreateSuccess",
-    todo,
+    todo: todoDto,
     todoEdge: {
       cursor: todo.id,
-      node: todo,
+      node: todoDto,
     },
   };
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../_test-data/context.ts");
+  const { context } = await import("../_test/data.ts");
 
   const valid = {
     args: {
-      title: "title",
-      description: "description",
-    } as OkOf<ReturnType<typeof parseArgs>>,
+      title: "foo",
+      description: "bar",
+    } as Parameters<typeof logic>[1],
     user: context.admin.user,
   };
 
   const invalid = {
     args: {
-      title: "A".repeat(Todo.Title.MAX + 1),
-      description: "A".repeat(Todo.Description.MAX + 1),
+      title: "a".repeat(Todo.Title.MAX + 1),
+      description: "a".repeat(Todo.Description.MAX + 1),
     },
   };
 
-  describe("Parsing", () => {
+  describe("parsing", () => {
     const valids: MutationTodoCreateArgs[] = [
       { ...valid.args },
-      { ...valid.args, title: "A".repeat(Todo.Title.MAX) },
-      { ...valid.args, description: "A".repeat(Todo.Description.MAX) },
+      { ...valid.args, title: "a".repeat(Todo.Title.MAX) },
+      { ...valid.args, description: "a".repeat(Todo.Description.MAX) },
     ];
 
     const invalids: [MutationTodoCreateArgs, (keyof MutationTodoCreateArgs)[]][] = [
@@ -138,58 +136,56 @@ if (import.meta.vitest) {
       [{ ...valid.args, ...invalid.args }, ["title", "description"]],
     ];
 
-    test.each(valids)("valids %#", (args) => {
+    it.each(valids)("succeeds when args is valid: %#", (args) => {
       const parsed = parseArgs(args);
       expect(parsed.isOk()).toBe(true);
     });
 
-    test.each(invalids)("invalids %#", (args, fields) => {
+    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
       const parsed = parseArgs(args);
       expect(parsed.isErr()).toBe(true);
       expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);
     });
   });
 
-  describe("Maximum num todos", () => {
-    const createQueries = (num: number) => ({
-      todo: {
-        count: async () => num,
-        find: async () => ({}),
-      },
-      user: {
-        findByDbId: async () => ({ id: "dummy" }),
-      },
-    });
+  describe("logic", () => {
+    describe("maximum count of todos", () => {
+      const createQueries = (num: number) => ({
+        todo: {
+          count: async () => num,
+          find: async () => ({}),
+        },
+        user: {
+          find: async () => ({ id: "dummy" }),
+        },
+      });
 
-    const createRepos = () => ({
-      todo: {
-        add: async () => "Ok",
-      },
-    });
+      const createUnitOfWork = () => ({
+        run: async () => {},
+      });
 
-    const notExceededs = [0, 1, Todo.MAX_COUNT - 1];
-    const exceededs = [Todo.MAX_COUNT, Todo.MAX_COUNT + 1];
+      const notExceededs = [0, 1, Todo.MAX_COUNT - 1];
+      const exceededs = [Todo.MAX_COUNT, Todo.MAX_COUNT + 1];
 
-    type Ctx = Exclude<ReturnType<typeof authorize>, Error>;
+      it.each(notExceededs)("not exceededs: %#", async (num) => {
+        const queries = createQueries(num);
+        const unitOfWork = createUnitOfWork();
+        const result = await logic(
+          { user: valid.user, queries, unitOfWork } as unknown as ContextForAuthed,
+          valid.args,
+        );
+        expect(result?.__typename).not.toBe("ResourceLimitExceededError");
+      });
 
-    test.each(notExceededs)("notExceededs %#", async (num) => {
-      const queries = createQueries(num);
-      const repos = createRepos();
-      const result = await logic(
-        { user: valid.user, queries, repos } as unknown as Ctx,
-        valid.args,
-      );
-      expect(result?.__typename).not.toBe("ResourceLimitExceededError");
-    });
-
-    test.each(exceededs)("exceededs %#", async (num) => {
-      const queries = createQueries(num);
-      const repos = createRepos();
-      const result = await logic(
-        { user: valid.user, queries, repos } as unknown as Ctx,
-        valid.args,
-      );
-      expect(result?.__typename).toBe("ResourceLimitExceededError");
+      it.each(exceededs)("exceededs: %#", async (num) => {
+        const queries = createQueries(num);
+        const unitOfWork = createUnitOfWork();
+        const result = await logic(
+          { user: valid.user, queries, unitOfWork } as unknown as ContextForAuthed,
+          valid.args,
+        );
+        expect(result?.__typename).toBe("ResourceLimitExceededError");
+      });
     });
   });
 }

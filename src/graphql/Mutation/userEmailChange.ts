@@ -1,5 +1,6 @@
 import { Result } from "neverthrow";
 
+import * as Dto from "../../application/queries/dto.ts";
 import { User } from "../../domain/entities.ts";
 import { EmailAlreadyExistsError } from "../../domain/unit-of-works/_errors/email-already-exists.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
@@ -59,7 +60,7 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
 
   return {
     __typename: "UserEmailChangeSuccess",
-    user: changedUser,
+    user: Dto.User.fromDomain(changedUser),
   };
 };
 
@@ -75,7 +76,7 @@ const parseArgs = (args: MutationUserEmailChangeArgs) => {
 };
 
 if (import.meta.vitest) {
-  describe("Parsing", () => {
+  describe("parsing", () => {
     const valids: MutationUserEmailChangeArgs[] = [
       { email: "email@example.com" },
       { email: `${"A".repeat(User.Email.MAX - 12)}@example.com` },

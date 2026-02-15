@@ -1,4 +1,5 @@
 import type { YogaInitialContext } from "graphql-yoga";
+import type { Kysely } from "kysely";
 import type { OverrideProperties } from "type-fest";
 import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 
@@ -18,6 +19,22 @@ import type { IUserReaderRepoForUser } from "../domain/repos-for-read/for-user/u
 import type { IUnitOfWorkForAdmin } from "../domain/unit-of-works/for-admin.ts";
 import type { IUnitOfWorkForGuest } from "../domain/unit-of-works/for-guest.ts";
 import type { IUnitOfWorkForUser } from "../domain/unit-of-works/for-user.ts";
+import type { DB } from "../infra/datasources/_shared/generated.ts";
+import { CredentialQueryForAdmin } from "../infra/queries/db/credential/for-admin.ts";
+import { CredentialQueryForGuest } from "../infra/queries/db/credential/for-guest.ts";
+import { CredentialQueryForUser } from "../infra/queries/db/credential/for-user.ts";
+import { TodoQueryForAdmin } from "../infra/queries/db/todo/for-admin.ts";
+import { TodoQueryForUser } from "../infra/queries/db/todo/for-user.ts";
+import { UserQueryForAdmin } from "../infra/queries/db/user/for-admin.ts";
+import { UserQueryForGuest } from "../infra/queries/db/user/for-guest.ts";
+import { UserQueryForUser } from "../infra/queries/db/user/for-user.ts";
+import { TodoReaderRepoForAdmin } from "../infra/repos-for-read/db/for-admin/todo.ts";
+import { UserReaderRepoForAdmin } from "../infra/repos-for-read/db/for-admin/user.ts";
+import { TodoReaderRepoForUser } from "../infra/repos-for-read/db/for-user/todo.ts";
+import { UserReaderRepoForUser } from "../infra/repos-for-read/db/for-user/user.ts";
+import { UnitOfWorkForAdmin } from "../infra/unit-of-works/db/for-admin.ts";
+import { UnitOfWorkForGuest } from "../infra/unit-of-works/db/for-guest.ts";
+import { UnitOfWorkForUser } from "../infra/unit-of-works/db/for-user.ts";
 import type { logger } from "./logger.ts";
 
 export type Context = ServerContext & PluginContext & YogaInitialContext & UserContext;
@@ -77,5 +94,52 @@ type ContextForGuest = ContextBase & {
 
 export type ContextBase = {
   start: ReturnType<typeof Date.now>;
-  logger: ReturnType<typeof logger.child>;
+  logger: typeof logger;
+};
+
+export const createUserContextCore = (user: UserContext["user"], kysely: Kysely<DB>) => {
+  switch (user?.role) {
+    case "ADMIN":
+      return {
+        role: user.role,
+        user,
+        queries: {
+          credential: new CredentialQueryForAdmin(kysely, user.id),
+          todo: new TodoQueryForAdmin(kysely),
+          user: new UserQueryForAdmin(kysely),
+        },
+        repos: {
+          todo: new TodoReaderRepoForAdmin(kysely, user.id),
+          user: new UserReaderRepoForAdmin(kysely, user.id),
+        },
+        unitOfWork: new UnitOfWorkForAdmin(kysely, user.id),
+      } as const;
+    case "USER":
+      return {
+        role: user.role,
+        user,
+        queries: {
+          credential: new CredentialQueryForUser(kysely, user.id),
+          todo: new TodoQueryForUser(kysely, user.id),
+          user: new UserQueryForUser(kysely, user.id),
+        },
+        repos: {
+          todo: new TodoReaderRepoForUser(kysely, user.id),
+          user: new UserReaderRepoForUser(kysely, user.id),
+        },
+        unitOfWork: new UnitOfWorkForUser(kysely, user.id),
+      } as const;
+    case undefined:
+      return {
+        role: "GUEST",
+        user,
+        queries: {
+          credential: new CredentialQueryForGuest(kysely),
+          user: new UserQueryForGuest(kysely),
+        },
+        unitOfWork: new UnitOfWorkForGuest(kysely),
+      } as const;
+    default:
+      throw new Error(user satisfies never);
+  }
 };

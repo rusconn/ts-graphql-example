@@ -1,5 +1,4 @@
-import * as RefreshTokenRepo from "../../../src/infra/unit-of-works/db/_shared/refresh-token.ts";
-
+import * as RefreshTokenRepo from "../../../../infra/unit-of-works/db/_shared/refresh-token.ts";
 import { db as refreshTokens } from "../db/refresh-tokens.ts";
 
 export const domain = {
