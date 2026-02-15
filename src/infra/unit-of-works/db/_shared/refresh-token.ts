@@ -74,7 +74,7 @@ export class RefreshTokenRepoShared {
   }
 }
 
-const toDb = (refreshToken: Domain.Type): RefreshToken => {
+export const toDb = (refreshToken: Domain.Type): RefreshToken => {
   return refreshToken;
 };
 

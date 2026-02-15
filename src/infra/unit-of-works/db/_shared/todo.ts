@@ -52,7 +52,7 @@ export class TodoRepoShared {
   }
 }
 
-const toDb = ({ status, ...rest }: Domain.Type): Todo => {
+export const toDb = ({ status, ...rest }: Domain.Type): Todo => {
   return {
     ...rest,
     status: toDbStatus[status],

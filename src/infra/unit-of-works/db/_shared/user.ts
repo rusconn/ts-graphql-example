@@ -88,7 +88,11 @@ export class UserRepoShared {
   }
 }
 
-const toDb = ({ password, role, ...rest }: Domain.Type): { user: User; credential: Credential } => {
+export const toDb = ({
+  password,
+  role,
+  ...rest
+}: Domain.Type): { user: User; credential: Credential } => {
   return {
     user: {
       ...rest,
