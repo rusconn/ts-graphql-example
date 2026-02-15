@@ -1,8 +1,3 @@
-import * as RefreshTokenRepo from "../../../src/infra/unit-of-works/db/_shared/refresh-token.ts";
+import { domain } from "../../../src/graphql/_test/data/domain/refresh-tokens.ts";
 
-import { db as refreshTokens } from "../db/refresh-tokens.ts";
-
-export const domain = {
-  admin: RefreshTokenRepo.toDomain(refreshTokens.admin),
-  alice: RefreshTokenRepo.toDomain(refreshTokens.alice),
-};
+export { domain };

@@ -1,4 +1,4 @@
-import type { Context } from "../../server/context.ts";
+import type { Context } from "../../../server/context.ts";
 import { dto } from "./dto.ts";
 
 export const context = {

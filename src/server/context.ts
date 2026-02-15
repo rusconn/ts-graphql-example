@@ -77,5 +77,5 @@ type ContextForGuest = ContextBase & {
 
 export type ContextBase = {
   start: ReturnType<typeof Date.now>;
-  logger: ReturnType<typeof logger.child>;
+  logger: typeof logger;
 };

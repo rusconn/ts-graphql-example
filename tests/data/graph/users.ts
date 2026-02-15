@@ -4,7 +4,7 @@ import * as Domain from "../../../src/domain/entities.ts";
 import type * as Graph from "../../../src/graphql/_schema.ts";
 import { userId } from "../../../src/graphql/User/id.ts";
 import { dateTime, type DateTime } from "./_shared.ts";
-import { domain } from "../domain/users.ts";
+import { domain } from "../../../src/graphql/_test/data/domain/users.ts";
 
 type GraphUser = OverrideProperties<
   Required<

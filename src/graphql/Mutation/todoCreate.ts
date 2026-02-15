@@ -108,7 +108,7 @@ const logic = async (
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../_test-data/context.ts");
+  const { context } = await import("../_test/data/context.ts");
 
   const valid = {
     args: {
@@ -157,14 +157,12 @@ if (import.meta.vitest) {
         find: async () => ({}),
       },
       user: {
-        findByDbId: async () => ({ id: "dummy" }),
+        find: async () => ({ id: "dummy" }),
       },
     });
 
-    const createRepos = () => ({
-      todo: {
-        add: async () => "Ok",
-      },
+    const createUnitOfWork = () => ({
+      run: async () => {},
     });
 
     const notExceededs = [0, 1, Todo.MAX_COUNT - 1];
@@ -174,9 +172,9 @@ if (import.meta.vitest) {
 
     test.each(notExceededs)("notExceededs %#", async (num) => {
       const queries = createQueries(num);
-      const repos = createRepos();
+      const unitOfWork = createUnitOfWork();
       const result = await logic(
-        { user: valid.user, queries, repos } as unknown as Ctx,
+        { user: valid.user, queries, unitOfWork } as unknown as Ctx,
         valid.args,
       );
       expect(result?.__typename).not.toBe("ResourceLimitExceededError");
@@ -184,9 +182,9 @@ if (import.meta.vitest) {
 
     test.each(exceededs)("exceededs %#", async (num) => {
       const queries = createQueries(num);
-      const repos = createRepos();
+      const unitOfWork = createUnitOfWork();
       const result = await logic(
-        { user: valid.user, queries, repos } as unknown as Ctx,
+        { user: valid.user, queries, unitOfWork } as unknown as Ctx,
         valid.args,
       );
       expect(result?.__typename).toBe("ResourceLimitExceededError");

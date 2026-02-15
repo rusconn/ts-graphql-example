@@ -1,6 +1,6 @@
 import { signedJwt } from "../../../src/util/access-token.ts";
 
-import { domain } from "../domain/users.ts";
+import { domain } from "../../../src/graphql/_test/data/domain/users.ts";
 
 export const tokens = {
   admin: await signedJwt(domain.admin),

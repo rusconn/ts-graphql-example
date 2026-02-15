@@ -88,7 +88,7 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (
         ...filter,
       }),
     connectionArgs,
-    { resolveInfo: info },
+    info && { resolveInfo: info },
   );
 };
 

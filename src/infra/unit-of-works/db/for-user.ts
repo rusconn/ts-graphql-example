@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import type { Kysely, Transaction } from "kysely";
 
 import type * as Domain from "../../../domain/entities.ts";
 import type {
@@ -20,6 +20,14 @@ export class UnitOfWorkForUser implements IUnitOfWorkForUser {
   }
 
   async run<T>(work: (repos: IUnitOfWorkReposForUser) => Promise<T>): Promise<T> {
+    if (this.#db.isTransaction) {
+      return await work({
+        refreshToken: new RefreshTokenRepoForUser(this.#db as Transaction<DB>, this.#tenantId),
+        todo: new TodoRepoForUser(this.#db as Transaction<DB>, this.#tenantId),
+        user: new UserRepoForUser(this.#db as Transaction<DB>, this.#tenantId),
+      });
+    }
+
     return await this.#db.transaction().execute(async (trx) => {
       return await work({
         refreshToken: new RefreshTokenRepoForUser(trx, this.#tenantId),

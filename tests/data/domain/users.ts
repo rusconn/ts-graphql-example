@@ -1,9 +1,3 @@
-import * as UserRepo from "../../../src/infra/unit-of-works/db/_shared/user.ts";
+import { domain } from "../../../src/graphql/_test/data/domain/users.ts";
 
-import { db as credentials } from "../db/credentials.ts";
-import { db as users } from "../db/users.ts";
-
-export const domain = {
-  admin: UserRepo.toDomain(users.admin, credentials.admin),
-  alice: UserRepo.toDomain(users.alice, credentials.alice),
-};
+export { domain };

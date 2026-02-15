@@ -4,7 +4,7 @@ import * as Domain from "../../../src/domain/entities.ts";
 import { todoId } from "../../../src/graphql/Todo/id.ts";
 import * as Graph from "../../../src/graphql/_schema.ts";
 import { dateTime, type DateTime } from "./_shared.ts";
-import { domain } from "../domain/todos.ts";
+import { domain } from "../../../src/graphql/_test/data/domain/todos.ts";
 
 type GraphTodo = OverrideProperties<
   Required<
