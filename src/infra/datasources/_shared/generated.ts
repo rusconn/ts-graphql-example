@@ -18,7 +18,7 @@ export interface Credentials {
 }
 
 export interface RefreshTokens {
-  lastUsedAt: Timestamp;
+  createdAt: Timestamp;
   token: string;
   userId: Uuid;
 }

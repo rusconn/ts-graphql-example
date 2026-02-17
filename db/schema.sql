@@ -26,10 +26,10 @@ CREATE TABLE credentials (
 CREATE TABLE refresh_tokens (
   token varchar(60) PRIMARY KEY,
   user_id uuid NOT NULL REFERENCES users ON UPDATE RESTRICT ON DELETE RESTRICT,
-  last_used_at timestamptz (3) NOT NULL
+  created_at timestamptz (3) NOT NULL
 );
 
-CREATE INDEX ON refresh_tokens (user_id, last_used_at);
+CREATE INDEX ON refresh_tokens (user_id, created_at);
 
 CREATE TABLE todos (
   id uuid PRIMARY KEY,

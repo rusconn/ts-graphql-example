@@ -2,13 +2,13 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
+import * as Domain from "../../src/domain/entities.ts";
 import {
   type DB,
   type Todo,
   TodoStatus,
   type User,
 } from "../../src/infra/datasources/_shared/types.ts";
-import * as Domain from "../../src/domain/entities.ts";
 import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
 
 import { randInt } from "./_utils.ts";

@@ -193,7 +193,7 @@ it("retains latest 5 refresh tokens", async () => {
     const dbRefreshTokens = Array.from({ length: 5 }).map((_, i) => ({
       token: `$2b$04$UJnbSNtlTFcLZkRtPqx2SOswuES4NFkKjP1rV9pb.SP037OP0ru/${i}`,
       userId: db.users.alice.id,
-      lastUsedAt: new Date(`2026-01-01T00:00:00.00${i}Z`),
+      createdAt: new Date(`2026-01-01T00:00:00.00${i}Z`),
     })) satisfies Db.NewRefreshToken[];
     const refreshTokens = dbRefreshTokens.map(Domain.RefreshToken.parseOrThrow);
     await seed.refreshTokens(...refreshTokens);

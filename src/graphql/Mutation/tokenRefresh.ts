@@ -1,13 +1,17 @@
 import { RefreshToken } from "../../domain/entities.ts";
 import { signedJwt } from "../../util/access-token.ts";
-import { deleteRefreshTokenCookie, getRefreshTokenCookie } from "../../util/refresh-token.ts";
+import {
+  deleteRefreshTokenCookie,
+  getRefreshTokenCookie,
+  setRefreshTokenCookie,
+} from "../../util/refresh-token.ts";
 import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import type { MutationResolvers } from "../_schema.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 100)
+    tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 200)
   }
 
   union TokenRefreshResult = TokenRefreshSuccess | InvalidRefreshTokenError
@@ -44,13 +48,17 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
     };
   }
 
+  const { rawRefreshToken, refreshToken } = await RefreshToken.create(user.id);
   try {
     await context.unitOfWork.run(async (repos) => {
-      await repos.refreshToken.touch(hashed, new Date());
+      await repos.refreshToken.remove(hashed);
+      await repos.refreshToken.add(refreshToken);
     });
   } catch (e) {
     throw internalServerError(e);
   }
+
+  await setRefreshTokenCookie(context, rawRefreshToken);
 
   return {
     __typename: "TokenRefreshSuccess",

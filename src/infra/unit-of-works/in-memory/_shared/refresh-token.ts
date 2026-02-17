@@ -26,19 +26,6 @@ export class RefreshTokenRepoShared {
     }
   }
 
-  async touch(token: Domain.Type["token"], now: Date) {
-    const refreshToken = this.#trx.refreshTokens.get(token);
-    if (!refreshToken) {
-      throw entityNotFoundError();
-    }
-
-    if (this.#tenantId != null && refreshToken.userId !== this.#tenantId) {
-      throw entityNotFoundError();
-    }
-
-    refreshToken.lastUsedAt = now;
-  }
-
   async retainLatest(userId: Domain.Type["userId"], limit: number) {
     const refreshTokens = this.#trx.refreshTokens
       .entries()
@@ -46,7 +33,7 @@ export class RefreshTokenRepoShared {
 
     const refreshTokensDesc = refreshTokens
       .toArray()
-      .sort((a, b) => b[1].lastUsedAt.getTime() - a[1].lastUsedAt.getTime());
+      .sort((a, b) => b[1].createdAt.getTime() - a[1].createdAt.getTime());
 
     const olds = refreshTokensDesc.slice(limit);
 

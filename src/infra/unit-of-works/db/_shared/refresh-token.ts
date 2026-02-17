@@ -26,16 +26,6 @@ export class RefreshTokenRepoShared {
       .execute();
   }
 
-  async touch(token: Domain.Type["token"], now: Date) {
-    await this.#trx
-      .updateTable("refreshTokens")
-      .set("lastUsedAt", now)
-      .where("token", "=", token)
-      .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
-      .returning("userId")
-      .executeTakeFirstOrThrow(entityNotFoundError);
-  }
-
   async retainLatest(userId: Domain.Type["userId"], limit: number) {
     await this.#trx
       .deleteFrom("refreshTokens")
@@ -48,7 +38,7 @@ export class RefreshTokenRepoShared {
             .where("userId", "=", userId)
             .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
             .select("token")
-            .orderBy("lastUsedAt", "desc")
+            .orderBy("createdAt", "desc")
             .limit(limit),
         ),
       )

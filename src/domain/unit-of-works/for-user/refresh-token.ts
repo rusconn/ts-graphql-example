@@ -3,8 +3,6 @@ import type * as Domain from "../../entities.ts";
 export interface IRefreshTokenRepoForUser {
   add(refreshToken: Domain.RefreshToken.Type): Promise<void>;
 
-  touch(token: Domain.RefreshToken.Type["token"], now: Date): Promise<void>;
-
   retainLatest(userId: Domain.RefreshToken.Type["userId"], limit: number): Promise<void>;
 
   remove(token: Domain.RefreshToken.Type["token"]): Promise<void>;

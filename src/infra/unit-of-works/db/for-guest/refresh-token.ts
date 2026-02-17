@@ -16,11 +16,11 @@ export class RefreshTokenRepoForGuest implements IRefreshTokenRepoForGuest {
     return await this.#shared.add(refreshToken);
   }
 
-  async touch(token: Domain.RefreshToken.Type["token"], now: Date) {
-    return await this.#shared.touch(token, now);
-  }
-
   async retainLatest(userId: Domain.RefreshToken.Type["userId"], limit: number) {
     return await this.#shared.retainLatest(userId, limit);
+  }
+
+  async remove(token: Domain.RefreshToken.Type["token"]) {
+    return await this.#shared.remove(token);
   }
 }

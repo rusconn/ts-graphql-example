@@ -2,8 +2,8 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import { type DB, type User, UserRole } from "../../src/infra/datasources/_shared/types.ts";
 import * as Domain from "../../src/domain/entities.ts";
+import { type DB, type User, UserRole } from "../../src/infra/datasources/_shared/types.ts";
 import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
 
 export const seed = async (trx: Transaction<DB>) => {

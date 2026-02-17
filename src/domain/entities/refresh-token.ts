@@ -13,13 +13,13 @@ export type Type = Tagged<Raw, "RefreshTokenEntity">;
 type Raw = {
   token: Token.TypeHashed;
   userId: User.Type["id"];
-  lastUsedAt: Date;
+  createdAt: Date;
 };
 
 export const parse = (input: {
   token: Parameters<typeof Token.parseHashed>[0];
   userId: Parameters<typeof User.Id.parse>[0];
-  lastUsedAt: Date;
+  createdAt: Date;
 }): Result<Type, ParseError[]> => {
   return Result.combineWithAllErrors([
     parseToken(input.token), //
@@ -29,7 +29,7 @@ export const parse = (input: {
       ({
         token,
         userId,
-        lastUsedAt: input.lastUsedAt,
+        createdAt: input.createdAt,
       }) satisfies Raw as Type,
   );
 };
@@ -77,7 +77,7 @@ export const create = async (
     refreshToken: {
       userId,
       token: await Token.hash(rawRefreshToken),
-      lastUsedAt: new Date(),
+      createdAt: new Date(),
     } satisfies Raw as Type,
   };
 };

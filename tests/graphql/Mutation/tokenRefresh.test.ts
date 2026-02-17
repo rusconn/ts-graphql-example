@@ -46,7 +46,6 @@ it("returns an error when no refresh token passed", async () => {
   {
     const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
     expect(refreshTokens.length).toBe(1);
-    expect(refreshTokens[0]!.lastUsedAt).toEqual(domain.refreshTokens.alice.lastUsedAt);
   }
 
   // act
@@ -62,7 +61,6 @@ it("returns an error when no refresh token passed", async () => {
   {
     const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
     expect(refreshTokens.length).toBe(1);
-    expect(refreshTokens[0]!.lastUsedAt).toEqual(domain.refreshTokens.alice.lastUsedAt);
   }
 });
 
@@ -71,7 +69,6 @@ it("returns a valition error when refresh is invalid", async () => {
   {
     const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
     expect(refreshTokens.length).toBe(1);
-    expect(refreshTokens[0]!.lastUsedAt).toEqual(domain.refreshTokens.alice.lastUsedAt);
   }
 
   // act
@@ -90,7 +87,6 @@ it("returns a valition error when refresh is invalid", async () => {
   {
     const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
     expect(refreshTokens.length).toBe(1);
-    expect(refreshTokens[0]!.lastUsedAt).toEqual(domain.refreshTokens.alice.lastUsedAt);
   }
 });
 
@@ -99,7 +95,7 @@ it("refreshes token and updates refresh token timestamp", async () => {
   {
     const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
     expect(refreshTokens.length).toBe(1);
-    expect(refreshTokens[0]!.lastUsedAt).toEqual(domain.refreshTokens.alice.lastUsedAt);
+    expect(refreshTokens[0]!.createdAt).toEqual(domain.refreshTokens.alice.createdAt);
   }
 
   // act
@@ -121,8 +117,8 @@ it("refreshes token and updates refresh token timestamp", async () => {
   {
     const refreshTokens = await queries.refreshToken.find(domain.users.alice.id);
     expect(refreshTokens.length).toBe(1);
-    expect(refreshTokens[0]!.lastUsedAt.getTime()).toBeGreaterThan(
-      domain.refreshTokens.alice.lastUsedAt.getTime(),
+    expect(refreshTokens[0]!.createdAt.getTime()).toBeGreaterThan(
+      domain.refreshTokens.alice.createdAt.getTime(),
     );
 
     const alice = await node({

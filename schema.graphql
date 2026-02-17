@@ -38,7 +38,7 @@ type Mutation {
     """
     newPassword: String!
   ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100)
-  logout: LogoutResult @semanticNonNull @complexity(value: 5)
+  logout: LogoutResult @semanticNonNull @complexity(value: 100)
   signup(
     """
     1文字以上、100文字まで
@@ -85,7 +85,7 @@ type Mutation {
     """
     status: TodoStatus
   ): TodoUpdateResult @semanticNonNull @complexity(value: 5)
-  tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 100)
+  tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 200)
   userEmailChange(
     """
     100文字まで、既に存在する場合はエラー
