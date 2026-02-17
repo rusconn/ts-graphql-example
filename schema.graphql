@@ -169,13 +169,17 @@ type TodoUpdateSuccess {
   todo: Todo!
 }
 
-union TokenRefreshResult = TokenRefreshSuccess | InvalidRefreshTokenError
+union TokenRefreshResult = TokenRefreshSuccess | InvalidRefreshTokenError | RefreshTokenExpiredError
 
 type TokenRefreshSuccess {
   token: String!
 }
 
 type InvalidRefreshTokenError implements Error {
+  message: String!
+}
+
+type RefreshTokenExpiredError implements Error {
   message: String!
 }
 

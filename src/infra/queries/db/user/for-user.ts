@@ -17,10 +17,6 @@ export class UserQueryForUser implements IUserQueryForUser {
     return await this.#shared.find(id);
   }
 
-  async findByRefreshToken(token: Domain.RefreshToken.Type["token"]) {
-    return await this.#shared.findByRefreshToken(token);
-  }
-
   async load(key: UserLoader.Key) {
     return await this.#shared.load(key);
   }

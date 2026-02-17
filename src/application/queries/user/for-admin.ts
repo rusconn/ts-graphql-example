@@ -1,11 +1,8 @@
-import type { RefreshToken } from "../../../infra/datasources/_shared/types.ts";
 import type { Type as User } from "./dto.ts";
 import type * as UserLoader from "./loaders/user.ts";
 
 export interface IUserQueryForAdmin {
   find(id: User["id"]): Promise<User | undefined>;
-
-  findByRefreshToken(token: RefreshToken["token"]): Promise<User | undefined>;
 
   findMany(params: {
     sortKey: "createdAt" | "updatedAt";

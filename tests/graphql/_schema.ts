@@ -265,6 +265,7 @@ export type TokenRefreshMutationVariables = Exact<{ [key: string]: never; }>;
 
 export type TokenRefreshMutation = { tokenRefresh?:
     | { __typename: 'InvalidRefreshTokenError' }
+    | { __typename: 'RefreshTokenExpiredError' }
     | { __typename: 'TokenRefreshSuccess', token: string }
    | null };
 

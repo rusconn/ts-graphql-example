@@ -1,5 +1,6 @@
 import * as Domain from "../../../src/domain/entities.ts";
 import type * as Db from "../../../src/infra/datasources/_shared/types.ts";
+import { addDates } from "../../../src/util/date.ts";
 
 import { db, client, domain, graph } from "../../data.ts";
 import { clearTables, queries, seed } from "../../helpers.ts";
@@ -190,11 +191,16 @@ it("returns a new token and adds a refresh token", async () => {
 it("retains latest 5 refresh tokens", async () => {
   // seed
   {
-    const dbRefreshTokens = Array.from({ length: 5 }).map((_, i) => ({
-      token: `$2b$04$UJnbSNtlTFcLZkRtPqx2SOswuES4NFkKjP1rV9pb.SP037OP0ru/${i}`,
-      userId: db.users.alice.id,
-      createdAt: new Date(`2026-01-01T00:00:00.00${i}Z`),
-    })) satisfies Db.NewRefreshToken[];
+    const dbRefreshTokens = Array.from({ length: 5 }).map((_, i) => {
+      const createdAt = new Date(`2026-01-01T00:00:00.00${i}Z`);
+      const expiresAt = addDates(createdAt, 7);
+      return {
+        token: `$2b$04$UJnbSNtlTFcLZkRtPqx2SOswuES4NFkKjP1rV9pb.SP037OP0ru/${i}`,
+        userId: db.users.alice.id,
+        expiresAt,
+        createdAt,
+      } satisfies Db.NewRefreshToken;
+    });
     const refreshTokens = dbRefreshTokens.map(Domain.RefreshToken.parseOrThrow);
     await seed.refreshTokens(...refreshTokens);
   }

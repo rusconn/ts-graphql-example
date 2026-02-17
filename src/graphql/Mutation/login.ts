@@ -69,7 +69,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     throw internalServerError(e);
   }
 
-  await setRefreshTokenCookie(context, rawRefreshToken);
+  await setRefreshTokenCookie(context, rawRefreshToken, refreshToken.expiresAt);
 
   return {
     __typename: "LoginSuccess",

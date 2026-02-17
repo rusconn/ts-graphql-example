@@ -68,7 +68,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     throw internalServerError(e);
   }
 
-  await setRefreshTokenCookie(ctx, rawRefreshToken);
+  await setRefreshTokenCookie(ctx, rawRefreshToken, refreshToken.expiresAt);
 
   return {
     __typename: "SignupSuccess",

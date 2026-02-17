@@ -218,6 +218,11 @@ export type QueryUsersArgs = {
   sortKey: UserSortKeys;
 };
 
+export type RefreshTokenExpiredError = Error & {
+  __typename?: 'RefreshTokenExpiredError';
+  message: Scalars['String']['output'];
+};
+
 export type ResourceLimitExceededError = Error & {
   __typename?: 'ResourceLimitExceededError';
   message: Scalars['String']['output'];
@@ -306,7 +311,7 @@ export type TodoUpdateSuccess = {
   todo: Todo;
 };
 
-export type TokenRefreshResult = InvalidRefreshTokenError | TokenRefreshSuccess;
+export type TokenRefreshResult = InvalidRefreshTokenError | RefreshTokenExpiredError | TokenRefreshSuccess;
 
 export type TokenRefreshSuccess = {
   __typename?: 'TokenRefreshSuccess';
@@ -476,6 +481,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = Reso
   ;
   TokenRefreshResult:
     | ( InvalidRefreshTokenError & { __typename: 'InvalidRefreshTokenError' } )
+    | ( RefreshTokenExpiredError & { __typename: 'RefreshTokenExpiredError' } )
     | ( TokenRefreshSuccess & { __typename: 'TokenRefreshSuccess' } )
   ;
   UserEmailChangeResult:
@@ -493,6 +499,7 @@ export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = 
     | ( InvalidInputError )
     | ( InvalidRefreshTokenError )
     | ( LoginFailedError )
+    | ( RefreshTokenExpiredError )
     | ( ResourceLimitExceededError )
     | ( ResourceNotFoundError )
     | ( SamePasswordsError )
@@ -531,6 +538,7 @@ export type ResolversTypes = ResolversObject<{
   Node: ResolverTypeWrapper<NodeMapper>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  RefreshTokenExpiredError: ResolverTypeWrapper<RefreshTokenExpiredError>;
   ResourceLimitExceededError: ResolverTypeWrapper<ResourceLimitExceededError>;
   ResourceNotFoundError: ResolverTypeWrapper<ResourceNotFoundError>;
   SamePasswordsError: ResolverTypeWrapper<SamePasswordsError>;
@@ -587,6 +595,7 @@ export type ResolversParentTypes = ResolversObject<{
   Node: NodeMapper;
   PageInfo: PageInfo;
   Query: Record<PropertyKey, never>;
+  RefreshTokenExpiredError: RefreshTokenExpiredError;
   ResourceLimitExceededError: ResourceLimitExceededError;
   ResourceNotFoundError: ResourceNotFoundError;
   SamePasswordsError: SamePasswordsError;
@@ -658,7 +667,7 @@ export type EmailAlreadyTakenErrorResolvers<ContextType = Context, ParentType ex
 }>;
 
 export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'IncorrectOldPasswordError' | 'InvalidInputError' | 'InvalidRefreshTokenError' | 'LoginFailedError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError' | 'SamePasswordsError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'IncorrectOldPasswordError' | 'InvalidInputError' | 'InvalidRefreshTokenError' | 'LoginFailedError' | 'RefreshTokenExpiredError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError' | 'SamePasswordsError', ParentType, ContextType>;
 }>;
 
 export type IncorrectOldPasswordErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['IncorrectOldPasswordError'] = ResolversParentTypes['IncorrectOldPasswordError']> = ResolversObject<{
@@ -740,6 +749,11 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   user: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
   users: Resolver<Maybe<ResolversTypes['UserConnection']>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'reverse' | 'sortKey'>>;
   viewer: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+}>;
+
+export type RefreshTokenExpiredErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RefreshTokenExpiredError'] = ResolversParentTypes['RefreshTokenExpiredError']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type ResourceLimitExceededErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ResourceLimitExceededError'] = ResolversParentTypes['ResourceLimitExceededError']> = ResolversObject<{
@@ -827,7 +841,7 @@ export type TodoUpdateSuccessResolvers<ContextType = Context, ParentType extends
 }>;
 
 export type TokenRefreshResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TokenRefreshResult'] = ResolversParentTypes['TokenRefreshResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'InvalidRefreshTokenError' | 'TokenRefreshSuccess', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'InvalidRefreshTokenError' | 'RefreshTokenExpiredError' | 'TokenRefreshSuccess', ParentType, ContextType>;
 }>;
 
 export type TokenRefreshSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TokenRefreshSuccess'] = ResolversParentTypes['TokenRefreshSuccess']> = ResolversObject<{
@@ -890,6 +904,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Node?: NodeResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  RefreshTokenExpiredError?: RefreshTokenExpiredErrorResolvers<ContextType>;
   ResourceLimitExceededError?: ResourceLimitExceededErrorResolvers<ContextType>;
   ResourceNotFoundError?: ResourceNotFoundErrorResolvers<ContextType>;
   SamePasswordsError?: SamePasswordsErrorResolvers<ContextType>;

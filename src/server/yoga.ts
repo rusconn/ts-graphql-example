@@ -5,11 +5,11 @@ import { authenticationErr } from "../graphql/_errors/global/authentication-erro
 import { badUserInputErr } from "../graphql/_errors/global/bad-user-input.ts";
 import { tokenExpiredErr } from "../graphql/_errors/global/token-expired.ts";
 import { kysely } from "../infra/datasources/db/client.ts";
-import { UserQueryForGuest } from "../infra/queries/db/user/for-guest.ts";
 import { renderApolloStudio } from "../lib/graphql-yoga/render-apollo-studio.ts";
 import { type Payload, verifyJwt } from "../util/access-token.ts";
 import {
   createUserContextCore,
+  findContextUser,
   type PluginContext,
   type ServerContext,
   type UserContext,
@@ -53,7 +53,7 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
 
     let user: UserContext["user"] = null;
     if (payload) {
-      const found = await UserQueryForGuest.find(payload.id, kysely);
+      const found = await findContextUser(payload.id, kysely);
       if (found == null) {
         throw authenticationErr();
       }

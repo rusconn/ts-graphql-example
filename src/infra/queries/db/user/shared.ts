@@ -29,18 +29,6 @@ export class UserQueryShared {
     return user && Dto.User.parseOrThrow(user);
   }
 
-  async findByRefreshToken(token: Domain.RefreshToken.Type["token"]) {
-    const user = await this.#db
-      .selectFrom("users")
-      .innerJoin("refreshTokens", "users.id", "refreshTokens.userId")
-      .where("token", "=", token)
-      .$if(this.#tenantId != null, (qb) => qb.where("users.id", "=", this.#tenantId!))
-      .selectAll("users")
-      .executeTakeFirst();
-
-    return user && Dto.User.parseOrThrow(user);
-  }
-
   async load(key: UserLoader.Key) {
     const user = await this.#loaders.user.load(key);
     return user && Dto.User.parseOrThrow(user);

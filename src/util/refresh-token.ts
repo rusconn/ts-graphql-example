@@ -11,11 +11,12 @@ export const getRefreshTokenCookie = async (context: Context) => {
 export const setRefreshTokenCookie = async (
   context: Context,
   refreshToken: RefreshToken.Token.Type,
+  expires: RefreshToken.Type["expiresAt"],
 ) => {
   await context.request.cookieStore!.set({
     ...cookieBase,
     value: refreshToken,
-    expires: Date.now() + 1000 * 60 * 60 * 24 * 30, // in 30 days
+    expires,
   });
 };
 

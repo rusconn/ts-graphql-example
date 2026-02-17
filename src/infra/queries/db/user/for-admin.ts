@@ -20,10 +20,6 @@ export class UserQueryForAdmin implements IUserQueryForAdmin {
     return await this.#shared.find(id);
   }
 
-  async findByRefreshToken(token: Domain.RefreshToken.Type["token"]) {
-    return await this.#shared.findByRefreshToken(token);
-  }
-
   async findMany(params: {
     sortKey: "createdAt" | "updatedAt";
     reverse: boolean;

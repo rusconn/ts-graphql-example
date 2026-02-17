@@ -26,6 +26,7 @@ CREATE TABLE credentials (
 CREATE TABLE refresh_tokens (
   token varchar(60) PRIMARY KEY,
   user_id uuid NOT NULL REFERENCES users ON UPDATE RESTRICT ON DELETE RESTRICT,
+  expires_at timestamptz (3) NOT NULL,
   created_at timestamptz (3) NOT NULL
 );
 

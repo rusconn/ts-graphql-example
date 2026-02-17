@@ -4,6 +4,7 @@ import type { Transaction } from "kysely";
 
 import type { DB, RefreshToken, User } from "../../src/infra/datasources/_shared/types.ts";
 import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
+import { addDates } from "../../src/util/date.ts";
 
 export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
   const handRefreshTokens: RefreshToken[] = [
@@ -11,18 +12,21 @@ export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
       /** raw: ddfe9c8c-6a73-435d-aa91-7ead331aab0c */
       token: "$2b$10$nOpVuJk/aqONHB/jIDq9BOIu5LcRAjr0/rGsYNui3Ep8h.2X3glee",
       userId: "0193cb3e-4379-750f-880f-77afae342259" as Uuidv7,
+      expiresAt: addDates(new Date(), 7),
       createdAt: new Date(),
     },
     {
       /** raw: e9b7e901-5fe4-4088-a8c5-96f934707c56 */
       token: "$2b$10$j7tyBjZUd.J3c2dMNiNLXOMhZyxYzMYo46A0CFoajklUE9B4NFCpm",
       userId: "0193cb3e-504f-72e9-897c-2c71f389f3ad" as Uuidv7,
+      expiresAt: addDates(new Date(), 7),
       createdAt: new Date(),
     },
     {
       /** raw: c91fcf2d-5b15-451b-885b-a93b88094961 */
       token: "$2b$10$odhfjMJlp9z97D9g7mzVd..2sPvEYBTNssSmY0vHSuP2v7Okh/CJ.",
       userId: "0193cb3e-58fe-772b-8306-412afa147cdd" as Uuidv7,
+      expiresAt: addDates(new Date(), 7),
       createdAt: new Date(),
     },
   ];
@@ -45,9 +49,12 @@ const fakeData = (userIds: User["id"][]) => {
 };
 
 const fakeDataOne = (userId: User["id"]): RefreshToken => {
+  const createdAt = faker.date.past();
+  const expiresAt = addDates(createdAt, 7);
   return {
     token: `dummy-${userId}`,
     userId,
-    createdAt: faker.date.past(),
+    expiresAt,
+    createdAt,
   };
 };
