@@ -16,6 +16,8 @@ export type Scalars = {
   DateTime: { input: string; output: string; }
   /** A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address. */
   EmailAddress: { input: string; output: string; }
+  /** Represents NULL values */
+  Void: { input: any; output: any; }
 };
 
 export const ErrorCode = {
@@ -112,7 +114,7 @@ export type LoginPasswordChangeMutationVariables = Exact<{
 export type LoginPasswordChangeMutation = { loginPasswordChange?:
     | { __typename: 'IncorrectOldPasswordError' }
     | { __typename: 'InvalidInputErrors', errors: Array<{ field: string, message: string }> }
-    | { __typename: 'LoginPasswordChangeSuccess', id: string }
+    | { __typename: 'LoginPasswordChangeSuccess', user: { id: string } }
     | { __typename: 'SamePasswordsError' }
    | null };
 
@@ -141,7 +143,7 @@ export type LoginPasswordChangeNodeQuery = { node?:
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type LogoutMutation = { logout?: { __typename: 'LogoutResult', success: boolean } | null };
+export type LogoutMutation = { logout?: any | null };
 
 export type SignupMutationVariables = Exact<{
   name: Scalars['String']['input'];

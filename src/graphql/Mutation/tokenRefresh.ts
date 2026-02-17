@@ -1,10 +1,7 @@
 import { RefreshToken } from "../../domain/entities.ts";
+import type { Context } from "../../server/context.ts";
 import { signedJwt } from "../../util/access-token.ts";
-import {
-  deleteRefreshTokenCookie,
-  getRefreshTokenCookie,
-  setRefreshTokenCookie,
-} from "../../util/refresh-token.ts";
+import * as RefreshTokenCookie from "../../util/refresh-token-cookie.ts";
 import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import type { MutationResolvers } from "../_schema.ts";
@@ -33,32 +30,36 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args, context) => {
-  const cookie = await getRefreshTokenCookie(context);
+  return await logic(context);
+};
+
+const logic = async (context: Context): Promise<ReturnType<MutationResolvers["tokenRefresh"]>> => {
+  const cookie = await RefreshTokenCookie.get(context);
   if (!cookie) {
     throw badUserInputErr("Specify refresh token.");
   }
   if (!RefreshToken.Token.is(cookie.value)) {
-    await deleteRefreshTokenCookie(context);
+    await RefreshTokenCookie.clear(context);
     return {
       __typename: "InvalidRefreshTokenError",
-      message: "The refresh token is invalid. To get a valid refresh token, please login.",
+      message: "The refresh token is invalid. Please login.",
     };
   }
 
   const hashed = await RefreshToken.Token.hash(cookie.value);
   const refreshToken = await context.repos.refreshToken.find(hashed);
   if (!refreshToken) {
-    await deleteRefreshTokenCookie(context);
+    await RefreshTokenCookie.clear(context);
     return {
       __typename: "InvalidRefreshTokenError",
-      message: "The refresh token is invalid. To get a valid refresh token, please login.",
+      message: "The refresh token is invalid. Please login.",
     };
   }
   if (RefreshToken.isExpired(refreshToken)) {
-    await deleteRefreshTokenCookie(context);
+    await RefreshTokenCookie.clear(context);
     return {
       __typename: "RefreshTokenExpiredError",
-      message: "The refresh token is expired. To get a fresh refresh token, please login.",
+      message: "The refresh token is expired. Please login.",
     };
   }
 
@@ -74,7 +75,10 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
     throw internalServerError(e);
   }
 
-  await setRefreshTokenCookie(context, rawRefreshToken, newRefreshToken.expiresAt);
+  await RefreshTokenCookie.set(context, {
+    value: rawRefreshToken,
+    expires: newRefreshToken.expiresAt,
+  });
 
   return {
     __typename: "TokenRefreshSuccess",

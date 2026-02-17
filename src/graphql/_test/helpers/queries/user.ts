@@ -10,6 +10,16 @@ export class UserQuery {
     this.#trx = trx;
   }
 
+  async find(id: Dto.User.Type["id"]) {
+    const user = await this.#trx
+      .selectFrom("users") //
+      .where("id", "=", id)
+      .selectAll()
+      .executeTakeFirst();
+
+    return user && Dto.User.parseOrThrow(user);
+  }
+
   async findOrThrow(id: Dto.User.Type["id"]) {
     const user = await this.#trx
       .selectFrom("users") //
@@ -18,5 +28,14 @@ export class UserQuery {
       .executeTakeFirstOrThrow();
 
     return Dto.User.parseOrThrow(user);
+  }
+
+  async count() {
+    const result = await this.#trx
+      .selectFrom("users")
+      .select(({ fn }) => fn.count<number>("id").as("count"))
+      .executeTakeFirstOrThrow();
+
+    return result.count;
   }
 }

@@ -1,4 +1,5 @@
-import { deleteRefreshTokenCookie } from "../../util/refresh-token.ts";
+import type { ContextForAuthed } from "../../server/context.ts";
+import * as RefreshTokenCookie from "../../util/refresh-token-cookie.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/global/forbidden.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
@@ -26,6 +27,12 @@ export const resolver: MutationResolvers["accountDelete"] = async (_parent, _arg
     throw forbiddenErr(ctx);
   }
 
+  return await logic(ctx);
+};
+
+const logic = async (
+  ctx: ContextForAuthed,
+): Promise<ReturnType<MutationResolvers["accountDelete"]>> => {
   const user = await ctx.repos.user.find(ctx.user.id);
   if (!user) {
     throw internalServerError();
@@ -41,7 +48,7 @@ export const resolver: MutationResolvers["accountDelete"] = async (_parent, _arg
     throw internalServerError(e);
   }
 
-  await deleteRefreshTokenCookie(context);
+  await RefreshTokenCookie.clear(ctx);
 
   return {
     __typename: "AccountDeleteSuccess",

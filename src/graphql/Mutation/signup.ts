@@ -2,8 +2,9 @@ import { Result } from "neverthrow";
 
 import { RefreshToken, User } from "../../domain/entities.ts";
 import { EmailAlreadyExistsError } from "../../domain/unit-of-works/_errors/email-already-exists.ts";
+import type { ContextForGuest } from "../../server/context.ts";
 import { signedJwt } from "../../util/access-token.ts";
-import { setRefreshTokenCookie } from "../../util/refresh-token.ts";
+import * as RefreshTokenCookie from "../../util/refresh-token-cookie.ts";
 import { authGuest } from "../_authorizers/guest.ts";
 import { forbiddenErr } from "../_errors/global/forbidden.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
@@ -51,29 +52,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
     return invalidInputErrors(parsed.error);
   }
 
-  const user = await User.create(parsed.value);
-  const { rawRefreshToken, refreshToken } = await RefreshToken.create(user.id);
-  try {
-    await ctx.unitOfWork.run(async (repos) => {
-      await repos.user.add(user);
-      await repos.refreshToken.add(refreshToken);
-    });
-  } catch (e) {
-    if (e instanceof EmailAlreadyExistsError) {
-      return {
-        __typename: "EmailAlreadyTakenError",
-        message: "The email already taken.",
-      };
-    }
-    throw internalServerError(e);
-  }
-
-  await setRefreshTokenCookie(ctx, rawRefreshToken, refreshToken.expiresAt);
-
-  return {
-    __typename: "SignupSuccess",
-    token: await signedJwt(user),
-  };
+  return await logic(ctx, parsed.value);
 };
 
 const parseArgs = (args: MutationSignupArgs) => {
@@ -97,6 +76,38 @@ const parseArgs = (args: MutationSignupArgs) => {
   }));
 };
 
+const logic = async (
+  ctx: ContextForGuest,
+  input: Parameters<typeof User.create>[0],
+): Promise<ReturnType<MutationResolvers["signup"]>> => {
+  const user = await User.create(input);
+  const { rawRefreshToken, refreshToken } = await RefreshToken.create(user.id);
+  try {
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.user.add(user);
+      await repos.refreshToken.add(refreshToken);
+    });
+  } catch (e) {
+    if (e instanceof EmailAlreadyExistsError) {
+      return {
+        __typename: "EmailAlreadyTakenError",
+        message: "The email already taken.",
+      };
+    }
+    throw internalServerError(e);
+  }
+
+  await RefreshTokenCookie.set(ctx, {
+    value: rawRefreshToken,
+    expires: refreshToken.expiresAt,
+  });
+
+  return {
+    __typename: "SignupSuccess",
+    token: await signedJwt(user),
+  };
+};
+
 if (import.meta.vitest) {
   describe("parsing", () => {
     const validArgs: MutationSignupArgs = {
@@ -106,16 +117,16 @@ if (import.meta.vitest) {
     };
 
     const invalidArgs: MutationSignupArgs = {
-      name: "A".repeat(User.Name.MAX + 1),
-      email: `${"A".repeat(User.Email.MAX - 12 + 1)}@example.com`,
-      password: "A".repeat(User.Password.MIN - 1),
+      name: "a".repeat(User.Name.MAX + 1),
+      email: `${"a".repeat(User.Email.MAX - 12 + 1)}@example.com`,
+      password: "a".repeat(User.Password.MIN - 1),
     };
 
     const valids: MutationSignupArgs[] = [
       { ...validArgs },
-      { ...validArgs, name: "A".repeat(User.Name.MAX) },
-      { ...validArgs, email: `${"A".repeat(User.Email.MAX - 12)}@example.com` },
-      { ...validArgs, password: "A".repeat(User.Password.MIN) },
+      { ...validArgs, name: "a".repeat(User.Name.MAX) },
+      { ...validArgs, email: `${"a".repeat(User.Email.MAX - 12)}@example.com` },
+      { ...validArgs, password: "a".repeat(User.Password.MIN) },
     ];
 
     const invalids: [MutationSignupArgs, (keyof MutationSignupArgs)[]][] = [
@@ -125,12 +136,12 @@ if (import.meta.vitest) {
       [{ ...validArgs, ...invalidArgs }, ["name", "email", "password"]],
     ];
 
-    test.each(valids)("valids %#", (args) => {
+    it.each(valids)("succeeds when args is valid: %#", (args) => {
       const parsed = parseArgs(args);
       expect(parsed.isOk()).toBe(true);
     });
 
-    test.each(invalids)("invalids %#", (args, fields) => {
+    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
       const parsed = parseArgs(args);
       expect(parsed.isErr()).toBe(true);
       expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);

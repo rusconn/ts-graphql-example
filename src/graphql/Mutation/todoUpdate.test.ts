@@ -5,7 +5,8 @@ import type { ControlledTransaction } from "kysely";
 import type { DB } from "../../infra/datasources/_shared/generated.ts";
 import { kysely } from "../../infra/datasources/db/client.ts";
 import { ErrorCode, type MutationTodoUpdateArgs } from "../_schema.ts";
-import { type ContextForTest, context, domain, dto, graph } from "../_test/data.ts";
+import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
+import { domain, dto, graph } from "../_test/data.ts";
 import {
   createContext,
   createQueries,
@@ -33,10 +34,10 @@ afterEach(async () => {
 });
 
 const todoUpdate = async (
-  ctx: ContextForTest, //
+  ctx: ContextForIT, //
   args: MutationTodoUpdateArgs,
 ) => {
-  return await resolver({}, args, createContext({ user: ctx.user, trx }));
+  return await resolver({}, args, createContext(ctx, trx));
 };
 
 describe("authorization", () => {
@@ -46,19 +47,8 @@ describe("authorization", () => {
     description: "bar",
   };
 
-  it("not rejects when user is authenticated", async () => {
-    const ctx = context.alice;
-
-    try {
-      await todoUpdate(ctx, args);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-
   it("rejects when user is not authenticated", async () => {
-    const ctx = context.guest;
+    const ctx = context.guest();
 
     const before = await queries.todo.findOrThrow(dto.todos.alice1.id);
 
@@ -71,21 +61,49 @@ describe("authorization", () => {
     const after = await queries.todo.findOrThrow(dto.todos.alice1.id);
     expect(after).toStrictEqual(before);
   });
+
+  it("not rejects when user is authenticated", async () => {
+    const ctx = context.alice();
+
+    try {
+      await todoUpdate(ctx, args);
+    } catch (e) {
+      if (!(e instanceof GraphQLError)) throw e;
+      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
+    }
+  });
 });
 
 describe("parsing", () => {
-  const ctx = context.alice;
-
-  it("not returns validation errors when args is valid", async () => {
+  it("throws an input error when id is invalid", async () => {
+    const ctx = context.alice();
     const args: MutationTodoUpdateArgs = {
-      id: graph.todos.alice1.id,
+      id: "bad-id",
     };
 
-    const result = await todoUpdate(ctx, args);
-    expect(result?.__typename).not.toBe("InvalidInputErrors");
+    await expect(todoUpdate(ctx, args)).rejects.toSatisfy(
+      (e) =>
+        e instanceof GraphQLError && //
+        e.extensions.code === ErrorCode.BadUserInput,
+    );
   });
 
-  it("returns validation errors when args is invalid", async () => {
+  it("not throws input errors when id is valid", async () => {
+    const ctx = context.alice();
+    const args: MutationTodoUpdateArgs = {
+      id: dummyId.todo(),
+    };
+
+    try {
+      await todoUpdate(ctx, args);
+    } catch (e) {
+      if (!(e instanceof GraphQLError)) throw e;
+      expect(e.extensions.code).not.toBe(ErrorCode.BadUserInput);
+    }
+  });
+
+  it("returns input errors when args is invalid", async () => {
+    const ctx = context.alice();
     const args: MutationTodoUpdateArgs = {
       id: graph.todos.alice1.id,
       title: null,
@@ -101,23 +119,20 @@ describe("parsing", () => {
     expect(after).toStrictEqual(before);
   });
 
-  it("throws a bad input error when id is invalid", async () => {
+  it("not returns input errors when args is valid", async () => {
+    const ctx = context.alice();
     const args: MutationTodoUpdateArgs = {
-      id: "bad-id",
+      id: graph.todos.alice1.id,
     };
 
-    await expect(todoUpdate(ctx, args)).rejects.toSatisfy(
-      (e) =>
-        e instanceof GraphQLError && //
-        e.extensions.code === ErrorCode.BadUserInput,
-    );
+    const result = await todoUpdate(ctx, args);
+    expect(result?.__typename).not.toBe("InvalidInputErrors");
   });
 });
 
 describe("logic", () => {
-  const ctx = context.alice;
-
-  it("returns not found when id not exists on graph", async () => {
+  it("returns not-found when id not exists on graph", async () => {
+    const ctx = context.alice();
     const args: MutationTodoUpdateArgs = {
       id: dummyId.todo(),
     };
@@ -126,7 +141,7 @@ describe("logic", () => {
     expect(result?.__typename).toBe("ResourceNotFoundError");
   });
 
-  it("returns not found when user does not own todo", async () => {
+  it("returns not-found when user does not own todo", async () => {
     await seeders.users(domain.users.admin);
     await seeders.todos(domain.todos.admin1);
 
@@ -134,14 +149,15 @@ describe("logic", () => {
       id: graph.todos.admin1.id,
     };
 
-    const result1 = await todoUpdate(context.admin, args);
+    const result1 = await todoUpdate(context.admin(), args);
     expect(result1?.__typename).not.toBe("ResourceNotFoundError");
 
-    const result2 = await todoUpdate(context.alice, args);
+    const result2 = await todoUpdate(context.alice(), args);
     expect(result2?.__typename).toBe("ResourceNotFoundError");
   });
 
   it("updates todo using args", async () => {
+    const ctx = context.alice();
     const args: MutationTodoUpdateArgs = {
       id: graph.todos.alice1.id,
       title: "foo",
@@ -165,6 +181,7 @@ describe("logic", () => {
   });
 
   it("updates only updatedAt when args is empty", async () => {
+    const ctx = context.alice();
     const args: MutationTodoUpdateArgs = {
       id: graph.todos.alice1.id,
     };

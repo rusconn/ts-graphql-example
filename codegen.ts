@@ -24,6 +24,7 @@ const typescript: TypeScriptPluginConfig = {
       input: "./EmailAddress.ts#EmailAddress",
       output: "./EmailAddress.ts#EmailAddress",
     },
+    Void: "void",
   },
   useTypeImports: true,
 };

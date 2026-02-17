@@ -18,7 +18,9 @@ const loginPasswordChange = executeSingleResultOperation<
     loginPasswordChange(oldPassword: $oldPassword, newPassword: $newPassword) {
       __typename
       ... on LoginPasswordChangeSuccess {
-        id
+        user {
+          id
+        }
       }
       ... on InvalidInputErrors {
         errors {
@@ -229,7 +231,7 @@ it("changes password", async () => {
       data?.loginPasswordChange?.__typename === "LoginPasswordChangeSuccess",
       data?.loginPasswordChange?.__typename,
     );
-    expect(data.loginPasswordChange.id).toBe(graph.users.alice.id);
+    expect(data.loginPasswordChange.user.id).toBe(graph.users.alice.id);
   }
 
   // postcondition

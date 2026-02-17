@@ -1,11 +1,11 @@
-import type { TodoResolvers } from "../_schema.ts";
-import * as createdAt from "./createdAt.ts";
-import * as description from "./description.ts";
-import * as id from "./id.ts";
-import * as status from "./status.ts";
-import * as title from "./title.ts";
-import * as updatedAt from "./updatedAt.ts";
-import * as user from "./user.ts";
+import type { TodoResolvers } from "./_schema.ts";
+import * as createdAt from "./Todo/createdAt.ts";
+import * as description from "./Todo/description.ts";
+import * as id from "./Todo/id.ts";
+import * as status from "./Todo/status.ts";
+import * as title from "./Todo/title.ts";
+import * as updatedAt from "./Todo/updatedAt.ts";
+import * as user from "./Todo/user.ts";
 
 const typeDef = /* GraphQL */ `
   type Todo

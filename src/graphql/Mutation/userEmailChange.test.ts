@@ -4,9 +4,9 @@ import type { ControlledTransaction } from "kysely";
 
 import type { DB } from "../../infra/datasources/_shared/generated.ts";
 import { kysely } from "../../infra/datasources/db/client.ts";
-import { ErrorCode, type MutationAccountUpdateArgs } from "../_schema.ts";
+import { ErrorCode, type MutationUserEmailChangeArgs } from "../_schema.ts";
 import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
-import { domain } from "../_test/data.ts";
+import { domain, dto } from "../_test/data.ts";
 import {
   createContext,
   createQueries,
@@ -14,7 +14,7 @@ import {
   type Queries,
   type Seeders,
 } from "../_test/helpers.ts";
-import { resolver } from "./accountUpdate.ts";
+import { resolver } from "./userEmailChange.ts";
 
 let trx: ControlledTransaction<DB>;
 let seeders: Seeders;
@@ -31,35 +31,40 @@ afterEach(async () => {
   await trx.rollback().execute();
 });
 
-const accountUpdate = async (
+const userEmailChange = async (
   ctx: ContextForIT, //
-  args: MutationAccountUpdateArgs,
+  args: MutationUserEmailChangeArgs,
 ) => {
   return await resolver({}, args, createContext(ctx, trx));
 };
 
 describe("authorization", () => {
-  const args: MutationAccountUpdateArgs = {};
+  const args: MutationUserEmailChangeArgs = {
+    email: "a",
+  };
 
   it("rejects when user is not authenticated", async () => {
     const ctx = context.guest();
 
-    await expect(accountUpdate(ctx, args)).rejects.toSatisfy(
+    const before = await queries.user.findOrThrow(dto.users.alice.id);
+
+    await expect(userEmailChange(ctx, args)).rejects.toSatisfy(
       (e) =>
         e instanceof GraphQLError && //
         e.extensions.code === ErrorCode.Forbidden,
     );
+
+    const after = await queries.user.findOrThrow(dto.users.alice.id);
+    expect(after).toStrictEqual(before);
   });
 
   it("not rejects when user is authenticated", async () => {
     const ctx = context.alice();
 
     try {
-      await accountUpdate(ctx, args);
+      await userEmailChange(ctx, args);
     } catch (e) {
-      if (!(e instanceof GraphQLError)) {
-        throw e;
-      }
+      if (!(e instanceof GraphQLError)) throw e;
       expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
     }
   });
@@ -68,13 +73,15 @@ describe("authorization", () => {
 describe("parsing", () => {
   it("returns input errors when args is invalid", async () => {
     const ctx = context.alice();
-    const args: MutationAccountUpdateArgs = { name: null };
+    const args: MutationUserEmailChangeArgs = {
+      email: "emailexample.com",
+    };
 
     const before = await queries.user.findOrThrow(ctx.user.id);
 
-    const result = await accountUpdate(ctx, args);
+    const result = await userEmailChange(ctx, args);
     assert(result?.__typename === "InvalidInputErrors", result?.__typename);
-    expect(result.errors.map((e) => e.field)).toStrictEqual(["name"]);
+    expect(result.errors.map((e) => e.field)).toStrictEqual(["email"]);
 
     const after = await queries.user.findOrThrow(ctx.user.id);
     expect(after).toStrictEqual(before);
@@ -82,46 +89,48 @@ describe("parsing", () => {
 
   it("not returns input errors when args is valid", async () => {
     const ctx = context.alice();
-    const args: MutationAccountUpdateArgs = {};
+    const args: MutationUserEmailChangeArgs = {
+      email: "email@example.com",
+    };
 
-    const result = await accountUpdate(ctx, args);
+    const result = await userEmailChange(ctx, args);
     expect(result?.__typename).not.toBe("InvalidInputErrors");
   });
 });
 
 describe("logic", () => {
-  it("updates account using args", async () => {
+  it("returns an error when email already taken", async () => {
+    await seeders.users(domain.users.admin);
+
     const ctx = context.alice();
-    const args: MutationAccountUpdateArgs = {
-      name: "foo",
+    const args: MutationUserEmailChangeArgs = {
+      email: dto.users.admin.email,
+    };
+
+    const result = await userEmailChange(ctx, args);
+    expect(result?.__typename).toBe("EmailAlreadyTakenError");
+
+    // DBの一意制約違反発生時にトランザクションがabortされるのでafterの取得ができない。
+  });
+
+  it("changes email using args", async () => {
+    const ctx = context.alice();
+    const args: MutationUserEmailChangeArgs = {
+      email: "email@example.com",
     };
 
     const before = await queries.user.findOrThrow(ctx.user.id);
 
-    const result = await accountUpdate(ctx, args);
-    assert(result?.__typename === "AccountUpdateSuccess", result?.__typename);
-    const updated = result.user;
-    expect(omit(updated, ["name", "updatedAt"])).toStrictEqual(omit(before, ["name", "updatedAt"]));
-    expect(updated.name).toBe("foo");
-    expect(updated.updatedAt.getTime()).toBeGreaterThan(before.updatedAt.getTime());
+    const result = await userEmailChange(ctx, args);
+    assert(result?.__typename === "UserEmailChangeSuccess", result?.__typename);
+    const changed = result.user;
+    expect(omit(changed, ["email", "updatedAt"])).toStrictEqual(
+      omit(before, ["email", "updatedAt"]),
+    );
+    expect(changed.email).toBe("email@example.com");
+    expect(changed.updatedAt.getTime()).toBeGreaterThan(before.updatedAt.getTime());
 
     const after = await queries.user.findOrThrow(ctx.user.id);
-    expect(after).toStrictEqual(updated);
-  });
-
-  it("updates only updatedAt when args is empty", async () => {
-    const ctx = context.alice();
-    const args: MutationAccountUpdateArgs = {};
-
-    const before = await queries.user.findOrThrow(ctx.user.id);
-
-    const result = await accountUpdate(ctx, args);
-    assert(result?.__typename === "AccountUpdateSuccess", result?.__typename);
-    const updated = result.user;
-    expect(omit(updated, ["updatedAt"])).toStrictEqual(omit(before, ["updatedAt"]));
-    expect(updated.updatedAt.getTime()).toBeGreaterThan(before.updatedAt.getTime());
-
-    const after = await queries.user.findOrThrow(ctx.user.id);
-    expect(after).toStrictEqual(updated);
+    expect(after).toStrictEqual(changed);
   });
 });

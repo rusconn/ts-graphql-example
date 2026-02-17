@@ -1,8 +1,9 @@
 import { Result } from "neverthrow";
 
 import { RefreshToken, User } from "../../domain/entities.ts";
+import type { Context } from "../../server/context.ts";
 import { signedJwt } from "../../util/access-token.ts";
-import { setRefreshTokenCookie } from "../../util/refresh-token.ts";
+import * as RefreshTokenCookie from "../../util/refresh-token-cookie.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserEmail } from "../_parsers/user/email.ts";
@@ -41,7 +42,30 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     return invalidInputErrors(parsed.error);
   }
 
-  const { email, password } = parsed.value;
+  return await logic(context, parsed.value);
+};
+
+const parseArgs = (args: MutationLoginArgs) => {
+  return Result.combineWithAllErrors([
+    parseUserEmail(args, "email", {
+      optional: false,
+      nullable: false,
+    }),
+    parseUserPassword(args, "password", {
+      optional: false,
+      nullable: false,
+    }),
+  ]).map(([email, password]) => ({
+    email,
+    password,
+  }));
+};
+
+const logic = async (
+  context: Context,
+  input: { email: User.Email.Type; password: User.Password.Type },
+): Promise<ReturnType<MutationResolvers["login"]>> => {
+  const { email, password } = input;
 
   const credential = await context.queries.credential.findByEmail(email);
   if (!credential) {
@@ -69,28 +93,15 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     throw internalServerError(e);
   }
 
-  await setRefreshTokenCookie(context, rawRefreshToken, refreshToken.expiresAt);
+  await RefreshTokenCookie.set(context, {
+    value: rawRefreshToken,
+    expires: refreshToken.expiresAt,
+  });
 
   return {
     __typename: "LoginSuccess",
     token: await signedJwt({ id: credential.userId }),
   };
-};
-
-const parseArgs = (args: MutationLoginArgs) => {
-  return Result.combineWithAllErrors([
-    parseUserEmail(args, "email", {
-      optional: false,
-      nullable: false,
-    }),
-    parseUserPassword(args, "password", {
-      optional: false,
-      nullable: false,
-    }),
-  ]).map(([email, password]) => ({
-    email,
-    password,
-  }));
 };
 
 if (import.meta.vitest) {
@@ -101,14 +112,14 @@ if (import.meta.vitest) {
     };
 
     const invalidArgs: MutationLoginArgs = {
-      email: `${"A".repeat(User.Email.MAX - 12 + 1)}@example.com`,
-      password: "A".repeat(User.Password.MIN - 1),
+      email: `${"a".repeat(User.Email.MAX - 12 + 1)}@example.com`,
+      password: "a".repeat(User.Password.MIN - 1),
     };
 
     const valids: MutationLoginArgs[] = [
       { ...validArgs },
-      { ...validArgs, email: `${"A".repeat(User.Email.MAX - 12)}@example.com` },
-      { ...validArgs, password: "A".repeat(User.Password.MIN) },
+      { ...validArgs, email: `${"a".repeat(User.Email.MAX - 12)}@example.com` },
+      { ...validArgs, password: "a".repeat(User.Password.MIN) },
     ];
 
     const invalids: [MutationLoginArgs, (keyof MutationLoginArgs)[]][] = [
@@ -118,12 +129,12 @@ if (import.meta.vitest) {
       [{ ...validArgs, ...invalidArgs }, ["email", "password"]],
     ];
 
-    test.each(valids)("valids %#", (args) => {
+    it.each(valids)("succeeds when args is valid: %#", (args) => {
       const parsed = parseArgs(args);
       expect(parsed.isOk()).toBe(true);
     });
 
-    test.each(invalids)("invalids %#", (args, fields) => {
+    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
       const parsed = parseArgs(args);
       expect(parsed.isErr()).toBe(true);
       expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);

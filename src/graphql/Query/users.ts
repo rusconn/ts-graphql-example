@@ -73,7 +73,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
       }),
     () => ctx.queries.user.count(),
     connectionArgs,
-    info && { resolveInfo: info },
+    { resolveInfo: info! },
   );
 };
 

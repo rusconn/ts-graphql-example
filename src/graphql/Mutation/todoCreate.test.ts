@@ -5,7 +5,8 @@ import * as Domain from "../../domain/entities.ts";
 import type { DB } from "../../infra/datasources/_shared/generated.ts";
 import { kysely } from "../../infra/datasources/db/client.ts";
 import { ErrorCode, type MutationTodoCreateArgs } from "../_schema.ts";
-import { type ContextForTest, context, domain } from "../_test/data.ts";
+import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
+import { domain } from "../_test/data.ts";
 import {
   createContext,
   createQueries,
@@ -31,10 +32,10 @@ afterEach(async () => {
 });
 
 const todoCreate = async (
-  ctx: ContextForTest, //
+  ctx: ContextForIT, //
   args: MutationTodoCreateArgs,
 ) => {
-  return await resolver({}, args, createContext({ user: ctx.user, trx }));
+  return await resolver({}, args, createContext(ctx, trx));
 };
 
 describe("authorization", () => {
@@ -43,19 +44,8 @@ describe("authorization", () => {
     description: "bar",
   };
 
-  it("not rejects when user is authenticated", async () => {
-    const ctx = context.alice;
-
-    try {
-      await todoCreate(ctx, args);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-
   it("rejects when user is not authenticated", async () => {
-    const ctx = context.guest;
+    const ctx = context.guest();
 
     const before = await queries.todo.count();
 
@@ -68,22 +58,22 @@ describe("authorization", () => {
     const after = await queries.todo.count();
     expect(after).toBe(before);
   });
+
+  it("not rejects when user is authenticated", async () => {
+    const ctx = context.alice();
+
+    try {
+      await todoCreate(ctx, args);
+    } catch (e) {
+      if (!(e instanceof GraphQLError)) throw e;
+      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
+    }
+  });
 });
 
 describe("parsing", () => {
-  const ctx = context.alice;
-
-  it("not returns validation errors when args is valid", async () => {
-    const args: MutationTodoCreateArgs = {
-      title: "foo",
-      description: "bar",
-    };
-
-    const result = await todoCreate(ctx, args);
-    expect(result?.__typename).not.toBe("InvalidInputErrors");
-  });
-
-  it("returns validation errors when args is invalid", async () => {
+  it("returns input errors when args is invalid", async () => {
+    const ctx = context.alice();
     const args: MutationTodoCreateArgs = {
       title: "a".repeat(Domain.Todo.Title.MAX + 1),
       description: "bar",
@@ -98,12 +88,22 @@ describe("parsing", () => {
     const after = await queries.todo.countTheirs(ctx.user.id);
     expect(after).toBe(before);
   });
+
+  it("not returns input errors when args is valid", async () => {
+    const ctx = context.alice();
+    const args: MutationTodoCreateArgs = {
+      title: "foo",
+      description: "bar",
+    };
+
+    const result = await todoCreate(ctx, args);
+    expect(result?.__typename).not.toBe("InvalidInputErrors");
+  });
 });
 
 describe("logic", () => {
-  const ctx = context.alice;
-
   it("creates a todo using args", async () => {
+    const ctx = context.alice();
     const args: MutationTodoCreateArgs = {
       title: "foo",
       description: "bar",

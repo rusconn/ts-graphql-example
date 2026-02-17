@@ -1,8 +1,8 @@
-import type { QueryResolvers } from "../_schema.ts";
-import * as node from "./node.ts";
-import * as user from "./user.ts";
-import * as users from "./users.ts";
-import * as viewer from "./viewer.ts";
+import type { QueryResolvers } from "./_schema.ts";
+import * as node from "./Query/node.ts";
+import * as user from "./Query/user.ts";
+import * as users from "./Query/users.ts";
+import * as viewer from "./Query/viewer.ts";
 
 const typeDef = /* GraphQL */ `
   type Query

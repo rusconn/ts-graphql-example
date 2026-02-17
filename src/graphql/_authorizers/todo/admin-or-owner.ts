@@ -1,9 +1,9 @@
 import type { Context } from "../../../server/context.ts";
+import type { Todo } from "../../Todo/_mapper.ts";
 import { authAdmin } from "../admin.ts";
-import type { ParentTodo } from "./_shared.ts";
-import { authTodoOwner } from "./todo-owner.ts";
+import { authTodoOwner } from "./owner.ts";
 
-export const authAdminOrTodoOwner = (context: Context, todo: ParentTodo) => {
+export const authAdminOrTodoOwner = (context: Context, todo: Todo) => {
   const ctx = authAdmin(context);
 
   if (Error.isError(ctx)) {
@@ -14,8 +14,7 @@ export const authAdminOrTodoOwner = (context: Context, todo: ParentTodo) => {
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../../_test/data/context.ts");
-  const { dto } = await import("../../_test/data/dto.ts");
+  const { context, dto } = await import("../../_test/data.ts");
 
   const allows = [
     [context.admin, dto.todos.admin1],

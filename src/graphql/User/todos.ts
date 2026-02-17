@@ -1,5 +1,5 @@
 import { getCursorConnection } from "../../lib/graphql/cursor-connections/mod.ts";
-import { authAdminOrUserOwner } from "../_authorizers/user/admin-or-user-owner.ts";
+import { authAdminOrUserOwner } from "../_authorizers/user/admin-or-owner.ts";
 import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
 import { forbiddenErr } from "../_errors/global/forbidden.ts";
 import { parseConnectionArgs } from "../_parsers/connection-args.ts";
@@ -88,7 +88,7 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (
         ...filter,
       }),
     connectionArgs,
-    info && { resolveInfo: info },
+    { resolveInfo: info! },
   );
 };
 

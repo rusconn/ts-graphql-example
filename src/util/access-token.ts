@@ -23,6 +23,6 @@ export const verifyJwt = async (token: string) => {
 export const signedJwt = async ({ id }: Payload) => {
   return await new SignJWT({ id })
     .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime("30min")
+    .setExpirationTime("15min")
     .sign(signingKey);
 };

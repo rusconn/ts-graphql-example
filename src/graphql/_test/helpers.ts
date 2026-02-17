@@ -1,15 +1,17 @@
 import type { Transaction } from "kysely";
 
 import type * as Domain from "../../domain/entities.ts";
-import type { DB, User } from "../../infra/datasources/_shared/types.ts";
-import { CredentialQueryShared } from "../../infra/queries/db/credential/shared.ts";
+import type { DB } from "../../infra/datasources/_shared/types.ts";
 import { RefreshTokenRepoShared } from "../../infra/unit-of-works/db/_shared/refresh-token.ts";
 import { TodoRepoShared } from "../../infra/unit-of-works/db/_shared/todo.ts";
 import { UserRepoShared } from "../../infra/unit-of-works/db/_shared/user.ts";
 import { type Context, createUserContextCore, type UserContext } from "../../server/context.ts";
 import { logger } from "../../server/logger.ts";
+import type { ContextForIT } from "./data/context/dynamic.ts";
 import * as todos from "./data/graph/todos.ts";
 import * as users from "./data/graph/users.ts";
+import { CredentialQuery } from "./helpers/queries/credential.ts";
+import { RefreshTokenQuery } from "./helpers/queries/refresh-token.ts";
 import { TodoQuery } from "./helpers/queries/todo.ts";
 import { UserQuery } from "./helpers/queries/user.ts";
 
@@ -21,16 +23,8 @@ export const dummyId = {
 export type Queries = ReturnType<typeof createQueries>;
 
 export const createQueries = (trx: Transaction<DB>) => ({
-  credential: new CredentialQueryShared(trx),
-  refreshToken: {
-    async find(userId: User["id"]) {
-      return await trx
-        .selectFrom("refreshTokens")
-        .where("userId", "=", userId)
-        .selectAll()
-        .execute();
-    },
-  },
+  credential: new CredentialQuery(trx),
+  refreshToken: new RefreshTokenQuery(trx),
   todo: new TodoQuery(trx),
   user: new UserQuery(trx),
 });
@@ -71,19 +65,14 @@ export const createSeeders = (trx: Transaction<DB>) => {
   };
 };
 
-export const createContext = (input: {
-  user: UserContext["user"];
-  trx: Transaction<DB>;
-}): Context => {
-  return createUserContext(input) as Context;
+export const createContext = (ctx: ContextForIT, trx: Transaction<DB>): Context => {
+  return {
+    request: ctx.request,
+    ...createUserContext(ctx.user, trx),
+  } as Context;
 };
 
-const createUserContext = (input: {
-  user: UserContext["user"];
-  trx: Transaction<DB>;
-}): UserContext => {
-  const { user, trx } = input;
-
+const createUserContext = (user: ContextForIT["user"], trx: Transaction<DB>): UserContext => {
   return {
     start: 0,
     logger,

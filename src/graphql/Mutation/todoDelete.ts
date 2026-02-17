@@ -1,4 +1,6 @@
+import type { Todo } from "../../domain/entities.ts";
 import { EntityNotFoundError } from "../../domain/unit-of-works/_errors/entity-not-found.ts";
+import type { ContextForAuthed } from "../../server/context.ts";
 import { unwrapOrElse } from "../../util/neverthrow.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
@@ -30,6 +32,13 @@ export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, c
     throw badUserInputErr(e.message, e);
   });
 
+  return await logic(ctx, id);
+};
+
+const logic = async (
+  ctx: ContextForAuthed,
+  id: Todo.Id.Type,
+): Promise<ReturnType<MutationResolvers["todoDelete"]>> => {
   try {
     await ctx.unitOfWork.run(async (repos) => {
       await repos.todo.remove(id);

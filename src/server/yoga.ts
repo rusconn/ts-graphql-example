@@ -8,6 +8,7 @@ import { kysely } from "../infra/datasources/db/client.ts";
 import { renderApolloStudio } from "../lib/graphql-yoga/render-apollo-studio.ts";
 import { type Payload, verifyJwt } from "../util/access-token.ts";
 import {
+  type Context,
   createUserContextCore,
   findContextUser,
   type PluginContext,
@@ -51,7 +52,7 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
       }
     }
 
-    let user: UserContext["user"] = null;
+    let user: Context["user"] = null;
     if (payload) {
       const found = await findContextUser(payload.id, kysely);
       if (found == null) {
@@ -60,13 +61,11 @@ export const yoga = createYoga<ServerContext & PluginContext, UserContext>({
       user = found;
     }
 
-    const userContextCore = createUserContextCore(user, kysely);
-
     return {
       start,
       logger: logger.child({ requestId }),
-      ...userContextCore,
-    };
+      ...createUserContextCore(user, kysely),
+    } satisfies UserContext;
   },
   // 自分でログする
   logging: false,

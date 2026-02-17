@@ -26,6 +26,8 @@ export type Scalars = {
   DateTime: { input: DateTime; output: Date | DateTime; }
   /** A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address. */
   EmailAddress: { input: EmailAddress; output: EmailAddress; }
+  /** Represents NULL values */
+  Void: { input: void; output: void; }
 };
 
 export type AccountDeleteResult = AccountDeleteSuccess;
@@ -91,7 +93,7 @@ export type LoginPasswordChangeResult = IncorrectOldPasswordError | InvalidInput
 
 export type LoginPasswordChangeSuccess = {
   __typename?: 'LoginPasswordChangeSuccess';
-  id: Scalars['ID']['output'];
+  user: User;
 };
 
 export type LoginResult = InvalidInputErrors | LoginFailedError | LoginSuccess;
@@ -101,11 +103,6 @@ export type LoginSuccess = {
   token: Scalars['String']['output'];
 };
 
-export type LogoutResult = {
-  __typename?: 'LogoutResult';
-  success: Scalars['Boolean']['output'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   /** 紐づくリソースは全て削除される */
@@ -113,7 +110,7 @@ export type Mutation = {
   accountUpdate?: Maybe<AccountUpdateResult>;
   login?: Maybe<LoginResult>;
   loginPasswordChange?: Maybe<LoginPasswordChangeResult>;
-  logout?: Maybe<LogoutResult>;
+  logout?: Maybe<Scalars['Void']['output']>;
   signup?: Maybe<SignupResult>;
   /** 10000件まで */
   todoCreate?: Maybe<TodoCreateResult>;
@@ -448,7 +445,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = Reso
   LoginPasswordChangeResult:
     | ( IncorrectOldPasswordError & { __typename: 'IncorrectOldPasswordError' } )
     | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } )
-    | ( LoginPasswordChangeSuccess & { __typename: 'LoginPasswordChangeSuccess' } )
+    | ( Omit<LoginPasswordChangeSuccess, 'user'> & { user: _RefType['User'] } & { __typename: 'LoginPasswordChangeSuccess' } )
     | ( SamePasswordsError & { __typename: 'SamePasswordsError' } )
   ;
   LoginResult:
@@ -530,10 +527,9 @@ export type ResolversTypes = ResolversObject<{
   InvalidRefreshTokenError: ResolverTypeWrapper<InvalidRefreshTokenError>;
   LoginFailedError: ResolverTypeWrapper<LoginFailedError>;
   LoginPasswordChangeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LoginPasswordChangeResult']>;
-  LoginPasswordChangeSuccess: ResolverTypeWrapper<LoginPasswordChangeSuccess>;
+  LoginPasswordChangeSuccess: ResolverTypeWrapper<Omit<LoginPasswordChangeSuccess, 'user'> & { user: ResolversTypes['User'] }>;
   LoginResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LoginResult']>;
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
-  LogoutResult: ResolverTypeWrapper<LogoutResult>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   Node: ResolverTypeWrapper<NodeMapper>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
@@ -566,6 +562,7 @@ export type ResolversTypes = ResolversObject<{
   UserEmailChangeResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserEmailChangeResult']>;
   UserEmailChangeSuccess: ResolverTypeWrapper<Omit<UserEmailChangeSuccess, 'user'> & { user: ResolversTypes['User'] }>;
   UserSortKeys: UserSortKeys;
+  Void: ResolverTypeWrapper<Scalars['Void']['output']>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -587,10 +584,9 @@ export type ResolversParentTypes = ResolversObject<{
   InvalidRefreshTokenError: InvalidRefreshTokenError;
   LoginFailedError: LoginFailedError;
   LoginPasswordChangeResult: ResolversUnionTypes<ResolversParentTypes>['LoginPasswordChangeResult'];
-  LoginPasswordChangeSuccess: LoginPasswordChangeSuccess;
+  LoginPasswordChangeSuccess: Omit<LoginPasswordChangeSuccess, 'user'> & { user: ResolversParentTypes['User'] };
   LoginResult: ResolversUnionTypes<ResolversParentTypes>['LoginResult'];
   LoginSuccess: LoginSuccess;
-  LogoutResult: LogoutResult;
   Mutation: Record<PropertyKey, never>;
   Node: NodeMapper;
   PageInfo: PageInfo;
@@ -620,6 +616,7 @@ export type ResolversParentTypes = ResolversObject<{
   UserEdge: Omit<UserEdge, 'node'> & { node?: Maybe<ResolversParentTypes['User']> };
   UserEmailChangeResult: ResolversUnionTypes<ResolversParentTypes>['UserEmailChangeResult'];
   UserEmailChangeSuccess: Omit<UserEmailChangeSuccess, 'user'> & { user: ResolversParentTypes['User'] };
+  Void: Scalars['Void']['output'];
 }>;
 
 export type ComplexityDirectiveArgs = {
@@ -701,7 +698,7 @@ export type LoginPasswordChangeResultResolvers<ContextType = Context, ParentType
 }>;
 
 export type LoginPasswordChangeSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginPasswordChangeSuccess'] = ResolversParentTypes['LoginPasswordChangeSuccess']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -714,16 +711,12 @@ export type LoginSuccessResolvers<ContextType = Context, ParentType extends Reso
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type LogoutResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LogoutResult'] = ResolversParentTypes['LogoutResult']> = ResolversObject<{
-  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-}>;
-
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   accountDelete: Resolver<Maybe<ResolversTypes['AccountDeleteResult']>, ParentType, ContextType>;
   accountUpdate: Resolver<Maybe<ResolversTypes['AccountUpdateResult']>, ParentType, ContextType, Partial<MutationAccountUpdateArgs>>;
   login: Resolver<Maybe<ResolversTypes['LoginResult']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   loginPasswordChange: Resolver<Maybe<ResolversTypes['LoginPasswordChangeResult']>, ParentType, ContextType, RequireFields<MutationLoginPasswordChangeArgs, 'newPassword' | 'oldPassword'>>;
-  logout: Resolver<Maybe<ResolversTypes['LogoutResult']>, ParentType, ContextType>;
+  logout: Resolver<Maybe<ResolversTypes['Void']>, ParentType, ContextType>;
   signup: Resolver<Maybe<ResolversTypes['SignupResult']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'email' | 'name' | 'password'>>;
   todoCreate: Resolver<Maybe<ResolversTypes['TodoCreateResult']>, ParentType, ContextType, RequireFields<MutationTodoCreateArgs, 'description' | 'title'>>;
   todoDelete: Resolver<Maybe<ResolversTypes['TodoDeleteResult']>, ParentType, ContextType, RequireFields<MutationTodoDeleteArgs, 'id'>>;
@@ -881,6 +874,10 @@ export type UserEmailChangeSuccessResolvers<ContextType = Context, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export interface VoidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Void'], any> {
+  name: 'Void';
+}
+
 export type Resolvers<ContextType = Context> = ResolversObject<{
   AccountDeleteResult?: AccountDeleteResultResolvers<ContextType>;
   AccountDeleteSuccess?: AccountDeleteSuccessResolvers<ContextType>;
@@ -899,7 +896,6 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   LoginPasswordChangeSuccess?: LoginPasswordChangeSuccessResolvers<ContextType>;
   LoginResult?: LoginResultResolvers<ContextType>;
   LoginSuccess?: LoginSuccessResolvers<ContextType>;
-  LogoutResult?: LogoutResultResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
@@ -928,6 +924,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   UserEdge?: UserEdgeResolvers<ContextType>;
   UserEmailChangeResult?: UserEmailChangeResultResolvers<ContextType>;
   UserEmailChangeSuccess?: UserEmailChangeSuccessResolvers<ContextType>;
+  Void?: GraphQLScalarType;
 }>;
 
 export type DirectiveResolvers<ContextType = Context> = ResolversObject<{

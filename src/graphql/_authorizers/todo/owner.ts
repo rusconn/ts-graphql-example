@@ -1,8 +1,8 @@
 import type { Context } from "../../../server/context.ts";
-import { authErr } from "../util.ts";
-import type { ParentTodo } from "./_shared.ts";
+import type { Todo } from "../../Todo/_mapper.ts";
+import { authErr } from "../_shared.ts";
 
-export const authTodoOwner = (context: Context, todo: ParentTodo) => {
+export const authTodoOwner = (context: Context, todo: Todo) => {
   if (context.role === "GUEST" || context.user.id !== todo.userId) {
     return authErr();
   }
@@ -11,8 +11,7 @@ export const authTodoOwner = (context: Context, todo: ParentTodo) => {
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../../_test/data/context.ts");
-  const { dto } = await import("../../_test/data/dto.ts");
+  const { context, dto } = await import("../../_test/data.ts");
 
   const allows = [
     [context.admin, dto.todos.admin1],

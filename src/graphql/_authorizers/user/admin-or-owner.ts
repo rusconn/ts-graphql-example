@@ -1,11 +1,9 @@
 import type { Context } from "../../../server/context.ts";
-import type { ResolversParentTypes } from "../../_schema.ts";
+import type { User } from "../../User/_mapper.ts";
+import { authErr } from "../_shared.ts";
 import { authAdmin } from "../admin.ts";
-import { authErr } from "../util.ts";
 
-type ParentUser = Pick<ResolversParentTypes["User"], "id">;
-
-export const authAdminOrUserOwner = (context: Context, user: ParentUser) => {
+export const authAdminOrUserOwner = (context: Context, user: User) => {
   const ctx = authAdmin(context);
 
   if (Error.isError(ctx)) {
@@ -15,7 +13,7 @@ export const authAdminOrUserOwner = (context: Context, user: ParentUser) => {
   return ctx;
 };
 
-const authUserOwner = (context: Context, user: ParentUser) => {
+const authUserOwner = (context: Context, user: User) => {
   if (context.role === "GUEST" || context.user.id !== user.id) {
     return authErr();
   }
@@ -24,8 +22,7 @@ const authUserOwner = (context: Context, user: ParentUser) => {
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../../_test/data/context.ts");
-  const { dto } = await import("../../_test/data/dto.ts");
+  const { context, dto } = await import("../../_test/data.ts");
 
   describe("authAdminOrUserOwner", () => {
     const allows = [

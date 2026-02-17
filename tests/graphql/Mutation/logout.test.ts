@@ -8,10 +8,7 @@ const logout = executeSingleResultOperation<
   LogoutMutationVariables
 >(/* GraphQL */ `
   mutation Logout {
-    logout {
-      __typename
-      success
-    }
+    logout
   }
 `);
 
@@ -29,13 +26,10 @@ it("succeeds when refresh token is invalid", async () => {
   }
 
   // act
-  {
-    const { data } = await logout({
-      token: client.tokens.alice,
-      refreshToken: "abracadabra",
-    });
-    assert(data?.logout?.__typename === "LogoutResult", data?.logout?.__typename);
-  }
+  await logout({
+    token: client.tokens.alice,
+    refreshToken: "abracadabra",
+  });
 
   // postcondition
   {
@@ -52,12 +46,9 @@ it("succeeds when refresh token not specified", async () => {
   }
 
   // act
-  {
-    const { data } = await logout({
-      token: client.tokens.alice,
-    });
-    assert(data?.logout?.__typename === "LogoutResult", data?.logout?.__typename);
-  }
+  await logout({
+    token: client.tokens.alice,
+  });
 
   // postcondition
   {
@@ -74,13 +65,10 @@ it("succeeds when refresh token is incorrect", async () => {
   }
 
   // act
-  {
-    const { data } = await logout({
-      token: client.tokens.alice,
-      refreshToken: "00008ce5-82cd-418c-9a72-4c43cfa30000",
-    });
-    assert(data?.logout?.__typename === "LogoutResult", data?.logout?.__typename);
-  }
+  await logout({
+    token: client.tokens.alice,
+    refreshToken: "00008ce5-82cd-418c-9a72-4c43cfa30000",
+  });
 
   // postcondition
   {
@@ -97,13 +85,10 @@ it("deletes the refresh token", async () => {
   }
 
   // act
-  {
-    const { data } = await logout({
-      token: client.tokens.alice,
-      refreshToken: "a5ef8ce5-82cd-418c-9a72-4c43cfa30c9c",
-    });
-    assert(data?.logout?.__typename === "LogoutResult", data?.logout?.__typename);
-  }
+  await logout({
+    token: client.tokens.alice,
+    refreshToken: "a5ef8ce5-82cd-418c-9a72-4c43cfa30c9c",
+  });
 
   // postcondition
   {

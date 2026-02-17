@@ -1,7 +1,5 @@
-import type { Context } from "../../../server/context.ts";
-import { dto } from "./dto.ts";
-
-export type ContextForTest = (typeof context)[keyof typeof context];
+import type { Context } from "../../../../server/context.ts";
+import { dto } from "../dto.ts";
 
 export const context = {
   admin: {

@@ -42,9 +42,9 @@ const statusMap: Record<Domain.Todo.Status.Type, GraphTodo["status"]> = {
 
 export const graph = {
   admin1: node(domain.admin1),
-  admin2: node(domain.admin2),
-  admin3: node(domain.admin3),
   alice1: node(domain.alice1),
+  alice2: node(domain.alice2),
+  alice3: node(domain.alice3),
 };
 
 export const dummyId = () => {

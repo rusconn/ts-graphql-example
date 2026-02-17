@@ -1,4 +1,4 @@
-import { authAdminOrTodoOwner } from "../_authorizers/todo/admin-or-todo-owner.ts";
+import { authAdminOrTodoOwner } from "../_authorizers/todo/admin-or-owner.ts";
 import { forbiddenErr } from "../_errors/global/forbidden.ts";
 import type { TodoResolvers } from "../_schema.ts";
 

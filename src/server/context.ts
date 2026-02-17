@@ -1,6 +1,6 @@
 import type { YogaInitialContext } from "graphql-yoga";
 import type { Kysely } from "kysely";
-import type { OverrideProperties } from "type-fest";
+import type { Except, OverrideProperties } from "type-fest";
 import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 
 import type { ICredentialQueryForAdmin } from "../application/queries/credential/for-admin.ts";
@@ -37,7 +37,14 @@ import { UnitOfWorkForGuest } from "../infra/unit-of-works/db/for-guest.ts";
 import { UnitOfWorkForUser } from "../infra/unit-of-works/db/for-user.ts";
 import type { logger } from "./logger.ts";
 
-export type Context = ServerContext & PluginContext & YogaInitialContext & UserContext;
+export type Context = ContextForAdmin | ContextForUser | ContextForGuest;
+export type ContextForAuthed = ContextForAdmin | ContextForUser;
+
+export type ContextForAdmin = ContextBase & UserContextForAdmin;
+export type ContextForUser = ContextBase & UserContextForUser;
+export type ContextForGuest = ContextBase & UserContextForGuest;
+
+type ContextBase = ServerContext & PluginContext & YogaInitialContext;
 
 export type ServerContext = {
   req: HttpRequest;
@@ -48,11 +55,9 @@ export type PluginContext = {
   requestId?: string;
 };
 
-export type UserContext = ContextForAuthed | ContextForGuest;
+export type UserContext = UserContextForAdmin | UserContextForUser | UserContextForGuest;
 
-export type ContextForAuthed = ContextForAdmin | ContextForUser;
-
-type ContextForAdmin = ContextBase & {
+type UserContextForAdmin = UserContextBase & {
   role: "ADMIN";
   user: OverrideProperties<Dto.User.Type, { role: "ADMIN" }>;
   queries: {
@@ -68,7 +73,7 @@ type ContextForAdmin = ContextBase & {
   unitOfWork: IUnitOfWorkForAdmin;
 };
 
-type ContextForUser = ContextBase & {
+type UserContextForUser = UserContextBase & {
   role: "USER";
   user: OverrideProperties<Dto.User.Type, { role: "USER" }>;
   queries: {
@@ -84,7 +89,7 @@ type ContextForUser = ContextBase & {
   unitOfWork: IUnitOfWorkForUser;
 };
 
-type ContextForGuest = ContextBase & {
+type UserContextForGuest = UserContextBase & {
   role: "GUEST";
   user: null;
   queries: {
@@ -96,12 +101,15 @@ type ContextForGuest = ContextBase & {
   unitOfWork: IUnitOfWorkForGuest;
 };
 
-export type ContextBase = {
+type UserContextBase = {
   start: ReturnType<typeof Date.now>;
   logger: typeof logger;
 };
 
-export const createUserContextCore = (user: UserContext["user"], kysely: Kysely<DB>) => {
+export const createUserContextCore = (
+  user: UserContext["user"],
+  kysely: Kysely<DB>,
+): Except<UserContext, keyof UserContextBase> => {
   switch (user?.role) {
     case "ADMIN":
       return {
@@ -118,7 +126,7 @@ export const createUserContextCore = (user: UserContext["user"], kysely: Kysely<
           user: new UserReaderRepoForAdmin(kysely, user.id),
         },
         unitOfWork: new UnitOfWorkForAdmin(kysely, user.id),
-      } as const;
+      };
     case "USER":
       return {
         role: user.role,
@@ -134,7 +142,7 @@ export const createUserContextCore = (user: UserContext["user"], kysely: Kysely<
           user: new UserReaderRepoForUser(kysely, user.id),
         },
         unitOfWork: new UnitOfWorkForUser(kysely, user.id),
-      } as const;
+      };
     case undefined:
       return {
         role: "GUEST",
@@ -146,7 +154,7 @@ export const createUserContextCore = (user: UserContext["user"], kysely: Kysely<
           refreshToken: new RefreshTokenReaderRepo(kysely),
         },
         unitOfWork: new UnitOfWorkForGuest(kysely),
-      } as const;
+      };
     default:
       throw new Error(user satisfies never);
   }

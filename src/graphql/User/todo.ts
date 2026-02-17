@@ -1,5 +1,5 @@
 import { unwrapOrElse } from "../../util/neverthrow.ts";
-import { authAdminOrUserOwner } from "../_authorizers/user/admin-or-user-owner.ts";
+import { authAdminOrUserOwner } from "../_authorizers/user/admin-or-owner.ts";
 import { badUserInputErr } from "../_errors/global/bad-user-input.ts";
 import { forbiddenErr } from "../_errors/global/forbidden.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";

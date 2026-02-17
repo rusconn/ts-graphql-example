@@ -1,13 +1,14 @@
 import { Result } from "neverthrow";
 
+import * as Dto from "../../application/queries/dto.ts";
 import { User } from "../../domain/entities.ts";
+import type { ContextForAuthed } from "../../server/context.ts";
 import { authAuthenticated } from "../_authorizers/authenticated.ts";
 import { forbiddenErr } from "../_errors/global/forbidden.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserPassword } from "../_parsers/user/password.ts";
 import type { MutationLoginPasswordChangeArgs, MutationResolvers } from "../_schema.ts";
-import { userId } from "../User/id.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
@@ -25,13 +26,13 @@ export const typeDef = /* GraphQL */ `
   }
 
   union LoginPasswordChangeResult =
-      LoginPasswordChangeSuccess
+    | LoginPasswordChangeSuccess
     | InvalidInputErrors
     | SamePasswordsError
     | IncorrectOldPasswordError
 
   type LoginPasswordChangeSuccess {
-    id: ID!
+    user: User!
   }
 
   type SamePasswordsError implements Error {
@@ -58,40 +59,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
     return invalidInputErrors(parsed.error);
   }
 
-  const user = await ctx.repos.user.find(ctx.user.id);
-  if (!user) {
-    throw internalServerError();
-  }
-
-  const { oldPassword, newPassword } = parsed.value;
-  if (oldPassword === newPassword) {
-    return {
-      __typename: "SamePasswordsError",
-      message: "The two passwords must be different.",
-    };
-  }
-
-  const match = await User.Password.match(oldPassword, user.password);
-  if (!match) {
-    return {
-      __typename: "IncorrectOldPasswordError",
-      message: "The oldPassword is incorrect.",
-    };
-  }
-
-  const changedUser = await User.changePassword(user, newPassword);
-  try {
-    await ctx.unitOfWork.run(async (repos) => {
-      await repos.user.update(changedUser);
-    });
-  } catch (e) {
-    throw internalServerError(e);
-  }
-
-  return {
-    __typename: "LoginPasswordChangeSuccess",
-    id: userId(user.id),
-  };
+  return await logic(ctx, parsed.value);
 };
 
 const parseArgs = (args: MutationLoginPasswordChangeArgs) => {
@@ -110,6 +78,47 @@ const parseArgs = (args: MutationLoginPasswordChangeArgs) => {
   }));
 };
 
+const logic = async (
+  ctx: ContextForAuthed,
+  input: Parameters<typeof User.changePassword>[1],
+): Promise<ReturnType<MutationResolvers["loginPasswordChange"]>> => {
+  const user = await ctx.repos.user.find(ctx.user.id);
+  if (!user) {
+    throw internalServerError();
+  }
+
+  const changedUser = await User.changePassword(user, input);
+  if (changedUser.isErr()) {
+    switch (changedUser.error) {
+      case "SamePasswords":
+        return {
+          __typename: "SamePasswordsError",
+          message: "The two passwords must be different.",
+        };
+      case "IncorrectOldPassword":
+        return {
+          __typename: "IncorrectOldPasswordError",
+          message: "The oldPassword is incorrect.",
+        };
+      default:
+        throw new Error(changedUser.error satisfies never);
+    }
+  }
+
+  try {
+    await ctx.unitOfWork.run(async (repos) => {
+      await repos.user.update(changedUser.value);
+    });
+  } catch (e) {
+    throw internalServerError(e);
+  }
+
+  return {
+    __typename: "LoginPasswordChangeSuccess",
+    user: Dto.User.fromDomain(changedUser.value),
+  };
+};
+
 if (import.meta.vitest) {
   describe("parsing", () => {
     const valids: MutationLoginPasswordChangeArgs[] = [
@@ -118,8 +127,8 @@ if (import.meta.vitest) {
         newPassword: "password2",
       },
       {
-        oldPassword: "A".repeat(User.Password.MIN),
-        newPassword: "B".repeat(User.Password.MIN),
+        oldPassword: "a".repeat(User.Password.MIN),
+        newPassword: "b".repeat(User.Password.MIN),
       },
     ];
 
@@ -127,33 +136,33 @@ if (import.meta.vitest) {
       [
         [
           {
-            oldPassword: "A".repeat(User.Password.MIN - 1),
-            newPassword: "A".repeat(User.Password.MAX),
+            oldPassword: "a".repeat(User.Password.MIN - 1),
+            newPassword: "a".repeat(User.Password.MAX),
           },
           ["oldPassword"],
         ],
         [
           {
-            oldPassword: "A".repeat(User.Password.MIN),
-            newPassword: "A".repeat(User.Password.MAX + 1),
+            oldPassword: "a".repeat(User.Password.MIN),
+            newPassword: "a".repeat(User.Password.MAX + 1),
           },
           ["newPassword"],
         ],
         [
           {
-            oldPassword: "A".repeat(User.Password.MAX + 1),
-            newPassword: "A".repeat(User.Password.MIN - 1),
+            oldPassword: "a".repeat(User.Password.MAX + 1),
+            newPassword: "a".repeat(User.Password.MIN - 1),
           },
           ["oldPassword", "newPassword"],
         ],
       ];
 
-    test.each(valids)("valids %#", (args) => {
+    it.each(valids)("succeeds when args is valid: %#", (args) => {
       const parsed = parseArgs(args);
       expect(parsed.isOk()).toBe(true);
     });
 
-    test.each(invalids)("invalids %#", (args, fields) => {
+    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
       const parsed = parseArgs(args);
       expect(parsed.isErr()).toBe(true);
       expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);

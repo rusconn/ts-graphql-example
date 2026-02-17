@@ -9,6 +9,15 @@ export class TodoQuery {
   constructor(trx: Transaction<DB>) {
     this.#trx = trx;
   }
+  async find(id: Dto.Todo.Type["id"]) {
+    const todo = await this.#trx
+      .selectFrom("todos") //
+      .where("id", "=", id)
+      .selectAll()
+      .executeTakeFirst();
+
+    return todo && Dto.Todo.parseOrThrow(todo);
+  }
 
   async findOrThrow(id: Dto.Todo.Type["id"]) {
     const todo = await this.#trx

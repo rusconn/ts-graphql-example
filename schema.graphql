@@ -7,6 +7,43 @@ directive @complexity(value: Int!, multipliers: [String!]) on FIELD_DEFINITION
 
 directive @semanticNonNull(levels: [Int] = [0]) on FIELD_DEFINITION
 
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+"""
+A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
+"""
+scalar EmailAddress
+  @specifiedBy(url: "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address")
+
+type EmailAlreadyTakenError implements Error {
+  message: String!
+}
+
+interface Error {
+  message: String!
+}
+
+enum ErrorCode {
+  QUERY_TOO_COMPLEX
+  BAD_USER_INPUT
+  AUTHENTICATION_ERROR
+  FORBIDDEN
+  TOKEN_EXPIRED
+  INTERNAL_SERVER_ERROR
+}
+
+type InvalidInputError implements Error {
+  field: String!
+  message: String!
+}
+
+type InvalidInputErrors {
+  errors: [InvalidInputError!]!
+}
+
 type Mutation {
   """
   紐づくリソースは全て削除される
@@ -38,7 +75,7 @@ type Mutation {
     """
     newPassword: String!
   ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100)
-  logout: LogoutResult @semanticNonNull @complexity(value: 100)
+  logout: Void @semanticNonNull @complexity(value: 100)
   signup(
     """
     1文字以上、100文字まで
@@ -123,7 +160,7 @@ union LoginPasswordChangeResult =
   | IncorrectOldPasswordError
 
 type LoginPasswordChangeSuccess {
-  id: ID!
+  user: User!
 }
 
 type SamePasswordsError implements Error {
@@ -132,10 +169,6 @@ type SamePasswordsError implements Error {
 
 type IncorrectOldPasswordError implements Error {
   message: String!
-}
-
-type LogoutResult {
-  success: Boolean!
 }
 
 union SignupResult = SignupSuccess | InvalidInputErrors | EmailAlreadyTakenError
@@ -193,6 +226,13 @@ interface Node {
   id: ID!
 }
 
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
 type Query {
   node(id: ID!): Node @complexity(value: 3)
   user(id: ID!): User @complexity(value: 3)
@@ -228,6 +268,14 @@ type UserConnection {
 type UserEdge {
   cursor: String!
   node: User @semanticNonNull
+}
+
+type ResourceLimitExceededError implements Error {
+  message: String!
+}
+
+type ResourceNotFoundError implements Error {
+  message: String!
 }
 
 type Todo implements Node {
@@ -290,53 +338,6 @@ type TodoEdge {
 }
 
 """
-A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+Represents NULL values
 """
-scalar DateTime
-
-"""
-A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
-"""
-scalar EmailAddress
-  @specifiedBy(url: "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address")
-
-type EmailAlreadyTakenError implements Error {
-  message: String!
-}
-
-interface Error {
-  message: String!
-}
-
-enum ErrorCode {
-  QUERY_TOO_COMPLEX
-  BAD_USER_INPUT
-  AUTHENTICATION_ERROR
-  FORBIDDEN
-  TOKEN_EXPIRED
-  INTERNAL_SERVER_ERROR
-}
-
-type InvalidInputError implements Error {
-  field: String!
-  message: String!
-}
-
-type InvalidInputErrors {
-  errors: [InvalidInputError!]!
-}
-
-type PageInfo {
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-  endCursor: String
-}
-
-type ResourceLimitExceededError implements Error {
-  message: String!
-}
-
-type ResourceNotFoundError implements Error {
-  message: String!
-}
+scalar Void

@@ -1,5 +1,5 @@
 import type { Context } from "../../server/context.ts";
-import { authErr } from "./util.ts";
+import { authErr } from "./_shared.ts";
 
 export const authAuthenticated = (context: Context) => {
   if (context.role === "GUEST") {
@@ -10,7 +10,7 @@ export const authAuthenticated = (context: Context) => {
 };
 
 if (import.meta.vitest) {
-  const { context } = await import("../_test/data/context.ts");
+  const { context } = await import("../_test/data.ts");
 
   const allows = [context.admin, context.alice];
   const denies = [context.guest];

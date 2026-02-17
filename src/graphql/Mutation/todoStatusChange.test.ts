@@ -6,7 +6,8 @@ import * as Domain from "../../domain/entities.ts";
 import type { DB } from "../../infra/datasources/_shared/generated.ts";
 import { kysely } from "../../infra/datasources/db/client.ts";
 import { ErrorCode, type MutationTodoStatusChangeArgs, TodoStatus } from "../_schema.ts";
-import { type ContextForTest, context, domain, dto, graph } from "../_test/data.ts";
+import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
+import { domain, dto, graph } from "../_test/data.ts";
 import {
   createContext,
   createQueries,
@@ -34,10 +35,10 @@ afterEach(async () => {
 });
 
 const todoStatusChange = async (
-  ctx: ContextForTest, //
+  ctx: ContextForIT, //
   args: MutationTodoStatusChangeArgs,
 ) => {
-  return await resolver({}, args, createContext({ user: ctx.user, trx }));
+  return await resolver({}, args, createContext(ctx, trx));
 };
 
 describe("authorization", () => {
@@ -46,19 +47,8 @@ describe("authorization", () => {
     status: TodoStatus.Done,
   };
 
-  it("not rejects when user is authenticated", async () => {
-    const ctx = context.alice;
-
-    try {
-      await todoStatusChange(ctx, args);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-
   it("rejects when user is not authenticated", async () => {
-    const ctx = context.guest;
+    const ctx = context.guest();
 
     const before = await queries.todo.findOrThrow(dto.todos.alice1.id);
 
@@ -71,12 +61,22 @@ describe("authorization", () => {
     const after = await queries.todo.findOrThrow(dto.todos.alice1.id);
     expect(after).toStrictEqual(before);
   });
+
+  it("not rejects when user is authenticated", async () => {
+    const ctx = context.alice();
+
+    try {
+      await todoStatusChange(ctx, args);
+    } catch (e) {
+      if (!(e instanceof GraphQLError)) throw e;
+      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
+    }
+  });
 });
 
 describe("parsing", () => {
-  const ctx = context.alice;
-
-  it("throws a bad input error when id is invalid", async () => {
+  it("throws an input error when id is invalid", async () => {
+    const ctx = context.alice();
     const args: MutationTodoStatusChangeArgs = {
       id: "bad-id",
       status: TodoStatus.Done,
@@ -88,12 +88,26 @@ describe("parsing", () => {
         e.extensions.code === ErrorCode.BadUserInput,
     );
   });
+
+  it("not throws input errors when id is valid", async () => {
+    const ctx = context.alice();
+    const args: MutationTodoStatusChangeArgs = {
+      id: dummyId.todo(),
+      status: TodoStatus.Done,
+    };
+
+    try {
+      await todoStatusChange(ctx, args);
+    } catch (e) {
+      if (!(e instanceof GraphQLError)) throw e;
+      expect(e.extensions.code).not.toBe(ErrorCode.BadUserInput);
+    }
+  });
 });
 
 describe("logic", () => {
-  const ctx = context.alice;
-
-  it("returns not found when id not exists on graph", async () => {
+  it("returns not-found when id not exists on graph", async () => {
+    const ctx = context.alice();
     const args: MutationTodoStatusChangeArgs = {
       id: dummyId.todo(),
       status: TodoStatus.Done,
@@ -103,7 +117,7 @@ describe("logic", () => {
     expect(result?.__typename).toBe("ResourceNotFoundError");
   });
 
-  it("returns not found when user does not own todo", async () => {
+  it("returns not-found when user does not own todo", async () => {
     await seeders.users(domain.users.admin);
     await seeders.todos(domain.todos.admin1);
 
@@ -112,14 +126,15 @@ describe("logic", () => {
       status: TodoStatus.Done,
     };
 
-    const result1 = await todoStatusChange(context.admin, args);
+    const result1 = await todoStatusChange(context.admin(), args);
     expect(result1?.__typename).not.toBe("ResourceNotFoundError");
 
-    const result2 = await todoStatusChange(context.alice, args);
+    const result2 = await todoStatusChange(context.alice(), args);
     expect(result2?.__typename).toBe("ResourceNotFoundError");
   });
 
   it("changes status using args", async () => {
+    const ctx = context.alice();
     const args: MutationTodoStatusChangeArgs = {
       id: graph.todos.alice1.id,
       status: TodoStatus.Done,
@@ -141,6 +156,7 @@ describe("logic", () => {
   });
 
   it("changes only updatedAt when statuses are the same", async () => {
+    const ctx = context.alice();
     const args: MutationTodoStatusChangeArgs = {
       id: graph.todos.alice1.id,
       status: TodoStatus.Pending,

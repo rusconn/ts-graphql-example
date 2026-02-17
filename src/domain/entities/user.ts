@@ -1,4 +1,4 @@
-import { Result } from "neverthrow";
+import { err, ok, Result } from "neverthrow";
 import type { Tagged } from "type-fest";
 
 import * as Email from "./user/email.ts";
@@ -123,13 +123,32 @@ export const updateAccount = (user: Type, input: Partial<Pick<Type, "name">>): T
   return _update(user, input);
 };
 
-export const changeEmail = (user: Type, input: Type["email"]): Type => {
-  return _update(user, { email: input });
+export const changeEmail = (user: Type, input: Pick<Type, "email">): Type => {
+  return _update(user, input);
 };
 
-export const changePassword = async (user: Type, input: Password.Type): Promise<Type> => {
-  return _update(user, { password: await Password.hash(input) });
+export const changePassword = async (
+  user: Type,
+  input: {
+    oldPassword: Password.Type;
+    newPassword: Password.Type;
+  },
+): Promise<Result<Type, ChangePasswordError>> => {
+  if (input.oldPassword === input.newPassword) {
+    return err("SamePasswords");
+  }
+
+  const match = await Password.match(input.oldPassword, user.password);
+  if (!match) {
+    return err("IncorrectOldPassword");
+  }
+
+  return ok(_update(user, { password: await Password.hash(input.newPassword) }));
 };
+
+export type ChangePasswordError =
+  | "IncorrectOldPassword" //
+  | "SamePasswords";
 
 const _update = (user: Type, input: Partial<Pick<Type, "name" | "email" | "password">>): Type => {
   return {
