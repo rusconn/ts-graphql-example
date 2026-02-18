@@ -13,12 +13,15 @@ server.listen(port, () => {
   console.info(`Server is running on ${endpoint}`);
 });
 
-const shutdown = async () => {
+const shutdown = async (signal: string) => {
+  console.log(`Shutdown started by ${signal}`);
   server.close();
+  await yoga.dispose();
   await kysely.destroy();
   logger.flush();
+  console.log("Shutdown completed");
 };
 
 // プラットフォームに合わせたシグナルハンドリングが必要
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
