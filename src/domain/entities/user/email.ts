@@ -1,8 +1,8 @@
 import { err, ok, type Result } from "neverthrow";
 import type { Tagged } from "type-fest";
 
-import * as EmailAddress from "../../../lib/string/email-address.ts";
 import { numChars } from "../../../lib/string/num-chars.ts";
+import * as EmailAddress from "../../../util/email-address.ts";
 import {
   type InvalidFormatError,
   invalidFormatError,
@@ -10,7 +10,7 @@ import {
   stringLengthTooLongError,
 } from "../_shared/parse-errors.ts";
 
-export type Type = Tagged<EmailAddress.EmailAddress, "UserProfileEmail">;
+export type Type = Tagged<EmailAddress.EmailAddress, "UserEmail">;
 
 export const MAX = 100;
 

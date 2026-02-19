@@ -1,7 +1,7 @@
 import { err, ok, type Result } from "neverthrow";
 import type { Tagged } from "type-fest";
 
-import * as Uuidv7 from "../../../lib/uuid/v7.ts";
+import * as Uuidv7 from "../../../util/uuid/v7.ts";
 import { type InvalidFormatError, invalidFormatError } from "../_shared/parse-errors.ts";
 
 export type Type = Tagged<Uuidv7.Uuidv7, "UserId">;

@@ -48,13 +48,17 @@ export const parse = (
   );
 };
 
-export const parseId = (id: Parameters<typeof Id.parse>[0]): Result<Id.Type, IdError> => {
+export const parseId = (
+  id: Parameters<typeof Id.parse>[0], //
+): Result<Id.Type, IdError> => {
   return Id.parse(id).mapErr((err) => ({
     prop: "id",
     err,
   }));
 };
-export const parseName = (name: Parameters<typeof Name.parse>[0]): Result<Name.Type, NameError> => {
+export const parseName = (
+  name: Parameters<typeof Name.parse>[0], //
+): Result<Name.Type, NameError> => {
   return Name.parse(name).mapErr((err) => ({
     prop: "name",
     err,
@@ -123,8 +127,8 @@ export const updateAccount = (user: Type, input: Partial<Pick<Type, "name">>): T
   return _update(user, input);
 };
 
-export const changeEmail = (user: Type, input: Pick<Type, "email">): Type => {
-  return _update(user, input);
+export const changeEmail = (user: Type, input: Type["email"]): Type => {
+  return _update(user, { email: input });
 };
 
 export const changePassword = async (

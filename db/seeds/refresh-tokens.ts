@@ -2,9 +2,9 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import type { DB, RefreshToken, User } from "../../src/infra/datasources/_shared/types.ts";
-import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
-import { addDates } from "../../src/util/date.ts";
+import type { DB, RefreshToken, User } from "../../src/infrastructure/datasources/_shared/types.ts";
+import { addDates } from "../../src/lib/date-immutable.ts";
+import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
 export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
   const handRefreshTokens: RefreshToken[] = [

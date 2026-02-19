@@ -1,7 +1,7 @@
 import { err, Result } from "neverthrow";
 import type { Tagged } from "type-fest";
 
-import { addDates } from "../../util/date.ts";
+import { addDates } from "../../lib/date-immutable.ts";
 import * as Token from "./refresh-token/token.ts";
 import * as User from "./user.ts";
 

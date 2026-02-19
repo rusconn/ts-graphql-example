@@ -34,7 +34,7 @@ const typescriptResolvers: TypeScriptResolversPluginConfig = {
   optionalInfoArgument: true,
   resolverTypeWrapperSignature: "T",
   useIndexSignature: true,
-  contextType: "../server/context.ts#Context",
+  contextType: "../yoga/context.ts#Context",
   mapperTypeSuffix: "Mapper",
   mappers: {
     Node: "./Node/_mapper.ts#Node",
@@ -62,19 +62,19 @@ const typescriptOperations: TypeScriptDocumentsPluginConfig = {
 const config: CodegenConfig = {
   schema: "schema.graphql",
   generates: {
-    "src/graphql/_schema.ts": {
-      plugins: ["typescript", "typescript-resolvers"],
-      config: {
-        ...typescript,
-        ...typescriptResolvers,
-      },
-    },
-    "tests/graphql/_schema.ts": {
-      documents: "tests/graphql/**/*.ts",
+    "e2e/presentation/graphql/schema/_types.ts": {
+      documents: "e2e/presentation/graphql/schema/**/*.ts",
       plugins: ["typescript", "typescript-operations"],
       config: {
         ...typescript,
         ...typescriptOperations,
+      },
+    },
+    "src/presentation/graphql/schema/_types.ts": {
+      plugins: ["typescript", "typescript-resolvers"],
+      config: {
+        ...typescript,
+        ...typescriptResolvers,
       },
     },
   },

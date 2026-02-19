@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { err, ok, type Result } from "neverthrow";
 import type { Tagged } from "type-fest";
 
-import { passHashExp } from "../../../config/hash.ts";
+import { passwordHashExp } from "../../../config/password-hash.ts";
 import { numChars } from "../../../lib/string/num-chars.ts";
 import * as Bcrypt from "../_shared/bcrypt.ts";
 import {
@@ -45,7 +45,7 @@ export type ParseHashedError = Bcrypt.ParseHashedError;
 export const parseHashedOrThrow = Bcrypt.parseHashedOrThrow<TypeHashed>;
 
 export const hash = async (source: Type) => {
-  const hashed = await bcrypt.hash(source, passHashExp);
+  const hashed = await bcrypt.hash(source, passwordHashExp);
   return hashed as TypeHashed;
 };
 

@@ -3,11 +3,11 @@ import type { Config } from "kysely-codegen";
 const config: Config = {
   camelCase: true,
   customImports: {
-    Uuid: "../../../lib/uuid/vn.ts",
+    Uuid: "../../../util/uuid/vn.ts",
   },
   dialect: "postgres",
   excludePattern: "test.*",
-  outFile: "src/infra/datasources/_shared/generated.ts",
+  outFile: "src/infrastructure/datasources/_shared/generated.ts",
   typeMapping: {
     uuid: "Uuid", // DBにuuidv7を用意できたらUuidv7型へ変更する
   },

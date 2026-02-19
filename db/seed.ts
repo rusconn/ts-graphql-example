@@ -1,6 +1,6 @@
 import process from "node:process";
 
-import { kysely } from "../src/infra/datasources/db/client.ts";
+import { kysely } from "../src/infrastructure/datasources/db/client.ts";
 
 import * as credentials from "./seeds/credentials.ts";
 import * as refreshTokens from "./seeds/refresh-tokens.ts";

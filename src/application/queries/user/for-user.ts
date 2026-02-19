@@ -1,4 +1,4 @@
-import type { Type as User } from "./dto.ts";
+import type { Type as User } from "../../dto/user.ts";
 import type * as UserLoader from "./loaders/user.ts";
 
 export interface IUserQueryForUser {

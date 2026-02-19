@@ -6,7 +6,7 @@
     "node": "^24.10.0"
   },
   "scripts": {
-    "dev": "dotenvx run -- node --watch src/server.ts",
+    "dev": "dotenvx run -- node --watch src/presentation/server.ts",
     "build": "vite build",
     "preview": "dotenvx run -f .env -f .env.preview --overload -- node --enable-source-maps dist/server.js",
     "test": "dotenvx run -f .env -f .env.test --overload -- pnpm run --sequential /test:/",
@@ -41,7 +41,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.0.6",
+    "@biomejs/biome": "2.4.3",
     "@dotenvx/dotenvx": "^1.14.1",
     "@faker-js/faker": "^10.0.0",
     "@graphql-codegen/cli": "^6.0.0",

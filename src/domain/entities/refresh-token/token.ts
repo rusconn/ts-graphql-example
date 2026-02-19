@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import type { Tagged } from "type-fest";
 
-import { tokenHashSalt } from "../../../config/hash.ts";
-import * as Uuidv4 from "../../../lib/uuid/v4.ts";
+import { refreshTokenHashSalt } from "../../../config/refresh-token.ts";
+import * as Uuidv4 from "../../../util/uuid/v4.ts";
 import * as Bcrypt from "../_shared/bcrypt.ts";
 
 export type Type = Tagged<Uuidv4.Uuidv4, "RefreshToken">;
@@ -23,7 +23,7 @@ export const is = (input: unknown): input is Type => {
 };
 
 export const hash = async (source: Type) => {
-  const hashed = await bcrypt.hash(source, tokenHashSalt);
+  const hashed = await bcrypt.hash(source, refreshTokenHashSalt);
   return hashed as TypeHashed;
 };
 

@@ -52,7 +52,9 @@ export const parse = (
   );
 };
 
-export const parseId = (id: Parameters<typeof Id.parse>[0]): Result<Id.Type, IdError> => {
+export const parseId = (
+  id: Parameters<typeof Id.parse>[0], //
+): Result<Id.Type, IdError> => {
   return Id.parse(id).mapErr((err) => ({
     prop: "id",
     err,

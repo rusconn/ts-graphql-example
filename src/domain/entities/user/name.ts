@@ -9,7 +9,7 @@ import {
   stringLengthTooShortError,
 } from "../_shared/parse-errors.ts";
 
-export type Type = Tagged<string, "UserProfileName">;
+export type Type = Tagged<string, "UserName">;
 
 export const MIN = 1;
 export const MAX = 100;

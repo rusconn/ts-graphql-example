@@ -6,7 +6,7 @@ export default mergeConfig(
   base,
   defineConfig({
     test: {
-      dir: "tests/graphql/Mutation",
+      dir: "e2e/presentation/graphql/schema/Mutation",
       include: ["**/*.test.ts"],
       maxWorkers: 1,
     },

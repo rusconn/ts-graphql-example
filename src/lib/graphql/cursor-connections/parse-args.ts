@@ -1,4 +1,3 @@
-import { err, ok, type Result } from "../../result.ts";
 import type { ConnectionArguments, ConnectionArgumentsUnion } from "./interfaces.ts";
 
 export const parseArgs = (
@@ -55,13 +54,25 @@ export type ParseError =
   | "NEGATIVE_FIRST"
   | "NEGATIVE_LAST";
 
-export const parseErrorMessage: Record<ParseError, string> = {
+export const defaultMessages: Record<ParseError, string> = {
   BOTH_FIRST_AND_LAST_ABSENT: "you must provide one of first or last",
   BOTH_FIRST_AND_LAST_EXISTS: "providing both first and last is not supported",
   FIRST_WITH_BEFORE: "using first with before is not supported",
   LAST_WITH_AFTER: "using last with after is not supported",
   NEGATIVE_FIRST: "first cannot be negative",
   NEGATIVE_LAST: "last cannot be negative",
+};
+
+export type Result<T, E> =
+  | { ok: true; val: T } //
+  | { ok: false; err: E };
+
+export const ok = <T>(val: T): Result<T, never> => {
+  return { ok: true, val };
+};
+
+export const err = <E>(err: E): Result<never, E> => {
+  return { ok: false, err };
 };
 
 if (import.meta.vitest) {

@@ -8,8 +8,8 @@ import {
   type Todo,
   TodoStatus,
   type User,
-} from "../../src/infra/datasources/_shared/types.ts";
-import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
+} from "../../src/infrastructure/datasources/_shared/types.ts";
+import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
 import { randInt } from "./_utils.ts";
 
