@@ -19,7 +19,6 @@ export const yoga = createYoga<ServerContext & PluginContext, AppContext>({
   renderGraphiQL: () => renderApolloStudio(endpoint),
   schema: createSchema({ typeDefs, resolvers }),
   context: buildContext,
-  // 自分でログする
   logging: false,
   plugins: [
     readinessCheck,

@@ -1,6 +1,6 @@
-import type { Config } from "kysely-codegen";
+import { defineConfig } from "kysely-codegen";
 
-const config: Config = {
+export default defineConfig({
   camelCase: true,
   customImports: {
     Uuid: "../../../util/uuid/vn.ts",
@@ -11,6 +11,4 @@ const config: Config = {
   typeMapping: {
     uuid: "Uuid", // DBにuuidv7を用意できたらUuidv7型へ変更する
   },
-};
-
-export default config;
+});
