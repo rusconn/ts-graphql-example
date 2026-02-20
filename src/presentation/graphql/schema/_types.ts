@@ -30,7 +30,7 @@ export type Scalars = {
   Void: { input: void; output: void; }
 };
 
-export type AccountDeleteResult = AccountDeleteSuccess;
+export type AccountDeleteResult = AccountDeleteSuccess | IncorrectPasswordError | InvalidInputErrors;
 
 export type AccountDeleteSuccess = {
   __typename?: 'AccountDeleteSuccess';
@@ -65,6 +65,11 @@ export const ErrorCode = {
 export type ErrorCode = typeof ErrorCode[keyof typeof ErrorCode];
 export type IncorrectOldPasswordError = Error & {
   __typename?: 'IncorrectOldPasswordError';
+  message: Scalars['String']['output'];
+};
+
+export type IncorrectPasswordError = Error & {
+  __typename?: 'IncorrectPasswordError';
   message: Scalars['String']['output'];
 };
 
@@ -119,6 +124,11 @@ export type Mutation = {
   todoUpdate?: Maybe<TodoUpdateResult>;
   tokenRefresh?: Maybe<TokenRefreshResult>;
   userEmailChange?: Maybe<UserEmailChangeResult>;
+};
+
+
+export type MutationAccountDeleteArgs = {
+  password: Scalars['String']['input'];
 };
 
 
@@ -437,7 +447,11 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 
 /** Mapping of union types */
 export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
-  AccountDeleteResult: ( AccountDeleteSuccess & { __typename: 'AccountDeleteSuccess' } );
+  AccountDeleteResult:
+    | ( AccountDeleteSuccess & { __typename: 'AccountDeleteSuccess' } )
+    | ( IncorrectPasswordError & { __typename: 'IncorrectPasswordError' } )
+    | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } )
+  ;
   AccountUpdateResult:
     | ( Omit<AccountUpdateSuccess, 'user'> & { user: _RefType['User'] } & { __typename: 'AccountUpdateSuccess' } )
     | ( InvalidInputErrors & { __typename: 'InvalidInputErrors' } )
@@ -493,6 +507,7 @@ export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = 
   Error:
     | ( EmailAlreadyTakenError )
     | ( IncorrectOldPasswordError )
+    | ( IncorrectPasswordError )
     | ( InvalidInputError )
     | ( InvalidRefreshTokenError )
     | ( LoginFailedError )
@@ -521,6 +536,7 @@ export type ResolversTypes = ResolversObject<{
   ErrorCode: ErrorCode;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   IncorrectOldPasswordError: ResolverTypeWrapper<IncorrectOldPasswordError>;
+  IncorrectPasswordError: ResolverTypeWrapper<IncorrectPasswordError>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   InvalidInputError: ResolverTypeWrapper<InvalidInputError>;
   InvalidInputErrors: ResolverTypeWrapper<InvalidInputErrors>;
@@ -578,6 +594,7 @@ export type ResolversParentTypes = ResolversObject<{
   Error: ResolversInterfaceTypes<ResolversParentTypes>['Error'];
   ID: Scalars['ID']['output'];
   IncorrectOldPasswordError: IncorrectOldPasswordError;
+  IncorrectPasswordError: IncorrectPasswordError;
   Int: Scalars['Int']['output'];
   InvalidInputError: InvalidInputError;
   InvalidInputErrors: InvalidInputErrors;
@@ -633,7 +650,7 @@ export type SemanticNonNullDirectiveArgs = {
 export type SemanticNonNullDirectiveResolver<Result, Parent, ContextType = Context, Args = SemanticNonNullDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type AccountDeleteResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AccountDeleteResult'] = ResolversParentTypes['AccountDeleteResult']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'AccountDeleteSuccess', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'AccountDeleteSuccess' | 'IncorrectPasswordError' | 'InvalidInputErrors', ParentType, ContextType>;
 }>;
 
 export type AccountDeleteSuccessResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AccountDeleteSuccess'] = ResolversParentTypes['AccountDeleteSuccess']> = ResolversObject<{
@@ -664,10 +681,15 @@ export type EmailAlreadyTakenErrorResolvers<ContextType = Context, ParentType ex
 }>;
 
 export type ErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'IncorrectOldPasswordError' | 'InvalidInputError' | 'InvalidRefreshTokenError' | 'LoginFailedError' | 'RefreshTokenExpiredError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError' | 'SamePasswordsError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'EmailAlreadyTakenError' | 'IncorrectOldPasswordError' | 'IncorrectPasswordError' | 'InvalidInputError' | 'InvalidRefreshTokenError' | 'LoginFailedError' | 'RefreshTokenExpiredError' | 'ResourceLimitExceededError' | 'ResourceNotFoundError' | 'SamePasswordsError', ParentType, ContextType>;
 }>;
 
 export type IncorrectOldPasswordErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['IncorrectOldPasswordError'] = ResolversParentTypes['IncorrectOldPasswordError']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type IncorrectPasswordErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['IncorrectPasswordError'] = ResolversParentTypes['IncorrectPasswordError']> = ResolversObject<{
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -712,7 +734,7 @@ export type LoginSuccessResolvers<ContextType = Context, ParentType extends Reso
 }>;
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  accountDelete: Resolver<Maybe<ResolversTypes['AccountDeleteResult']>, ParentType, ContextType>;
+  accountDelete: Resolver<Maybe<ResolversTypes['AccountDeleteResult']>, ParentType, ContextType, RequireFields<MutationAccountDeleteArgs, 'password'>>;
   accountUpdate: Resolver<Maybe<ResolversTypes['AccountUpdateResult']>, ParentType, ContextType, Partial<MutationAccountUpdateArgs>>;
   login: Resolver<Maybe<ResolversTypes['LoginResult']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   loginPasswordChange: Resolver<Maybe<ResolversTypes['LoginPasswordChangeResult']>, ParentType, ContextType, RequireFields<MutationLoginPasswordChangeArgs, 'newPassword' | 'oldPassword'>>;
@@ -888,6 +910,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   EmailAlreadyTakenError?: EmailAlreadyTakenErrorResolvers<ContextType>;
   Error?: ErrorResolvers<ContextType>;
   IncorrectOldPasswordError?: IncorrectOldPasswordErrorResolvers<ContextType>;
+  IncorrectPasswordError?: IncorrectPasswordErrorResolvers<ContextType>;
   InvalidInputError?: InvalidInputErrorResolvers<ContextType>;
   InvalidInputErrors?: InvalidInputErrorsResolvers<ContextType>;
   InvalidRefreshTokenError?: InvalidRefreshTokenErrorResolvers<ContextType>;

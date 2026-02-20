@@ -12,8 +12,8 @@ const accountDelete = executeSingleResultOperation<
   AccountDeleteMutation,
   AccountDeleteMutationVariables
 >(/* GraphQL */ `
-  mutation AccountDelete {
-    accountDelete {
+  mutation AccountDelete($password: String!) {
+    accountDelete(password: $password) {
       __typename
       ... on AccountDeleteSuccess {
         id
@@ -63,6 +63,9 @@ it("deletes user and resources", async () => {
   {
     const { data } = await accountDelete({
       token: client.tokens.alice,
+      variables: {
+        password: "alicealice",
+      },
     });
     assert(
       data?.accountDelete?.__typename === "AccountDeleteSuccess",

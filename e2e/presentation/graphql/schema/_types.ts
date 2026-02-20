@@ -48,10 +48,16 @@ export const UserSortKeys = {
 } as const;
 
 export type UserSortKeys = typeof UserSortKeys[keyof typeof UserSortKeys];
-export type AccountDeleteMutationVariables = Exact<{ [key: string]: never; }>;
+export type AccountDeleteMutationVariables = Exact<{
+  password: Scalars['String']['input'];
+}>;
 
 
-export type AccountDeleteMutation = { accountDelete?: { __typename: 'AccountDeleteSuccess', id: string } | null };
+export type AccountDeleteMutation = { accountDelete?:
+    | { __typename: 'AccountDeleteSuccess', id: string }
+    | { __typename: 'IncorrectPasswordError' }
+    | { __typename: 'InvalidInputErrors' }
+   | null };
 
 export type AccountDeleteNodeQueryVariables = Exact<{
   id: Scalars['ID']['input'];

@@ -123,6 +123,10 @@ export const create = async (
   } satisfies Raw as Type;
 };
 
+export const authenticate = async (user: Type, password: Password.Type): Promise<boolean> => {
+  return await Password.match(password, user.password);
+};
+
 export const updateAccount = (user: Type, input: Partial<Pick<Type, "name">>): Type => {
   return _update(user, input);
 };

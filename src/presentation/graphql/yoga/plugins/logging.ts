@@ -24,6 +24,7 @@ const mask = ({ query, variables }: GraphQLParams<Record<string, unknown>>) => {
   if (query == null) return undefined;
 
   const sensitiveOperations = [
+    "accountDelete",
     "accountUpdate",
     "login",
     "loginPasswordChange",
