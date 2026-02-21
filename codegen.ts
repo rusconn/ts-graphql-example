@@ -55,6 +55,7 @@ const typescriptOperations: TypeScriptDocumentsPluginConfig = {
       output: "string",
     },
     EmailAddress: "string",
+    Void: "void",
   },
   skipTypename: true,
 };
@@ -62,8 +63,8 @@ const typescriptOperations: TypeScriptDocumentsPluginConfig = {
 const config: CodegenConfig = {
   schema: "schema.graphql",
   generates: {
-    "e2e/presentation/graphql/schema/_types.ts": {
-      documents: "e2e/presentation/graphql/schema/**/*.ts",
+    "e2e/graphql/_shared/types.ts": {
+      documents: "e2e/graphql/**/*.ts",
       plugins: ["typescript", "typescript-operations"],
       config: {
         ...typescript,

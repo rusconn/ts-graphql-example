@@ -1,0 +1,64 @@
+import { db, graph, tokens } from "../../../_shared/data.ts";
+import { clearTables, seed } from "../../../_shared/helpers.ts";
+import { executeSingleResultOperation } from "../../_shared/server.ts";
+import type { TodoIdQuery, TodoIdQueryVariables } from "../_types.ts";
+
+const executeQuery = executeSingleResultOperation<TodoIdQuery, TodoIdQueryVariables>(/* GraphQL */ `
+  query TodoId($id: ID!) {
+    node(id: $id) {
+      __typename
+      id
+    }
+  }
+`);
+
+const testData = {
+  users: [db.users.admin, db.users.alice],
+  todos: [db.todos.admin1, db.todos.alice1],
+};
+
+const seedData = {
+  users: () => seed.users(testData.users),
+  todos: () => seed.todos(testData.todos),
+};
+
+beforeAll(async () => {
+  await clearTables();
+  await seedData.users();
+  await seedData.todos();
+});
+
+test("owned", async () => {
+  const { data } = await executeQuery({
+    token: tokens.admin,
+    variables: { id: graph.todos.admin1.id },
+  });
+
+  if (data?.node?.__typename !== "Todo") {
+    assert.fail();
+  }
+
+  expect(data.node.id).toBe(graph.todos.admin1.id);
+});
+
+test("not owned, but admin", async () => {
+  const { data } = await executeQuery({
+    token: tokens.admin,
+    variables: { id: graph.todos.alice1.id },
+  });
+
+  if (data?.node?.__typename !== "Todo") {
+    assert.fail();
+  }
+
+  expect(data.node.id).toBe(graph.todos.alice1.id);
+});
+
+test("not owned", async () => {
+  const { data } = await executeQuery({
+    token: tokens.alice,
+    variables: { id: graph.todos.admin1.id },
+  });
+
+  expect(data?.node).toBeNull();
+});

@@ -3,10 +3,11 @@
   "files": {
     "includes": [
       "**",
-      "!**/node_modules",
       "!**/dist",
-      "!**/presentation/graphql/schema/_types.ts",
-      "!**/infrastructure/datasources/_shared/generated.ts"
+      "!**/e2e/graphql/_shared/types.ts",
+      "!**/node_modules",
+      "!**/src/infrastructure/datasources/_shared/generated.ts",
+      "!**/src/presentation/graphql/schema/_types.ts"
     ]
   },
   "linter": {
