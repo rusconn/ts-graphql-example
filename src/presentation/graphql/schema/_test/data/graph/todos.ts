@@ -4,7 +4,7 @@ import * as Domain from "../../../../../../domain/entities.ts";
 import * as Graph from "../../../_types.ts";
 import { todoId } from "../../../Todo/id.ts";
 import { domain } from "../domain/todos.ts";
-import { type DateTime, dateTime } from "./_shared.ts";
+import { type DateTimeISO, dateTimeISO } from "./_shared.ts";
 
 type GraphTodo = OverrideProperties<
   Required<
@@ -20,8 +20,8 @@ type GraphTodo = OverrideProperties<
     >
   >,
   {
-    createdAt: DateTime;
-    updatedAt: DateTime;
+    createdAt: DateTimeISO;
+    updatedAt: DateTimeISO;
   }
 >;
 
@@ -31,8 +31,8 @@ const node = (todo: Domain.Todo.Type): GraphTodo => ({
   title: todo.title,
   description: todo.description,
   status: statusMap[todo.status],
-  createdAt: dateTime(todo.createdAt),
-  updatedAt: dateTime(todo.updatedAt),
+  createdAt: dateTimeISO(todo.createdAt),
+  updatedAt: dateTimeISO(todo.updatedAt),
 });
 
 const statusMap: Record<Domain.Todo.Status.Type, GraphTodo["status"]> = {

@@ -1,6 +1,6 @@
 import * as Directives from "./schema/_directives.ts";
 import type { Resolvers } from "./schema/_types.ts";
-import * as DateTime from "./schema/DateTime.ts";
+import * as DateTimeISO from "./schema/DateTimeISO.ts";
 import * as EmailAddress from "./schema/EmailAddress.ts";
 import * as EmailAlreadyTakenError from "./schema/EmailAlreadyTakenError.ts";
 import * as Error_ from "./schema/Error.ts";
@@ -18,8 +18,8 @@ import * as User from "./schema/User.ts";
 import * as Void from "./schema/Void.ts";
 
 export const typeDefs = [
+  DateTimeISO.typeDef,
   Directives.typeDefs,
-  DateTime.typeDef,
   EmailAddress.typeDef,
   EmailAlreadyTakenError.typeDef,
   Error_.typeDef,
@@ -38,12 +38,12 @@ export const typeDefs = [
 ];
 
 export const resolvers: Resolvers = {
+  DateTimeISO: DateTimeISO.resolver,
+  EmailAddress: EmailAddress.resolver,
   Mutation: Mutation.resolvers,
   Node: Node.resolvers,
   Query: Query.resolvers,
   Todo: Todo.resolvers,
   User: User.resolvers,
-  DateTime: DateTime.resolver,
-  EmailAddress: EmailAddress.resolver,
   Void: Void.resolver,
 };

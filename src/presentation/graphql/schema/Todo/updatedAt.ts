@@ -4,7 +4,7 @@ import type { TodoResolvers } from "../_types.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Todo {
-    updatedAt: DateTime @semanticNonNull
+    updatedAt: DateTimeISO @semanticNonNull
   }
 `;
 

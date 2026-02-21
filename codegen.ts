@@ -16,14 +16,8 @@ const typescript: TypeScriptPluginConfig = {
       input: "string",
       output: "./ID.ts#ID",
     },
-    DateTime: {
-      input: "./DateTime.ts#DateTime",
-      output: "Date | DateTime", // レスポンス時にJSON.stringifyされるのでDateを許容可能
-    },
-    EmailAddress: {
-      input: "./EmailAddress.ts#EmailAddress",
-      output: "./EmailAddress.ts#EmailAddress",
-    },
+    DateTimeISO: "Date",
+    EmailAddress: "./EmailAddress.ts#EmailAddress",
     Void: "void",
   },
   useTypeImports: true,
@@ -50,7 +44,7 @@ const typescriptOperations: TypeScriptDocumentsPluginConfig = {
   onlyOperationTypes: true,
   scalars: {
     ID: "string",
-    DateTime: {
+    DateTimeISO: {
       input: "string",
       output: "string",
     },

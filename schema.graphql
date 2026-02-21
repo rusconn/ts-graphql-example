@@ -8,9 +8,9 @@ directive @complexity(value: Int!, multipliers: [String!]) on FIELD_DEFINITION
 directive @semanticNonNull(levels: [Int] = [0]) on FIELD_DEFINITION
 
 """
-A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
 """
-scalar DateTime
+scalar DateTimeISO
 
 """
 A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
@@ -288,12 +288,12 @@ type ResourceNotFoundError implements Error {
 }
 
 type Todo implements Node {
-  createdAt: DateTime @semanticNonNull
+  createdAt: DateTimeISO @semanticNonNull
   description: String @semanticNonNull
   id: ID!
   status: TodoStatus @semanticNonNull
   title: String @semanticNonNull
-  updatedAt: DateTime @semanticNonNull
+  updatedAt: DateTimeISO @semanticNonNull
   user: User @semanticNonNull @complexity(value: 3)
 }
 
@@ -303,7 +303,7 @@ enum TodoStatus {
 }
 
 type User implements Node {
-  createdAt: DateTime @semanticNonNull
+  createdAt: DateTimeISO @semanticNonNull
   email: EmailAddress @semanticNonNull @complexity(value: 2)
   id: ID!
   name: String @semanticNonNull @complexity(value: 2)
@@ -326,7 +326,7 @@ type User implements Node {
     """
     status: TodoStatus
   ): TodoConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
-  updatedAt: DateTime @semanticNonNull @complexity(value: 2)
+  updatedAt: DateTimeISO @semanticNonNull @complexity(value: 2)
 }
 
 enum TodoSortKeys {

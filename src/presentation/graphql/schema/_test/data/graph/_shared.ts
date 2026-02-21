@@ -1,7 +1,7 @@
-import type { DateTime } from "../../../../../../util/date-time.ts";
+import type { DateTimeISO } from "../../../DateTimeISO.ts";
 
-export type { DateTime };
+export type { DateTimeISO };
 
-export const dateTime = (date: Date) => {
-  return date.toISOString() as DateTime;
+export const dateTimeISO = (date: Date) => {
+  return date.toISOString() as DateTimeISO;
 };

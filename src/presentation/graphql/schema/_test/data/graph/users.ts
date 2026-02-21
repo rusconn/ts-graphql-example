@@ -4,7 +4,7 @@ import * as Domain from "../../../../../../domain/entities.ts";
 import type * as Graph from "../../../_types.ts";
 import { userId } from "../../../User/id.ts";
 import { domain } from "../domain/users.ts";
-import { type DateTime, dateTime } from "./_shared.ts";
+import { type DateTimeISO, dateTimeISO } from "./_shared.ts";
 
 type GraphUser = OverrideProperties<
   Required<
@@ -19,8 +19,8 @@ type GraphUser = OverrideProperties<
     >
   >,
   {
-    createdAt: DateTime;
-    updatedAt: DateTime;
+    createdAt: DateTimeISO;
+    updatedAt: DateTimeISO;
   }
 >;
 
@@ -30,8 +30,8 @@ const node = (user: Domain.User.Type): GraphUser => {
     id: userId(user.id),
     name: user.name,
     email: user.email,
-    createdAt: dateTime(user.createdAt),
-    updatedAt: dateTime(user.updatedAt),
+    createdAt: dateTimeISO(user.createdAt),
+    updatedAt: dateTimeISO(user.updatedAt),
   };
 };
 

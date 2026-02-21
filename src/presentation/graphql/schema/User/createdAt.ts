@@ -4,7 +4,7 @@ import type { UserResolvers } from "../_types.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
-    createdAt: DateTime @semanticNonNull
+    createdAt: DateTimeISO @semanticNonNull
   }
 `;
 
