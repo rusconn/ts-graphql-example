@@ -108,7 +108,7 @@ export const createAppContext = (input: {
         user,
         queries: {
           credential: new CredentialQueryForAdmin(kysely, user.id),
-          todo: new TodoQueryForAdmin(kysely),
+          todo: new TodoQueryForAdmin(kysely, user.id),
           user: new UserQueryForAdmin(kysely),
         },
         repos: {

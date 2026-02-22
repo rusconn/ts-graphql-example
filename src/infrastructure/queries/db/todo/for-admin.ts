@@ -9,10 +9,14 @@ import type * as UserTodosLoader from "./loaders/user-todos.ts";
 import { TodoQueryShared } from "./shared.ts";
 
 export class TodoQueryForAdmin implements ITodoQueryForAdmin {
+  #db;
   #shared;
+  #tenantId;
 
-  constructor(db: Kysely<DB>) {
+  constructor(db: Kysely<DB>, tenantId: Domain.Todo.Type["userId"]) {
+    this.#db = db;
     this.#shared = new TodoQueryShared(db);
+    this.#tenantId = tenantId;
   }
 
   async find(id: Domain.Todo.Type["id"]) {
@@ -20,7 +24,13 @@ export class TodoQueryForAdmin implements ITodoQueryForAdmin {
   }
 
   async count() {
-    return await this.#shared.count();
+    const result = await this.#db
+      .selectFrom("todos")
+      .where("userId", "=", this.#tenantId)
+      .select(({ fn }) => fn.countAll<number>().as("count"))
+      .executeTakeFirst();
+
+    return result?.count ?? 0;
   }
 
   async loadTheir(key: UserTodoLoader.Key) {
