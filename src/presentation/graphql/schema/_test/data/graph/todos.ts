@@ -1,9 +1,9 @@
 import type { OverrideProperties } from "type-fest";
 
 import * as Domain from "../../../../../../domain/entities.ts";
+import { domain } from "../../../../../_shared/test/data/domain/todos.ts";
 import * as Graph from "../../../_types.ts";
 import { todoId } from "../../../Todo/id.ts";
-import { domain } from "../domain/todos.ts";
 import { type DateTimeISO, dateTimeISO } from "./_shared.ts";
 
 type GraphTodo = OverrideProperties<

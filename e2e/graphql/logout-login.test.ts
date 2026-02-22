@@ -1,10 +1,10 @@
 import { clearTables } from "../_shared/helpers.ts";
 import { executeSingleResultOperation } from "./_shared/server.ts";
 import type {
-  LoginPasswordChangeMutation,
-  LoginPasswordChangeMutationVariables,
   LogoutLoginLoginMutation,
   LogoutLoginLoginMutationVariables,
+  LogoutLoginLoginPasswordChangeMutation,
+  LogoutLoginLoginPasswordChangeMutationVariables,
   LogoutLoginLogoutMutation,
   LogoutLoginLogoutMutationVariables,
   LogoutLoginSignupMutation,
@@ -46,8 +46,8 @@ const userEmailChange = executeSingleResultOperation<
 `);
 
 const loginPasswordChange = executeSingleResultOperation<
-  LoginPasswordChangeMutation,
-  LoginPasswordChangeMutationVariables
+  LogoutLoginLoginPasswordChangeMutation,
+  LogoutLoginLoginPasswordChangeMutationVariables
 >(/* GraphQL */ `
   mutation LogoutLoginLoginPasswordChange($oldPassword: String!, $newPassword: String!) {
     loginPasswordChange(oldPassword: $oldPassword, newPassword: $newPassword) {

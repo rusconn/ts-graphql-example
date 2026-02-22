@@ -7,7 +7,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       dir: "e2e/graphql",
-      include: ["*.test.ts"], // TODO: "**/*.test.ts"へ変更
+      include: ["**/*.test.ts"],
       maxWorkers: 1,
     },
   }),

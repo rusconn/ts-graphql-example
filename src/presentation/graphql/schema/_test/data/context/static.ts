@@ -1,5 +1,5 @@
+import { dto } from "../../../../../_shared/test/data/dto.ts";
 import type { Context } from "../../../../yoga/context.ts";
-import { dto } from "../dto.ts";
 
 export const context = {
   admin: {

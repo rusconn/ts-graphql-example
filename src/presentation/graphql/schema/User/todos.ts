@@ -6,8 +6,8 @@ import { parseConnectionArgs } from "../_parsers/connection-args.ts";
 import { parseTodoCursor } from "../_parsers/todo/cursor.ts";
 import { TodoSortKeys, TodoStatus, type UserResolvers, type UserTodosArgs } from "../_types.ts";
 
-const FIRST_MAX = 50;
-const LAST_MAX = 50;
+export const FIRST_MAX = 50;
+export const LAST_MAX = 50;
 
 export const typeDef = /* GraphQL */ `
   extend type User {

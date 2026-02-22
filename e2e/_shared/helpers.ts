@@ -2,9 +2,7 @@ import type { Transaction } from "kysely";
 
 import type { DB } from "../../src/infrastructure/datasources/_shared/types.ts";
 import { kysely } from "../../src/infrastructure/datasources/db/client.ts";
-import * as UTHelpers from "../../src/presentation/graphql/schema/_test/helpers.ts";
-
-export const dummyId = UTHelpers.dummyId;
+import * as UTHelpers from "../../src/presentation/_shared/test/helpers/helpers.ts";
 
 export const clearTables = async () => {
   await Promise.all([

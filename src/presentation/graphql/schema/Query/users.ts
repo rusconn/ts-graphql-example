@@ -7,8 +7,8 @@ import { parseUserCursor } from "../_parsers/user/cursor.ts";
 import type { QueryResolvers, QueryUsersArgs } from "../_types.ts";
 import { UserSortKeys } from "../_types.ts";
 
-const FIRST_MAX = 30;
-const LAST_MAX = 30;
+export const FIRST_MAX = 30;
+export const LAST_MAX = 30;
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
