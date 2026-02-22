@@ -1,15 +1,15 @@
 import type { Kysely } from "kysely";
 
 import type * as Domain from "../../../../domain/entities.ts";
-import type { IUserReaderRepoForUser } from "../../../../domain/repos-for-read/for-user/user.ts";
+import type { IUserReaderRepoForGuest } from "../../../../domain/repos-for-read/for-guest/user.ts";
 import type { DB } from "../../../datasources/_shared/types.ts";
 import { UserReaderRepoShared } from "../_shared/user.ts";
 
-export class UserReaderRepoForUser implements IUserReaderRepoForUser {
+export class UserReaderRepoForGuest implements IUserReaderRepoForGuest {
   #shared;
 
-  constructor(db: Kysely<DB>, tenantId: Domain.User.Type["id"]) {
-    this.#shared = new UserReaderRepoShared(db, tenantId);
+  constructor(db: Kysely<DB>) {
+    this.#shared = new UserReaderRepoShared(db);
   }
 
   async find(id: Domain.User.Type["id"]) {

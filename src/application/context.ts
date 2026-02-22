@@ -3,6 +3,7 @@ import type { OverrideProperties } from "type-fest";
 
 import type { ITodoReaderRepoForAdmin } from "../domain/repos-for-read/for-admin/todo.ts";
 import type { IUserReaderRepoForAdmin } from "../domain/repos-for-read/for-admin/user.ts";
+import type { IUserReaderRepoForGuest } from "../domain/repos-for-read/for-guest/user.ts";
 import type { ITodoReaderRepoForUser } from "../domain/repos-for-read/for-user/todo.ts";
 import type { IUserReaderRepoForUser } from "../domain/repos-for-read/for-user/user.ts";
 import type { IRefreshTokenReaderRepo } from "../domain/repos-for-read/refresh-token.ts";
@@ -11,15 +12,13 @@ import type { IUnitOfWorkForGuest } from "../domain/unit-of-works/for-guest.ts";
 import type { IUnitOfWorkForUser } from "../domain/unit-of-works/for-user.ts";
 import type { DB } from "../infrastructure/datasources/_shared/types.ts";
 import type { pino } from "../infrastructure/loggers/pino.ts";
-import { CredentialQueryForAdmin } from "../infrastructure/queries/db/credential/for-admin.ts";
-import { CredentialQueryForGuest } from "../infrastructure/queries/db/credential/for-guest.ts";
-import { CredentialQueryForUser } from "../infrastructure/queries/db/credential/for-user.ts";
 import { TodoQueryForAdmin } from "../infrastructure/queries/db/todo/for-admin.ts";
 import { TodoQueryForUser } from "../infrastructure/queries/db/todo/for-user.ts";
 import { UserQueryForAdmin } from "../infrastructure/queries/db/user/for-admin.ts";
 import { UserQueryForUser } from "../infrastructure/queries/db/user/for-user.ts";
 import { TodoReaderRepoForAdmin } from "../infrastructure/repos-for-read/db/for-admin/todo.ts";
 import { UserReaderRepoForAdmin } from "../infrastructure/repos-for-read/db/for-admin/user.ts";
+import { UserReaderRepoForGuest } from "../infrastructure/repos-for-read/db/for-guest/user.ts";
 import { TodoReaderRepoForUser } from "../infrastructure/repos-for-read/db/for-user/todo.ts";
 import { UserReaderRepoForUser } from "../infrastructure/repos-for-read/db/for-user/user.ts";
 import { RefreshTokenReaderRepo } from "../infrastructure/repos-for-read/db/refresh-token.ts";
@@ -27,9 +26,6 @@ import { UnitOfWorkForAdmin } from "../infrastructure/unit-of-works/db/for-admin
 import { UnitOfWorkForGuest } from "../infrastructure/unit-of-works/db/for-guest.ts";
 import { UnitOfWorkForUser } from "../infrastructure/unit-of-works/db/for-user.ts";
 import * as Dto from "./dto.ts";
-import type { ICredentialQueryForAdmin } from "./queries/credential/for-admin.ts";
-import type { ICredentialQueryForGuest } from "./queries/credential/for-guest.ts";
-import type { ICredentialQueryForUser } from "./queries/credential/for-user.ts";
 import type { ITodoQueryForAdmin } from "./queries/todo/for-admin.ts";
 import type { ITodoQueryForUser } from "./queries/todo/for-user.ts";
 import type { IUserQueryForAdmin } from "./queries/user/for-admin.ts";
@@ -42,7 +38,6 @@ export type AppContextForAdmin = {
   role: "ADMIN";
   user: OverrideProperties<Dto.User.Type, { role: "ADMIN" }>;
   queries: {
-    credential: ICredentialQueryForAdmin;
     todo: ITodoQueryForAdmin;
     user: IUserQueryForAdmin;
   };
@@ -59,7 +54,6 @@ export type AppContextForUser = {
   role: "USER";
   user: OverrideProperties<Dto.User.Type, { role: "USER" }>;
   queries: {
-    credential: ICredentialQueryForUser;
     todo: ITodoQueryForUser;
     user: IUserQueryForUser;
   };
@@ -75,11 +69,9 @@ export type AppContextForUser = {
 export type AppContextForGuest = {
   role: "GUEST";
   user: null;
-  queries: {
-    credential: ICredentialQueryForGuest;
-  };
   repos: {
     refreshToken: IRefreshTokenReaderRepo;
+    user: IUserReaderRepoForGuest;
   };
   unitOfWork: IUnitOfWorkForGuest;
   logger: typeof pino;
@@ -107,7 +99,6 @@ export const createAppContext = (input: {
         role: user.role,
         user,
         queries: {
-          credential: new CredentialQueryForAdmin(kysely, user.id),
           todo: new TodoQueryForAdmin(kysely, user.id),
           user: new UserQueryForAdmin(kysely),
         },
@@ -124,7 +115,6 @@ export const createAppContext = (input: {
         role: user.role,
         user,
         queries: {
-          credential: new CredentialQueryForUser(kysely, user.id),
           todo: new TodoQueryForUser(kysely, user.id),
           user: new UserQueryForUser(kysely, user.id),
         },
@@ -140,11 +130,9 @@ export const createAppContext = (input: {
       return {
         role: "GUEST",
         user,
-        queries: {
-          credential: new CredentialQueryForGuest(kysely),
-        },
         repos: {
           refreshToken: new RefreshTokenReaderRepo(kysely),
+          user: new UserReaderRepoForGuest(kysely),
         },
         unitOfWork: new UnitOfWorkForGuest(kysely),
         logger,

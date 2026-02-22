@@ -25,21 +25,21 @@ type LoginResult = DiscriminatedUnion<{
 export const login = async (ctx: AppContext, input: LoginInput): Promise<LoginResult> => {
   const { email, password } = input;
 
-  const credential = await ctx.queries.credential.findByEmail(email);
-  if (!credential) {
+  const user = await ctx.repos.user.findByEmail(email);
+  if (!user) {
     return { type: "UserNotFound" };
   }
 
-  const match = await User.Password.match(password, credential.password);
+  const match = await User.authenticate(user, password);
   if (!match) {
     return { type: "IncorrectPassword" };
   }
 
-  const { rawRefreshToken, refreshToken } = await RefreshToken.create(credential.userId);
+  const { rawRefreshToken, refreshToken } = await RefreshToken.create(user.id);
   try {
     await ctx.unitOfWork.run(async (repos) => {
       await repos.refreshToken.add(refreshToken);
-      await repos.refreshToken.retainLatest(credential.userId, RefreshToken.MAX_RETENTION);
+      await repos.refreshToken.retainLatest(user.id, RefreshToken.MAX_RETENTION);
     });
   } catch (e) {
     return {

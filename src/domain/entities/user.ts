@@ -146,7 +146,7 @@ export const changePassword = async (
     return err("SamePasswords");
   }
 
-  const match = await Password.match(input.oldPassword, user.password);
+  const match = await authenticate(user, input.oldPassword);
   if (!match) {
     return err("IncorrectOldPassword");
   }

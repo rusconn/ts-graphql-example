@@ -14,10 +14,19 @@ export class UserReaderRepoShared {
   }
 
   async find(id: Domain.Type["id"]) {
+    return await this._find({ id });
+  }
+
+  async findByEmail(email: Domain.Type["email"]) {
+    return await this._find({ email });
+  }
+
+  async _find(filter: Partial<Pick<Domain.Type, "id" | "email">>) {
     const result = await this.#db
       .selectFrom("users")
       .innerJoin("credentials", "users.id", "credentials.userId")
-      .where("users.id", "=", id)
+      .$if(filter.id != null, (qb) => qb.where("users.id", "=", filter.id!))
+      .$if(filter.email != null, (qb) => qb.where("users.email", "=", filter.email!))
       .$if(this.#tenantId != null, (qb) => qb.where("users.id", "=", this.#tenantId!))
       .select([
         "users.id as usersId",

@@ -15,4 +15,8 @@ export class UserReaderRepoForAdmin implements IUserReaderRepoForAdmin {
   async find(id: Domain.User.Type["id"]) {
     return await this.#shared.find(id);
   }
+
+  async findByEmail(email: Domain.User.Type["email"]) {
+    return await this.#shared.findByEmail(email);
+  }
 }
