@@ -2,16 +2,20 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import { type DB, type User, UserRole } from "../../src/db/types.ts";
-import { UserId } from "../../src/domain/user.ts";
-import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
+import * as Domain from "../../src/domain/entities.ts";
+import {
+  type DB,
+  type User,
+  UserRole,
+} from "../../src/infrastructure/datasources/_shared/types.ts";
+import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
 export const seed = async (trx: Transaction<DB>) => {
   const handUsers: User[] = [
     {
       id: "0193cb3e-4379-750f-880f-77afae342259" as Uuidv7,
       name: "admin",
-      email: "admin@admin.com",
+      email: "admin@example.com",
       role: UserRole.Admin,
       createdAt: new Date("2024-12-15T16:54:35.641Z"),
       updatedAt: new Date("2024-12-15T16:54:41.152Z"),
@@ -19,7 +23,7 @@ export const seed = async (trx: Transaction<DB>) => {
     {
       id: "0193cb3e-504f-72e9-897c-2c71f389f3ad" as Uuidv7,
       name: "hoge",
-      email: "hoge@hoge.com",
+      email: "hoge@example.com",
       role: UserRole.User,
       createdAt: new Date("2024-12-15T16:54:38.927Z"),
       updatedAt: new Date("2024-12-15T16:54:38.927Z"),
@@ -27,7 +31,7 @@ export const seed = async (trx: Transaction<DB>) => {
     {
       id: "0193cb3e-58fe-772b-8306-412afa147cdd" as Uuidv7,
       name: "piyo",
-      email: "piyo@piyo.com",
+      email: "piyo@example.com",
       role: UserRole.User,
       createdAt: new Date("2024-12-15T16:54:41.150Z"),
       updatedAt: new Date("2024-12-15T16:54:41.151Z"),
@@ -52,7 +56,7 @@ const fakeData = (numFakes: number) => {
 };
 
 const fakeDataOne = (nth: number): User => {
-  const id = UserId.gen();
+  const id = Domain.User.Id.create();
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
 
@@ -65,7 +69,7 @@ const fakeDataOne = (nth: number): User => {
       allowSpecialCharacters: true,
     }),
     role: UserRole.User,
-    createdAt: UserId.date(id),
+    createdAt: Domain.User.Id.date(id),
     updatedAt: faker.date.past(),
   };
 };

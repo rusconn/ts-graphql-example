@@ -1,4 +1,4 @@
-import * as env from "../lib/env/env.ts";
+import * as env from "../util/envvar.ts";
 
 export const domain = env.get("DOMAIN");
 export const port = env.getInt("PORT");

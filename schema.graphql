@@ -7,11 +7,53 @@ directive @complexity(value: Int!, multipliers: [String!]) on FIELD_DEFINITION
 
 directive @semanticNonNull(levels: [Int] = [0]) on FIELD_DEFINITION
 
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
+"""
+scalar DateTimeISO
+
+"""
+A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
+"""
+scalar EmailAddress
+  @specifiedBy(url: "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address")
+
+type EmailAlreadyTakenError implements Error {
+  message: String!
+}
+
+interface Error {
+  message: String!
+}
+
+enum ErrorCode {
+  ACCESS_TOKEN_EXPIRED
+  AUTHENTICATION_ERROR
+  BAD_USER_INPUT
+  FORBIDDEN
+  INTERNAL_SERVER_ERROR
+  QUERY_TOO_COMPLEX
+}
+
+type InvalidInputError implements Error {
+  field: String!
+  message: String!
+}
+
+type InvalidInputErrors {
+  errors: [InvalidInputError!]!
+}
+
 type Mutation {
   """
   紐づくリソースは全て削除される
   """
-  accountDelete: AccountDeleteResult @semanticNonNull @complexity(value: 5)
+  accountDelete(
+    """
+    8文字以上、50文字まで
+    """
+    password: String!
+  ): AccountDeleteResult @semanticNonNull @complexity(value: 5)
   accountUpdate(
     """
     1文字以上、100文字まで、null は入力エラー
@@ -38,7 +80,7 @@ type Mutation {
     """
     newPassword: String!
   ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100)
-  logout: LogoutResult @semanticNonNull @complexity(value: 5)
+  logout: Void @semanticNonNull @complexity(value: 100)
   signup(
     """
     1文字以上、100文字まで
@@ -85,7 +127,7 @@ type Mutation {
     """
     status: TodoStatus
   ): TodoUpdateResult @semanticNonNull @complexity(value: 5)
-  tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 100)
+  tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 200)
   userEmailChange(
     """
     100文字まで、既に存在する場合はエラー
@@ -94,10 +136,14 @@ type Mutation {
   ): UserEmailChangeResult @semanticNonNull @complexity(value: 5)
 }
 
-union AccountDeleteResult = AccountDeleteSuccess
+union AccountDeleteResult = AccountDeleteSuccess | InvalidInputErrors | IncorrectPasswordError
 
 type AccountDeleteSuccess {
   id: ID!
+}
+
+type IncorrectPasswordError implements Error {
+  message: String!
 }
 
 union AccountUpdateResult = AccountUpdateSuccess | InvalidInputErrors
@@ -123,7 +169,7 @@ union LoginPasswordChangeResult =
   | IncorrectOldPasswordError
 
 type LoginPasswordChangeSuccess {
-  id: ID!
+  user: User!
 }
 
 type SamePasswordsError implements Error {
@@ -132,10 +178,6 @@ type SamePasswordsError implements Error {
 
 type IncorrectOldPasswordError implements Error {
   message: String!
-}
-
-type LogoutResult {
-  success: Boolean!
 }
 
 union SignupResult = SignupSuccess | InvalidInputErrors | EmailAlreadyTakenError
@@ -169,13 +211,17 @@ type TodoUpdateSuccess {
   todo: Todo!
 }
 
-union TokenRefreshResult = TokenRefreshSuccess | InvalidRefreshTokenError
+union TokenRefreshResult = TokenRefreshSuccess | InvalidRefreshTokenError | RefreshTokenExpiredError
 
 type TokenRefreshSuccess {
   token: String!
 }
 
 type InvalidRefreshTokenError implements Error {
+  message: String!
+}
+
+type RefreshTokenExpiredError implements Error {
   message: String!
 }
 
@@ -187,6 +233,13 @@ type UserEmailChangeSuccess {
 
 interface Node {
   id: ID!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
 }
 
 type Query {
@@ -226,13 +279,21 @@ type UserEdge {
   node: User @semanticNonNull
 }
 
+type ResourceLimitExceededError implements Error {
+  message: String!
+}
+
+type ResourceNotFoundError implements Error {
+  message: String!
+}
+
 type Todo implements Node {
-  createdAt: DateTime @semanticNonNull
+  createdAt: DateTimeISO @semanticNonNull
   description: String @semanticNonNull
   id: ID!
   status: TodoStatus @semanticNonNull
   title: String @semanticNonNull
-  updatedAt: DateTime @semanticNonNull
+  updatedAt: DateTimeISO @semanticNonNull
   user: User @semanticNonNull @complexity(value: 3)
 }
 
@@ -242,7 +303,7 @@ enum TodoStatus {
 }
 
 type User implements Node {
-  createdAt: DateTime @semanticNonNull
+  createdAt: DateTimeISO @semanticNonNull
   email: EmailAddress @semanticNonNull @complexity(value: 2)
   id: ID!
   name: String @semanticNonNull @complexity(value: 2)
@@ -265,7 +326,7 @@ type User implements Node {
     """
     status: TodoStatus
   ): TodoConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
-  updatedAt: DateTime @semanticNonNull @complexity(value: 2)
+  updatedAt: DateTimeISO @semanticNonNull @complexity(value: 2)
 }
 
 enum TodoSortKeys {
@@ -286,53 +347,6 @@ type TodoEdge {
 }
 
 """
-A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+Represents NULL values
 """
-scalar DateTime
-
-"""
-A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
-"""
-scalar EmailAddress
-  @specifiedBy(url: "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address")
-
-type EmailAlreadyTakenError implements Error {
-  message: String!
-}
-
-interface Error {
-  message: String!
-}
-
-enum ErrorCode {
-  QUERY_TOO_COMPLEX
-  BAD_USER_INPUT
-  AUTHENTICATION_ERROR
-  FORBIDDEN
-  TOKEN_EXPIRED
-  INTERNAL_SERVER_ERROR
-}
-
-type InvalidInputError implements Error {
-  field: String!
-  message: String!
-}
-
-type InvalidInputErrors {
-  errors: [InvalidInputError!]!
-}
-
-type PageInfo {
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-  endCursor: String
-}
-
-type ResourceLimitExceededError implements Error {
-  message: String!
-}
-
-type ResourceNotFoundError implements Error {
-  message: String!
-}
+scalar Void

@@ -1,3 +1,6 @@
+-- CREATE DOMAINでuuidv7型を作成したいが、Atlas Proが必要なよう:
+-- https://atlasgo.io/features#database-features
+
 CREATE TYPE todo_status AS ENUM ('done', 'pending');
 
 CREATE TYPE user_role AS ENUM ('admin', 'user');
@@ -15,12 +18,26 @@ CREATE INDEX ON users (created_at, id);
 
 CREATE INDEX ON users (updated_at, id);
 
+CREATE TABLE credentials (
+  user_id uuid PRIMARY KEY REFERENCES users ON UPDATE RESTRICT ON DELETE CASCADE,
+  password varchar(60) NOT NULL
+);
+
+CREATE TABLE refresh_tokens (
+  token varchar(60) PRIMARY KEY,
+  user_id uuid NOT NULL REFERENCES users ON UPDATE RESTRICT ON DELETE RESTRICT,
+  expires_at timestamptz (3) NOT NULL,
+  created_at timestamptz (3) NOT NULL
+);
+
+CREATE INDEX ON refresh_tokens (user_id, created_at);
+
 CREATE TABLE todos (
   id uuid PRIMARY KEY,
   title varchar(255) NOT NULL,
   description text NOT NULL,
   status todo_status NOT NULL,
-  user_id uuid NOT NULL REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES users ON UPDATE RESTRICT ON DELETE RESTRICT,
   created_at timestamptz (3) NOT NULL,
   updated_at timestamptz (3) NOT NULL
 );
@@ -28,16 +45,3 @@ CREATE TABLE todos (
 CREATE INDEX ON todos (user_id, created_at, id);
 
 CREATE INDEX ON todos (user_id, updated_at, id);
-
-CREATE TABLE user_credentials (
-  user_id uuid PRIMARY KEY REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
-  password varchar(60) NOT NULL
-);
-
-CREATE TABLE user_tokens (
-  refresh_token varchar(60) PRIMARY KEY,
-  user_id uuid NOT NULL REFERENCES users ON UPDATE CASCADE ON DELETE CASCADE,
-  last_used_at timestamptz (3) NOT NULL
-);
-
-CREATE INDEX ON user_tokens (user_id, last_used_at);

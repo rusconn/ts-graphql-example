@@ -1,14 +1,16 @@
 services:
   db:
-    image: postgres:17.4-alpine3.21
+    image: postgres:18.2-alpine3.23
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pass
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql
       - ./docker/db:/docker-entrypoint-initdb.d
     ports:
       - ${DB_PORT:?}:5432
+    command: >
+      postgres -c lock_timeout=1s -c statement_timeout=3s
 
 volumes:
   postgres:

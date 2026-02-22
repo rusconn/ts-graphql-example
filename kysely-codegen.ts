@@ -1,16 +1,14 @@
-import type { Config } from "kysely-codegen";
+import { defineConfig } from "kysely-codegen";
 
-const config: Config = {
+export default defineConfig({
   camelCase: true,
   customImports: {
-    Uuidv7: "../lib/uuid/v7",
+    Uuid: "../../../util/uuid/vn.ts",
   },
   dialect: "postgres",
   excludePattern: "test.*",
-  outFile: "src/db/generated.ts",
+  outFile: "src/infrastructure/datasources/_shared/generated.ts",
   typeMapping: {
-    uuid: "Uuidv7",
+    uuid: "Uuid", // DBにuuidv7を用意できたらUuidv7型へ変更する
   },
-};
-
-export default config;
+});

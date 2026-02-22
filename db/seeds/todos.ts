@@ -2,9 +2,14 @@ import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import { type DB, type Todo, TodoStatus, type User } from "../../src/db/types.ts";
-import { TodoId } from "../../src/domain/todo.ts";
-import type { Uuidv7 } from "../../src/lib/uuid/v7.ts";
+import * as Domain from "../../src/domain/entities.ts";
+import {
+  type DB,
+  type Todo,
+  TodoStatus,
+  type User,
+} from "../../src/infrastructure/datasources/_shared/types.ts";
+import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
 import { randInt } from "./_utils.ts";
 
@@ -58,7 +63,7 @@ const fakeDataOne = (userId: User["id"]): Todo[] => {
   const numTodos = randInt(0, 10);
 
   return [...Array(numTodos)].map((_) => {
-    const id = TodoId.gen();
+    const id = Domain.Todo.Id.create();
 
     return {
       id,
@@ -66,7 +71,7 @@ const fakeDataOne = (userId: User["id"]): Todo[] => {
       description: faker.lorem.text(),
       status: faker.helpers.arrayElement([TodoStatus.Done, TodoStatus.Pending]),
       userId,
-      createdAt: TodoId.date(id),
+      createdAt: Domain.Todo.Id.date(id),
       updatedAt: faker.date.past(),
     };
   });

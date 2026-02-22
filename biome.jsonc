@@ -1,13 +1,13 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.4/schema.json",
   "files": {
     "includes": [
       "**",
-      "!**/node_modules/**",
-      "!**/dist/**",
-      "!**/src/db/generated.ts",
-      "!**/src/schema.ts",
-      "!**/tests/graphql/schema.ts"
+      "!**/dist",
+      "!**/e2e/graphql/_shared/types.ts",
+      "!**/node_modules",
+      "!**/src/infrastructure/datasources/_shared/generated.ts",
+      "!**/src/presentation/graphql/schema/_types.ts"
     ]
   },
   "linter": {
