@@ -128,11 +128,11 @@ export const authenticate = async (user: Type, password: Password.Type): Promise
 };
 
 export const updateAccount = (user: Type, input: Partial<Pick<Type, "name">>): Type => {
-  return _update(user, input);
+  return update(user, input);
 };
 
 export const changeEmail = (user: Type, input: Type["email"]): Type => {
-  return _update(user, { email: input });
+  return update(user, { email: input });
 };
 
 export const changePassword = async (
@@ -151,14 +151,14 @@ export const changePassword = async (
     return err("IncorrectOldPassword");
   }
 
-  return ok(_update(user, { password: await Password.hash(input.newPassword) }));
+  return ok(update(user, { password: await Password.hash(input.newPassword) }));
 };
 
 export type ChangePasswordError =
   | "IncorrectOldPassword" //
   | "SamePasswords";
 
-const _update = (user: Type, input: Partial<Pick<Type, "name" | "email" | "password">>): Type => {
+const update = (user: Type, input: Partial<Pick<Type, "name" | "email" | "password">>): Type => {
   return {
     ...user,
     ...(input.name != null && {

@@ -14,14 +14,14 @@ export class UserReaderRepoShared {
   }
 
   async find(id: Domain.Type["id"]) {
-    return await this._find({ id });
+    return await this.#find({ id });
   }
 
   async findByEmail(email: Domain.Type["email"]) {
-    return await this._find({ email });
+    return await this.#find({ email });
   }
 
-  async _find(filter: Partial<Pick<Domain.Type, "id" | "email">>) {
+  async #find(filter: Partial<Pick<Domain.Type, "id" | "email">>) {
     const result = await this.#db
       .selectFrom("users")
       .innerJoin("credentials", "users.id", "credentials.userId")
