@@ -8,14 +8,20 @@ env_shell_expand = true
 PATH = "./node_modules/.bin:${PATH}"
 
 [tasks.setup]
+depends = ["setup:env"]
 env = { _.file = ".env" }
 run = """
-test -f .env || cp .env.example .env
 pnpm install
 docker compose down -v
 docker compose up -d
 atlas schema --env env apply --auto-approve
 node db/seed.ts
+"""
+
+[tasks."setup:env"]
+hide = true
+run = """
+test -f .env || cp .env.example .env
 """
 
 [tasks.dev]
