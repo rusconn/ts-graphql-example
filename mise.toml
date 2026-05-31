@@ -5,11 +5,12 @@ node = "24"
 env_shell_expand = true
 
 [env]
-PATH = "./node_modules/.bin:${PATH}"
+_.file = ".env"
+_.path = ['{{config_root}}/node_modules/.bin']
 
 [tasks.setup]
 depends = ["setup:env"]
-env = { _.file = ".env" }
+env = { _.file = ".env" } # dependsで.envが作成される場合があるので必要
 run = """
 pnpm install
 docker compose down -v
@@ -25,7 +26,7 @@ test -f .env || cp .env.example .env
 """
 
 [tasks.dev]
-env = { _.file = ".env" }
+depends = ["db:up"]
 run = """
 node --watch src/presentation/server.ts
 """
@@ -54,8 +55,8 @@ vite build
 """
 
 [tasks.preview]
-depends = ["build"]
-env = { _.file = [".env", ".env.preview"] }
+depends = ["build", "db:up"]
+env = { _.file = [".env.preview"] }
 run = """
 node --enable-source-maps dist/server.js
 """
@@ -64,14 +65,14 @@ node --enable-source-maps dist/server.js
 depends = ["test:ut", "test:it", "test:e2e"]
 
 [tasks."test:ut"]
-env = { _.file = [".env", ".env.test"] }
+env = { _.file = [".env.test"] }
 run = """
 vitest --project ut
 """
 
 [tasks."test:it"]
 depends = ["test:setup-db"]
-env = { _.file = [".env", ".env.test"] }
+env = { _.file = [".env.test"] }
 run = """
 vitest --project it
 """
@@ -79,39 +80,45 @@ vitest --project it
 [tasks."test:e2e"]
 depends = ["test:setup-db"]
 wait_for = ["test:it"]
-env = { _.file = [".env", ".env.test"] }
+env = { _.file = [".env.test"] }
 run = """
 vitest --project e2e
 """
 
 [tasks."test:setup-db"]
-env = { _.file = [".env", ".env.test"] }
+hide = true
+depends = ["db:up"]
+env = { _.file = [".env.test"] }
 run = """
-docker compose up -d
 atlas schema --env env clean --auto-approve
 atlas schema --env env apply --auto-approve
 """
 
-[tasks.migrate]
-env = { _.file = ".env" }
+[tasks."db:schema"]
+depends = ["db:up"]
 run = """
 atlas schema --env env
 """
 
-[tasks.generate]
-env = { _.file = ".env" }
+[tasks."db:typegen"]
+depends = ["db:up"]
 run = """
 kysely-codegen --config-file kysely-codegen.ts
 """
 
-[tasks.seed]
-env = { _.file = ".env" }
+[tasks."db:seed"]
+depends = ["db:up"]
 run = """
 node db/seed.ts
 """
 
-[tasks.codegen]
-env = { _.file = ".env" }
+[tasks."db:up"]
+hide = true
+run = """
+docker compose up -d
+"""
+
+[tasks."gql:codegen"]
 run = """
 node schemagen.ts
 oxfmt schema.graphql
