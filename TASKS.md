@@ -58,7 +58,7 @@ Requires: test:ut, test:it, test:e2e
 ```sh
 export PATH="./node_modules/.bin/:$PATH"
 export $(dotenvx get -f .env -f .env.test --overload --format=shell)
-vitest --config vitest.ut.config.ts
+vitest --project ut
 ```
 
 ## test:it
@@ -68,7 +68,7 @@ Requires: test:setup-db
 ```sh
 export PATH="./node_modules/.bin/:$PATH"
 export $(dotenvx get -f .env -f .env.test --overload --format=shell)
-vitest --config vitest.it.config.ts
+vitest --project it
 ```
 
 ## test:e2e
@@ -78,7 +78,7 @@ Requires: test:setup-db
 ```sh
 export PATH="./node_modules/.bin/:$PATH"
 export $(dotenvx get -f .env -f .env.test --overload --format=shell)
-vitest --config vitest.e2e.config.ts
+vitest --project e2e
 ```
 
 ## test:setup-db
