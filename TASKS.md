@@ -29,7 +29,7 @@ node --watch src/presentation/server.ts
 export PATH="./node_modules/.bin/:$PATH"
 tsgo
 biome check
-prettier --cache --check './**/*.{yml,yaml,md}'
+oxfmt --check
 ```
 
 ## build
@@ -123,6 +123,6 @@ node db/seed.ts
 export PATH="./node_modules/.bin/:$PATH"
 export $(dotenvx get --format=shell)
 node schemagen.ts
-biome format --write schema.graphql
+oxfmt schema.graphql
 graphql-codegen-esm
 ```

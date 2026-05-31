@@ -10,7 +10,6 @@ import {
   type User,
 } from "../../src/infrastructure/datasources/_shared/types.ts";
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
-
 import { randInt } from "./_utils.ts";
 
 export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {

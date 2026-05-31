@@ -3,8 +3,8 @@ import type { ReadonlyKysely } from "kysely/readonly";
 import * as Dto from "../../../../application/dto.ts";
 import type * as Domain from "../../../../domain/entities.ts";
 import type { DB } from "../../../datasources/_shared/types.ts";
-import * as UserTodoLoader from "./loaders/user-todo.ts";
 import * as UserTodoCountLoader from "./loaders/user-todo-count.ts";
+import * as UserTodoLoader from "./loaders/user-todo.ts";
 import * as UserTodosLoader from "./loaders/user-todos.ts";
 
 export class TodoQueryShared {

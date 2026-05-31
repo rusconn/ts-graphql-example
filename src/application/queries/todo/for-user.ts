@@ -1,6 +1,6 @@
 import type { Type as Todo } from "../../dto/todo.ts";
-import type * as UserTodoLoader from "./loaders/user-todo.ts";
 import type * as UserTodoCountLoader from "./loaders/user-todo-count.ts";
+import type * as UserTodoLoader from "./loaders/user-todo.ts";
 import type * as UserTodosLoader from "./loaders/user-todos.ts";
 
 export interface ITodoQueryForUser {

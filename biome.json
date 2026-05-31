@@ -44,29 +44,9 @@
     }
   },
   "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": {
-          "level": "on",
-          "options": {
-            "groups": [
-              ":NODE:",
-              ":BLANK_LINE:",
-              ":PACKAGE:",
-              "uWebSockets.js",
-              ":BLANK_LINE:",
-              ["**/src/**"],
-              ":BLANK_LINE:",
-              ":PATH:"
-            ]
-          }
-        }
-      }
-    }
+    "enabled": false
   },
   "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "lineWidth": 100
+    "enabled": false
   }
 }

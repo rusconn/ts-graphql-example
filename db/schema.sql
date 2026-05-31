@@ -1,6 +1,3 @@
--- CREATE DOMAINでuuidv7型を作成したいが、Atlas Proが必要なよう:
--- https://atlasgo.io/features#database-features
-
 CREATE TYPE todo_status AS ENUM ('done', 'pending');
 
 CREATE TYPE user_role AS ENUM ('admin', 'user');
@@ -45,3 +42,6 @@ CREATE TABLE todos (
 CREATE INDEX ON todos (user_id, created_at, id);
 
 CREATE INDEX ON todos (user_id, updated_at, id);
+
+-- CREATE DOMAINでuuidv7型を作成したいが、Atlas Proが必要なよう:
+-- https://atlasgo.io/features#database-features

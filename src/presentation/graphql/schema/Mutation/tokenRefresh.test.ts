@@ -13,8 +13,8 @@ import {
   type Seeders,
 } from "../../../_shared/test/helpers/helpers.ts";
 import type { Context } from "../../yoga/context.ts";
-import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { client, db, domain } from "../_test/data.ts";
+import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { createContext } from "../_test/helpers.ts";
 import { ErrorCode } from "../_types.ts";
 import { resolver } from "./tokenRefresh.ts";

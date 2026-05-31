@@ -11,8 +11,8 @@ import {
   type Seeders,
 } from "../../../_shared/test/helpers/helpers.ts";
 import type { Context } from "../../yoga/context.ts";
-import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { client, db, domain, dto } from "../_test/data.ts";
+import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { createContext } from "../_test/helpers.ts";
 import { resolver } from "./logout.ts";
 

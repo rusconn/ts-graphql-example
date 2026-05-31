@@ -11,8 +11,8 @@ import {
   type Queries,
   type Seeders,
 } from "../../../_shared/test/helpers/helpers.ts";
-import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { client, db, domain, dto, graph } from "../_test/data.ts";
+import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { createContext } from "../_test/helpers.ts";
 import { ErrorCode, type MutationAccountDeleteArgs } from "../_types.ts";
 import { resolver } from "./accountDelete.ts";

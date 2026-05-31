@@ -4,7 +4,7 @@
     "ms-azuretools.vscode-docker",
     "irongeek.vscode-env",
     "biomejs.biome",
-    "esbenp.prettier-vscode",
+    "oxc.oxc-vscode",
     "graphql.vscode-graphql",
     "typescriptteam.native-preview",
     "ariga.atlas-hcl"
