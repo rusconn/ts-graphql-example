@@ -10,7 +10,7 @@ import {
 } from "../../src/infrastructure/datasources/_shared/types.ts";
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
-export const seed = async (trx: Transaction<DB>) => {
+export async function seed(trx: Transaction<DB>) {
   const handUsers: User[] = [
     {
       id: "0193cb3e-4379-750f-880f-77afae342259" as Uuidv7,
@@ -49,13 +49,13 @@ export const seed = async (trx: Transaction<DB>) => {
   await Promise.all(inserts);
 
   return fakeUsers.map((user) => user.id);
-};
+}
 
-const fakeData = (numFakes: number) => {
+function fakeData(numFakes: number) {
   return [...Array(numFakes)].map((_, i) => fakeDataOne(i));
-};
+}
 
-const fakeDataOne = (nth: number): User => {
+function fakeDataOne(nth: number): User {
   const id = Domain.User.Id.create();
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
@@ -72,4 +72,4 @@ const fakeDataOne = (nth: number): User => {
     createdAt: Domain.User.Id.date(id),
     updatedAt: faker.date.past(),
   };
-};
+}

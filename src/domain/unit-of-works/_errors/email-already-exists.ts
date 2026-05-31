@@ -4,6 +4,6 @@ export class EmailAlreadyExistsError extends Error {
   }
 }
 
-export const emailAlreadyExistsError = () => {
+export function emailAlreadyExistsError() {
   return new EmailAlreadyExistsError();
-};
+}

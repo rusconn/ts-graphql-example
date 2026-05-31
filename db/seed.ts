@@ -6,14 +6,14 @@ import * as refreshTokens from "./seeds/refresh-tokens.ts";
 import * as todos from "./seeds/todos.ts";
 import * as users from "./seeds/users.ts";
 
-const seed = async () => {
+async function seed() {
   await kysely.transaction().execute(async (trx) => {
     const userIds = await users.seed(trx);
     await credentials.seed(trx, userIds);
     await refreshTokens.seed(trx, userIds);
     await todos.seed(trx, userIds);
   });
-};
+}
 
 try {
   await seed();

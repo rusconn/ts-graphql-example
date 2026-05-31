@@ -53,7 +53,7 @@ export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args
   }
 };
 
-const parseArgs = (args: MutationAccountUpdateArgs) => {
+function parseArgs(args: MutationAccountUpdateArgs) {
   return Result.combineWithAllErrors([
     parseUserName(args, "name", {
       optional: true,
@@ -64,7 +64,7 @@ const parseArgs = (args: MutationAccountUpdateArgs) => {
       name,
     }),
   }));
-};
+}
 
 if (import.meta.vitest) {
   describe("parsing", () => {

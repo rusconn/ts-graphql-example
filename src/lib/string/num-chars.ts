@@ -1,6 +1,6 @@
-export const numChars = (s: string) => {
+export function numChars(s: string) {
   return [...s].length;
-};
+}
 
 if (import.meta.vitest) {
   const cases = [

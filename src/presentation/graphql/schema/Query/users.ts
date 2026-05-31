@@ -77,7 +77,7 @@ export const resolver: QueryResolvers["users"] = async (_parent, args, context, 
   );
 };
 
-const parseArgs = (args: QueryUsersArgs) => {
+function parseArgs(args: QueryUsersArgs) {
   const connectionArgs = parseConnectionArgs(args, {
     firstMax: FIRST_MAX,
     lastMax: LAST_MAX,
@@ -95,4 +95,4 @@ const parseArgs = (args: QueryUsersArgs) => {
       [UserSortKeys.UpdatedAt]: "updatedAt" as const,
     }[args.sortKey],
   };
-};
+}

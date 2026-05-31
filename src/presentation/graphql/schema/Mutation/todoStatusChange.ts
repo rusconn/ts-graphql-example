@@ -55,9 +55,9 @@ export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, a
   }
 };
 
-const parseArgs = (args: MutationTodoStatusChangeArgs) => {
+function parseArgs(args: MutationTodoStatusChangeArgs) {
   return parseTodoStatus(args, "status", {
     optional: false,
     nullable: false,
   });
-};
+}

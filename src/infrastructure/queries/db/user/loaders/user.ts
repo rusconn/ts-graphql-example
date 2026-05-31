@@ -8,9 +8,9 @@ import type { DB } from "../../../../datasources/_shared/types.ts";
 
 export type { Key };
 
-export const create = (db: ReadonlyKysely<DB>, tenantId?: Domain.User.Type["id"]) => {
+export function create(db: ReadonlyKysely<DB>, tenantId?: Domain.User.Type["id"]) {
   return new DataLoader(batchGet(db, tenantId));
-};
+}
 
 const batchGet =
   (db: ReadonlyKysely<DB>, tenantId?: Domain.User.Type["id"]) => async (keys: readonly Key[]) => {

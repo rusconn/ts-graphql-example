@@ -23,12 +23,12 @@ afterAll(async () => {
   await trx.rollback().execute();
 });
 
-const user = async (
+async function user(
   ctx: ContextForIT, //
   args: QueryUserArgs,
-) => {
+) {
   return await resolver({}, args, createContext(ctx, trx));
-};
+}
 
 describe("authorization", () => {
   const args: QueryUserArgs = {

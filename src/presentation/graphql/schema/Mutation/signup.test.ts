@@ -33,12 +33,12 @@ afterEach(async () => {
   await trx.rollback().execute();
 });
 
-const signup = async (
+async function signup(
   ctx: ContextForIT, //
   args: MutationSignupArgs,
-) => {
+) {
   return await resolver({}, args, createContext(ctx, trx));
-};
+}
 
 describe("authorization", () => {
   const args: MutationSignupArgs = {

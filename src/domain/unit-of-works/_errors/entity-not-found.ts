@@ -4,6 +4,6 @@ export class EntityNotFoundError extends Error {
   }
 }
 
-export const entityNotFoundError = () => {
+export function entityNotFoundError() {
   return new EntityNotFoundError();
-};
+}

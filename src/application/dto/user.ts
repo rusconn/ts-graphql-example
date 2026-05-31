@@ -16,7 +16,7 @@ type Raw = Pick<
   | "updatedAt"
 >;
 
-export const parse = (
+export function parse(
   input: Pick<
     Db.User,
     | "id" //
@@ -26,7 +26,7 @@ export const parse = (
     | "createdAt"
     | "updatedAt"
   >,
-): Result<Type, ParseError[]> => {
+): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     Domain.User.parseId(input.id),
     Domain.User.parseName(input.name),
@@ -42,7 +42,7 @@ export const parse = (
         updatedAt: input.updatedAt,
       }) satisfies Raw as Type,
   );
-};
+}
 
 const toDomainRole: Record<Db.UserRole, Domain.User.Type["role"]> = {
   [Db.UserRole.Admin]: Domain.User.Role.ADMIN,
@@ -54,16 +54,17 @@ export type ParseError =
   | Domain.User.NameError
   | Domain.User.EmailError;
 
-export const parseOrThrow = (input: Parameters<typeof parse>[0]) => {
+export function parseOrThrow(input: Parameters<typeof parse>[0]) {
   return parse(input)._unsafeUnwrap();
-};
+}
 
-export const fromDomain = (domain: Domain.User.Type): Type =>
-  ({
+export function fromDomain(domain: Domain.User.Type): Type {
+  return {
     id: domain.id,
     name: domain.name,
     email: domain.email,
     role: domain.role,
     createdAt: domain.createdAt,
     updatedAt: domain.updatedAt,
-  }) satisfies Raw as Type;
+  } satisfies Raw as Type;
+}

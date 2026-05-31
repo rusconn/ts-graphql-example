@@ -21,14 +21,14 @@ type Raw = {
   updatedAt: Date;
 };
 
-export const parse = (
+export function parse(
   input: {
     id: Parameters<typeof Id.parse>[0];
     name: Parameters<typeof Name.parse>[0];
     email: Parameters<typeof Email.parse>[0];
     password: Parameters<typeof Password.parseHashed>[0];
   } & Pick<Type, "role" | "createdAt" | "updatedAt">,
-): Result<Type, ParseError[]> => {
+): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     parseId(input.id),
     parseName(input.name),
@@ -46,40 +46,40 @@ export const parse = (
         updatedAt: input.updatedAt,
       }) satisfies Raw as Type,
   );
-};
+}
 
-export const parseId = (
+export function parseId(
   id: Parameters<typeof Id.parse>[0], //
-): Result<Id.Type, IdError> => {
+): Result<Id.Type, IdError> {
   return Id.parse(id).mapErr((err) => ({
     prop: "id",
     err,
   }));
-};
-export const parseName = (
+}
+export function parseName(
   name: Parameters<typeof Name.parse>[0], //
-): Result<Name.Type, NameError> => {
+): Result<Name.Type, NameError> {
   return Name.parse(name).mapErr((err) => ({
     prop: "name",
     err,
   }));
-};
-export const parseEmail = (
+}
+export function parseEmail(
   email: Parameters<typeof Email.parse>[0],
-): Result<Email.Type, EmailError> => {
+): Result<Email.Type, EmailError> {
   return Email.parse(email).mapErr((err) => ({
     prop: "email",
     err,
   }));
-};
-export const parsePassword = (
+}
+export function parsePassword(
   password: Parameters<typeof Password.parseHashed>[0],
-): Result<Password.TypeHashed, PasswordError> => {
+): Result<Password.TypeHashed, PasswordError> {
   return Password.parseHashed(password).mapErr((err) => ({
     prop: "password",
     err,
   }));
-};
+}
 
 export type ParseError =
   | IdError //
@@ -104,13 +104,13 @@ export type PasswordError = {
   err: Password.ParseHashedError;
 };
 
-export const parseOrThrow = (input: Parameters<typeof parse>[0]): Type => {
+export function parseOrThrow(input: Parameters<typeof parse>[0]): Type {
   return parse(input)._unsafeUnwrap();
-};
+}
 
-export const create = async (
+export async function create(
   input: Pick<Type, "name" | "email"> & { password: Password.Type },
-): Promise<Type> => {
+): Promise<Type> {
   const { id, date } = Id.createWithDate();
   return {
     id,
@@ -121,27 +121,27 @@ export const create = async (
     createdAt: date,
     updatedAt: date,
   } satisfies Raw as Type;
-};
+}
 
-export const authenticate = async (user: Type, password: Password.Type): Promise<boolean> => {
+export async function authenticate(user: Type, password: Password.Type): Promise<boolean> {
   return await Password.match(password, user.password);
-};
+}
 
-export const updateAccount = (user: Type, input: Partial<Pick<Type, "name">>): Type => {
+export function updateAccount(user: Type, input: Partial<Pick<Type, "name">>): Type {
   return update(user, input);
-};
+}
 
-export const changeEmail = (user: Type, input: Type["email"]): Type => {
+export function changeEmail(user: Type, input: Type["email"]): Type {
   return update(user, { email: input });
-};
+}
 
-export const changePassword = async (
+export async function changePassword(
   user: Type,
   input: {
     oldPassword: Password.Type;
     newPassword: Password.Type;
   },
-): Promise<Result<Type, ChangePasswordError>> => {
+): Promise<Result<Type, ChangePasswordError>> {
   if (input.oldPassword === input.newPassword) {
     return err("SamePasswords");
   }
@@ -152,13 +152,13 @@ export const changePassword = async (
   }
 
   return ok(update(user, { password: await Password.hash(input.newPassword) }));
-};
+}
 
 export type ChangePasswordError =
   | "IncorrectOldPassword" //
   | "SamePasswords";
 
-const update = (user: Type, input: Partial<Pick<Type, "name" | "email" | "password">>): Type => {
+function update(user: Type, input: Partial<Pick<Type, "name" | "email" | "password">>): Type {
   return {
     ...user,
     ...(input.name != null && {
@@ -172,4 +172,4 @@ const update = (user: Type, input: Partial<Pick<Type, "name" | "email" | "passwo
     }),
     updatedAt: new Date(),
   };
-};
+}

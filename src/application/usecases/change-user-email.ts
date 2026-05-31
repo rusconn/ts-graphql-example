@@ -17,10 +17,10 @@ type ChangeUserEmailResult = DiscriminatedUnion<{
   };
 }>;
 
-export const changeUserEmail = async (
+export async function changeUserEmail(
   ctx: AppContextForAuthed,
   email: User.Email.Type,
-): Promise<ChangeUserEmailResult> => {
+): Promise<ChangeUserEmailResult> {
   const user = await ctx.repos.user.find(ctx.user.id);
   if (!user) {
     return { type: "UserEntityNotFound" };
@@ -45,4 +45,4 @@ export const changeUserEmail = async (
     type: "Success",
     changed: Dto.User.fromDomain(changedUser),
   };
-};
+}

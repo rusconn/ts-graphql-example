@@ -13,10 +13,10 @@ type DeleteAccountResult = DiscriminatedUnion<{
   Success: EmptyObject;
 }>;
 
-export const deleteAccount = async (
+export async function deleteAccount(
   ctx: AppContextForAuthed,
   password: Domain.User.Password.Type,
-): Promise<DeleteAccountResult> => {
+): Promise<DeleteAccountResult> {
   const user = await ctx.repos.user.find(ctx.user.id);
   if (!user) {
     return { type: "UserEntityNotFound" };
@@ -39,4 +39,4 @@ export const deleteAccount = async (
   }
 
   return { type: "Success" };
-};
+}

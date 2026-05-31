@@ -8,18 +8,18 @@ export type Id = {
   internalId: string;
 };
 
-export const parseId = (id: Scalars["ID"]["input"]): Result<Id, Error> => {
+export function parseId(id: Scalars["ID"]["input"]): Result<Id, Error> {
   const [type, internalId, ...rest] = id.split(typeIdSep);
   if (!isValidNodeType(type) || internalId == null || rest.length !== 0) {
     return err(new Error(`Invalid global id '${id}'`));
   }
 
   return ok({ type, internalId });
-};
+}
 
-const isValidNodeType = (val: string | undefined): val is NodeType => {
+function isValidNodeType(val: string | undefined): val is NodeType {
   return nodeTypes.includes(val as NodeType);
-};
+}
 
 if (import.meta.vitest) {
   const { nodeId } = await import("../Node/id.ts");

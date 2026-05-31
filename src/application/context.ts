@@ -78,7 +78,7 @@ export type AppContextForGuest = {
   logger: typeof pino;
 };
 
-export const findAppContextUser = async (id: Dto.User.Type["id"], kysely: Kysely<DB>) => {
+export async function findAppContextUser(id: Dto.User.Type["id"], kysely: Kysely<DB>) {
   const user = await kysely
     .selectFrom("users") //
     .where("id", "=", id)
@@ -86,13 +86,13 @@ export const findAppContextUser = async (id: Dto.User.Type["id"], kysely: Kysely
     .executeTakeFirst();
 
   return user && Dto.User.parseOrThrow(user);
-};
+}
 
-export const createAppContext = (input: {
+export function createAppContext(input: {
   user: AppContext["user"];
   logger: AppContext["logger"];
   kysely: Kysely<DB>;
-}): AppContext => {
+}): AppContext {
   const { user, logger, kysely } = input;
   const kyselyReadonly = kysely as unknown as ReadonlyKysely<DB>;
 
@@ -143,4 +143,4 @@ export const createAppContext = (input: {
     default:
       throw new Error(user satisfies never);
   }
-};
+}

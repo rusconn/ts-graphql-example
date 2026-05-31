@@ -3,7 +3,7 @@ import type { User } from "../../User/_mapper.ts";
 import { authErr } from "../_shared.ts";
 import { authAdmin } from "../admin.ts";
 
-export const authAdminOrUserOwner = (context: Context, user: User) => {
+export function authAdminOrUserOwner(context: Context, user: User) {
   const ctx = authAdmin(context);
 
   if (Error.isError(ctx)) {
@@ -11,15 +11,15 @@ export const authAdminOrUserOwner = (context: Context, user: User) => {
   }
 
   return ctx;
-};
+}
 
-const authUserOwner = (context: Context, user: User) => {
+function authUserOwner(context: Context, user: User) {
   if (context.role === "GUEST" || context.user.id !== user.id) {
     return authErr();
   }
 
   return context;
-};
+}
 
 if (import.meta.vitest) {
   const { context, dto } = await import("../../_test/data.ts");

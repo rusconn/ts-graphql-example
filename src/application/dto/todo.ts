@@ -17,7 +17,7 @@ type Raw = Pick<
   | "updatedAt"
 >;
 
-export const parse = (
+export function parse(
   input: Pick<
     Db.Todo,
     | "id" //
@@ -28,7 +28,7 @@ export const parse = (
     | "createdAt"
     | "updatedAt"
   >,
-): Result<Type, ParseError[]> => {
+): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     Domain.Todo.parseId(input.id),
     Domain.Todo.parseTitle(input.title),
@@ -46,7 +46,7 @@ export const parse = (
         updatedAt: input.updatedAt,
       }) satisfies Raw as Type,
   );
-};
+}
 
 const toDomainStatus: Record<Db.TodoStatus, Domain.Todo.Type["status"]> = {
   [Db.TodoStatus.Done]: Domain.Todo.Status.DONE,
@@ -59,12 +59,12 @@ export type ParseError =
   | Domain.Todo.DescriptionError
   | Domain.Todo.UserIdError;
 
-export const parseOrThrow = (input: Parameters<typeof parse>[0]) => {
+export function parseOrThrow(input: Parameters<typeof parse>[0]) {
   return parse(input)._unsafeUnwrap();
-};
+}
 
-export const fromDomain = (domain: Domain.Todo.Type): Type =>
-  ({
+export function fromDomain(domain: Domain.Todo.Type): Type {
+  return {
     id: domain.id,
     title: domain.title,
     description: domain.description,
@@ -72,4 +72,5 @@ export const fromDomain = (domain: Domain.Todo.Type): Type =>
     userId: domain.userId,
     createdAt: domain.createdAt,
     updatedAt: domain.updatedAt,
-  }) satisfies Raw as Type;
+  } satisfies Raw as Type;
+}

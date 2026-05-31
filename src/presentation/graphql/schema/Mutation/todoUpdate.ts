@@ -77,7 +77,7 @@ export const resolver: MutationResolvers["todoUpdate"] = async (_parent, args, c
   }
 };
 
-const parseArgs = (args: MutationTodoUpdateArgs) => {
+function parseArgs(args: MutationTodoUpdateArgs) {
   return Result.combineWithAllErrors([
     parseTodoTitle(args, "title", {
       optional: true,
@@ -102,7 +102,7 @@ const parseArgs = (args: MutationTodoUpdateArgs) => {
       status,
     }),
   }));
-};
+}
 
 if (import.meta.vitest) {
   const { TodoStatus } = await import("../_types.ts");

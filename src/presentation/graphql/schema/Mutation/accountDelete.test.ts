@@ -32,12 +32,12 @@ afterEach(async () => {
   await trx.rollback().execute();
 });
 
-const accountDelete = async (
+async function accountDelete(
   ctx: ContextForIT, //
   args: MutationAccountDeleteArgs,
-) => {
+) {
   return await resolver({}, args, createContext(ctx, trx));
-};
+}
 
 describe("authorization", () => {
   const args: MutationAccountDeleteArgs = {

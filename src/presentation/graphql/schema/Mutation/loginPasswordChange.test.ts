@@ -32,12 +32,12 @@ afterEach(async () => {
   await trx.rollback().execute();
 });
 
-const loginPasswordChange = async (
+async function loginPasswordChange(
   ctx: ContextForIT, //
   args: MutationLoginPasswordChangeArgs,
-) => {
+) {
   return await resolver({}, args, createContext(ctx, trx));
-};
+}
 
 describe("authorization", () => {
   const args: MutationLoginPasswordChangeArgs = {

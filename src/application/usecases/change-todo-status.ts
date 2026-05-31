@@ -20,10 +20,10 @@ type ChangeTodoStatusResult = DiscriminatedUnion<{
   };
 }>;
 
-export const changeTodoStatus = async (
+export async function changeTodoStatus(
   ctx: AppContextForAuthed,
   { id, status }: ChangeTodoStatusInput,
-): Promise<ChangeTodoStatusResult> => {
+): Promise<ChangeTodoStatusResult> {
   const todo = await ctx.repos.todo.find(id);
   if (!todo) {
     return { type: "ResourceNotFound" };
@@ -45,4 +45,4 @@ export const changeTodoStatus = async (
     type: "Success",
     changed: Dto.Todo.fromDomain(changedTodo),
   };
-};
+}

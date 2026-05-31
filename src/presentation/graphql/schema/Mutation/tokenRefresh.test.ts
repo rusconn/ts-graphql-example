@@ -35,11 +35,11 @@ afterEach(async () => {
   await trx.rollback().execute();
 });
 
-const tokenRefresh = async (
+async function tokenRefresh(
   ctx: ContextForIT, //
-) => {
+) {
   return await resolver({}, {}, createContext(ctx, trx));
-};
+}
 
 describe("usecase", () => {
   it("throws an input error when refresh token is not provided", async () => {

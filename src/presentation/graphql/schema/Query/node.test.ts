@@ -24,12 +24,12 @@ afterAll(async () => {
   await trx.rollback().execute();
 });
 
-const node = async (
+async function node(
   ctx: ContextForIT, //
   args: QueryNodeArgs,
-) => {
+) {
   return await resolver({}, args, createContext(ctx, trx));
-};
+}
 
 describe("authorization", () => {
   const args: QueryNodeArgs = {

@@ -6,7 +6,7 @@ import type { DB, RefreshToken, User } from "../../src/infrastructure/datasource
 import { addDates } from "../../src/lib/date-immutable.ts";
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
-export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
+export async function seed(trx: Transaction<DB>, userIds: User["id"][]) {
   const handRefreshTokens: RefreshToken[] = [
     {
       /** raw: ddfe9c8c-6a73-435d-aa91-7ead331aab0c */
@@ -42,13 +42,13 @@ export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
   const inserts = chunks.map((uts) => trx.insertInto("refreshTokens").values(uts).execute());
 
   await Promise.all(inserts);
-};
+}
 
-const fakeData = (userIds: User["id"][]) => {
+function fakeData(userIds: User["id"][]) {
   return userIds.map(fakeDataOne);
-};
+}
 
-const fakeDataOne = (userId: User["id"]): RefreshToken => {
+function fakeDataOne(userId: User["id"]): RefreshToken {
   const createdAt = faker.date.past();
   const expiresAt = addDates(createdAt, 7);
   return {
@@ -57,4 +57,4 @@ const fakeDataOne = (userId: User["id"]): RefreshToken => {
     expiresAt,
     createdAt,
   };
-};
+}

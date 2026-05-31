@@ -31,12 +31,12 @@ afterEach(async () => {
   await trx.rollback().execute();
 });
 
-const accountUpdate = async (
+async function accountUpdate(
   ctx: ContextForIT, //
   args: MutationAccountUpdateArgs,
-) => {
+) {
   return await resolver({}, args, createContext(ctx, trx));
-};
+}
 
 describe("authorization", () => {
   const args: MutationAccountUpdateArgs = {};

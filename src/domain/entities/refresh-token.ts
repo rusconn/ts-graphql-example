@@ -18,12 +18,12 @@ type Raw = {
   createdAt: Date;
 };
 
-export const parse = (input: {
+export function parse(input: {
   token: Parameters<typeof Token.parseHashed>[0];
   userId: Parameters<typeof User.Id.parse>[0];
   expiresAt: Date;
   createdAt: Date;
-}): Result<Type, ParseError[]> => {
+}): Result<Type, ParseError[]> {
   if (input.expiresAt < input.createdAt) {
     return err([
       {
@@ -45,24 +45,24 @@ export const parse = (input: {
         createdAt: input.createdAt,
       }) satisfies Raw as Type,
   );
-};
+}
 
-export const parseUserId = (
+export function parseUserId(
   userId: Parameters<typeof User.Id.parse>[0],
-): Result<User.Id.Type, UserIdError> => {
+): Result<User.Id.Type, UserIdError> {
   return User.Id.parse(userId).mapErr((err) => ({
     prop: "userId",
     err,
   }));
-};
-export const parseToken = (
+}
+export function parseToken(
   token: Parameters<typeof Token.parseHashed>[0],
-): Result<Token.TypeHashed, TokenError> => {
+): Result<Token.TypeHashed, TokenError> {
   return Token.parseHashed(token).mapErr((err) => ({
     prop: "token",
     err,
   }));
-};
+}
 
 export type ParseError =
   | TokenError //
@@ -82,13 +82,13 @@ export type ExpiresAtError = {
   err: { type: "less than createdAt" };
 };
 
-export const parseOrThrow = (input: Parameters<typeof parse>[0]): Type => {
+export function parseOrThrow(input: Parameters<typeof parse>[0]): Type {
   return parse(input)._unsafeUnwrap();
-};
+}
 
-export const create = async (
+export async function create(
   userId: Type["userId"],
-): Promise<{ rawRefreshToken: Token.Type; refreshToken: Type }> => {
+): Promise<{ rawRefreshToken: Token.Type; refreshToken: Type }> {
   const rawRefreshToken = Token.create();
   const createdAt = new Date();
   const expiresAt = addDates(createdAt, 7);
@@ -102,8 +102,8 @@ export const create = async (
       createdAt,
     } satisfies Raw as Type,
   };
-};
+}
 
-export const isExpired = (refreshToken: Type): boolean => {
+export function isExpired(refreshToken: Type): boolean {
   return refreshToken.expiresAt < new Date();
-};
+}

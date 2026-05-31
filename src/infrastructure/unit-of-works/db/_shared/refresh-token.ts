@@ -64,10 +64,10 @@ export class RefreshTokenRepoShared {
   }
 }
 
-export const toDb = (refreshToken: Domain.Type): RefreshToken => {
+export function toDb(refreshToken: Domain.Type): RefreshToken {
   return refreshToken;
-};
+}
 
-export const toDomain = (refreshToken: RefreshToken): Domain.Type => {
+export function toDomain(refreshToken: RefreshToken): Domain.Type {
   return Domain.parseOrThrow(refreshToken);
-};
+}

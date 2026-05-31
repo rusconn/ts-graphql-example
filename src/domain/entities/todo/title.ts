@@ -11,16 +11,16 @@ export type Type = Tagged<string, "TodoTitle">;
 
 export const MAX = 100;
 
-export const parse = (input: string): Result<Type, ParseError> => {
+export function parse(input: string): Result<Type, ParseError> {
   if (numChars(input) > MAX) {
     return err(stringLengthTooLongError);
   }
 
   return ok(input as Type);
-};
+}
 
 export type ParseError = StringLengthTooLongError;
 
-export const parseOrThrow = (input: Parameters<typeof parse>[0]): Type => {
+export function parseOrThrow(input: Parameters<typeof parse>[0]): Type {
   return parse(input)._unsafeUnwrap();
-};
+}

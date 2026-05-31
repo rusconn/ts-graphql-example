@@ -84,7 +84,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
   }
 };
 
-const parseArgs = (args: MutationLoginPasswordChangeArgs) => {
+function parseArgs(args: MutationLoginPasswordChangeArgs) {
   return Result.combineWithAllErrors([
     parseUserPassword(args, "oldPassword", {
       optional: false,
@@ -98,7 +98,7 @@ const parseArgs = (args: MutationLoginPasswordChangeArgs) => {
     oldPassword,
     newPassword,
   }));
-};
+}
 
 if (import.meta.vitest) {
   describe("parsing", () => {

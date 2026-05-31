@@ -52,24 +52,24 @@ export class TodoRepoShared {
   }
 }
 
-export const toDb = ({ status, ...rest }: Domain.Type): Todo => {
+export function toDb({ status, ...rest }: Domain.Type): Todo {
   return {
     ...rest,
     status: toDbStatus[status],
   };
-};
+}
 
 export const toDbStatus: Record<Domain.Type["status"], TodoStatus> = {
   [Domain.Status.DONE]: TodoStatus.Done,
   [Domain.Status.PENDING]: TodoStatus.Pending,
 };
 
-export const toDomain = ({ status, ...rest }: Todo): Domain.Type => {
+export function toDomain({ status, ...rest }: Todo): Domain.Type {
   return Domain.parseOrThrow({
     ...rest,
     status: toDomainStatus[status],
   });
-};
+}
 
 export const toDomainStatus: Record<TodoStatus, Domain.Type["status"]> = {
   [TodoStatus.Done]: Domain.Status.DONE,

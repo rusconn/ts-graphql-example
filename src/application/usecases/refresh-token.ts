@@ -17,10 +17,10 @@ type RefreshTokenResult = DiscriminatedUnion<{
   };
 }>;
 
-export const refreshToken = async (
+export async function refreshToken(
   context: AppContext,
   refresh: string,
-): Promise<RefreshTokenResult> => {
+): Promise<RefreshTokenResult> {
   if (!RefreshToken.Token.is(refresh)) {
     return { type: "InvalidRefreshToken" };
   }
@@ -54,4 +54,4 @@ export const refreshToken = async (
     rawRefreshToken,
     refreshToken: Dto.RefreshToken.fromDomain(refreshToken),
   };
-};
+}

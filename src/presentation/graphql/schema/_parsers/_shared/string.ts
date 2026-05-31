@@ -6,7 +6,7 @@ import {
 } from "../../../../../domain/entities/_shared/parse-errors.ts";
 import { ParseErr } from "./error.ts";
 
-export const parseStringArg = <
+export function parseStringArg<
   Arg extends string, //
   Output,
   ParseError extends { type: string },
@@ -16,7 +16,7 @@ export const parseStringArg = <
     minChars?: number;
     maxChars?: number;
   } = {},
-) => {
+) {
   return <
     Args extends Partial<Record<ArgName, Arg | null>>,
     ArgName extends keyof Args & string,
@@ -66,9 +66,9 @@ export const parseStringArg = <
       return new ParseErr(argName, e.type);
     });
   };
-};
+}
 
-const parseArgNullability = <
+function parseArgNullability<
   Args extends Partial<Record<string, unknown>>,
   ArgName extends keyof Args & string,
   Optional extends boolean,
@@ -86,7 +86,7 @@ const parseArgNullability = <
       ? Exclude<Args[ArgName], undefined>
       : NonNullable<Args[ArgName]>,
   ParseErr
-> => {
+> {
   const arg = args[argName];
   if (!optional && arg === undefined) {
     return err(new ParseErr(argName, `${argName} is required.`));
@@ -96,4 +96,4 @@ const parseArgNullability = <
   }
 
   return ok(arg) as any;
-};
+}

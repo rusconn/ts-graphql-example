@@ -8,9 +8,9 @@ import type { DB } from "../../../../datasources/_shared/types.ts";
 
 export type { Key };
 
-export const create = (db: ReadonlyKysely<DB>, tenantId?: Domain.User.Type["id"]) => {
+export function create(db: ReadonlyKysely<DB>, tenantId?: Domain.User.Type["id"]) {
   return new DataLoader(batchGet(db, tenantId), { cacheKeyFn: combine });
-};
+}
 
 const batchGet =
   (db: ReadonlyKysely<DB>, tenantId?: Domain.Todo.Type["userId"]) =>
@@ -31,6 +31,6 @@ const batchGet =
     return sort(keys.map(combine), todos, combine);
   };
 
-const combine = (key: Key) => {
+function combine(key: Key) {
   return key.id + key.userId;
-};
+}

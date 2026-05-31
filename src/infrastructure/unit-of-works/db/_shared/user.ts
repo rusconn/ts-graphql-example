@@ -88,11 +88,10 @@ export class UserRepoShared {
   }
 }
 
-export const toDb = ({
-  password,
-  role,
-  ...rest
-}: Domain.Type): { user: User; credential: Credential } => {
+export function toDb({ password, role, ...rest }: Domain.Type): {
+  user: User;
+  credential: Credential;
+} {
   return {
     user: {
       ...rest,
@@ -103,20 +102,20 @@ export const toDb = ({
       password,
     },
   };
-};
+}
 
 export const toDbRole: Record<Domain.Type["role"], UserRole> = {
   [Domain.Role.ADMIN]: UserRole.Admin,
   [Domain.Role.USER]: UserRole.User,
 };
 
-export const toDomain = (user: User, credential: Pick<Credential, "password">): Domain.Type => {
+export function toDomain(user: User, credential: Pick<Credential, "password">): Domain.Type {
   return Domain.parseOrThrow({
     ...user,
     ...credential,
     role: toDomainRole[user.role],
   });
-};
+}
 
 export const toDomainRole: Record<UserRole, Domain.Type["role"]> = {
   [UserRole.Admin]: Domain.Role.ADMIN,

@@ -72,7 +72,7 @@ export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, c
   }
 };
 
-const parseArgs = (args: MutationTodoCreateArgs) => {
+function parseArgs(args: MutationTodoCreateArgs) {
   return Result.combineWithAllErrors([
     parseTodoTitle(args, "title", {
       optional: false,
@@ -86,7 +86,7 @@ const parseArgs = (args: MutationTodoCreateArgs) => {
     title,
     description,
   }));
-};
+}
 
 if (import.meta.vitest) {
   const { context } = await import("../_test/data.ts");

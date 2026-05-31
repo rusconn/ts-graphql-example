@@ -12,7 +12,7 @@ import {
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 import { randInt } from "./_utils.ts";
 
-export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
+export async function seed(trx: Transaction<DB>, userIds: User["id"][]) {
   const handTodos: Todo[] = [
     {
       id: "0193cb3e-5fdd-7264-9f70-1df63d84b251" as Uuidv7,
@@ -52,13 +52,13 @@ export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
   const inserts = chunks.map((ts) => trx.insertInto("todos").values(ts).execute());
 
   await Promise.all(inserts);
-};
+}
 
-const fakeData = (userIds: User["id"][]) => {
+function fakeData(userIds: User["id"][]) {
   return userIds.flatMap(fakeDataOne);
-};
+}
 
-const fakeDataOne = (userId: User["id"]): Todo[] => {
+function fakeDataOne(userId: User["id"]): Todo[] {
   const numTodos = randInt(0, 10);
 
   return [...Array(numTodos)].map((_) => {
@@ -74,4 +74,4 @@ const fakeDataOne = (userId: User["id"]): Todo[] => {
       updatedAt: faker.date.past(),
     };
   });
-};
+}

@@ -1,3 +1,3 @@
-export const authErr = () => {
+export function authErr() {
   return new Error("Forbidden");
-};
+}

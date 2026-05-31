@@ -1,8 +1,6 @@
 import type { ConnectionArguments, ConnectionArgumentsUnion } from "./interfaces.ts";
 
-export const parseArgs = (
-  args: ConnectionArguments,
-): Result<ConnectionArgumentsUnion, ParseError> => {
+export function parseArgs(args: ConnectionArguments): Result<ConnectionArgumentsUnion, ParseError> {
   const { first, after, last, before } = args;
 
   if (first == null && last == null) {
@@ -44,7 +42,7 @@ export const parseArgs = (
   }
 
   throw new Error("unreachable");
-};
+}
 
 export type ParseError =
   | "BOTH_FIRST_AND_LAST_ABSENT"
@@ -67,13 +65,13 @@ export type Result<T, E> =
   | { ok: true; val: T } //
   | { ok: false; err: E };
 
-export const ok = <T>(val: T): Result<T, never> => {
+export function ok<T>(val: T): Result<T, never> {
   return { ok: true, val };
-};
+}
 
-export const err = <E>(err: E): Result<never, E> => {
+export function err<E>(err: E): Result<never, E> {
   return { ok: false, err };
-};
+}
 
 if (import.meta.vitest) {
   const valids = [

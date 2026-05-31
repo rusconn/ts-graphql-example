@@ -22,7 +22,7 @@ type LoginResult = DiscriminatedUnion<{
   };
 }>;
 
-export const login = async (ctx: AppContext, input: LoginInput): Promise<LoginResult> => {
+export async function login(ctx: AppContext, input: LoginInput): Promise<LoginResult> {
   const { email, password } = input;
 
   const user = await ctx.repos.user.findByEmail(email);
@@ -53,4 +53,4 @@ export const login = async (ctx: AppContext, input: LoginInput): Promise<LoginRe
     rawRefreshToken,
     refreshToken: Dto.RefreshToken.fromDomain(refreshToken),
   };
-};
+}

@@ -31,11 +31,11 @@ afterEach(async () => {
   await trx.rollback().execute();
 });
 
-const logout = async (
+async function logout(
   ctx: ContextForIT, //
-) => {
+) {
   return await resolver({}, {}, createContext(ctx, trx));
-};
+}
 
 describe("usecase", () => {
   it("logouts when the cookie is not exist", async () => {

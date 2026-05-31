@@ -14,7 +14,7 @@ type LogoutResult = DiscriminatedUnion<{
   Success: EmptyObject;
 }>;
 
-export const logout = async (context: AppContext, refreshToken: string): Promise<LogoutResult> => {
+export async function logout(context: AppContext, refreshToken: string): Promise<LogoutResult> {
   if (!RefreshToken.Token.is(refreshToken)) {
     return { type: "InvalidRefreshToken" };
   }
@@ -35,4 +35,4 @@ export const logout = async (context: AppContext, refreshToken: string): Promise
   }
 
   return { type: "Success" };
-};
+}

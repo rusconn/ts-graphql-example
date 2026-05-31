@@ -23,10 +23,10 @@ type CreateTodoResult = DiscriminatedUnion<{
   };
 }>;
 
-export const createTodo = async (
+export async function createTodo(
   ctx: AppContextForAuthed,
   input: CreateTodoInput,
-): Promise<CreateTodoResult> => {
+): Promise<CreateTodoResult> {
   const count = await ctx.queries.todo.count();
   if (count >= Todo.MAX_COUNT) {
     return {
@@ -56,7 +56,7 @@ export const createTodo = async (
     type: "Success",
     created: Dto.Todo.fromDomain(todo),
   };
-};
+}
 
 if (import.meta.vitest) {
   const args = {

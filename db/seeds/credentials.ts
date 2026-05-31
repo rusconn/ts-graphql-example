@@ -4,7 +4,7 @@ import type { Transaction } from "kysely";
 import type { Credential, DB, User } from "../../src/infrastructure/datasources/_shared/types.ts";
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
-export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
+export async function seed(trx: Transaction<DB>, userIds: User["id"][]) {
   const handCredentials: Credential[] = [
     {
       userId: "0193cb3e-4379-750f-880f-77afae342259" as Uuidv7,
@@ -32,15 +32,15 @@ export const seed = async (trx: Transaction<DB>, userIds: User["id"][]) => {
   const inserts = chunks.map((cs) => trx.insertInto("credentials").values(cs).execute());
 
   await Promise.all(inserts);
-};
+}
 
-const fakeData = (userIds: User["id"][]) => {
+function fakeData(userIds: User["id"][]) {
   return userIds.map(fakeDataOne);
-};
+}
 
-const fakeDataOne = (userId: User["id"]): Credential => {
+function fakeDataOne(userId: User["id"]): Credential {
   return {
     userId,
     password: "dummy",
   };
-};
+}

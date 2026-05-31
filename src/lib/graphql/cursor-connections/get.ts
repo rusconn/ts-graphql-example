@@ -24,7 +24,9 @@ export async function getCursorConnection<
 ): Promise<Connection<Node, CustomEdge>> {
   const options = mergeDefaultOptions(pOptions);
   const requestedFields = options.resolveInfo && Object.keys(graphqlFields(options.resolveInfo));
-  const hasRequestedField = (key: string) => !requestedFields || requestedFields.includes(key);
+  function hasRequestedField(key: string) {
+    return !requestedFields || requestedFields.includes(key);
+  }
 
   let items: Item[];
   let totalCount: number;

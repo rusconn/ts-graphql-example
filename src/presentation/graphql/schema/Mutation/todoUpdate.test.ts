@@ -32,12 +32,12 @@ afterEach(async () => {
   await trx.rollback().execute();
 });
 
-const todoUpdate = async (
+async function todoUpdate(
   ctx: ContextForIT, //
   args: MutationTodoUpdateArgs,
-) => {
+) {
   return await resolver({}, args, createContext(ctx, trx));
-};
+}
 
 describe("authorization", () => {
   const args: MutationTodoUpdateArgs = {

@@ -66,12 +66,12 @@ export const resolver: MutationResolvers["accountDelete"] = async (_parent, args
   }
 };
 
-const parseArgs = (args: MutationAccountDeleteArgs) => {
+function parseArgs(args: MutationAccountDeleteArgs) {
   return parseUserPassword(args, "password", {
     optional: false,
     nullable: false,
   });
-};
+}
 
 if (import.meta.vitest) {
   describe("parsing", () => {

@@ -11,7 +11,7 @@ type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;
 };
 
-export const executeSingleResultOperation = <TData, TVariables extends object>(query: string) => {
+export function executeSingleResultOperation<TData, TVariables extends object>(query: string) {
   return async ({ token, refreshToken, variables }: ExecuteOperationParams<TVariables>) => {
     const result = await executor<TData, TVariables>({
       document: parse(query),
@@ -36,17 +36,17 @@ export const executeSingleResultOperation = <TData, TVariables extends object>(q
 
     return result;
   };
-};
+}
 
 const executor = buildHTTPExecutor({
   fetch: yoga.fetch,
 });
 
-const isSingleResult = <TResult extends object>(
+function isSingleResult<TResult extends object>(
   result: TResult | AsyncIterable<TResult>,
-): result is TResult => {
+): result is TResult {
   return !(Symbol.asyncIterator in result);
-};
+}
 
 type FetchGraphQLParam = {
   token?: string;
@@ -78,7 +78,7 @@ export const fetchGraphQL = (query: string) => async (param: FetchGraphQLParam) 
   });
 };
 
-export const getRefreshTokenCookieValue = (headers: Headers) => {
+export function getRefreshTokenCookieValue(headers: Headers) {
   const setCookie = headers
     .getSetCookie()
     .find((cookie) => cookie.startsWith(`${RefreshTokenCookie.name}=`));
@@ -90,4 +90,4 @@ export const getRefreshTokenCookieValue = (headers: Headers) => {
     throw new Error(`${RefreshTokenCookie.name} value not found in the response`);
   }
   return cookieValue;
-};
+}

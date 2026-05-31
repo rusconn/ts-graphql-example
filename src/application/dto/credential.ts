@@ -11,10 +11,10 @@ type Raw = {
   password: Domain.User.Type["password"];
 };
 
-export const parse = (input: {
+export function parse(input: {
   userId: Db.User["id"];
   password: Db.Credential["password"];
-}): Result<Type, ParseError[]> => {
+}): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     Domain.User.parseId(input.userId),
     Domain.User.parsePassword(input.password),
@@ -25,12 +25,12 @@ export const parse = (input: {
         password,
       }) satisfies Raw as Type,
   );
-};
+}
 
 export type ParseError =
   | Domain.User.IdError //
   | Domain.User.PasswordError;
 
-export const parseOrThrow = (input: Parameters<typeof parse>[0]) => {
+export function parseOrThrow(input: Parameters<typeof parse>[0]) {
   return parse(input)._unsafeUnwrap();
-};
+}

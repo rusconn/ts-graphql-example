@@ -14,7 +14,7 @@ export type Type = Tagged<string, "UserName">;
 export const MIN = 1;
 export const MAX = 100;
 
-export const parse = (input: string): Result<Type, ParseError> => {
+export function parse(input: string): Result<Type, ParseError> {
   const chars = numChars(input);
   if (chars < MIN) {
     return err(stringLengthTooShortError);
@@ -24,12 +24,12 @@ export const parse = (input: string): Result<Type, ParseError> => {
   }
 
   return ok(input as Type);
-};
+}
 
 export type ParseError =
   | StringLengthTooShortError //
   | StringLengthTooLongError;
 
-export const parseOrThrow = (input: string): Type => {
+export function parseOrThrow(input: string): Type {
   return parse(input)._unsafeUnwrap();
-};
+}

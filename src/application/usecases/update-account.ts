@@ -19,10 +19,10 @@ type UpdateAccountResult = DiscriminatedUnion<{
   };
 }>;
 
-export const updateAccount = async (
+export async function updateAccount(
   ctx: AppContextForAuthed,
   input: UpdateAccountInput,
-): Promise<UpdateAccountResult> => {
+): Promise<UpdateAccountResult> {
   const user = await ctx.repos.user.find(ctx.user.id);
   if (!user) {
     return { type: "UserEntityNotFound" };
@@ -44,4 +44,4 @@ export const updateAccount = async (
     type: "Success",
     updated: Dto.User.fromDomain(updatedUser),
   };
-};
+}

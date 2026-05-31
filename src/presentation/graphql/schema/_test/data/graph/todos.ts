@@ -25,15 +25,17 @@ type GraphTodo = OverrideProperties<
   }
 >;
 
-const node = (todo: Domain.Todo.Type): GraphTodo => ({
-  __typename: "Todo",
-  id: todoId(todo.id),
-  title: todo.title,
-  description: todo.description,
-  status: statusMap[todo.status],
-  createdAt: dateTimeISO(todo.createdAt),
-  updatedAt: dateTimeISO(todo.updatedAt),
-});
+function node(todo: Domain.Todo.Type): GraphTodo {
+  return {
+    __typename: "Todo",
+    id: todoId(todo.id),
+    title: todo.title,
+    description: todo.description,
+    status: statusMap[todo.status],
+    createdAt: dateTimeISO(todo.createdAt),
+    updatedAt: dateTimeISO(todo.updatedAt),
+  };
+}
 
 const statusMap: Record<Domain.Todo.Status.Type, GraphTodo["status"]> = {
   [Domain.Todo.Status.DONE]: Graph.TodoStatus.Done,
@@ -47,6 +49,6 @@ export const graph = {
   alice3: node(domain.alice3),
 };
 
-export const dummyId = () => {
+export function dummyId() {
   return todoId(Domain.Todo.Id.create());
-};
+}

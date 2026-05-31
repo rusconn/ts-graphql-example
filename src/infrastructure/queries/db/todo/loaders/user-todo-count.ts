@@ -8,9 +8,9 @@ import type { DB, Todo } from "../../../../datasources/_shared/types.ts";
 
 export type { Key };
 
-export const create = (db: ReadonlyKysely<DB>, tenantId?: Domain.Todo.Type["userId"]) => {
+export function create(db: ReadonlyKysely<DB>, tenantId?: Domain.Todo.Type["userId"]) {
   return new DataLoader(batchGet(db, tenantId), { cacheKeyFn: JSON.stringify });
-};
+}
 
 const batchGet =
   (db: ReadonlyKysely<DB>, tenantId?: Domain.Todo.Type["userId"]) =>

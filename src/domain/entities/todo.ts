@@ -23,7 +23,7 @@ type Raw = {
   updatedAt: Date;
 };
 
-export const parse = (
+export function parse(
   input: {
     id: Parameters<typeof Id.parse>[0];
     title: Parameters<typeof Title.parse>[0];
@@ -31,7 +31,7 @@ export const parse = (
     status: Parameters<typeof Status.parse>[0];
     userId: Parameters<typeof User.Id.parse>[0];
   } & Pick<Type, "status" | "createdAt" | "updatedAt">,
-): Result<Type, ParseError[]> => {
+): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     parseId(input.id),
     parseTitle(input.title),
@@ -50,48 +50,48 @@ export const parse = (
         updatedAt: input.updatedAt,
       }) satisfies Raw as Type,
   );
-};
+}
 
-export const parseId = (
+export function parseId(
   id: Parameters<typeof Id.parse>[0], //
-): Result<Id.Type, IdError> => {
+): Result<Id.Type, IdError> {
   return Id.parse(id).mapErr((err) => ({
     prop: "id",
     err,
   }));
-};
-export const parseTitle = (
+}
+export function parseTitle(
   title: Parameters<typeof Title.parse>[0],
-): Result<Title.Type, TitleError> => {
+): Result<Title.Type, TitleError> {
   return Title.parse(title).mapErr((err) => ({
     prop: "title",
     err,
   }));
-};
-export const parseDescription = (
+}
+export function parseDescription(
   description: Parameters<typeof Description.parse>[0],
-): Result<Description.Type, DescriptionError> => {
+): Result<Description.Type, DescriptionError> {
   return Description.parse(description).mapErr((err) => ({
     prop: "description",
     err,
   }));
-};
-export const parseStatus = (
+}
+export function parseStatus(
   status: Parameters<typeof Status.parse>[0],
-): Result<Status.Type, StatusError> => {
+): Result<Status.Type, StatusError> {
   return Status.parse(status).mapErr((err) => ({
     prop: "status",
     err,
   }));
-};
-export const parseUserId = (
+}
+export function parseUserId(
   userId: Parameters<typeof User.Id.parse>[0],
-): Result<User.Id.Type, UserIdError> => {
+): Result<User.Id.Type, UserIdError> {
   return User.Id.parse(userId).mapErr((err) => ({
     prop: "userId",
     err,
   }));
-};
+}
 
 export type ParseError =
   | IdError //
@@ -121,14 +121,11 @@ export type UserIdError = {
   err: User.Id.ParseError;
 };
 
-export const parseOrThrow = (input: Parameters<typeof parse>[0]): Type => {
+export function parseOrThrow(input: Parameters<typeof parse>[0]): Type {
   return parse(input)._unsafeUnwrap();
-};
+}
 
-export const create = (
-  userId: Type["userId"],
-  input: Pick<Type, "title" | "description">,
-): Type => {
+export function create(userId: Type["userId"], input: Pick<Type, "title" | "description">): Type {
   const { id, date } = Id.createWithDate();
   return {
     id,
@@ -139,25 +136,27 @@ export const create = (
     createdAt: date,
     updatedAt: date,
   } satisfies Raw as Type;
-};
+}
 
-export const changeStatus = (todo: Type, input: Type["status"]): Type => {
+export function changeStatus(todo: Type, input: Type["status"]): Type {
   return update(todo, { status: input });
-};
+}
 
-export const update = (
+export function update(
   todo: Type,
   input: Partial<Pick<Type, "title" | "description" | "status">>,
-): Type => ({
-  ...todo,
-  ...(input.title != null && {
-    title: input.title,
-  }),
-  ...(input.description != null && {
-    description: input.description,
-  }),
-  ...(input.status != null && {
-    status: input.status,
-  }),
-  updatedAt: new Date(),
-});
+): Type {
+  return {
+    ...todo,
+    ...(input.title != null && {
+      title: input.title,
+    }),
+    ...(input.description != null && {
+      description: input.description,
+    }),
+    ...(input.status != null && {
+      status: input.status,
+    }),
+    updatedAt: new Date(),
+  };
+}

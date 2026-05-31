@@ -12,16 +12,16 @@ type Config<Cursor> = {
   parseCursor: (cursor: string) => Cursor | Error;
 };
 
-export const parseConnectionArgs = <Cursor>(args: ConnectionArguments, config: Config<Cursor>) => {
+export function parseConnectionArgs<Cursor>(args: ConnectionArguments, config: Config<Cursor>) {
   const result = parseArgs(args);
   if (!result.ok) {
     return new Error(defaultMessages[result.err]);
   }
 
   return parseArgsAdditional(result.val, config);
-};
+}
 
-const parseArgsAdditional = <Cursor>(args: ConnectionArgumentsUnion, config: Config<Cursor>) => {
+function parseArgsAdditional<Cursor>(args: ConnectionArgumentsUnion, config: Config<Cursor>) {
   const { firstMax, lastMax, parseCursor } = config;
 
   if (isForwardPagination(args)) {
@@ -59,7 +59,7 @@ const parseArgsAdditional = <Cursor>(args: ConnectionArgumentsUnion, config: Con
       }),
     };
   }
-};
+}
 
 if (import.meta.vitest) {
   const firstMax = 30;

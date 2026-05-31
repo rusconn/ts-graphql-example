@@ -22,10 +22,10 @@ type UpdateTodoResult = DiscriminatedUnion<{
   };
 }>;
 
-export const updateTodo = async (
+export async function updateTodo(
   ctx: AppContextForAuthed,
   { id, ...input }: UpdateTodoInput,
-): Promise<UpdateTodoResult> => {
+): Promise<UpdateTodoResult> {
   const todo = await ctx.repos.todo.find(id);
   if (!todo) {
     return { type: "ResourceNotFound" };
@@ -47,4 +47,4 @@ export const updateTodo = async (
     type: "Success",
     updated: Dto.Todo.fromDomain(updatedTodo),
   };
-};
+}

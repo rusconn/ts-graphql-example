@@ -1,13 +1,13 @@
 import type { Context } from "../../yoga/context.ts";
 import { authErr } from "./_shared.ts";
 
-export const authAuthenticated = (context: Context) => {
+export function authAuthenticated(context: Context) {
   if (context.role === "GUEST") {
     return authErr();
   }
 
   return context;
-};
+}
 
 if (import.meta.vitest) {
   const { context } = await import("../_test/data.ts");

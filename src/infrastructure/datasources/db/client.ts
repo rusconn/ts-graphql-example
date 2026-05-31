@@ -50,8 +50,10 @@ export const kysely = new Kysely<DB>({
   },
 });
 
-const common = (event: LogEvent) => ({
-  sql: event.query.sql,
-  params: isProd ? "***" : event.query.parameters,
-  duration: `${Math.round(event.queryDurationMillis)}ms`,
-});
+function common(event: LogEvent) {
+  return {
+    sql: event.query.sql,
+    params: isProd ? "***" : event.query.parameters,
+    duration: `${Math.round(event.queryDurationMillis)}ms`,
+  };
+}

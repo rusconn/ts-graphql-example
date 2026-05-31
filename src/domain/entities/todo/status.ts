@@ -5,7 +5,7 @@ export type Type = typeof DONE | typeof PENDING;
 export const DONE = "DONE";
 export const PENDING = "PENDING";
 
-export const parse = (
+export function parse(
   input:
     | "done" //
     | "pending"
@@ -13,7 +13,7 @@ export const parse = (
     | "Pending"
     | "DONE"
     | "PENDING",
-): Result<Type, ParseError> => {
+): Result<Type, ParseError> {
   return ok(
     input === "done" || //
       input === "Done" ||
@@ -21,10 +21,10 @@ export const parse = (
       ? DONE
       : PENDING,
   );
-};
+}
 
 export type ParseError = never;
 
-export const parseOrThrow = (input: Parameters<typeof parse>[0]): Type => {
+export function parseOrThrow(input: Parameters<typeof parse>[0]): Type {
   return parse(input)._unsafeUnwrap();
-};
+}

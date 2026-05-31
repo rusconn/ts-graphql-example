@@ -3,7 +3,7 @@ import type { Todo } from "../../Todo/_mapper.ts";
 import { authAdmin } from "../admin.ts";
 import { authTodoOwner } from "./owner.ts";
 
-export const authAdminOrTodoOwner = (context: Context, todo: Todo) => {
+export function authAdminOrTodoOwner(context: Context, todo: Todo) {
   const ctx = authAdmin(context);
 
   if (Error.isError(ctx)) {
@@ -11,7 +11,7 @@ export const authAdminOrTodoOwner = (context: Context, todo: Todo) => {
   }
 
   return ctx;
-};
+}
 
 if (import.meta.vitest) {
   const { context, dto } = await import("../../_test/data.ts");

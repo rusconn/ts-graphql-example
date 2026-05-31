@@ -6,7 +6,7 @@ import { signingKey } from "../../../config/access-token.ts";
 
 export type Payload = Pick<User.Type, "id">;
 
-export const verify = async (token: string) => {
+export async function verify(token: string) {
   try {
     const result = await jwtVerify<Payload>(token, signingKey);
     return { type: "Success", ...result } as const;
@@ -18,11 +18,11 @@ export const verify = async (token: string) => {
       error: Error.isError(e) ? e : new Error("Unknown", { cause: e }),
     } as const;
   }
-};
+}
 
-export const sign = async ({ id }: Payload) => {
+export async function sign({ id }: Payload) {
   return await new SignJWT({ id })
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("15min")
     .sign(signingKey);
-};
+}

@@ -19,11 +19,11 @@ afterAll(async () => {
   await trx.rollback().execute();
 });
 
-const viewer = async (
+async function viewer(
   ctx: ContextForIT, //
-) => {
+) {
   return await resolver({}, {}, createContext(ctx, trx));
-};
+}
 
 describe("authorization", () => {
   it("not rejects when user is guest", async () => {

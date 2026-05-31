@@ -34,12 +34,12 @@ afterEach(async () => {
   await trx.rollback().execute();
 });
 
-const login = async (
+async function login(
   ctx: ContextForIT, //
   args: MutationLoginArgs,
-) => {
+) {
   return await resolver({}, args, createContext(ctx, trx));
-};
+}
 
 describe("parsing", () => {
   it("returns input errors when args is invalid", async () => {

@@ -27,10 +27,10 @@ export type PluginContext = {
   start?: ReturnType<typeof Date.now>;
 };
 
-export const buildContext = async ({
+export async function buildContext({
   request,
   requestId,
-}: ServerContext & YogaInitialContext & PluginContext): Promise<AppContext> => {
+}: ServerContext & YogaInitialContext & PluginContext): Promise<AppContext> {
   const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
   let payload: AccessToken.Payload | null = null;
@@ -65,4 +65,4 @@ export const buildContext = async ({
     logger: pino.child({ requestId }),
     kysely,
   });
-};
+}

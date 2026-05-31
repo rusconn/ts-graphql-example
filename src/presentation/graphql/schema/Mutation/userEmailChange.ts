@@ -56,12 +56,12 @@ export const resolver: MutationResolvers["userEmailChange"] = async (_parent, ar
   }
 };
 
-const parseArgs = (args: MutationUserEmailChangeArgs) => {
+function parseArgs(args: MutationUserEmailChangeArgs) {
   return parseUserEmail(args, "email", {
     optional: false,
     nullable: false,
   });
-};
+}
 
 if (import.meta.vitest) {
   describe("parsing", () => {

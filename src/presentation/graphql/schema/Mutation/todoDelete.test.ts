@@ -31,12 +31,12 @@ afterEach(async () => {
   await trx.rollback().execute();
 });
 
-const todoDelete = async (
+async function todoDelete(
   ctx: ContextForIT, //
   args: MutationTodoDeleteArgs,
-) => {
+) {
   return await resolver({}, args, createContext(ctx, trx));
-};
+}
 
 describe("authorization", () => {
   const args: MutationTodoDeleteArgs = {

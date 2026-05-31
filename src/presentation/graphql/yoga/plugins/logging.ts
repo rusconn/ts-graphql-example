@@ -20,7 +20,7 @@ export const logging = useLogger({
   skipIntrospection: true,
 });
 
-const mask = ({ query, variables }: GraphQLParams<Record<string, unknown>>) => {
+function mask({ query, variables }: GraphQLParams<Record<string, unknown>>) {
   if (query == null) return undefined;
 
   const sensitiveOperations = [
@@ -35,4 +35,4 @@ const mask = ({ query, variables }: GraphQLParams<Record<string, unknown>>) => {
   return sensitiveOperations.some((sop) => query.includes(sop))
     ? { query: "***", variables: "***" }
     : { query, variables };
-};
+}

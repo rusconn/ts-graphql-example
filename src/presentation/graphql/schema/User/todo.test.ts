@@ -24,13 +24,13 @@ afterAll(async () => {
   await trx.rollback().execute();
 });
 
-const todo = async (
+async function todo(
   ctx: ContextForIT, //
   parent: ResolversParentTypes["User"],
   args: UserTodoArgs,
-) => {
+) {
   return await resolver(parent, args, createContext(ctx, trx));
-};
+}
 
 describe("authorization", () => {
   const parent: ResolversParentTypes["User"] = dto.users.alice;

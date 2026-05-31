@@ -15,10 +15,10 @@ type DeleteTodoResult = DiscriminatedUnion<{
   };
 }>;
 
-export const deleteTodo = async (
+export async function deleteTodo(
   ctx: AppContextForAuthed,
   id: Todo.Id.Type,
-): Promise<DeleteTodoResult> => {
+): Promise<DeleteTodoResult> {
   try {
     await ctx.unitOfWork.run(async (repos) => {
       await repos.todo.remove(id);
@@ -37,4 +37,4 @@ export const deleteTodo = async (
     type: "Success",
     deletedId: id,
   };
-};
+}

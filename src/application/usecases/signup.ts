@@ -23,10 +23,7 @@ type SignupResult = DiscriminatedUnion<{
   };
 }>;
 
-export const signup = async (
-  ctx: AppContextForGuest,
-  input: SignupInput,
-): Promise<SignupResult> => {
+export async function signup(ctx: AppContextForGuest, input: SignupInput): Promise<SignupResult> {
   const user = await User.create(input);
   const { rawRefreshToken, refreshToken } = await RefreshToken.create(user.id);
   try {
@@ -49,4 +46,4 @@ export const signup = async (
     rawRefreshToken,
     refreshToken: Dto.RefreshToken.fromDomain(refreshToken),
   };
-};
+}

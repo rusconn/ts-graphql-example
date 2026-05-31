@@ -2,13 +2,13 @@ import type { Context } from "../../../yoga/context.ts";
 import type { Todo } from "../../Todo/_mapper.ts";
 import { authErr } from "../_shared.ts";
 
-export const authTodoOwner = (context: Context, todo: Todo) => {
+export function authTodoOwner(context: Context, todo: Todo) {
   if (context.role === "GUEST" || context.user.id !== todo.userId) {
     return authErr();
   }
 
   return context;
-};
+}
 
 if (import.meta.vitest) {
   const { context, dto } = await import("../../_test/data.ts");

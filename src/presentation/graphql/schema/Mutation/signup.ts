@@ -76,7 +76,7 @@ export const resolver: MutationResolvers["signup"] = async (_parent, args, conte
   }
 };
 
-const parseArgs = (args: MutationSignupArgs) => {
+function parseArgs(args: MutationSignupArgs) {
   return Result.combineWithAllErrors([
     parseUserName(args, "name", {
       optional: false,
@@ -95,7 +95,7 @@ const parseArgs = (args: MutationSignupArgs) => {
     email,
     password,
   }));
-};
+}
 
 if (import.meta.vitest) {
   describe("parsing", () => {

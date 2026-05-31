@@ -18,7 +18,7 @@ export type TypeHashed = Tagged<Type, "Hashed">;
 export const MIN = 8;
 export const MAX = 50;
 
-export const parse = (input: string): Result<Type, ParseError> => {
+export function parse(input: string): Result<Type, ParseError> {
   const chars = numChars(input);
   if (chars < MIN) {
     return err(stringLengthTooShortError);
@@ -28,27 +28,31 @@ export const parse = (input: string): Result<Type, ParseError> => {
   }
 
   return ok(input as Type);
-};
+}
 
 export type ParseError =
   | StringLengthTooShortError //
   | StringLengthTooLongError;
 
-export const parseOrThrow = (input: Parameters<typeof parse>[0]): Type => {
+export function parseOrThrow(input: Parameters<typeof parse>[0]): Type {
   return parse(input)._unsafeUnwrap();
-};
+}
 
-export const parseHashed = Bcrypt.parseHashed<TypeHashed>;
+export function parseHashed(input: string): Result<TypeHashed, ParseHashedError> {
+  return Bcrypt.parseHashed(input);
+}
 
 export type ParseHashedError = Bcrypt.ParseHashedError;
 
-export const parseHashedOrThrow = Bcrypt.parseHashedOrThrow<TypeHashed>;
+export function parseHashedOrThrow(input: string): Result<TypeHashed, ParseHashedError> {
+  return Bcrypt.parseHashedOrThrow(input);
+}
 
-export const hash = async (source: Type) => {
+export async function hash(source: Type) {
   const hashed = await bcrypt.hash(source, passwordHashExp);
   return hashed as TypeHashed;
-};
+}
 
-export const match = async (source: Type, hashed: TypeHashed) => {
+export async function match(source: Type, hashed: TypeHashed) {
   return await bcrypt.compare(source, hashed);
-};
+}

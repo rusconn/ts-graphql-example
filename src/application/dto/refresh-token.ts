@@ -14,7 +14,7 @@ type Raw = Pick<
   | "createdAt"
 >;
 
-export const parse = (
+export function parse(
   input: Pick<
     Db.RefreshToken,
     | "token" //
@@ -22,7 +22,7 @@ export const parse = (
     | "expiresAt"
     | "createdAt"
   >,
-): Result<Type, ParseError[]> => {
+): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     Domain.RefreshToken.parseToken(input.token),
     Domain.RefreshToken.parseUserId(input.userId),
@@ -35,20 +35,21 @@ export const parse = (
         createdAt: input.createdAt,
       }) satisfies Raw as Type,
   );
-};
+}
 
 export type ParseError =
   | Domain.RefreshToken.TokenError //
   | Domain.RefreshToken.UserIdError;
 
-export const parseOrThrow = (input: Parameters<typeof parse>[0]) => {
+export function parseOrThrow(input: Parameters<typeof parse>[0]) {
   return parse(input)._unsafeUnwrap();
-};
+}
 
-export const fromDomain = (domain: Domain.RefreshToken.Type): Type =>
-  ({
+export function fromDomain(domain: Domain.RefreshToken.Type): Type {
+  return {
     token: domain.token,
     userId: domain.userId,
     expiresAt: domain.expiresAt,
     createdAt: domain.createdAt,
-  }) satisfies Raw as Type;
+  } satisfies Raw as Type;
+}

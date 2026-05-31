@@ -14,7 +14,7 @@ export type Type = Tagged<EmailAddress.EmailAddress, "UserEmail">;
 
 export const MAX = 100;
 
-export const parse = (input: string): Result<Type, ParseError> => {
+export function parse(input: string): Result<Type, ParseError> {
   if (!EmailAddress.is(input)) {
     return err(invalidFormatError);
   }
@@ -23,12 +23,12 @@ export const parse = (input: string): Result<Type, ParseError> => {
   }
 
   return ok(input as Type);
-};
+}
 
 export type ParseError =
   | InvalidFormatError //
   | StringLengthTooLongError;
 
-export const parseOrThrow = (input: string): Type => {
+export function parseOrThrow(input: string): Type {
   return parse(input)._unsafeUnwrap();
-};
+}

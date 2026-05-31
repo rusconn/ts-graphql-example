@@ -12,22 +12,26 @@ import { UserQuery } from "./queries/user.ts";
 
 export type Queries = ReturnType<typeof createQueries>;
 
-export const createQueries = (trx: Transaction<DB>) => ({
-  credential: new CredentialQuery(trx),
-  refreshToken: new RefreshTokenQuery(trx),
-  todo: new TodoQuery(trx),
-  user: new UserQuery(trx),
-});
+export function createQueries(trx: Transaction<DB>) {
+  return {
+    credential: new CredentialQuery(trx),
+    refreshToken: new RefreshTokenQuery(trx),
+    todo: new TodoQuery(trx),
+    user: new UserQuery(trx),
+  };
+}
 
-export const createRepos = (trx: Transaction<DB>) => ({
-  refreshToken: new RefreshTokenRepoShared(trx),
-  todo: new TodoRepoShared(trx),
-  user: new UserRepoShared(trx),
-});
+export function createRepos(trx: Transaction<DB>) {
+  return {
+    refreshToken: new RefreshTokenRepoShared(trx),
+    todo: new TodoRepoShared(trx),
+    user: new UserRepoShared(trx),
+  };
+}
 
 export type Seeders = ReturnType<typeof createSeeders>;
 
-export const createSeeders = (trx: Transaction<DB>) => {
+export function createSeeders(trx: Transaction<DB>) {
   const repos = createRepos(trx);
 
   return {
@@ -53,4 +57,4 @@ export const createSeeders = (trx: Transaction<DB>) => {
       );
     },
   };
-};
+}

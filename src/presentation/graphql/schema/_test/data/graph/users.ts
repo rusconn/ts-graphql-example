@@ -24,7 +24,7 @@ type GraphUser = OverrideProperties<
   }
 >;
 
-const node = (user: Domain.User.Type): GraphUser => {
+function node(user: Domain.User.Type): GraphUser {
   return {
     __typename: "User",
     id: userId(user.id),
@@ -33,13 +33,13 @@ const node = (user: Domain.User.Type): GraphUser => {
     createdAt: dateTimeISO(user.createdAt),
     updatedAt: dateTimeISO(user.updatedAt),
   };
-};
+}
 
 export const graph = {
   admin: node(domain.admin),
   alice: node(domain.alice),
 };
 
-export const dummyId = () => {
+export function dummyId() {
   return userId(Domain.User.Id.create());
-};
+}

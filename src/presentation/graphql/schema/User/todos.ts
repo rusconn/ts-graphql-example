@@ -92,7 +92,7 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (
   );
 };
 
-const parseArgs = (args: UserTodosArgs) => {
+function parseArgs(args: UserTodosArgs) {
   const connectionArgs = parseConnectionArgs(args, {
     firstMax: FIRST_MAX,
     lastMax: LAST_MAX,
@@ -118,4 +118,4 @@ const parseArgs = (args: UserTodosArgs) => {
       }),
     },
   };
-};
+}

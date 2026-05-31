@@ -22,10 +22,10 @@ type ChangeLoginPasswordResult = DiscriminatedUnion<{
   };
 }>;
 
-export const changeLoginPassword = async (
+export async function changeLoginPassword(
   ctx: AppContextForAuthed,
   input: ChangeLoginPasswordInput,
-): Promise<ChangeLoginPasswordResult> => {
+): Promise<ChangeLoginPasswordResult> {
   const user = await ctx.repos.user.find(ctx.user.id);
   if (!user) {
     return { type: "UserEntityNotFound" };
@@ -58,4 +58,4 @@ export const changeLoginPassword = async (
     type: "Success",
     changed: Dto.User.fromDomain(changedUser.value),
   };
-};
+}

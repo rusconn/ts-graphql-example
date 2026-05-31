@@ -14,19 +14,19 @@ export type ParseHashedError = Bcrypt.ParseHashedError;
 
 export const parseHashedOrThrow = Bcrypt.parseHashedOrThrow<TypeHashed>;
 
-export const create = () => {
+export function create() {
   return Uuidv4.gen() as Type;
-};
+}
 
-export const is = (input: unknown): input is Type => {
+export function is(input: unknown): input is Type {
   return Uuidv4.is(input);
-};
+}
 
-export const hash = async (source: Type) => {
+export async function hash(source: Type) {
   const hashed = await bcrypt.hash(source, refreshTokenHashSalt);
   return hashed as TypeHashed;
-};
+}
 
-export const match = async (source: string, hashed: TypeHashed) => {
+export async function match(source: string, hashed: TypeHashed) {
   return await bcrypt.compare(source, hashed);
-};
+}
