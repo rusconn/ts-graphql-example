@@ -25,9 +25,20 @@ node --watch src/presentation/server.ts
 """
 
 [tasks.check]
+depends = ["check:*"]
+
+[tasks."check:type"]
 run = """
 tsgo
+"""
+
+[tasks."check:style"]
+run = """
 oxlint
+"""
+
+[tasks."check:format"]
+run = """
 oxfmt --check
 """
 
@@ -54,7 +65,6 @@ vitest --project ut
 
 [tasks."test:it"]
 depends = ["test:setup-db"]
-wait_for = ["test:ut"]
 env = { _.file = [".env", ".env.test"] }
 run = """
 vitest --project it
@@ -70,7 +80,6 @@ vitest --project e2e
 
 [tasks."test:setup-db"]
 env = { _.file = [".env", ".env.test"] }
-wait_for = ["test:ut"]
 run = """
 docker compose up -d
 atlas schema --env env clean --auto-approve
