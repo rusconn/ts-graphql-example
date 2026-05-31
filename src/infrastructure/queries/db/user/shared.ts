@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import type { ReadonlyKysely } from "kysely/readonly";
 
 import * as Dto from "../../../../application/dto.ts";
 import type * as Domain from "../../../../domain/entities.ts";
@@ -10,7 +10,7 @@ export class UserQueryShared {
   #loaders;
   #tenantId;
 
-  constructor(db: Kysely<DB>, tenantId?: Domain.User.Type["id"]) {
+  constructor(db: ReadonlyKysely<DB>, tenantId?: Domain.User.Type["id"]) {
     this.#db = db;
     this.#loaders = {
       user: UserLoader.create(db, tenantId),

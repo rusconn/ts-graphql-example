@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import type { ReadonlyKysely } from "kysely/readonly";
 
 import type * as Domain from "../../../../domain/entities.ts";
 import type { ITodoReaderRepoForUser } from "../../../../domain/repos-for-read/for-user/todo.ts";
@@ -8,7 +8,7 @@ import { TodoReaderRepoShared } from "../_shared/todo.ts";
 export class TodoReaderRepoForUser implements ITodoReaderRepoForUser {
   #shared;
 
-  constructor(db: Kysely<DB>, tenantId: Domain.User.Type["id"]) {
+  constructor(db: ReadonlyKysely<DB>, tenantId: Domain.User.Type["id"]) {
     this.#shared = new TodoReaderRepoShared(db, tenantId);
   }
 

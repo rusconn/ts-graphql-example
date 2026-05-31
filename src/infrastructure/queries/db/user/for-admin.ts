@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import type { ReadonlyKysely } from "kysely/readonly";
 
 import * as Dto from "../../../../application/dto.ts";
 import type { IUserQueryForAdmin } from "../../../../application/queries/user/for-admin.ts";
@@ -11,7 +11,7 @@ export class UserQueryForAdmin implements IUserQueryForAdmin {
   #db;
   #shared;
 
-  constructor(db: Kysely<DB>) {
+  constructor(db: ReadonlyKysely<DB>) {
     this.#db = db;
     this.#shared = new UserQueryShared(db);
   }

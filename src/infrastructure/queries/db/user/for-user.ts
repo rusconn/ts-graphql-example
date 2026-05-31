@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import type { ReadonlyKysely } from "kysely/readonly";
 
 import type { IUserQueryForUser } from "../../../../application/queries/user/for-user.ts";
 import type * as Domain from "../../../../domain/entities.ts";
@@ -9,7 +9,7 @@ import { UserQueryShared } from "./shared.ts";
 export class UserQueryForUser implements IUserQueryForUser {
   #shared;
 
-  constructor(db: Kysely<DB>, tenantId: Domain.User.Type["id"]) {
+  constructor(db: ReadonlyKysely<DB>, tenantId: Domain.User.Type["id"]) {
     this.#shared = new UserQueryShared(db, tenantId);
   }
 

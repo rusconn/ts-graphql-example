@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import type { ReadonlyKysely } from "kysely/readonly";
 
 import type { ITodoQueryForAdmin } from "../../../../application/queries/todo/for-admin.ts";
 import type * as Domain from "../../../../domain/entities.ts";
@@ -13,7 +13,7 @@ export class TodoQueryForAdmin implements ITodoQueryForAdmin {
   #shared;
   #tenantId;
 
-  constructor(db: Kysely<DB>, tenantId: Domain.Todo.Type["userId"]) {
+  constructor(db: ReadonlyKysely<DB>, tenantId: Domain.Todo.Type["userId"]) {
     this.#db = db;
     this.#shared = new TodoQueryShared(db);
     this.#tenantId = tenantId;

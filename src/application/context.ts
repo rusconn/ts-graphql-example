@@ -1,4 +1,5 @@
 import type { Kysely } from "kysely";
+import type { ReadonlyKysely } from "kysely/readonly";
 import type { OverrideProperties } from "type-fest";
 
 import type { ITodoReaderRepoForAdmin } from "../domain/repos-for-read/for-admin/todo.ts";
@@ -93,19 +94,21 @@ export const createAppContext = (input: {
   kysely: Kysely<DB>;
 }): AppContext => {
   const { user, logger, kysely } = input;
+  const kyselyReadonly = kysely as unknown as ReadonlyKysely<DB>;
+
   switch (user?.role) {
     case "ADMIN":
       return {
         role: user.role,
         user,
         queries: {
-          todo: new TodoQueryForAdmin(kysely, user.id),
-          user: new UserQueryForAdmin(kysely),
+          todo: new TodoQueryForAdmin(kyselyReadonly, user.id),
+          user: new UserQueryForAdmin(kyselyReadonly),
         },
         repos: {
-          refreshToken: new RefreshTokenReaderRepo(kysely),
-          todo: new TodoReaderRepoForAdmin(kysely, user.id),
-          user: new UserReaderRepoForAdmin(kysely, user.id),
+          refreshToken: new RefreshTokenReaderRepo(kyselyReadonly),
+          todo: new TodoReaderRepoForAdmin(kyselyReadonly, user.id),
+          user: new UserReaderRepoForAdmin(kyselyReadonly, user.id),
         },
         unitOfWork: new UnitOfWorkForAdmin(kysely, user.id),
         logger,
@@ -115,13 +118,13 @@ export const createAppContext = (input: {
         role: user.role,
         user,
         queries: {
-          todo: new TodoQueryForUser(kysely, user.id),
-          user: new UserQueryForUser(kysely, user.id),
+          todo: new TodoQueryForUser(kyselyReadonly, user.id),
+          user: new UserQueryForUser(kyselyReadonly, user.id),
         },
         repos: {
-          refreshToken: new RefreshTokenReaderRepo(kysely),
-          todo: new TodoReaderRepoForUser(kysely, user.id),
-          user: new UserReaderRepoForUser(kysely, user.id),
+          refreshToken: new RefreshTokenReaderRepo(kyselyReadonly),
+          todo: new TodoReaderRepoForUser(kyselyReadonly, user.id),
+          user: new UserReaderRepoForUser(kyselyReadonly, user.id),
         },
         unitOfWork: new UnitOfWorkForUser(kysely, user.id),
         logger,
@@ -131,8 +134,8 @@ export const createAppContext = (input: {
         role: "GUEST",
         user,
         repos: {
-          refreshToken: new RefreshTokenReaderRepo(kysely),
-          user: new UserReaderRepoForGuest(kysely),
+          refreshToken: new RefreshTokenReaderRepo(kyselyReadonly),
+          user: new UserReaderRepoForGuest(kyselyReadonly),
         },
         unitOfWork: new UnitOfWorkForGuest(kysely),
         logger,

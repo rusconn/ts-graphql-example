@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import type { ReadonlyKysely } from "kysely/readonly";
 
 import * as Domain from "../../../domain/entities.ts";
 import type { IRefreshTokenReaderRepo } from "../../../domain/repos-for-read/refresh-token.ts";
@@ -7,7 +7,7 @@ import type { DB } from "../../datasources/_shared/types.ts";
 export class RefreshTokenReaderRepo implements IRefreshTokenReaderRepo {
   #db;
 
-  constructor(db: Kysely<DB>) {
+  constructor(db: ReadonlyKysely<DB>) {
     this.#db = db;
   }
 

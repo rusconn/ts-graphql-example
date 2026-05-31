@@ -1,5 +1,5 @@
 import DataLoader from "dataloader";
-import type { Kysely } from "kysely";
+import type { ReadonlyKysely } from "kysely/readonly";
 
 import type { Key } from "../../../../../application/queries/todo/loaders/user-todo-count.ts";
 import type * as Domain from "../../../../../domain/entities.ts";
@@ -8,12 +8,13 @@ import type { DB, Todo } from "../../../../datasources/_shared/types.ts";
 
 export type { Key };
 
-export const create = (db: Kysely<DB>, tenantId?: Domain.Todo.Type["userId"]) => {
+export const create = (db: ReadonlyKysely<DB>, tenantId?: Domain.Todo.Type["userId"]) => {
   return new DataLoader(batchGet(db, tenantId), { cacheKeyFn: JSON.stringify });
 };
 
 const batchGet =
-  (db: Kysely<DB>, tenantId?: Domain.Todo.Type["userId"]) => async (keys: readonly Key[]) => {
+  (db: ReadonlyKysely<DB>, tenantId?: Domain.Todo.Type["userId"]) =>
+  async (keys: readonly Key[]) => {
     const userIds = keys.map((key) => key.userId);
     const { status } = keys.at(0)!;
 

@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import type { ReadonlyKysely } from "kysely/readonly";
 
 import type * as Domain from "../../../../domain/entities.ts";
 import type { IUserReaderRepoForGuest } from "../../../../domain/repos-for-read/for-guest/user.ts";
@@ -8,7 +8,7 @@ import { UserReaderRepoShared } from "../_shared/user.ts";
 export class UserReaderRepoForGuest implements IUserReaderRepoForGuest {
   #shared;
 
-  constructor(db: Kysely<DB>) {
+  constructor(db: ReadonlyKysely<DB>) {
     this.#shared = new UserReaderRepoShared(db);
   }
 

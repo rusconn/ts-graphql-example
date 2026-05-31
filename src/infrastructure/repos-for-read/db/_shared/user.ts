@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import type { ReadonlyKysely } from "kysely/readonly";
 
 import type { User as Domain } from "../../../../domain/entities.ts";
 import type { Credential, DB, User } from "../../../datasources/_shared/types.ts";
@@ -8,7 +8,7 @@ export class UserReaderRepoShared {
   #db;
   #tenantId;
 
-  constructor(db: Kysely<DB>, tenantId?: Domain.Type["id"]) {
+  constructor(db: ReadonlyKysely<DB>, tenantId?: Domain.Type["id"]) {
     this.#db = db;
     this.#tenantId = tenantId;
   }

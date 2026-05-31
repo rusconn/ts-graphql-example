@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import type { ReadonlyKysely } from "kysely/readonly";
 
 import type { ITodoQueryForUser } from "../../../../application/queries/todo/for-user.ts";
 import type * as Domain from "../../../../domain/entities.ts";
@@ -11,7 +11,7 @@ import { TodoQueryShared } from "./shared.ts";
 export class TodoQueryForUser implements ITodoQueryForUser {
   #shared;
 
-  constructor(db: Kysely<DB>, tenantId: Domain.Todo.Type["userId"]) {
+  constructor(db: ReadonlyKysely<DB>, tenantId: Domain.Todo.Type["userId"]) {
     this.#shared = new TodoQueryShared(db, tenantId);
   }
 
