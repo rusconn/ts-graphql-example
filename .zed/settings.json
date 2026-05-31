@@ -1,0 +1,38 @@
+{
+  "format_on_save": "on",
+  "formatter": {
+    "language_server": {
+      "name": "oxfmt"
+    }
+  },
+  "code_actions_on_format": {
+    "source.organizeImports": false
+  },
+  "languages": {
+    "TypeScript": {
+      "language_servers": ["vtsls", "oxfmt", "oxlint", "!eslint", "!biome"]
+    },
+    "JavaScript": {
+      "language_servers": ["vtsls", "oxfmt", "oxlint", "!eslint", "!biome"]
+    }
+  },
+  "lsp": {
+    "vtsls": {
+      "settings": {
+        "typescript": {
+          "preferences": {
+            "importModuleSpecifierEnding": "js"
+          }
+        },
+        "javascript": {
+          "preferences": {
+            "importModuleSpecifierEnding": "js"
+          }
+        }
+      }
+    }
+  },
+  "file_types": {
+    "env": [".env*"]
+  }
+}
