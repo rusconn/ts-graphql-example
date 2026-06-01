@@ -95,6 +95,5 @@ const parseArgNullability = <
     return err(new ParseErr(argName, `The ${argName} must not be null.`));
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: i lost the type puzzle
   return ok(arg) as any;
 };

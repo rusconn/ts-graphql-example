@@ -3,7 +3,6 @@
     "davidanson.vscode-markdownlint",
     "ms-azuretools.vscode-docker",
     "irongeek.vscode-env",
-    "biomejs.biome",
     "oxc.oxc-vscode",
     "graphql.vscode-graphql",
     "typescriptteam.native-preview",

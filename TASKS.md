@@ -28,7 +28,7 @@ node --watch src/presentation/server.ts
 ```sh
 export PATH="./node_modules/.bin/:$PATH"
 tsgo
-biome check
+oxlint
 oxfmt --check
 ```
 
