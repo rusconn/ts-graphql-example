@@ -43,5 +43,4 @@ CREATE INDEX ON todos (user_id, created_at, id);
 
 CREATE INDEX ON todos (user_id, updated_at, id);
 
--- CREATE DOMAINでuuidv7型を作成したいが、Atlas Proが必要なよう:
--- https://atlasgo.io/features#database-features
+-- TODO: CREATE DOMAINでuuidv7型を作成して使う

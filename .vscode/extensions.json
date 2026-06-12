@@ -5,7 +5,6 @@
     "irongeek.vscode-env",
     "oxc.oxc-vscode",
     "graphql.vscode-graphql",
-    "typescriptteam.native-preview",
-    "ariga.atlas-hcl"
+    "typescriptteam.native-preview"
   ]
 }

@@ -1,1 +1,2 @@
 CREATE DATABASE test;
+CREATE DATABASE pgschema_plan;

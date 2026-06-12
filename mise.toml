@@ -15,7 +15,7 @@ run = """
 pnpm install
 docker compose down -v
 docker compose up --wait
-atlas schema --env env apply --auto-approve
+pgschema apply --file db/schema.sql --auto-approve
 node db/seed.ts
 """
 
@@ -90,14 +90,8 @@ hide = true
 depends = ["db:up"]
 env = { _.file = [".env.test"] }
 run = """
-atlas schema --env env clean --auto-approve
-atlas schema --env env apply --auto-approve
-"""
-
-[tasks."db:schema"]
-depends = ["db:up"]
-run = """
-atlas schema --env env
+pgschema apply --file db/schema.empty.sql --auto-approve
+pgschema apply --file db/schema.sql --auto-approve
 """
 
 [tasks."db:typegen"]

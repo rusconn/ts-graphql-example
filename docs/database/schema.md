@@ -17,11 +17,23 @@ PostgreSQLのインデックスはクラスター化されていないが、B+Tr
 
 ## マイグレーション管理
 
-[Atlas](https://atlasgo.io/)を利用している。[Prisma](https://www.prisma.io/)を利用したこともあったが、部分インデックス等の一部機能をSDLで表現できないことやSDLのクセに辟易し、Atlasへ移行した。
+[pgschema](https://www.pgschema.com/)を利用している。
 
-Atlasは
+pgschemaはPostgreSQL専用だが、
 
 - 宣言的マイグレーションにより履歴管理から解放される
 - スキーマ定義に使い慣れたSQLを利用できる
+- PostgreSQLの細かい機能を利用できる
+- マイグレーション実行が速い
 
-等のメリットがあるが、[一部機能はPro版でないと利用できない](https://atlasgo.io/features#database-features)。また、マイグレーションの実行がやや遅いのが気になっている。
+等のメリットがある。
+
+### 対抗ツール
+
+#### Prisma
+
+部分インデックス等の一部機能をSDLで表現できないことや、SDLのクセが気になった。
+
+#### Atlas
+
+宣言的マイグレーションに対応しているが、[一部機能はPro版でないと利用できない](https://atlasgo.io/features#database-features)。また、マイグレーションの実行がやや遅いのが気になった。

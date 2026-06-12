@@ -15,9 +15,6 @@
   "js/ts.tsdk.path": "node_modules/typescript/lib",
   "js/ts.tsdk.promptToUseWorkspaceVersion": true,
   "js/ts.experimental.useTsgo": true,
-  "[atlas-config]": {
-    "editor.defaultFormatter": "Ariga.atlas-hcl"
-  },
   "[sql]": {
     "editor.defaultFormatter": "ReneSaarsoo.sql-formatter-vsc"
   }
