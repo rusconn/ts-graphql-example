@@ -3,12 +3,12 @@ import { defineConfig } from "kysely-codegen";
 export default defineConfig({
   camelCase: true,
   customImports: {
-    Uuid: "../../../util/uuid/vn.ts",
+    Uuidv7: "../../../util/uuid/v7.ts",
   },
   dialect: "postgres",
   excludePattern: "test.*",
   outFile: "src/infrastructure/datasources/_shared/generated.ts",
   typeMapping: {
-    uuid: "Uuid", // DBにuuidv7を用意できたらUuidv7型へ変更する
+    uuid: "Uuidv7", // uuidv7にするとstringになってしまうよう
   },
 });

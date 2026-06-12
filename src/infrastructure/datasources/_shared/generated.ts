@@ -3,7 +3,7 @@
  * Please do not edit it manually.
  */
 
-import type { Uuid } from "../../../util/uuid/vn.ts";
+import type { Uuidv7 } from "../../../util/uuid/v7.ts";
 import type { ColumnType } from "kysely";
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
@@ -14,30 +14,30 @@ export type UserRole = "admin" | "user";
 
 export interface Credentials {
   password: string;
-  userId: Uuid;
+  userId: Uuidv7;
 }
 
 export interface RefreshTokens {
   createdAt: Timestamp;
   expiresAt: Timestamp;
   token: string;
-  userId: Uuid;
+  userId: Uuidv7;
 }
 
 export interface Todos {
   createdAt: Timestamp;
   description: string;
-  id: Uuid;
+  id: Uuidv7;
   status: TodoStatus;
   title: string;
   updatedAt: Timestamp;
-  userId: Uuid;
+  userId: Uuidv7;
 }
 
 export interface Users {
   createdAt: Timestamp;
   email: string;
-  id: Uuid;
+  id: Uuidv7;
   name: string;
   role: UserRole;
   updatedAt: Timestamp;
