@@ -1,5 +1,5 @@
 [tools]
-node = "24"
+node = "24.10"
 
 [settings]
 env_shell_expand = true
