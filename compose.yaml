@@ -11,6 +11,11 @@ services:
       - ${DB_PORT:?}:5432
     command: >
       postgres -c lock_timeout=1s -c statement_timeout=3s
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 3s
+      retries: 3
 
 volumes:
   postgres:

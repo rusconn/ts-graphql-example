@@ -7,7 +7,7 @@ TypeScriptによるGraphQL APIの実装例。学習用です。
 ```sh
 cp .env.example .env
 pnpm install                # requires global pnpm >= 11
-docker compose up -d
+docker compose up --wait
 node --run migrate -- apply # requires global Node.js and Atlas(https://atlasgo.io/)
 node --run seed
 ```

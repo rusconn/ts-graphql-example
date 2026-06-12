@@ -14,7 +14,7 @@ env = { _.file = ".env" } # dependsで.envが作成される場合があるの�
 run = """
 pnpm install
 docker compose down -v
-docker compose up -d
+docker compose up --wait
 atlas schema --env env apply --auto-approve
 node db/seed.ts
 """
@@ -115,7 +115,7 @@ node db/seed.ts
 [tasks."db:up"]
 hide = true
 run = """
-docker compose up -d
+docker compose up --wait
 """
 
 [tasks."gql:codegen"]
