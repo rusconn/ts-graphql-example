@@ -2,18 +2,24 @@
 
 TypeScriptによるGraphQL APIの実装例。学習用です。
 
+## 必要なツール
+
+- pnpm
+- Node.js
+- [Atlas](https://atlasgo.io/)
+- Docker
+
+pnpmとNode.jsは[package.json](./package.json)のdevEnginesを満たすバージョンが必要。
+
 ## セットアップ
 
 ```sh
 cp .env.example .env
-pnpm install                # requires global pnpm >= 11
+pnpm install
 docker compose up --wait
-node --run migrate -- apply # requires global Node.js and Atlas(https://atlasgo.io/)
+node --run db:schema -- apply --auto-approve
 node --run seed
 ```
-
-Node.jsは[package.json](./package.json)のenginesを満たすバージョンを自前で用意する。\
-pnpmはv11以上を自前で用意し、[package.json](./package.json)のdevEngines.packageManagerを自動参照させる。
 
 ## devサーバー起動
 
