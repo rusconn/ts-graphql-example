@@ -15,7 +15,7 @@ export function create(db: ReadonlyKysely<DB>, tenantId?: Domain.User.Type["id"]
 const batchGet =
   (db: ReadonlyKysely<DB>, tenantId?: Domain.User.Type["id"]) => async (keys: readonly Key[]) => {
     const userIds = keys.map((key) => key.userId);
-    const { sortKey, reverse, cursor, limit, status } = keys.at(0)!;
+    const { sortKey, reverse, cursor, limit, status, search } = keys.at(0)!;
 
     const [direction, comp] = reverse //
       ? (["desc", "<"] as const)
@@ -42,6 +42,14 @@ const batchGet =
               ),
             )
             .$if(status != null, (qb) => qb.where("status", "=", status!))
+            .$if(search != null, (qb) =>
+              qb.where((eb) =>
+                eb.or([
+                  eb("title", "ilike", `%${search!}%`),
+                  eb("description", "ilike", `%${search!}%`),
+                ]),
+              ),
+            )
             .selectAll("todos")
             .orderBy(sortKey, direction)
             .orderBy("id", direction)

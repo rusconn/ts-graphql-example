@@ -3,4 +3,5 @@ import type { Todo, TodoStatus } from "../../../../infrastructure/datasources/_s
 export type Key = {
   userId: Todo["userId"];
   status?: TodoStatus;
+  search?: string;
 };

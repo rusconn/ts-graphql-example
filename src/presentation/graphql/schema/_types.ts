@@ -347,6 +347,7 @@ export type UserTodosArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   reverse: Scalars['Boolean']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
   sortKey: TodoSortKeys;
   status?: InputMaybe<TodoStatus>;
 };

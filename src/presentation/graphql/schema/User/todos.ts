@@ -1,4 +1,5 @@
 import { getCursorConnection } from "../../../../lib/graphql/cursor-connections/mod.ts";
+import { numChars } from "../../../../lib/string/num-chars.ts";
 import { authAdminOrUserOwner } from "../_authorizers/user/admin-or-owner.ts";
 import { badUserInputError } from "../_errors/global/bad-user-input.ts";
 import { forbiddenError } from "../_errors/global/forbidden.ts";
@@ -8,6 +9,7 @@ import { TodoSortKeys, TodoStatus, type UserResolvers, type UserTodosArgs } from
 
 export const FIRST_MAX = 50;
 export const LAST_MAX = 50;
+const SEARCH_MAX_LEN = 30;
 
 export const typeDef = /* GraphQL */ `
   extend type User {
@@ -34,6 +36,11 @@ export const typeDef = /* GraphQL */ `
       指定すると絞り込む
       """
       status: TodoStatus
+
+      """
+      指定するとtitle及びdescriptionを検索する、${SEARCH_MAX_LEN}文字まで
+      """
+      search: String
     ): TodoConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
   }
 
@@ -102,6 +109,11 @@ function parseArgs(args: UserTodosArgs) {
     return connectionArgs;
   }
 
+  const searchToUse = (args.search ?? "").trim();
+  if (numChars(searchToUse) > SEARCH_MAX_LEN) {
+    return new Error("search too long");
+  }
+
   return {
     connectionArgs,
     reverse: args.reverse,
@@ -115,6 +127,9 @@ function parseArgs(args: UserTodosArgs) {
           [TodoStatus.Done]: "done" as const,
           [TodoStatus.Pending]: "pending" as const,
         }[args.status],
+      }),
+      ...(searchToUse !== "" && {
+        search: searchToUse,
       }),
     },
   };
