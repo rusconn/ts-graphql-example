@@ -344,3 +344,61 @@ describe("filter by status", () => {
     expect(result.nodes).toStrictEqual(expectedTodos);
   });
 });
+
+describe("filter by search", () => {
+  const ctx = context.alice();
+  const parent: ResolversParentTypes["User"] = dto.users.alice;
+
+  it("filters todos by search term", async () => {
+    const result = await todos(ctx, parent, {
+      first: FIRST_MAX,
+      reverse: false,
+      sortKey: TodoSortKeys.UpdatedAt,
+      search: "todo 1",
+    });
+    assert(result?.nodes);
+    expect(result.nodes).toHaveLength(1);
+    expect(result.nodes).toStrictEqual([dto.todos.alice1]);
+    expect(result.totalCount).toBe(1);
+  });
+
+  it("returns all matching todos", async () => {
+    const result = await todos(ctx, parent, {
+      first: FIRST_MAX,
+      reverse: false,
+      sortKey: TodoSortKeys.UpdatedAt,
+      search: "alice todo",
+    });
+    assert(result?.nodes);
+    expect(result.nodes).toHaveLength(3);
+    expect(result.totalCount).toBe(3);
+  });
+
+  it("returns empty when search term has no match", async () => {
+    const result = await todos(ctx, parent, {
+      first: FIRST_MAX,
+      reverse: false,
+      sortKey: TodoSortKeys.UpdatedAt,
+      search: "nonexistent",
+    });
+    assert(result?.nodes);
+    expect(result.nodes).toHaveLength(0);
+    expect(result.totalCount).toBe(0);
+  });
+
+  it("throws an error when search term is too long", async () => {
+    const longSearch = "a".repeat(31);
+    await expect(
+      todos(ctx, parent, {
+        first: FIRST_MAX,
+        reverse: false,
+        sortKey: TodoSortKeys.UpdatedAt,
+        search: longSearch,
+      }),
+    ).rejects.toSatisfy(
+      (e) =>
+        e instanceof GraphQLError && //
+        e.extensions.code === ErrorCode.BadUserInput,
+    );
+  });
+});

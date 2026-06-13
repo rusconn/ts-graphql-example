@@ -325,6 +325,10 @@ type User implements Node {
     指定すると絞り込む
     """
     status: TodoStatus
+    """
+    指定するとtitle及びdescriptionを検索する
+    """
+    search: String
   ): TodoConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
   updatedAt: DateTimeISO @semanticNonNull @complexity(value: 2)
 }

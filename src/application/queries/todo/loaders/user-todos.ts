@@ -7,4 +7,5 @@ export type Key = {
   cursor?: Todo["id"];
   limit: number;
   status?: TodoStatus;
+  search?: string;
 };
