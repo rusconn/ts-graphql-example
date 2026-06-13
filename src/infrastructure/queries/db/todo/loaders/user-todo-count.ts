@@ -24,10 +24,10 @@ const batchGet =
       .$if(tenantId != null, (qb) => qb.where("userId", "=", tenantId!))
       .$if(status != null, (qb) => qb.where("status", "=", status!))
       .$if(search != null, (qb) =>
-        qb.where((eb) =>
+        qb.where(({ eb, fn }) =>
           eb.or([
-            eb("title", "ilike", `%${search!}%`), //
-            eb("description", "ilike", `%${search!}%`),
+            eb(fn("lower", ["title"]), "like", `%${search!}%`),
+            eb(fn("lower", ["description"]), "like", `%${search!}%`),
           ]),
         ),
       )
