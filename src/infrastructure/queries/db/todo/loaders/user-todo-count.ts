@@ -17,6 +17,7 @@ const batchGet =
   async (keys: readonly Key[]) => {
     const userIds = keys.map((key) => key.userId);
     const { status, search } = keys.at(0)!;
+    const lowerSearch = search?.toLowerCase();
 
     const counts = await db
       .selectFrom("todos")
@@ -24,10 +25,10 @@ const batchGet =
       .$if(tenantId != null, (qb) => qb.where("userId", "=", tenantId!))
       .$if(status != null, (qb) => qb.where("status", "=", status!))
       .$if(search != null, (qb) =>
-        qb.where((eb) =>
+        qb.where(({ eb, fn }) =>
           eb.or([
-            eb("title", "ilike", `%${search!}%`), //
-            eb("description", "ilike", `%${search!}%`),
+            eb(fn("lower", ["title"]), "like", `%${lowerSearch!}%`),
+            eb(fn("lower", ["description"]), "like", `%${lowerSearch!}%`),
           ]),
         ),
       )
