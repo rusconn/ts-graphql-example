@@ -45,3 +45,11 @@ CREATE TABLE todos (
 CREATE INDEX ON todos (user_id, created_at, id);
 
 CREATE INDEX ON todos (user_id, updated_at, id);
+
+-- 過剰かもしれないが、学習のため
+CREATE INDEX todos_title_bigm ON todos
+USING gin (LOWER(title) gin_bigm_ops);
+
+-- 過剰かもしれないが、学習のため
+CREATE INDEX todos_description_bigm ON todos
+USING gin (LOWER(description) gin_bigm_ops);

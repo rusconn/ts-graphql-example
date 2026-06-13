@@ -1,6 +1,7 @@
 services:
   db:
-    image: postgres:18.2-alpine3.23
+    build:
+      context: ./docker/db
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pass
@@ -9,8 +10,6 @@ services:
       - ./docker/db:/docker-entrypoint-initdb.d
     ports:
       - ${DB_PORT:?}:5432
-    command: >
-      postgres -c lock_timeout=1s -c statement_timeout=3s
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 1s
