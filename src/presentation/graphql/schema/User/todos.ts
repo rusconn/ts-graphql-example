@@ -31,7 +31,7 @@ export const typeDef = /* GraphQL */ `
       sortKey: TodoSortKeys! = UPDATED_AT
 
       """
-      指定すると絞り込む、null は入力エラー
+      指定すると絞り込む
       """
       status: TodoStatus
     ): TodoConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
