@@ -2,7 +2,7 @@ import { CamelCasePlugin, Kysely, type LogEvent, PostgresDialect } from "kysely"
 import pg, { type DatabaseError } from "pg";
 
 import { connectionString } from "../../../config/db.ts";
-import { isProd } from "../../../config/exec-env.ts";
+import { isDev, isProd } from "../../../config/exec-env.ts";
 import { pino } from "../../loggers/pino.ts";
 import type { DB } from "../_shared/types.ts";
 
@@ -11,7 +11,7 @@ pg.types.setTypeParser(pg.types.builtins.INT8, Number);
 
 const [logQuery, logError] = isProd
   ? [
-      (obj: Record<string, unknown>) => pino.info(obj, "query-info"),
+      () => {}, // ログしない
       (obj: Record<string, unknown>) => pino.error(obj, "query-error"),
     ]
   : [
@@ -30,7 +30,9 @@ export const kysely = new Kysely<DB>({
   log(event) {
     switch (event.level) {
       case "query":
-        logQuery(common(event));
+        if (isDev) {
+          logQuery(common(event));
+        }
         break;
       case "error": {
         const e = event.error as DatabaseError;
