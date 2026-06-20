@@ -20,10 +20,9 @@
     "preview": "dotenvx run -f .env -f .env.preview --overload -- node --enable-source-maps dist/server.js",
     "test": "dotenvx run -f .env -f .env.test --overload -- pnpm run --sequential /test:/",
     "test:ut": "vitest --project ut",
-    "test:setup": "node --run db:schema -- apply --file db/schema.empty.sql --auto-approve && node --run db:schema -- apply --file db/schema.sql --auto-approve",
+    "test:setup": "pgschema apply --file db/schema.empty.sql --auto-approve && pgschema apply --file db/schema.sql --auto-approve",
     "test:it": "vitest --project it",
     "test:e2e": "vitest --project e2e",
-    "db:schema": "dotenvx run -- pgschema",
     "db:typegen": "dotenvx run -- kysely-codegen --config-file kysely-codegen.ts",
     "db:seed": "dotenvx run -- node db/seed.ts",
     "gql:codegen": "dotenvx run -- node schemagen.ts && oxfmt schema.graphql && graphql-codegen-esm"
