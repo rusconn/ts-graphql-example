@@ -37,7 +37,7 @@ depends = ["check:*"]
 
 [tasks."check:type"]
 run = """
-tsgo
+tsc
 """
 
 [tasks."check:style"]
