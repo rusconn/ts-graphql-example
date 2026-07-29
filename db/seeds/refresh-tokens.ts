@@ -6,7 +6,7 @@ import type { DB, RefreshToken, User } from "../../src/infrastructure/datasource
 import { addDates } from "../../src/lib/date-immutable.ts";
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
-export async function seed(trx: Transaction<DB>, userIds: User["id"][]) {
+export async function seedMinimal(trx: Transaction<DB>) {
   const handRefreshTokens: RefreshToken[] = [
     {
       /** raw: ddfe9c8c-6a73-435d-aa91-7ead331aab0c */
@@ -31,21 +31,18 @@ export async function seed(trx: Transaction<DB>, userIds: User["id"][]) {
     },
   ];
 
-  // 8割のユーザーがログイン中と想定
-  const loggedInUserIds = userIds.slice(0, Math.round(userIds.length * 0.8));
-  const fakeRefreshTokens = fakeData(loggedInUserIds);
-
-  const refreshTokens = [...handRefreshTokens, ...fakeRefreshTokens];
-
-  // 一度に insert する件数が多いとエラーが発生するので小分けにしている
-  const chunks = chunk(refreshTokens, 5_000);
-  const inserts = chunks.map((uts) => trx.insertInto("refreshTokens").values(uts).execute());
-
-  await Promise.all(inserts);
+  await trx.insertInto("refreshTokens").values(handRefreshTokens).execute();
 }
 
-function fakeData(userIds: User["id"][]) {
-  return userIds.map(fakeDataOne);
+export async function seedBulk(trx: Transaction<DB>, userIds: User["id"][]) {
+  // 8割のユーザーがログイン中と想定
+  const loggedInUserIds = userIds.slice(0, Math.round(userIds.length * 0.8));
+  const fakeRefreshTokens = loggedInUserIds.map(fakeDataOne);
+
+  // 一度に insert する件数が多いとエラーが発生するので小分けにしている
+  const chunks = chunk(fakeRefreshTokens, 5_000);
+  const inserts = chunks.map((uts) => trx.insertInto("refreshTokens").values(uts).execute());
+  await Promise.all(inserts);
 }
 
 function fakeDataOne(userId: User["id"]): RefreshToken {

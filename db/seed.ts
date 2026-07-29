@@ -1,25 +1,17 @@
 import process from "node:process";
 
+import type { Transaction } from "kysely";
+
+import type { DB } from "../src/infrastructure/datasources/_shared/types.ts";
 import { kysely } from "../src/infrastructure/datasources/db/client.ts";
-import * as credentials from "./seeds/credentials.ts";
-import * as refreshTokens from "./seeds/refresh-tokens.ts";
-import * as todos from "./seeds/todos.ts";
-import * as users from "./seeds/users.ts";
 
-async function seed() {
-  await kysely.transaction().execute(async (trx) => {
-    const userIds = await users.seed(trx);
-    await credentials.seed(trx, userIds);
-    await refreshTokens.seed(trx, userIds);
-    await todos.seed(trx, userIds);
-  });
-}
-
-try {
-  await seed();
-} catch (e) {
-  console.error(e);
-  process.exitCode = 1;
-} finally {
-  await kysely.destroy();
+export async function seed(seedFn: (trx: Transaction<DB>) => Promise<void>) {
+  try {
+    await kysely.transaction().execute(seedFn);
+  } catch (e) {
+    console.error(e);
+    process.exitCode = 1;
+  } finally {
+    await kysely.destroy();
+  }
 }

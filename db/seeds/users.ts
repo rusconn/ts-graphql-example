@@ -10,7 +10,7 @@ import {
 } from "../../src/infrastructure/datasources/_shared/types.ts";
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
-export async function seed(trx: Transaction<DB>) {
+export async function seedMinimal(trx: Transaction<DB>) {
   const handUsers: User[] = [
     {
       id: "0193cb3e-4379-750f-880f-77afae342259" as Uuidv7,
@@ -38,12 +38,14 @@ export async function seed(trx: Transaction<DB>) {
     },
   ];
 
-  const fakeUsers = fakeData(10_000);
+  await trx.insertInto("users").values(handUsers).execute();
+}
 
-  const users = [...handUsers, ...fakeUsers];
+export async function seedBulk(trx: Transaction<DB>, numFakes: number) {
+  const fakeUsers = fakeData(numFakes);
 
   // 一度に insert する件数が多いとエラーが発生するので小分けにしている
-  const chunks = chunk(users, 5_000);
+  const chunks = chunk(fakeUsers, 5_000);
   const inserts = chunks.map((us) => trx.insertInto("users").values(us).execute());
 
   await Promise.all(inserts);

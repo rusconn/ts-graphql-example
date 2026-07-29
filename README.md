@@ -27,4 +27,4 @@ mise run dev
 クエリの実行は[Webコンソール](http://localhost:4000/graphql)で。\
 アクセストークンをAuthorizationヘッダへBearerでセットしておくこと。\
 アクセストークンはWebコンソールでloginミューテーションを実行して手に入れる。\
-ログインに必要な情報は[seedスクリプト](./db/seed.ts)から取得する。
+ログインに必要な情報は[seedスクリプト](./db/seed.minimal.ts)から取得する。

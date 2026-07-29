@@ -12,7 +12,7 @@ import {
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 import { randInt } from "./_utils.ts";
 
-export async function seed(trx: Transaction<DB>, userIds: User["id"][]) {
+export async function seedMinimal(trx: Transaction<DB>) {
   const handTodos: Todo[] = [
     {
       id: "0193cb3e-5fdd-7264-9f70-1df63d84b251" as Uuidv7,
@@ -43,19 +43,17 @@ export async function seed(trx: Transaction<DB>, userIds: User["id"][]) {
     },
   ];
 
-  const fakeTodos = fakeData(userIds);
+  await trx.insertInto("todos").values(handTodos).execute();
+}
 
-  const todos = [...handTodos, ...fakeTodos];
+export async function seedBulk(trx: Transaction<DB>, userIds: User["id"][]) {
+  const fakeTodos = userIds.flatMap(fakeDataOne);
 
   // 一度に insert する件数が多いとエラーが発生するので小分けにしている
-  const chunks = chunk(todos, 5_000);
+  const chunks = chunk(fakeTodos, 5_000);
   const inserts = chunks.map((ts) => trx.insertInto("todos").values(ts).execute());
 
   await Promise.all(inserts);
-}
-
-function fakeData(userIds: User["id"][]) {
-  return userIds.flatMap(fakeDataOne);
 }
 
 function fakeDataOne(userId: User["id"]): Todo[] {

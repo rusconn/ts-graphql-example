@@ -4,7 +4,7 @@ import type { Transaction } from "kysely";
 import type { Credential, DB, User } from "../../src/infrastructure/datasources/_shared/types.ts";
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
-export async function seed(trx: Transaction<DB>, userIds: User["id"][]) {
+export async function seedMinimal(trx: Transaction<DB>) {
   const handCredentials: Credential[] = [
     {
       userId: "0193cb3e-4379-750f-880f-77afae342259" as Uuidv7,
@@ -23,24 +23,17 @@ export async function seed(trx: Transaction<DB>, userIds: User["id"][]) {
     },
   ];
 
-  const fakeCredentials = fakeData(userIds);
-
-  const credentials = [...handCredentials, ...fakeCredentials];
-
-  // 一度に insert する件数が多いとエラーが発生するので小分けにしている
-  const chunks = chunk(credentials, 5_000);
-  const inserts = chunks.map((cs) => trx.insertInto("credentials").values(cs).execute());
-
-  await Promise.all(inserts);
+  await trx.insertInto("credentials").values(handCredentials).execute();
 }
 
-function fakeData(userIds: User["id"][]) {
-  return userIds.map(fakeDataOne);
-}
-
-function fakeDataOne(userId: User["id"]): Credential {
-  return {
+export async function seedBulk(trx: Transaction<DB>, userIds: User["id"][]) {
+  const fakeCredentials = userIds.map((userId) => ({
     userId,
     password: "dummy",
-  };
+  }));
+
+  // 一度に insert する件数が多いとエラーが発生するので小分けにしている
+  const chunks = chunk(fakeCredentials, 5_000);
+  const inserts = chunks.map((cs) => trx.insertInto("credentials").values(cs).execute());
+  await Promise.all(inserts);
 }

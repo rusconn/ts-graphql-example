@@ -18,7 +18,7 @@ pnpm install
 docker compose down -v
 docker compose up --wait
 pgschema apply --file db/schema.sql --auto-approve
-node db/seed.ts
+node db/seed.minimal.ts
 """
 
 [tasks."setup:env"]
@@ -102,10 +102,16 @@ run = """
 kysely-codegen --config-file kysely-codegen.ts
 """
 
-[tasks."db:seed"]
+[tasks."db:seed-minimal"]
 depends = ["db:up"]
 run = """
-node db/seed.ts
+node db/seed.minimal.ts
+"""
+
+[tasks."db:seed-bulk"]
+depends = ["db:up"]
+run = """
+node db/seed.bulk.ts
 """
 
 [tasks."db:up"]
