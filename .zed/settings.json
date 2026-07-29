@@ -10,26 +10,10 @@
   },
   "languages": {
     "TypeScript": {
-      "language_servers": ["vtsls", "oxfmt", "oxlint", "!eslint", "!biome"]
+      "language_servers": ["typescript-ls", "oxfmt", "oxlint"]
     },
     "JavaScript": {
-      "language_servers": ["vtsls", "oxfmt", "oxlint", "!eslint", "!biome"]
-    }
-  },
-  "lsp": {
-    "vtsls": {
-      "settings": {
-        "typescript": {
-          "preferences": {
-            "importModuleSpecifierEnding": "js"
-          }
-        },
-        "javascript": {
-          "preferences": {
-            "importModuleSpecifierEnding": "js"
-          }
-        }
-      }
+      "language_servers": ["typescript-ls", "oxfmt", "oxlint"]
     }
   },
   "file_types": {
