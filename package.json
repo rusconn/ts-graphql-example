@@ -1,31 +1,8 @@
 {
   "private": true,
   "type": "module",
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "version": "~24.10",
-      "onFail": "error"
-    },
-    "packageManager": {
-      "name": "pnpm",
-      "version": "^11.9",
-      "onFail": "error"
-    }
-  },
   "scripts": {
-    "dev": "dotenvx run -- node --watch src/presentation/server.ts",
-    "check": "tsc && oxlint && oxfmt --check",
-    "build": "vite build",
-    "preview": "dotenvx run -f .env -f .env.preview --overload -- node --enable-source-maps dist/server.js",
-    "test": "dotenvx run -f .env -f .env.test --overload -- pnpm run --sequential /test:/",
-    "test:ut": "vitest --project ut",
-    "test:setup": "pgschema apply --file db/schema.empty.sql --auto-approve && pgschema apply --file db/schema.sql --auto-approve",
-    "test:it": "vitest --project it",
-    "test:e2e": "vitest --project e2e",
-    "db:typegen": "dotenvx run -- kysely-codegen --config-file kysely-codegen.ts",
-    "db:seed": "dotenvx run -- node db/seed.ts",
-    "gql:codegen": "dotenvx run -- node schemagen.ts && oxfmt schema.graphql && graphql-codegen-esm"
+    "//": "echo use mise."
   },
   "dependencies": {
     "@envelop/core": "^5.5.1",
@@ -48,7 +25,6 @@
     "uuid": "^14.0.0"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^1.52.0",
     "@faker-js/faker": "^10.3.0",
     "@graphql-codegen/cli": "^6.1.1",
     "@graphql-codegen/typescript": "5.0.8",

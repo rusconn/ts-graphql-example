@@ -4,27 +4,24 @@ TypeScriptによるGraphQL APIの実装例。学習用です。
 
 ## 必要なツール
 
-- pnpm
-- Node.js
+- [mise](https://mise.jdx.dev/)
+  - pnpm
+  - Node.js
 - [pgschema](https://www.pgschema.com/)
 - Docker
 
-pnpmとNode.jsは[package.json](./package.json)のdevEnginesを満たすバージョンが必要。
+mise管理のツールは自動でインストールされる。
 
-## セットアップ
+## 初回セットアップ
 
 ```sh
-cp .env.example .env
-pnpm install
-docker compose up --wait
-node --run db:schema -- apply --file db/schema.sql --auto-approve
-node --run seed
+mise run setup
 ```
 
 ## devサーバー起動
 
 ```sh
-node --run dev
+mise run dev
 ```
 
 クエリの実行は[Webコンソール](http://localhost:4000/graphql)で。\

@@ -1,9 +1,10 @@
 [tools]
 node = "24.10"
+pnpm = "11.15"
 
 [settings]
 env_shell_expand = true
-auto_install = false
+auto_install = true
 
 [env]
 _.file = ".env"
