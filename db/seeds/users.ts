@@ -1,4 +1,3 @@
-import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
@@ -59,19 +58,13 @@ function fakeData(numFakes: number) {
 
 function fakeDataOne(nth: number): User {
   const id = Domain.User.Id.create();
-  const firstName = faker.person.firstName();
-  const lastName = faker.person.lastName();
 
   return {
     id,
-    name: firstName + lastName,
-    email: faker.internet.email({
-      firstName,
-      lastName: lastName + nth, // make unique
-      allowSpecialCharacters: true,
-    }),
+    name: `user-${nth}`,
+    email: `user-${nth}@example.com`,
     role: UserRole.User,
     createdAt: Domain.User.Id.date(id),
-    updatedAt: faker.date.past(),
+    updatedAt: Domain.User.Id.date(id),
   };
 }

@@ -1,4 +1,3 @@
-import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
@@ -46,7 +45,7 @@ export async function seedBulk(trx: Transaction<DB>, userIds: User["id"][]) {
 }
 
 function fakeDataOne(userId: User["id"]): RefreshToken {
-  const createdAt = faker.date.past();
+  const createdAt = new Date("2026-01-01T00:00:00Z");
   const expiresAt = addDates(createdAt, 7);
   return {
     token: `dummy-${userId}`,

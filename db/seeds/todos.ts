@@ -1,4 +1,3 @@
-import { faker } from "@faker-js/faker";
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
@@ -10,7 +9,6 @@ import {
   type User,
 } from "../../src/infrastructure/datasources/_shared/types.ts";
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
-import { randInt } from "./_utils.ts";
 
 export async function seedMinimal(trx: Transaction<DB>) {
   const handTodos: Todo[] = [
@@ -56,20 +54,24 @@ export async function seedBulk(trx: Transaction<DB>, userIds: User["id"][]) {
   await Promise.all(inserts);
 }
 
-function fakeDataOne(userId: User["id"]): Todo[] {
-  const numTodos = randInt(0, 10);
+function fakeDataOne(userId: User["id"], idx: number): Todo[] {
+  const NUM_TODOS_PER_USER = 5;
+  const DESC_SIZES = [
+    0, 50, 50, 100, 100, 100, 200, 200, 200, 300, 300, 300, 500, 500, 1_000, 5_000,
+  ] as const;
 
-  return [...Array(numTodos)].map((_) => {
+  return [...Array(NUM_TODOS_PER_USER)].map((_, i) => {
     const id = Domain.Todo.Id.create();
+    const descSize = DESC_SIZES[(idx + i) % DESC_SIZES.length]!;
 
     return {
       id,
-      title: faker.lorem.words(randInt(1, 3)),
-      description: faker.lorem.text(),
-      status: faker.helpers.arrayElement([TodoStatus.Done, TodoStatus.Pending]),
+      title: `todo-${idx}-${i}`,
+      description: "x".repeat(descSize),
+      status: i % 2 === 0 ? TodoStatus.Pending : TodoStatus.Done,
       userId,
       createdAt: Domain.Todo.Id.date(id),
-      updatedAt: faker.date.past(),
+      updatedAt: Domain.Todo.Id.date(id),
     };
   });
 }
