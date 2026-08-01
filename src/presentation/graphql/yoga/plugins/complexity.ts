@@ -3,6 +3,7 @@ import {
   directiveEstimator,
   simpleEstimator,
 } from "graphql-query-complexity";
+import type { ComplexityEstimatorArgs } from "graphql-query-complexity";
 import type { Plugin } from "graphql-yoga";
 
 import { maxComplexity } from "../../../../config/graphql-security.ts";
@@ -21,10 +22,14 @@ export const complexity: Plugin = {
         operationName,
       }),
       createError: queryTooComplexError,
-      estimators: [directiveEstimator(), simpleEstimator()],
+      estimators: [introspectionFieldEstimator, directiveEstimator(), simpleEstimator()],
       context,
     });
 
     addValidationRule(rule);
   },
+};
+
+const introspectionFieldEstimator = ({ field }: ComplexityEstimatorArgs) => {
+  return field.name.startsWith("__") ? 0 : undefined;
 };
