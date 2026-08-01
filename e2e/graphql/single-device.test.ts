@@ -2,22 +2,20 @@ import { client, domain } from "../_shared/data.ts";
 import { clearTables, seeders } from "../_shared/helpers.ts";
 import { graphql } from "./_shared/gql.ts";
 import { TodoStatus } from "./_shared/graphql.ts";
-import {
-  executeSingleResultOperation,
-  fetchGraphQL,
-  getRefreshTokenCookieValue,
-} from "./_shared/server.ts";
+import { executeSingleResultOperation, getRefreshTokenCookieValue } from "./_shared/server.ts";
 
-const signupHttp = fetchGraphQL(/* GraphQL */ `
-  mutation SingleDeviceSignup($name: String!, $email: String!, $password: String!) {
-    signup(name: $name, email: $email, password: $password) {
-      __typename
-      ... on SignupSuccess {
-        token
+const signup = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation SingleDeviceSignup($name: String!, $email: String!, $password: String!) {
+      signup(name: $name, email: $email, password: $password) {
+        __typename
+        ... on SignupSuccess {
+          token
+        }
       }
     }
-  }
-`);
+  `),
+);
 
 const viewer = executeSingleResultOperation(
   graphql(/* GraphQL */ `
@@ -156,18 +154,16 @@ test("single-device", async () => {
   let refreshToken1: string;
   let token1: string;
   {
-    const res = await signupHttp({
+    const { headers, data } = await signup({
       variables: {
         name: "single-device",
         email: "single-device@example.com",
         password: "password",
       },
     });
-    assert(res.ok);
-    refreshToken1 = getRefreshTokenCookieValue(res.headers);
-    const json = await res.json();
-    assert(json.data.signup.__typename === "SignupSuccess", json.data.signup.__typename);
-    token1 = json.data.signup.token;
+    refreshToken1 = getRefreshTokenCookieValue(headers);
+    assert(data?.signup?.__typename === "SignupSuccess", data?.signup?.__typename);
+    token1 = data.signup.token;
   }
 
   let userId: string;

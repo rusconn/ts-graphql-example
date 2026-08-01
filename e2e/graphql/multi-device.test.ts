@@ -1,21 +1,19 @@
 import { clearTables } from "../_shared/helpers.ts";
 import { graphql } from "./_shared/gql.ts";
-import {
-  executeSingleResultOperation,
-  fetchGraphQL,
-  getRefreshTokenCookieValue,
-} from "./_shared/server.ts";
+import { executeSingleResultOperation, getRefreshTokenCookieValue } from "./_shared/server.ts";
 
-const signupHttp = fetchGraphQL(/* GraphQL */ `
-  mutation MultiDeviceSignup($name: String!, $email: String!, $password: String!) {
-    signup(name: $name, email: $email, password: $password) {
-      __typename
-      ... on SignupSuccess {
-        token
+const signup = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation MultiDeviceSignup($name: String!, $email: String!, $password: String!) {
+      signup(name: $name, email: $email, password: $password) {
+        __typename
+        ... on SignupSuccess {
+          token
+        }
       }
     }
-  }
-`);
+  `),
+);
 
 const viewer = executeSingleResultOperation(
   graphql(/* GraphQL */ `
@@ -66,16 +64,18 @@ const todoCreate = executeSingleResultOperation(
   `),
 );
 
-const loginHttp = fetchGraphQL(/* GraphQL */ `
-  mutation MultiDeviceLogin($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
-      __typename
-      ... on LoginSuccess {
-        token
+const login = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation MultiDeviceLogin($email: String!, $password: String!) {
+      login(email: $email, password: $password) {
+        __typename
+        ... on LoginSuccess {
+          token
+        }
       }
     }
-  }
-`);
+  `),
+);
 
 const todoUpdate = executeSingleResultOperation(
   graphql(/* GraphQL */ `
@@ -134,18 +134,16 @@ test("multi-device", async () => {
   let refreshToken1: string;
   let token1: string;
   {
-    const res = await signupHttp({
+    const { headers, data } = await signup({
       variables: {
         name: "multi-device",
         email: "multi-device@example.com",
         password: "password",
       },
     });
-    assert(res.ok);
-    refreshToken1 = getRefreshTokenCookieValue(res.headers);
-    const json = await res.json();
-    assert(json.data.signup.__typename === "SignupSuccess", json.data.signup.__typename);
-    token1 = json.data.signup.token;
+    refreshToken1 = getRefreshTokenCookieValue(headers);
+    assert(data?.signup?.__typename === "SignupSuccess", data?.signup?.__typename);
+    token1 = data.signup.token;
   }
 
   {
@@ -175,17 +173,18 @@ test("multi-device", async () => {
   let refreshToken2: string;
   let token2: string;
   {
-    const res = await loginHttp({
+    const { headers, data } = await login({
       variables: {
         email: "multi-device@example.com",
         password: "password",
       },
     });
-    assert(res.ok);
-    refreshToken2 = getRefreshTokenCookieValue(res.headers);
-    const json = await res.json();
-    assert(json.data.login.token);
-    token2 = json.data.login.token;
+    refreshToken2 = getRefreshTokenCookieValue(headers);
+    assert(
+      data?.login?.__typename === "LoginSuccess", //
+      data?.login?.__typename,
+    );
+    token2 = data.login.token;
   }
 
   {

@@ -1,6 +1,5 @@
-import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 import type { DocumentTypeDecoration } from "@graphql-typed-document-node/core";
-import { parse } from "graphql";
+import type { ExecutionResult } from "graphql";
 
 import { endpoint } from "../../../src/config/url.ts";
 import * as RefreshTokenCookie from "../../../src/presentation/_shared/auth/refresh-token-cookie.ts";
@@ -17,70 +16,33 @@ export function executeSingleResultOperation<
   TVariables extends Record<string, any>,
 >(document: DocumentTypeDecoration<TData, TVariables>) {
   return async ({ token, refreshToken, variables }: ExecuteOperationParams<TVariables>) => {
-    const result = await executor<TData, TVariables>({
-      document: parse(document.toString()),
-      ...(variables != null && {
-        variables,
-      }),
-      extensions: {
-        headers: {
-          ...(token != null && {
-            authorization: `Bearer ${token}`,
-          }),
-          ...(refreshToken != null && {
-            cookie: `${RefreshTokenCookie.name}=${refreshToken}`,
-          }),
-        },
+    const response = await yoga.fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token != null && {
+          authorization: `Bearer ${token}`,
+        }),
+        ...(refreshToken != null && {
+          cookie: `${RefreshTokenCookie.name}=${refreshToken}`,
+        }),
       },
+      body: JSON.stringify({
+        query: document.toString(),
+        ...(variables != null && {
+          variables,
+        }),
+      }),
     });
 
-    if (!isSingleResult(result)) {
-      throw new Error("Expected single result");
-    }
+    const result = (await response.json()) as ExecutionResult<TData>;
 
-    return result;
+    return {
+      headers: response.headers,
+      ...result,
+    };
   };
 }
-
-const executor = buildHTTPExecutor({
-  fetch: yoga.fetch,
-});
-
-function isSingleResult<TResult extends object>(
-  result: TResult | AsyncIterable<TResult>,
-): result is TResult {
-  return !(Symbol.asyncIterator in result);
-}
-
-type FetchGraphQLParam = {
-  token?: string;
-  refreshToken?: string;
-  variables?: Record<string, unknown>;
-};
-
-// レスポンスヘッダーにアクセスするために使う
-export const fetchGraphQL = (query: string) => async (param: FetchGraphQLParam) => {
-  const { token, refreshToken, variables } = param;
-
-  return await yoga.fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token != null && {
-        authorization: `Bearer ${token}`,
-      }),
-      ...(refreshToken != null && {
-        cookie: `${RefreshTokenCookie.name}=${refreshToken}`,
-      }),
-    },
-    body: JSON.stringify({
-      query,
-      ...(variables != null && {
-        variables,
-      }),
-    }),
-  });
-};
 
 export function getRefreshTokenCookieValue(headers: Headers) {
   const setCookie = headers
