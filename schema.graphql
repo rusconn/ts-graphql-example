@@ -288,11 +288,11 @@ type ResourceNotFoundError implements Error {
 }
 
 type Todo implements Node {
-  createdAt: DateTimeISO @semanticNonNull
-  description: String @semanticNonNull
   id: ID!
-  status: TodoStatus @semanticNonNull
   title: String @semanticNonNull
+  description: String @semanticNonNull
+  status: TodoStatus @semanticNonNull
+  createdAt: DateTimeISO @semanticNonNull
   updatedAt: DateTimeISO @semanticNonNull
   user: User @semanticNonNull @complexity(value: 3)
 }
@@ -303,10 +303,11 @@ enum TodoStatus {
 }
 
 type User implements Node {
-  createdAt: DateTimeISO @semanticNonNull
-  email: EmailAddress @semanticNonNull
   id: ID!
   name: String @semanticNonNull
+  email: EmailAddress @semanticNonNull
+  createdAt: DateTimeISO @semanticNonNull
+  updatedAt: DateTimeISO @semanticNonNull
   todo(id: ID!): Todo @complexity(value: 3)
   todos(
     """
@@ -330,7 +331,6 @@ type User implements Node {
     """
     search: String
   ): TodoConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
-  updatedAt: DateTimeISO @semanticNonNull
 }
 
 enum TodoSortKeys {

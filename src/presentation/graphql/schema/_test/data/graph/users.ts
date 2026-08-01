@@ -3,7 +3,7 @@ import type { OverrideProperties } from "type-fest";
 import * as Domain from "../../../../../../domain/entities.ts";
 import { domain } from "../../../../../_shared/test/data/domain/users.ts";
 import type * as Graph from "../../../_types.ts";
-import { userId } from "../../../User/id.ts";
+import { userId } from "../../../User.ts";
 import { type DateTimeISO, dateTimeISO } from "./_shared.ts";
 
 type GraphUser = OverrideProperties<

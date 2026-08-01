@@ -6,7 +6,7 @@ import { forbiddenError } from "../_errors/global/forbidden.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import type { MutationResolvers } from "../_types.ts";
-import { todoId } from "../Todo/id.ts";
+import { todoId } from "../Todo.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {

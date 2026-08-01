@@ -7,7 +7,7 @@ import { internalServerError } from "../_errors/global/internal-server-error.ts"
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserPassword } from "../_parsers/user/password.ts";
 import type { MutationAccountDeleteArgs, MutationResolvers } from "../_types.ts";
-import { userId } from "../User/id.ts";
+import { userId } from "../User.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
