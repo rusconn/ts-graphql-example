@@ -23,6 +23,13 @@
         "path": "~/.local/share/mise/shims/oxlint",
         "arguments": ["--lsp"]
       }
+    },
+    "oxfmt": {
+      "binary": {
+        "ignore_system_version": true,
+        "path": "~/.local/share/mise/shims/oxfmt",
+        "arguments": ["--lsp"]
+      }
     }
   },
   "file_types": {
