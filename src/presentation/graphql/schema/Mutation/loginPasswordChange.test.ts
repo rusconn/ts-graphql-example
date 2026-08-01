@@ -1,5 +1,4 @@
 import { omit } from "es-toolkit";
-import { GraphQLError } from "graphql";
 import type { ControlledTransaction } from "kysely";
 
 import * as Domain from "../../../../domain/entities.ts";
@@ -14,7 +13,7 @@ import {
 import { domain, dto } from "../_test/data.ts";
 import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { createContext } from "../_test/helpers.ts";
-import { ErrorCode, type MutationLoginPasswordChangeArgs } from "../_types.ts";
+import type { MutationLoginPasswordChangeArgs } from "../_types.ts";
 import { resolver } from "./loginPasswordChange.ts";
 
 let trx: ControlledTransaction<DB>;
@@ -38,34 +37,6 @@ async function loginPasswordChange(
 ) {
   return await resolver({}, args, createContext(ctx, trx));
 }
-
-describe("authorization", () => {
-  const args: MutationLoginPasswordChangeArgs = {
-    oldPassword: "a",
-    newPassword: "b",
-  };
-
-  it("rejects when user is not authenticated", async () => {
-    const ctx = context.guest();
-
-    await expect(loginPasswordChange(ctx, args)).rejects.toSatisfy(
-      (e) =>
-        e instanceof GraphQLError && //
-        e.extensions.code === ErrorCode.Forbidden,
-    );
-  });
-
-  it("not rejects when user is authenticated", async () => {
-    const ctx = context.alice();
-
-    try {
-      await loginPasswordChange(ctx, args);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-});
 
 describe("parsing", () => {
   it("returns input errors when args is invalid", async () => {

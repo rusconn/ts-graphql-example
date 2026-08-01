@@ -2,8 +2,7 @@ import { Result } from "neverthrow";
 
 import { changeLoginPassword } from "../../../../application/usecases/change-login-password.ts";
 import { User } from "../../../../domain/entities.ts";
-import { authAuthenticated } from "../_authorizers/authenticated.ts";
-import { forbiddenError } from "../_errors/global/forbidden.ts";
+import type { ContextForAuthed } from "../../yoga/context.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserPassword } from "../_parsers/user/password.ts";
@@ -21,7 +20,7 @@ export const typeDef = /* GraphQL */ `
       ${User.Password.MIN}文字以上、${User.Password.MAX}文字まで
       """
       newPassword: String!
-    ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100)
+    ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100) @auth(policy: AUTHENTICATED)
   }
 
   union LoginPasswordChangeResult =
@@ -48,10 +47,7 @@ export const resolver: MutationResolvers["loginPasswordChange"] = async (
   args,
   context,
 ) => {
-  const ctx = authAuthenticated(context);
-  if (Error.isError(ctx)) {
-    throw forbiddenError(ctx);
-  }
+  const ctx = context as ContextForAuthed;
 
   const parsed = parseArgs(args);
   if (parsed.isErr()) {

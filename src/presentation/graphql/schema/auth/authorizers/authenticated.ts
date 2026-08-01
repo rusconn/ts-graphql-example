@@ -1,4 +1,4 @@
-import type { Context } from "../../yoga/context.ts";
+import type { Context } from "../../../yoga/context.ts";
 import { authErr } from "./_shared.ts";
 
 export function authAuthenticated(context: Context) {
@@ -10,7 +10,7 @@ export function authAuthenticated(context: Context) {
 }
 
 if (import.meta.vitest) {
-  const { context } = await import("../_test/data.ts");
+  const { context } = await import("../../_test/data.ts");
 
   const allows = [context.admin, context.alice];
   const denies = [context.guest];

@@ -32,45 +32,6 @@ async function todo(
   return await resolver(parent, args, createContext(ctx, trx));
 }
 
-describe("authorization", () => {
-  const parent: ResolversParentTypes["User"] = dto.users.alice;
-  const args: UserTodoArgs = {
-    id: dummyId.todo(),
-  };
-
-  it("rejects when user is not owner", async () => {
-    const ctx = context.guest();
-
-    await expect(todo(ctx, parent, args)).rejects.toSatisfy(
-      (e) =>
-        e instanceof GraphQLError && //
-        e.extensions.code === ErrorCode.Forbidden,
-    );
-  });
-
-  it("not rejects when user is admin", async () => {
-    const ctx = context.admin();
-
-    try {
-      await todo(ctx, parent, args);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-
-  it("not rejects when user is owner", async () => {
-    const ctx = context.alice();
-
-    try {
-      await todo(ctx, parent, args);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-});
-
 describe("parsing", () => {
   const ctx = context.alice();
   const parent: ResolversParentTypes["User"] = dto.users.alice;

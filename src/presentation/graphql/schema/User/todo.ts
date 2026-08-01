@@ -1,21 +1,17 @@
 import { unwrapOrElse } from "../../../../lib/neverthrow-extra.ts";
-import { authAdminOrUserOwner } from "../_authorizers/user/admin-or-owner.ts";
+import type { ContextForAuthed } from "../../yoga/context.ts";
 import { badUserInputError } from "../_errors/global/bad-user-input.ts";
-import { forbiddenError } from "../_errors/global/forbidden.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import type { UserResolvers } from "../_types.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
-    todo(id: ID!): Todo @complexity(value: 3)
+    todo(id: ID!): Todo @complexity(value: 3) @auth(policy: ADMIN_OR_USER_OWNER)
   }
 `;
 
 export const resolver: NonNullable<UserResolvers["todo"]> = async (parent, args, context) => {
-  const ctx = authAdminOrUserOwner(context, parent);
-  if (Error.isError(ctx)) {
-    throw forbiddenError(ctx);
-  }
+  const ctx = context as ContextForAuthed;
 
   const id = unwrapOrElse(parseTodoId(args.id), (e) => {
     throw badUserInputError(e.message, e);

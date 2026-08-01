@@ -1,5 +1,6 @@
-import * as Directives from "./schema/_directives.ts";
 import type { Resolvers } from "./schema/_types.ts";
+import * as Auth from "./schema/auth.ts";
+import * as Complexity from "./schema/complexity.ts";
 import * as DateTimeISO from "./schema/DateTimeISO.ts";
 import * as EmailAddress from "./schema/EmailAddress.ts";
 import * as EmailAlreadyTakenError from "./schema/EmailAlreadyTakenError.ts";
@@ -13,13 +14,15 @@ import * as PageInfo from "./schema/PageInfo.ts";
 import * as Query from "./schema/Query.ts";
 import * as ResourceLimitExceededError from "./schema/ResourceLimitExceededError.ts";
 import * as ResourceNotFoundError from "./schema/ResourceNotFoundError.ts";
+import * as SemanticNonNull from "./schema/semanticNonNull.ts";
 import * as Todo from "./schema/Todo.ts";
 import * as User from "./schema/User.ts";
 import * as Void from "./schema/Void.ts";
 
 export const typeDefs = [
   DateTimeISO.typeDef,
-  Directives.typeDefs,
+  Auth.typeDef,
+  Complexity.typeDef,
   EmailAddress.typeDef,
   EmailAlreadyTakenError.typeDef,
   Error_.typeDef,
@@ -32,6 +35,7 @@ export const typeDefs = [
   Query.typeDefs,
   ResourceLimitExceededError.typeDef,
   ResourceNotFoundError.typeDef,
+  SemanticNonNull.typeDef,
   Todo.typeDefs,
   User.typeDefs,
   Void.typeDef,

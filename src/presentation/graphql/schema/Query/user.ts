@@ -1,21 +1,17 @@
 import { unwrapOrElse } from "../../../../lib/neverthrow-extra.ts";
-import { authAdmin } from "../_authorizers/admin.ts";
+import type { ContextForAdmin } from "../../yoga/context.ts";
 import { badUserInputError } from "../_errors/global/bad-user-input.ts";
-import { forbiddenError } from "../_errors/global/forbidden.ts";
 import { parseUserId } from "../_parsers/user/id.ts";
 import type { QueryResolvers } from "../_types.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
-    user(id: ID!): User @complexity(value: 3)
+    user(id: ID!): User @complexity(value: 3) @auth(policy: ADMIN)
   }
 `;
 
 export const resolver: QueryResolvers["user"] = async (_parent, args, context) => {
-  const ctx = authAdmin(context);
-  if (Error.isError(ctx)) {
-    throw forbiddenError(ctx);
-  }
+  const ctx = context as ContextForAdmin;
 
   const id = unwrapOrElse(parseUserId(args.id), (e) => {
     throw badUserInputError(e.message, e);

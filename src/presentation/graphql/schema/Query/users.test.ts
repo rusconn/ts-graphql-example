@@ -31,34 +31,6 @@ async function users(
   return await resolver({}, args, createContext(ctx, trx));
 }
 
-describe("authorization", () => {
-  const args: QueryUsersArgs = {
-    reverse: true,
-    sortKey: UserSortKeys.CreatedAt,
-  };
-
-  it("rejects when user is not admin", async () => {
-    const ctx = context.alice();
-
-    await expect(users(ctx, args)).rejects.toSatisfy(
-      (e) =>
-        e instanceof GraphQLError && //
-        e.extensions.code === ErrorCode.Forbidden,
-    );
-  });
-
-  it("not rejects when user is admin", async () => {
-    const ctx = context.admin();
-
-    try {
-      await users(ctx, args);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-});
-
 describe("parsing", () => {
   it("throws an input error when args are invalid", async () => {
     const ctx = context.admin();

@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import type { ControlledTransaction } from "kysely";
 
 import type { DB } from "../../../../infrastructure/datasources/_shared/generated.ts";
@@ -6,7 +5,6 @@ import { kysely } from "../../../../infrastructure/datasources/db/client.ts";
 import { dto } from "../_test/data.ts";
 import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { createContext } from "../_test/helpers.ts";
-import { ErrorCode } from "../_types.ts";
 import { resolver } from "./viewer.ts";
 
 let trx: ControlledTransaction<DB>;
@@ -24,30 +22,6 @@ async function viewer(
 ) {
   return await resolver({}, {}, createContext(ctx, trx));
 }
-
-describe("authorization", () => {
-  it("not rejects when user is guest", async () => {
-    const ctx = context.guest();
-
-    try {
-      await viewer(ctx);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-
-  it("not rejects when user is authenticated", async () => {
-    const ctx = context.alice();
-
-    try {
-      await viewer(ctx);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-});
 
 describe("logic", () => {
   it("returns null when client is a guest", async () => {

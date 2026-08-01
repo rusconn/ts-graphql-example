@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import type { ControlledTransaction } from "kysely";
 
 import { User } from "../../../../domain/entities.ts";
@@ -14,7 +13,7 @@ import {
 import { client, db, domain, dto, graph } from "../_test/data.ts";
 import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { createContext } from "../_test/helpers.ts";
-import { ErrorCode, type MutationAccountDeleteArgs } from "../_types.ts";
+import type { MutationAccountDeleteArgs } from "../_types.ts";
 import { resolver } from "./accountDelete.ts";
 
 let trx: ControlledTransaction<DB>;
@@ -38,33 +37,6 @@ async function accountDelete(
 ) {
   return await resolver({}, args, createContext(ctx, trx));
 }
-
-describe("authorization", () => {
-  const args: MutationAccountDeleteArgs = {
-    password: "dummy",
-  };
-
-  it("rejects when user is not authenticated", async () => {
-    const ctx = context.guest();
-
-    await expect(accountDelete(ctx, args)).rejects.toSatisfy(
-      (e) =>
-        e instanceof GraphQLError && //
-        e.extensions.code === ErrorCode.Forbidden,
-    );
-  });
-
-  it("not rejects when user is authenticated", async () => {
-    const ctx = context.alice();
-
-    try {
-      await accountDelete(ctx, args);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-});
 
 describe("parsing", () => {
   it("returns input errors when args is invalid", async () => {

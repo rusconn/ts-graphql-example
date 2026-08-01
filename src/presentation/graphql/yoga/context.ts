@@ -3,7 +3,9 @@ import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 
 import {
   type AppContext,
+  type AppContextForAdmin,
   type AppContextForAuthed,
+  type AppContextForGuest,
   createAppContext,
   findAppContextUser,
 } from "../../../application/context.ts";
@@ -16,6 +18,8 @@ import { tokenExpiredError } from "../schema/_errors/global/token-expired.ts";
 
 export type Context = ServerContext & YogaInitialContext & PluginContext & AppContext;
 export type ContextForAuthed = ServerContext & YogaInitialContext & AppContextForAuthed;
+export type ContextForAdmin = ServerContext & YogaInitialContext & AppContextForAdmin;
+export type ContextForGuest = ServerContext & YogaInitialContext & AppContextForGuest;
 
 export type ServerContext = {
   req: HttpRequest;

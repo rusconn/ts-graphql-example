@@ -2,8 +2,7 @@ import { Result } from "neverthrow";
 
 import { updateAccount } from "../../../../application/usecases/update-account.ts";
 import { User } from "../../../../domain/entities.ts";
-import { authAuthenticated } from "../_authorizers/authenticated.ts";
-import { forbiddenError } from "../_errors/global/forbidden.ts";
+import type { ContextForAuthed } from "../../yoga/context.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserName } from "../_parsers/user/name.ts";
@@ -16,7 +15,7 @@ export const typeDef = /* GraphQL */ `
       ${User.Name.MIN}文字以上、${User.Name.MAX}文字まで、null は入力エラー
       """
       name: String
-    ): AccountUpdateResult @semanticNonNull @complexity(value: 5)
+    ): AccountUpdateResult @semanticNonNull @complexity(value: 5) @auth(policy: AUTHENTICATED)
   }
 
   union AccountUpdateResult = AccountUpdateSuccess | InvalidInputErrors
@@ -27,10 +26,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args, context) => {
-  const ctx = authAuthenticated(context);
-  if (Error.isError(ctx)) {
-    throw forbiddenError(ctx);
-  }
+  const ctx = context as ContextForAuthed;
 
   const parsed = parseArgs(args);
   if (parsed.isErr()) {

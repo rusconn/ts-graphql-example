@@ -1,5 +1,5 @@
-import type { Context } from "../../../yoga/context.ts";
-import type { Todo } from "../../Todo/_mapper.ts";
+import type { Context } from "../../../../yoga/context.ts";
+import type { Todo } from "../../../Todo/_mapper.ts";
 import { authAdmin } from "../admin.ts";
 import { authTodoOwner } from "./owner.ts";
 
@@ -14,7 +14,7 @@ export function authAdminOrTodoOwner(context: Context, todo: Todo) {
 }
 
 if (import.meta.vitest) {
-  const { context, dto } = await import("../../_test/data.ts");
+  const { context, dto } = await import("../../../_test/data.ts");
 
   const allows = [
     [context.admin, dto.todos.admin1],

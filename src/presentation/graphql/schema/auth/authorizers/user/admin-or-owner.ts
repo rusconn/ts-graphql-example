@@ -1,5 +1,5 @@
-import type { Context } from "../../../yoga/context.ts";
-import type { User } from "../../User/_mapper.ts";
+import type { Context } from "../../../../yoga/context.ts";
+import type { User } from "../../../User/_mapper.ts";
 import { authErr } from "../_shared.ts";
 import { authAdmin } from "../admin.ts";
 
@@ -22,7 +22,7 @@ function authUserOwner(context: Context, user: User) {
 }
 
 if (import.meta.vitest) {
-  const { context, dto } = await import("../../_test/data.ts");
+  const { context, dto } = await import("../../../_test/data.ts");
 
   describe("authAdminOrUserOwner", () => {
     const allows = [

@@ -4,6 +4,7 @@ import type { AppContext } from "../../application/context.ts";
 import { endpoint } from "../../config/url.ts";
 import { renderApolloStudio } from "../../lib/graphql-yoga/render-apollo-studio.ts";
 import { resolvers, typeDefs } from "./schema.ts";
+import { applyAuthDirective } from "./schema/auth/directive.ts";
 import { buildContext, type PluginContext, type ServerContext } from "./yoga/context.ts";
 import { armor } from "./yoga/plugins/armor.ts";
 import { complexity } from "./yoga/plugins/complexity.ts";
@@ -17,7 +18,7 @@ import { startTime } from "./yoga/plugins/start-time.ts";
 
 export const yoga = createYoga<ServerContext & PluginContext, AppContext>({
   renderGraphiQL: () => renderApolloStudio(endpoint),
-  schema: createSchema({ typeDefs, resolvers }),
+  schema: applyAuthDirective(createSchema({ typeDefs, resolvers })),
   context: buildContext,
   logging: false,
   plugins: [

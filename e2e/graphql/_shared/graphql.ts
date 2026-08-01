@@ -34,6 +34,16 @@ export type AccountUpdateSuccess = {
   user: User;
 };
 
+export const AuthPolicy = {
+  Admin: 'ADMIN',
+  AdminOrTodoOwner: 'ADMIN_OR_TODO_OWNER',
+  AdminOrUserOwner: 'ADMIN_OR_USER_OWNER',
+  Authenticated: 'AUTHENTICATED',
+  Guest: 'GUEST',
+  TodoOwner: 'TODO_OWNER'
+} as const;
+
+export type AuthPolicy = typeof AuthPolicy[keyof typeof AuthPolicy];
 export type EmailAlreadyTakenError = Error & {
   message: Scalars['String']['output'];
 };

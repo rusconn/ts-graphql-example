@@ -1,7 +1,6 @@
 import { changeUserEmail } from "../../../../application/usecases/change-user-email.ts";
 import { User } from "../../../../domain/entities.ts";
-import { authAuthenticated } from "../_authorizers/authenticated.ts";
-import { forbiddenError } from "../_errors/global/forbidden.ts";
+import type { ContextForAuthed } from "../../yoga/context.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserEmail } from "../_parsers/user/email.ts";
@@ -14,7 +13,7 @@ export const typeDef = /* GraphQL */ `
       ${User.Email.MAX}文字まで、既に存在する場合はエラー
       """
       email: String!
-    ): UserEmailChangeResult @semanticNonNull @complexity(value: 5)
+    ): UserEmailChangeResult @semanticNonNull @complexity(value: 5) @auth(policy: AUTHENTICATED)
   }
 
   union UserEmailChangeResult = UserEmailChangeSuccess | InvalidInputErrors | EmailAlreadyTakenError
@@ -25,10 +24,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["userEmailChange"] = async (_parent, args, context) => {
-  const ctx = authAuthenticated(context);
-  if (Error.isError(ctx)) {
-    throw forbiddenError(ctx);
-  }
+  const ctx = context as ContextForAuthed;
 
   const email = parseArgs(args);
   if (email.isErr()) {

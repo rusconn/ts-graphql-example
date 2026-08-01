@@ -43,6 +43,16 @@ export type AccountUpdateSuccess = {
   user: User;
 };
 
+export const AuthPolicy = {
+  Admin: 'ADMIN',
+  AdminOrTodoOwner: 'ADMIN_OR_TODO_OWNER',
+  AdminOrUserOwner: 'ADMIN_OR_USER_OWNER',
+  Authenticated: 'AUTHENTICATED',
+  Guest: 'GUEST',
+  TodoOwner: 'TODO_OWNER'
+} as const;
+
+export type AuthPolicy = typeof AuthPolicy[keyof typeof AuthPolicy];
 export type EmailAlreadyTakenError = Error & {
   __typename?: 'EmailAlreadyTakenError';
   message: Scalars['String']['output'];
@@ -528,6 +538,7 @@ export type ResolversTypes = ResolversObject<{
   AccountDeleteSuccess: ResolverTypeWrapper<AccountDeleteSuccess>;
   AccountUpdateResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AccountUpdateResult']>;
   AccountUpdateSuccess: ResolverTypeWrapper<Omit<AccountUpdateSuccess, 'user'> & { user: ResolversTypes['User'] }>;
+  AuthPolicy: AuthPolicy;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   DateTimeISO: ResolverTypeWrapper<Scalars['DateTimeISO']['output']>;
   EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']['output']>;
@@ -635,6 +646,12 @@ export type ResolversParentTypes = ResolversObject<{
   UserEmailChangeSuccess: Omit<UserEmailChangeSuccess, 'user'> & { user: ResolversParentTypes['User'] };
   Void: Scalars['Void']['output'];
 }>;
+
+export type AuthDirectiveArgs = {
+  policy: AuthPolicy;
+};
+
+export type AuthDirectiveResolver<Result, Parent, ContextType = Context, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type ComplexityDirectiveArgs = {
   multipliers?: Maybe<Array<Scalars['String']['input']>>;
@@ -951,6 +968,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
 }>;
 
 export type DirectiveResolvers<ContextType = Context> = ResolversObject<{
+  auth?: AuthDirectiveResolver<any, any, ContextType>;
   complexity?: ComplexityDirectiveResolver<any, any, ContextType>;
   semanticNonNull?: SemanticNonNullDirectiveResolver<any, any, ContextType>;
 }>;

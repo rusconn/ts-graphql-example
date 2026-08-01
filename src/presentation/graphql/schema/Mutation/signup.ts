@@ -4,8 +4,7 @@ import { signup } from "../../../../application/usecases/signup.ts";
 import { User } from "../../../../domain/entities.ts";
 import * as AccessToken from "../../../_shared/auth/access-token.ts";
 import * as RefreshTokenCookie from "../../../_shared/auth/refresh-token-cookie.ts";
-import { authGuest } from "../_authorizers/guest.ts";
-import { forbiddenError } from "../_errors/global/forbidden.ts";
+import type { ContextForGuest } from "../../yoga/context.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserEmail } from "../_parsers/user/email.ts";
@@ -30,7 +29,7 @@ export const typeDef = /* GraphQL */ `
       ${User.Password.MIN}文字以上、${User.Password.MAX}文字まで
       """
       password: String!
-    ): SignupResult @semanticNonNull @complexity(value: 100)
+    ): SignupResult @semanticNonNull @complexity(value: 100) @auth(policy: GUEST)
   }
 
   union SignupResult = SignupSuccess | InvalidInputErrors | EmailAlreadyTakenError
@@ -41,10 +40,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["signup"] = async (_parent, args, context) => {
-  const ctx = authGuest(context);
-  if (Error.isError(ctx)) {
-    throw forbiddenError(ctx);
-  }
+  const ctx = context as ContextForGuest;
 
   const parsed = parseArgs(args);
   if (parsed.isErr()) {

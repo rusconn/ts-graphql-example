@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import type { ControlledTransaction } from "kysely";
 
 import type { DB } from "../../../../infrastructure/datasources/_shared/generated.ts";
@@ -7,7 +6,7 @@ import { createSeeders, type Seeders } from "../../../_shared/test/helpers/helpe
 import { domain, dto } from "../_test/data.ts";
 import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { createContext } from "../_test/helpers.ts";
-import { ErrorCode, type ResolversParentTypes } from "../_types.ts";
+import type { ResolversParentTypes } from "../_types.ts";
 import { resolver } from "./user.ts";
 
 let trx: ControlledTransaction<DB>;
@@ -30,42 +29,6 @@ async function user(
 ) {
   return await resolver(parent, {}, createContext(ctx, trx));
 }
-
-describe("authorization", () => {
-  const parent: ResolversParentTypes["Todo"] = dto.todos.alice1;
-
-  it("rejects when user is not owner", async () => {
-    const ctx = context.guest();
-
-    await expect(user(ctx, parent)).rejects.toSatisfy(
-      (e) =>
-        e instanceof GraphQLError && //
-        e.extensions.code === ErrorCode.Forbidden,
-    );
-  });
-
-  it("not rejects when user is admin", async () => {
-    const ctx = context.admin();
-
-    try {
-      await user(ctx, parent);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-
-  it("not rejects when user is owner", async () => {
-    const ctx = context.alice();
-
-    try {
-      await user(ctx, parent);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-});
 
 describe("logic", () => {
   it("returns user when client is owner", async () => {

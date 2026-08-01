@@ -31,33 +31,6 @@ async function node(
   return await resolver({}, args, createContext(ctx, trx));
 }
 
-describe("authorization", () => {
-  const args: QueryNodeArgs = {
-    id: graph.todos.alice1.id,
-  };
-
-  it("rejects when user is not authenticated", async () => {
-    const ctx = context.guest();
-
-    await expect(node(ctx, args)).rejects.toSatisfy(
-      (e) =>
-        e instanceof GraphQLError && //
-        e.extensions.code === ErrorCode.Forbidden,
-    );
-  });
-
-  it("not rejects when user is authenticated", async () => {
-    const ctx = context.alice();
-
-    try {
-      await node(ctx, args);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-});
-
 describe("parsing", () => {
   it("throws an input error when id is invalid", async () => {
     const ctx = context.alice();

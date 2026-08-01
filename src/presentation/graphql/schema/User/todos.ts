@@ -1,8 +1,7 @@
 import { getCursorConnection } from "../../../../lib/graphql/cursor-connections/mod.ts";
 import { numChars } from "../../../../lib/string/num-chars.ts";
-import { authAdminOrUserOwner } from "../_authorizers/user/admin-or-owner.ts";
+import type { ContextForAuthed } from "../../yoga/context.ts";
 import { badUserInputError } from "../_errors/global/bad-user-input.ts";
-import { forbiddenError } from "../_errors/global/forbidden.ts";
 import { parseConnectionArgs } from "../_parsers/connection-args.ts";
 import { parseTodoCursor } from "../_parsers/todo/cursor.ts";
 import { TodoSortKeys, TodoStatus, type UserResolvers, type UserTodosArgs } from "../_types.ts";
@@ -41,7 +40,7 @@ export const typeDef = /* GraphQL */ `
       指定するとtitle及びdescriptionを検索する、${SEARCH_MAX_LEN}文字まで
       """
       search: String
-    ): TodoConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
+    ): TodoConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"]) @auth(policy: ADMIN_OR_USER_OWNER)
   }
 
   enum TodoSortKeys {
@@ -68,10 +67,7 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (
   context,
   info,
 ) => {
-  const ctx = authAdminOrUserOwner(context, parent);
-  if (Error.isError(ctx)) {
-    throw forbiddenError(ctx);
-  }
+  const ctx = context as ContextForAuthed;
 
   const parsed = parseArgs(args);
   if (Error.isError(parsed)) {

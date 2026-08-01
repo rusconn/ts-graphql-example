@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import type { ControlledTransaction } from "kysely";
 
 import * as Domain from "../../../../domain/entities.ts";
@@ -15,7 +14,7 @@ import type { Context } from "../../yoga/context.ts";
 import { domain, dto } from "../_test/data.ts";
 import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { createContext } from "../_test/helpers.ts";
-import { ErrorCode, type MutationSignupArgs } from "../_types.ts";
+import type { MutationSignupArgs } from "../_types.ts";
 import { resolver } from "./signup.ts";
 
 let trx: ControlledTransaction<DB>;
@@ -39,40 +38,6 @@ async function signup(
 ) {
   return await resolver({}, args, createContext(ctx, trx));
 }
-
-describe("authorization", () => {
-  const args: MutationSignupArgs = {
-    name: "foo",
-    email: "bar",
-    password: "baz",
-  };
-
-  it("not rejects when user is not authenticated", async () => {
-    const ctx = context.guest();
-
-    try {
-      await signup(ctx, args);
-    } catch (e) {
-      if (!(e instanceof GraphQLError)) throw e;
-      expect(e.extensions.code).not.toBe(ErrorCode.Forbidden);
-    }
-  });
-
-  it("rejects when user is authenticated", async () => {
-    const ctx = context.alice();
-
-    const before = await queries.user.count();
-
-    await expect(signup(ctx, args)).rejects.toSatisfy(
-      (e) =>
-        e instanceof GraphQLError && //
-        e.extensions.code === ErrorCode.Forbidden,
-    );
-
-    const after = await queries.user.count();
-    expect(after).toBe(before);
-  });
-});
 
 describe("parsing", () => {
   it("returns input errors when args is invalid", async () => {

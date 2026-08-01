@@ -1,8 +1,7 @@
 import { Todo, User } from "../../../../domain/entities.ts";
 import { unwrapOrElse } from "../../../../lib/neverthrow-extra.ts";
-import { authAuthenticated } from "../_authorizers/authenticated.ts";
+import type { ContextForAuthed } from "../../yoga/context.ts";
 import { badUserInputError } from "../_errors/global/bad-user-input.ts";
-import { forbiddenError } from "../_errors/global/forbidden.ts";
 import { parseId } from "../_parsers/id.ts";
 import type { QueryResolvers } from "../_types.ts";
 import * as todo from "../Todo/_node.ts";
@@ -10,15 +9,12 @@ import * as user from "../User/_node.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
-    node(id: ID!): Node @complexity(value: 3)
+    node(id: ID!): Node @complexity(value: 3) @auth(policy: AUTHENTICATED)
   }
 `;
 
 export const resolver: QueryResolvers["node"] = async (_parent, args, context) => {
-  const ctx = authAuthenticated(context);
-  if (Error.isError(ctx)) {
-    throw forbiddenError(ctx);
-  }
+  const ctx = context as ContextForAuthed;
 
   const id = unwrapOrElse(parseId(args.id), (e) => {
     throw badUserInputError(e.message, e);

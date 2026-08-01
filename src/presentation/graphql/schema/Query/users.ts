@@ -1,7 +1,6 @@
 import { getCursorConnection } from "../../../../lib/graphql/cursor-connections/mod.ts";
-import { authAdmin } from "../_authorizers/admin.ts";
+import type { ContextForAdmin } from "../../yoga/context.ts";
 import { badUserInputError } from "../_errors/global/bad-user-input.ts";
-import { forbiddenError } from "../_errors/global/forbidden.ts";
 import { parseConnectionArgs } from "../_parsers/connection-args.ts";
 import { parseUserCursor } from "../_parsers/user/cursor.ts";
 import type { QueryResolvers, QueryUsersArgs } from "../_types.ts";
@@ -30,7 +29,7 @@ export const typeDef = /* GraphQL */ `
       reverse: Boolean! = true
 
       sortKey: UserSortKeys! = CREATED_AT
-    ): UserConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
+    ): UserConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"]) @auth(policy: ADMIN)
   }
 
   enum UserSortKeys {
@@ -52,10 +51,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
-  const ctx = authAdmin(context);
-  if (Error.isError(ctx)) {
-    throw forbiddenError(ctx);
-  }
+  const ctx = context as ContextForAdmin;
 
   const parsed = parseArgs(args);
   if (Error.isError(parsed)) {

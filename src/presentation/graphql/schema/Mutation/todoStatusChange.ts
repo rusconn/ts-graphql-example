@@ -1,8 +1,7 @@
 import { changeTodoStatus } from "../../../../application/usecases/change-todo-status.ts";
 import { unwrapOrElse } from "../../../../lib/neverthrow-extra.ts";
-import { authAuthenticated } from "../_authorizers/authenticated.ts";
+import type { ContextForAuthed } from "../../yoga/context.ts";
 import { badUserInputError } from "../_errors/global/bad-user-input.ts";
-import { forbiddenError } from "../_errors/global/forbidden.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
 import { parseTodoStatus } from "../_parsers/todo/status.ts";
@@ -13,6 +12,7 @@ export const typeDef = /* GraphQL */ `
     todoStatusChange(id: ID!, status: TodoStatus!): TodoStatusChangeResult
       @semanticNonNull
       @complexity(value: 5)
+      @auth(policy: AUTHENTICATED)
   }
 
   union TodoStatusChangeResult = TodoStatusChangeSuccess | ResourceNotFoundError
@@ -23,10 +23,7 @@ export const typeDef = /* GraphQL */ `
 `;
 
 export const resolver: MutationResolvers["todoStatusChange"] = async (_parent, args, context) => {
-  const ctx = authAuthenticated(context);
-  if (Error.isError(ctx)) {
-    throw forbiddenError(ctx);
-  }
+  const ctx = context as ContextForAuthed;
 
   const id = unwrapOrElse(parseTodoId(args.id), (e) => {
     throw badUserInputError(e.message, e);
