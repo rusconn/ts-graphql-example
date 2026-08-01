@@ -22,7 +22,12 @@ export const complexity: Plugin = {
         operationName,
       }),
       createError: queryTooComplexError,
-      estimators: [introspectionFieldEstimator, directiveEstimator(), simpleEstimator()],
+      maxQueryNodes: 10_000,
+      estimators: [
+        introspectionFieldEstimator,
+        directiveEstimator(),
+        simpleEstimator({ defaultComplexity: 1 }),
+      ],
       context,
     });
 
