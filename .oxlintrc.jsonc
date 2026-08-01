@@ -1,7 +1,9 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "ignorePatterns": [
-    "e2e/graphql/_shared/types.ts",
+    "e2e/graphql/_shared/gql.ts",
+    "e2e/graphql/_shared/graphql.ts",
+    "e2e/graphql/_shared/index.ts",
     "src/infrastructure/datasources/_shared/generated.ts",
     "src/presentation/graphql/schema/_types.ts",
   ],

@@ -1,6 +1,5 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 import type { TypeScriptPluginConfig } from "@graphql-codegen/typescript";
-import type { TypeScriptDocumentsPluginConfig } from "@graphql-codegen/typescript-operations";
 import type { TypeScriptResolversPluginConfig } from "@graphql-codegen/typescript-resolvers";
 
 const typescript: TypeScriptPluginConfig = {
@@ -40,29 +39,26 @@ const typescriptResolvers: TypeScriptResolversPluginConfig = {
   },
 };
 
-const typescriptOperations: TypeScriptDocumentsPluginConfig = {
-  onlyOperationTypes: true,
-  scalars: {
-    ID: "string",
-    DateTimeISO: {
-      input: "string",
-      output: "string",
-    },
-    EmailAddress: "string",
-    Void: "void",
-  },
-  skipTypename: true,
-};
-
 const config: CodegenConfig = {
   schema: "schema.graphql",
   generates: {
-    "e2e/graphql/_shared/types.ts": {
+    "e2e/graphql/_shared/": {
       documents: "e2e/graphql/**/*.ts",
-      plugins: ["typescript", "typescript-operations"],
+      preset: "client",
+      presetConfig: {
+        fragmentMasking: false,
+      },
       config: {
-        ...typescript,
-        ...typescriptOperations,
+        documentMode: "string",
+        enumsAsConst: true,
+        scalars: {
+          ID: "string",
+          DateTimeISO: "string",
+          EmailAddress: "string",
+          Void: "void",
+        },
+        skipTypename: true,
+        useTypeImports: true,
       },
     },
     "src/presentation/graphql/schema/_types.ts": {

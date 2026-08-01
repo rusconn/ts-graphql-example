@@ -1,27 +1,12 @@
 import { client, domain } from "../_shared/data.ts";
 import { clearTables, seeders } from "../_shared/helpers.ts";
+import { graphql } from "./_shared/gql.ts";
+import { TodoStatus } from "./_shared/graphql.ts";
 import {
   executeSingleResultOperation,
   fetchGraphQL,
   getRefreshTokenCookieValue,
 } from "./_shared/server.ts";
-import {
-  type SingleDeviceAccountDeleteMutation,
-  type SingleDeviceAccountDeleteMutationVariables,
-  type SingleDeviceAccountDeleteNodeQuery,
-  type SingleDeviceAccountDeleteNodeQueryVariables,
-  type SingleDeviceTodoCreateMutation,
-  type SingleDeviceTodoCreateMutationVariables,
-  type SingleDeviceTodoStatusChangeMutation,
-  type SingleDeviceTodoStatusChangeMutationVariables,
-  type SingleDeviceTodoUpdateMutation,
-  type SingleDeviceTodoUpdateMutationVariables,
-  type SingleDeviceTokenRefreshMutation,
-  type SingleDeviceTokenRefreshMutationVariables,
-  type SingleDeviceViewerQuery,
-  type SingleDeviceViewerQueryVariables,
-  TodoStatus,
-} from "./_shared/types.ts";
 
 const signupHttp = fetchGraphQL(/* GraphQL */ `
   mutation SingleDeviceSignup($name: String!, $email: String!, $password: String!) {
@@ -34,143 +19,136 @@ const signupHttp = fetchGraphQL(/* GraphQL */ `
   }
 `);
 
-const viewer = executeSingleResultOperation<
-  SingleDeviceViewerQuery,
-  SingleDeviceViewerQueryVariables
->(/* GraphQL */ `
-  query SingleDeviceViewer {
-    viewer {
-      id
-      name
-      email
-      createdAt
-      updatedAt
-      todos(first: 10) {
-        totalCount
-        pageInfo {
-          hasNextPage
-          hasPreviousPage
-          startCursor
-          endCursor
-        }
-        nodes {
-          id
-          title
-          description
-          status
-          createdAt
-          updatedAt
-        }
-      }
-    }
-  }
-`);
-
-const todoCreate = executeSingleResultOperation<
-  SingleDeviceTodoCreateMutation,
-  SingleDeviceTodoCreateMutationVariables
->(/* GraphQL */ `
-  mutation SingleDeviceTodoCreate($title: String, $description: String) {
-    todoCreate(title: $title, description: $description) {
-      __typename
-      ... on TodoCreateSuccess {
-        todo {
-          id
-          title
-          description
-          status
+const viewer = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    query SingleDeviceViewer {
+      viewer {
+        id
+        name
+        email
+        createdAt
+        updatedAt
+        todos(first: 10) {
+          totalCount
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+          }
+          nodes {
+            id
+            title
+            description
+            status
+            createdAt
+            updatedAt
+          }
         }
       }
     }
-  }
-`);
+  `),
+);
 
-const todoUpdate = executeSingleResultOperation<
-  SingleDeviceTodoUpdateMutation,
-  SingleDeviceTodoUpdateMutationVariables
->(/* GraphQL */ `
-  mutation SingleDeviceTodoUpdate(
-    $id: ID!
-    $title: String
-    $description: String
-    $status: TodoStatus
-  ) {
-    todoUpdate(id: $id, title: $title, description: $description, status: $status) {
-      __typename
-      ... on TodoUpdateSuccess {
-        todo {
-          id
-          title
-          description
-          status
-          createdAt
-          updatedAt
+const todoCreate = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation SingleDeviceTodoCreate($title: String, $description: String) {
+      todoCreate(title: $title, description: $description) {
+        __typename
+        ... on TodoCreateSuccess {
+          todo {
+            id
+            title
+            description
+            status
+          }
         }
       }
     }
-  }
-`);
+  `),
+);
 
-const tokenRefresh = executeSingleResultOperation<
-  SingleDeviceTokenRefreshMutation,
-  SingleDeviceTokenRefreshMutationVariables
->(/* GraphQL */ `
-  mutation SingleDeviceTokenRefresh {
-    tokenRefresh {
-      __typename
-      ... on TokenRefreshSuccess {
-        token
-      }
-    }
-  }
-`);
-
-const todoStatusChange = executeSingleResultOperation<
-  SingleDeviceTodoStatusChangeMutation,
-  SingleDeviceTodoStatusChangeMutationVariables
->(/* GraphQL */ `
-  mutation SingleDeviceTodoStatusChange($id: ID!, $status: TodoStatus!) {
-    todoStatusChange(id: $id, status: $status) {
-      __typename
-      ... on TodoStatusChangeSuccess {
-        todo {
-          id
-          title
-          description
-          status
-          createdAt
-          updatedAt
+const todoUpdate = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation SingleDeviceTodoUpdate(
+      $id: ID!
+      $title: String
+      $description: String
+      $status: TodoStatus
+    ) {
+      todoUpdate(id: $id, title: $title, description: $description, status: $status) {
+        __typename
+        ... on TodoUpdateSuccess {
+          todo {
+            id
+            title
+            description
+            status
+            createdAt
+            updatedAt
+          }
         }
       }
     }
-  }
-`);
+  `),
+);
 
-const node = executeSingleResultOperation<
-  SingleDeviceAccountDeleteNodeQuery,
-  SingleDeviceAccountDeleteNodeQueryVariables
->(/* GraphQL */ `
-  query SingleDeviceAccountDeleteNode($id: ID!) {
-    node(id: $id) {
-      __typename
-      id
+const tokenRefresh = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation SingleDeviceTokenRefresh {
+      tokenRefresh {
+        __typename
+        ... on TokenRefreshSuccess {
+          token
+        }
+      }
     }
-  }
-`);
+  `),
+);
 
-const accountDelete = executeSingleResultOperation<
-  SingleDeviceAccountDeleteMutation,
-  SingleDeviceAccountDeleteMutationVariables
->(/* GraphQL */ `
-  mutation SingleDeviceAccountDelete($password: String!) {
-    accountDelete(password: $password) {
-      __typename
-      ... on AccountDeleteSuccess {
+const todoStatusChange = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation SingleDeviceTodoStatusChange($id: ID!, $status: TodoStatus!) {
+      todoStatusChange(id: $id, status: $status) {
+        __typename
+        ... on TodoStatusChangeSuccess {
+          todo {
+            id
+            title
+            description
+            status
+            createdAt
+            updatedAt
+          }
+        }
+      }
+    }
+  `),
+);
+
+const node = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    query SingleDeviceAccountDeleteNode($id: ID!) {
+      node(id: $id) {
+        __typename
         id
       }
     }
-  }
-`);
+  `),
+);
+
+const accountDelete = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation SingleDeviceAccountDelete($password: String!) {
+      accountDelete(password: $password) {
+        __typename
+        ... on AccountDeleteSuccess {
+          id
+        }
+      }
+    }
+  `),
+);
 
 test("single-device", async () => {
   await clearTables();

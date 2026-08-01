@@ -1,21 +1,10 @@
 import { clearTables } from "../_shared/helpers.ts";
+import { graphql } from "./_shared/gql.ts";
 import {
   executeSingleResultOperation,
   fetchGraphQL,
   getRefreshTokenCookieValue,
 } from "./_shared/server.ts";
-import type {
-  MultiDeviceTodoCreateMutation,
-  MultiDeviceTodoCreateMutationVariables,
-  MultiDeviceTodoDeleteMutation,
-  MultiDeviceTodoDeleteMutationVariables,
-  MultiDeviceTodoUpdateMutation,
-  MultiDeviceTodoUpdateMutationVariables,
-  MultiDeviceTokenRefreshMutation,
-  MultiDeviceTokenRefreshMutationVariables,
-  MultiDeviceViewerQuery,
-  MultiDeviceViewerQueryVariables,
-} from "./_shared/types.ts";
 
 const signupHttp = fetchGraphQL(/* GraphQL */ `
   mutation MultiDeviceSignup($name: String!, $email: String!, $password: String!) {
@@ -28,56 +17,54 @@ const signupHttp = fetchGraphQL(/* GraphQL */ `
   }
 `);
 
-const viewer = executeSingleResultOperation<
-  MultiDeviceViewerQuery,
-  MultiDeviceViewerQueryVariables
->(/* GraphQL */ `
-  query MultiDeviceViewer {
-    viewer {
-      id
-      name
-      email
-      createdAt
-      updatedAt
-      todos(first: 10) {
-        totalCount
-        pageInfo {
-          hasNextPage
-          hasPreviousPage
-          startCursor
-          endCursor
-        }
-        nodes {
-          id
-          title
-          description
-          status
-          createdAt
-          updatedAt
+const viewer = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    query MultiDeviceViewer {
+      viewer {
+        id
+        name
+        email
+        createdAt
+        updatedAt
+        todos(first: 10) {
+          totalCount
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+          }
+          nodes {
+            id
+            title
+            description
+            status
+            createdAt
+            updatedAt
+          }
         }
       }
     }
-  }
-`);
+  `),
+);
 
-const todoCreate = executeSingleResultOperation<
-  MultiDeviceTodoCreateMutation,
-  MultiDeviceTodoCreateMutationVariables
->(/* GraphQL */ `
-  mutation MultiDeviceTodoCreate($title: String, $description: String) {
-    todoCreate(title: $title, description: $description) {
-      __typename
-      ... on TodoCreateSuccess {
-        todo {
-          id
-          title
-          description
-          status
+const todoCreate = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation MultiDeviceTodoCreate($title: String, $description: String) {
+      todoCreate(title: $title, description: $description) {
+        __typename
+        ... on TodoCreateSuccess {
+          todo {
+            id
+            title
+            description
+            status
+          }
         }
       }
     }
-  }
-`);
+  `),
+);
 
 const loginHttp = fetchGraphQL(/* GraphQL */ `
   mutation MultiDeviceLogin($email: String!, $password: String!) {
@@ -90,59 +77,56 @@ const loginHttp = fetchGraphQL(/* GraphQL */ `
   }
 `);
 
-const todoUpdate = executeSingleResultOperation<
-  MultiDeviceTodoUpdateMutation,
-  MultiDeviceTodoUpdateMutationVariables
->(/* GraphQL */ `
-  mutation MultiDeviceTodoUpdate(
-    $id: ID!
-    $title: String
-    $description: String
-    $status: TodoStatus
-  ) {
-    todoUpdate(id: $id, title: $title, description: $description, status: $status) {
-      __typename
-      ... on TodoUpdateSuccess {
-        todo {
-          id
-          title
-          description
-          status
-          createdAt
-          updatedAt
+const todoUpdate = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation MultiDeviceTodoUpdate(
+      $id: ID!
+      $title: String
+      $description: String
+      $status: TodoStatus
+    ) {
+      todoUpdate(id: $id, title: $title, description: $description, status: $status) {
+        __typename
+        ... on TodoUpdateSuccess {
+          todo {
+            id
+            title
+            description
+            status
+            createdAt
+            updatedAt
+          }
         }
       }
     }
-  }
-`);
+  `),
+);
 
-const tokenRefresh = executeSingleResultOperation<
-  MultiDeviceTokenRefreshMutation,
-  MultiDeviceTokenRefreshMutationVariables
->(/* GraphQL */ `
-  mutation MultiDeviceTokenRefresh {
-    tokenRefresh {
-      __typename
-      ... on TokenRefreshSuccess {
-        token
+const tokenRefresh = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation MultiDeviceTokenRefresh {
+      tokenRefresh {
+        __typename
+        ... on TokenRefreshSuccess {
+          token
+        }
       }
     }
-  }
-`);
+  `),
+);
 
-const todoDelete = executeSingleResultOperation<
-  MultiDeviceTodoDeleteMutation,
-  MultiDeviceTodoDeleteMutationVariables
->(/* GraphQL */ `
-  mutation MultiDeviceTodoDelete($id: ID!) {
-    todoDelete(id: $id) {
-      __typename
-      ... on TodoDeleteSuccess {
-        id
+const todoDelete = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation MultiDeviceTodoDelete($id: ID!) {
+      todoDelete(id: $id) {
+        __typename
+        ... on TodoDeleteSuccess {
+          id
+        }
       }
     }
-  }
-`);
+  `),
+);
 
 test("multi-device", async () => {
   await clearTables();

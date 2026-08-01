@@ -1,4 +1,5 @@
 import { buildHTTPExecutor } from "@graphql-tools/executor-http";
+import type { DocumentTypeDecoration } from "@graphql-typed-document-node/core";
 import { parse } from "graphql";
 
 import { endpoint } from "../../../src/config/url.ts";
@@ -11,10 +12,13 @@ type ExecuteOperationParams<TVariables> = {
   variables?: TVariables;
 };
 
-export function executeSingleResultOperation<TData, TVariables extends object>(query: string) {
+export function executeSingleResultOperation<
+  TData extends Record<string, any>,
+  TVariables extends Record<string, any>,
+>(document: DocumentTypeDecoration<TData, TVariables>) {
   return async ({ token, refreshToken, variables }: ExecuteOperationParams<TVariables>) => {
     const result = await executor<TData, TVariables>({
-      document: parse(query),
+      document: parse(document.toString()),
       ...(variables != null && {
         variables,
       }),

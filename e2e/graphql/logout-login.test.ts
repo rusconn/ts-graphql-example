@@ -1,120 +1,101 @@
 import { clearTables } from "../_shared/helpers.ts";
+import { graphql } from "./_shared/gql.ts";
 import { executeSingleResultOperation } from "./_shared/server.ts";
-import type {
-  LogoutLoginLoginMutation,
-  LogoutLoginLoginMutationVariables,
-  LogoutLoginLoginPasswordChangeMutation,
-  LogoutLoginLoginPasswordChangeMutationVariables,
-  LogoutLoginLogoutMutation,
-  LogoutLoginLogoutMutationVariables,
-  LogoutLoginSignupMutation,
-  LogoutLoginSignupMutationVariables,
-  LogoutLoginUserEmailChangeMutation,
-  LogoutLoginUserEmailChangeMutationVariables,
-  LogoutLoginViewerQuery,
-  LogoutLoginViewerQueryVariables,
-} from "./_shared/types.ts";
 
-const signup = executeSingleResultOperation<
-  LogoutLoginSignupMutation,
-  LogoutLoginSignupMutationVariables
->(/* GraphQL */ `
-  mutation LogoutLoginSignup($name: String!, $email: String!, $password: String!) {
-    signup(name: $name, email: $email, password: $password) {
-      __typename
-      ... on SignupSuccess {
-        token
-      }
-    }
-  }
-`);
-
-const userEmailChange = executeSingleResultOperation<
-  LogoutLoginUserEmailChangeMutation,
-  LogoutLoginUserEmailChangeMutationVariables
->(/* GraphQL */ `
-  mutation LogoutLoginUserEmailChange($email: String!) {
-    userEmailChange(email: $email) {
-      __typename
-      ... on UserEmailChangeSuccess {
-        user {
-          id
+const signup = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation LogoutLoginSignup($name: String!, $email: String!, $password: String!) {
+      signup(name: $name, email: $email, password: $password) {
+        __typename
+        ... on SignupSuccess {
+          token
         }
       }
     }
-  }
-`);
+  `),
+);
 
-const loginPasswordChange = executeSingleResultOperation<
-  LogoutLoginLoginPasswordChangeMutation,
-  LogoutLoginLoginPasswordChangeMutationVariables
->(/* GraphQL */ `
-  mutation LogoutLoginLoginPasswordChange($oldPassword: String!, $newPassword: String!) {
-    loginPasswordChange(oldPassword: $oldPassword, newPassword: $newPassword) {
-      __typename
-      ... on LoginPasswordChangeSuccess {
-        user {
-          id
+const userEmailChange = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation LogoutLoginUserEmailChange($email: String!) {
+      userEmailChange(email: $email) {
+        __typename
+        ... on UserEmailChangeSuccess {
+          user {
+            id
+          }
         }
       }
     }
-  }
-`);
+  `),
+);
 
-const logout = executeSingleResultOperation<
-  LogoutLoginLogoutMutation,
-  LogoutLoginLogoutMutationVariables
->(/* GraphQL */ `
-  mutation LogoutLoginLogout {
-    logout
-  }
-`);
-
-const login = executeSingleResultOperation<
-  LogoutLoginLoginMutation,
-  LogoutLoginLoginMutationVariables
->(/* GraphQL */ `
-  mutation LogoutLoginLogin($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
-      __typename
-      ... on LoginSuccess {
-        token
-      }
-    }
-  }
-`);
-
-const viewer = executeSingleResultOperation<
-  LogoutLoginViewerQuery,
-  LogoutLoginViewerQueryVariables
->(/* GraphQL */ `
-  query LogoutLoginViewer {
-    viewer {
-      id
-      name
-      email
-      createdAt
-      updatedAt
-      todos(first: 10) {
-        totalCount
-        pageInfo {
-          hasNextPage
-          hasPreviousPage
-          startCursor
-          endCursor
-        }
-        nodes {
-          id
-          title
-          description
-          status
-          createdAt
-          updatedAt
+const loginPasswordChange = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation LogoutLoginLoginPasswordChange($oldPassword: String!, $newPassword: String!) {
+      loginPasswordChange(oldPassword: $oldPassword, newPassword: $newPassword) {
+        __typename
+        ... on LoginPasswordChangeSuccess {
+          user {
+            id
+          }
         }
       }
     }
-  }
-`);
+  `),
+);
+
+const logout = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation LogoutLoginLogout {
+      logout
+    }
+  `),
+);
+
+const login = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    mutation LogoutLoginLogin($email: String!, $password: String!) {
+      login(email: $email, password: $password) {
+        __typename
+        ... on LoginSuccess {
+          token
+        }
+      }
+    }
+  `),
+);
+
+const viewer = executeSingleResultOperation(
+  graphql(/* GraphQL */ `
+    query LogoutLoginViewer {
+      viewer {
+        id
+        name
+        email
+        createdAt
+        updatedAt
+        todos(first: 10) {
+          totalCount
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+          }
+          nodes {
+            id
+            title
+            description
+            status
+            createdAt
+            updatedAt
+          }
+        }
+      }
+    }
+  `),
+);
 
 test("logout-login", async () => {
   await clearTables();
