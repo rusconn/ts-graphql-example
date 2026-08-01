@@ -1,5 +1,5 @@
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/apps_v1.76.0/npm/oxlint/configuration_schema.json",
   "ignorePatterns": [
     "e2e/graphql/_shared/gql.ts",
     "e2e/graphql/_shared/graphql.ts",
