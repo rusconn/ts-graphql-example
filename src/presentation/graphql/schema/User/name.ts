@@ -4,7 +4,7 @@ import type { UserResolvers } from "../_types.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type User {
-    name: String @semanticNonNull @complexity(value: 2)
+    name: String @semanticNonNull
   }
 `;
 

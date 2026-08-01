@@ -304,9 +304,9 @@ enum TodoStatus {
 
 type User implements Node {
   createdAt: DateTimeISO @semanticNonNull
-  email: EmailAddress @semanticNonNull @complexity(value: 2)
+  email: EmailAddress @semanticNonNull
   id: ID!
-  name: String @semanticNonNull @complexity(value: 2)
+  name: String @semanticNonNull
   todo(id: ID!): Todo @complexity(value: 3)
   todos(
     """
@@ -330,7 +330,7 @@ type User implements Node {
     """
     search: String
   ): TodoConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
-  updatedAt: DateTimeISO @semanticNonNull @complexity(value: 2)
+  updatedAt: DateTimeISO @semanticNonNull
 }
 
 enum TodoSortKeys {
