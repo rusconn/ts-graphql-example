@@ -5,12 +5,10 @@ TypeScriptによるGraphQL APIの実装例。学習用です。
 ## 必要なツール
 
 - [mise](https://mise.jdx.dev/)
-  - pnpm
-  - Node.js
 - [pgschema](https://www.pgschema.com/)
 - Docker
 
-mise管理のツールは自動でインストールされる。
+[mise管理のツール](mise.toml)は自動でインストールされる。
 
 ## 初回セットアップ
 
