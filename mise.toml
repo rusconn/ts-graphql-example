@@ -1,6 +1,10 @@
 [tools]
 node = "24.10"
 pnpm = "11.15"
+oxlint = { version = "apps_v1.76.0", matching = "oxlint", rename_exe = "oxlint" }
+
+[tool_alias]
+oxlint = "github:oxc-project/oxc"
 
 [settings]
 env_shell_expand = true

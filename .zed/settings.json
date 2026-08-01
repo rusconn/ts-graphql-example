@@ -16,6 +16,15 @@
       "language_servers": ["typescript-ls", "oxfmt", "oxlint"]
     }
   },
+  "lsp": {
+    "oxlint": {
+      "binary": {
+        "ignore_system_version": true,
+        "path": "~/.local/share/mise/shims/oxlint",
+        "arguments": ["--lsp"]
+      }
+    }
+  },
   "file_types": {
     "env": [".env*"]
   }
