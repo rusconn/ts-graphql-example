@@ -1,5 +1,5 @@
 import { getCursorConnection } from "../../../../lib/graphql/cursor-connections/mod.ts";
-import type { ContextForAdmin } from "../../yoga/context.ts";
+import { assertAdmin } from "../_authorizers/admin.ts";
 import { badUserInputError } from "../_errors/global/bad-user-input.ts";
 import { parseConnectionArgs } from "../_parsers/connection-args.ts";
 import { parseUserCursor } from "../_parsers/user/cursor.ts";
@@ -11,6 +11,9 @@ export const LAST_MAX = 30;
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
+    """
+    管理者のみ
+    """
     users(
       """
       max: ${FIRST_MAX}
@@ -29,7 +32,7 @@ export const typeDef = /* GraphQL */ `
       reverse: Boolean! = true
 
       sortKey: UserSortKeys! = CREATED_AT
-    ): UserConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"]) @auth(policy: ADMIN)
+    ): UserConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
   }
 
   enum UserSortKeys {
@@ -50,8 +53,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: QueryResolvers["users"] = async (_parent, args, context, info) => {
-  const ctx = context as ContextForAdmin;
+export const resolver: QueryResolvers["users"] = async (_parent, args, ctx, info) => {
+  assertAdmin(ctx);
 
   const parsed = parseArgs(args);
   if (Error.isError(parsed)) {

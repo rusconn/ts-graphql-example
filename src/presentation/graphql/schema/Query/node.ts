@@ -1,6 +1,6 @@
 import { Todo, User } from "../../../../domain/entities.ts";
 import { unwrapOrElse } from "../../../../lib/neverthrow-extra.ts";
-import type { ContextForAuthed } from "../../yoga/context.ts";
+import { assertAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputError } from "../_errors/global/bad-user-input.ts";
 import { parseId } from "../_parsers/id.ts";
 import type { QueryResolvers } from "../_types.ts";
@@ -9,12 +9,15 @@ import * as user from "../User/_node.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Query {
-    node(id: ID!): Node @complexity(value: 3) @auth(policy: AUTHENTICATED)
+    """
+    ログイン済のみ
+    """
+    node(id: ID!): Node @complexity(value: 3)
   }
 `;
 
-export const resolver: QueryResolvers["node"] = async (_parent, args, context) => {
-  const ctx = context as ContextForAuthed;
+export const resolver: QueryResolvers["node"] = async (_parent, args, ctx) => {
+  assertAuthenticated(ctx);
 
   const id = unwrapOrElse(parseId(args.id), (e) => {
     throw badUserInputError(e.message, e);

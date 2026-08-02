@@ -1,5 +1,4 @@
 import type { Resolvers } from "./schema/_types.ts";
-import * as Auth from "./schema/auth.ts";
 import * as Complexity from "./schema/complexity.ts";
 import * as DateTimeISO from "./schema/DateTimeISO.ts";
 import * as EmailAddress from "./schema/EmailAddress.ts";
@@ -21,7 +20,6 @@ import * as Void from "./schema/Void.ts";
 
 export const typeDefs = [
   DateTimeISO.typeDef,
-  Auth.typeDef,
   Complexity.typeDef,
   EmailAddress.typeDef,
   EmailAlreadyTakenError.typeDef,

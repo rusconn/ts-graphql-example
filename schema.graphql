@@ -3,8 +3,6 @@ schema {
   mutation: Mutation
 }
 
-directive @auth(policy: AuthPolicy!) on FIELD_DEFINITION
-
 directive @complexity(value: Int!, multipliers: [String!]) on FIELD_DEFINITION
 
 directive @semanticNonNull(levels: [Int] = [0]) on FIELD_DEFINITION
@@ -13,15 +11,6 @@ directive @semanticNonNull(levels: [Int] = [0]) on FIELD_DEFINITION
 A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
 """
 scalar DateTimeISO
-
-enum AuthPolicy {
-  ADMIN
-  AUTHENTICATED
-  GUEST
-  ADMIN_OR_TODO_OWNER
-  ADMIN_OR_USER_OWNER
-  TODO_OWNER
-}
 
 """
 A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
@@ -58,19 +47,24 @@ type InvalidInputErrors {
 type Mutation {
   """
   紐づくリソースは全て削除される
+
+  ログイン済のみ
   """
   accountDelete(
     """
     8文字以上、50文字まで
     """
     password: String!
-  ): AccountDeleteResult @semanticNonNull @complexity(value: 5) @auth(policy: AUTHENTICATED)
+  ): AccountDeleteResult @semanticNonNull @complexity(value: 5)
+  """
+  ログイン済のみ
+  """
   accountUpdate(
     """
     1文字以上、100文字まで、null は入力エラー
     """
     name: String
-  ): AccountUpdateResult @semanticNonNull @complexity(value: 5) @auth(policy: AUTHENTICATED)
+  ): AccountUpdateResult @semanticNonNull @complexity(value: 5)
   login(
     """
     100文字まで
@@ -81,6 +75,9 @@ type Mutation {
     """
     password: String!
   ): LoginResult @semanticNonNull @complexity(value: 100)
+  """
+  ログイン済のみ
+  """
   loginPasswordChange(
     """
     8文字以上、50文字まで
@@ -90,8 +87,11 @@ type Mutation {
     8文字以上、50文字まで
     """
     newPassword: String!
-  ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100) @auth(policy: AUTHENTICATED)
+  ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100)
   logout: Void @semanticNonNull @complexity(value: 100)
+  """
+  未ログインのみ
+  """
   signup(
     """
     1文字以上、100文字まで
@@ -105,9 +105,11 @@ type Mutation {
     8文字以上、50文字まで
     """
     password: String!
-  ): SignupResult @semanticNonNull @complexity(value: 100) @auth(policy: GUEST)
+  ): SignupResult @semanticNonNull @complexity(value: 100)
   """
   10000件まで
+
+  ログイン済のみ
   """
   todoCreate(
     """
@@ -118,15 +120,20 @@ type Mutation {
     5000文字まで
     """
     description: String! = ""
-  ): TodoCreateResult @semanticNonNull @complexity(value: 5) @auth(policy: AUTHENTICATED)
-  todoDelete(id: ID!): TodoDeleteResult
-    @semanticNonNull
-    @complexity(value: 5)
-    @auth(policy: AUTHENTICATED)
+  ): TodoCreateResult @semanticNonNull @complexity(value: 5)
+  """
+  ログイン済のみ
+  """
+  todoDelete(id: ID!): TodoDeleteResult @semanticNonNull @complexity(value: 5)
+  """
+  ログイン済のみ
+  """
   todoStatusChange(id: ID!, status: TodoStatus!): TodoStatusChangeResult
     @semanticNonNull
     @complexity(value: 5)
-    @auth(policy: AUTHENTICATED)
+  """
+  ログイン済のみ
+  """
   todoUpdate(
     id: ID!
     """
@@ -141,14 +148,17 @@ type Mutation {
     null は入力エラー
     """
     status: TodoStatus
-  ): TodoUpdateResult @semanticNonNull @complexity(value: 5) @auth(policy: AUTHENTICATED)
+  ): TodoUpdateResult @semanticNonNull @complexity(value: 5)
   tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 200)
+  """
+  ログイン済のみ
+  """
   userEmailChange(
     """
     100文字まで、既に存在する場合はエラー
     """
     email: String!
-  ): UserEmailChangeResult @semanticNonNull @complexity(value: 5) @auth(policy: AUTHENTICATED)
+  ): UserEmailChangeResult @semanticNonNull @complexity(value: 5)
 }
 
 union AccountDeleteResult = AccountDeleteSuccess | InvalidInputErrors | IncorrectPasswordError
@@ -258,8 +268,17 @@ type PageInfo {
 }
 
 type Query {
-  node(id: ID!): Node @complexity(value: 3) @auth(policy: AUTHENTICATED)
-  user(id: ID!): User @complexity(value: 3) @auth(policy: ADMIN)
+  """
+  ログイン済のみ
+  """
+  node(id: ID!): Node @complexity(value: 3)
+  """
+  管理者のみ
+  """
+  user(id: ID!): User @complexity(value: 3)
+  """
+  管理者のみ
+  """
   users(
     """
     max: 30
@@ -273,10 +292,7 @@ type Query {
     before: String
     reverse: Boolean! = true
     sortKey: UserSortKeys! = CREATED_AT
-  ): UserConnection
-    @semanticNonNull
-    @complexity(value: 3, multipliers: ["first", "last"])
-    @auth(policy: ADMIN)
+  ): UserConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
   viewer: User
 }
 
@@ -306,13 +322,34 @@ type ResourceNotFoundError implements Error {
 }
 
 type Todo implements Node {
-  id: ID! @auth(policy: ADMIN_OR_TODO_OWNER)
-  title: String @semanticNonNull @auth(policy: TODO_OWNER)
-  description: String @semanticNonNull @auth(policy: TODO_OWNER)
-  status: TodoStatus @semanticNonNull @auth(policy: TODO_OWNER)
-  createdAt: DateTimeISO @semanticNonNull @auth(policy: ADMIN_OR_TODO_OWNER)
-  updatedAt: DateTimeISO @semanticNonNull @auth(policy: ADMIN_OR_TODO_OWNER)
-  user: User @semanticNonNull @complexity(value: 3) @auth(policy: ADMIN_OR_TODO_OWNER)
+  """
+  所有者、管理者のみ
+  """
+  id: ID!
+  """
+  所有者のみ
+  """
+  title: String @semanticNonNull
+  """
+  所有者のみ
+  """
+  description: String @semanticNonNull
+  """
+  所有者のみ
+  """
+  status: TodoStatus @semanticNonNull
+  """
+  所有者、管理者のみ
+  """
+  createdAt: DateTimeISO @semanticNonNull
+  """
+  所有者、管理者のみ
+  """
+  updatedAt: DateTimeISO @semanticNonNull
+  """
+  所有者、管理者のみ
+  """
+  user: User @semanticNonNull @complexity(value: 3)
 }
 
 enum TodoStatus {
@@ -321,12 +358,33 @@ enum TodoStatus {
 }
 
 type User implements Node {
-  id: ID! @auth(policy: ADMIN_OR_USER_OWNER)
-  name: String @semanticNonNull @auth(policy: ADMIN_OR_USER_OWNER)
-  email: EmailAddress @semanticNonNull @auth(policy: ADMIN_OR_USER_OWNER)
-  createdAt: DateTimeISO @semanticNonNull @auth(policy: ADMIN_OR_USER_OWNER)
-  updatedAt: DateTimeISO @semanticNonNull @auth(policy: ADMIN_OR_USER_OWNER)
-  todo(id: ID!): Todo @complexity(value: 3) @auth(policy: ADMIN_OR_USER_OWNER)
+  """
+  本人、管理者のみ
+  """
+  id: ID!
+  """
+  本人、管理者のみ
+  """
+  name: String @semanticNonNull
+  """
+  本人、管理者のみ
+  """
+  email: EmailAddress @semanticNonNull
+  """
+  本人、管理者のみ
+  """
+  createdAt: DateTimeISO @semanticNonNull
+  """
+  本人、管理者のみ
+  """
+  updatedAt: DateTimeISO @semanticNonNull
+  """
+  本人、管理者のみ
+  """
+  todo(id: ID!): Todo @complexity(value: 3)
+  """
+  本人、管理者のみ
+  """
   todos(
     """
     max: 50
@@ -348,10 +406,7 @@ type User implements Node {
     指定するとtitle及びdescriptionを検索する、30文字まで
     """
     search: String
-  ): TodoConnection
-    @semanticNonNull
-    @complexity(value: 3, multipliers: ["first", "last"])
-    @auth(policy: ADMIN_OR_USER_OWNER)
+  ): TodoConnection @semanticNonNull @complexity(value: 3, multipliers: ["first", "last"])
 }
 
 enum TodoSortKeys {

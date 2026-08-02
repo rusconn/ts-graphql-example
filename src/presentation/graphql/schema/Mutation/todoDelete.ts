@@ -1,6 +1,6 @@
 import { deleteTodo } from "../../../../application/usecases/delete-todo.ts";
 import { unwrapOrElse } from "../../../../lib/neverthrow-extra.ts";
-import type { ContextForAuthed } from "../../yoga/context.ts";
+import { assertAuthenticated } from "../_authorizers/authenticated.ts";
 import { badUserInputError } from "../_errors/global/bad-user-input.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { parseTodoId } from "../_parsers/todo/id.ts";
@@ -9,10 +9,10 @@ import { todoId } from "../Todo.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    todoDelete(id: ID!): TodoDeleteResult
-      @semanticNonNull
-      @complexity(value: 5)
-      @auth(policy: AUTHENTICATED)
+    """
+    ログイン済のみ
+    """
+    todoDelete(id: ID!): TodoDeleteResult @semanticNonNull @complexity(value: 5)
   }
 
   union TodoDeleteResult = TodoDeleteSuccess | ResourceNotFoundError
@@ -22,8 +22,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, context) => {
-  const ctx = context as ContextForAuthed;
+export const resolver: MutationResolvers["todoDelete"] = async (_parent, args, ctx) => {
+  assertAuthenticated(ctx);
 
   const id = unwrapOrElse(parseTodoId(args.id), (e) => {
     throw badUserInputError(e.message, e);

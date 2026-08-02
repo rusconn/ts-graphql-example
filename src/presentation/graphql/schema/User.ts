@@ -1,3 +1,4 @@
+import { assertAdminOrUserOwner } from "./_authorizers/user/admin-or-owner.ts";
 import type { UserResolvers } from "./_types.ts";
 import { nodeId } from "./Node/id.ts";
 import * as todo from "./User/todo.ts";
@@ -8,11 +9,30 @@ export const userId = nodeId("User");
 export const typeDefs = [
   /* GraphQL */ `
     type User implements Node {
-      id: ID! @auth(policy: ADMIN_OR_USER_OWNER)
-      name: String @semanticNonNull @auth(policy: ADMIN_OR_USER_OWNER)
-      email: EmailAddress @semanticNonNull @auth(policy: ADMIN_OR_USER_OWNER)
-      createdAt: DateTimeISO @semanticNonNull @auth(policy: ADMIN_OR_USER_OWNER)
-      updatedAt: DateTimeISO @semanticNonNull @auth(policy: ADMIN_OR_USER_OWNER)
+      """
+      本人、管理者のみ
+      """
+      id: ID!
+
+      """
+      本人、管理者のみ
+      """
+      name: String @semanticNonNull
+
+      """
+      本人、管理者のみ
+      """
+      email: EmailAddress @semanticNonNull
+
+      """
+      本人、管理者のみ
+      """
+      createdAt: DateTimeISO @semanticNonNull
+
+      """
+      本人、管理者のみ
+      """
+      updatedAt: DateTimeISO @semanticNonNull
     }
   `,
   todo.typeDef,
@@ -20,8 +40,25 @@ export const typeDefs = [
 ];
 
 export const resolvers: UserResolvers = {
-  id(parent) {
+  id(parent, _args, ctx) {
+    assertAdminOrUserOwner(ctx, parent);
     return userId(parent.id);
+  },
+  name(parent, _args, ctx) {
+    assertAdminOrUserOwner(ctx, parent);
+    return parent.name;
+  },
+  email(parent, _args, ctx) {
+    assertAdminOrUserOwner(ctx, parent);
+    return parent.email;
+  },
+  createdAt(parent, _args, ctx) {
+    assertAdminOrUserOwner(ctx, parent);
+    return parent.createdAt;
+  },
+  updatedAt(parent, _args, ctx) {
+    assertAdminOrUserOwner(ctx, parent);
+    return parent.updatedAt;
   },
   todo: todo.resolver,
   todos: todos.resolver,

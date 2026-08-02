@@ -2,7 +2,7 @@ import { Result } from "neverthrow";
 
 import { changeLoginPassword } from "../../../../application/usecases/change-login-password.ts";
 import { User } from "../../../../domain/entities.ts";
-import type { ContextForAuthed } from "../../yoga/context.ts";
+import { assertAuthenticated } from "../_authorizers/authenticated.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserPassword } from "../_parsers/user/password.ts";
@@ -10,6 +10,9 @@ import type { MutationLoginPasswordChangeArgs, MutationResolvers } from "../_typ
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
+    """
+    ログイン済のみ
+    """
     loginPasswordChange(
       """
       ${User.Password.MIN}文字以上、${User.Password.MAX}文字まで
@@ -20,7 +23,7 @@ export const typeDef = /* GraphQL */ `
       ${User.Password.MIN}文字以上、${User.Password.MAX}文字まで
       """
       newPassword: String!
-    ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100) @auth(policy: AUTHENTICATED)
+    ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100)
   }
 
   union LoginPasswordChangeResult =
@@ -42,12 +45,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["loginPasswordChange"] = async (
-  _parent,
-  args,
-  context,
-) => {
-  const ctx = context as ContextForAuthed;
+export const resolver: MutationResolvers["loginPasswordChange"] = async (_parent, args, ctx) => {
+  assertAuthenticated(ctx);
 
   const parsed = parseArgs(args);
   if (parsed.isErr()) {

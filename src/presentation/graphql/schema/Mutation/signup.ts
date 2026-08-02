@@ -4,7 +4,7 @@ import { signup } from "../../../../application/usecases/signup.ts";
 import { User } from "../../../../domain/entities.ts";
 import * as AccessToken from "../../../_shared/auth/access-token.ts";
 import * as RefreshTokenCookie from "../../../_shared/auth/refresh-token-cookie.ts";
-import type { ContextForGuest } from "../../yoga/context.ts";
+import { assertGuest } from "../_authorizers/guest.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserEmail } from "../_parsers/user/email.ts";
@@ -14,6 +14,9 @@ import type { MutationResolvers, MutationSignupArgs } from "../_types.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
+    """
+    未ログインのみ
+    """
     signup(
       """
       ${User.Name.MIN}文字以上、${User.Name.MAX}文字まで
@@ -29,7 +32,7 @@ export const typeDef = /* GraphQL */ `
       ${User.Password.MIN}文字以上、${User.Password.MAX}文字まで
       """
       password: String!
-    ): SignupResult @semanticNonNull @complexity(value: 100) @auth(policy: GUEST)
+    ): SignupResult @semanticNonNull @complexity(value: 100)
   }
 
   union SignupResult = SignupSuccess | InvalidInputErrors | EmailAlreadyTakenError
@@ -39,8 +42,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["signup"] = async (_parent, args, context) => {
-  const ctx = context as ContextForGuest;
+export const resolver: MutationResolvers["signup"] = async (_parent, args, ctx) => {
+  assertGuest(ctx);
 
   const parsed = parseArgs(args);
   if (parsed.isErr()) {

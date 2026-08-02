@@ -9,15 +9,15 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["logout"] = async (_parent, _args, context) => {
-  const cookie = await RefreshTokenCookie.get(context);
+export const resolver: MutationResolvers["logout"] = async (_parent, _args, ctx) => {
+  const cookie = await RefreshTokenCookie.get(ctx);
   if (!cookie) {
     return;
   }
 
-  await RefreshTokenCookie.clear(context);
+  await RefreshTokenCookie.clear(ctx);
 
-  const result = await logout(context, cookie.value);
+  const result = await logout(ctx, cookie.value);
   switch (result.type) {
     case "InvalidRefreshToken":
     case "RefreshTokenEntityNotFound":

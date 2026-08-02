@@ -36,13 +36,13 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["login"] = async (_parent, args, context) => {
+export const resolver: MutationResolvers["login"] = async (_parent, args, ctx) => {
   const parsed = parseArgs(args);
   if (parsed.isErr()) {
     return invalidInputErrors(parsed.error);
   }
 
-  const result = await login(context, parsed.value);
+  const result = await login(ctx, parsed.value);
   switch (result.type) {
     case "UserNotFound":
     case "IncorrectPassword":
@@ -53,7 +53,7 @@ export const resolver: MutationResolvers["login"] = async (_parent, args, contex
     case "TransactionFailed":
       throw internalServerError(result.cause);
     case "Success":
-      await RefreshTokenCookie.set(context, {
+      await RefreshTokenCookie.set(ctx, {
         value: result.rawRefreshToken,
         expires: result.refreshToken.expiresAt,
       });

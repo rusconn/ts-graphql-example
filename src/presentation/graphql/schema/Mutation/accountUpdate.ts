@@ -2,7 +2,7 @@ import { Result } from "neverthrow";
 
 import { updateAccount } from "../../../../application/usecases/update-account.ts";
 import { User } from "../../../../domain/entities.ts";
-import type { ContextForAuthed } from "../../yoga/context.ts";
+import { assertAuthenticated } from "../_authorizers/authenticated.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserName } from "../_parsers/user/name.ts";
@@ -10,12 +10,15 @@ import type { MutationAccountUpdateArgs, MutationResolvers } from "../_types.ts"
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
+    """
+    ログイン済のみ
+    """
     accountUpdate(
       """
       ${User.Name.MIN}文字以上、${User.Name.MAX}文字まで、null は入力エラー
       """
       name: String
-    ): AccountUpdateResult @semanticNonNull @complexity(value: 5) @auth(policy: AUTHENTICATED)
+    ): AccountUpdateResult @semanticNonNull @complexity(value: 5)
   }
 
   union AccountUpdateResult = AccountUpdateSuccess | InvalidInputErrors
@@ -25,8 +28,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args, context) => {
-  const ctx = context as ContextForAuthed;
+export const resolver: MutationResolvers["accountUpdate"] = async (_parent, args, ctx) => {
+  assertAuthenticated(ctx);
 
   const parsed = parseArgs(args);
   if (parsed.isErr()) {

@@ -43,16 +43,6 @@ export type AccountUpdateSuccess = {
   user: User;
 };
 
-export const AuthPolicy = {
-  Admin: 'ADMIN',
-  AdminOrTodoOwner: 'ADMIN_OR_TODO_OWNER',
-  AdminOrUserOwner: 'ADMIN_OR_USER_OWNER',
-  Authenticated: 'AUTHENTICATED',
-  Guest: 'GUEST',
-  TodoOwner: 'TODO_OWNER'
-} as const;
-
-export type AuthPolicy = typeof AuthPolicy[keyof typeof AuthPolicy];
 export type EmailAlreadyTakenError = Error & {
   __typename?: 'EmailAlreadyTakenError';
   message: Scalars['String']['output'];
@@ -119,19 +109,34 @@ export type LoginSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  /** 紐づくリソースは全て削除される */
+  /**
+   * 紐づくリソースは全て削除される
+   *
+   * ログイン済のみ
+   */
   accountDelete?: Maybe<AccountDeleteResult>;
+  /** ログイン済のみ */
   accountUpdate?: Maybe<AccountUpdateResult>;
   login?: Maybe<LoginResult>;
+  /** ログイン済のみ */
   loginPasswordChange?: Maybe<LoginPasswordChangeResult>;
   logout?: Maybe<Scalars['Void']['output']>;
+  /** 未ログインのみ */
   signup?: Maybe<SignupResult>;
-  /** 10000件まで */
+  /**
+   * 10000件まで
+   *
+   * ログイン済のみ
+   */
   todoCreate?: Maybe<TodoCreateResult>;
+  /** ログイン済のみ */
   todoDelete?: Maybe<TodoDeleteResult>;
+  /** ログイン済のみ */
   todoStatusChange?: Maybe<TodoStatusChangeResult>;
+  /** ログイン済のみ */
   todoUpdate?: Maybe<TodoUpdateResult>;
   tokenRefresh?: Maybe<TokenRefreshResult>;
+  /** ログイン済のみ */
   userEmailChange?: Maybe<UserEmailChangeResult>;
 };
 
@@ -208,8 +213,11 @@ export type PageInfo = {
 
 export type Query = {
   __typename?: 'Query';
+  /** ログイン済のみ */
   node?: Maybe<Node>;
+  /** 管理者のみ */
   user?: Maybe<User>;
+  /** 管理者のみ */
   users?: Maybe<UserConnection>;
   viewer?: Maybe<User>;
 };
@@ -263,12 +271,19 @@ export type SignupSuccess = {
 
 export type Todo = Node & {
   __typename?: 'Todo';
+  /** 所有者、管理者のみ */
   createdAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** 所有者のみ */
   description?: Maybe<Scalars['String']['output']>;
+  /** 所有者、管理者のみ */
   id: Scalars['ID']['output'];
+  /** 所有者のみ */
   status?: Maybe<TodoStatus>;
+  /** 所有者のみ */
   title?: Maybe<Scalars['String']['output']>;
+  /** 所有者、管理者のみ */
   updatedAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** 所有者、管理者のみ */
   user?: Maybe<User>;
 };
 
@@ -336,12 +351,19 @@ export type TokenRefreshSuccess = {
 
 export type User = Node & {
   __typename?: 'User';
+  /** 本人、管理者のみ */
   createdAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** 本人、管理者のみ */
   email?: Maybe<Scalars['EmailAddress']['output']>;
+  /** 本人、管理者のみ */
   id: Scalars['ID']['output'];
+  /** 本人、管理者のみ */
   name?: Maybe<Scalars['String']['output']>;
+  /** 本人、管理者のみ */
   todo?: Maybe<Todo>;
+  /** 本人、管理者のみ */
   todos?: Maybe<TodoConnection>;
+  /** 本人、管理者のみ */
   updatedAt?: Maybe<Scalars['DateTimeISO']['output']>;
 };
 
@@ -538,7 +560,6 @@ export type ResolversTypes = ResolversObject<{
   AccountDeleteSuccess: ResolverTypeWrapper<AccountDeleteSuccess>;
   AccountUpdateResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AccountUpdateResult']>;
   AccountUpdateSuccess: ResolverTypeWrapper<Omit<AccountUpdateSuccess, 'user'> & { user: ResolversTypes['User'] }>;
-  AuthPolicy: AuthPolicy;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   DateTimeISO: ResolverTypeWrapper<Scalars['DateTimeISO']['output']>;
   EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']['output']>;
@@ -646,12 +667,6 @@ export type ResolversParentTypes = ResolversObject<{
   UserEmailChangeSuccess: Omit<UserEmailChangeSuccess, 'user'> & { user: ResolversParentTypes['User'] };
   Void: Scalars['Void']['output'];
 }>;
-
-export type AuthDirectiveArgs = {
-  policy: AuthPolicy;
-};
-
-export type AuthDirectiveResolver<Result, Parent, ContextType = Context, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type ComplexityDirectiveArgs = {
   multipliers?: Maybe<Array<Scalars['String']['input']>>;
@@ -968,7 +983,6 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
 }>;
 
 export type DirectiveResolvers<ContextType = Context> = ResolversObject<{
-  auth?: AuthDirectiveResolver<any, any, ContextType>;
   complexity?: ComplexityDirectiveResolver<any, any, ContextType>;
   semanticNonNull?: SemanticNonNullDirectiveResolver<any, any, ContextType>;
 }>;

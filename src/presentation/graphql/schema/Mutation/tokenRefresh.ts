@@ -28,22 +28,22 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args, context) => {
-  const cookie = await RefreshTokenCookie.get(context);
+export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args, ctx) => {
+  const cookie = await RefreshTokenCookie.get(ctx);
   if (!cookie) {
     throw badUserInputError("Specify refresh token.");
   }
 
-  const result = await refreshToken(context, cookie.value);
+  const result = await refreshToken(ctx, cookie.value);
   switch (result.type) {
     case "InvalidRefreshToken":
-      await RefreshTokenCookie.clear(context);
+      await RefreshTokenCookie.clear(ctx);
       return {
         __typename: "InvalidRefreshTokenError",
         message: "The refresh token is invalid. Please login.",
       };
     case "RefreshTokenExpired":
-      await RefreshTokenCookie.clear(context);
+      await RefreshTokenCookie.clear(ctx);
       return {
         __typename: "RefreshTokenExpiredError",
         message: "The refresh token is expired. Please login.",
@@ -51,7 +51,7 @@ export const resolver: MutationResolvers["tokenRefresh"] = async (_parent, _args
     case "TransactionFailed":
       throw internalServerError(result.cause);
     case "Success":
-      await RefreshTokenCookie.set(context, {
+      await RefreshTokenCookie.set(ctx, {
         value: result.rawRefreshToken,
         expires: result.refreshToken.expiresAt,
       });

@@ -1,7 +1,7 @@
 import { deleteAccount } from "../../../../application/usecases/delete-account.ts";
 import { User } from "../../../../domain/entities.ts";
 import * as RefreshTokenCookie from "../../../_shared/auth/refresh-token-cookie.ts";
-import type { ContextForAuthed } from "../../yoga/context.ts";
+import { assertAuthenticated } from "../_authorizers/authenticated.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseUserPassword } from "../_parsers/user/password.ts";
@@ -12,13 +12,15 @@ export const typeDef = /* GraphQL */ `
   extend type Mutation {
     """
     紐づくリソースは全て削除される
+
+    ログイン済のみ
     """
     accountDelete(
       """
       ${User.Password.MIN}文字以上、${User.Password.MAX}文字まで
       """
       password: String!
-    ): AccountDeleteResult @semanticNonNull @complexity(value: 5) @auth(policy: AUTHENTICATED)
+    ): AccountDeleteResult @semanticNonNull @complexity(value: 5)
   }
 
   union AccountDeleteResult = AccountDeleteSuccess | InvalidInputErrors | IncorrectPasswordError
@@ -32,8 +34,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["accountDelete"] = async (_parent, args, context) => {
-  const ctx = context as ContextForAuthed;
+export const resolver: MutationResolvers["accountDelete"] = async (_parent, args, ctx) => {
+  assertAuthenticated(ctx);
 
   const password = parseArgs(args);
   if (password.isErr()) {

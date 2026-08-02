@@ -2,7 +2,7 @@ import { Result } from "neverthrow";
 
 import { createTodo } from "../../../../application/usecases/create-todo.ts";
 import { Todo } from "../../../../domain/entities.ts";
-import type { ContextForAuthed } from "../../yoga/context.ts";
+import { assertAuthenticated } from "../_authorizers/authenticated.ts";
 import { internalServerError } from "../_errors/global/internal-server-error.ts";
 import { invalidInputErrors } from "../_errors/user/invalid-input.ts";
 import { parseTodoDescription } from "../_parsers/todo/description.ts";
@@ -13,6 +13,8 @@ export const typeDef = /* GraphQL */ `
   extend type Mutation {
     """
     ${Todo.MAX_COUNT}件まで
+
+    ログイン済のみ
     """
     todoCreate(
       """
@@ -24,7 +26,7 @@ export const typeDef = /* GraphQL */ `
       ${Todo.Description.MAX}文字まで
       """
       description: String! = ""
-    ): TodoCreateResult @semanticNonNull @complexity(value: 5) @auth(policy: AUTHENTICATED)
+    ): TodoCreateResult @semanticNonNull @complexity(value: 5)
   }
 
   union TodoCreateResult = TodoCreateSuccess | InvalidInputErrors | ResourceLimitExceededError
@@ -35,8 +37,8 @@ export const typeDef = /* GraphQL */ `
   }
 `;
 
-export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, context) => {
-  const ctx = context as ContextForAuthed;
+export const resolver: MutationResolvers["todoCreate"] = async (_parent, args, ctx) => {
+  assertAuthenticated(ctx);
 
   const parsed = parseArgs(args);
   if (parsed.isErr()) {
