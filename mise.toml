@@ -2,10 +2,16 @@
 node = "24.10"
 pnpm = "11.15"
 oxlint = { version = "apps_v1.76.0", matching = "oxlint", rename_exe = "oxlint" }
-oxfmt = "0.61" # スタンドアロンバイナリには`--lsp`オプションがなかったのでnpm版を利用している
+# cli実行用高速バイナリ、`--lsp`オプションなし、prettierなし
+oxfmtbin = { version = "apps_v1.76.0", matching = "oxfmt", rename_exe = "oxfmtbin" }
+# バイナリ補助用
+prettier = "3.9.6"
+# エディタ用npm版パッケージ、`--lsp`オプションあり、prettier同梱
+oxfmt = "0.61"
 
 [tool_alias]
 oxlint = "github:oxc-project/oxc"
+oxfmtbin = "github:oxc-project/oxc"
 
 [settings]
 env_shell_expand = true
@@ -53,7 +59,12 @@ oxlint
 
 [tasks."check:format"]
 run = """
-oxfmt --check
+oxfmtbin --check
+"""
+
+[tasks."check:format-prettier"]
+run = """
+prettier --cache --check './**/*.{yml,yaml,md}' '!pnpm-lock.yaml'
 """
 
 [tasks.build]
