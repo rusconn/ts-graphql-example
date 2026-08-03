@@ -1,10 +1,10 @@
 import type { Transaction } from "kysely";
 
 import type * as Domain from "../../../../domain/entities.ts";
-import type { DB } from "../../../../infrastructure/datasources/_shared/types.ts";
-import { RefreshTokenRepoShared } from "../../../../infrastructure/unit-of-works/db/_shared/refresh-token.ts";
-import { TodoRepoShared } from "../../../../infrastructure/unit-of-works/db/_shared/todo.ts";
-import { UserRepoShared } from "../../../../infrastructure/unit-of-works/db/_shared/user.ts";
+import type { DB } from "../../../../infrastructure/datasources/db/types.ts";
+import { RefreshTokenRepoShared } from "../../../../infrastructure/repositories/refresh-token/shared.ts";
+import { TodoRepoShared } from "../../../../infrastructure/repositories/todo/shared.ts";
+import { UserRepoShared } from "../../../../infrastructure/repositories/user/shared.ts";
 import { CredentialQuery } from "./queries/credential.ts";
 import { RefreshTokenQuery } from "./queries/refresh-token.ts";
 import { TodoQuery } from "./queries/todo.ts";

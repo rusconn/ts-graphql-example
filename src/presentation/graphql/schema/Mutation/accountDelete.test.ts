@@ -1,8 +1,8 @@
 import type { ControlledTransaction } from "kysely";
 
 import { User } from "../../../../domain/entities.ts";
-import type { DB } from "../../../../infrastructure/datasources/_shared/generated.ts";
 import { kysely } from "../../../../infrastructure/datasources/db/client.ts";
+import type { DB } from "../../../../infrastructure/datasources/db/types.ts";
 import * as RefreshTokenCookie from "../../../_shared/auth/refresh-token-cookie.ts";
 import {
   createQueries,

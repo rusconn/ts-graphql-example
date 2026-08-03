@@ -1,7 +1,7 @@
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import type { DB, RefreshToken, User } from "../../src/infrastructure/datasources/_shared/types.ts";
+import type { DB, RefreshToken, User } from "../../src/infrastructure/datasources/db/types.ts";
 import { addDates } from "../../src/lib/date-immutable.ts";
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 

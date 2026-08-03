@@ -1,7 +1,7 @@
 import type { ControlledTransaction } from "kysely";
 
-import type { DB } from "../../../../infrastructure/datasources/_shared/generated.ts";
 import { kysely } from "../../../../infrastructure/datasources/db/client.ts";
+import type { DB } from "../../../../infrastructure/datasources/db/types.ts";
 import { dto } from "../_test/data.ts";
 import { type ContextForIT, context } from "../_test/data/context/dynamic.ts";
 import { createContext } from "../_test/helpers.ts";

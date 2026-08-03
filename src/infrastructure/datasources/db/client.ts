@@ -4,7 +4,7 @@ import pg, { type DatabaseError } from "pg";
 import { connectionString } from "../../../config/db.ts";
 import { isDev, isProd } from "../../../config/exec-env.ts";
 import { pino } from "../../loggers/pino.ts";
-import type { DB } from "../_shared/types.ts";
+import type { DB } from "./types.ts";
 
 // PostgreSQL's string of int8(bigint, bigserial) -> js number(possible loss of precision)
 pg.types.setTypeParser(pg.types.builtins.INT8, Number);

@@ -1,4 +1,4 @@
-import * as Db from "../../../../../infrastructure/datasources/_shared/types.ts";
+import * as Db from "../../../../../infrastructure/datasources/db/types.ts";
 import type { Uuidv7 } from "../../../../../util/uuid/v7.ts";
 import { db as users } from "./users.ts";
 

@@ -1,7 +1,7 @@
 import type { Transaction } from "kysely";
 
 import * as Dto from "../../../../../application/dto.ts";
-import type { DB } from "../../../../../infrastructure/datasources/_shared/types.ts";
+import type { DB } from "../../../../../infrastructure/datasources/db/types.ts";
 
 export class UserQuery {
   #trx;

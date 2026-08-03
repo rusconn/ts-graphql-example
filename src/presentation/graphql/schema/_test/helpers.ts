@@ -1,7 +1,7 @@
 import type { Transaction } from "kysely";
 
 import { createAppContext } from "../../../../application/context.ts";
-import type { DB } from "../../../../infrastructure/datasources/_shared/types.ts";
+import type { DB } from "../../../../infrastructure/datasources/db/types.ts";
 import { pino } from "../../../../infrastructure/loggers/pino.ts";
 import type { Context } from "../../yoga/context.ts";
 import type { ContextForIT } from "./data/context/dynamic.ts";

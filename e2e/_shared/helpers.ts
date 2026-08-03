@@ -1,7 +1,7 @@
 import type { Transaction } from "kysely";
 
-import type { DB } from "../../src/infrastructure/datasources/_shared/types.ts";
 import { kysely } from "../../src/infrastructure/datasources/db/client.ts";
+import type { DB } from "../../src/infrastructure/datasources/db/types.ts";
 import * as UTHelpers from "../../src/presentation/_shared/test/helpers/helpers.ts";
 
 export async function clearTables() {

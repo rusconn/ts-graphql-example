@@ -1,6 +1,6 @@
 import type { Transaction } from "kysely";
 
-import type { DB } from "../src/infrastructure/datasources/_shared/types.ts";
+import type { DB } from "../src/infrastructure/datasources/db/types.ts";
 import { seed } from "./seed.ts";
 import * as credentials from "./seeds/credentials.ts";
 import * as refreshTokens from "./seeds/refresh-tokens.ts";

@@ -1,4 +1,4 @@
-import * as TodoRepo from "../../../../../infrastructure/unit-of-works/db/_shared/todo.ts";
+import * as TodoRepo from "../../../../../infrastructure/repositories/todo/shared.ts";
 import { db as todos } from "../db/todos.ts";
 
 export const domain = {

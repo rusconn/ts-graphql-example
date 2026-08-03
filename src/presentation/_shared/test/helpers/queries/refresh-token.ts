@@ -2,7 +2,7 @@ import type { Transaction } from "kysely";
 
 import type * as Dto from "../../../../../application/dto.ts";
 import * as Domain from "../../../../../domain/entities.ts";
-import type { DB } from "../../../../../infrastructure/datasources/_shared/types.ts";
+import type { DB } from "../../../../../infrastructure/datasources/db/types.ts";
 
 export class RefreshTokenQuery {
   #trx;

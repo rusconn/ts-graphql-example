@@ -1,0 +1,18 @@
+import type { ReadonlyKysely } from "kysely/readonly";
+
+import type * as Domain from "../../../domain/entities.ts";
+import type { ITodoReaderRepoForUser } from "../../../domain/repositories-read/todo/for-user.ts";
+import type { DB } from "../../datasources/db/types.ts";
+import { TodoReaderRepoShared } from "./shared.ts";
+
+export class TodoReaderRepoForUser implements ITodoReaderRepoForUser {
+  #shared;
+
+  constructor(db: ReadonlyKysely<DB>, tenantId: Domain.User.Type["id"]) {
+    this.#shared = new TodoReaderRepoShared(db, tenantId);
+  }
+
+  async find(id: Domain.Todo.Type["id"]) {
+    return await this.#shared.find(id);
+  }
+}

@@ -7,7 +7,7 @@ import {
   type Todo,
   TodoStatus,
   type User,
-} from "../../src/infrastructure/datasources/_shared/types.ts";
+} from "../../src/infrastructure/datasources/db/types.ts";
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
 export async function seedMinimal(trx: Transaction<DB>) {

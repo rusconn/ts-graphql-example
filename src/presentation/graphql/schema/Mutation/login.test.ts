@@ -1,9 +1,9 @@
 import type { ControlledTransaction } from "kysely";
 
 import * as Domain from "../../../../domain/entities.ts";
-import type { DB } from "../../../../infrastructure/datasources/_shared/generated.ts";
-import type { NewRefreshToken } from "../../../../infrastructure/datasources/_shared/types.ts";
 import { kysely } from "../../../../infrastructure/datasources/db/client.ts";
+import type { DB } from "../../../../infrastructure/datasources/db/types.ts";
+import type { NewRefreshToken } from "../../../../infrastructure/datasources/db/types.ts";
 import { addDates } from "../../../../lib/date-immutable.ts";
 import * as RefreshTokenCookie from "../../../_shared/auth/refresh-token-cookie.ts";
 import {

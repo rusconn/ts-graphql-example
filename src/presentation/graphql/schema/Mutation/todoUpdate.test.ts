@@ -2,8 +2,8 @@ import { omit } from "es-toolkit";
 import { GraphQLError } from "graphql";
 import type { ControlledTransaction } from "kysely";
 
-import type { DB } from "../../../../infrastructure/datasources/_shared/generated.ts";
 import { kysely } from "../../../../infrastructure/datasources/db/client.ts";
+import type { DB } from "../../../../infrastructure/datasources/db/types.ts";
 import {
   createQueries,
   createSeeders,

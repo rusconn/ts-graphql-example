@@ -2,7 +2,7 @@ import { Result } from "neverthrow";
 import type { Tagged } from "type-fest";
 
 import * as Domain from "../../domain/entities.ts";
-import * as Db from "../../infrastructure/datasources/_shared/types.ts";
+import * as Db from "../../infrastructure/datasources/db/types.ts";
 
 export type Type = Tagged<Raw, "TodoDto">;
 

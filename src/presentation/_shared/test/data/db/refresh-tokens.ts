@@ -1,4 +1,4 @@
-import type * as Db from "../../../../../infrastructure/datasources/_shared/types.ts";
+import type * as Db from "../../../../../infrastructure/datasources/db/types.ts";
 import { addDates } from "../../../../../lib/date-immutable.ts";
 import { db as users } from "./users.ts";
 

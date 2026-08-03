@@ -1,7 +1,7 @@
 import { chunk } from "es-toolkit";
 import type { Transaction } from "kysely";
 
-import type { Credential, DB, User } from "../../src/infrastructure/datasources/_shared/types.ts";
+import type { Credential, DB, User } from "../../src/infrastructure/datasources/db/types.ts";
 import type { Uuidv7 } from "../../src/util/uuid/v7.ts";
 
 export async function seedMinimal(trx: Transaction<DB>) {
