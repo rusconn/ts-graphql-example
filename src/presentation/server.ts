@@ -2,12 +2,20 @@ import process from "node:process";
 
 import { App } from "uWebSockets.js";
 
+import { maxBodyBytes } from "../config/http-security.ts";
 import { endpoint, port } from "../config/url.ts";
 import { kysely } from "../infrastructure/datasources/db/client.ts";
 import { pino } from "../infrastructure/loggers/pino.ts";
 import { yoga } from "./graphql/yoga.ts";
+import { createBodyLimitHandler } from "./http/request-body-limit.ts";
 
-const server = App().any("/*", yoga);
+const server = App().any(
+  "/*",
+  createBodyLimitHandler({
+    maxBodyBytes,
+    fetch: (url, init) => yoga.fetch(url, init, {}),
+  }),
+);
 
 server.listen(port, () => {
   console.info(`Server is running on ${endpoint}`);

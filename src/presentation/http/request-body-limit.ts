@@ -1,0 +1,260 @@
+import { createFetch } from "@whatwg-node/fetch";
+import { sendResponseToUwsOpts } from "@whatwg-node/server";
+import type { HttpRequest, HttpResponse } from "uWebSockets.js";
+
+const fetchAPI = createFetch();
+
+const tooLargeStatus = "413 Payload Too Large";
+const tooLargeBody = JSON.stringify({ errors: [{ message: "Request body too large" }] });
+
+export type BodyLimitedFetch = (url: string, init: RequestInit) => Response | Promise<Response>;
+
+export function createBodyLimitHandler({
+  maxBodyBytes,
+  fetch,
+}: {
+  maxBodyBytes: number;
+  fetch: BodyLimitedFetch;
+}) {
+  return (res: HttpResponse, req: HttpRequest): void => {
+    const method = req.getMethod();
+    const url = `http://localhost${req.getUrl()}${req.getQuery() ? `?${req.getQuery()}` : ""}`;
+
+    const headers = new Headers();
+    req.forEach((key, value) => headers.append(key, value));
+
+    const contentLength = headers.get("content-length");
+    if (contentLength != null && Number(contentLength) > maxBodyBytes) {
+      respondTooLarge(res);
+      return;
+    }
+
+    const controller = new AbortController();
+    res.onAborted(() => controller.abort());
+
+    if (method === "get" || method === "head") {
+      void respond(res, fetch, url, method, headers, null, controller);
+      return;
+    }
+
+    // 蓄積完了で fullBody、maxSize超過で nullが渡される。null時はコネクションを閉じて受信を打ち切る
+    res.collectBody(maxBodyBytes, (fullBody) => {
+      if (fullBody == null) {
+        respondTooLarge(res);
+        return;
+      }
+
+      // コールバック返却後にArrayBufferが破棄されるため、同期的にfetchへ渡す
+      void respond(res, fetch, url, method, headers, fullBody, controller);
+    });
+  };
+}
+
+function respondTooLarge(res: HttpResponse) {
+  res.writeStatus(tooLargeStatus);
+  res.end(tooLargeBody, true);
+}
+
+async function respond(
+  res: HttpResponse,
+  fetch: BodyLimitedFetch,
+  url: string,
+  method: string,
+  headers: Headers,
+  body: ArrayBuffer | null,
+  controller: AbortController,
+) {
+  try {
+    const init: RequestInit = { method, headers };
+    if (body != null) {
+      init.body = body;
+    }
+
+    const response = await fetch(url, init);
+    await sendResponseToUwsOpts(res, response, controller, fetchAPI);
+  } catch (error) {
+    if (controller.signal.aborted) {
+      return;
+    }
+
+    console.error(error);
+    res.writeStatus("500 Internal Server Error");
+    res.end();
+  }
+}
+
+if (import.meta.vitest) {
+  type FakeRes = {
+    status: string | null;
+    endBody: unknown;
+    closeConnection: boolean | null;
+    collectBodyMaxSize: number | null;
+    collectBodyCb: ((fullBody: ArrayBuffer | null) => void) | null;
+    onAbortedCb: (() => void) | null;
+    pause(): void;
+    resume(): void;
+    writeStatus(status: string): void;
+    writeHeader(key: string, value: string): void;
+    write(chunk: unknown): boolean;
+    end(body?: unknown, closeConnection?: boolean): void;
+    endWithoutBody(): void;
+    tryEnd(): readonly [boolean, boolean];
+    close(): void;
+    getWriteOffset(): number;
+    onWritable(handler: (offset: number) => boolean): void;
+    onAborted(handler: () => void): void;
+    collectBody(maxSize: number, handler: (fullBody: ArrayBuffer | null) => void): void;
+    cork(cb: () => void): void;
+  };
+
+  const createFakeRes = (): FakeRes => {
+    return {
+      status: null,
+      endBody: null,
+      closeConnection: null,
+      collectBodyMaxSize: null,
+      collectBodyCb: null,
+      onAbortedCb: null,
+      pause() {},
+      resume() {},
+      writeStatus(status: string) {
+        this.status = status;
+      },
+      writeHeader() {},
+      write() {
+        return true;
+      },
+      end(body?: unknown, closeConnection?: boolean) {
+        this.endBody = body;
+        this.closeConnection = closeConnection ?? null;
+      },
+      endWithoutBody() {},
+      tryEnd() {
+        return [true, true] as const;
+      },
+      close() {},
+      getWriteOffset() {
+        return 0;
+      },
+      onWritable() {
+        return true;
+      },
+      onAborted(cb: () => void) {
+        this.onAbortedCb = cb;
+      },
+      collectBody(maxSize: number, handler: (fullBody: ArrayBuffer | null) => void) {
+        this.collectBodyMaxSize = maxSize;
+        this.collectBodyCb = handler;
+      },
+      cork(cb: () => void) {
+        cb();
+      },
+    };
+  };
+
+  const createFakeReq = ({
+    method = "post",
+    headers = {},
+  }: {
+    method?: string;
+    headers?: Record<string, string>;
+  } = {}) => {
+    return {
+      getMethod: () => method,
+      getUrl: () => "/graphql",
+      getQuery: () => "",
+      getHeader: () => undefined,
+      forEach(cb: (key: string, value: string) => void) {
+        for (const [key, value] of Object.entries(headers)) {
+          cb(key, value);
+        }
+      },
+      setYield() {},
+    };
+  };
+
+  const bytes = (length: number) => {
+    const arrayBuffer = new ArrayBuffer(length);
+    new Uint8Array(arrayBuffer).fill(1);
+    return arrayBuffer;
+  };
+
+  const makeFetcher = () => {
+    const calls: Array<{ url: string; init: RequestInit }> = [];
+    const fetch = async (url: string, init: RequestInit) => {
+      calls.push({ url, init });
+      return new Response(null, { status: 200 });
+    };
+    return { calls, fetch };
+  };
+
+  const flush = () => {
+    return new Promise((resolve) => setImmediate(resolve));
+  };
+
+  describe("createBodyLimitHandler", () => {
+    it("rejects by content-length before reading the body", () => {
+      const res = createFakeRes();
+      const { calls, fetch } = makeFetcher();
+      const handler = createBodyLimitHandler({ maxBodyBytes: 100, fetch });
+
+      handler(
+        res as unknown as HttpResponse,
+        createFakeReq({ headers: { "content-length": "200" } }) as unknown as HttpRequest,
+      );
+
+      expect(res.status).toBe(tooLargeStatus);
+      expect(res.endBody).toBe(tooLargeBody);
+      expect(res.closeConnection).toBe(true);
+      expect(res.collectBodyCb).toBeNull();
+      expect(calls).toHaveLength(0);
+    });
+
+    it("rejects when collectBody reports the body exceeds the limit", () => {
+      const res = createFakeRes();
+      const { calls, fetch } = makeFetcher();
+      const handler = createBodyLimitHandler({ maxBodyBytes: 100, fetch });
+
+      handler(res as unknown as HttpResponse, createFakeReq() as unknown as HttpRequest);
+      res.collectBodyCb?.(null);
+
+      expect(res.status).toBe(tooLargeStatus);
+      expect(res.endBody).toBe(tooLargeBody);
+      expect(res.closeConnection).toBe(true);
+      expect(calls).toHaveLength(0);
+    });
+
+    it("forwards the body when it is within the limit", async () => {
+      const res = createFakeRes();
+      const { calls, fetch } = makeFetcher();
+      const handler = createBodyLimitHandler({ maxBodyBytes: 100, fetch });
+
+      handler(res as unknown as HttpResponse, createFakeReq() as unknown as HttpRequest);
+      expect(res.collectBodyMaxSize).toBe(100);
+
+      res.collectBodyCb?.(bytes(100));
+      await flush();
+
+      expect(calls).toHaveLength(1);
+      const body = calls[0]?.init.body as ArrayBuffer;
+      expect(body.byteLength).toBe(100);
+    });
+
+    it("forwards get requests without a body", async () => {
+      const res = createFakeRes();
+      const { calls, fetch } = makeFetcher();
+      const handler = createBodyLimitHandler({ maxBodyBytes: 100, fetch });
+
+      handler(
+        res as unknown as HttpResponse,
+        createFakeReq({ method: "get" }) as unknown as HttpRequest,
+      );
+      await flush();
+
+      expect(calls).toHaveLength(1);
+      expect(calls[0]?.init.method).toBe("get");
+      expect(calls[0]?.init.body).toBeUndefined();
+      expect(res.collectBodyCb).toBeNull();
+    });
+  });
+}

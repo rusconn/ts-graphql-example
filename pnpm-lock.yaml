@@ -225,6 +225,12 @@ importers:
       '@graphql-yoga/plugin-disable-introspection':
         specifier: ^2.7.0
         version: 2.7.0(graphql-yoga@5.7.0(graphql@16.12.0))(graphql@16.12.0)
+      '@whatwg-node/fetch':
+        specifier: ^0.10.13
+        version: 0.10.13
+      '@whatwg-node/server':
+        specifier: ^0.10.18
+        version: 0.10.18
       '@whatwg-node/server-plugin-cookies':
         specifier: ^1.0.5
         version: 1.0.5
@@ -265,8 +271,8 @@ importers:
         specifier: ^10.3.1
         version: 10.3.1
       uWebSockets.js:
-        specifier: github:uNetworking/uWebSockets.js#v20.56.0
-        version: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/d04e707a1292928d50163ff7545e45c3e84c5ec3
+        specifier: github:uNetworking/uWebSockets.js#v20.69.0
+        version: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/dddd8ffd1b2c28a66022160923ca92f064cdacb4
       uuid:
         specifier: ^14.0.0
         version: 14.0.0
@@ -1680,20 +1686,12 @@ packages:
     resolution: {integrity: sha512-b4PhJ+zYj4357zwk4TTuF2nEe0vVtOrwdsrNo5hL+u1ojXNhh1FgJ6pg1jzDlwlT4oBdzfSwaBwMCtFCsIWg8Q==}
     engines: {node: '>=18.0.0'}
 
-  '@whatwg-node/fetch@0.10.4':
-    resolution: {integrity: sha512-rCycAF+bNJFuyY2w9JdMOaIc/VIwnBFG+skXfKaF/I9u91LpQD7qMrI6ZiKByIiQFttwsAUDLtFGBHeZ6UHC3Q==}
-    engines: {node: '>=18.0.0'}
-
   '@whatwg-node/fetch@0.9.23':
     resolution: {integrity: sha512-7xlqWel9JsmxahJnYVUj/LLxWcnA93DR4c9xlw3U814jWTiYalryiH1qToik1hOxweKKRLi4haXHM5ycRksPBA==}
     engines: {node: '>=18.0.0'}
 
   '@whatwg-node/node-fetch@0.6.0':
     resolution: {integrity: sha512-tcZAhrpx6oVlkEsRngeTEEE7I5/QdLjeEz4IlekabGaESP7+Dkm/6a9KcF1KdCBB7mO9PXtBkwCuTCt8+UPg8Q==}
-    engines: {node: '>=18.0.0'}
-
-  '@whatwg-node/node-fetch@0.7.10':
-    resolution: {integrity: sha512-Wibb7IQyMNhNc4GBepKWWDdAYyduU5UY2NOtiQMPZnUn7tMBJKugVIrGBBTZp5OqxtM+tccSO/LzNTH0S4c0qw==}
     engines: {node: '>=18.0.0'}
 
   '@whatwg-node/node-fetch@0.8.5':
@@ -2904,9 +2902,9 @@ packages:
     engines: {node: '>=16.20.0'}
     hasBin: true
 
-  uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/d04e707a1292928d50163ff7545e45c3e84c5ec3:
-    resolution: {gitHosted: true, integrity: sha512-L3AeWO0If9Q31dy71OCnMiMZA9WVWovlakISnFtS5ybiJ0MAwVExwKfZkvkQSGu6xnQMuFCMUZLhrB/PQSvGEw==, tarball: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/d04e707a1292928d50163ff7545e45c3e84c5ec3}
-    version: 20.56.0
+  uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/dddd8ffd1b2c28a66022160923ca92f064cdacb4:
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/dddd8ffd1b2c28a66022160923ca92f064cdacb4}
+    version: 20.69.0
 
   ua-parser-js@1.0.41:
     resolution: {integrity: sha512-LbBDqdIC5s8iROCUjMbW1f5dJQTEFB1+KO9ogbvlb3nm9n4YHa5p4KTvFPWvh2Hs8gZMBuiB1/8+pdfe/tDPug==}
@@ -2937,9 +2935,6 @@ packages:
 
   upper-case@2.0.2:
     resolution: {integrity: sha512-KgdgDGJt2TpuwBUIjgG6lzw2GWFRCW9Qkfkiv0DxqHHLYJHmtmdUIKcZd8rHgFSjopVTlw6ggzCm1b8MFQwikg==}
-
-  urlpattern-polyfill@10.0.0:
-    resolution: {integrity: sha512-H/A06tKD7sS1O1X2SshBVeA5FLycRpjqiBeqGKmBwBDBy28EnRjORxTNe269KSSr5un5qyWi1iL61wLxpd+ZOg==}
 
   urlpattern-polyfill@10.1.0:
     resolution: {integrity: sha512-IGjKp/o0NL3Bso1PymYURCJxMPNAf/ILOpendP9f5B6e1rTJgdgiOvgfoT8VxCAdY+Wisb9uhGaJJf3yZ2V9nw==}
@@ -4593,11 +4588,6 @@ snapshots:
       '@whatwg-node/node-fetch': 0.8.5
       urlpattern-polyfill: 10.1.0
 
-  '@whatwg-node/fetch@0.10.4':
-    dependencies:
-      '@whatwg-node/node-fetch': 0.7.10
-      urlpattern-polyfill: 10.0.0
-
   '@whatwg-node/fetch@0.9.23':
     dependencies:
       '@whatwg-node/node-fetch': 0.6.0
@@ -4608,12 +4598,6 @@ snapshots:
       '@kamilkisiela/fast-url-parser': 1.1.4
       busboy: 1.6.0
       fast-querystring: 1.1.2
-      tslib: 2.8.1
-
-  '@whatwg-node/node-fetch@0.7.10':
-    dependencies:
-      '@whatwg-node/disposablestack': 0.0.5
-      busboy: 1.6.0
       tslib: 2.8.1
 
   '@whatwg-node/node-fetch@0.8.5':
@@ -4644,7 +4628,7 @@ snapshots:
   '@whatwg-node/server@0.9.68':
     dependencies:
       '@whatwg-node/disposablestack': 0.0.5
-      '@whatwg-node/fetch': 0.10.4
+      '@whatwg-node/fetch': 0.10.13
       tslib: 2.8.1
 
   ansi-escapes@7.3.0:
@@ -5803,7 +5787,7 @@ snapshots:
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
 
-  uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/d04e707a1292928d50163ff7545e45c3e84c5ec3: {}
+  uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/dddd8ffd1b2c28a66022160923ca92f064cdacb4: {}
 
   ua-parser-js@1.0.41: {}
 
@@ -5830,8 +5814,6 @@ snapshots:
   upper-case@2.0.2:
     dependencies:
       tslib: 2.8.1
-
-  urlpattern-polyfill@10.0.0: {}
 
   urlpattern-polyfill@10.1.0: {}
 

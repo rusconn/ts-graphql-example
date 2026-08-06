@@ -8,6 +8,8 @@
     "@envelop/core": "^5.5.1",
     "@escape.tech/graphql-armor": "^3.2.0",
     "@graphql-yoga/plugin-disable-introspection": "^2.7.0",
+    "@whatwg-node/fetch": "^0.10.13",
+    "@whatwg-node/server": "^0.10.18",
     "@whatwg-node/server-plugin-cookies": "^1.0.5",
     "bcrypt": "^6.0.0",
     "dataloader": "^2.2.3",
@@ -21,7 +23,7 @@
     "neverthrow": "^8.2.0",
     "pg": "^8.18.0",
     "pino": "^10.3.1",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.56.0",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.69.0",
     "uuid": "^14.0.0"
   },
   "devDependencies": {
