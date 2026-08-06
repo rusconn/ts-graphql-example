@@ -5,7 +5,7 @@ import { createSchema, createYoga } from "graphql-yoga";
 
 import type { AppContext } from "../../application/context.ts";
 import { isProd } from "../../config/exec-env.ts";
-import { maxDepth } from "../../config/graphql-security.ts";
+import { maxAliases, maxDepth, maxTokens } from "../../config/graphql-security.ts";
 import { endpoint } from "../../config/url.ts";
 import { requestId } from "../../lib/graphql-yoga/plugins/request-id.ts";
 import { renderApolloStudio } from "../../lib/graphql-yoga/render-apollo-studio.ts";
@@ -29,6 +29,12 @@ export const yoga = createYoga<ServerContext & PluginContext, AppContext>({
       maxDepth: {
         n: maxDepth,
         flattenFragments: true,
+      },
+      maxTokens: {
+        n: maxTokens,
+      },
+      maxAliases: {
+        n: maxAliases,
       },
       costLimit: {
         enabled: false, // complexity plugin で対応する
