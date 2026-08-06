@@ -1,12 +1,12 @@
 import DataLoader from "dataloader";
 import type { ReadonlyKysely } from "kysely/readonly";
 
-import type { Key } from "../../../../application/queries/todo/loaders/user-todos.ts";
+import type { PageByUserParams } from "../../../../application/queries/todo/params.ts";
 import type * as Domain from "../../../../domain/entities.ts";
 import { sortGroup } from "../../../../lib/dataloader/sort-group.ts";
 import type { DB } from "../../../datasources/db/types.ts";
 
-export type { Key };
+type Key = PageByUserParams;
 
 export function create(db: ReadonlyKysely<DB>, tenantId?: Domain.User.Type["id"]) {
   return new DataLoader(batchGet(db, tenantId), { cacheKeyFn: JSON.stringify });

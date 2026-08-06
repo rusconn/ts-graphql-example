@@ -1,12 +1,12 @@
 import DataLoader from "dataloader";
 import type { ReadonlyKysely } from "kysely/readonly";
 
-import type { Key } from "../../../../application/queries/todo/loaders/user-todo-count.ts";
+import type { CountByUserParams } from "../../../../application/queries/todo/params.ts";
 import type * as Domain from "../../../../domain/entities.ts";
 import { sort } from "../../../../lib/dataloader/sort.ts";
 import type { DB, Todo } from "../../../datasources/db/types.ts";
 
-export type { Key };
+type Key = CountByUserParams;
 
 export function create(db: ReadonlyKysely<DB>, tenantId?: Domain.Todo.Type["userId"]) {
   return new DataLoader(batchGet(db, tenantId), { cacheKeyFn: JSON.stringify });

@@ -3,7 +3,6 @@ import type { ReadonlyKysely } from "kysely/readonly";
 import type { IUserQueryForUser } from "../../../application/queries/user/for-user.ts";
 import type * as Domain from "../../../domain/entities.ts";
 import type { DB } from "../../datasources/db/types.ts";
-import type * as UserLoader from "./loaders/user.ts";
 import { UserQueryShared } from "./shared.ts";
 
 export class UserQueryForUser implements IUserQueryForUser {
@@ -15,9 +14,5 @@ export class UserQueryForUser implements IUserQueryForUser {
 
   async find(id: Domain.User.Type["id"]) {
     return await this.#shared.find(id);
-  }
-
-  async load(key: UserLoader.Key) {
-    return await this.#shared.load(key);
   }
 }

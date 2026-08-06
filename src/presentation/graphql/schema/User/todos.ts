@@ -76,7 +76,7 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (parent, args
 
   return await getCursorConnection(
     ({ backward, ...exceptBackward }) =>
-      ctx.queries.todo.loadTheirPage({
+      ctx.queries.todo.pageByUser({
         userId: parent.id,
         sortKey,
         reverse: reverse !== backward,
@@ -84,7 +84,7 @@ export const resolver: NonNullable<UserResolvers["todos"]> = async (parent, args
         ...filter,
       }),
     () =>
-      ctx.queries.todo.loadTheirCount({
+      ctx.queries.todo.countByUser({
         userId: parent.id,
         ...filter,
       }),

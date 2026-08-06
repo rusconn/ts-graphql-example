@@ -4,7 +4,6 @@ import * as Dto from "../../../application/dto.ts";
 import type { IUserQueryForAdmin } from "../../../application/queries/user/for-admin.ts";
 import type * as Domain from "../../../domain/entities.ts";
 import type { DB } from "../../datasources/db/types.ts";
-import type * as UserLoader from "./loaders/user.ts";
 import { UserQueryShared } from "./shared.ts";
 
 export class UserQueryForAdmin implements IUserQueryForAdmin {
@@ -63,9 +62,5 @@ export class UserQueryForAdmin implements IUserQueryForAdmin {
       .executeTakeFirst();
 
     return result?.count ?? 0;
-  }
-
-  async load(key: UserLoader.Key) {
-    return await this.#shared.load(key);
   }
 }

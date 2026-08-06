@@ -20,7 +20,7 @@ export const resolver: NonNullable<UserResolvers["todo"]> = async (parent, args,
     throw badUserInputError(e.message, e);
   });
 
-  const todo = await ctx.queries.todo.loadTheir({
+  const todo = await ctx.queries.todo.findByUser({
     id,
     userId: parent.id,
   });

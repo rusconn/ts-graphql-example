@@ -1,6 +1,11 @@
 import type { ReadonlyKysely } from "kysely/readonly";
 
 import * as Dto from "../../../application/dto.ts";
+import type {
+  CountByUserParams,
+  FindByUserParams,
+  PageByUserParams,
+} from "../../../application/queries/todo/params.ts";
 import type * as Domain from "../../../domain/entities.ts";
 import type { DB } from "../../datasources/db/types.ts";
 import * as UserTodoCountLoader from "./loaders/user-todo-count.ts";
@@ -43,17 +48,17 @@ export class TodoQueryShared {
     return result?.count ?? 0;
   }
 
-  async loadTheir(key: UserTodoLoader.Key) {
-    const todo = await this.#loaders.userTodo.load(key);
+  async findByUser(params: FindByUserParams) {
+    const todo = await this.#loaders.userTodo.load(params);
     return todo && Dto.Todo.parseOrThrow(todo);
   }
 
-  async loadTheirPage(key: UserTodosLoader.Key) {
-    const todos = await this.#loaders.userTodos.load(key);
+  async pageByUser(params: PageByUserParams) {
+    const todos = await this.#loaders.userTodos.load(params);
     return todos.map(Dto.Todo.parseOrThrow);
   }
 
-  async loadTheirCount(key: UserTodoCountLoader.Key) {
-    return await this.#loaders.userTodoCount.load(key);
+  async countByUser(params: CountByUserParams) {
+    return await this.#loaders.userTodoCount.load(params);
   }
 }

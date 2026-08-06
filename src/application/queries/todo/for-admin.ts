@@ -1,16 +1,14 @@
 import type { Type as Todo } from "../../dto/todo.ts";
-import type * as UserTodoCountLoader from "./loaders/user-todo-count.ts";
-import type * as UserTodoLoader from "./loaders/user-todo.ts";
-import type * as UserTodosLoader from "./loaders/user-todos.ts";
+import type { CountByUserParams, FindByUserParams, PageByUserParams } from "./params.ts";
 
 export interface ITodoQueryForAdmin {
   find(id: Todo["id"]): Promise<Todo | undefined>;
 
   count(): Promise<number>;
 
-  loadTheir(key: UserTodoLoader.Key): Promise<Todo | undefined>;
+  findByUser(params: FindByUserParams): Promise<Todo | undefined>;
 
-  loadTheirPage(key: UserTodosLoader.Key): Promise<Todo[]>;
+  pageByUser(params: PageByUserParams): Promise<Todo[]>;
 
-  loadTheirCount(key: UserTodoCountLoader.Key): Promise<number>;
+  countByUser(params: CountByUserParams): Promise<number>;
 }

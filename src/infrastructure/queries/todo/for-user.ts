@@ -1,11 +1,13 @@
 import type { ReadonlyKysely } from "kysely/readonly";
 
 import type { ITodoQueryForUser } from "../../../application/queries/todo/for-user.ts";
+import type {
+  CountByUserParams,
+  FindByUserParams,
+  PageByUserParams,
+} from "../../../application/queries/todo/params.ts";
 import type * as Domain from "../../../domain/entities.ts";
 import type { DB } from "../../datasources/db/types.ts";
-import type * as UserTodoCountLoader from "./loaders/user-todo-count.ts";
-import type * as UserTodoLoader from "./loaders/user-todo.ts";
-import type * as UserTodosLoader from "./loaders/user-todos.ts";
 import { TodoQueryShared } from "./shared.ts";
 
 export class TodoQueryForUser implements ITodoQueryForUser {
@@ -23,15 +25,15 @@ export class TodoQueryForUser implements ITodoQueryForUser {
     return await this.#shared.count();
   }
 
-  async loadTheir(key: UserTodoLoader.Key) {
-    return await this.#shared.loadTheir(key);
+  async findByUser(params: FindByUserParams) {
+    return await this.#shared.findByUser(params);
   }
 
-  async loadTheirPage(key: UserTodosLoader.Key) {
-    return await this.#shared.loadTheirPage(key);
+  async pageByUser(params: PageByUserParams) {
+    return await this.#shared.pageByUser(params);
   }
 
-  async loadTheirCount(key: UserTodoCountLoader.Key) {
-    return await this.#shared.loadTheirCount(key);
+  async countByUser(params: CountByUserParams) {
+    return await this.#shared.countByUser(params);
   }
 }

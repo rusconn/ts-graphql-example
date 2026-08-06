@@ -14,7 +14,7 @@ export const typeDef = /* GraphQL */ `
 export const resolver: NonNullable<TodoResolvers["user"]> = async (parent, _args, ctx) => {
   assertAdminOrTodoOwner(ctx, parent);
 
-  const user = await ctx.queries.user.load(parent.userId);
+  const user = await ctx.queries.user.find(parent.userId);
   if (!user) {
     throw internalServerError();
   }

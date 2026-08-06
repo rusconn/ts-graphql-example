@@ -1,12 +1,12 @@
 import DataLoader from "dataloader";
 import type { ReadonlyKysely } from "kysely/readonly";
 
-import type { Key } from "../../../../application/queries/user/loaders/user.ts";
 import type * as Domain from "../../../../domain/entities.ts";
 import { sort } from "../../../../lib/dataloader/sort.ts";
+import type { Uuidv7 } from "../../../../util/uuid/v7.ts";
 import type { DB } from "../../../datasources/db/types.ts";
 
-export type { Key };
+type Key = Uuidv7;
 
 export function create(db: ReadonlyKysely<DB>, tenantId?: Domain.User.Type["id"]) {
   return new DataLoader(batchGet(db, tenantId));
