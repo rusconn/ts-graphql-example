@@ -23,4 +23,14 @@ export class TodoReaderRepoShared {
 
     return todo && toDomain(todo);
   }
+
+  async count() {
+    const result = await this.#db
+      .selectFrom("todos")
+      .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
+      .select(({ fn }) => fn.countAll<number>().as("count"))
+      .executeTakeFirst();
+
+    return result?.count ?? 0;
+  }
 }

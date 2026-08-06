@@ -41,7 +41,7 @@ export function createAppContext(input: {
         role: user.role,
         user,
         queries: {
-          todo: new TodoQueryForAdmin(kyselyReadonly, user.id),
+          todo: new TodoQueryForAdmin(kyselyReadonly),
           user: new UserQueryForAdmin(kyselyReadonly),
         },
         repos: {

@@ -27,7 +27,7 @@ export async function createTodo(
   ctx: AppContextForAuthed,
   input: CreateTodoInput,
 ): Promise<CreateTodoResult> {
-  const count = await ctx.queries.todo.count();
+  const count = await ctx.repos.todo.count();
   if (count >= Todo.MAX_COUNT) {
     return {
       type: "ResourceLimitExceeded",
@@ -35,7 +35,7 @@ export async function createTodo(
     };
   }
 
-  const user = await ctx.queries.user.find(ctx.user.id);
+  const user = await ctx.repos.user.find(ctx.user.id);
   if (!user) {
     return { type: "UserEntityNotFound" };
   }
@@ -67,10 +67,9 @@ if (import.meta.vitest) {
   const user = { id: "dummy" };
 
   describe("maximum count of todos", () => {
-    const createQueries = (num: number) => ({
+    const createRepos = (num: number) => ({
       todo: {
         count: async () => num,
-        find: async () => ({}),
       },
       user: {
         find: async () => ({ id: "dummy" }),
@@ -85,18 +84,18 @@ if (import.meta.vitest) {
     const exceededs = [Todo.MAX_COUNT, Todo.MAX_COUNT + 1];
 
     it.each(notExceededs)("not exceededs: %#", async (num) => {
-      const queries = createQueries(num);
+      const repos = createRepos(num);
       const result = await createTodo(
-        { user, queries, unitOfWork } as unknown as AppContextForAuthed,
+        { user, repos, unitOfWork } as unknown as AppContextForAuthed,
         args,
       );
       expect(result?.type).not.toBe("ResourceLimitExceeded");
     });
 
     it.each(exceededs)("exceededs: %#", async (num) => {
-      const queries = createQueries(num);
+      const repos = createRepos(num);
       const result = await createTodo(
-        { user, queries, unitOfWork } as unknown as AppContextForAuthed,
+        { user, repos, unitOfWork } as unknown as AppContextForAuthed,
         args,
       );
       expect(result?.type).toBe("ResourceLimitExceeded");

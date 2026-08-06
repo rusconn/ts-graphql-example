@@ -15,4 +15,8 @@ export class TodoReaderRepoForUser implements ITodoReaderRepoForUser {
   async find(id: Domain.Todo.Type["id"]) {
     return await this.#shared.find(id);
   }
+
+  async count() {
+    return await this.#shared.count();
+  }
 }

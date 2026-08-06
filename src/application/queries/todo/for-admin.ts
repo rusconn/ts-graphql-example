@@ -4,8 +4,6 @@ import type { CountByUserParams, FindByUserParams, PageByUserParams } from "./pa
 export interface ITodoQueryForAdmin {
   find(id: Todo["id"]): Promise<Todo | undefined>;
 
-  count(): Promise<number>;
-
   findByUser(params: FindByUserParams): Promise<Todo | undefined>;
 
   pageByUser(params: PageByUserParams): Promise<Todo[]>;

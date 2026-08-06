@@ -21,10 +21,6 @@ export class TodoQueryForUser implements ITodoQueryForUser {
     return await this.#shared.find(id);
   }
 
-  async count() {
-    return await this.#shared.count();
-  }
-
   async findByUser(params: FindByUserParams) {
     return await this.#shared.findByUser(params);
   }

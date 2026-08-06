@@ -11,28 +11,14 @@ import type { DB } from "../../datasources/db/types.ts";
 import { TodoQueryShared } from "./shared.ts";
 
 export class TodoQueryForAdmin implements ITodoQueryForAdmin {
-  #db;
   #shared;
-  #tenantId;
 
-  constructor(db: ReadonlyKysely<DB>, tenantId: Domain.Todo.Type["userId"]) {
-    this.#db = db;
+  constructor(db: ReadonlyKysely<DB>) {
     this.#shared = new TodoQueryShared(db);
-    this.#tenantId = tenantId;
   }
 
   async find(id: Domain.Todo.Type["id"]) {
     return await this.#shared.find(id);
-  }
-
-  async count() {
-    const result = await this.#db
-      .selectFrom("todos")
-      .where("userId", "=", this.#tenantId)
-      .select(({ fn }) => fn.countAll<number>().as("count"))
-      .executeTakeFirst();
-
-    return result?.count ?? 0;
   }
 
   async findByUser(params: FindByUserParams) {

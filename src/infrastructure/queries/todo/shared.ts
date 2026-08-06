@@ -38,16 +38,6 @@ export class TodoQueryShared {
     return todo && Dto.Todo.parseOrThrow(todo);
   }
 
-  async count() {
-    const result = await this.#db
-      .selectFrom("todos")
-      .$if(this.#tenantId != null, (qb) => qb.where("userId", "=", this.#tenantId!))
-      .select(({ fn }) => fn.countAll<number>().as("count"))
-      .executeTakeFirst();
-
-    return result?.count ?? 0;
-  }
-
   async findByUser(params: FindByUserParams) {
     const todo = await this.#loaders.userTodo.load(params);
     return todo && Dto.Todo.parseOrThrow(todo);
