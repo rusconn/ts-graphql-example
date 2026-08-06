@@ -21,6 +21,7 @@ export type Context = ServerContext &
   PluginContext &
   AppContext & {
     logger: Logger;
+    start: number;
   };
 export type ContextForAuthed = Context & AppContextForAuthed;
 export type ContextForAdmin = Context & AppContextForAdmin;
@@ -33,13 +34,16 @@ export type ServerContext = {
 
 export type PluginContext = {
   requestId?: string;
-  start?: ReturnType<typeof Date.now>;
 };
 
 export async function buildContext({
   request,
   requestId,
-}: ServerContext & YogaInitialContext & PluginContext): Promise<AppContext & { logger: Logger }> {
+}: ServerContext & YogaInitialContext & PluginContext): Promise<
+  AppContext & { logger: Logger; start: number }
+> {
+  const start = Date.now();
+
   const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
   let payload: AccessToken.Payload | null = null;
@@ -75,5 +79,6 @@ export async function buildContext({
       kysely,
     }),
     logger: pino.child({ requestId }),
+    start,
   };
 }
