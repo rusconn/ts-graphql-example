@@ -3,7 +3,8 @@ import type { Transaction } from "kysely";
 import { emailAlreadyExistsError } from "../../../application/errors/email-already-exists.ts";
 import { User as Domain } from "../../../domain/entities.ts";
 import { entityNotFoundError } from "../../../domain/errors/entity-not-found.ts";
-import { isPgError, PgErrorCode } from "../../../lib/pg/error.ts";
+import { isPgError } from "../../../lib/pg-extra.ts";
+import { PostgreSQLErrorCode } from "../../../lib/postgresql/error-code.ts";
 import { UserRole, type DB, type User, type Credential } from "../../datasources/db/types.ts";
 
 export class UserRepoShared {
@@ -33,7 +34,7 @@ export class UserRepoShared {
         .execute();
     } catch (e) {
       if (isPgError(e)) {
-        if (e.code === PgErrorCode.UniqueViolation) {
+        if (e.code === PostgreSQLErrorCode.UniqueViolation) {
           if (e.constraint?.includes("email")) {
             throw emailAlreadyExistsError();
           }
@@ -63,7 +64,7 @@ export class UserRepoShared {
         .executeTakeFirstOrThrow(entityNotFoundError);
     } catch (e) {
       if (isPgError(e)) {
-        if (e.code === PgErrorCode.UniqueViolation) {
+        if (e.code === PostgreSQLErrorCode.UniqueViolation) {
           if (e.constraint?.includes("email")) {
             throw emailAlreadyExistsError();
           }

@@ -2,7 +2,7 @@ import type { EmptyObject } from "type-fest";
 
 import { RefreshToken } from "../../domain/entities.ts";
 import { EntityNotFoundError } from "../../domain/errors/entity-not-found.ts";
-import type { DiscriminatedUnion } from "../../util/type.ts";
+import type { DiscriminatedUnion } from "../../lib/type.ts";
 import type { AppContext } from "../context.ts";
 
 type LogoutResult = DiscriminatedUnion<{

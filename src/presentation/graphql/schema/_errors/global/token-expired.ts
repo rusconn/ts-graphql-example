@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 
-import { toError } from "../../../../../util/error.ts";
+import { toError } from "../../../../../lib/error.ts";
 import { ErrorCode } from "../../_types.ts";
 
 export function tokenExpiredError(cause?: unknown) {

@@ -1,7 +1,7 @@
 import type { EmptyObject } from "type-fest";
 
 import * as Domain from "../../domain/entities.ts";
-import type { DiscriminatedUnion } from "../../util/type.ts";
+import type { DiscriminatedUnion } from "../../lib/type.ts";
 import type { AppContextForAuthed } from "../context.ts";
 
 type DeleteAccountResult = DiscriminatedUnion<{

@@ -1,28 +1,18 @@
 import type { Tagged } from "type-fest";
-import { v7 } from "uuid";
 
-import * as Uuid from "./vn.ts";
+import * as UuidV7 from "../../lib/uuid/v7.ts";
+import type { Uuid } from "./vn.ts";
 
-export type Uuidv7 = Tagged<Uuid.Uuid, "v7">;
+export type Uuidv7 = Tagged<Uuid, "v7">;
 
-export function gen() {
-  return v7() as Uuidv7;
+export function gen(): Uuidv7 {
+  return UuidV7.gen() as Uuidv7;
 }
 
 export function is(input: unknown): input is Uuidv7 {
-  return Uuid.is(input) && input.charAt(14) === "7";
+  return UuidV7.is(input);
 }
 
-export function genWithDate() {
-  const id = gen();
-  return { id, date: date(id) };
-}
-
-export function date(id: string) {
-  return new Date(decodeTime(id));
-}
-
-function decodeTime(id: string) {
-  const time = id.slice(0, 13).replace("-", "");
-  return Number.parseInt(time, 16);
+export function date(id: Uuidv7) {
+  return UuidV7.date(id);
 }

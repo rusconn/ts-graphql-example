@@ -1,7 +1,7 @@
 import type { EmptyObject } from "type-fest";
 
 import { RefreshToken } from "../../domain/entities.ts";
-import type { DiscriminatedUnion } from "../../util/type.ts";
+import type { DiscriminatedUnion } from "../../lib/type.ts";
 import type { AppContext } from "../context.ts";
 import * as Dto from "../dto.ts";
 
