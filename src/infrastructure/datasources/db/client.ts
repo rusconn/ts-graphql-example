@@ -1,4 +1,4 @@
-import { CamelCasePlugin, Kysely, type LogEvent, PostgresDialect } from "kysely";
+import { CamelCasePlugin, Kysely, PostgresDialect } from "kysely";
 import pg, { type DatabaseError } from "pg";
 
 import { connectionString } from "../../../config/db.ts";
@@ -9,16 +9,6 @@ import type { DB } from "./types.ts";
 // PostgreSQL's string of int8(bigint, bigserial) -> js number(possible loss of precision)
 pg.types.setTypeParser(pg.types.builtins.INT8, Number);
 
-const [logQuery, logError] = isProd
-  ? [
-      () => {}, // ログしない
-      (obj: Record<string, unknown>) => pino.error(obj, "query-error"),
-    ]
-  : [
-      (obj: Record<string, unknown>) => console.log("kysely:query", obj),
-      (obj: Record<string, unknown>) => console.error("kysely:error", obj),
-    ];
-
 /** Node.js 環境下ではモジュールキャッシュにより singleton */
 export const kysely = new Kysely<DB>({
   dialect: new PostgresDialect({
@@ -28,22 +18,33 @@ export const kysely = new Kysely<DB>({
   }),
   plugins: [new CamelCasePlugin()],
   log(event) {
+    const baseLog = {
+      sql: event.query.sql,
+      params: isProd ? "***" : event.query.parameters,
+      duration: `${Math.round(event.queryDurationMillis)}ms`,
+    };
+
     switch (event.level) {
       case "query":
         if (isDev) {
-          logQuery(common(event));
+          console.log("query-info", baseLog);
         }
         break;
       case "error": {
         const e = event.error as DatabaseError;
-        logError({
+        const errorLog = {
           message: e.message,
           stack: e.stack,
           table: e.table,
           code: e.code,
           constraint: e.constraint,
-          ...common(event),
-        });
+          ...baseLog,
+        };
+        if (isProd) {
+          pino.error(errorLog, "query-error");
+        } else {
+          console.error("query-error", errorLog);
+        }
         break;
       }
       default:
@@ -51,11 +52,3 @@ export const kysely = new Kysely<DB>({
     }
   },
 });
-
-function common(event: LogEvent) {
-  return {
-    sql: event.query.sql,
-    params: isProd ? "***" : event.query.parameters,
-    duration: `${Math.round(event.queryDurationMillis)}ms`,
-  };
-}
