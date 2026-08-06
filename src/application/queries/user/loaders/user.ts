@@ -1,3 +1,3 @@
-import type { User } from "../../../../infrastructure/datasources/db/types.ts";
+import type { Uuidv7 } from "../../../../util/uuid/v7.ts";
 
-export type Key = User["id"];
+export type Key = Uuidv7;

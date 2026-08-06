@@ -2,7 +2,6 @@ import { Result } from "neverthrow";
 import type { Tagged } from "type-fest";
 
 import * as Domain from "../../domain/entities.ts";
-import type * as Db from "../../infrastructure/datasources/db/types.ts";
 
 export type Type = Tagged<Raw, "RefreshTokenDto">;
 
@@ -14,15 +13,14 @@ type Raw = Pick<
   | "createdAt"
 >;
 
-export function parse(
-  input: Pick<
-    Db.RefreshToken,
-    | "token" //
-    | "userId"
-    | "expiresAt"
-    | "createdAt"
-  >,
-): Result<Type, ParseError[]> {
+type Input = {
+  token: string;
+  userId: string;
+  expiresAt: Date;
+  createdAt: Date;
+};
+
+export function parse(input: Input): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     Domain.RefreshToken.parseToken(input.token),
     Domain.RefreshToken.parseUserId(input.userId),
@@ -41,7 +39,7 @@ export type ParseError =
   | Domain.RefreshToken.TokenError //
   | Domain.RefreshToken.UserIdError;
 
-export function parseOrThrow(input: Parameters<typeof parse>[0]) {
+export function parseOrThrow(input: Input) {
   return parse(input)._unsafeUnwrap();
 }
 

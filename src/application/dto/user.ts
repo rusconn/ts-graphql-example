@@ -2,7 +2,6 @@ import { Result } from "neverthrow";
 import type { Tagged } from "type-fest";
 
 import * as Domain from "../../domain/entities.ts";
-import * as Db from "../../infrastructure/datasources/db/types.ts";
 
 export type Type = Tagged<Raw, "UserDto">;
 
@@ -16,45 +15,41 @@ type Raw = Pick<
   | "updatedAt"
 >;
 
-export function parse(
-  input: Pick<
-    Db.User,
-    | "id" //
-    | "name"
-    | "email"
-    | "role"
-    | "createdAt"
-    | "updatedAt"
-  >,
-): Result<Type, ParseError[]> {
+type Input = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export function parse(input: Input): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     Domain.User.parseId(input.id),
     Domain.User.parseName(input.name),
     Domain.User.parseEmail(input.email),
+    Domain.User.parseRole(input.role),
   ]).map(
-    ([id, name, email]) =>
+    ([id, name, email, role]) =>
       ({
         id,
         name,
         email,
-        role: toDomainRole[input.role],
+        role,
         createdAt: input.createdAt,
         updatedAt: input.updatedAt,
       }) satisfies Raw as Type,
   );
 }
 
-const toDomainRole: Record<Db.UserRole, Domain.User.Type["role"]> = {
-  [Db.UserRole.Admin]: Domain.User.Role.ADMIN,
-  [Db.UserRole.User]: Domain.User.Role.USER,
-};
-
 export type ParseError =
   | Domain.User.IdError //
   | Domain.User.NameError
-  | Domain.User.EmailError;
+  | Domain.User.EmailError
+  | Domain.User.RoleError;
 
-export function parseOrThrow(input: Parameters<typeof parse>[0]) {
+export function parseOrThrow(input: Input) {
   return parse(input)._unsafeUnwrap();
 }
 

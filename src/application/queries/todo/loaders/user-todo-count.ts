@@ -1,7 +1,7 @@
-import type { Todo, TodoStatus } from "../../../../infrastructure/datasources/db/types.ts";
+import type { Uuidv7 } from "../../../../util/uuid/v7.ts";
 
 export type Key = {
-  userId: Todo["userId"];
-  status?: TodoStatus;
+  userId: Uuidv7;
+  status?: "done" | "pending";
   search?: string;
 };

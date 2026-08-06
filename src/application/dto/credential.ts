@@ -2,7 +2,6 @@ import { Result } from "neverthrow";
 import type { Tagged } from "type-fest";
 
 import * as Domain from "../../domain/entities.ts";
-import type * as Db from "../../infrastructure/datasources/db/types.ts";
 
 export type Type = Tagged<Raw, "CredentialDto">;
 
@@ -11,10 +10,12 @@ type Raw = {
   password: Domain.User.Type["password"];
 };
 
-export function parse(input: {
-  userId: Db.User["id"];
-  password: Db.Credential["password"];
-}): Result<Type, ParseError[]> {
+type Input = {
+  userId: string;
+  password: string;
+};
+
+export function parse(input: Input): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     Domain.User.parseId(input.userId),
     Domain.User.parsePassword(input.password),
@@ -31,6 +32,6 @@ export type ParseError =
   | Domain.User.IdError //
   | Domain.User.PasswordError;
 
-export function parseOrThrow(input: Parameters<typeof parse>[0]) {
+export function parseOrThrow(input: Input) {
   return parse(input)._unsafeUnwrap();
 }

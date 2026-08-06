@@ -2,7 +2,6 @@ import { Result } from "neverthrow";
 import type { Tagged } from "type-fest";
 
 import * as Domain from "../../domain/entities.ts";
-import * as Db from "../../infrastructure/datasources/db/types.ts";
 
 export type Type = Tagged<Raw, "TodoDto">;
 
@@ -17,30 +16,30 @@ type Raw = Pick<
   | "updatedAt"
 >;
 
-export function parse(
-  input: Pick<
-    Db.Todo,
-    | "id" //
-    | "title"
-    | "description"
-    | "status"
-    | "userId"
-    | "createdAt"
-    | "updatedAt"
-  >,
-): Result<Type, ParseError[]> {
+type Input = {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export function parse(input: Input): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     Domain.Todo.parseId(input.id),
     Domain.Todo.parseTitle(input.title),
     Domain.Todo.parseDescription(input.description),
+    Domain.Todo.parseStatus(input.status),
     Domain.Todo.parseUserId(input.userId),
   ]).map(
-    ([id, title, description, userId]) =>
+    ([id, title, description, status, userId]) =>
       ({
         id,
         title,
         description,
-        status: toDomainStatus[input.status],
+        status,
         userId,
         createdAt: input.createdAt,
         updatedAt: input.updatedAt,
@@ -48,18 +47,14 @@ export function parse(
   );
 }
 
-const toDomainStatus: Record<Db.TodoStatus, Domain.Todo.Type["status"]> = {
-  [Db.TodoStatus.Done]: Domain.Todo.Status.DONE,
-  [Db.TodoStatus.Pending]: Domain.Todo.Status.PENDING,
-};
-
 export type ParseError =
   | Domain.Todo.IdError //
   | Domain.Todo.TitleError
   | Domain.Todo.DescriptionError
+  | Domain.Todo.StatusError
   | Domain.Todo.UserIdError;
 
-export function parseOrThrow(input: Parameters<typeof parse>[0]) {
+export function parseOrThrow(input: Input) {
   return parse(input)._unsafeUnwrap();
 }
 

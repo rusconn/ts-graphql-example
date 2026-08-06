@@ -30,7 +30,7 @@ export function parse(
     description: Parameters<typeof Description.parse>[0];
     status: Parameters<typeof Status.parse>[0];
     userId: Parameters<typeof User.Id.parse>[0];
-  } & Pick<Type, "status" | "createdAt" | "updatedAt">,
+  } & Pick<Type, "createdAt" | "updatedAt">,
 ): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     parseId(input.id),

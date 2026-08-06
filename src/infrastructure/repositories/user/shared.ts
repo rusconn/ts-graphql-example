@@ -108,11 +108,5 @@ export function toDomain(user: User, credential: Pick<Credential, "password">): 
   return Domain.parseOrThrow({
     ...user,
     ...credential,
-    role: toDomainRole[user.role],
   });
 }
-
-export const toDomainRole: Record<UserRole, Domain.Type["role"]> = {
-  [UserRole.Admin]: Domain.Role.ADMIN,
-  [UserRole.User]: Domain.Role.USER,
-};

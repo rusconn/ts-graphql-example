@@ -67,11 +67,6 @@ export const toDbStatus: Record<Domain.Type["status"], TodoStatus> = {
 export function toDomain({ status, ...rest }: Todo): Domain.Type {
   return Domain.parseOrThrow({
     ...rest,
-    status: toDomainStatus[status],
+    status,
   });
 }
-
-export const toDomainStatus: Record<TodoStatus, Domain.Type["status"]> = {
-  [TodoStatus.Done]: Domain.Status.DONE,
-  [TodoStatus.Pending]: Domain.Status.PENDING,
-};

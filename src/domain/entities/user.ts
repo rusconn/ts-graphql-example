@@ -27,21 +27,23 @@ export function parse(
     name: Parameters<typeof Name.parse>[0];
     email: Parameters<typeof Email.parse>[0];
     password: Parameters<typeof Password.parseHashed>[0];
-  } & Pick<Type, "role" | "createdAt" | "updatedAt">,
+    role: Parameters<typeof Role.parse>[0];
+  } & Pick<Type, "createdAt" | "updatedAt">,
 ): Result<Type, ParseError[]> {
   return Result.combineWithAllErrors([
     parseId(input.id),
     parseName(input.name),
     parseEmail(input.email),
     parsePassword(input.password),
+    parseRole(input.role),
   ]).map(
-    ([id, name, email, password]) =>
+    ([id, name, email, password, role]) =>
       ({
         id,
         name,
         email,
         password,
-        role: input.role,
+        role,
         createdAt: input.createdAt,
         updatedAt: input.updatedAt,
       }) satisfies Raw as Type,
@@ -80,12 +82,19 @@ export function parsePassword(
     err,
   }));
 }
+export function parseRole(role: Parameters<typeof Role.parse>[0]): Result<Role.Type, RoleError> {
+  return Role.parse(role).mapErr((err) => ({
+    prop: "role",
+    err,
+  }));
+}
 
 export type ParseError =
   | IdError //
   | NameError
   | EmailError
-  | PasswordError;
+  | PasswordError
+  | RoleError;
 
 export type IdError = {
   prop: "id";
@@ -102,6 +111,10 @@ export type EmailError = {
 export type PasswordError = {
   prop: "password";
   err: Password.ParseHashedError;
+};
+export type RoleError = {
+  prop: "role";
+  err: Role.ParseError;
 };
 
 export function parseOrThrow(input: Parameters<typeof parse>[0]): Type {

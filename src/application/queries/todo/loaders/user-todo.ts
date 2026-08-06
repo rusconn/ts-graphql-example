@@ -1,3 +1,6 @@
-import type { Todo } from "../../../../infrastructure/datasources/db/types.ts";
+import type { Uuidv7 } from "../../../../util/uuid/v7.ts";
 
-export type Key = Pick<Todo, "id" | "userId">;
+export type Key = {
+  id: Uuidv7;
+  userId: Uuidv7;
+};
