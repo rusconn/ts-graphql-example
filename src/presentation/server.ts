@@ -2,7 +2,7 @@ import process from "node:process";
 
 import { App } from "uWebSockets.js";
 
-import { maxBodyBytes } from "../config/http-security.ts";
+import { maxBodyBytes, requestTimeoutMs } from "../config/http-security.ts";
 import { endpoint, port } from "../config/url.ts";
 import { kysely } from "../infrastructure/datasources/db/client.ts";
 import { pino } from "../infrastructure/loggers/pino.ts";
@@ -13,6 +13,7 @@ const server = App().any(
   "/*",
   createBodyLimitHandler({
     maxBodyBytes,
+    requestTimeoutMs,
     fetch: (url, init) => yoga.fetch(url, init, {}),
   }),
 );

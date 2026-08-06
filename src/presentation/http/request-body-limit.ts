@@ -6,14 +6,18 @@ const fetchAPI = createFetch();
 
 const tooLargeStatus = "413 Payload Too Large";
 const tooLargeBody = JSON.stringify({ errors: [{ message: "Request body too large" }] });
+const timeoutStatus = "503 Service Unavailable";
+const timeoutBody = JSON.stringify({ errors: [{ message: "Request timeout" }] });
 
 export type BodyLimitedFetch = (url: string, init: RequestInit) => Response | Promise<Response>;
 
 export function createBodyLimitHandler({
   maxBodyBytes,
+  requestTimeoutMs,
   fetch,
 }: {
   maxBodyBytes: number;
+  requestTimeoutMs: number;
   fetch: BodyLimitedFetch;
 }) {
   return (res: HttpResponse, req: HttpRequest): void => {
@@ -33,7 +37,7 @@ export function createBodyLimitHandler({
     res.onAborted(() => controller.abort());
 
     if (method === "get" || method === "head") {
-      void respond(res, fetch, url, method, headers, null, controller);
+      void respond(res, fetch, url, method, headers, null, controller, requestTimeoutMs);
       return;
     }
 
@@ -45,7 +49,7 @@ export function createBodyLimitHandler({
       }
 
       // コールバック返却後にArrayBufferが破棄されるため、同期的にfetchへ渡す
-      void respond(res, fetch, url, method, headers, fullBody, controller);
+      void respond(res, fetch, url, method, headers, fullBody, controller, requestTimeoutMs);
     });
   };
 }
@@ -53,6 +57,11 @@ export function createBodyLimitHandler({
 function respondTooLarge(res: HttpResponse) {
   res.writeStatus(tooLargeStatus);
   res.end(tooLargeBody, true);
+}
+
+function respondTimeout(res: HttpResponse) {
+  res.writeStatus(timeoutStatus);
+  res.end(timeoutBody, true);
 }
 
 async function respond(
@@ -63,9 +72,17 @@ async function respond(
   headers: Headers,
   body: ArrayBuffer | null,
   controller: AbortController,
+  requestTimeoutMs: number,
 ) {
+  // タイムアウトでsignalをabortし、fetchをrejectさせる
+  let timedOut = false;
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, requestTimeoutMs);
+
   try {
-    const init: RequestInit = { method, headers };
+    const init: RequestInit = { method, headers, signal: controller.signal };
     if (body != null) {
       init.body = body;
     }
@@ -74,12 +91,17 @@ async function respond(
     await sendResponseToUwsOpts(res, response, controller, fetchAPI);
   } catch (error) {
     if (controller.signal.aborted) {
+      if (timedOut) {
+        respondTimeout(res);
+      }
       return;
     }
 
     console.error(error);
     res.writeStatus("500 Internal Server Error");
     res.end();
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -196,7 +218,7 @@ if (import.meta.vitest) {
     it("rejects by content-length before reading the body", () => {
       const res = createFakeRes();
       const { calls, fetch } = makeFetcher();
-      const handler = createBodyLimitHandler({ maxBodyBytes: 100, fetch });
+      const handler = createBodyLimitHandler({ maxBodyBytes: 100, requestTimeoutMs: 10000, fetch });
 
       handler(
         res as unknown as HttpResponse,
@@ -213,7 +235,7 @@ if (import.meta.vitest) {
     it("rejects when collectBody reports the body exceeds the limit", () => {
       const res = createFakeRes();
       const { calls, fetch } = makeFetcher();
-      const handler = createBodyLimitHandler({ maxBodyBytes: 100, fetch });
+      const handler = createBodyLimitHandler({ maxBodyBytes: 100, requestTimeoutMs: 10000, fetch });
 
       handler(res as unknown as HttpResponse, createFakeReq() as unknown as HttpRequest);
       res.collectBodyCb?.(null);
@@ -227,7 +249,7 @@ if (import.meta.vitest) {
     it("forwards the body when it is within the limit", async () => {
       const res = createFakeRes();
       const { calls, fetch } = makeFetcher();
-      const handler = createBodyLimitHandler({ maxBodyBytes: 100, fetch });
+      const handler = createBodyLimitHandler({ maxBodyBytes: 100, requestTimeoutMs: 10000, fetch });
 
       handler(res as unknown as HttpResponse, createFakeReq() as unknown as HttpRequest);
       expect(res.collectBodyMaxSize).toBe(100);
@@ -243,7 +265,7 @@ if (import.meta.vitest) {
     it("forwards get requests without a body", async () => {
       const res = createFakeRes();
       const { calls, fetch } = makeFetcher();
-      const handler = createBodyLimitHandler({ maxBodyBytes: 100, fetch });
+      const handler = createBodyLimitHandler({ maxBodyBytes: 100, requestTimeoutMs: 10000, fetch });
 
       handler(
         res as unknown as HttpResponse,
@@ -255,6 +277,25 @@ if (import.meta.vitest) {
       expect(calls[0]?.init.method).toBe("get");
       expect(calls[0]?.init.body).toBeUndefined();
       expect(res.collectBodyCb).toBeNull();
+    });
+
+    it("responds 503 when the request execution exceeds the timeout", async () => {
+      const res = createFakeRes();
+      const fetch = (_url: string, init: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init.signal?.addEventListener("abort", () =>
+            reject(new DOMException("Aborted", "AbortError")),
+          );
+        });
+      const handler = createBodyLimitHandler({ maxBodyBytes: 100, requestTimeoutMs: 10, fetch });
+
+      handler(res as unknown as HttpResponse, createFakeReq() as unknown as HttpRequest);
+      res.collectBodyCb?.(bytes(10));
+      await new Promise((resolve) => setTimeout(resolve, 30));
+
+      expect(res.status).toBe(timeoutStatus);
+      expect(res.endBody).toBe(timeoutBody);
+      expect(res.closeConnection).toBe(true);
     });
   });
 }
