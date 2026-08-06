@@ -1,7 +1,7 @@
 import type { Transaction } from "kysely";
 
-import { entityNotFoundError } from "../../../application/unit-of-works/_errors/entity-not-found.ts";
 import { RefreshToken as Domain } from "../../../domain/entities.ts";
+import { entityNotFoundError } from "../../../domain/errors/entity-not-found.ts";
 import type { DB, RefreshToken } from "../../datasources/db/types.ts";
 
 export class RefreshTokenRepoShared {

@@ -1,7 +1,7 @@
 import type { Transaction } from "kysely";
 
-import { entityNotFoundError } from "../../../application/unit-of-works/_errors/entity-not-found.ts";
 import { Todo as Domain } from "../../../domain/entities.ts";
+import { entityNotFoundError } from "../../../domain/errors/entity-not-found.ts";
 import { TodoStatus, type DB, type Todo } from "../../datasources/db/types.ts";
 
 export class TodoRepoShared {

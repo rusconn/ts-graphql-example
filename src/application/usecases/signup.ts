@@ -1,10 +1,10 @@
 import type { EmptyObject } from "type-fest";
 
-import { EmailAlreadyExistsError } from "../../application/unit-of-works/_errors/email-already-exists.ts";
 import { RefreshToken, User } from "../../domain/entities.ts";
 import type { DiscriminatedUnion } from "../../util/type.ts";
 import type { AppContextForGuest } from "../context.ts";
 import * as Dto from "../dto.ts";
+import { EmailAlreadyExistsError } from "../errors/email-already-exists.ts";
 
 type SignupInput = {
   name: User.Name.Type;

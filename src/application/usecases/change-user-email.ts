@@ -1,10 +1,10 @@
 import type { EmptyObject } from "type-fest";
 
-import { EmailAlreadyExistsError } from "../../application/unit-of-works/_errors/email-already-exists.ts";
 import { User } from "../../domain/entities.ts";
 import type { DiscriminatedUnion } from "../../util/type.ts";
 import type { AppContextForAuthed } from "../context.ts";
 import * as Dto from "../dto.ts";
+import { EmailAlreadyExistsError } from "../errors/email-already-exists.ts";
 
 type ChangeUserEmailResult = DiscriminatedUnion<{
   UserEntityNotFound: EmptyObject;

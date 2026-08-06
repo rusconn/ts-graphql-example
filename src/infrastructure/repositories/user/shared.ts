@@ -1,8 +1,8 @@
 import type { Transaction } from "kysely";
 
-import { emailAlreadyExistsError } from "../../../application/unit-of-works/_errors/email-already-exists.ts";
-import { entityNotFoundError } from "../../../application/unit-of-works/_errors/entity-not-found.ts";
+import { emailAlreadyExistsError } from "../../../application/errors/email-already-exists.ts";
 import { User as Domain } from "../../../domain/entities.ts";
+import { entityNotFoundError } from "../../../domain/errors/entity-not-found.ts";
 import { isPgError, PgErrorCode } from "../../../lib/pg/error.ts";
 import { UserRole, type DB, type User, type Credential } from "../../datasources/db/types.ts";
 
