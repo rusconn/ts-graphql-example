@@ -1,14 +1,14 @@
 import type { YogaInitialContext } from "graphql-yoga";
+import type { Logger } from "pino";
 import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 
-import {
-  type AppContext,
-  type AppContextForAdmin,
-  type AppContextForAuthed,
-  type AppContextForGuest,
-  createAppContext,
-  findAppContextUser,
+import type {
+  AppContext,
+  AppContextForAdmin,
+  AppContextForAuthed,
+  AppContextForGuest,
 } from "../../../application/context.ts";
+import { createAppContext, findAppContextUser } from "../../../infrastructure/context.ts";
 import { kysely } from "../../../infrastructure/datasources/db/client.ts";
 import { pino } from "../../../infrastructure/loggers/pino.ts";
 import * as AccessToken from "../../_shared/auth/access-token.ts";
@@ -16,10 +16,15 @@ import { authenticationError } from "../schema/_errors/global/authentication-err
 import { badUserInputError } from "../schema/_errors/global/bad-user-input.ts";
 import { tokenExpiredError } from "../schema/_errors/global/token-expired.ts";
 
-export type Context = ServerContext & YogaInitialContext & PluginContext & AppContext;
-export type ContextForAuthed = ServerContext & YogaInitialContext & AppContextForAuthed;
-export type ContextForAdmin = ServerContext & YogaInitialContext & AppContextForAdmin;
-export type ContextForGuest = ServerContext & YogaInitialContext & AppContextForGuest;
+export type Context = ServerContext &
+  YogaInitialContext &
+  PluginContext &
+  AppContext & {
+    logger: Logger;
+  };
+export type ContextForAuthed = Context & AppContextForAuthed;
+export type ContextForAdmin = Context & AppContextForAdmin;
+export type ContextForGuest = Context & AppContextForGuest;
 
 export type ServerContext = {
   req: HttpRequest;
@@ -34,7 +39,7 @@ export type PluginContext = {
 export async function buildContext({
   request,
   requestId,
-}: ServerContext & YogaInitialContext & PluginContext): Promise<AppContext> {
+}: ServerContext & YogaInitialContext & PluginContext): Promise<AppContext & { logger: Logger }> {
   const token = request.headers.get("authorization")?.replace("Bearer ", "");
 
   let payload: AccessToken.Payload | null = null;
@@ -64,9 +69,11 @@ export async function buildContext({
     user = found;
   }
 
-  return createAppContext({
-    user,
+  return {
+    ...createAppContext({
+      user,
+      kysely,
+    }),
     logger: pino.child({ requestId }),
-    kysely,
-  });
+  };
 }

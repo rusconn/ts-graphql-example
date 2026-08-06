@@ -1,6 +1,6 @@
 import type { Transaction } from "kysely";
 
-import { createAppContext } from "../../../../application/context.ts";
+import { createAppContext } from "../../../../infrastructure/context.ts";
 import type { DB } from "../../../../infrastructure/datasources/db/types.ts";
 import { pino } from "../../../../infrastructure/loggers/pino.ts";
 import type { Context } from "../../yoga/context.ts";
@@ -16,6 +16,7 @@ export const dummyId = {
 export function createContext(ctx: ContextForIT, trx: Transaction<DB>): Context {
   return {
     request: ctx.request,
-    ...createAppContext({ user: ctx.user, logger: pino, kysely: trx }),
+    logger: pino,
+    ...createAppContext({ user: ctx.user, kysely: trx }),
   } as Context;
 }
