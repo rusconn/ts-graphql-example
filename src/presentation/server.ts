@@ -5,6 +5,7 @@ import { App } from "uWebSockets.js";
 import { maxBodyBytes, requestTimeoutMs } from "../config/http-security.ts";
 import { endpoint, port } from "../config/url.ts";
 import { kysely } from "../infrastructure/datasources/db/client.ts";
+import { disconnectValkey } from "../infrastructure/datasources/valkey/client.ts";
 import { pino } from "../infrastructure/loggers/pino.ts";
 import { yoga } from "./graphql/yoga.ts";
 import { createBodyLimitHandler } from "./http/request-body-limit.ts";
@@ -27,6 +28,7 @@ const shutdown = (signal: string) => async () => {
   server.close();
   await yoga.dispose();
   await kysely.destroy();
+  await disconnectValkey();
   pino.flush();
   console.log("Shutdown completed");
 };

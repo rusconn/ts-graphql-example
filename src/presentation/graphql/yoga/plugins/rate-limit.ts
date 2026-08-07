@@ -2,14 +2,13 @@ import type { ExecutionResult } from "graphql";
 import { isAsyncIterable, type Plugin } from "graphql-yoga";
 
 import { isProd } from "../../../../config/exec-env.ts";
-import { capacity, refillPerSecond } from "../../../../config/rate-limit.ts";
-import { kysely } from "../../../../infrastructure/datasources/db/client.ts";
+import { bucketTtlSeconds, capacity, refillPerSecond } from "../../../../config/rate-limit.ts";
 import { RateLimitBucketRepo } from "../../../../infrastructure/repositories/rate-limit/buckets.ts";
 import { rateLimitedError } from "../../schema/_errors/global/rate-limited.ts";
 import type { Context } from "../context.ts";
 import { buildCostExtensions, parseClientIp, type CostExtensions } from "./rate-limit/helpers.ts";
 
-const repo = new RateLimitBucketRepo(kysely);
+const repo = new RateLimitBucketRepo();
 
 type ServerContext = {
   rateLimit?: {
@@ -54,6 +53,7 @@ export const rateLimit: Plugin<{}, ServerContext, UserContext> = {
         cost: requestedQueryCost,
         capacity,
         refillPerSecond,
+        ttlSeconds: bucketTtlSeconds,
       });
     } catch (e) {
       context.logger.error(e, "token-consuming-error");

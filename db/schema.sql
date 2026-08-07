@@ -53,10 +53,3 @@ USING gin (LOWER(title) gin_bigm_ops);
 -- 過剰かもしれないが、学習のため
 CREATE INDEX todos_description_bigm ON todos
 USING gin (LOWER(description) gin_bigm_ops);
-
-CREATE UNLOGGED TABLE rate_limit_buckets (
-  subject varchar(255) PRIMARY KEY,
-  tokens double precision NOT NULL,
-  created_at timestamptz (3) NOT NULL,
-  updated_at timestamptz (3) NOT NULL
-);

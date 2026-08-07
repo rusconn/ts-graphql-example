@@ -17,13 +17,6 @@ export interface Credentials {
   userId: Uuidv7;
 }
 
-export interface RateLimitBuckets {
-  createdAt: Timestamp;
-  subject: string;
-  tokens: number;
-  updatedAt: Timestamp;
-}
-
 export interface RefreshTokens {
   createdAt: Timestamp;
   expiresAt: Timestamp;
@@ -52,7 +45,6 @@ export interface Users {
 
 export interface DB {
   credentials: Credentials;
-  rateLimitBuckets: RateLimitBuckets;
   refreshTokens: RefreshTokens;
   todos: Todos;
   users: Users;

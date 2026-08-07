@@ -1,21 +1,13 @@
 import { setTimeout as sleep } from "node:timers/promises";
 
-import type { ControlledTransaction } from "kysely";
-
-import { kysely } from "../../datasources/db/client.ts";
-import type { DB } from "../../datasources/db/types.ts";
+import { getValkey } from "../../datasources/valkey/client.ts";
 import { RateLimitBucketRepo } from "./buckets.ts";
 
-let trx: ControlledTransaction<DB>;
-let repo: RateLimitBucketRepo;
+const repo = new RateLimitBucketRepo();
 
 beforeEach(async () => {
-  trx = await kysely.startTransaction().execute();
-  repo = new RateLimitBucketRepo(trx);
-});
-
-afterEach(async () => {
-  await trx.rollback().execute();
+  const client = await getValkey();
+  await client.flushdb();
 });
 
 describe("RateLimitBucketRepo", () => {
@@ -25,6 +17,7 @@ describe("RateLimitBucketRepo", () => {
       cost: 3,
       capacity: 10,
       refillPerSecond: 1,
+      ttlSeconds: 60,
     });
 
     expect(result.ok).toBe(true);
@@ -38,6 +31,7 @@ describe("RateLimitBucketRepo", () => {
         cost: 4,
         capacity: 10,
         refillPerSecond: 1,
+        ttlSeconds: 60,
       });
 
     for (let i = 0; i < 2; i++) {
@@ -60,6 +54,7 @@ describe("RateLimitBucketRepo", () => {
         cost: 4,
         capacity: 10,
         refillPerSecond: 10,
+        ttlSeconds: 60,
       });
 
     const first = await consume();
@@ -83,6 +78,7 @@ describe("RateLimitBucketRepo", () => {
         cost: 1,
         capacity: 10,
         refillPerSecond: 1000,
+        ttlSeconds: 60,
       });
 
     const first = await consume();
@@ -102,6 +98,7 @@ describe("RateLimitBucketRepo", () => {
       cost: 10,
       capacity: 10,
       refillPerSecond: 1,
+      ttlSeconds: 60,
     });
 
     const result = await repo.consume({
@@ -109,6 +106,7 @@ describe("RateLimitBucketRepo", () => {
       cost: 10,
       capacity: 10,
       refillPerSecond: 1,
+      ttlSeconds: 60,
     });
 
     expect(result.ok).toBe(true);

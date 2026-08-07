@@ -1,4 +1,5 @@
 import * as RateLimit from "../../src/config/rate-limit.ts";
+import { getValkey } from "../../src/infrastructure/datasources/valkey/client.ts";
 import { ErrorCode } from "../../src/presentation/graphql/schema/_types.ts";
 import type { CostExtensions } from "../../src/presentation/graphql/yoga/plugins/rate-limit/helpers.ts";
 import { graphql } from "./_shared/gql.ts";
@@ -40,6 +41,9 @@ const viewer = executeSingleResultOperation(
 );
 
 test("rate limit", async () => {
+  const client = await getValkey();
+  await client.flushdb();
+
   const email = `rate-limit-${crypto.randomUUID()}@example.com`;
 
   let token;

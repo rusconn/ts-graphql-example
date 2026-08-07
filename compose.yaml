@@ -16,5 +16,16 @@ services:
       timeout: 3s
       retries: 3
 
+  valkey:
+    image: valkey/valkey:9.1.1-alpine3.24
+    command: valkey-server --save "" --appendonly no
+    ports:
+      - ${VALKEY_PORT:?}:6379
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 3
+
 volumes:
   postgres:
