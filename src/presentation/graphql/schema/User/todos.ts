@@ -52,10 +52,10 @@ export const typeDef = /* GraphQL */ `
   }
 
   type TodoConnection {
-    pageInfo: PageInfo!
+    pageInfo: PageInfo! @complexity(value: 1, perInstance: true)
     edges: [TodoEdge] @semanticNonNull(levels: [0, 1])
     nodes: [Todo] @semanticNonNull(levels: [0, 1])
-    totalCount: Int @semanticNonNull @complexity(value: 5)
+    totalCount: Int @semanticNonNull @complexity(value: 5, perInstance: true)
   }
 
   type TodoEdge {

@@ -35,7 +35,7 @@ export const typeDef = /* GraphQL */ `
       null は入力エラー
       """
       status: TodoStatus
-    ): TodoUpdateResult @semanticNonNull @complexity(value: 5)
+    ): TodoUpdateResult @semanticNonNull @complexity(value: 50)
   }
 
   union TodoUpdateResult = TodoUpdateSuccess | InvalidInputErrors | ResourceNotFoundError

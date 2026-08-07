@@ -41,10 +41,10 @@ export const typeDef = /* GraphQL */ `
   }
 
   type UserConnection {
-    pageInfo: PageInfo!
+    pageInfo: PageInfo! @complexity(value: 1, perInstance: true)
     edges: [UserEdge] @semanticNonNull(levels: [0, 1])
     nodes: [User] @semanticNonNull(levels: [0, 1])
-    totalCount: Int @semanticNonNull @complexity(value: 5)
+    totalCount: Int @semanticNonNull @complexity(value: 5, perInstance: true)
   }
 
   type UserEdge {

@@ -16,7 +16,7 @@ export const typeDef = /* GraphQL */ `
       ${User.Email.MAX}文字まで、既に存在する場合はエラー
       """
       email: String!
-    ): UserEmailChangeResult @semanticNonNull @complexity(value: 5)
+    ): UserEmailChangeResult @semanticNonNull @complexity(value: 50)
   }
 
   union UserEmailChangeResult = UserEmailChangeSuccess | InvalidInputErrors | EmailAlreadyTakenError

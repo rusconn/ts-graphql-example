@@ -671,6 +671,7 @@ export type ResolversParentTypes = ResolversObject<{
 
 export type ComplexityDirectiveArgs = {
   multipliers?: Maybe<Array<Scalars['String']['input']>>;
+  perInstance: Scalars['Boolean']['input'];
   value: Scalars['Int']['input'];
 };
 

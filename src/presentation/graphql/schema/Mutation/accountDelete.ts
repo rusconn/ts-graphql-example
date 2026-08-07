@@ -20,7 +20,7 @@ export const typeDef = /* GraphQL */ `
       ${User.Password.MIN}文字以上、${User.Password.MAX}文字まで
       """
       password: String!
-    ): AccountDeleteResult @semanticNonNull @complexity(value: 5)
+    ): AccountDeleteResult @semanticNonNull @complexity(value: 1000)
   }
 
   union AccountDeleteResult = AccountDeleteSuccess | InvalidInputErrors | IncorrectPasswordError

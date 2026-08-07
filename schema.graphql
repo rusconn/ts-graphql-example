@@ -3,7 +3,15 @@ schema {
   mutation: Mutation
 }
 
-directive @complexity(value: Int!, multipliers: [String!]) on FIELD_DEFINITION
+directive @complexity(
+  value: Int!
+  multipliers: [String!]
+  """
+  trueなら直近のmultipliersではスケールせず、それより上のmultipliersでのみスケールする(totalCount, pageInfo等)。
+  サブフィールドにも波及する。
+  """
+  perInstance: Boolean! = false
+) on FIELD_DEFINITION
 
 directive @semanticNonNull(levels: [Int] = [0]) on FIELD_DEFINITION
 
@@ -56,7 +64,7 @@ type Mutation {
     8文字以上、50文字まで
     """
     password: String!
-  ): AccountDeleteResult @semanticNonNull @complexity(value: 5)
+  ): AccountDeleteResult @semanticNonNull @complexity(value: 1000)
   """
   ログイン済のみ
   """
@@ -65,7 +73,7 @@ type Mutation {
     1文字以上、100文字まで、null は入力エラー
     """
     name: String
-  ): AccountUpdateResult @semanticNonNull @complexity(value: 5)
+  ): AccountUpdateResult @semanticNonNull @complexity(value: 50)
   login(
     """
     100文字まで
@@ -75,7 +83,7 @@ type Mutation {
     8文字以上、50文字まで
     """
     password: String!
-  ): LoginResult @semanticNonNull @complexity(value: 100)
+  ): LoginResult @semanticNonNull @complexity(value: 1000)
   """
   ログイン済のみ
   """
@@ -88,8 +96,8 @@ type Mutation {
     8文字以上、50文字まで
     """
     newPassword: String!
-  ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 100)
-  logout: Void @semanticNonNull @complexity(value: 100)
+  ): LoginPasswordChangeResult @semanticNonNull @complexity(value: 1000)
+  logout: Void @semanticNonNull @complexity(value: 50)
   """
   未ログインのみ
   """
@@ -106,7 +114,7 @@ type Mutation {
     8文字以上、50文字まで
     """
     password: String!
-  ): SignupResult @semanticNonNull @complexity(value: 100)
+  ): SignupResult @semanticNonNull @complexity(value: 1000)
   """
   10000件まで
 
@@ -121,17 +129,17 @@ type Mutation {
     5000文字まで
     """
     description: String! = ""
-  ): TodoCreateResult @semanticNonNull @complexity(value: 5)
+  ): TodoCreateResult @semanticNonNull @complexity(value: 50)
   """
   ログイン済のみ
   """
-  todoDelete(id: ID!): TodoDeleteResult @semanticNonNull @complexity(value: 5)
+  todoDelete(id: ID!): TodoDeleteResult @semanticNonNull @complexity(value: 50)
   """
   ログイン済のみ
   """
   todoStatusChange(id: ID!, status: TodoStatus!): TodoStatusChangeResult
     @semanticNonNull
-    @complexity(value: 5)
+    @complexity(value: 50)
   """
   ログイン済のみ
   """
@@ -149,8 +157,8 @@ type Mutation {
     null は入力エラー
     """
     status: TodoStatus
-  ): TodoUpdateResult @semanticNonNull @complexity(value: 5)
-  tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 200)
+  ): TodoUpdateResult @semanticNonNull @complexity(value: 50)
+  tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 1000)
   """
   ログイン済のみ
   """
@@ -159,7 +167,7 @@ type Mutation {
     100文字まで、既に存在する場合はエラー
     """
     email: String!
-  ): UserEmailChangeResult @semanticNonNull @complexity(value: 5)
+  ): UserEmailChangeResult @semanticNonNull @complexity(value: 50)
 }
 
 union AccountDeleteResult = AccountDeleteSuccess | InvalidInputErrors | IncorrectPasswordError
@@ -303,10 +311,10 @@ enum UserSortKeys {
 }
 
 type UserConnection {
-  pageInfo: PageInfo!
+  pageInfo: PageInfo! @complexity(value: 1, perInstance: true)
   edges: [UserEdge] @semanticNonNull(levels: [0, 1])
   nodes: [User] @semanticNonNull(levels: [0, 1])
-  totalCount: Int @semanticNonNull @complexity(value: 5)
+  totalCount: Int @semanticNonNull @complexity(value: 5, perInstance: true)
 }
 
 type UserEdge {
@@ -416,10 +424,10 @@ enum TodoSortKeys {
 }
 
 type TodoConnection {
-  pageInfo: PageInfo!
+  pageInfo: PageInfo! @complexity(value: 1, perInstance: true)
   edges: [TodoEdge] @semanticNonNull(levels: [0, 1])
   nodes: [Todo] @semanticNonNull(levels: [0, 1])
-  totalCount: Int @semanticNonNull @complexity(value: 5)
+  totalCount: Int @semanticNonNull @complexity(value: 5, perInstance: true)
 }
 
 type TodoEdge {

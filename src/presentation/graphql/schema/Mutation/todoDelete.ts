@@ -12,7 +12,7 @@ export const typeDef = /* GraphQL */ `
     """
     ログイン済のみ
     """
-    todoDelete(id: ID!): TodoDeleteResult @semanticNonNull @complexity(value: 5)
+    todoDelete(id: ID!): TodoDeleteResult @semanticNonNull @complexity(value: 50)
   }
 
   union TodoDeleteResult = TodoDeleteSuccess | ResourceNotFoundError

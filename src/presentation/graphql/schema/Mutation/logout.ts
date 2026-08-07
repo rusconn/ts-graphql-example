@@ -5,7 +5,7 @@ import type { MutationResolvers } from "../_types.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    logout: Void @semanticNonNull @complexity(value: 100)
+    logout: Void @semanticNonNull @complexity(value: 50)
   }
 `;
 

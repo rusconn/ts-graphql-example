@@ -7,7 +7,7 @@ import type { MutationResolvers } from "../_types.ts";
 
 export const typeDef = /* GraphQL */ `
   extend type Mutation {
-    tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 200)
+    tokenRefresh: TokenRefreshResult @semanticNonNull @complexity(value: 1000)
   }
 
   union TokenRefreshResult =

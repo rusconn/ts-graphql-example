@@ -14,7 +14,7 @@ export const typeDef = /* GraphQL */ `
     """
     todoStatusChange(id: ID!, status: TodoStatus!): TodoStatusChangeResult
       @semanticNonNull
-      @complexity(value: 5)
+      @complexity(value: 50)
   }
 
   union TodoStatusChangeResult = TodoStatusChangeSuccess | ResourceNotFoundError
