@@ -22,3 +22,12 @@ export function getInt(key: string) {
 
   return num;
 }
+
+export function getBool(key: string) {
+  const val = get(key).trim();
+  if (val !== "true" && val !== "false") {
+    throw new Error(`${key} must be "true" or "false"`);
+  }
+
+  return val === "true";
+}

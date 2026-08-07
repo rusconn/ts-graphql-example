@@ -34,6 +34,7 @@ export type ServerContext = {
 
 export type PluginContext = {
   requestId?: string;
+  queryComplexity?: number;
 };
 
 export async function buildContext({

@@ -58,7 +58,8 @@ export const ErrorCode = {
   BadUserInput: 'BAD_USER_INPUT',
   Forbidden: 'FORBIDDEN',
   InternalServerError: 'INTERNAL_SERVER_ERROR',
-  QueryTooComplex: 'QUERY_TOO_COMPLEX'
+  QueryTooComplex: 'QUERY_TOO_COMPLEX',
+  RateLimited: 'RATE_LIMITED'
 } as const;
 
 export type ErrorCode = typeof ErrorCode[keyof typeof ErrorCode];

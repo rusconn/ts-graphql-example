@@ -48,7 +48,8 @@ export const ErrorCode = {
   BadUserInput: 'BAD_USER_INPUT',
   Forbidden: 'FORBIDDEN',
   InternalServerError: 'INTERNAL_SERVER_ERROR',
-  QueryTooComplex: 'QUERY_TOO_COMPLEX'
+  QueryTooComplex: 'QUERY_TOO_COMPLEX',
+  RateLimited: 'RATE_LIMITED'
 } as const;
 
 export type ErrorCode = typeof ErrorCode[keyof typeof ErrorCode];
@@ -507,6 +508,11 @@ export type MultiDeviceTodoDeleteMutation = { todoDelete?:
     | { __typename: 'TodoDeleteSuccess', id: string }
    | null };
 
+export type RateLimitViewerQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RateLimitViewerQuery = { viewer?: { __typename: 'User', id: string, name?: string | null, email?: string | null, createdAt?: string | null, updatedAt?: string | null, todos?: { totalCount?: number | null, pageInfo: { startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, nodes?: Array<{ id: string, title?: string | null, description?: string | null, status?: TodoStatus | null, createdAt?: string | null, updatedAt?: string | null } | null> | null } | null } | null };
+
 export type SingleDeviceSignupMutationVariables = Exact<{
   name: Scalars['String']['input'];
   email: Scalars['String']['input'];
@@ -788,6 +794,35 @@ export const MultiDeviceTodoDeleteDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<MultiDeviceTodoDeleteMutation, MultiDeviceTodoDeleteMutationVariables>;
+export const RateLimitViewerDocument = new TypedDocumentString(`
+    query RateLimitViewer {
+  viewer {
+    __typename
+    id
+    name
+    email
+    createdAt
+    updatedAt
+    todos(first: 50) {
+      totalCount
+      pageInfo {
+        startCursor
+        endCursor
+        hasNextPage
+        hasPreviousPage
+      }
+      nodes {
+        id
+        title
+        description
+        status
+        createdAt
+        updatedAt
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<RateLimitViewerQuery, RateLimitViewerQueryVariables>;
 export const SingleDeviceSignupDocument = new TypedDocumentString(`
     mutation SingleDeviceSignup($name: String!, $email: String!, $password: String!) {
   signup(name: $name, email: $email, password: $password) {

@@ -38,6 +38,7 @@ export function executeSingleResultOperation<
     const result = (await response.json()) as ExecutionResult<TData>;
 
     return {
+      status: response.status,
       headers: response.headers,
       ...result,
     };

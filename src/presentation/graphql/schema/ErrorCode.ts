@@ -6,5 +6,6 @@ export const typeDef = /* GraphQL */ `
     FORBIDDEN
     INTERNAL_SERVER_ERROR
     QUERY_TOO_COMPLEX
+    RATE_LIMITED
   }
 `;
