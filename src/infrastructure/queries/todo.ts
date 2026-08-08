@@ -1,18 +1,20 @@
 import type { ReadonlyKysely } from "kysely/readonly";
 
-import * as Dto from "../../../application/dto.ts";
+import * as Dto from "../../application/dto.ts";
+import type { ITodoQueryForAdmin } from "../../application/queries/todo/for-admin.ts";
+import type { ITodoQueryForUser } from "../../application/queries/todo/for-user.ts";
 import type {
   CountByUserParams,
   FindByUserParams,
   PageByUserParams,
-} from "../../../application/queries/todo/params.ts";
-import type * as Domain from "../../../domain/entities.ts";
-import type { DB } from "../../datasources/db/types.ts";
-import * as UserTodoCountLoader from "./loaders/user-todo-count.ts";
-import * as UserTodoLoader from "./loaders/user-todo.ts";
-import * as UserTodosLoader from "./loaders/user-todos.ts";
+} from "../../application/queries/todo/params.ts";
+import type * as Domain from "../../domain/entities.ts";
+import type { DB } from "../datasources/db/types.ts";
+import * as UserTodoCountLoader from "./todo/loaders/user-todo-count.ts";
+import * as UserTodoLoader from "./todo/loaders/user-todo.ts";
+import * as UserTodosLoader from "./todo/loaders/user-todos.ts";
 
-export class TodoQueryShared {
+export class TodoQuery implements ITodoQueryForAdmin, ITodoQueryForUser {
   #db;
   #loaders;
   #tenantId;

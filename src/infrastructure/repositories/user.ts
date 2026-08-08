@@ -1,13 +1,16 @@
 import type { Transaction } from "kysely";
 
-import { emailAlreadyExistsError } from "../../../application/errors/email-already-exists.ts";
-import { User as Domain } from "../../../domain/entities.ts";
-import { entityNotFoundError } from "../../../domain/errors/entity-not-found.ts";
-import { isPgError } from "../../../lib/pg-extra.ts";
-import { PostgreSQLErrorCode } from "../../../lib/postgresql/error-code.ts";
-import { UserRole, type DB, type User, type Credential } from "../../datasources/db/types.ts";
+import { emailAlreadyExistsError } from "../../application/errors/email-already-exists.ts";
+import { User as Domain } from "../../domain/entities.ts";
+import { entityNotFoundError } from "../../domain/errors/entity-not-found.ts";
+import type { IUserRepoForAdmin } from "../../domain/repositories/user/for-admin.ts";
+import type { IUserRepoForGuest } from "../../domain/repositories/user/for-guest.ts";
+import type { IUserRepoForUser } from "../../domain/repositories/user/for-user.ts";
+import { isPgError } from "../../lib/pg-extra.ts";
+import { PostgreSQLErrorCode } from "../../lib/postgresql/error-code.ts";
+import { UserRole, type DB, type User, type Credential } from "../datasources/db/types.ts";
 
-export class UserRepoShared {
+export class UserRepo implements IUserRepoForAdmin, IUserRepoForUser, IUserRepoForGuest {
   #trx;
   #tenantId;
 

@@ -1,10 +1,12 @@
 import type { Transaction } from "kysely";
 
-import { Todo as Domain } from "../../../domain/entities.ts";
-import { entityNotFoundError } from "../../../domain/errors/entity-not-found.ts";
-import { TodoStatus, type DB, type Todo } from "../../datasources/db/types.ts";
+import { Todo as Domain } from "../../domain/entities.ts";
+import { entityNotFoundError } from "../../domain/errors/entity-not-found.ts";
+import type { ITodoRepoForAdmin } from "../../domain/repositories/todo/for-admin.ts";
+import type { ITodoRepoForUser } from "../../domain/repositories/todo/for-user.ts";
+import { TodoStatus, type DB, type Todo } from "../datasources/db/types.ts";
 
-export class TodoRepoShared {
+export class TodoRepo implements ITodoRepoForAdmin, ITodoRepoForUser {
   #trx;
   #tenantId;
 

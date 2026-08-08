@@ -1,10 +1,15 @@
 import type { ReadonlyKysely } from "kysely/readonly";
 
-import type { User as Domain } from "../../../domain/entities.ts";
-import type { DB, User, Credential } from "../../datasources/db/types.ts";
-import { toDomain } from "../../repositories/user/shared.ts";
+import type { User as Domain } from "../../domain/entities.ts";
+import type { IUserReaderRepoForAdmin } from "../../domain/repositories-read/user/for-admin.ts";
+import type { IUserReaderRepoForGuest } from "../../domain/repositories-read/user/for-guest.ts";
+import type { IUserReaderRepoForUser } from "../../domain/repositories-read/user/for-user.ts";
+import type { DB, User, Credential } from "../datasources/db/types.ts";
+import { toDomain } from "../repositories/user.ts";
 
-export class UserReaderRepoShared {
+export class UserReaderRepo
+  implements IUserReaderRepoForAdmin, IUserReaderRepoForUser, IUserReaderRepoForGuest
+{
   #db;
   #tenantId;
 

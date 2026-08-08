@@ -1,4 +1,4 @@
-import * as UserRepo from "../../../../../infrastructure/repositories/user/shared.ts";
+import * as UserRepo from "../../../../../infrastructure/repositories/user.ts";
 import { db as credentials } from "../db/credentials.ts";
 import { db as users } from "../db/users.ts";
 

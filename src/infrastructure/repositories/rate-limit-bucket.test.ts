@@ -1,7 +1,7 @@
 import { setTimeout as sleep } from "node:timers/promises";
 
-import { getValkey } from "../../datasources/valkey/client.ts";
-import { RateLimitBucketRepo } from "./buckets.ts";
+import { getValkey } from "../datasources/valkey/client.ts";
+import { RateLimitBucketRepo } from "./rate-limit-bucket.ts";
 
 const repo = new RateLimitBucketRepo();
 

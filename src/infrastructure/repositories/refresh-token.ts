@@ -1,10 +1,15 @@
 import type { Transaction } from "kysely";
 
-import { RefreshToken as Domain } from "../../../domain/entities.ts";
-import { entityNotFoundError } from "../../../domain/errors/entity-not-found.ts";
-import type { DB, RefreshToken } from "../../datasources/db/types.ts";
+import { RefreshToken as Domain } from "../../domain/entities.ts";
+import { entityNotFoundError } from "../../domain/errors/entity-not-found.ts";
+import type { IRefreshTokenRepoForAdmin } from "../../domain/repositories/refresh-token/for-admin.ts";
+import type { IRefreshTokenRepoForGuest } from "../../domain/repositories/refresh-token/for-guest.ts";
+import type { IRefreshTokenRepoForUser } from "../../domain/repositories/refresh-token/for-user.ts";
+import type { DB, RefreshToken } from "../datasources/db/types.ts";
 
-export class RefreshTokenRepoShared {
+export class RefreshTokenRepo
+  implements IRefreshTokenRepoForAdmin, IRefreshTokenRepoForUser, IRefreshTokenRepoForGuest
+{
   #trx;
   #tenantId;
 

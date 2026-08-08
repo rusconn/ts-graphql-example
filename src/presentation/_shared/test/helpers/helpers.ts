@@ -2,9 +2,9 @@ import type { Transaction } from "kysely";
 
 import type * as Domain from "../../../../domain/entities.ts";
 import type { DB } from "../../../../infrastructure/datasources/db/types.ts";
-import { RefreshTokenRepoShared } from "../../../../infrastructure/repositories/refresh-token/shared.ts";
-import { TodoRepoShared } from "../../../../infrastructure/repositories/todo/shared.ts";
-import { UserRepoShared } from "../../../../infrastructure/repositories/user/shared.ts";
+import { RefreshTokenRepo } from "../../../../infrastructure/repositories/refresh-token.ts";
+import { TodoRepo } from "../../../../infrastructure/repositories/todo.ts";
+import { UserRepo } from "../../../../infrastructure/repositories/user.ts";
 import { CredentialQuery } from "./queries/credential.ts";
 import { RefreshTokenQuery } from "./queries/refresh-token.ts";
 import { TodoQuery } from "./queries/todo.ts";
@@ -23,9 +23,9 @@ export function createQueries(trx: Transaction<DB>) {
 
 export function createRepos(trx: Transaction<DB>) {
   return {
-    refreshToken: new RefreshTokenRepoShared(trx),
-    todo: new TodoRepoShared(trx),
-    user: new UserRepoShared(trx),
+    refreshToken: new RefreshTokenRepo(trx),
+    todo: new TodoRepo(trx),
+    user: new UserRepo(trx),
   };
 }
 

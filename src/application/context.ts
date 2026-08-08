@@ -1,6 +1,6 @@
 import type { OverrideProperties } from "type-fest";
 
-import type { IRefreshTokenReaderRepo } from "../domain/repositories-read/refresh-token/shared.ts";
+import type { IRefreshTokenReaderRepo } from "../domain/repositories-read/refresh-token.ts";
 import type { ITodoReaderRepoForAdmin } from "../domain/repositories-read/todo/for-admin.ts";
 import type { ITodoReaderRepoForUser } from "../domain/repositories-read/todo/for-user.ts";
 import type { IUserReaderRepoForAdmin } from "../domain/repositories-read/user/for-admin.ts";

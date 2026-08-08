@@ -1,6 +1,6 @@
 import { Script, type GlideReturnType } from "@valkey/valkey-glide";
 
-import { getValkey } from "../../datasources/valkey/client.ts";
+import { getValkey } from "../datasources/valkey/client.ts";
 
 // KEYS[1]: バケットキー
 // ARGV[1]: cost

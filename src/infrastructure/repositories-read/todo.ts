@@ -1,10 +1,12 @@
 import type { ReadonlyKysely } from "kysely/readonly";
 
-import type { Todo as Domain } from "../../../domain/entities.ts";
-import type { DB } from "../../datasources/db/types.ts";
-import { toDomain } from "../../repositories/todo/shared.ts";
+import type { Todo as Domain } from "../../domain/entities.ts";
+import type { ITodoReaderRepoForAdmin } from "../../domain/repositories-read/todo/for-admin.ts";
+import type { ITodoReaderRepoForUser } from "../../domain/repositories-read/todo/for-user.ts";
+import type { DB } from "../datasources/db/types.ts";
+import { toDomain } from "../repositories/todo.ts";
 
-export class TodoReaderRepoShared {
+export class TodoReaderRepo implements ITodoReaderRepoForAdmin, ITodoReaderRepoForUser {
   #db;
   #tenantId;
 
