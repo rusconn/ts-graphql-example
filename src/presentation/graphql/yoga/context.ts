@@ -12,7 +12,6 @@ import { kysely } from "../../../infrastructure/datasources/db/client.ts";
 import { pino } from "../../../infrastructure/loggers/pino.ts";
 import * as AccessToken from "../../_shared/auth/access-token.ts";
 import { authenticationError } from "../schema/_errors/global/authentication-error.ts";
-import { badUserInputError } from "../schema/_errors/global/bad-user-input.ts";
 import { tokenExpiredError } from "../schema/_errors/global/token-expired.ts";
 
 export type Context = YogaInitialContext &
@@ -50,7 +49,7 @@ export async function buildContext({
       case "Expired":
         throw tokenExpiredError();
       case "Unknown":
-        throw badUserInputError("Bad token");
+        throw authenticationError();
       default:
         throw new Error(result satisfies never);
     }

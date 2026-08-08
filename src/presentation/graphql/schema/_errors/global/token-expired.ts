@@ -5,7 +5,10 @@ import { ErrorCode } from "../../_types.ts";
 
 export function tokenExpiredError(cause?: unknown) {
   return new GraphQLError("The access token has expired, please refresh the token.", {
-    extensions: { code: ErrorCode.AccessTokenExpired },
+    extensions: {
+      code: ErrorCode.AccessTokenExpired,
+      http: { status: 401 },
+    },
     ...(cause != null && {
       originalError: toError(cause),
     }),

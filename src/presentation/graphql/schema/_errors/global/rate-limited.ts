@@ -7,9 +7,7 @@ export function rateLimitedError(cost: CostExtensions) {
   return new GraphQLError("Too many requests", {
     extensions: {
       code: ErrorCode.RateLimited,
-      http: {
-        status: 429,
-      },
+      http: { status: 429 },
       cost,
     },
   });
