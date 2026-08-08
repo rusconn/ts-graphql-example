@@ -72,26 +72,16 @@ function parseArgs(args: MutationAccountDeleteArgs) {
 }
 
 if (import.meta.vitest) {
-  describe("parsing", () => {
-    const valids: MutationAccountDeleteArgs[] = [
-      { password: "password" },
-      { password: "a".repeat(User.Password.MIN) },
-    ];
+  const { testParseArgs } = await import("../_test/helpers.ts");
 
-    const invalids: [MutationAccountDeleteArgs, (keyof MutationAccountDeleteArgs)[]][] = [
+  testParseArgs(parseArgs, {
+    valids: [
+      { password: "password" }, //
+      { password: "a".repeat(User.Password.MIN) },
+    ],
+    invalids: [
       [{ password: "a".repeat(User.Password.MIN - 1) }, ["password"]],
       [{ password: "a".repeat(User.Password.MAX + 1) }, ["password"]],
-    ];
-
-    it.each(valids)("succeeds when args is valid: %#", (args) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isOk()).toBe(true);
-    });
-
-    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isErr()).toBe(true);
-      expect([parsed._unsafeUnwrapErr().field]).toStrictEqual(fields);
-    });
+    ],
   });
 }

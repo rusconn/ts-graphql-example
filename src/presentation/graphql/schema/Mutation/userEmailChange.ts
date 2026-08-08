@@ -63,26 +63,16 @@ function parseArgs(args: MutationUserEmailChangeArgs) {
 }
 
 if (import.meta.vitest) {
-  describe("parsing", () => {
-    const valids: MutationUserEmailChangeArgs[] = [
+  const { testParseArgs } = await import("../_test/helpers.ts");
+
+  testParseArgs(parseArgs, {
+    valids: [
       { email: "email@example.com" },
       { email: `${"a".repeat(User.Email.MAX - 12)}@example.com` },
-    ];
-
-    const invalids: [MutationUserEmailChangeArgs, (keyof MutationUserEmailChangeArgs)[]][] = [
+    ],
+    invalids: [
       [{ email: `${"a".repeat(User.Email.MAX - 12 + 1)}@example.com` }, ["email"]],
       [{ email: "emailexample.com" }, ["email"]],
-    ];
-
-    it.each(valids)("succeeds when args is valid: %#", (args) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isOk()).toBe(true);
-    });
-
-    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isErr()).toBe(true);
-      expect([parsed._unsafeUnwrapErr().field]).toStrictEqual(fields);
-    });
+    ],
   });
 }

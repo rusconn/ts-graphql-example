@@ -96,8 +96,10 @@ function parseArgs(args: MutationLoginPasswordChangeArgs) {
 }
 
 if (import.meta.vitest) {
-  describe("parsing", () => {
-    const valids: MutationLoginPasswordChangeArgs[] = [
+  const { testParseArgs } = await import("../_test/helpers.ts");
+
+  testParseArgs(parseArgs, {
+    valids: [
       {
         oldPassword: "password",
         newPassword: "password2",
@@ -106,42 +108,29 @@ if (import.meta.vitest) {
         oldPassword: "a".repeat(User.Password.MIN),
         newPassword: "b".repeat(User.Password.MIN),
       },
-    ];
-
-    const invalids: [MutationLoginPasswordChangeArgs, (keyof MutationLoginPasswordChangeArgs)[]][] =
+    ],
+    invalids: [
       [
-        [
-          {
-            oldPassword: "a".repeat(User.Password.MIN - 1),
-            newPassword: "a".repeat(User.Password.MAX),
-          },
-          ["oldPassword"],
-        ],
-        [
-          {
-            oldPassword: "a".repeat(User.Password.MIN),
-            newPassword: "a".repeat(User.Password.MAX + 1),
-          },
-          ["newPassword"],
-        ],
-        [
-          {
-            oldPassword: "a".repeat(User.Password.MAX + 1),
-            newPassword: "a".repeat(User.Password.MIN - 1),
-          },
-          ["oldPassword", "newPassword"],
-        ],
-      ];
-
-    it.each(valids)("succeeds when args is valid: %#", (args) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isOk()).toBe(true);
-    });
-
-    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isErr()).toBe(true);
-      expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);
-    });
+        {
+          oldPassword: "a".repeat(User.Password.MIN - 1),
+          newPassword: "a".repeat(User.Password.MAX),
+        },
+        ["oldPassword"],
+      ],
+      [
+        {
+          oldPassword: "a".repeat(User.Password.MIN),
+          newPassword: "a".repeat(User.Password.MAX + 1),
+        },
+        ["newPassword"],
+      ],
+      [
+        {
+          oldPassword: "a".repeat(User.Password.MAX + 1),
+          newPassword: "a".repeat(User.Password.MIN - 1),
+        },
+        ["oldPassword", "newPassword"],
+      ],
+    ],
   });
 }

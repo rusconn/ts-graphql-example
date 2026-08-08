@@ -105,11 +105,12 @@ function parseArgs(args: MutationTodoUpdateArgs) {
 
 if (import.meta.vitest) {
   const { TodoStatus } = await import("../_types.ts");
+  const { testParseArgs } = await import("../_test/helpers.ts");
 
-  describe("parsing", () => {
-    const id = Todo.Id.create();
+  const id = Todo.Id.create();
 
-    const valids: MutationTodoUpdateArgs[] = [
+  testParseArgs(parseArgs, {
+    valids: [
       { id },
       { id, title: "foo" },
       { id, description: "bar" },
@@ -117,26 +118,14 @@ if (import.meta.vitest) {
       { id, title: "foo", description: "bar", status: TodoStatus.Done },
       { id, title: "a".repeat(Todo.Title.MAX) },
       { id, description: "a".repeat(Todo.Description.MAX) },
-    ];
-
-    const invalids: [MutationTodoUpdateArgs, (keyof Omit<MutationTodoUpdateArgs, "id">)[]][] = [
+    ],
+    invalids: [
       [{ id, title: null }, ["title"]],
       [{ id, description: null }, ["description"]],
       [{ id, status: null }, ["status"]],
       [{ id, title: "a".repeat(Todo.Title.MAX + 1) }, ["title"]],
       [{ id, description: "a".repeat(Todo.Description.MAX + 1) }, ["description"]],
       [{ id, title: null, description: null, status: null }, ["title", "description", "status"]],
-    ];
-
-    it.each(valids)("succeeds when args is valid: %#", (args) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isOk()).toBe(true);
-    });
-
-    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isErr()).toBe(true);
-      expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);
-    });
+    ],
   });
 }

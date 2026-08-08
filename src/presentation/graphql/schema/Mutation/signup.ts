@@ -97,42 +97,32 @@ function parseArgs(args: MutationSignupArgs) {
 }
 
 if (import.meta.vitest) {
-  describe("parsing", () => {
-    const validArgs: MutationSignupArgs = {
-      name: "name",
-      email: "email@example.com",
-      password: "password",
-    };
+  const { testParseArgs } = await import("../_test/helpers.ts");
 
-    const invalidArgs: MutationSignupArgs = {
-      name: "a".repeat(User.Name.MAX + 1),
-      email: `${"a".repeat(User.Email.MAX - 12 + 1)}@example.com`,
-      password: "a".repeat(User.Password.MIN - 1),
-    };
+  const validArgs: MutationSignupArgs = {
+    name: "name",
+    email: "email@example.com",
+    password: "password",
+  };
 
-    const valids: MutationSignupArgs[] = [
+  const invalidArgs: MutationSignupArgs = {
+    name: "a".repeat(User.Name.MAX + 1),
+    email: `${"a".repeat(User.Email.MAX - 12 + 1)}@example.com`,
+    password: "a".repeat(User.Password.MIN - 1),
+  };
+
+  testParseArgs(parseArgs, {
+    valids: [
       { ...validArgs },
       { ...validArgs, name: "a".repeat(User.Name.MAX) },
       { ...validArgs, email: `${"a".repeat(User.Email.MAX - 12)}@example.com` },
       { ...validArgs, password: "a".repeat(User.Password.MIN) },
-    ];
-
-    const invalids: [MutationSignupArgs, (keyof MutationSignupArgs)[]][] = [
+    ],
+    invalids: [
       [{ ...validArgs, name: invalidArgs.name }, ["name"]],
       [{ ...validArgs, email: invalidArgs.email }, ["email"]],
       [{ ...validArgs, password: invalidArgs.password }, ["password"]],
       [{ ...validArgs, ...invalidArgs }, ["name", "email", "password"]],
-    ];
-
-    it.each(valids)("succeeds when args is valid: %#", (args) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isOk()).toBe(true);
-    });
-
-    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isErr()).toBe(true);
-      expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);
-    });
+    ],
   });
 }

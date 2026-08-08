@@ -87,45 +87,28 @@ function parseArgs(args: MutationTodoCreateArgs) {
 }
 
 if (import.meta.vitest) {
-  const { context } = await import("../_test/data.ts");
+  const { testParseArgs } = await import("../_test/helpers.ts");
 
-  const valid = {
-    args: {
-      title: "foo",
-      description: "bar",
-    } as Parameters<typeof createTodo>[1],
-    user: context.admin.user,
+  const validArgs: MutationTodoCreateArgs = {
+    title: "foo",
+    description: "bar",
   };
 
-  const invalid = {
-    args: {
-      title: "a".repeat(Todo.Title.MAX + 1),
-      description: "a".repeat(Todo.Description.MAX + 1),
-    },
+  const invalidArgs: MutationTodoCreateArgs = {
+    title: "a".repeat(Todo.Title.MAX + 1),
+    description: "a".repeat(Todo.Description.MAX + 1),
   };
 
-  describe("parsing", () => {
-    const valids: MutationTodoCreateArgs[] = [
-      { ...valid.args },
-      { ...valid.args, title: "a".repeat(Todo.Title.MAX) },
-      { ...valid.args, description: "a".repeat(Todo.Description.MAX) },
-    ];
-
-    const invalids: [MutationTodoCreateArgs, (keyof MutationTodoCreateArgs)[]][] = [
-      [{ ...valid.args, title: invalid.args.title }, ["title"]],
-      [{ ...valid.args, description: invalid.args.description }, ["description"]],
-      [{ ...valid.args, ...invalid.args }, ["title", "description"]],
-    ];
-
-    it.each(valids)("succeeds when args is valid: %#", (args) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isOk()).toBe(true);
-    });
-
-    it.each(invalids)("failes when args is invalid: %#", (args, fields) => {
-      const parsed = parseArgs(args);
-      expect(parsed.isErr()).toBe(true);
-      expect(parsed._unsafeUnwrapErr().map((e) => e.field)).toStrictEqual(fields);
-    });
+  testParseArgs(parseArgs, {
+    valids: [
+      { ...validArgs },
+      { ...validArgs, title: "a".repeat(Todo.Title.MAX) },
+      { ...validArgs, description: "a".repeat(Todo.Description.MAX) },
+    ],
+    invalids: [
+      [{ ...validArgs, title: invalidArgs.title }, ["title"]],
+      [{ ...validArgs, description: invalidArgs.description }, ["description"]],
+      [{ ...validArgs, ...invalidArgs }, ["title", "description"]],
+    ],
   });
 }
