@@ -10,14 +10,14 @@ import { endpoint } from "../../config/url.ts";
 import { requestId } from "../../lib/graphql-yoga/plugins/request-id.ts";
 import { renderApolloStudio } from "../../lib/graphql-yoga/render-apollo-studio.ts";
 import { resolvers, typeDefs } from "./schema.ts";
-import { buildContext, type PluginContext, type ServerContext } from "./yoga/context.ts";
+import { buildContext, type PluginContext } from "./yoga/context.ts";
 import { complexity } from "./yoga/plugins/complexity.ts";
 import { errorHandling } from "./yoga/plugins/error-handling.ts";
 import { logging } from "./yoga/plugins/logging.ts";
 import { rateLimit } from "./yoga/plugins/rate-limit.ts";
 import { readinessCheck } from "./yoga/plugins/readiness-check.ts";
 
-export const yoga = createYoga<ServerContext & PluginContext, AppContext>({
+export const yoga = createYoga<PluginContext, AppContext>({
   renderGraphiQL: () => renderApolloStudio(endpoint),
   schema: createSchema({ typeDefs, resolvers }),
   context: buildContext,

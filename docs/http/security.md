@@ -2,7 +2,7 @@
 
 - TLS終端は前段任せ
 - 実行タイムアウトは10秒
-- idleタイムアウトはuWS標準(10秒)(スローロリス対策)
+- headersTimeout/requestTimeoutを10秒に設定(スローロリス対策)
 - リクエストボディサイズを制限している
 - CORSはしていない
 - CSRF対策としてrefresh token cookieへ`SameSite=Lax`を設定

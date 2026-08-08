@@ -1,6 +1,5 @@
 import type { YogaInitialContext } from "graphql-yoga";
 import type { Logger } from "pino";
-import type { HttpRequest, HttpResponse } from "uWebSockets.js";
 
 import type {
   AppContext,
@@ -16,8 +15,7 @@ import { authenticationError } from "../schema/_errors/global/authentication-err
 import { badUserInputError } from "../schema/_errors/global/bad-user-input.ts";
 import { tokenExpiredError } from "../schema/_errors/global/token-expired.ts";
 
-export type Context = ServerContext &
-  YogaInitialContext &
+export type Context = YogaInitialContext &
   PluginContext &
   AppContext & {
     logger: Logger;
@@ -27,11 +25,6 @@ export type ContextForAuthed = Context & AppContextForAuthed;
 export type ContextForAdmin = Context & AppContextForAdmin;
 export type ContextForGuest = Context & AppContextForGuest;
 
-export type ServerContext = {
-  req: HttpRequest;
-  res: HttpResponse;
-};
-
 export type PluginContext = {
   requestId?: string;
   queryComplexity?: number;
@@ -40,9 +33,7 @@ export type PluginContext = {
 export async function buildContext({
   request,
   requestId,
-}: ServerContext & YogaInitialContext & PluginContext): Promise<
-  AppContext & { logger: Logger; start: number }
-> {
+}: YogaInitialContext & PluginContext): Promise<AppContext & { logger: Logger; start: number }> {
   const start = Date.now();
 
   const token = request.headers.get("authorization")?.replace("Bearer ", "");
