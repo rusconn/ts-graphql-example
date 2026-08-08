@@ -48,8 +48,9 @@ export function createBodyLimitHandler({
         return;
       }
 
-      // コールバック返却後にArrayBufferが破棄されるため、同期的にfetchへ渡す
-      void respond(res, fetch, url, method, headers, fullBody, controller, requestTimeoutMs);
+      // uWSのArrayBufferはコールバック返却後に破棄され、参照を渡すだけでは受信バッファ再利用時に壊れるため実コピーを渡す
+      const body = fullBody.slice(0);
+      void respond(res, fetch, url, method, headers, body, controller, requestTimeoutMs);
     });
   };
 }
@@ -254,12 +255,16 @@ if (import.meta.vitest) {
       handler(res as unknown as HttpResponse, createFakeReq() as unknown as HttpRequest);
       expect(res.collectBodyMaxSize).toBe(100);
 
-      res.collectBodyCb?.(bytes(100));
+      const received = bytes(100);
+      res.collectBodyCb?.(received);
       await flush();
 
       expect(calls).toHaveLength(1);
       const body = calls[0]?.init.body as ArrayBuffer;
       expect(body.byteLength).toBe(100);
+      // コールバック返却後に無効化されるため、fetchへはコピーが渡されること
+      expect(body).not.toBe(received);
+      expect(new Uint8Array(body)).toEqual(new Uint8Array(received));
     });
 
     it("forwards get requests without a body", async () => {
